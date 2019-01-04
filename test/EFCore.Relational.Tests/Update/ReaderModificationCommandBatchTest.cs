@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public async Task ExecuteAsync_saves_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+            entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
-            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+            entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+            entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+            entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
-            entry.MarkAsTemporary(property);
+            entry.SetTemporaryValue(property, 1);
 
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
-            entry.MarkAsTemporary(property);
+            entry.SetTemporaryValue(property, 1);
 
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
-            entry.MarkAsTemporary(property);
+            entry.SetTemporaryValue(property, 1);
 
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
-            entry.MarkAsTemporary(property);
+            entry.SetTemporaryValue(property, 1);
 
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
-            entry.MarkAsTemporary(property);
+            entry.SetTemporaryValue(property, -1);
 
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();

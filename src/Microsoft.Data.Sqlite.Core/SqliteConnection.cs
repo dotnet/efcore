@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
@@ -19,6 +20,8 @@ namespace Microsoft.Data.Sqlite
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
+
+        private const string DataDirectoryMacro = "|DataDirectory|";
 
         private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
@@ -134,16 +137,6 @@ namespace Microsoft.Data.Sqlite
         /// <value>The transaction currently being used by the connection.</value>
         protected internal virtual SqliteTransaction Transaction { get; set; }
 
-        private void SetState(ConnectionState value)
-        {
-            var originalState = _state;
-            if (originalState != value)
-            {
-                _state = value;
-                OnStateChange(new StateChangeEventArgs(originalState, value));
-            }
-        }
-
         /// <summary>
         ///     Opens a connection to the database using the value of <see cref="ConnectionString" />. If
         ///     <c>Mode=ReadWriteCreate</c> is used (the default) the file is created, if it doesn't already exist.
@@ -215,16 +208,64 @@ namespace Microsoft.Data.Sqlite
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
             if (!string.IsNullOrEmpty(dataDirectory)
                 && (flags & raw.SQLITE_OPEN_URI) == 0
-                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
-                && !Path.IsPathRooted(filename))
+                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
             {
-                filename = Path.Combine(dataDirectory, filename);
+                if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                }
+                else if (!Path.IsPathRooted(filename))
+                {
+                    filename = Path.Combine(dataDirectory, filename);
+                }
+
             }
 
             var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
             SqliteException.ThrowExceptionForRC(rc, _db);
 
-            SetState(ConnectionState.Open);
+            _state = ConnectionState.Open;
+            try
+            {
+                if (!string.IsNullOrEmpty(ConnectionStringBuilder.Password))
+                {
+                    if (SQLitePCLExtensions.EncryptionNotSupported())
+                    {
+                        throw new InvalidOperationException(Resources.EncryptionNotSupported);
+                    }
+
+                    // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
+                    //     quote function before concatenating.
+                    var quotedPassword = this.ExecuteScalar<string>(
+                        "SELECT quote($password);",
+                        new SqliteParameter("$password", ConnectionStringBuilder.Password));
+                    this.ExecuteNonQuery("PRAGMA key = " + quotedPassword + ";");
+
+                    // NB: Forces decryption. Throws when the key is incorrect.
+                    this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
+                }
+
+                if (ConnectionStringBuilder.ForeignKeys)
+                {
+                    this.ExecuteNonQuery("PRAGMA foreign_keys = 1;");
+                }
+
+                if (ConnectionStringBuilder.RecursiveTriggers)
+                {
+                    this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
+                }
+            }
+            catch
+            {
+                _db.Dispose2();
+                _db = null;
+
+                _state = ConnectionState.Closed;
+
+                throw;
+            }
+
+            OnStateChange(new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open));
         }
 
         /// <summary>
@@ -240,19 +281,23 @@ namespace Microsoft.Data.Sqlite
 
             Transaction?.Dispose();
 
-            foreach (var reference in _commands)
+            // command.Dispose() removes itself from _commands
+            for (var i = _commands.Count - 1; i >= 0; i--)
             {
+                var reference = _commands[i];
                 if (reference.TryGetTarget(out var command))
                 {
                     command.Dispose();
                 }
             }
 
-            _commands.Clear();
+            Debug.Assert(_commands.Count == 0);
 
             _db.Dispose2();
             _db = null;
-            SetState(ConnectionState.Closed);
+
+            _state = ConnectionState.Closed;
+            OnStateChange(new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed));
         }
 
         /// <summary>

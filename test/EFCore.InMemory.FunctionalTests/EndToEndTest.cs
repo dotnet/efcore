@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             T entity;
             using (var context = new DbContext(optionsBuilder.Options))
             {
-                var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(new T());
+                var entry = context.GetService<IStateManager>().GetOrCreateEntry(new T());
                 entity = (T)entry.Entity;
 
                 entry[idProperty] = 42;

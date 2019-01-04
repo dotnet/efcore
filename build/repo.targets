@@ -1,8 +1,0 @@
-﻿<Project InitialTargets="TagCiBuilds">
-
-  <Target Name="TagCiBuilds" Condition=" '$(CI)' == 'true' AND '$(BUILD_REASON)' != 'PullRequest' ">
-    <!-- These tags can be used in Azure Pipelines to alter the behavior of release triggers. -->
-    <Message Importance="high" Text="##vso[build.addbuildtag]daily-build" Condition=" '$(IsFinalBuild)' != 'true' " />
-    <Message Importance="high" Text="##vso[build.addbuildtag]release-candidate" Condition=" '$(IsFinalBuild)' == 'true' " />
-  </Target>
-</Project>

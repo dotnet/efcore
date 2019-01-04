@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -179,9 +181,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         protected virtual PropertyMappingValidationConvention CreateConvention()
-            => new PropertyMappingValidationConvention(
-                TestServiceFactory.Instance.Create<FallbackTypeMappingSource>(),
-                TestServiceFactory.Instance.Create<IMemberClassifier>());
+        {
+            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+
+            return new PropertyMappingValidationConvention(
+                typeMappingSource,
+                TestServiceFactory.Instance.Create<IMemberClassifier>(
+                    (typeof(ITypeMappingSource), typeMappingSource)));
+        }
 
         protected class NonPrimitiveNonNavigationAsPropertyEntity
         {

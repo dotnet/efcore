@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -130,158 +131,238 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var propertyInfo = propertyBase.PropertyInfo;
             var fieldInfo = propertyBase.FieldInfo;
+            var setterProperty = propertyInfo?.FindSetterProperty();
+            var getterProperty = propertyInfo?.FindGetterProperty();
+
             var isCollectionNav = (propertyBase as INavigation)?.IsCollection() == true;
+            var hasField = fieldInfo != null;
+            var hasSetter = setterProperty != null;
+            var hasGetter = getterProperty != null;
 
             var mode = propertyBase.GetPropertyAccessMode();
-            if (mode == null
-                || mode == PropertyAccessMode.FieldDuringConstruction)
+
+            if (forConstruction)
             {
-                if (forConstruction
-                    && fieldInfo?.IsInitOnly == false)
+                if (mode == PropertyAccessMode.Field
+                    || mode == PropertyAccessMode.FieldDuringConstruction)
                 {
-                    memberInfo = fieldInfo;
-                    return true;
-                }
-
-                if (forConstruction)
-                {
-                    if (fieldInfo != null)
+                    if (hasField)
                     {
-                        if (!fieldInfo.IsInitOnly)
-                        {
-                            memberInfo = fieldInfo;
-                            return true;
-                        }
-
-                        if (mode == PropertyAccessMode.FieldDuringConstruction
-                            && !isCollectionNav)
-                        {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
-                            return false;
-                        }
-                    }
-
-                    if (mode == PropertyAccessMode.FieldDuringConstruction)
-                    {
-                        if (!isCollectionNav)
-                        {
-                            errorMessage = GetNoFieldErrorMessage(propertyBase);
-                            return false;
-                        }
-
+                        memberInfo = fieldInfo;
                         return true;
                     }
+
+                    if (isCollectionNav)
+                    {
+                        return true;
+                    }
+
+                    errorMessage = GetNoFieldErrorMessage(propertyBase);
+                    return false;
                 }
 
-                if (forSet)
+                if (mode == PropertyAccessMode.Property)
                 {
-                    var setterProperty = propertyInfo?.FindSetterProperty();
-                    if (setterProperty != null)
+                    if (hasSetter)
                     {
                         memberInfo = setterProperty;
                         return true;
                     }
 
-                    if (fieldInfo != null)
+                    if (isCollectionNav)
                     {
-                        if (!fieldInfo.IsInitOnly)
-                        {
-                            memberInfo = fieldInfo;
-                            return true;
-                        }
-
-                        if (!isCollectionNav)
-                        {
-                            errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
-                            return false;
-                        }
+                        return true;
                     }
 
-                    if (!isCollectionNav)
+                    errorMessage = hasGetter
+                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode))
+                        : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+
+                    return false;
+                }
+
+                if (mode == PropertyAccessMode.PreferField
+                    || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+                {
+                    if (hasField)
                     {
-                        errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
-                        return false;
+                        memberInfo = fieldInfo;
+                        return true;
                     }
 
-                    return true;
-                }
-
-                var getterPropertyInfo = propertyInfo?.FindGetterProperty();
-                if (getterPropertyInfo != null)
-                {
-                    memberInfo = getterPropertyInfo;
-                    return true;
-                }
-
-                if (fieldInfo != null)
-                {
-                    memberInfo = fieldInfo;
-                    return true;
-                }
-
-                errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
-                return false;
-            }
-
-            if (mode == PropertyAccessMode.Field)
-            {
-                if (fieldInfo == null)
-                {
-                    if (!forSet
-                        || !isCollectionNav)
+                    if (hasSetter)
                     {
-                        errorMessage = GetNoFieldErrorMessage(propertyBase);
-                        return false;
+                        memberInfo = setterProperty;
+                        return true;
+                    }
+                }
+
+                if (mode == PropertyAccessMode.PreferProperty)
+                {
+                    if (hasSetter)
+                    {
+                        memberInfo = setterProperty;
+                        return true;
                     }
 
-                    return true;
-                }
-
-                if (forSet
-                    && fieldInfo.IsInitOnly)
-                {
-                    if (!isCollectionNav)
+                    if (hasField)
                     {
-                        errorMessage = CoreStrings.ReadonlyField(fieldInfo.Name, propertyBase.DeclaringType.DisplayName());
-                        return false;
+                        memberInfo = fieldInfo;
+                        return true;
                     }
+                }
 
+                if (isCollectionNav)
+                {
                     return true;
                 }
 
-                memberInfo = fieldInfo;
-                return true;
-            }
-
-            if (propertyInfo == null)
-            {
-                errorMessage = CoreStrings.NoProperty(fieldInfo.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
                 return false;
             }
 
             if (forSet)
             {
-                var setterProperty = propertyInfo.FindSetterProperty();
-                if (setterProperty == null
-                    && !isCollectionNav)
+                if (mode == PropertyAccessMode.Field)
                 {
-                    errorMessage = CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                    if (hasField)
+                    {
+                        memberInfo = fieldInfo;
+                        return true;
+                    }
+
+                    if (isCollectionNav)
+                    {
+                        return true;
+                    }
+
+                    errorMessage = GetNoFieldErrorMessage(propertyBase);
                     return false;
                 }
 
-                memberInfo = setterProperty;
-                return true;
-            }
+                if (mode == PropertyAccessMode.Property)
+                {
+                    if (hasSetter)
+                    {
+                        memberInfo = setterProperty;
+                        return true;
+                    }
 
-            var getterProperty = propertyInfo.FindGetterProperty();
-            if (getterProperty == null)
-            {
-                errorMessage = CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                    if (isCollectionNav)
+                    {
+                        return true;
+                    }
+
+                    errorMessage = hasGetter
+                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                        : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+
+                    return false;
+                }
+
+                if (mode == PropertyAccessMode.PreferField)
+                {
+                    if (hasField)
+                    {
+                        memberInfo = fieldInfo;
+                        return true;
+                    }
+
+                    if (hasSetter)
+                    {
+                        memberInfo = setterProperty;
+                        return true;
+                    }
+                }
+
+                if (mode == PropertyAccessMode.PreferProperty
+                    || mode == PropertyAccessMode.FieldDuringConstruction
+                    || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+                {
+                    if (hasSetter)
+                    {
+                        memberInfo = setterProperty;
+                        return true;
+                    }
+
+                    if (hasField)
+                    {
+                        memberInfo = fieldInfo;
+                        return true;
+                    }
+                }
+
+                if (isCollectionNav)
+                {
+                    return true;
+                }
+
+                errorMessage = CoreStrings.NoFieldOrSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
                 return false;
             }
 
-            memberInfo = getterProperty;
-            return true;
+            // forGet
+            if (mode == PropertyAccessMode.Field)
+            {
+                if (hasField)
+                {
+                    memberInfo = fieldInfo;
+                    return true;
+                }
+
+                errorMessage = GetNoFieldErrorMessage(propertyBase);
+                return false;
+            }
+
+            if (mode == PropertyAccessMode.Property)
+            {
+                if (hasGetter)
+                {
+                    memberInfo = getterProperty;
+                    return true;
+                }
+
+                errorMessage = hasSetter
+                    ? CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                    : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+
+                return false;
+            }
+
+            if (mode == PropertyAccessMode.PreferField)
+            {
+                if (hasField)
+                {
+                    memberInfo = fieldInfo;
+                    return true;
+                }
+
+                if (hasGetter)
+                {
+                    memberInfo = getterProperty;
+                    return true;
+                }
+            }
+
+            if (mode == PropertyAccessMode.PreferProperty
+                || mode == PropertyAccessMode.FieldDuringConstruction
+                || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+            {
+                if (hasGetter)
+                {
+                    memberInfo = getterProperty;
+                    return true;
+                }
+
+                if (hasField)
+                {
+                    memberInfo = fieldInfo;
+                    return true;
+                }
+            }
+
+            errorMessage = CoreStrings.NoFieldOrGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName());
+            return false;
         }
 
         private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)

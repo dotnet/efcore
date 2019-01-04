@@ -24,12 +24,18 @@ namespace Microsoft.Data.Sqlite
         private const string ModeKeyword = "Mode";
         private const string CacheKeyword = "Cache";
         private const string FilenameKeyword = "Filename";
+        private const string PasswordKeyword = "Password";
+        private const string ForeignKeysKeyword = "Foreign Keys";
+        private const string RecursiveTriggersKeywrod = "Recursive Triggers";
 
         private enum Keywords
         {
             DataSource,
             Mode,
-            Cache
+            Cache,
+            Password,
+            ForeignKeys,
+            RecursiveTriggers
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -38,20 +44,30 @@ namespace Microsoft.Data.Sqlite
         private string _dataSource = string.Empty;
         private SqliteOpenMode _mode = SqliteOpenMode.ReadWriteCreate;
         private SqliteCacheMode _cache = SqliteCacheMode.Default;
+        private string _password = string.Empty;
+        private bool _foreignKeys;
+        private bool _recursiveTriggers;
+
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[3];
+            var validKeywords = new string[6];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
+            validKeywords[(int)Keywords.Password] = PasswordKeyword;
+            validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
+            validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeywrod;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(3, StringComparer.OrdinalIgnoreCase)
+            _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
                 [ModeKeyword] = Keywords.Mode,
                 [CacheKeyword] = Keywords.Cache,
+                [PasswordKeyword] = Keywords.Password,
+                [ForeignKeysKeyword] = Keywords.ForeignKeys,
+                [RecursiveTriggersKeywrod] = Keywords.RecursiveTriggers,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
@@ -132,6 +148,42 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets the encryption key. Warning, this has no effect when the native SQLite library doesn't
+        ///     support encryption. When specified, <c>PRAGMA key</c> is sent immediately after opening the connection.
+        /// </summary>
+        /// <value>The encryption key.</value>
+        public string Password
+        {
+            get => _password;
+            set => base[PasswordKeyword] = _password = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to enable foreign key constraints. When true,
+        ///     <c>PRAGMA foreign_keys</c> is sent immediately after opening the connection. When false, no pragma is
+        ///     sent. There is no need to specify this if, like in e_sqlite3, SQLITE_DEFAULT_FOREIGN_KEYS was used to
+        ///     compile the native library.
+        /// </summary>
+        /// <value>A value indicating whether to enable foreign key constraints.</value>
+        public bool ForeignKeys
+        {
+            get => _foreignKeys;
+            set => base[ForeignKeysKeyword] = _foreignKeys = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether to enable recursive triggers. When true,
+        ///     <c>PRAGMA recursive_triggers</c> is sent immediately after opening the connection. When false, no pragma
+        ///     is sent.
+        /// </summary>
+        /// <value>A value indicating whether to enable recursive triggers.</value>
+        public bool RecursiveTriggers
+        {
+            get => _recursiveTriggers;
+            set => base[RecursiveTriggersKeywrod] = _recursiveTriggers = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -160,6 +212,18 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.Cache:
                         Cache = ConvertToEnum<SqliteCacheMode>(value);
+                        return;
+
+                    case Keywords.Password:
+                        Password = Convert.ToString(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.ForeignKeys:
+                        ForeignKeys = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.RecursiveTriggers:
+                        RecursiveTriggers = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -281,6 +345,15 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Cache:
                     return Cache;
 
+                case Keywords.Password:
+                    return Password;
+
+                case Keywords.ForeignKeys:
+                    return ForeignKeys;
+
+                case Keywords.RecursiveTriggers:
+                    return RecursiveTriggers;
+
                 default:
                     Debug.Assert(false, "Unexpected keyword: " + index);
                     return null;
@@ -306,6 +379,18 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.Cache:
                     _cache = SqliteCacheMode.Default;
+                    return;
+
+                case Keywords.Password:
+                    _password = string.Empty;
+                    return;
+
+                case Keywords.ForeignKeys:
+                    _foreignKeys = false;
+                    return;
+
+                case Keywords.RecursiveTriggers:
+                    _recursiveTriggers = false;
                     return;
 
                 default:

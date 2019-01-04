@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
+        private Func<InternalEntityEntry, ISnapshot> _sidecarValuesFactory;
         private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
         private Func<ISnapshot> _emptyShadowValuesFactory;
 
@@ -1887,6 +1888,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _originalValuesFactory, this,
                 entityType => new OriginalValuesFactoryFactory().Create(entityType));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<InternalEntityEntry, ISnapshot> SidecarValuesFactory
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _sidecarValuesFactory, this,
+                entityType => new SidecarValuesFactoryFactory().Create(entityType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

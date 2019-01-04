@@ -4,15 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
-
-#if !NETCOREAPP2_0
-using System.Data.Common;
-#endif
 
 namespace Microsoft.Data.Sqlite
 {
@@ -128,6 +127,31 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Open_adjusts_data_directory_path()
+        {
+            string dataSubDirectory = Path.Combine(AppContext.BaseDirectory, "DataFolder");
+
+            if (!Directory.Exists(dataSubDirectory))
+                Directory.CreateDirectory(dataSubDirectory);
+
+            AppDomain.CurrentDomain.SetData("DataDirectory", dataSubDirectory);
+
+            try
+            {
+                using (var connection = new SqliteConnection("Data Source=|DataDirectory|local.db"))
+                {
+                    connection.Open();
+
+                    Assert.Equal(Path.Combine(dataSubDirectory, "local.db"), connection.DataSource);
+                }
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.SetData("DataDirectory", null);
+            }
+        }
+
+        [Fact]
         public void Open_adjusts_relative_path()
         {
             using (var connection = new SqliteConnection("Data Source=local.db"))
@@ -235,6 +259,87 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Open_works_when_password()
+        {
+            switch (SQLitePCLExtensions.GetProviderName())
+            {
+                case "SQLite3Provider_e_sqlite3":
+                    Open_works_when_password_e_sqlite3();
+                    break;
+
+                // NB: Change project dependencies to test this
+                case "SQLite3Provider_sqlcipher":
+                    Open_works_when_password_sqlcipher();
+                    break;
+            }
+        }
+
+        private void Open_works_when_password_e_sqlite3()
+        {
+            using (var connection = new SqliteConnection("Data Source=encrypted.db;Password=password"))
+            {
+                var stateChangeRaised = false;
+                connection.StateChange += (object sender, StateChangeEventArgs e) => stateChangeRaised = true;
+
+                var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
+
+                Assert.Equal(Resources.EncryptionNotSupported, ex.Message);
+                Assert.False(stateChangeRaised);
+                Assert.Equal(ConnectionState.Closed, connection.State);
+            }
+        }
+
+        private void Open_works_when_password_sqlcipher()
+        {
+            var es = new CultureInfo("es");
+            Thread.CurrentThread.CurrentCulture = es;
+            Thread.CurrentThread.CurrentUICulture = es;
+
+            using (var connection1 = new SqliteConnection("Data Source=encrypted.db;Password=password"))
+            {
+                connection1.Open();
+
+                // NB: The file is only encrypted after writing
+                connection1.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS dual (dummy)");
+
+                using (var connection2 = new SqliteConnection("Data Source=encrypted.db"))
+                {
+                    var stateChangeRaised = false;
+                    connection2.StateChange += (object sender, StateChangeEventArgs e) => stateChangeRaised = true;
+
+                    var ex = Assert.Throws<SqliteException>(() => connection2.Open());
+
+                    Assert.Equal(raw.SQLITE_NOTADB, ex.SqliteErrorCode);
+                    Assert.False(stateChangeRaised);
+                    Assert.Equal(ConnectionState.Closed, connection2.State);
+                }
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_foreign_keys()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True"))
+            {
+                connection.Open();
+
+                // NB: Always passes when compile-time option SQLITE_DEFAULT_FOREIGN_KEYS=1
+                Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA foreign_keys;"));
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_recursive_triggers()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:;Recursive Triggers=True"))
+            {
+                connection.Open();
+
+                Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA recursive_triggers;"));
+            }
+        }
+
+        [Fact]
         public void BackupDatabase_works()
         {
             using (var connection1 = new SqliteConnection("Data Source=:memory:"))
@@ -308,7 +413,6 @@ namespace Microsoft.Data.Sqlite
 
                     var ex = Assert.Throws<SqliteException>(() => source.BackupDatabase(destination));
                     Assert.Equal(raw.SQLITE_BUSY, ex.SqliteErrorCode);
-                    Assert.Contains(raw.sqlite3_errstr(raw.SQLITE_BUSY), ex.Message);
                 }
             }
         }
@@ -441,7 +545,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(
                     () => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
 
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such collation sequence: MY_NOCASE"), ex.Message);
             }
         }
 
@@ -552,7 +656,6 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
 
                 Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -567,7 +670,6 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
 
                 Assert.Equal(Resources.SqliteNativeError(200, "Test"), ex.Message);
-                Assert.Equal(200, ex.SqliteErrorCode);
             }
         }
 
@@ -583,7 +685,6 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
 
                 Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such function: test"), ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -642,7 +743,6 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(
                     Resources.SqliteNativeError(raw.SQLITE_ERROR, Resources.UDFCalledWithNull("test", 0)),
                     ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -721,7 +821,6 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(
                     Resources.SqliteNativeError(raw.SQLITE_ERROR, "non-deterministic functions prohibited in partial index WHERE clauses"),
                     ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -808,7 +907,6 @@ namespace Microsoft.Data.Sqlite
                     () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
                 Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -825,7 +923,6 @@ namespace Microsoft.Data.Sqlite
                     () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
                 Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -842,7 +939,6 @@ namespace Microsoft.Data.Sqlite
                     () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
                 Assert.Equal(Resources.SqliteNativeError(200, "Test"), ex.Message);
-                Assert.Equal(200, ex.SqliteErrorCode);
             }
         }
 
@@ -860,7 +956,6 @@ namespace Microsoft.Data.Sqlite
                     () => connection.ExecuteScalar<long>("SELECT test() FROM dual;"));
 
                 Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such function: test"), ex.Message);
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -985,7 +1080,6 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-#if !NETCOREAPP2_0
         [Fact]
         public void DbProviderFactory_works()
         {
@@ -995,6 +1089,5 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Same(SqliteFactory.Instance, result);
         }
-#endif
     }
 }

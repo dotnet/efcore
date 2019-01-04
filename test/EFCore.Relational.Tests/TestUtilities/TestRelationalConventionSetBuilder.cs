@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                         new FakeDiagnosticsLogger<DbLoggerCategory.Model>(),
                         null,
-                        null,
                         null))
                 .AddConventions(
                     TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()

@@ -2758,7 +2758,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("GeoAPI"),
                     BuildReference.ByName("NetTopologySuite"),
-                    BuildReference.ByName("System.Runtime.Extensions"),
                 },
                 Sources =
                 {

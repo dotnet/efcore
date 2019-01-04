@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Inverse: ").Append(navigation.FindInverse().Name);
             }
 
-            if (navigation.GetPropertyAccessMode() != null)
+            if (navigation.GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(navigation.GetPropertyAccessMode());
             }

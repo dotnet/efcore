@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -302,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static BinaryExpression CreateAssignExpression(
-            [NotNull] this Expression left,
+        public static Expression CreateAssignExpression(
+            [NotNull] this MemberExpression left,
             [NotNull] Expression right)
         {
             var leftType = left.Type;
@@ -313,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 right = Expression.Convert(right, leftType);
             }
 
-            return Expression.Assign(left, right);
+            return left.Assign(right);
         }
 
         /// <summary>
@@ -428,5 +430,48 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static ConstantExpression GenerateDefaultValueConstantExpressionInternal<TDefault>()
             => Expression.Constant(default(TDefault));
-    }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Expression Assign(
+            [NotNull] this MemberExpression memberExpression,
+            [NotNull] Expression valueExpression)
+        {
+            if (memberExpression.Member is FieldInfo fieldInfo
+                && fieldInfo.IsInitOnly)
+            {
+                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier == ".NETCoreApp")
+                {
+                    return (BinaryExpression)Activator.CreateInstance(
+                        _assignBinaryExpressionType,
+                        BindingFlags.NonPublic | BindingFlags.Instance,
+                        null,
+                        new object[] { memberExpression, valueExpression },
+                        null);
+                }
+
+                // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
+                // so use Reflection's SetValue instead.
+                return Expression.Call(
+                    Expression.Constant(fieldInfo),
+                    _fieldInfoSetValueMethod,
+                    memberExpression.Expression,
+                    Expression.Convert(
+                        valueExpression,
+                        typeof(object)));
+            }
+
+            return Expression.Assign(memberExpression, valueExpression);
+        }
+
+        private static readonly Type _assignBinaryExpressionType
+            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+
+        private static readonly MethodInfo _fieldInfoSetValueMethod
+            = typeof(FieldInfo)
+                .GetTypeInfo()
+                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
+                .Single(m => m.GetParameters().Length == 2);    }
 }

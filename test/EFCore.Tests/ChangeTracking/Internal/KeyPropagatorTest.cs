@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             PropagateValue(keyPropagator, dependentEntry, dependentProperty, async);
 
             Assert.NotEqual(0, principalEntry[principalProperty]);
-            Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(dependentProperty));
+            Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(principalProperty));
             Assert.NotEqual(0, dependentEntry[dependentProperty]);
             Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(dependentProperty));
             Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);

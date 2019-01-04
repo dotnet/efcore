@@ -2520,10 +2520,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         ///     <para>
-        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key
-        ///         in the result set are represented by the same entity instance.
-        ///     </para>
-        ///     <para>
         ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
         ///     </para>
         /// </summary>
@@ -2550,7 +2546,9 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo AsTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(AsTracking));
+                .GetTypeInfo()
+                .GetDeclaredMethods(nameof(AsTracking))
+                .Single(m => m.GetParameters().Length == 1);
 
         /// <summary>
         ///     <para>
@@ -2582,6 +2580,39 @@ namespace Microsoft.EntityFrameworkCore
                             arguments: source.Expression))
                     : source;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query where the change tracker will either keep track of changes or not for all entities
+        ///         that are returned, depending on the value of the 'track' parameter. When tracking, Any modification
+        ///         to the entity instances will be detected and persisted to the database during
+        ///         <see cref="DbContext.SaveChanges()" />. When not tracking, if the entity instances are modified, this will
+        ///         not be detected by the change tracker and <see cref="DbContext.SaveChanges()" /> will not persist those
+        ///         changes to the database.
+        ///     </para>
+        ///     <para>
+        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting
+        ///         up change tracking for each entity instance. You should not disable change tracking if you want to
+        ///         manipulate entity instances and persist those changes to the database using
+        ///         <see cref="DbContext.SaveChanges()" />.
+        ///     </para>
+        ///     <para>
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="track"> Indicates whether the query will track results or not. </param>
+        /// <returns>
+        ///     A new query where the result set will be tracked by the context.
+        /// </returns>
+        public static IQueryable<TEntity> AsTracking<TEntity>(
+            [NotNull] this IQueryable<TEntity> source,
+            QueryTrackingBehavior track)
+            where TEntity : class
+            => track == QueryTrackingBehavior.TrackAll
+                ? source.AsTracking()
+                : source.AsNoTracking();
 
         #endregion
 

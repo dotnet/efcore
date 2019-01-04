@@ -225,4 +225,7 @@
   <data name="WriteNotSupported" xml:space="preserve">
     <value>Stream does not support writing.</value>
   </data>
+  <data name="EncryptionNotSupported" xml:space="preserve">
+    <value>You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.</value>
+  </data>
 </root>

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
             var sqliteTranslators = new List<IMemberTranslator>
             {
                 new SqliteDateTimeMemberTranslator(),
-                new SqliteStringLengthTranslator()
+                new SqliteLengthTranslator()
             };
 
             AddTranslators(sqliteTranslators);

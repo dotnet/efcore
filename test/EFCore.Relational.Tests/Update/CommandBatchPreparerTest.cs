@@ -451,11 +451,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     Value = "Test"
                 });
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(entry.EntityType.FindProperty(nameof(FakeEntity.Value)));
 
             Assert.Equal(
                 CoreStrings.TempValue(nameof(FakeEntity.Value), nameof(FakeEntity)),
-                Assert.Throws<InvalidOperationException>(() => CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToList()).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => entry.SetTemporaryValue(entry.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test")).Message);
         }
 
         [InlineData(true)]

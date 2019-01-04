@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackTypeMappingSource>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -209,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
+                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>())
                     .Apply(entityBuilder));
 
             Assert.Equal(
@@ -231,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
+                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>())
                     .Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());

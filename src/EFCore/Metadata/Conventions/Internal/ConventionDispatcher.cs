@@ -298,25 +298,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private class ConventionBatch : IConventionBatch
         {
             private readonly ConventionDispatcher _dispatcher;
-            private int _runCount;
+            private int? _runCount;
 
             public ConventionBatch(ConventionDispatcher dispatcher)
             {
                 _dispatcher = dispatcher;
-                var currentScope = _dispatcher._scope;
-
-                if (currentScope.Children?[currentScope.Children.Count - 1] is ConventionScope lastScope
-                    && lastScope.Children == null)
+                if (_dispatcher._scope == _dispatcher._immediateConventionScope)
                 {
-                    dispatcher._scope = lastScope;
-                    return;
-                }
-
-                dispatcher._scope = new ConventionScope(currentScope);
-
-                if (currentScope != _dispatcher._immediateConventionScope)
-                {
-                    currentScope.Add(dispatcher._scope);
+                    _runCount = 0;
+                    dispatcher._scope = new ConventionScope(_dispatcher._scope);
                 }
             }
 
@@ -358,6 +348,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public ForeignKey Run(ForeignKey foreignKey)
             {
+                if (_runCount == null)
+                {
+                    return foreignKey;
+                }
+
                 using (var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey))
                 {
                     Run();

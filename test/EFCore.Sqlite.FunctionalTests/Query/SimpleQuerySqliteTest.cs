@@ -1,8 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -72,7 +76,7 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatet
             AssertSql(
                 @"SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
 FROM ""Employees"" AS ""e""
-WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.'), 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')");
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')");
         }
 
         public override async Task Where_datetime_date_component(bool isAsync)
@@ -598,6 +602,19 @@ WHERE ""p"".""ProductID"" < 40");
 FROM ""Orders"" AS ""o""");
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_datetime_year_component_composed(bool isAsync)
+        {
+            await AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderDate.Value.AddYears(1).Year));
+
+            AssertSql(
+                @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
         public override async Task Select_datetime_month_component(bool isAsync)
         {
             await base.Select_datetime_month_component(isAsync);
@@ -661,6 +678,19 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
+        {
+            await AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
+
+            AssertSql(
+                @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000) % 1000
+FROM ""Orders"" AS ""o""");
+        }
+
         public override async Task Select_datetime_DayOfWeek_component(bool isAsync)
         {
             await base.Select_datetime_DayOfWeek_component(isAsync);
@@ -676,6 +706,28 @@ FROM ""Orders"" AS ""o""");
 
             AssertSql(
                 @"SELECT CAST((julianday(""o"".""OrderDate"") - 1721425.5) * 864000000000 AS INTEGER)
+FROM ""Orders"" AS ""o""");
+        }
+
+        public override async Task Select_datetime_TimeOfDay_component(bool isAsync)
+        {
+            await base.Select_datetime_TimeOfDay_component(isAsync);
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate""), '0'), '.')
+FROM ""Orders"" AS ""o""");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_datetime_TimeOfDay_component_composed(bool isAsync)
+        {
+            await AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
+
+            AssertSql(
+                @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.')
 FROM ""Orders"" AS ""o""");
         }
 
@@ -766,7 +818,7 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             AssertSql(
                 @"@__millisecondsPerDay_0='86400000' (DbType = String)
 
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) / @__millisecondsPerDay_0 AS TEXT) || ' days'), '0'), '.'), CAST((((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) % @__millisecondsPerDay_0) / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) / @__millisecondsPerDay_0 AS TEXT) || ' days', CAST((((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) % @__millisecondsPerDay_0) / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }

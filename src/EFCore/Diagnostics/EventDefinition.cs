@@ -67,19 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="exception"> Optional exception associated with the event. </param>
-        [Obsolete("Use the other overload")]
-        public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            [CanBeNull] Exception exception = null)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => Log(logger, GetLogBehavior(logger), exception);
-
-        /// <summary>
-        ///     Logs the event, or throws if the event has been configured to be treated as an error.
-        /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
-        /// <param name="logger"> The logger to which the event should be logged. </param>
         /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="exception"> Optional exception associated with the event. </param>
         public virtual void Log<TLoggerCategory>(

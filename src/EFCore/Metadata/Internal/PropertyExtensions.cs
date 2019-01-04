@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return currentProperty;
                 }
 
-                foreach (var foreignKey in currentProperty.DeclaringEntityType.GetForeignKeys())
+                foreach (var foreignKey in currentProperty.GetContainingForeignKeys())
                 {
                     for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
                     {
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Ansi");
             }
 
-            if (property.GetPropertyAccessMode() != null)
+            if (property.GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }

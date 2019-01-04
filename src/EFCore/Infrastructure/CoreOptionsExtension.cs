@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
     /// </summary>
-    public class CoreOptionsExtension : IDbContextOptionsExtensionWithDebugInfo
+    public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         private IServiceProvider _internalServiceProvider;
         private IServiceProvider _applicationServiceProvider;

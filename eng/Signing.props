@@ -1,0 +1,14 @@
+<Project>
+  <ItemGroup>
+    <!-- Third-party assemblies should be signed with the 3rd party certificate -->
+    <FileSignInfo Include="Newtonsoft.Json.dll" CertificateName="3PartySHA2" />
+    
+    <!-- HACK: Work around dotnet/arcade#1634 -->
+    <FileSignInfo Include="EntityFrameworkCore.PowerShell2.psd1" CertificateName="None" />
+    <FileSignInfo Include="EntityFrameworkCore.PowerShell2.psm1" CertificateName="None" />
+    <FileSignInfo Include="EntityFrameworkCore.psd1" CertificateName="None" />
+    <FileSignInfo Include="EntityFrameworkCore.psm1" CertificateName="None" />
+    <FileSignInfo Include="init.ps1" CertificateName="None" />
+    <FileSignInfo Include="install.ps1" CertificateName="None" />
+  </ItemGroup>
+</Project>

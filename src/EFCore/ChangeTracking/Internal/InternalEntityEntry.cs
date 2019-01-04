@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private StateData _stateData;
         private OriginalValues _originalValues;
         private RelationshipsSnapshot _relationshipsSnapshot;
-        private StoreGeneratedValues _storeGeneratedValues;
+        private SidecarValues _temporaryValues;
+        private SidecarValues _storeGeneratedValues;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (EntityState == EntityState.Modified)
             {
                 _stateData.FlagAllProperties(
-                    EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
+                    EntityType.PropertyCount(), PropertyFlag.Modified,
                     flagged: false);
             }
 
@@ -189,14 +190,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: true);
+                _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
 
                 // Hot path; do not use LINQ
                 foreach (var property in entityType.GetProperties())
                 {
                     if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
                     {
-                        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: false);
+                        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
                     }
                 }
 
@@ -211,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (newState == EntityState.Unchanged)
             {
                 _stateData.FlagAllProperties(
-                    EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
+                    EntityType.PropertyCount(), PropertyFlag.Modified,
                     flagged: false);
             }
 
@@ -245,21 +246,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (newState == EntityState.Detached)
             {
-                if (oldState == EntityState.Added)
-                {
-                    foreach (var property in entityType.GetProperties()
-                        .Where(
-                            p =>
-                            {
-                                var propertyIndex = p.GetIndex();
-                                return _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.TemporaryOrModified)
-                                       && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
-                            }))
-                    {
-                        this[property] = property.ClrType.GetDefaultValue();
-                    }
-                }
-
                 StateManager.StopTracking(this);
             }
 
@@ -369,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var propertyIndex = property.GetIndex();
 
             return _stateData.EntityState == EntityState.Modified
-                   && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.TemporaryOrModified)
+                   && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Modified)
                    && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
         }
 
@@ -392,16 +378,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || currentState == EntityState.Detached
                 || !changeState)
             {
-                if (!_storeGeneratedValues.TryGetValue(property, out _))
+                var index = property.GetOriginalValueIndex();
+                if (index != -1
+                    && !IsConceptualNull(property))
                 {
-                    MarkAsTemporary(property, isTemporary: false);
-
-                    var index = property.GetOriginalValueIndex();
-                    if (index != -1
-                        && !IsConceptualNull(property))
-                    {
-                        SetOriginalValue(property, this[property], index);
-                    }
+                    SetOriginalValue(property, this[property], index);
                 }
             }
 
@@ -432,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     SetProperty(property, GetOriginalValue(property), setModified: false);
                 }
 
-                _stateData.FlagProperty(propertyIndex, PropertyFlag.TemporaryOrModified, isModified);
+                _stateData.FlagProperty(propertyIndex, PropertyFlag.Modified, isModified);
             }
 
             if (isModified
@@ -459,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else if (currentState == EntityState.Modified
                      && changeState
                      && !isModified
-                     && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
+                     && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified))
             {
                 StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
@@ -487,26 +468,73 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasTemporaryValue(IProperty property)
-            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
-               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified)
-               && (_storeGeneratedValues.IsEmpty
-                   || !_storeGeneratedValues.TryGetValue(property, out _));
+            => GetValueType(property) == CurrentValueType.Temporary;
+
+        private CurrentValueType GetValueType(
+            IProperty property,
+            Func<object, object, bool> equals = null)
+        {
+            var tempIndex = property.GetStoreGeneratedIndex();
+            if (tempIndex == -1)
+            {
+                return CurrentValueType.Normal;
+            }
+
+            if (equals == null)
+            {
+                equals = ValuesEqualFunc(property);
+            }
+
+            var defaultValue = property.ClrType.GetDefaultValue();
+            var value = ReadPropertyValue(property);
+            if (!equals(value, defaultValue))
+            {
+                return CurrentValueType.Normal;
+            }
+
+            if (_storeGeneratedValues.TryGetValue(tempIndex, out value)
+                && !equals(value, defaultValue))
+            {
+                return CurrentValueType.StoreGenerated;
+            }
+
+            if (_temporaryValues.TryGetValue(tempIndex, out value)
+                && !equals(value, defaultValue))
+            {
+                return CurrentValueType.Temporary;
+            }
+
+            return CurrentValueType.Normal;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
+        public virtual void SetTemporaryValue([NotNull] IProperty property, object value, bool setModified = true)
         {
-            if (_stateData.EntityState != EntityState.Added
-                && _stateData.EntityState != EntityState.Detached)
+            if (property.GetStoreGeneratedIndex() == -1)
             {
-                return;
+                throw new InvalidOperationException(
+                    CoreStrings.TempValue(property.Name, EntityType.DisplayName()));
             }
 
-            var index = property.GetIndex();
-            _stateData.FlagProperty(index, PropertyFlag.TemporaryOrModified, isTemporary);
-            _stateData.FlagProperty(index, PropertyFlag.Unknown, isFlagged: false);
+            SetProperty(property, value, setModified, CurrentValueType.Temporary);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetStoreGeneratedValue(IProperty property, object value)
+        {
+            if (property.GetStoreGeneratedIndex() == -1)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.StoreGenValue(property.Name, EntityType.DisplayName()));
+            }
+
+            SetProperty(property, value, setModified: true, CurrentValueType.StoreGenerated);
         }
 
         /// <summary>
@@ -552,8 +580,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue));
 
         [UsedImplicitly]
-        private T ReadStoreGeneratedValue<T>(T currentValue, int storeGeneratedIndex)
-            => _storeGeneratedValues.GetValue(currentValue, storeGeneratedIndex);
+        private T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
+            => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
+
+        internal static readonly MethodInfo ReadTemporaryValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue));
+
+        [UsedImplicitly]
+        private T ReadTemporaryValue<T>(int storeGeneratedIndex)
+            => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
             =
@@ -696,13 +731,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetCurrentValue(IPropertyBase propertyBase, object value)
-            => this[propertyBase] = value;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual void SetOriginalValue(
             [NotNull] IPropertyBase propertyBase, [CanBeNull] object value,
             int index = -1)
@@ -721,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var currentValue = this[propertyBase];
                 var propertyIndex = property.GetIndex();
-                if (!ValuesEqual(property, currentValue, value)
+                if (!ValuesEqualFunc(property)(currentValue, value)
                     && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown))
                 {
                     SetPropertyModified(property);
@@ -748,6 +776,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (_originalValues.IsEmpty)
             {
                 _originalValues = new OriginalValues(this);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void EnsureTemporaryValues()
+        {
+            if (_temporaryValues.IsEmpty)
+            {
+                _temporaryValues = new SidecarValues(this);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void EnsureStoreGeneratedValues()
+        {
+            if (_storeGeneratedValues.IsEmpty)
+            {
+                _storeGeneratedValues = new SidecarValues(this);
             }
         }
 
@@ -815,9 +867,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object this[[NotNull] IPropertyBase propertyBase]
         {
-            get => _storeGeneratedValues.TryGetValue(propertyBase, out var value)
-                ? value
-                : ReadPropertyValue(propertyBase);
+            get
+            {
+                var value = ReadPropertyValue(propertyBase);
+
+                var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
+                if (storeGeneratedIndex != -1)
+                {
+                    var propertyClrType = propertyBase.ClrType;
+                    var defaultValue = propertyClrType.GetDefaultValue();
+                    var property = (IProperty)propertyBase;
+
+                    var equals = ValuesEqualFunc(property);
+
+                    if (equals(value, defaultValue))
+                    {
+                        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                            && !equals(generatedValue, defaultValue))
+                        {
+                            return generatedValue;
+                        }
+
+                        if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
+                            && !equals(generatedValue, defaultValue))
+                        {
+                            return generatedValue;
+                        }
+                    }
+                }
+
+                return value;
+            }
 
             [param: CanBeNull] set => SetProperty(propertyBase, value);
         }
@@ -827,92 +907,142 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void SetProperty(
-            [NotNull] IPropertyBase propertyBase, [CanBeNull] object value, bool setModified = true)
+            [NotNull] IPropertyBase propertyBase,
+            [CanBeNull] object value,
+            bool setModified = true)
+            => SetProperty(propertyBase, value, setModified, CurrentValueType.Normal);
+
+        private void SetProperty(
+            [NotNull] IPropertyBase propertyBase,
+            [CanBeNull] object value,
+            bool setModified,
+            CurrentValueType valueType)
         {
-            if (_storeGeneratedValues.CanStoreValue(propertyBase))
+            var currentValue = this[propertyBase];
+
+            var asProperty = propertyBase as Property;
+            int propertyIndex;
+            CurrentValueType currentValueType;
+            Func<object, object, bool> equals;
+
+            if (asProperty != null)
             {
-                StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
-                _storeGeneratedValues.SetValue(propertyBase, value);
-                StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
+                propertyIndex = asProperty.GetIndex();
+                equals = ValuesEqualFunc(asProperty);
+                currentValueType = GetValueType(asProperty, equals);
             }
             else
             {
-                var currentValue = this[propertyBase];
+                propertyIndex = -1;
+                equals = (l, r) => ReferenceEquals(l, r);
+                currentValueType = CurrentValueType.Normal;
+            }
 
-                var asProperty = propertyBase as Property;
-                var propertyIndex = asProperty?.GetIndex();
+            var valuesEqual = equals(currentValue, value);
 
-                var valuesEqual = asProperty != null
-                    ? ValuesEqual(asProperty, value, currentValue)
-                    : ReferenceEquals(currentValue, value);
+            if (!valuesEqual
+                || (propertyIndex != -1
+                    && (_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown)
+                        || _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Null)
+                        || valueType != currentValueType)))
+            {
+                var writeValue = true;
 
-                if (!valuesEqual
-                    || (propertyIndex.HasValue
-                        && (_stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)
-                            || _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Null)
-                            || _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.TemporaryOrModified))))
+                if (asProperty != null
+                    && valueType == CurrentValueType.Normal
+                    && (!asProperty.ClrType.IsNullableType()
+                        || asProperty.GetContainingForeignKeys().Any(
+                            fk => (fk.DeleteBehavior == DeleteBehavior.Cascade)
+                                  && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
                 {
-                    var writeValue = true;
-
-                    if (asProperty != null
-                        && (!asProperty.ClrType.IsNullableType()
-                            || asProperty.GetContainingForeignKeys().Any(
-                                fk => (fk.DeleteBehavior == DeleteBehavior.Cascade)
-                                      && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
+                    if (value == null)
                     {
-                        if (value == null)
+                        if (EntityState != EntityState.Deleted
+                            && EntityState != EntityState.Detached)
                         {
-                            if (EntityState != EntityState.Deleted
-                                && EntityState != EntityState.Detached)
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.Null, isFlagged: true);
+
+                            if (setModified)
                             {
-                                _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: true);
-
-                                if (setModified)
-                                {
-                                    SetPropertyModified(
-                                        asProperty, changeState: true, isModified: true,
-                                        isConceptualNull: true);
-                                }
+                                SetPropertyModified(
+                                    asProperty, changeState: true, isModified: true,
+                                    isConceptualNull: true);
                             }
+                        }
 
-                            writeValue = false;
+                        writeValue = false;
+                    }
+                    else
+                    {
+                        _stateData.FlagProperty(propertyIndex, PropertyFlag.Null, isFlagged: false);
+                    }
+                }
+
+                if (writeValue)
+                {
+                    StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
+
+                    if (valueType == CurrentValueType.Normal)
+                    {
+                        WritePropertyValue(propertyBase, value);
+                    }
+                    else
+                    {
+                        var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                        Debug.Assert(storeGeneratedIndex >= 0);
+
+                        if (valueType == CurrentValueType.StoreGenerated)
+                        {
+                            EnsureStoreGeneratedValues();
+                            _storeGeneratedValues.SetValue(asProperty, value, storeGeneratedIndex);
                         }
                         else
                         {
-                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Null, isFlagged: false);
-                        }
-                    }
-
-                    if (writeValue)
-                    {
-                        StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
-                        WritePropertyValue(propertyBase, value);
-
-                        if (propertyIndex.HasValue)
-                        {
-                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Unknown, isFlagged: false);
-                        }
-
-                        if (propertyBase is INavigation navigation)
-                        {
-                            if (!navigation.IsCollection()
-                                && value == null)
+                            var defaultValue = asProperty.ClrType.GetDefaultValue();
+                            if (!equals(currentValue, defaultValue))
                             {
-                                SetIsLoaded(navigation, loaded: false);
+                                WritePropertyValue(asProperty, defaultValue);
                             }
-                        }
 
-                        StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
+                            if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                                && !equals(generatedValue, defaultValue))
+                            {
+                                _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                            }
+
+                            EnsureTemporaryValues();
+                            _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                        }
                     }
+
+                    if (propertyIndex != -1)
+                    {
+                        _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
+                    }
+
+                    if (propertyBase is INavigation navigation)
+                    {
+                        if (!navigation.IsCollection()
+                            && value == null)
+                        {
+                            SetIsLoaded(navigation, loaded: false);
+                        }
+                    }
+
+                    StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
                 }
             }
         }
 
-        private static bool ValuesEqual(Property property, object value, object currentValue)
-            => (property.GetValueComparer()
-                ?? property.FindMapping()?.Comparer)
-               ?.Equals(currentValue, value)
-               ?? Equals(currentValue, value);
+        private static Func<object, object, bool> ValuesEqualFunc(IProperty property)
+        {
+            var comparer = property.GetValueComparer()
+                           ?? property.FindMapping()?.Comparer;
+
+            return comparer != null
+                ? (Func<object, object, bool>)((l, r) => comparer.Equals(l, r))
+                : (l, r) => Equals(l, r);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -922,16 +1052,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (!_storeGeneratedValues.IsEmpty)
             {
-                var storeGeneratedValues = _storeGeneratedValues;
-                _storeGeneratedValues = new StoreGeneratedValues();
-
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (storeGeneratedValues.TryGetValue(property, out var value))
+                    var storeGeneratedIndex = property.GetStoreGeneratedIndex();
+                    if (storeGeneratedIndex != -1
+                        && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
                     {
                         this[property] = value;
                     }
                 }
+
+                _storeGeneratedValues = new SidecarValues();
+                _temporaryValues = new SidecarValues();
             }
 
             var currentState = EntityState;
@@ -993,11 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (entityType.StoreGeneratedCount() > 0)
-            {
-                DiscardStoreGeneratedValues();
-                _storeGeneratedValues = new StoreGeneratedValues(this);
-            }
+            DiscardStoreGeneratedValues();
 
             return this;
         }
@@ -1113,23 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (!_storeGeneratedValues.IsEmpty)
             {
-                var storeGeneratedValues = _storeGeneratedValues;
-                _storeGeneratedValues = new StoreGeneratedValues();
-
-                foreach (var property in EntityType.GetProperties())
-                {
-                    if (storeGeneratedValues.TryGetValue(property, out var _))
-                    {
-                        var isTemp = HasTemporaryValue(property);
-
-                        StateManager.InternalEntityEntryNotifier.PropertyChanged(this, property, setModified: false);
-
-                        if (isTemp)
-                        {
-                            MarkAsTemporary(property);
-                        }
-                    }
-                }
+                _storeGeneratedValues = new SidecarValues();
             }
         }
 
@@ -1154,9 +1266,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasDefaultValue(IProperty property)
-            => _storeGeneratedValues.TryGetValue(property, out var value)
-                ? property.ClrType.IsDefaultValue(value)
-                : PropertyHasDefaultValue(property);
+        {
+            if (!PropertyHasDefaultValue(property))
+            {
+                return false;
+            }
+
+            var storeGeneratedIndex = property.GetStoreGeneratedIndex();
+            if (storeGeneratedIndex == -1)
+            {
+                return true;
+            }
+
+            var defaultValue = property.ClrType.GetDefaultValue();
+            var equals = ValuesEqualFunc(property);
+
+            if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                && !equals(defaultValue, generatedValue))
+            {
+                return false;
+            }
+
+            if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
+                && !equals(defaultValue, generatedValue))
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1310,5 +1448,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                || _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
+
+        private enum CurrentValueType
+        {
+            Normal,
+            StoreGenerated,
+            Temporary
+        }
     }
 }

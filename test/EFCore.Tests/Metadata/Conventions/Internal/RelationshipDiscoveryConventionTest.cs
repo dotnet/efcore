@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -913,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static IMemberClassifier CreateMemberClassifier()
             => new MemberClassifier(
-                TestServiceFactory.Instance.Create<FallbackTypeMappingSource>(),
+                TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
                 TestServiceFactory.Instance.Create<IParameterBindingFactories>());
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()

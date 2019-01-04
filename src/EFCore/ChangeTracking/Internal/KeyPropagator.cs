@@ -46,11 +46,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.Next(new EntityEntry(entry));
+                    var value = valueGenerator.Next(new EntityEntry(entry));
 
                     if (valueGenerator.GeneratesTemporaryValues)
                     {
-                        entry.MarkAsTemporary(property);
+                        entry.SetTemporaryValue(property, value);
+                    }
+                    else
+                    {
+                        entry[property] = value;
                     }
                 }
             }
@@ -77,11 +81,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken);
+                    var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken);
 
                     if (valueGenerator.GeneratesTemporaryValues)
                     {
-                        entry.MarkAsTemporary(property);
+                        entry.SetTemporaryValue(property, value);
+                    }
+                    else
+                    {
+                        entry[property] = value;
                     }
                 }
             }
@@ -126,15 +134,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             var principalValue = principalEntry[principalProperty];
                             if (!principalProperty.ClrType.IsDefaultValue(principalValue))
                             {
-                                entry[property] = principalValue;
-
                                 if (principalEntry.HasTemporaryValue(principalProperty))
                                 {
-                                    entry.MarkAsTemporary(property);
+                                    entry.SetTemporaryValue(property, principalValue);
                                 }
                                 else
                                 {
-                                    entry.MarkAsTemporary(property, isTemporary: false);
+                                    entry[property] = principalValue;
                                 }
 
                                 return principalEntry;

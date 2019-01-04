@@ -54,14 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Obsolete("Use CreateReadValueExpression making sure to pass bound property if available.")]
-        public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
-            => Expression.Call(valueBuffer, ValueBuffer.GetValueMethod, Expression.Constant(index));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             Expression materializationExpression,
@@ -140,27 +132,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var indexerPropertyInfo = entityType.EFIndexerProperty();
 
-            blockExpressions.AddRange(
-                from property in properties
-                let targetMember =
+            foreach (var property in properties)
+            {
+                var memberInfo = property.GetMemberInfo(forConstruction: true, forSet: true);
+
+                var readValueExpression
+                    = property is IServiceProperty serviceProperty
+                        ? serviceProperty.GetParameterBinding().BindToParameter(bindingInfo)
+                        : CreateReadValueExpression(
+                            valueBufferExpression,
+                            memberInfo.GetMemberType(),
+                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property);
+
+                blockExpressions.Add(
                     property.IsIndexedProperty
-                        ? (Expression)Expression.MakeIndex(
-                            instanceVariable,
-                            indexerPropertyInfo,
-                            new List<Expression>() { Expression.Constant(property.Name) })
+                        ? Expression.Assign(
+                            Expression.MakeIndex(
+                                instanceVariable,
+                                indexerPropertyInfo,
+                                new[] { Expression.Constant(property.Name) }),
+                            readValueExpression)
                         : Expression.MakeMemberAccess(
                             instanceVariable,
-                            property.GetMemberInfo(forConstruction: true, forSet: true))
-                select
-                    Expression.Assign(
-                        targetMember,
-                        property is IServiceProperty
-                            ? ((IServiceProperty)property).GetParameterBinding().BindToParameter(bindingInfo)
-                            : CreateReadValueExpression(
-                                valueBufferExpression,
-                                targetMember.Type,
-                                indexMap?[property.GetIndex()] ?? property.GetIndex(),
-                                property)));
+                            memberInfo).Assign(
+                            readValueExpression));
+            }
 
             blockExpressions.Add(instanceVariable);
 

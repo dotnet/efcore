@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -82,12 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for filter annotations.
         /// </summary>
         public const string Filter = Prefix + "Filter";
-
-        /// <summary>
-        ///     The name for <see cref="RelationalTypeMapping" /> annotations.
-        /// </summary>
-        [Obsolete("Use CoreAnnotationNames.TypeMapping")]
-        public const string TypeMapping = Prefix + "TypeMapping";
 
         /// <summary>
         ///     The name for DbFunction annotations.

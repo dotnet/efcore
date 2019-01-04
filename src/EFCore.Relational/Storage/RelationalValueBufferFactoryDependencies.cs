@@ -10,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="TypedRelationalValueBufferFactory" />
-    ///         and <see cref="UntypedRelationalValueBufferFactory" />
+    ///         Service dependencies parameter class for <see cref="TypedRelationalValueBufferFactory" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally

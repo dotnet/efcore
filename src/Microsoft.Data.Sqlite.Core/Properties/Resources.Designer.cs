@@ -266,6 +266,12 @@ namespace Microsoft.Data.Sqlite.Properties
         public static string WriteNotSupported
             => GetString("WriteNotSupported");
 
+        /// <summary>
+        /// You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.
+        /// </summary>
+        public static string EncryptionNotSupported
+            => GetString("EncryptionNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

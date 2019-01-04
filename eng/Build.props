@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <ProjectToBuild Include="$(RepoRoot)EFCore.sln" />
+  </ItemGroup>
+</Project>

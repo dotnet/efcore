@@ -73,8 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var batch = _modificationCommandBatchFactory.Create();
                 foreach (var modificationCommand in independentCommandSet)
                 {
-                    Validate(modificationCommand);
-
                     if (!batch.AddCommand(modificationCommand))
                     {
                         if (batch.ModificationCommands.Count == 1
@@ -759,22 +757,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-
-        private static void Validate(ModificationCommand modificationCommand)
-        {
-            if (modificationCommand.EntityState == EntityState.Added)
-            {
-                foreach (var columnModification in modificationCommand.ColumnModifications)
-                {
-                    if (!columnModification.IsRead
-                        && columnModification.Entry.HasTemporaryValue(columnModification.Property))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.TempValue(columnModification.Property.Name, columnModification.Entry.EntityType.DisplayName()));
                     }
                 }
             }

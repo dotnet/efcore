@@ -1185,18 +1185,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var property = propertyToDetach.DeclaringEntityType.FindDeclaredProperty(propertyToDetach.Name);
                 if (property != null)
                 {
-                    var entityTypeBuilder = propertyToDetach.DeclaringEntityType.Builder;
-                    var propertyBuilder = propertyToDetach.Builder;
+                    var entityTypeBuilder = property.DeclaringEntityType.Builder;
+                    var propertyBuilder = property.Builder;
+                    // Reset convention configuration
+                    propertyBuilder.ValueGenerated(null, ConfigurationSource.Convention);
+                    propertyBuilder.AfterSave(null, ConfigurationSource.Convention);
+                    propertyBuilder.BeforeSave(null, ConfigurationSource.Convention);
                     ConfigurationSource? removedConfigurationSource;
                     if (entityTypeBuilder != null)
                     {
                         removedConfigurationSource = entityTypeBuilder
-                            .RemoveProperty(propertyToDetach, propertyToDetach.GetConfigurationSource());
+                            .RemoveProperty(property, property.GetConfigurationSource());
                     }
                     else
                     {
-                        removedConfigurationSource = propertyToDetach.GetConfigurationSource();
-                        propertyToDetach.DeclaringEntityType.RemoveProperty(propertyToDetach.Name);
+                        removedConfigurationSource = property.GetConfigurationSource();
+                        property.DeclaringEntityType.RemoveProperty(property.Name);
                     }
 
                     Debug.Assert(removedConfigurationSource.HasValue);
@@ -2460,6 +2464,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 isRequired,
                 baseName).Item1;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Property CreateUniqueProperty(
+            string propertyName,
+            Type propertyType,
+            bool isRequired)
+            => CreateUniqueProperties(
+                new[] { propertyName },
+                new[] { propertyType },
+                isRequired).First();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<Property> CreateUniqueProperties(
+            IReadOnlyList<string> propertyNames,
+            IReadOnlyList<Type> propertyTypes,
+            bool isRequired)
+            => TryCreateUniqueProperties(
+                propertyNames.Count,
+                null,
+                propertyNames,
+                propertyTypes,
+                isRequired,
+                "").Item2;
+
         private IReadOnlyList<Property> CreateUniqueProperties(
             IReadOnlyList<Property> currentProperties,
             IReadOnlyList<Property> principalProperties,
@@ -2497,9 +2530,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         var keyPropertyName = principalPropertyNamesEnumerator.Current;
                         var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                        var keyModifiedBaseName =
-                            (keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
-                            + keyPropertyName;
+                        var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
+                            ? keyPropertyName
+                            : baseName + keyPropertyName;
                         string propertyName;
                         var clrType = isRequired ? keyPropertyType : keyPropertyType.MakeNullable();
                         var index = -1;

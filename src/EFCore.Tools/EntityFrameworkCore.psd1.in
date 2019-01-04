@@ -56,7 +56,7 @@
     # Format files (.ps1xml) to be loaded when importing this module
     # FormatsToProcess = @()
 
-    # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+    # Modules to import as nested modules of the module specified in RootModule
     # NestedModules = @()
 
     # Functions to export from this module
@@ -86,7 +86,7 @@
     # List of all files packaged with this module
     # FileList = @()
 
-    # Private data to pass to the module specified in RootModule/ModuleToProcess
+    # Private data to pass to the module specified in RootModule
     # PrivateData = ''
 
     # HelpInfo URI of this module

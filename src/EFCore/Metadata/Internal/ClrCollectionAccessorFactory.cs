@@ -107,10 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (setterMemberInfo != null)
             {
                 setterDelegate = Expression.Lambda<Action<TEntity, TCollection>>(
-                    Expression.Assign(
-                        Expression.MakeMemberAccess(
-                            entityParameter,
-                            setterMemberInfo),
+                    Expression.MakeMemberAccess(
+                        entityParameter,
+                        setterMemberInfo).Assign(
                         Expression.Convert(
                             valueParameter,
                             setterMemberInfo.GetMemberType())),

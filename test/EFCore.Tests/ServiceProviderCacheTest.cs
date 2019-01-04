@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -58,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.LogServiceProviderDebugInfo.GenerateMessage(
                     string.Join(
                         ", ",
-                        CoreStrings.ServiceProviderConfigRemoved(typeof(FakeDbContextOptionsExtension1).DisplayName()),
-                        CoreStrings.ServiceProviderConfigAdded(typeof(FakeDbContextOptionsExtension2).DisplayName()))),
+                        CoreStrings.ServiceProviderConfigRemoved("Fake1"),
+                        CoreStrings.ServiceProviderConfigAdded("Fake2"))),
                 loggerFactory.Log[1].Message);
         }
 
@@ -238,6 +239,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual string LogFragment => "";
+
+            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+                debugInfo["Fake1"] = "1";
+            }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
@@ -251,6 +257,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual string LogFragment => "";
+
+            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+                debugInfo["Fake2"] = "1";
+            }
         }
     }
 }

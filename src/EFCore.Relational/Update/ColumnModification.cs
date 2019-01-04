@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    Entry.SetCurrentValue(Property, value);
+                    Entry.SetStoreGeneratedValue(Property, value);
                 }
             }
         }
