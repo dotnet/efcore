@@ -33,6 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Properties\SqlServerNTSStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SqlServerNTSStrings.Designer.cs</LastGenOutput>

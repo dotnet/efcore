@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\CosmosStrings.Designer.cs">
       <DependentUpon>CosmosStrings.Designer.tt</DependentUpon>
       <DesignTime>True</DesignTime>

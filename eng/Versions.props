@@ -34,7 +34,7 @@
     <SQLitePCLRawBundleGreenPackageVersion>1.1.12</SQLitePCLRawBundleGreenPackageVersion>
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>
     <SQLitePCLRawCorePackageVersion>1.1.12</SQLitePCLRawCorePackageVersion>
-    <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
+    <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19055.2</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19055.2</SystemComponentModelAnnotationsPackageVersion>
     <SystemDataSqlClientPackageVersion>4.7.0-preview.19055.2</SystemDataSqlClientPackageVersion>

@@ -63,6 +63,10 @@
     <Rule Id="SA1132" Action="None" />
     <Rule Id="SA1133" Action="None" />
     <Rule Id="SA1134" Action="None" />
+    <Rule Id="SA1135" Action="None" />
+    <Rule Id="SA1136" Action="None" />
+    <Rule Id="SA1137" Action="None" />
+    <Rule Id="SA1139" Action="None" />
     <Rule Id="SA1200" Action="None" />
     <Rule Id="SA1201" Action="None" />
     <Rule Id="SA1202" Action="None" />
@@ -92,6 +96,7 @@
     <Rule Id="SA1311" Action="None" />
     <Rule Id="SA1312" Action="None" />
     <Rule Id="SA1313" Action="None" />
+    <Rule Id="SA1314" Action="None" />
     <Rule Id="SA1400" Action="None" />
     <Rule Id="SA1401" Action="None" />
     <Rule Id="SA1402" Action="None" />
@@ -103,6 +108,7 @@
     <Rule Id="SA1408" Action="None" />
     <Rule Id="SA1410" Action="None" />
     <Rule Id="SA1411" Action="None" />
+    <Rule Id="SA1413" Action="None" />
     <Rule Id="SA1500" Action="None" />
     <Rule Id="SA1501" Action="None" />
     <Rule Id="SA1502" Action="None" />
@@ -124,22 +130,18 @@
     <Rule Id="SA1518" Action="None" />
     <Rule Id="SA1519" Action="None" />
     <Rule Id="SA1520" Action="None" />
-    <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1601" Action="None" />
-    <Rule Id="SA1605" Action="None" />
+    <Rule Id="SA1603" Action="Warning" />
     <Rule Id="SA1609" Action="Warning" />
-    <Rule Id="SA1612" Action="None" />
-    <Rule Id="SA1619" Action="None" />
-    <Rule Id="SA1626" Action="None" />
-    <Rule Id="SA1633" Action="None" />
-    <Rule Id="SA1634" Action="None" />
-    <Rule Id="SA1635" Action="None" />
-    <Rule Id="SA1636" Action="None" />
-    <Rule Id="SA1637" Action="None" />
-    <Rule Id="SA1638" Action="None" />
-    <Rule Id="SA1640" Action="None" />
-    <Rule Id="SA1641" Action="None" />
-    <Rule Id="SA1649" Action="None" />
-    <Rule Id="SA1652" Action="None" />
+    <Rule Id="SA1628" Action="Warning" />
+    <Rule Id="SA1630" Action="Warning" />
+    <Rule Id="SA1631" Action="Warning" />
+    <Rule Id="SA1632" Action="Warning" />
+    <Rule Id="SA1639" Action="Warning" />
+    <Rule Id="SA1644" Action="Warning" />
+    <Rule Id="SA1645" Action="Warning" />
+    <Rule Id="SA1646" Action="Warning" />
+    <Rule Id="SA1647" Action="Warning" />
+    <Rule Id="SA1650" Action="Warning" />
   </Rules>
 </RuleSet>

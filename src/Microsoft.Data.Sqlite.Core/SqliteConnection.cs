@@ -107,7 +107,7 @@ namespace Microsoft.Data.Sqlite
         ///     this connection. This is also used for internal commands in methods like
         ///     <see cref="BeginTransaction()"/>.
         /// </summary>
-        /// <value>The default <see cref="SqliteCommand.CommandTimeout"/> value</value>
+        /// <value>The default <see cref="SqliteCommand.CommandTimeout"/> value.</value>
         public virtual int DefaultTimeout { get; set; } = 30;
 
         /// <summary>
@@ -426,7 +426,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Enables extension loading on the connection.
         /// </summary>
-        /// <param name="enable">true to enable; false to disable</param>
+        /// <param name="enable">true to enable; false to disable.</param>
         /// <seealso href="http://sqlite.org/loadext.html">Run-Time Loadable Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {
