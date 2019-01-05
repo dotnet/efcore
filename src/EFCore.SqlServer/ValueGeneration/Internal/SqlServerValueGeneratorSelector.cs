@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             return property.GetValueGeneratorFactory() == null
                    && property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
+                ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property, _connection), _connection)
                 : base.Select(property, entityType);
         }
 
