@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         private readonly List<FakeDbConnection> _dbConnections = new List<FakeDbConnection>();
 
-        public FakeRelationalConnection(IDbContextOptions options)
+        public FakeRelationalConnection(IDbContextOptions options = null)
             : base(
                 new RelationalConnectionDependencies(
-                    options,
+                    options ?? CreateOptions(),
                     new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                         new LoggerFactory(),
                         new LoggingOptions(),
@@ -30,9 +30,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new LoggerFactory(),
                         new LoggingOptions(),
                         new DiagnosticListener("FakeDiagnosticListener")),
-                    new NamedConnectionStringResolver(options),
+                    new NamedConnectionStringResolver(options ?? CreateOptions()),
                     new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies())))
         {
+        }
+
+        private static IDbContextOptions CreateOptions()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
+                .AddOrUpdateExtension(new FakeRelationalOptionsExtension().WithConnectionString("Database=Dummy"));
+
+            return optionsBuilder.Options;
         }
 
         public void UseConnection(DbConnection connection) => _connection = connection;

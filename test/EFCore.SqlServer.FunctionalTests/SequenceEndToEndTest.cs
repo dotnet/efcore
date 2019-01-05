@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -70,6 +71,91 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 context.SaveChanges();
+            }
+        }
+
+        [ConditionalFact]
+        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
+        public void Can_use_sequence_end_to_end_on_multiple_databases()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .BuildServiceProvider();
+
+            var dbOne = TestStore.Name + "1";
+            var dbTwo = TestStore.Name + "2";
+
+            foreach (var dbName in new[] { dbOne, dbTwo })
+            {
+                using (var context = new BronieContext(serviceProvider, dbName))
+                {
+                    context.Database.EnsureDeleted();
+                    Thread.Sleep(100);
+                    context.Database.EnsureCreatedResiliently();
+                }
+            }
+
+            AddEntitiesToMultipleContexts(serviceProvider, dbOne, dbTwo);
+            AddEntitiesToMultipleContexts(serviceProvider, dbOne, dbTwo);
+
+            // Use a different service provider so a different generator is used but with
+            // the same server sequence.
+            serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .BuildServiceProvider();
+
+            AddEntitiesToMultipleContexts(serviceProvider, dbOne, dbTwo);
+
+            foreach (var dbName in new[] { dbOne, dbTwo })
+            {
+                using (var context = new BronieContext(serviceProvider, dbName))
+                {
+                    var pegasuses = context.Pegasuses.ToList();
+
+                    for (var i = 0; i < 29; i++)
+                    {
+                        Assert.Equal(
+                        dbName.EndsWith("1", StringComparison.Ordinal) ? 3 : 0,
+                        pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                        Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+                    }
+                }
+            }
+        }
+
+        private static void AddEntitiesToMultipleContexts(
+            IServiceProvider serviceProvider,
+            string dbName1,
+            string dbName2)
+        {
+            using (var context1 = new BronieContext(serviceProvider, dbName1))
+            {
+                using (var context2 = new BronieContext(serviceProvider, dbName2))
+                {
+                    for (var i = 0; i < 29; i++)
+                    {
+                        context1.Add(
+                            new Pegasus
+                            {
+                                Name = "Rainbow Dash " + i
+                            });
+
+                        context2.Add(
+                            new Pegasus
+                            {
+                                Name = "Fluttershy " + i
+                            });
+
+                        context1.Add(
+                            new Pegasus
+                            {
+                                Name = "Fluttershy " + i
+                            });
+                    }
+
+                    context1.SaveChanges();
+                    context2.SaveChanges();
+                }
             }
         }
 
