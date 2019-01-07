@@ -139,13 +139,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
 
         /// <summary>
-        ///     Visit a StringCompareExpression.
+        ///     Visit a ComparisonExpression.
         /// </summary>
-        /// <param name="stringCompareExpression"> The string compare expression. </param>
+        /// <param name="comparisonExpression"> The comparison expression. </param>
         /// <returns>
         ///     An Expression.
         /// </returns>
-        Expression VisitStringCompare([NotNull] StringCompareExpression stringCompareExpression);
+        Expression VisitCompare([NotNull] ComparisonExpression comparisonExpression);
 
         /// <summary>
         ///     Visit an ExplicitCastExpression.

@@ -11,17 +11,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     /// <summary>
-    ///     Represents a SQL string comparison expression.
+    ///     Represents a SQL comparison expression.
     /// </summary>
-    public class StringCompareExpression : Expression
+    public class ComparisonExpression : Expression
     {
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.StringCompareExpression class.
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.ComparisonExpression class.
         /// </summary>
         /// <param name="op"> The comparison operation. </param>
         /// <param name="left"> The left operand. </param>
         /// <param name="right"> The right operand. </param>
-        public StringCompareExpression(ExpressionType op, [NotNull] Expression left, [NotNull] Expression right)
+        public ComparisonExpression(ExpressionType op, [NotNull] Expression left, [NotNull] Expression right)
         {
             Operator = op;
             Left = left;
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(visitor, nameof(visitor));
 
             return visitor is ISqlExpressionVisitor specificVisitor
-                ? specificVisitor.VisitStringCompare(this)
+                ? specificVisitor.VisitCompare(this)
                 : base.Accept(visitor);
         }
 
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var newRight = visitor.Visit(Right);
 
             return newLeft != Left || newRight != Right
-                ? new StringCompareExpression(Operator, newLeft, newRight)
+                ? new ComparisonExpression(Operator, newLeft, newRight)
                 : this;
         }
 
@@ -113,10 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((StringCompareExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((ComparisonExpression)obj);
         }
 
-        private bool Equals(StringCompareExpression other)
+        private bool Equals(ComparisonExpression other)
             => Operator == other.Operator
                && ExpressionEqualityComparer.Instance.Equals(Left, other.Left)
                && ExpressionEqualityComparer.Instance.Equals(Right, other.Right);

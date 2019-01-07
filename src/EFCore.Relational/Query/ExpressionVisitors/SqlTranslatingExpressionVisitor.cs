@@ -1098,18 +1098,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             switch (expression)
             {
-                case StringCompareExpression stringCompare:
-                    var newLeft = Visit(stringCompare.Left);
-                    var newRight = Visit(stringCompare.Right);
+                case ComparisonExpression compare:
+                    var newLeft = Visit(compare.Left);
+                    var newRight = Visit(compare.Right);
                     if (newLeft == null
                         || newRight == null)
                     {
                         return null;
                     }
 
-                    return newLeft != stringCompare.Left
-                           || newRight != stringCompare.Right
-                        ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
+                    return newLeft != compare.Left
+                           || newRight != compare.Right
+                        ? new ComparisonExpression(compare.Operator, newLeft, newRight)
                         : expression;
 
                 case ExplicitCastExpression explicitCast:
