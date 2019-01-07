@@ -29,7 +29,9 @@
     <HelixBuild>private-$(USERNAME)</HelixBuild>
     <HelixBuild Condition=" '$(CI)' == 'true' ">$(BUILD_BUILDNUMBER)</HelixBuild>
     <WaitForWorkItemCompletion Condition=" '$(CI)' == 'true' ">true</WaitForWorkItemCompletion>
-
+    <IsExternal>true</IsExternal>
+    <Creator>aspnet-ef</Creator>
+    
     <HelixTargetQueues>Windows.10.Amd64.Open;OSX.1012.Amd64.Open;Ubuntu.1604.Amd64.Open</HelixTargetQueues>
     <!-- <HelixTargetQueues>Windows.10.Amd64.Open;OSX.1012.Amd64.Open;Ubuntu.1604.Amd64.Open;Ubuntu.1810.Amd64.Open;Centos.7.Amd64.Open;Debian.8.Amd64.Open;Debian.9.Amd64.Open;Fedora.27.Amd64.Open;Fedora.28.Amd64.Open;Redhat.7.Amd64.Open;Redhat.6.Amd64.Open;</HelixTargetQueues> -->
     
