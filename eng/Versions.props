@@ -9,6 +9,8 @@
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
+    <!-- HACK: Work around dotnet/arcade#1599 -->
+    <MicrosoftDotNetSignToolVersion>1.0.0-beta.19057.6</MicrosoftDotNetSignToolVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
