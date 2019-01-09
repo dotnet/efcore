@@ -1126,7 +1126,11 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(bigint, 
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')");
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')",
+                //
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = N'ALFKI') AND ((CHARINDEX(N'1997', CONVERT(nvarchar(max), [o].[OrderDate])) > 0) OR (CHARINDEX(N'1998', CONVERT(nvarchar(max), [o].[OrderDate])) > 0))");
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)
