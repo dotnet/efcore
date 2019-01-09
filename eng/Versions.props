@@ -12,21 +12,11 @@
     <!-- HACK: Work around dotnet/arcade#1599 -->
     <MicrosoftDotNetSignToolVersion>1.0.0-beta.19057.6</MicrosoftDotNetSignToolVersion>
   </PropertyGroup>
-  <PropertyGroup Label="Package Versions">
+  <PropertyGroup Label="Dependencies from nuget.org">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
-    <InternalWebHostBuilderFactorySourcesPackageVersion>3.0.0-preview-18571-0016</InternalWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
-    <MicrosoftCSharpPackageVersion>4.6.0-preview.19057.3</MicrosoftCSharpPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27307-3</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsLoggingPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
     <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
@@ -37,11 +27,27 @@
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>
     <SQLitePCLRawCorePackageVersion>1.1.12</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
+    <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Dependencies from aspnet/Extensions">
+    <InternalWebHostBuilderFactorySourcesPackageVersion>3.0.0-preview-18571-0016</InternalWebHostBuilderFactorySourcesPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview.19056.1</MicrosoftExtensionsLoggingPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Dependencies from dotnet/corefx">
+    <MicrosoftCSharpPackageVersion>4.6.0-preview.19057.3</MicrosoftCSharpPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19057.3</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19057.3</SystemComponentModelAnnotationsPackageVersion>
     <SystemDataSqlClientPackageVersion>4.7.0-preview.19057.3</SystemDataSqlClientPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19057.3</SystemDiagnosticsDiagnosticSourcePackageVersion>
-    <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Dependencies from dotnet/core-setup">
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27307-3</MicrosoftExtensionsDependencyModelPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreSources>
