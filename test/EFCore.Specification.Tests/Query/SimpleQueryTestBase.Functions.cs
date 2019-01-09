@@ -1189,7 +1189,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 o => Convert.ToString(Convert.ToInt16(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToInt32(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToInt64(o.OrderID % 1)) != "10",
-                o => Convert.ToString(Convert.ToString(o.OrderID % 1)) != "10"
+                o => Convert.ToString(Convert.ToString(o.OrderID % 1)) != "10",
+                o => Convert.ToString(o.OrderDate.Value).Contains("1997") || Convert.ToString(o.OrderDate.Value).Contains("1998")
             };
 
             foreach (var convertMethod in convertMethods)

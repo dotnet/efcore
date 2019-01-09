@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             typeof(bool),
             typeof(byte),
+            typeof(DateTime),
             typeof(decimal),
             typeof(double),
             typeof(float),
