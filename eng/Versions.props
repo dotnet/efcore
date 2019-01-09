@@ -40,11 +40,11 @@
     <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview.19057.8</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-preview.19057.3</MicrosoftCSharpPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19057.3</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19057.3</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.7.0-preview.19057.3</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19057.3</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-preview.19058.1</MicrosoftCSharpPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19058.1</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19058.1</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.7.0-preview.19058.1</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19058.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
     <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27308-3</MicrosoftExtensionsDependencyModelPackageVersion>

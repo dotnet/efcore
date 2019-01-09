@@ -5,9 +5,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>0000000000000000000000000000000000000000</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.19057.3">
+    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.19058.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>875c9842c94fdf3885a7cd28497d492bdd584543</Sha>
+      <Sha>3780052026bd1fe2e18469b216f20786b4ca20aa</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview.19057.8">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -41,21 +41,21 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>604018cb12e8b93e7423218bfd00efa330a75b28</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.19057.3">
+    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.19058.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>875c9842c94fdf3885a7cd28497d492bdd584543</Sha>
+      <Sha>3780052026bd1fe2e18469b216f20786b4ca20aa</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview.19057.3">
+    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview.19058.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>875c9842c94fdf3885a7cd28497d492bdd584543</Sha>
+      <Sha>3780052026bd1fe2e18469b216f20786b4ca20aa</Sha>
     </Dependency>
-    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview.19057.3">
+    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview.19058.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>875c9842c94fdf3885a7cd28497d492bdd584543</Sha>
+      <Sha>3780052026bd1fe2e18469b216f20786b4ca20aa</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview.19057.3">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview.19058.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>875c9842c94fdf3885a7cd28497d492bdd584543</Sha>
+      <Sha>3780052026bd1fe2e18469b216f20786b4ca20aa</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
