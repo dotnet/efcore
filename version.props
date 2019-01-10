@@ -1,13 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <VersionPrefix>2.1.4</VersionPrefix>
-    <!--
-      Temporary: due to the way aspnet/AspNetCore runs static analysis on projects to determine versions,
-      and the way we merged repos after the 2.1.4 release, this needs to be set to 2.1.0 until the next release.
-      This can be removed when updating this file for the next EF Core patch.
-    -->
-    <VersionPrefix Condition="$(MSBuildProjectName.StartsWith('Microsoft.Data.Sqlite'))">2.1.0</VersionPrefix>
-
+    <VersionPrefix>2.1.8</VersionPrefix>
     <VersionSuffix>rtm</VersionSuffix>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' != 'rtm' ">$(VersionPrefix)-$(VersionSuffix)-final</PackageVersion>
@@ -16,7 +9,7 @@
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(FeatureBranchVersionSuffix)' != ''">$(FeatureBranchVersionPrefix)$(VersionSuffix)-$([System.Text.RegularExpressions.Regex]::Replace('$(FeatureBranchVersionSuffix)', '[^\w-]', '-'))</VersionSuffix>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
 
-    <ExperimentalVersionPrefix>0.1.4</ExperimentalVersionPrefix>
+    <ExperimentalVersionPrefix>0.1.8</ExperimentalVersionPrefix>
     <ExperimentalVersionSuffix>rtm</ExperimentalVersionSuffix>
     <ExperimentalPackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ExperimentalVersionSuffix)' == 'rtm' ">$(ExperimentalVersionPrefix)</ExperimentalPackageVersion>
     <ExperimentalPackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ExperimentalVersionSuffix)' != 'rtm' ">$(ExperimentalVersionPrefix)-$(ExperimentalVersionSuffix)-final</ExperimentalPackageVersion>
