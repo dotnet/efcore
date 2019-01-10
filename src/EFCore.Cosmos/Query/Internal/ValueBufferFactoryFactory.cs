@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
@@ -16,25 +17,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public static class ValueBufferFactoryFactory
     {
         private static readonly ParameterExpression _jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
+        private static readonly ParameterExpression _ordinalParameter = Expression.Parameter(typeof(int), "ordinal");
 
         private static readonly MethodInfo _getItemMethodInfo
             = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                 .GetMethod;
 
-        public static Expression<Func<JObject, object[]>> Create(List<IProperty> usedProperties)
-            => Expression.Lambda<Func<JObject, object[]>>(
+        public static Expression<Func<JObject, int, object[]>> Create(List<IProperty> usedProperties)
+            => Expression.Lambda<Func<JObject, int, object[]>>(
                 Expression.NewArrayInit(
                     typeof(object),
                     usedProperties
                         .Select(p =>
                                 CreateGetValueExpression(
                                     _jObjectParameter,
+                                    _ordinalParameter,
                                     p))),
-                                _jObjectParameter);
+                _jObjectParameter,
+                _ordinalParameter);
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
+            Expression ordinalParameter,
             IProperty property)
         {
             if (property.Name == StoreKeyConvention.JObjectPropertyName)
@@ -49,7 +54,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     ?? property.GetValueConverter()?.ProviderClrType
                     ?? property.ClrType;
 
-                return Expression.Default(type);
+                Expression calculatedExpression = Expression.Default(type);
+
+                var entityType = property.DeclaringEntityType;
+                var ownership = entityType.FindOwnership();
+
+                if (ownership != null
+                    && !entityType.IsDocumentRoot()
+                    && property.IsPrimaryKey()
+                    && !property.IsForeignKey())
+                {
+                    calculatedExpression = ordinalParameter;
+                }
+
+                return type.IsValueType
+                    ? Expression.Convert(calculatedExpression, typeof(object))
+                    : calculatedExpression;
             }
 
             var expression = Expression.Convert(

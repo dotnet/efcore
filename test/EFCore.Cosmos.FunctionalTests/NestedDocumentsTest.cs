@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -85,14 +86,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             using (CreateTestStore(OnModelCreating))
             {
-                Address existingAddress;
+                Address existingAddress1Person2;
+                Address existingAddress1Person3;
+                Address existingAddress2Person3;
                 Address addedAddress1;
                 Address addedAddress2;
+                Address addedAddress3;
                 using (var context = CreateContext())
                 {
                     context.Add(new Person { Id = 1 });
-                    existingAddress = new Address { Street = "Second", City = "Village" };
-                    context.Add(new Person { Id = 2, Addresses = new[] { existingAddress } });
+                    existingAddress1Person2 = new Address { Street = "Second", City = "Village" };
+                    context.Add(new Person { Id = 2, Addresses = new[] { existingAddress1Person2 } });
+                    existingAddress1Person3 = new Address { Street = "First", City = "City" };
+                    existingAddress2Person3 = new Address { Street = "Second", City = "City" };
+                    context.Add(new Person { Id = 3, Addresses = new[] { existingAddress1Person3, existingAddress2Person3 } });
 
                     context.SaveChanges();
                 }
@@ -106,26 +113,70 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     addedAddress2 = new Address { Street = "Another", City = "Village" };
                     people[1].Addresses.Add(addedAddress2);
 
-                    // Remove when issues #13578 or #13579 is fixed
-                    context.Attach(people[1].Addresses.First()).State = EntityState.Unchanged;
+                    // Remove when issues #13578 and #13579 are fixed
+                    var existingEntry = context.Attach(people[1].Addresses.First());
+
+                    var secondPersonEntry = context.Entry(people[1]);
+                    var json = secondPersonEntry.Property<JObject>("__jObject").CurrentValue;
+
+                    var adresses = (JArray)json[nameof(Person.Addresses)];
+                    var jsonAddress = (JObject)adresses[0];
+                    Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
+                    jsonAddress["unmappedId"] = 2;
+                    json[nameof(Person.Addresses)] = adresses;
+
+                    secondPersonEntry.Property<JObject>("__jObject").CurrentValue = json;
+
+                    addedAddress3 = new Address { Street = "Another", City = "City" };
+                    var existingLastAddress = people[2].Addresses.Last();
+                    people[2].Addresses.Remove(existingLastAddress);
+                    people[2].Addresses.Add(addedAddress3);
+                    people[2].Addresses.Add(existingLastAddress);
+
+                    // Remove when issues #13578 and #13579 are fixed
+                    context.Attach(people[2].Addresses.First());
+                    context.Attach(existingLastAddress);
 
                     context.SaveChanges();
+
+                    var idProperty = context.Model.FindEntityType(typeof(Address)).FindPrimaryKey().Properties.First(p => !p.IsForeignKey());
+
+                    Assert.Equal(1, context.Entry(addedAddress3).Property(idProperty.Name).CurrentValue);
+                    Assert.Equal(1, context.Entry(existingLastAddress).Property(idProperty.Name).CurrentValue);
                 }
 
                 using (var context = CreateContext())
                 {
-                    var addresses = context.Set<Person>().OrderBy(o => o.Id).First().Addresses.ToList();
+                    var people = context.Set<Person>().OrderBy(o => o.Id).ToList();
+                    var addresses = people[0].Addresses.ToList();
                     Assert.Equal(addedAddress1.Street, addresses.Single().Street);
                     Assert.Equal(addedAddress1.City, addresses.Single().City);
 
-                    addresses = context.Set<Person>().OrderBy(o => o.Id).Last().Addresses.ToList();
+                    addresses = people[1].Addresses.ToList();
                     Assert.Equal(2, addresses.Count);
 
-                    Assert.Equal(existingAddress.Street, addresses.First().Street);
-                    Assert.Equal(existingAddress.City, addresses.First().City);
+                    Assert.Equal(existingAddress1Person2.Street, addresses[0].Street);
+                    Assert.Equal(existingAddress1Person2.City, addresses[0].City);
 
-                    Assert.Equal(addedAddress2.Street, addresses.Last().Street);
-                    Assert.Equal(addedAddress2.City, addresses.Last().City);
+                    Assert.Equal(addedAddress2.Street, addresses[1].Street);
+                    Assert.Equal(addedAddress2.City, addresses[1].City);
+
+                    var json = context.Entry(people[1]).Property<JObject>("__jObject").CurrentValue;
+                    var jsonAddress = (JObject)((JArray)json[nameof(Person.Addresses)])[0];
+                    Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
+                    Assert.Equal(2, jsonAddress["unmappedId"]);
+
+                    addresses = people[2].Addresses.ToList();
+                    Assert.Equal(3, addresses.Count);
+
+                    Assert.Equal(existingAddress1Person3.Street, addresses[0].Street);
+                    Assert.Equal(existingAddress1Person3.City, addresses[0].City);
+
+                    Assert.Equal(addedAddress3.Street, addresses[1].Street);
+                    Assert.Equal(addedAddress3.City, addresses[1].City);
+
+                    Assert.Equal(existingAddress2Person3.Street, addresses[2].Street);
+                    Assert.Equal(existingAddress2Person3.City, addresses[2].City);
                 }
             }
         }
@@ -399,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 eb => eb.OwnsOne(v => v.Engine));
 
             modelBuilder.Entity<Person>(
-                eb => eb.OwnsMany(v => v.Addresses).HasKey(v => new { v.Street, v.City }));
+                eb => eb.OwnsMany(v => v.Addresses));
         }
 
         protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)

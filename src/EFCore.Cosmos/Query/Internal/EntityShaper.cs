@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 indexMap = new int[concreteEntityType.PropertyCount()];
 
-                var shadowPropertyExists = false;
+                var anyShadowPropertyUsed = false;
 
                 foreach (var property in concreteEntityType.GetProperties())
                 {
@@ -172,12 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         usedProperties.Add(property);
                         propertyIndex = usedProperties.Count - 1;
                     }
+
                     indexMap[property.GetIndex()] = propertyIndex;
 
-                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                    anyShadowPropertyUsed = anyShadowPropertyUsed || property.IsShadowProperty;
                 }
 
-                if (shadowPropertyExists)
+                if (anyShadowPropertyUsed)
                 {
                     if (typeIndexMap == null)
                     {
@@ -215,15 +216,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _shapeMethodInfo
             = typeof(EntityShaper).GetTypeInfo().GetDeclaredMethod(nameof(Shape));
 
-        [UsedImplicitly]
         private static object Shape(
             JObject jObject,
             QueryContext queryContext,
             bool trackingQuery,
             bool bufferedQuery,
             EntityInfo entityInfo)
+            => ShapeInternal(jObject, queryContext, trackingQuery, bufferedQuery, entityInfo, -1);
+
+        private static object ShapeInternal(
+            JObject jObject,
+            QueryContext queryContext,
+            bool trackingQuery,
+            bool bufferedQuery,
+            EntityInfo entityInfo,
+            int ordinal)
         {
-            var valueBuffer = new ValueBuffer(entityInfo.ValueBufferFactory(jObject));
+            var valueBuffer = new ValueBuffer(entityInfo.ValueBufferFactory(jObject, ordinal));
 
             if (!bufferedQuery)
             {
@@ -302,23 +311,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         trackingQuery,
                         bufferedQuery,
                         nestedEntityInfo);
+
                     nestedNavigation.GetSetter().SetClrValue(parentEntity, nestedEntity);
                 }
-                else
+                else if (jObject[nestedEntityInfo.Navigation.Name] is JArray jArray
+                         && jArray.Count != 0)
                 {
                     var nestedEntities = new List<object>();
-                    if (jObject[nestedEntityInfo.Navigation.Name] is JArray jArray
-                        && jArray.Count != 0)
+
+                    foreach (JObject nestedJObject in jArray)
                     {
-                        foreach (JObject nestedJObject in jArray)
-                        {
-                            nestedEntities.Add(Shape(
-                                nestedJObject,
-                                queryContext,
-                                trackingQuery,
-                                bufferedQuery,
-                                nestedEntityInfo));
-                        }
+                        var nestedEntity = ShapeInternal(
+                            nestedJObject,
+                            queryContext,
+                            trackingQuery,
+                            bufferedQuery,
+                            nestedEntityInfo,
+                            nestedEntities.Count);
+
+                        nestedEntities.Add(nestedEntity);
                     }
 
                     nestedNavigation.GetCollectionAccessor().AddRange(parentEntity, nestedEntities);
@@ -344,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             public EntityInfo(
                 INavigation navigation,
                 IKey key,
-                Func<JObject, object[]> valueBufferFactory,
+                Func<JObject, int, object[]> valueBufferFactory,
                 Func<MaterializationContext, object> materializer,
                 Dictionary<Type, int[]> typeIndexMap,
                 IList<EntityInfo> nestedEntities)
@@ -359,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             public INavigation Navigation { get; }
             public IKey Key { get; }
-            public Func<JObject, object[]> ValueBufferFactory { get; }
+            public Func<JObject, int, object[]> ValueBufferFactory { get; }
             public Func<MaterializationContext, object> Materializer { get; }
             public Dictionary<Type, int[]> TypeIndexMap { get; }
             public IList<EntityInfo> NestedEntities { get; }

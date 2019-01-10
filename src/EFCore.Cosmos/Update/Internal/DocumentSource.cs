@@ -42,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var value = entry.GetCurrentValue(property);
                     document[storeName] = value != null ? JToken.FromObject(value) : null;
                 }
+                else if (entry.HasTemporaryValue(property))
+                {
+                    ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                }
             }
 
             foreach (var ownedNavigation in entry.EntityType.GetNavigations())
@@ -94,6 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         var value = entry.GetCurrentValue(property);
                         document[storeName] = value != null ? JToken.FromObject(value) : null;
                         anyPropertyUpdated = true;
+                    }
+                    else if (entry.HasTemporaryValue(property))
+                    {
+                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
                     }
                 }
             }

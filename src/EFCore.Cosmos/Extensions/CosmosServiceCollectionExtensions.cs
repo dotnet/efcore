@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -31,6 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
                 .TryAdd<IModelCustomizer, CosmosModelCustomizer>()
                 .TryAdd<IConventionSetBuilder, CosmosConventionSetBuilder>()
+                .TryAdd<IValueGeneratorSelector, CosmosValueGeneratorSelector>()
                 .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, CosmosQueryContextFactory>()
                 .TryAdd<IEntityQueryModelVisitorFactory, CosmosEntityQueryModelVisitorFactory>()
