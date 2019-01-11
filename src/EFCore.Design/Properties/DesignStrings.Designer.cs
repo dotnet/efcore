@@ -323,46 +323,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 environment);
 
         /// <summary>
-        ///     Finding IWebHost accessor...
-        /// </summary>
-        public static string FindingBuildWebHost
-            => GetString("FindingBuildWebHost");
-
-        /// <summary>
         ///     Finding application service provider...
         /// </summary>
         public static string FindingServiceProvider
             => GetString("FindingServiceProvider");
 
         /// <summary>
-        ///     No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.
-        /// </summary>
-        public static string NoBuildWebHost([CanBeNull] object programClass)
-            => string.Format(
-                GetString("NoBuildWebHost", nameof(programClass)),
-                programClass);
-
-        /// <summary>
-        ///     No entry point was found for assembly '{startupAssembly}'.
-        /// </summary>
-        public static string NoEntryPoint([CanBeNull] object startupAssembly)
-            => string.Format(
-                GetString("NoEntryPoint", nameof(startupAssembly)),
-                startupAssembly);
-
-        /// <summary>
         ///     No application service provider was found.
         /// </summary>
         public static string NoServiceProvider
             => GetString("NoServiceProvider");
-
-        /// <summary>
-        ///     Using application service provider from IWebHost accessor on '{programClass}'.
-        /// </summary>
-        public static string UsingBuildWebHost([CanBeNull] object programClass)
-            => string.Format(
-                GetString("UsingBuildWebHost", nameof(programClass)),
-                programClass);
 
         /// <summary>
         ///     Found DbContext '{contextType}'.
@@ -573,14 +543,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
-        ///     An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}
-        /// </summary>
-        public static string InvokeBuildWebHostFailed([CanBeNull] object startupClass, [CanBeNull] object error)
-            => string.Format(
-                GetString("InvokeBuildWebHostFailed", nameof(startupClass), nameof(error)),
-                startupClass, error);
-
-        /// <summary>
         ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.
         /// </summary>
         public static string NoLanguageService([CanBeNull] object language, [CanBeNull] object service)
@@ -625,6 +587,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
                 toolsVersion, runtimeVersion);
+
+        /// <summary>
+        ///     Finding Microsoft.Extensions.Hosting service provider...
+        /// </summary>
+        public static string FindingHostingServices
+            => GetString("FindingHostingServices");
+
+        /// <summary>
+        ///     An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}
+        /// </summary>
+        public static string InvokeCreateHostBuilderFailed([CanBeNull] object error)
+            => string.Format(
+                GetString("InvokeCreateHostBuilderFailed", nameof(error)),
+                error);
+
+        /// <summary>
+        ///     An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.
+        /// </summary>
+        public static string MalformedCreateHostBuilder
+            => GetString("MalformedCreateHostBuilder");
+
+        /// <summary>
+        ///     No static method 'CreateHostBuilder(string[])' was found on class 'Program'.
+        /// </summary>
+        public static string NoCreateHostBuilder
+            => GetString("NoCreateHostBuilder");
+
+        /// <summary>
+        ///     Using applicaiton service provider from Microsoft.Extensions.Hosting.
+        /// </summary>
+        public static string UsingHostingServices
+            => GetString("UsingHostingServices");
 
         private static string GetString(string name, params string[] formatterNames)
         {

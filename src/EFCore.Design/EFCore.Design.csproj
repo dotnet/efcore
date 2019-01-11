@@ -25,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Internal.WebHostBuilderFactory.Sources" PrivateAssets="All" Version="$(InternalWebHostBuilderFactorySourcesPackageVersion)" />
     <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion)" />
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 

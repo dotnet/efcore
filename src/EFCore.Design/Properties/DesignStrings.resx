@@ -240,23 +240,11 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UsingEnvironment" xml:space="preserve">
     <value>Using environment '{environment}'.</value>
   </data>
-  <data name="FindingBuildWebHost" xml:space="preserve">
-    <value>Finding IWebHost accessor...</value>
-  </data>
   <data name="FindingServiceProvider" xml:space="preserve">
     <value>Finding application service provider...</value>
   </data>
-  <data name="NoBuildWebHost" xml:space="preserve">
-    <value>No CreateWebHostBuilder(string[]) method was found on type '{programClass}'.</value>
-  </data>
-  <data name="NoEntryPoint" xml:space="preserve">
-    <value>No entry point was found for assembly '{startupAssembly}'.</value>
-  </data>
   <data name="NoServiceProvider" xml:space="preserve">
     <value>No application service provider was found.</value>
-  </data>
-  <data name="UsingBuildWebHost" xml:space="preserve">
-    <value>Using application service provider from IWebHost accessor on '{programClass}'.</value>
   </data>
   <data name="FoundDbContext" xml:space="preserve">
     <value>Found DbContext '{contextType}'.</value>
@@ -339,9 +327,6 @@ Change your target project to the migrations project by using the Package Manage
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
-  <data name="InvokeBuildWebHostFailed" xml:space="preserve">
-    <value>An error occurred while accessing the IWebHost on class '{startupClass}'. Continuing without the application service provider. Error: {error}</value>
-  </data>
   <data name="NoLanguageService" xml:space="preserve">
     <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>
   </data>
@@ -359,5 +344,20 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="VersionMismatch" xml:space="preserve">
     <value>The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+  </data>
+  <data name="FindingHostingServices" xml:space="preserve">
+    <value>Finding Microsoft.Extensions.Hosting service provider...</value>
+  </data>
+  <data name="InvokeCreateHostBuilderFailed" xml:space="preserve">
+    <value>An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}</value>
+  </data>
+  <data name="MalformedCreateHostBuilder" xml:space="preserve">
+    <value>An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.</value>
+  </data>
+  <data name="NoCreateHostBuilder" xml:space="preserve">
+    <value>No static method 'CreateHostBuilder(string[])' was found on class 'Program'.</value>
+  </data>
+  <data name="UsingHostingServices" xml:space="preserve">
+    <value>Using applicaiton service provider from Microsoft.Extensions.Hosting.</value>
   </data>
 </root>

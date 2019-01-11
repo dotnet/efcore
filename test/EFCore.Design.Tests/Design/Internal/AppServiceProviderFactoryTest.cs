@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.NotNull(services);
             Assert.Contains(
                 "warn: " +
-                DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
+                DesignStrings.InvokeCreateHostBuilderFailed("This is a test."),
                 reporter.Messages);
         }
 

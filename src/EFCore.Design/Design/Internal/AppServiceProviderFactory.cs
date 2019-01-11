@@ -5,9 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Hosting.WebHostBuilderFactory;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -38,29 +38,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
 
-            return CreateFromBuildWebHost(args)
+            return CreateFromHosting(args)
                    ?? CreateEmptyServiceProvider();
         }
 
-        private IServiceProvider CreateFromBuildWebHost(string[] args)
+        private IServiceProvider CreateFromHosting(string[] args)
         {
-            _reporter.WriteVerbose(DesignStrings.FindingBuildWebHost);
+            _reporter.WriteVerbose(DesignStrings.FindingHostingServices);
 
-            var webHostFactoryResult = WebHostFactoryResolver.ResolveWebHostFactory<object, object>(_startupAssembly);
-            switch (webHostFactoryResult.ResultKind)
+            var serviceProviderFactory = HostFactoryResolver.ResolveServiceProviderFactory(_startupAssembly);
+            if (serviceProviderFactory == null)
             {
-                case FactoryResolutionResultKind.Success:
-                    break;
-                case FactoryResolutionResultKind.NoEntryPoint:
-                    _reporter.WriteVerbose(DesignStrings.NoEntryPoint(_startupAssembly.GetName().Name));
-                    return null;
-                case FactoryResolutionResultKind.NoCreateWebHostBuilder:
-                case FactoryResolutionResultKind.NoBuildWebHost:
-                    _reporter.WriteVerbose(DesignStrings.NoBuildWebHost(webHostFactoryResult.ProgramType.DisplayName()));
-                    return null;
-                default:
-                    Debug.Fail("Unexpected value: " + webHostFactoryResult.ResultKind);
-                    return null;
+                _reporter.WriteVerbose(DesignStrings.NoCreateHostBuilder);
+
+                return null;
             }
 
             // TODO: Remove when dotnet/cli#6617 is fixed
@@ -72,14 +63,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
-            _reporter.WriteVerbose(DesignStrings.UsingBuildWebHost(webHostFactoryResult.ProgramType.ShortDisplayName()));
 
             try
             {
-                var webHost = webHostFactoryResult.WebHostFactory(args);
-                var webHostType = webHost.GetType();
-                var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
-                var services = (IServiceProvider)servicesProperty.GetValue(webHost);
+                var services = serviceProviderFactory(args);
+                if (services == null)
+                {
+                    _reporter.WriteWarning(DesignStrings.MalformedCreateHostBuilder);
+
+                    return null;
+                }
+
+                _reporter.WriteVerbose(DesignStrings.UsingHostingServices);
 
                 return services.CreateScope().ServiceProvider;
             }
@@ -91,18 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 _reporter.WriteVerbose(ex.ToString());
-                _reporter.WriteWarning(DesignStrings.InvokeBuildWebHostFailed(webHostFactoryResult.ProgramType.ShortDisplayName(), ex.Message));
+                _reporter.WriteWarning(DesignStrings.InvokeCreateHostBuilderFailed(ex.Message));
 
                 return null;
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Type FindProgramClass()
-            => _startupAssembly.EntryPoint?.DeclaringType;
 
         private IServiceProvider CreateEmptyServiceProvider()
         {

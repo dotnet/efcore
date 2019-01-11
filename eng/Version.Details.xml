@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Internal.WebHostBuilderFactory.Sources" Version="3.0.0-preview.18617.2">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>0000000000000000000000000000000000000000</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.19064.4">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>60f871b05ac8db8de316dc9ed5e7647808011225</Sha>
@@ -36,6 +32,10 @@
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27314-6">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>90ba7b628ff397caa35c50e8ecbf50f96308d1c3</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview.19064.2">
+      <Uri>https://github.com/aspnet/Extensions</Uri>
+      <Sha>73f75d90945a519ab2f0bace4fe9b10de5eb0dd4</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview.19064.2">
       <Uri>https://github.com/aspnet/Extensions</Uri>
