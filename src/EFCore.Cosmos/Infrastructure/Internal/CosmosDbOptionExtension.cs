@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 {
     public class CosmosDbOptionsExtension : IDbContextOptionsExtension
     {
-        private Uri _serviceEndPoint;
+        private string _serviceEndPoint;
         private string _authKeyOrResourceToken;
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
         }
 
-        public virtual Uri ServiceEndPoint => _serviceEndPoint;
+        public virtual string ServiceEndPoint => _serviceEndPoint;
 
-        public virtual CosmosDbOptionsExtension WithServiceEndPoint(Uri serviceEndPoint)
+        public virtual CosmosDbOptionsExtension WithServiceEndPoint(string serviceEndPoint)
         {
             var clone = Clone();
 

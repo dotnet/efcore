@@ -14,7 +14,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
-    <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
+    <MicrosoftAzureCosmosPackageVersion>3.0.0.1-preview</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>

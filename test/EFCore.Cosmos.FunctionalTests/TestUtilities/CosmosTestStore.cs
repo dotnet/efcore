@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             if (await context.Database.EnsureCreatedAsync())
             {
-                var cosmosClient = context.GetService<CosmosClient>();
+                var cosmosClient = context.GetService<CosmosClientWrapper>();
                 var seedData = JArray.Parse(File.ReadAllText(_dataFilePath));
 
                 foreach (var entityData in seedData)
@@ -82,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     {
                         document["id"] = $"{entityName}|{document["id"]}";
                         document["Discriminator"] = entityName;
+                        document["__partitionKey"] = "0";
                         // TODO: Stream the document
-                        await cosmosClient.CreateDocumentAsync("NorthwindContext", document);
+                        await cosmosClient.CreateItemAsync("NorthwindContext", document);
                     }
                 }
             }

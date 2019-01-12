@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage
 {
     public class SqlParameter
     {
@@ -13,10 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             Value = value;
         }
 
-        [JsonProperty("name", Required = Required.Always)]
         public string Name { get; }
 
-        [JsonProperty("value", Required = Required.AllowNull)]
         public object Value { get; }
     }
 }

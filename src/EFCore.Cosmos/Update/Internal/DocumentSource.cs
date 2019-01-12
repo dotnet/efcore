@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
     public class DocumentSource
     {
         private readonly string _collectionId;
-        private readonly CosmosDatabase _database;
+        private readonly CosmosDatabaseWrapper _database;
         private readonly IProperty _idProperty;
 
-        public DocumentSource(IEntityType entityType, CosmosDatabase database)
+        public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
         {
             _collectionId = entityType.Cosmos().ContainerName;
             _database = database;

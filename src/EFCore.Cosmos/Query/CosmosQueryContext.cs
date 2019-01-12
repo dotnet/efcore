@@ -14,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
         public CosmosQueryContext(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
-            [NotNull] CosmosClient cosmosClient)
+            [NotNull] CosmosClientWrapper cosmosClient)
             : base(dependencies, queryBufferFactory)
         {
             CosmosClient = cosmosClient;
         }
 
-        public CosmosClient CosmosClient { get; }
+        public CosmosClientWrapper CosmosClient { get; }
     }
 }

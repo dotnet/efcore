@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosDbOptionsExtension>>()
-                .TryAdd<IDatabase, CosmosDatabase>()
+                .TryAdd<IDatabase, CosmosDatabaseWrapper>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
                 .TryAdd<IModelCustomizer, CosmosModelCustomizer>()
@@ -40,7 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b
-                        .TryAddScoped<CosmosClient, CosmosClient>()
+                        .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
 
                 );
 

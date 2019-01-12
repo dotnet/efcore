@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
                             ?? new CosmosDbOptionsExtension();
 
             extension = extension
-                .WithServiceEndPoint(new Uri(serviceEndPoint))
+                .WithServiceEndPoint(serviceEndPoint)
                 .WithAuthKeyOrResourceToken(authKeyOrResourceToken)
                 .WithDatabaseName(databaseName);
 

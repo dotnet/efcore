@@ -21,16 +21,16 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
-    public class CosmosDatabase : Database
+    public class CosmosDatabaseWrapper : Database
     {
         private readonly Dictionary<IEntityType, DocumentSource> _documentCollections
             = new Dictionary<IEntityType, DocumentSource>();
-        private readonly CosmosClient _cosmosClient;
+        private readonly CosmosClientWrapper _cosmosClient;
         private readonly bool _sensitiveLoggingEnabled;
 
-        public CosmosDatabase(
+        public CosmosDatabaseWrapper(
             DatabaseDependencies dependencies,
-            CosmosClient cosmosClient,
+            CosmosClientWrapper cosmosClient,
             ILoggingOptions loggingOptions)
             : base(dependencies)
         {
@@ -155,7 +155,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             switch (state)
             {
                 case EntityState.Added:
-                    return _cosmosClient.CreateDocument(collectionId, documentSource.CreateDocument(entry));
+                    var newDocument = documentSource.CreateDocument(entry);
+                    newDocument["__partitionKey"] = "0";
+                    return _cosmosClient.CreateItem(collectionId, newDocument);
                 case EntityState.Modified:
                     var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
                     var document = jObjectProperty != null
@@ -171,15 +173,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
+                        document["__partitionKey"] = "0";
 
                         document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
                             JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
                     }
 
-                    return _cosmosClient.ReplaceDocument(
+                    return _cosmosClient.ReplaceItem(
                         collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document);
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteDocument(collectionId, documentSource.GetId(entry));
+                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry));
                 default:
                     return false;
             }
@@ -208,7 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             switch (state)
             {
                 case EntityState.Added:
-                    return _cosmosClient.CreateDocumentAsync(collectionId, documentSource.CreateDocument(entry), cancellationToken);
+                    var newDocument = documentSource.CreateDocument(entry);
+                    newDocument["__partitionKey"] = "0";
+                    return _cosmosClient.CreateItemAsync(collectionId, newDocument, cancellationToken);
                 case EntityState.Modified:
                     var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
                     var document = jObjectProperty != null
@@ -224,15 +229,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
+                        document["__partitionKey"] = "0";
 
                         document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
                             JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
                     }
 
-                    return _cosmosClient.ReplaceDocumentAsync(
+                    return _cosmosClient.ReplaceItemAsync(
                         collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, cancellationToken);
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteDocumentAsync(collectionId, documentSource.GetId(entry), cancellationToken);
+                    return _cosmosClient.DeleteItemAsync(collectionId, documentSource.GetId(entry), cancellationToken);
                 default:
                     return Task.FromResult(false);
             }
