@@ -812,18 +812,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IReadOnlyList<InternalEntityEntry> GetInternalEntriesToSave()
         {
-            foreach (var entry in Entries.Where(
-                e => (e.EntityState == EntityState.Modified
-                      || e.EntityState == EntityState.Added)
-                     && e.HasConceptualNull).ToList())
-            {
-                entry.HandleConceptualNulls(SensitiveLoggingEnabled);
-            }
-
-            foreach (var entry in Entries.Where(e => e.EntityState == EntityState.Deleted).ToList())
-            {
-                CascadeDelete(entry);
-            }
+            CascadeChanges(force: false);
 
             return Entries
                 .Where(
@@ -834,8 +823,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .ToList();
         }
 
-        private void CascadeDelete(InternalEntityEntry entry)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void CascadeChanges(bool force)
         {
+            foreach (var entry in Entries.Where(
+                e => (e.EntityState == EntityState.Modified
+                      || e.EntityState == EntityState.Added)
+                     && e.HasConceptualNull).ToList())
+            {
+                entry.HandleConceptualNulls(SensitiveLoggingEnabled, force, isCascadeDelete: false);
+            }
+
+            foreach (var entry in Entries.Where(e => e.EntityState == EntityState.Deleted).ToList())
+            {
+                CascadeDelete(entry, force);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void CascadeDelete(InternalEntityEntry entry, bool force)
+        {
+            var doCascadeDelete = force || Context.ChangeTracker.CascadeDeleteTiming != CascadeTiming.Never;
+
             foreach (var fk in entry.EntityType.GetReferencingForeignKeys())
             {
                 foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
@@ -847,7 +862,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         && (dependent.EntityState == EntityState.Added
                             || KeysEqual(entry, fk, dependent)))
                     {
-                        if (fk.DeleteBehavior == DeleteBehavior.Cascade)
+                        if (fk.DeleteBehavior == DeleteBehavior.Cascade
+                            && doCascadeDelete)
                         {
                             var cascadeState = dependent.EntityState == EntityState.Added
                                 ? EntityState.Detached
@@ -864,18 +880,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             dependent.SetEntityState(cascadeState);
 
-                            CascadeDelete(dependent);
+                            CascadeDelete(dependent, force);
                         }
                         else
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
-                                dependent[dependentProperty] = null;
+                                dependent.SetProperty(dependentProperty, null, setModified: true, isCascadeDelete: true);
                             }
 
                             if (dependent.HasConceptualNull)
                             {
-                                dependent.HandleConceptualNulls(SensitiveLoggingEnabled);
+                                dependent.HandleConceptualNulls(SensitiveLoggingEnabled, force, isCascadeDelete: true);
                             }
                         }
                     }
@@ -895,7 +911,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     entry[principalProperty],
                     dependent[dependentProperty]))
                 {
-                    //dependent[dependentProperty] = null;
                     return false;
                 }
             }

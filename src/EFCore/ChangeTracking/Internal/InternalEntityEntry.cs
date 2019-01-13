@@ -273,6 +273,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             FireStateChanged(oldState);
+
+            if (newState == EntityState.Deleted
+                && StateManager.Context.ChangeTracker.CascadeDeleteTiming == CascadeTiming.Immediate)
+            {
+                StateManager.CascadeDelete(this, force: false);
+            }
         }
 
         private void FireStateChanged(EntityState oldState)
@@ -519,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.TempValue(property.Name, EntityType.DisplayName()));
             }
 
-            SetProperty(property, value, setModified, CurrentValueType.Temporary);
+            SetProperty(property, value, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
         }
 
         /// <summary>
@@ -534,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.StoreGenValue(property.Name, EntityType.DisplayName()));
             }
 
-            SetProperty(property, value, setModified: true, CurrentValueType.StoreGenerated);
+            SetProperty(property, value, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
         }
 
         /// <summary>
@@ -909,13 +915,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetProperty(
             [NotNull] IPropertyBase propertyBase,
             [CanBeNull] object value,
-            bool setModified = true)
-            => SetProperty(propertyBase, value, setModified, CurrentValueType.Normal);
+            bool setModified = true,
+            bool isCascadeDelete = false)
+            => SetProperty(propertyBase, value, setModified, isCascadeDelete, CurrentValueType.Normal);
 
         private void SetProperty(
             [NotNull] IPropertyBase propertyBase,
             [CanBeNull] object value,
             bool setModified,
+            bool isCascadeDelete,
             CurrentValueType valueType)
         {
             var currentValue = this[propertyBase];
@@ -967,6 +975,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 SetPropertyModified(
                                     asProperty, changeState: true, isModified: true,
                                     isConceptualNull: true);
+                            }
+
+                            if (!isCascadeDelete
+                                && StateManager.Context.ChangeTracker.DeleteOrphansTiming == CascadeTiming.Immediate)
+                            {
+                                HandleConceptualNulls(
+                                    StateManager.SensitiveLoggingEnabled,
+                                    force: false,
+                                    isCascadeDelete: false);
                             }
                         }
 
@@ -1134,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void HandleConceptualNulls(bool sensitiveLoggingEnabled)
+        public virtual void HandleConceptualNulls(bool sensitiveLoggingEnabled, bool force, bool isCascadeDelete)
         {
             var fks = new List<IForeignKey>();
             foreach (var foreignKey in EntityType.GetForeignKeys())
@@ -1172,7 +1189,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var cascadeFk = fks.FirstOrDefault(fk => fk.DeleteBehavior == DeleteBehavior.Cascade);
-            if (cascadeFk != null)
+            if (cascadeFk != null
+                && (force
+                    || (!isCascadeDelete
+                        && StateManager.Context.ChangeTracker.DeleteOrphansTiming != CascadeTiming.Never)))
             {
                 var cascadeState = EntityState == EntityState.Added
                     ? EntityState.Detached
@@ -1193,18 +1213,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (fks.Count > 0)
             {
+                var foreignKey = fks.First();
+
                 if (sensitiveLoggingEnabled)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.RelationshipConceptualNullSensitive(
-                            fks.First().PrincipalEntityType.DisplayName(),
+                            foreignKey.PrincipalEntityType.DisplayName(),
                             EntityType.DisplayName(),
-                            this.BuildOriginalValuesString(EntityType.FindPrimaryKey().Properties)));
+                            this.BuildOriginalValuesString(foreignKey.Properties)));
                 }
 
                 throw new InvalidOperationException(
                     CoreStrings.RelationshipConceptualNull(
-                        fks.First().PrincipalEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName(),
                         EntityType.DisplayName()));
             }
             else
@@ -1222,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             CoreStrings.PropertyConceptualNullSensitive(
                                 property.Name,
                                 EntityType.DisplayName(),
-                                this.BuildOriginalValuesString(EntityType.FindPrimaryKey().Properties)));
+                                this.BuildOriginalValuesString(new[] { property })));
                     }
 
                     throw new InvalidOperationException(

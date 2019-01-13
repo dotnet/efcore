@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -170,9 +171,9 @@ WHERE [e].[ParentId] = @__p_0",
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Lazy_load_collection_already_loaded(EntityState state)
+        public override void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
-            base.Lazy_load_collection_already_loaded(state);
+            base.Lazy_load_collection_already_loaded(state, cascadeDeleteTiming);
 
             Assert.Equal("", Sql);
         }
@@ -191,9 +192,9 @@ WHERE [e].[ParentId] = @__p_0",
             Assert.Equal("", Sql);
         }
 
-        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state)
+        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
-            base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state);
+            base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, cascadeDeleteTiming);
 
             Assert.Equal("", Sql);
         }
@@ -802,9 +803,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_collection_already_loaded(EntityState state, bool async)
+        public override async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_collection_already_loaded(state, async);
+            await base.Load_collection_already_loaded(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -822,9 +823,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
+        public override async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_one_to_one_reference_to_principal_already_loaded(state, async);
+            await base.Load_one_to_one_reference_to_principal_already_loaded(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -832,9 +833,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async);
+            await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -862,9 +863,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_collection_using_Query_already_loaded(EntityState state, bool async)
+        public override async Task Load_collection_using_Query_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_collection_using_Query_already_loaded(state, async);
+            await base.Load_collection_using_Query_already_loaded(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -913,9 +914,9 @@ WHERE [e].[Id] = @__p_0",
             }
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -1236,9 +1237,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async)
+        public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_collection_already_loaded_untyped(state, async);
+            await base.Load_collection_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -1266,9 +1267,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async);
+            await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -1276,9 +1277,9 @@ WHERE [e].[ParentId] = @__p_0",
             }
         }
 
-        public override async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async)
+        public override async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_collection_using_Query_already_loaded_untyped(state, async);
+            await base.Load_collection_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
             if (!async)
             {
@@ -1327,9 +1328,9 @@ WHERE [e].[Id] = @__p_0",
             }
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
-            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async);
+            await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
             if (!async)
             {

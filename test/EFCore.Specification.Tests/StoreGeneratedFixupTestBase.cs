@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -4003,6 +4004,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
                 var game = new Game { Id = Guid77 };
                 var level = new Level { Game = game };
                 var item = new Item { Level = level };

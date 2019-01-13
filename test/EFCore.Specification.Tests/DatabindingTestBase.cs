@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Xunit;
 
@@ -930,11 +931,17 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Entity_removed_from_navigation_property_binding_list_is_removed_from_nav_property_but_not_marked_Deleted()
+        [Theory]
+        [InlineData(CascadeTiming.Immediate)]
+        [InlineData(CascadeTiming.OnSaveChanges)]
+        [InlineData(CascadeTiming.Never)]
+        public virtual void Entity_removed_from_navigation_property_binding_list_is_removed_from_nav_property_but_not_marked_Deleted(
+            CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateF1Context())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
 
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
@@ -947,7 +954,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.ChangeTracker.DetectChanges();
 
-                Assert.True(localDrivers.Contains(alonso)); // Because it is not marked as Deleted
+                if (deleteOrphansTiming == CascadeTiming.Immediate)
+                {
+                    Assert.False(localDrivers.Contains(alonso));
+                }
+                else
+                {
+                    Assert.True(localDrivers.Contains(alonso)); // Because it is not marked as Deleted
+                }
 
                 Assert.False(ferrari.Drivers.Contains(alonso)); // But has been removed from nav prop
             }
