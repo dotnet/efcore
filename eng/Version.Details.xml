@@ -33,9 +33,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>95577f5a1903e1781328136bf073b929184758b5</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27311-5">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27312-4">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>a0390ef6bcf1442fdea777e87d43c7beff3ef914</Sha>
+      <Sha>a11fad582ec9902426acf331b7d0cad5e5ab2766</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview.19060.2">
       <Uri>https://github.com/aspnet/Extensions</Uri>
