@@ -353,58 +353,243 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Cascade_delete_is_logged(bool sensitive)
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, null)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.Immediate, null)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.Never, null)]
+        [InlineData(false, null, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, null, CascadeTiming.Immediate)]
+        [InlineData(false, null, CascadeTiming.Never)]
+        [InlineData(false, null, null)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, null)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.Immediate, null)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.Never, null)]
+        [InlineData(true, null, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, null, CascadeTiming.Immediate)]
+        [InlineData(true, null, CascadeTiming.Never)]
+        [InlineData(true, null, null)]
+        public void Cascade_delete_is_logged(
+            bool sensitive,
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
             Seed(sensitive);
 
             using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
             {
+                if (cascadeDeleteTiming.HasValue)
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming.Value;
+                }
+
+                if (deleteOrphansTiming.HasValue)
+                {
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming.Value;
+                }
+
                 var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
 
-                context.Entry(cat).State = EntityState.Deleted;
+                LogLevel? cascadeDeleteLevel = null;
+                string cascadeDeleteMessage = null;
+                string deleteOrphansMessage = null;
 
-                _loggerFactory.Log.Clear();
+                void CaptureMessages()
+                {
+                    (cascadeDeleteLevel, _, cascadeDeleteMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
+                    (_, _, deleteOrphansMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                }
 
-                context.SaveChanges();
+                void ClearMessages()
+                {
+                    _loggerFactory.Log.Clear();
+                }
 
-                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
-                Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(
-                    sensitive
-                        ? CoreStrings.LogCascadeDeleteSensitive.GenerateMessage(
-                            nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
-                        : CoreStrings.LogCascadeDelete.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
-                    message);
+                switch (cascadeDeleteTiming)
+                {
+                    case CascadeTiming.Immediate:
+                    case null:
+                        ClearMessages();
+
+                        context.Entry(cat).State = EntityState.Deleted;
+
+                        CaptureMessages();
+
+                        context.SaveChanges();
+                        break;
+                    case CascadeTiming.OnSaveChanges:
+                        context.Entry(cat).State = EntityState.Deleted;
+
+                        ClearMessages();
+
+                        context.SaveChanges();
+
+                        CaptureMessages();
+                        break;
+                    case CascadeTiming.Never:
+                        ClearMessages();
+
+                        context.Entry(cat).State = EntityState.Deleted;
+
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+
+                        CaptureMessages();
+                        break;
+                }
+
+                Assert.Null(deleteOrphansMessage);
+
+                if (cascadeDeleteTiming == CascadeTiming.Never)
+                {
+                    Assert.Null(cascadeDeleteMessage);
+                }
+                else
+                {
+                    Assert.Equal(LogLevel.Debug, cascadeDeleteLevel);
+                    Assert.Equal(
+                        sensitive
+                            ? CoreStrings.LogCascadeDeleteSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
+                            : CoreStrings.LogCascadeDelete.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                        cascadeDeleteMessage);
+                }
             }
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Cascade_delete_orphan_is_logged(bool sensitive)
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.OnSaveChanges, null)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.Immediate, null)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.Never, CascadeTiming.Never)]
+        [InlineData(false, CascadeTiming.Never, null)]
+        [InlineData(false, null, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, null, CascadeTiming.Immediate)]
+        [InlineData(false, null, CascadeTiming.Never)]
+        [InlineData(false, null, null)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.OnSaveChanges, null)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.Immediate, null)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.Never, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.Never, null)]
+        [InlineData(true, null, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, null, CascadeTiming.Immediate)]
+        [InlineData(true, null, CascadeTiming.Never)]
+        [InlineData(true, null, null)]
+        public void Cascade_delete_orphan_is_logged(
+            bool sensitive,
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
             Seed(sensitive);
 
             using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
             {
+                if (cascadeDeleteTiming.HasValue)
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming.Value;
+                }
+
+                if (deleteOrphansTiming.HasValue)
+                {
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming.Value;
+                }
+
                 var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
 
-                cat.Hats.Clear();
+                LogLevel? deleteOrphansLevel = null;
+                string cascadeDeleteMessage = null;
+                string deleteOrphansMessage = null;
 
-                _loggerFactory.Log.Clear();
+                void CaptureMessages()
+                {
+                    (_, _, cascadeDeleteMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
+                    (deleteOrphansLevel, _, deleteOrphansMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                }
 
-                context.SaveChanges();
+                void ClearMessages()
+                {
+                    _loggerFactory.Log.Clear();
+                }
 
-                var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
-                Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(
-                    sensitive
-                        ? CoreStrings.LogCascadeDeleteOrphanSensitive.GenerateMessage(
-                            nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
-                        : CoreStrings.LogCascadeDeleteOrphan.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
-                    message);
+                switch (deleteOrphansTiming)
+                {
+                    case CascadeTiming.Immediate:
+                    case null:
+                        ClearMessages();
+
+                        cat.Hats.Clear();
+                        context.ChangeTracker.DetectChanges();
+
+                        CaptureMessages();
+
+                        context.SaveChanges();
+                        break;
+                    case CascadeTiming.OnSaveChanges:
+                        cat.Hats.Clear();
+                        context.ChangeTracker.DetectChanges();
+
+                        ClearMessages();
+
+                        context.SaveChanges();
+
+                        CaptureMessages();
+                        break;
+                    case CascadeTiming.Never:
+                        ClearMessages();
+
+                        cat.Hats.Clear();
+                        context.ChangeTracker.DetectChanges();
+
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+
+                        CaptureMessages();
+                        break;
+                }
+
+                Assert.Null(cascadeDeleteMessage);
+
+                if (deleteOrphansTiming == CascadeTiming.Never)
+                {
+                    Assert.Null(deleteOrphansMessage);
+                }
+                else
+                {
+                    Assert.Equal(LogLevel.Debug, deleteOrphansLevel);
+                    Assert.Equal(
+                        sensitive
+                            ? CoreStrings.LogCascadeDeleteOrphanSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
+                            : CoreStrings.LogCascadeDeleteOrphan.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                        deleteOrphansMessage);
+                }
             }
         }
 

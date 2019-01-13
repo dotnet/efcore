@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -754,13 +755,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_collection_already_loaded(EntityState state)
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
@@ -785,20 +791,37 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
                 Assert.Equal(2, parent.Children.Count());
-                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+                if (state == EntityState.Deleted
+                    && cascadeDeleteTiming == CascadeTiming.Immediate)
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+                }
+                else
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(EntityState state)
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+        [InlineData(EntityState.Modified, CascadeTiming.Never)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
@@ -872,13 +895,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state)
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+        [InlineData(EntityState.Modified, CascadeTiming.Never)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+        public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
+            EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
@@ -907,7 +939,17 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
                 Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
+
+                if (cascadeDeleteTiming == CascadeTiming.Immediate
+                    && state == EntityState.Deleted)
+                {
+                    // No fixup to Deleted entity.
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                }
             }
         }
 
