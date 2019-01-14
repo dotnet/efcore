@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_missing_required_store_generated_values_in_seeds()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<A>(
                 e =>
                 {
