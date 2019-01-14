@@ -11,6 +11,9 @@ SET DOTNET_MULTILEVEL_LOOKUP=0
 :: Put our local dotnet.exe on PATH first so Visual Studio knows which one to use
 SET PATH=%DOTNET_ROOT%;%PATH%
 
+:: Needed for VS 2017 to find the SDK
+SET MSBuildSDKsPath=%DOTNET_ROOT%sdk\3.0.100-preview-010010\Sdks
+
 SET sln=%1
 
 IF NOT EXIST "%DOTNET_ROOT%\dotnet.exe" (
