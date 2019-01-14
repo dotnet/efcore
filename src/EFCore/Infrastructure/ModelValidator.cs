@@ -568,7 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             || value == null)
                         {
                             if (!property.IsNullable
-                                && (!property.RequiresValueGenerator()
+                                && ((!property.RequiresValueGenerator()
+                                        && (property.ValueGenerated & ValueGenerated.OnAdd) == 0)
                                     || property.IsKey()))
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
