@@ -160,6 +160,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Order Order { get; set; }
         }
 
+        protected class ProductCategory
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ICollection<Product> Products { get; set; }
+        }
+
         [Owned]
         protected class StreetAddress
         {

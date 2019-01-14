@@ -147,6 +147,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
+        {
+            if (nullable == null)
+            {
+                _isNullable = null;
+                _isNullableConfigurationSource = null;
+            }
+            else
+            {
+                SetIsNullable(nullable.Value, configurationSource);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsNullable(bool nullable, ConfigurationSource configurationSource)
         {
             if (nullable)
@@ -176,6 +193,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dispatcher = DeclaringEntityType.Model.ConventionDispatcher;
             foreach (var affectedForeignKey in affectedForeignKeys)
             {
+                if (!nullable
+                    && affectedForeignKey.Properties.Any(p => p.IsNullable))
+                {
+                    continue;
+                }
+
                 if (affectedForeignKey.IsRequired == !nullable)
                 {
                     dispatcher.OnForeignKeyRequirednessChanged(affectedForeignKey.Builder);

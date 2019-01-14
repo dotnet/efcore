@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = dependentType.FindProperty(nameof(OrderDetails.OrderId));
 
                 modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
-                modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
+                var fkBuilder = modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
 
                 modelBuilder.Validate();
 
@@ -304,6 +304,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
+                Assert.True(fk.IsRequired);
+
+                fkBuilder.HasForeignKey<OrderDetails>("fk");
+
+                fk = dependentType.GetForeignKeys().Single();
+                Assert.False(fk.IsRequired);
             }
 
             [Fact]
@@ -2836,6 +2842,42 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
                 Assert.Equal(typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
+            }
+
+            [Fact]
+            public virtual void Can_specify_shadow_identifying_fk()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Nob>(eb =>
+                {
+                    eb.Ignore(e => e.Hobs);
+                    eb.Ignore(e => e.Hob);
+
+                    eb.Property<Guid>("Id");
+                    eb.HasKey("Id");
+                });
+
+                modelBuilder.Entity<Hob>(eb =>
+                {
+                    eb.Ignore(e => e.Nobs);
+
+                    eb.HasOne(c => c.Nob)
+                        .WithOne()
+                        .HasForeignKey<Hob>("NobId");
+
+                    eb.HasKey("NobId");
+
+                    eb.HasOne(c => c.Nob)
+                        .WithOne()
+                        .HasForeignKey<Hob>("NobId")
+                        .IsRequired();
+                });
+
+                modelBuilder.Validate();
+
+                var dependent = modelBuilder.Model.FindEntityType(typeof(Hob));
+                var fk = dependent.GetForeignKeys().Single();
+                Assert.Equal(typeof(Guid), fk.Properties.Single().ClrType);
             }
 
             [Fact]

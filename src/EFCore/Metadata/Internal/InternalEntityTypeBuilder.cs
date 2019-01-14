@@ -117,7 +117,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 RemoveKeyIfUnused(previousPrimaryKey);
             }
 
-            return keyBuilder?.Metadata.Builder == null ? null : keyBuilder;
+            if (keyBuilder?.Metadata.Builder == null)
+            {
+                properties = GetActualProperties(properties, null);
+                if (properties == null)
+                {
+                    return null;
+                }
+
+                // TODO: Use convention batch to get the updated builder, see #214
+                return Metadata.FindPrimaryKey(properties).Builder;
+            }
+            else
+            {
+                return keyBuilder;
+            }
         }
 
         /// <summary>
@@ -234,8 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && property.ClrType.IsNullableType()
                         && !property.GetContainingForeignKeys().Any(fk => fk.IsRequired))
                     {
-                        // TODO: This should be handled by reference tracking
-                        property.Builder?.IsRequired(false, configurationSource);
+                        // TODO: This should be handled by reference tracking, see #214
+                        property.Builder?.IsRequired(null, configurationSource);
                     }
                 }
             }

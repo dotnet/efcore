@@ -1419,7 +1419,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
                 dependentEntityType.Builder.GetOrCreateProperties(
-                    propertyNames, configurationSource, Metadata.PrincipalKey.Properties, Metadata.IsRequired, useDefaultType: true),
+                    propertyNames,
+                    configurationSource,
+                    Metadata.PrincipalKey.Properties,
+                    Metadata.GetIsRequiredConfigurationSource() == null ? false : Metadata.IsRequired,
+                    useDefaultType: true),
                 dependentEntityType,
                 configurationSource);
 
@@ -1901,7 +1905,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties?.Count > 0 ? dependentProperties : null,
                     oldNameDependentProperties,
                     principalProperties?.Count > 0 ? principalProperties : null,
-                    isRequired ?? Metadata.IsRequired,
+                    isRequired,
                     removeCurrent,
                     principalEndConfigurationSource,
                     configurationSource,
@@ -2178,7 +2182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> dependentProperties,
             IReadOnlyList<Property> oldNameDependentProperties,
             IReadOnlyList<Property> principalProperties,
-            bool isRequired,
+            bool? isRequired,
             bool removeCurrent,
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource? configurationSource,
@@ -2567,10 +2571,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (dependentProperties == null
                         && oldNameDependentProperties != null)
                     {
-
                         var detachedProperties = InternalEntityTypeBuilder.DetachProperties(oldNameDependentProperties);
                         dependentProperties = dependentEntityType.Builder.GetOrCreateProperties(
-                            oldNameDependentProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention, principalProperties, isRequired);
+                            oldNameDependentProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention, principalProperties, isRequired ?? false);
                         detachedProperties.Attach(dependentEntityType.Builder);
                     }
                 }
