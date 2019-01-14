@@ -1,4 +1,5 @@
 /.build/
+/.dotnet/
 /global.json
 QueryBaseline.cs
 
