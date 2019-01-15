@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,7 +15,8 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
+    public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
+        EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
     {
         public EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerFixture fixture)
             : base(fixture)

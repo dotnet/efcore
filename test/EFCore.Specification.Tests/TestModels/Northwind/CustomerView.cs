@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                   && Equals((CustomerView)obj);
+                  && Equals((CustomerView)obj);
         }
 
         public static bool operator ==(CustomerView left, CustomerView right)

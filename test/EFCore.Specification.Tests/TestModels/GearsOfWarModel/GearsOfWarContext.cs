@@ -38,7 +38,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             var factions = GearsOfWarData.CreateFactions();
             var locustHighCommands = GearsOfWarData.CreateHighCommands();
 
-            GearsOfWarData.WireUp(squads, missions, squadMissions, cities, weapons, tags, gears, locustLeaders, factions, locustHighCommands);
+            GearsOfWarData.WireUp(
+                squads, missions, squadMissions, cities, weapons, tags, gears, locustLeaders, factions, locustHighCommands);
 
             context.Squads.AddRange(squads);
             context.Missions.AddRange(missions);

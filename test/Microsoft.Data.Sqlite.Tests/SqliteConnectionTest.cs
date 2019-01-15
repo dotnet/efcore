@@ -180,13 +180,13 @@ namespace Microsoft.Data.Sqlite
             {
                 var raised = false;
                 StateChangeEventHandler handler = (sender, e) =>
-                    {
-                        raised = true;
+                {
+                    raised = true;
 
-                        Assert.Equal(connection, sender);
-                        Assert.Equal(ConnectionState.Closed, e.OriginalState);
-                        Assert.Equal(ConnectionState.Open, e.CurrentState);
-                    };
+                    Assert.Equal(connection, sender);
+                    Assert.Equal(ConnectionState.Closed, e.OriginalState);
+                    Assert.Equal(ConnectionState.Open, e.CurrentState);
+                };
 
                 connection.StateChange += handler;
                 try
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=encrypted.db;Password=password"))
             {
                 var stateChangeRaised = false;
-                connection.StateChange += (object sender, StateChangeEventArgs e) => stateChangeRaised = true;
+                connection.StateChange += (sender, e) => stateChangeRaised = true;
 
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
 
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Sqlite
                 using (var connection2 = new SqliteConnection("Data Source=encrypted.db"))
                 {
                     var stateChangeRaised = false;
-                    connection2.StateChange += (object sender, StateChangeEventArgs e) => stateChangeRaised = true;
+                    connection2.StateChange += (sender, e) => stateChangeRaised = true;
 
                     var ex = Assert.Throws<SqliteException>(() => connection2.Open());
 
@@ -437,13 +437,13 @@ namespace Microsoft.Data.Sqlite
 
                 var raised = false;
                 StateChangeEventHandler handler = (sender, e) =>
-                    {
-                        raised = true;
+                {
+                    raised = true;
 
-                        Assert.Equal(connection, sender);
-                        Assert.Equal(ConnectionState.Open, e.OriginalState);
-                        Assert.Equal(ConnectionState.Closed, e.CurrentState);
-                    };
+                    Assert.Equal(connection, sender);
+                    Assert.Equal(ConnectionState.Open, e.OriginalState);
+                    Assert.Equal(ConnectionState.Closed, e.CurrentState);
+                };
 
                 connection.StateChange += handler;
                 try
@@ -582,10 +582,10 @@ namespace Microsoft.Data.Sqlite
                     "MY_NOCASE",
                     list,
                     (l, s1, s2) =>
-                        {
-                            l.Add("Invoked");
-                            return string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase);
-                        });
+                    {
+                        l.Add("Invoked");
+                        return string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase);
+                    });
 
                 Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
                 var item = Assert.Single(list);

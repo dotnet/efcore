@@ -4,10 +4,10 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

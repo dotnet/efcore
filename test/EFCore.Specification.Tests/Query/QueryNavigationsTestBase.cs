@@ -60,9 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order, OrderDetail>(
                 isAsync,
                 (cs, os, ods) => (from c in cs
-                                  join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
+                                  join o in os.Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into
+                                      grouping
                                   from o in grouping
-                                  join od in ods.Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                                  join od in ods.Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into
+                                      grouping2
                                   from od in grouping2
                                   select c),
                 entryCount: 89);
@@ -253,7 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault()));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2)
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault()));
         }
 
         [ConditionalTheory]
@@ -553,13 +556,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => (from c in cs
-                      where c.CustomerID.StartsWith("A")
-                      orderby c.CustomerID
-                      select new
-                      {
-                          c.CustomerID,
-                          c.Orders
-                      }).OrderBy(e => e.CustomerID),
+                       where c.CustomerID.StartsWith("A")
+                       orderby c.CustomerID
+                       select new
+                       {
+                           c.CustomerID,
+                           c.Orders
+                       }).OrderBy(e => e.CustomerID),
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -640,7 +643,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory]
-        
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_where_nav_prop_any(bool isAsync)
         {
@@ -1069,7 +1071,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Product, OrderDetail>(
                 isAsync,
                 (ps, ods) => from p in ps
-                             where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
+                             where p.OrderDetails.Contains(
+                                 ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID)
+                                     .FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                              select p,
                 entryCount: 1);
         }
@@ -1284,7 +1288,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select new
                        {
                            o.OrderID,
-                           OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID).FirstOrDefault(),
+                           OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID)
+                               .FirstOrDefault(),
                            o.Customer.City
                        }).Take(3),
                 elementSorter: e => e.OrderID);
@@ -1463,7 +1468,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var query = from c in ctx.Customers
-                            join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o.CustomerID into grouping
+                            join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o
+                                .CustomerID into grouping
                             where c.CustomerID == "ALFKI"
                             select grouping.ToList();
 

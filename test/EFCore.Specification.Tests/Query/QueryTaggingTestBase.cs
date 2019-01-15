@@ -119,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
-                        .TagWith(@"Yanni
+                        .TagWith(
+                            @"Yanni
 AND
 Laurel")
                         .First();
@@ -136,10 +137,12 @@ Laurel")
                 var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
-                        .TagWith(@"Yanni
+                        .TagWith(
+                            @"Yanni
 AND
 Laurel")
-                        .TagWith(@"Yet
+                        .TagWith(
+                            @"Yet
 Another
 Multiline
 Tag")
@@ -157,7 +160,8 @@ Tag")
                 var customer
                     = context.Set<Customer>()
                         .OrderBy(c => c.CustomerID)
-                        .TagWith(@"Yanni
+                        .TagWith(
+                            @"Yanni
 
 AND
 

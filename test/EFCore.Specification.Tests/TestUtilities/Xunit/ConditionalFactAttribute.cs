@@ -8,7 +8,8 @@ using Xunit.Sdk;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
-    [XunitTestCaseDiscoverer("Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalFactDiscoverer", "Microsoft.EntityFrameworkCore.Specification.Tests")]
+    [XunitTestCaseDiscoverer(
+        "Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalFactDiscoverer", "Microsoft.EntityFrameworkCore.Specification.Tests")]
     public sealed class ConditionalFactAttribute : FactAttribute
     {
     }

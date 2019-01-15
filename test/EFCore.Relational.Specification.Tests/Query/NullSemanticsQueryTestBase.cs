@@ -214,7 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA == e.BoolB == (e.IntA == e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == e.BoolB == (e.IntA == e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == e.NullableBoolB == (e.NullableIntA == e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA == e.NullableBoolB == (e.NullableIntA == e.NullableIntB)));
         }
 
         [Fact]
@@ -222,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA == e.BoolB != (e.IntA == e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == e.BoolB != (e.IntA == e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == e.NullableBoolB != (e.NullableIntA == e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA == e.NullableBoolB != (e.NullableIntA == e.NullableIntB)));
         }
 
         [Fact]
@@ -230,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA != e.BoolB == (e.IntA == e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.BoolB == (e.IntA == e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.NullableBoolB == (e.NullableIntA == e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA != e.NullableBoolB == (e.NullableIntA == e.NullableIntB)));
         }
 
         [Fact]
@@ -238,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA != e.BoolB != (e.IntA == e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.BoolB != (e.IntA == e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.NullableBoolB != (e.NullableIntA == e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA != e.NullableBoolB != (e.NullableIntA == e.NullableIntB)));
         }
 
         [Fact]
@@ -246,7 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA != e.BoolB == (e.IntA != e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.BoolB == (e.IntA != e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.NullableBoolB == (e.NullableIntA != e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA != e.NullableBoolB == (e.NullableIntA != e.NullableIntB)));
         }
 
         [Fact]
@@ -254,7 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA != e.BoolB != (e.IntA != e.IntB)));
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.BoolB != (e.IntA != e.NullableIntB)));
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA != e.NullableBoolB != (e.NullableIntA != e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableBoolA != e.NullableBoolB != (e.NullableIntA != e.NullableIntB)));
         }
 
         [Fact]
@@ -316,13 +322,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Where_multiple_ors_with_null()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == "Blah" || e.NullableStringA == null));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == "Blah" || e.NullableStringA == null));
         }
 
         [Fact]
         public virtual void Where_multiple_ands_with_null()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA != "Foo" && e.NullableStringA != "Blah" && e.NullableStringA != null));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA != "Foo" && e.NullableStringA != "Blah" && e.NullableStringA != null));
         }
 
         [Fact]
@@ -767,17 +775,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableIntA),
-                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") == e.NullableIntA)),
+                es => es.Where(
+                    e => (e.NullableStringA == null && e.NullableIntA == null)
+                         || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") == e.NullableIntA)),
                 useRelationalNulls: false);
 
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("ar") == e.NullableIntA),
-                es => es.Where(e => (e.NullableStringA == null && e.NullableIntA == null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("ar") == e.NullableIntA)),
+                es => es.Where(
+                    e => (e.NullableStringA == null && e.NullableIntA == null)
+                         || (e.NullableStringA != null && e.NullableStringA.IndexOf("ar") == e.NullableIntA)),
                 useRelationalNulls: false);
 
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableIntB),
-                es => es.Where(e => (e.NullableStringA == null && e.NullableIntB != null) || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)),
+                es => es.Where(
+                    e => (e.NullableStringA == null && e.NullableIntB != null)
+                         || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)),
                 useRelationalNulls: false);
         }
 
@@ -786,17 +800,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("oo") == e.NullableStringB.IndexOf("ar")),
-                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) == MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                es => es.Where(
+                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) == MaybeScalar<int>(
+                             e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
                 useRelationalNulls: false);
 
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringB.IndexOf("ar")),
-                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
+                es => es.Where(
+                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(
+                             e.NullableStringB, () => e.NullableStringB.IndexOf("ar"))),
                 useRelationalNulls: false);
 
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringA.IndexOf("ar")),
-                es => es.Where(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("ar"))),
+                es => es.Where(
+                    e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) != MaybeScalar<int>(
+                             e.NullableStringA, () => e.NullableStringA.IndexOf("ar"))),
                 useRelationalNulls: false);
         }
 
@@ -805,12 +825,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA),
-                es => es.Where(e => (e.NullableStringA == null && (e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null)) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA)),
+                es => es.Where(
+                    e =>
+                        (e.NullableStringA == null && (e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null))
+                        || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null
+                            && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA)),
                 useRelationalNulls: false);
 
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA),
-                es => es.Where(e => ((e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null) && e.NullableStringA != null) || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA)),
+                es => es.Where(
+                    e =>
+                        ((e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null) && e.NullableStringA != null)
+                        || (e.NullableStringA != null && e.NullableStringB != null && e.NullableStringC != null
+                            && e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA)),
                 useRelationalNulls: false);
         }
 

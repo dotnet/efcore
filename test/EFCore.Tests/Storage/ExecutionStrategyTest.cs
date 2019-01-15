@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (Context.Database.BeginTransaction())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
                             () => execute(mockExecutionStrategy))
                         .Message);
@@ -120,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (new TransactionScope())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
                             () => execute(mockExecutionStrategy))
                         .Message);
@@ -147,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Context.Database.EnlistTransaction(t);
 
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     Assert.Throws<InvalidOperationException>(
                             () => execute(mockExecutionStrategy))
                         .Message);
@@ -373,7 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (Context.Database.BeginTransaction())
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => executeAsync(mockExecutionStrategy))).Message);
             }
@@ -397,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => executeAsync(mockExecutionStrategy)))
                     .Message);
@@ -424,7 +429,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Context.Database.EnlistTransaction(t);
 
                 Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => executeAsync(mockExecutionStrategy)))
                     .Message);
@@ -443,7 +449,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_does_not_throw_when_invoked_twice(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_does_not_throw_when_invoked_twice(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executed = false;
 
@@ -482,7 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_doesnt_retry_if_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_doesnt_retry_if_succesful(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionCount = 0;
             await executeAsync(CreateFailOnRetryStrategy(), ct => Task.FromResult(executionCount++));
@@ -502,7 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_doesnt_retry_if_suspended(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_doesnt_retry_if_suspended(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             TestExecutionStrategy.Suspended = true;
             var executionCount = 0;
@@ -531,7 +540,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_retries_until_succesful(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_retries_until_succesful(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,
@@ -604,7 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_retries_until_limit_is_reached(Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
+        private async Task ExecuteAsync_retries_until_limit_is_reached(
+            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionCount = 0;
 

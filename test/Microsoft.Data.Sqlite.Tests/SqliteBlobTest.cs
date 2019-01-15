@@ -246,7 +246,6 @@ namespace Microsoft.Data.Sqlite
             long offset,
             SeekOrigin origin)
         {
-
             using (var stream = CreateStream())
             {
                 stream.Position = initialPosition;

@@ -171,7 +171,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 Name = "Unknown"
             };
 
-            var cities = new List<City>() { jacinto, ephyra, hanover, unknown };
+            var cities = new List<City>
+                { jacinto, ephyra, hanover, unknown };
             return cities;
         }
 

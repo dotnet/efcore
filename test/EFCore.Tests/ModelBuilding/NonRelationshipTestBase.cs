@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -190,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.FindPrimaryKey().Properties.Select(p => p.Name));
+                Assert.Equal(
+                    new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Equal("V1", keyBuilder.Metadata["A1"]);
                 Assert.Equal("V2", keyBuilder.Metadata["A2"]);
             }
@@ -234,7 +234,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entity = model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
+                Assert.Equal(
+                    Customer.AlternateKeyProperty.Name,
+                    entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -253,7 +255,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entity = model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name + 1, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
+                Assert.Equal(
+                    Customer.AlternateKeyProperty.Name + 1,
+                    entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -270,7 +274,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
+                Assert.Equal(
+                    Customer.AlternateKeyProperty.Name,
+                    entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -1233,21 +1239,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Beta>(c =>
-                {
-                    c.HasData(new Beta
+                modelBuilder.Entity<Beta>(
+                    c =>
                     {
-                        Id = -1
-                    });
-                    var customers = new List<Beta>
-                    {
-                        new Beta
+                        c.HasData(
+                            new Beta
+                            {
+                                Id = -1
+                            });
+                        var customers = new List<Beta>
                         {
-                            Id = -2
-                        }
-                    };
-                    c.HasData(customers);
-                });
+                            new Beta
+                            {
+                                Id = -2
+                            }
+                        };
+                        c.HasData(customers);
+                    });
 
                 modelBuilder.Validate();
 
@@ -1263,21 +1271,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Beta>(c =>
-                {
-                    c.HasData(new
+                modelBuilder.Entity<Beta>(
+                    c =>
                     {
-                        Id = -1
-                    });
-                    var customers = new List<object>
-                    {
-                        new
+                        c.HasData(
+                            new
+                            {
+                                Id = -1
+                            });
+                        var customers = new List<object>
                         {
-                            Id = -2
-                        }
-                    };
-                    c.HasData(customers);
-                });
+                            new
+                            {
+                                Id = -2
+                            }
+                        };
+                        c.HasData(customers);
+                    });
 
                 modelBuilder.Validate();
 

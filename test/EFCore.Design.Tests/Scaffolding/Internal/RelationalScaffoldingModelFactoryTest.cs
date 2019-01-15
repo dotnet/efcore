@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore
                     new DatabaseTable
                     {
                         Name = "PkTable",
-                        PrimaryKey = new DatabasePrimaryKey { Name="MyPk" }
+                        PrimaryKey = new DatabasePrimaryKey { Name = "MyPk" }
                     }
                 }
             };
@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore
                     IdColumn,
                     keyColumn
                 },
-                PrimaryKey = IdPrimaryKey,
+                PrimaryKey = IdPrimaryKey
             };
 
             parentTable.UniqueConstraints.Add(
@@ -724,7 +724,6 @@ namespace Microsoft.EntityFrameworkCore
                         keyColumn
                     }
                 });
-
 
             var childrenTable = new DatabaseTable
             {

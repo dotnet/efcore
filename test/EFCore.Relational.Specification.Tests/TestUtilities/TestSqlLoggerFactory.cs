@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlLoggerFactory : ListLoggerFactory
     {
-        private bool _proceduralQueryGeneration = false;
+        private readonly bool _proceduralQueryGeneration = false;
 
         private const string FileNewLine = @"
 ";
@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                    new[] { _eol },
-                    StringSplitOptions.RemoveEmptyEntries)[4]
+                        new[] { _eol },
+                        StringSplitOptions.RemoveEmptyEntries)[4]
                     .Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
+                                  0,
+                                  currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
                               + "QueryBaseline.cs";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;

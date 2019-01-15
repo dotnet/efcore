@@ -1,5 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,15 +74,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
                     .Where(p => IsOrderedableType(p.PropertyType)).ToList();
 
-            private bool _insideThenInclude = false;
-            private InjectThenByPropertyExpressionMutator _mutator;
+            private bool _insideThenInclude;
+            private readonly InjectThenByPropertyExpressionMutator _mutator;
 
             public ExpressionFinder(InjectThenByPropertyExpressionMutator mutator)
             {
                 _mutator = mutator;
             }
 
-            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; set; } = new Dictionary<Expression, List<PropertyInfo>>();
+            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new Dictionary<Expression, List<PropertyInfo>>();
 
             public override Expression Visit(Expression expression)
             {

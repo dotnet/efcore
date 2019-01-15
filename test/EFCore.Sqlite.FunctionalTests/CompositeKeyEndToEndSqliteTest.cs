@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CompositeKeyEndToEndSqliteTest : CompositeKeyEndToEndTestBase<CompositeKeyEndToEndSqliteTest.CompositeKeyEndToEndSqliteFixture>
+    public class CompositeKeyEndToEndSqliteTest : CompositeKeyEndToEndTestBase<
+        CompositeKeyEndToEndSqliteTest.CompositeKeyEndToEndSqliteFixture>
     {
         public CompositeKeyEndToEndSqliteTest(CompositeKeyEndToEndSqliteFixture fixture)
             : base(fixture)

@@ -927,6 +927,7 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
         {
             private TContext _context;
+            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
 
             public HasContextPc()
@@ -1056,6 +1057,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class HasStateManagerPc
         {
             private IStateManager _stateManager;
+            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
 
             public HasStateManagerPc()

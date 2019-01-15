@@ -601,7 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdge(vertexThree, vertexOne, edgeThree);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
+                CoreStrings.CircularDependency(
+                    string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 

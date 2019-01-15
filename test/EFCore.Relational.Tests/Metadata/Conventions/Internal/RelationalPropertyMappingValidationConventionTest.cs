@@ -32,11 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveNonNavigationAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
+            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit)
+                .Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
-                    typeof(NonPrimitiveNonNavigationAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(Tuple<long>).ShortDisplayName()),
+                    typeof(NonPrimitiveNonNavigationAsPropertyEntity).ShortDisplayName(), "LongProperty",
+                    typeof(Tuple<long>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 

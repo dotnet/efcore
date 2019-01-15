@@ -162,13 +162,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context.Database
                     .ExecuteSqlCommand(
-                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @contactTitle", city, contactTitleParameter);
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @contactTitle", city,
+                        contactTitleParameter);
 
                 Assert.Equal(-1, actual);
 
                 actual = context.Database
                     .ExecuteSqlCommand(
-                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}", cityParameter, contactTitle);
+                        @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}", cityParameter,
+                        contactTitle);
 
                 Assert.Equal(-1, actual);
             }

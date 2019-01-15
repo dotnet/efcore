@@ -5,5 +5,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Xunit;
 
 // Skip the entire assembly if cannot connect to CosmosDb
-[assembly: TestFramework("Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalTestFramework", "Microsoft.EntityFrameworkCore.Specification.Tests")]
+[assembly:
+    TestFramework(
+        "Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalTestFramework", "Microsoft.EntityFrameworkCore.Specification.Tests")]
 [assembly: CosmosDbConfiguredCondition]

@@ -132,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 private List<(LogLevel, EventId, string)> LogMessages { get; }
 
-                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+                public void Log<TState>(
+                    LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
                 {
                     var message = new StringBuilder();
                     if (formatter != null)
@@ -195,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
-            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider)
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -274,11 +276,23 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeNavigationFixer : INavigationFixer
         {
             public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
-            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery) => throw new NotImplementedException();
-            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue) => throw new NotImplementedException();
-            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed) => throw new NotImplementedException();
-            public void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
-            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
+
+            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery) =>
+                throw new NotImplementedException();
+
+            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue) =>
+                throw new NotImplementedException();
+
+            public void NavigationCollectionChanged(
+                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed) =>
+                throw new NotImplementedException();
+
+            public void KeyPropertyChanged(
+                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
+                IReadOnlyList<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
+
+            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys) =>
+                throw new NotImplementedException();
         }
 
         [Fact]
@@ -1674,11 +1688,13 @@ namespace Microsoft.EntityFrameworkCore
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .AddSingleton<ConstructorTestContextWithOC3A>()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                        .AddDbContext<ConstructorTestContextWithOC3A>(
+                            (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                        .AddDbContext<ConstructorTestContextWithOC3A>(
+                            (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .AddSingleton<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 
@@ -1822,11 +1838,13 @@ namespace Microsoft.EntityFrameworkCore
                     ? new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .AddTransient<ConstructorTestContextWithOC3A>()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                        .AddDbContext<ConstructorTestContextWithOC3A>(
+                            (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider()
                     : new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .AddDbContext<ConstructorTestContextWithOC3A>((p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                        .AddDbContext<ConstructorTestContextWithOC3A>(
+                            (p, b) => b.UseInternalServiceProvider(p).UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .AddTransient<ConstructorTestContextWithOC3A>()
                         .BuildServiceProvider());
 

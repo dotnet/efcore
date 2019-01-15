@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -13,36 +16,39 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity("Customer", b =>
-            {
-                b.Property<string>("CustomerId");
-
-                b.HasKey("CustomerId");
-
-                b.OwnsOne("CustomerDetails", "Details", b1 =>
+            modelBuilder.Entity(
+                "Customer", b =>
                 {
-                    b1.Property<string>("CustomerId");
+                    b.Property<string>("CustomerId");
 
-                    b1.HasKey("CustomerId");
+                    b.HasKey("CustomerId");
 
-                    b1.HasOne("Customer")
-                        .WithOne("Details")
-                        .HasForeignKey("CustomerDetails", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.OwnsOne(
+                        "CustomerDetails", "Details", b1 =>
+                        {
+                            b1.Property<string>("CustomerId");
+
+                            b1.HasKey("CustomerId");
+
+                            b1.HasOne("Customer")
+                                .WithOne("Details")
+                                .HasForeignKey("CustomerDetails", "CustomerId")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+
+                    b.OwnsOne(
+                        "CustomerDetails", "AdditionalDetails", b1 =>
+                        {
+                            b1.Property<string>("CustomerId");
+
+                            b1.HasKey("CustomerId");
+
+                            b1.HasOne("Customer")
+                                .WithOne("AdditionalDetails")
+                                .HasForeignKey("CustomerDetails", "CustomerId")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
                 });
-
-                b.OwnsOne("CustomerDetails", "AdditionalDetails", b1 =>
-                {
-                    b1.Property<string>("CustomerId");
-
-                    b1.HasKey("CustomerId");
-
-                    b1.HasOne("Customer")
-                        .WithOne("AdditionalDetails")
-                        .HasForeignKey("CustomerDetails", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-            });
 
             var model = modelBuilder.Model;
             var ownership1 = model.FindEntityType("Customer").FindNavigation("Details").ForeignKey;
@@ -51,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.True(ownership2.IsRequired);
             Assert.NotEqual(ownership1.DeclaringEntityType, ownership2.DeclaringEntityType);
             Assert.Equal(ownership1.Properties.Single().Name, ownership2.Properties.Single().Name);
-            Assert.Equal(ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name,
+            Assert.Equal(
+                ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name,
                 ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.Name == "CustomerDetails"));
         }

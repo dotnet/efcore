@@ -257,7 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
             Assert.Equal(
-                RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+                RelationalStrings.IncorrectDefaultValueType(
+                    guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => property.Relational().DefaultValue = guid).Message);
         }
 

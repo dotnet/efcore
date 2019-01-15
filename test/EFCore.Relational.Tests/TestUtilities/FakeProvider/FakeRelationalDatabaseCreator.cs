@@ -11,9 +11,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
     public class FakeRelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         public bool EnsureDeleted() => throw new NotImplementedException();
-        public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public bool EnsureCreated() => throw new NotImplementedException();
-        public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+
+        public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = new CancellationToken()) =>
+            throw new NotImplementedException();
+
         public bool CanConnect() => throw new NotImplementedException();
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public bool Exists() => throw new NotImplementedException();

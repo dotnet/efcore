@@ -14,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
         }
 
-        private List<(Type type, Expression expression)> _expressions = new List<(Type type, Expression expression)>
+        private readonly List<(Type type, Expression expression)> _expressions = new List<(Type type, Expression expression)>
         {
             (type: typeof(int), expression: Expression.Constant(42, typeof(int))),
             (type: typeof(int?), expression: Expression.Constant(7, typeof(int?))),
             (type: typeof(int?), expression: Expression.Constant(null, typeof(int?))),
             (type: typeof(string), expression: Expression.Constant("Foo", typeof(string))),
-            (type: typeof(string), expression: Expression.Constant(null, typeof(string))),
+            (type: typeof(string), expression: Expression.Constant(null, typeof(string)))
         };
 
         public override bool IsValid(Expression expression) => IsQueryableResult(expression);

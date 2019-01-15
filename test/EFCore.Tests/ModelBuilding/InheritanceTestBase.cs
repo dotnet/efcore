@@ -117,7 +117,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var ingredient = ingredientBuilder.Metadata;
 
                 Assert.Same(typeof(Ingredient), pickle.BaseType.ClrType);
-                AssertEqual(initialProperties, pickle.GetProperties().Where(p => p.Name != "Discriminator"), new PropertyComparer(compareAnnotations: false));
+                AssertEqual(
+                    initialProperties, pickle.GetProperties().Where(p => p.Name != "Discriminator"),
+                    new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
@@ -132,7 +134,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
                 AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
-                AssertEqual(initialProperties, ingredient.GetProperties().Where(p => p.Name != "Discriminator"), new PropertyComparer(compareAnnotations: false));
+                AssertEqual(
+                    initialProperties, ingredient.GetProperties().Where(p => p.Name != "Discriminator"),
+                    new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, ingredient.GetKeys());
                 AssertEqual(initialIndexes, ingredient.GetIndexes());
                 Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());
@@ -524,7 +528,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
                 Assert.Equal(LogLevel.Debug, Level);
-                Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
+                Assert.Equal(
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
+                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
 
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(
@@ -618,7 +624,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
                 var indexRemoveMessage =
-                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
+                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
                 Assert.Equal(2, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
 
                 dependentEntityBuilder.HasIndex(
@@ -759,7 +766,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
-            public virtual void Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
+            public virtual void
+                Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -768,7 +776,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(baseEntityType, derivedEntityType.BaseType);
                 Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.GetPrimaryKeyConfigurationSource());
-                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(
+                    ConfigurationSource.DataAnnotation,
+                    baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
                 Assert.Equal(ConfigurationSource.Convention, derivedEntityType.GetBaseTypeConfigurationSource());
             }
 
@@ -779,14 +789,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var derivedEntityTypeBuilder = modelBuilder.Entity<DerivedTypeWithKeyAnnotation>();
                 derivedEntityTypeBuilder.HasKey(e => e.MyPrimaryKey);
-                derivedEntityTypeBuilder.HasOne(e => e.Navigation).WithOne().HasForeignKey<DerivedTypeWithKeyAnnotation>(e => e.MyPrimaryKey);
+                derivedEntityTypeBuilder.HasOne(e => e.Navigation).WithOne()
+                    .HasForeignKey<DerivedTypeWithKeyAnnotation>(e => e.MyPrimaryKey);
                 var derivedEntityType = (EntityType)derivedEntityTypeBuilder.Metadata;
                 var baseEntityType = (EntityType)modelBuilder.Entity<BaseTypeWithKeyAnnotation>().Metadata;
 
                 Assert.Null(derivedEntityType.BaseType);
                 Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.GetPrimaryKeyConfigurationSource());
-                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
-                Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.FindNavigation(nameof(DerivedTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(
+                    ConfigurationSource.DataAnnotation,
+                    baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(
+                    ConfigurationSource.Explicit,
+                    derivedEntityType.FindNavigation(nameof(DerivedTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
                 Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.GetPrimaryKeyConfigurationSource());
             }
 

@@ -158,8 +158,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public override int VirtualBase() => throw new Exception();
         }
 
-        public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
-        public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
+        public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
+            nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
+
+        public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
+            nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
+
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
         public class TestMethods
@@ -230,14 +234,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.NotNull(
                     modelBuilder.Model.Relational().FindDbFunction(
-                        typeof(MyBaseContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                        typeof(MyBaseContext).GetMethod(
+                            function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
 
             foreach (var function in MyDerivedContext.FunctionNames)
             {
                 Assert.NotNull(
                     modelBuilder.Model.Relational().FindDbFunction(
-                        typeof(MyDerivedContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                        typeof(MyDerivedContext).GetMethod(
+                            function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
         }
 
@@ -474,7 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var expectedMessage = AbstractionsStrings.ArgumentIsEmpty("name");
 
-            Assert.Equal(expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
+            Assert.Equal(
+                expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
         }
 
         private ModelBuilder GetModelBuilder()

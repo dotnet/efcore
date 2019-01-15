@@ -303,13 +303,15 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(
+                () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, ReferenceEqualityComparer.Instance));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(
+                () => Source().ToLookupAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(
@@ -354,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.AnyAsync<int>(null, s => true));
             await ArgumentNullTest("predicate", () => Source().AnyAsync(null));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.AllAsync<int>(null, s => true));
-            await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.AllAsync<int>(null, s => true, new CancellationToken()));
+            await ArgumentNullTest(
+                "source", () => EntityFrameworkQueryableExtensions.AllAsync<int>(null, s => true, new CancellationToken()));
             await ArgumentNullTest("predicate", () => Source().AllAsync(null));
             await ArgumentNullTest("predicate", () => Source().AllAsync(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.CountAsync<int>(null));
@@ -363,19 +366,22 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.LongCountAsync<int>(null));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.LongCountAsync<int>(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.LongCountAsync<int>(null, s => true));
-            await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.LongCountAsync<int>(null, s => true, new CancellationToken()));
+            await ArgumentNullTest(
+                "source", () => EntityFrameworkQueryableExtensions.LongCountAsync<int>(null, s => true, new CancellationToken()));
             await ArgumentNullTest("predicate", () => Source().LongCountAsync(null));
             await ArgumentNullTest("predicate", () => Source().LongCountAsync(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MinAsync<int>(null));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MinAsync<int>(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MinAsync<int, bool>(null, s => true));
-            await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MinAsync<int, bool>(null, s => true, new CancellationToken()));
+            await ArgumentNullTest(
+                "source", () => EntityFrameworkQueryableExtensions.MinAsync<int, bool>(null, s => true, new CancellationToken()));
             await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null));
             await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MaxAsync<int>(null));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MaxAsync<int>(null, new CancellationToken()));
             await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MaxAsync<int, bool>(null, s => true));
-            await ArgumentNullTest("source", () => EntityFrameworkQueryableExtensions.MaxAsync<int, bool>(null, s => true, new CancellationToken()));
+            await ArgumentNullTest(
+                "source", () => EntityFrameworkQueryableExtensions.MaxAsync<int, bool>(null, s => true, new CancellationToken()));
             await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null));
             await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null, new CancellationToken()));
             await ArgumentNullTest("source", () => ((IQueryable<int>)null).SumAsync());

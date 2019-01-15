@@ -329,14 +329,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 using (var context = new ConflictingIncompatibleIdContext(options))
                 {
-                    await Assert.ThrowsAnyAsync<Exception>(async () =>
-                    {
-                        await context.Database.EnsureCreatedAsync();
+                    await Assert.ThrowsAnyAsync<Exception>(
+                        async () =>
+                        {
+                            await context.Database.EnsureCreatedAsync();
 
-                        context.Add(new ConflictingIncompatibleId { id = 42 });
+                            context.Add(new ConflictingIncompatibleId { id = 42 });
 
-                        await context.SaveChangesAsync();
-                    });
+                            await context.SaveChangesAsync();
+                        });
                 }
             }
         }

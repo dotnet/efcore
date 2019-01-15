@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CompositeKeyEndToEndSqlServerTest : CompositeKeyEndToEndTestBase<CompositeKeyEndToEndSqlServerTest.CompositeKeyEndToEndSqlServerFixture>
+    public class CompositeKeyEndToEndSqlServerTest : CompositeKeyEndToEndTestBase<
+        CompositeKeyEndToEndSqlServerTest.CompositeKeyEndToEndSqlServerFixture>
     {
         public CompositeKeyEndToEndSqlServerTest(CompositeKeyEndToEndSqlServerFixture fixture)
             : base(fixture)

@@ -53,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public override object[] GetCustomAttributes(Type attributeType, bool inherit) => throw new NotImplementedException();
             public override MethodImplAttributes GetMethodImplementationFlags() => throw new NotImplementedException();
             public override ParameterInfo[] GetParameters() => throw new NotImplementedException();
-            public override object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) => throw new NotImplementedException();
+
+            public override object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) =>
+                throw new NotImplementedException();
+
             public override bool IsDefined(Type attributeType, bool inherit) => throw new NotImplementedException();
         }
     }

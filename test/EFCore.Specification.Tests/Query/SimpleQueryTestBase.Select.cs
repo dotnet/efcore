@@ -849,7 +849,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         // issue #12580
         //[ConditionalTheory]
         //[MemberData(nameof(IsAsyncData))]
-        public virtual Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        public virtual Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+            bool isAsync)
         {
             return AssertQueryScalar<Customer>(
                 isAsync,
@@ -895,7 +896,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         // issue #12597
         //[ConditionalTheory]
         //[MemberData(nameof(IsAsyncData))]
-        public virtual Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(bool isAsync)
+        public virtual Task
+            Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
+                bool isAsync)
         {
             return AssertQueryScalar<Customer>(
                 isAsync,

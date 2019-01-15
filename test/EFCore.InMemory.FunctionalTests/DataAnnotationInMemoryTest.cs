@@ -34,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.Model.FindEntityType(typeof(BookDetails)).FindNavigation(nameof(BookDetails.AnotherBook)).ForeignKey.IsRequired);
+                Assert.True(
+                    context.Model.FindEntityType(typeof(BookDetails)).FindNavigation(nameof(BookDetails.AnotherBook)).ForeignKey
+                        .IsRequired);
             }
         }
 

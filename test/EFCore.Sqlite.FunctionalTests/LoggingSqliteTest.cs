@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Xunit;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

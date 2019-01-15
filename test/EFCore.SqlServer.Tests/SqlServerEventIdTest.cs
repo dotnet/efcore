@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
-            var property = new Property("A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var property = new Property(
+                "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {

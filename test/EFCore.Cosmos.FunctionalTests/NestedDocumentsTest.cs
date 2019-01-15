@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -45,9 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(firstOperator.Name,
+                    Assert.Equal(
+                        firstOperator.Name,
                         context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).First().Name);
-                    Assert.Equal(firstEngine.Description,
+                    Assert.Equal(
+                        firstEngine.Description,
                         context.Set<PoweredVehicle>().Select(v => v.Engine).OrderBy(o => o.VehicleName).First().Description);
                 }
             }
@@ -72,9 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(firstOperator.Name,
+                    Assert.Equal(
+                        firstOperator.Name,
                         context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
-                    Assert.Equal(firstEngine.Description,
+                    Assert.Equal(
+                        firstEngine.Description,
                         context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine.Description);
                 }
             }
@@ -163,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(CosmosStrings.QueryRootNestedEntityType(nameof(Operator), nameof(Vehicle)),
+                    Assert.Equal(
+                        CosmosStrings.QueryRootNestedEntityType(nameof(Operator), nameof(Vehicle)),
                         Assert.Throws<InvalidOperationException>(() => context.Set<Operator>().ToList()).Message);
                 }
             }

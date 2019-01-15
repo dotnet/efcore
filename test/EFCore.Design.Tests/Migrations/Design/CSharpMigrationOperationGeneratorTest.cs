@@ -27,9 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var generator = new CSharpMigrationOperationGenerator(
                 new CSharpMigrationOperationGeneratorDependencies(
-                    new CSharpHelper(new SqlServerTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+                    new CSharpHelper(
+                        new SqlServerTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
 
             var builder = new IndentedStringBuilder();
 
@@ -980,7 +981,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + _eol +
                 "    columns: table => new" + _eol +
                 "    {" + _eol +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + _eol +
+                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)"
+                + _eol +
                 "    }," + _eol +
                 "    constraints: table =>" + _eol +
                 "    {" + _eol +
@@ -2082,13 +2084,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         };
 
         private static readonly MultiLineString _multiLineString = new MultiLineString(
-            new ILineString[] { _lineString1, _lineString2, })
+            new ILineString[] { _lineString1, _lineString2 })
         {
             SRID = 4326
         };
 
         private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
-            new IPolygon[] { _polygon2, _polygon1, })
+            new IPolygon[] { _polygon2, _polygon1 })
         {
             SRID = 4326
         };
@@ -2117,7 +2119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { 4, "Harry Strickland", _multiPoint },
                         { 5, "The Imp", _multiPolygon },
                         { 6, "The Kingslayer", _multiLineString },
-                        { 7, "Aemon Targaryen", _geometryCollection },
+                        { 7, "Aemon Targaryen", _geometryCollection }
                     }
                 },
                 "mb.InsertData(" + _eol +
@@ -2127,13 +2129,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    values: new object[,]" + _eol +
                 "    {" + _eol +
                 "        { 0, null, null }," + _eol +
-                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") }," + _eol +
-                "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") }," + _eol +
-                "        { 3, \"Arya Stark\", (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") }," + _eol +
-                "        { 4, \"Harry Strickland\", (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") }," + _eol +
-                "        { 5, \"The Imp\", (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") }," + _eol +
-                "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") }," + _eol +
-                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }" + _eol +
+                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") },"
+                + _eol +
+                "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") },"
+                + _eol +
+                "        { 3, \"Arya Stark\", (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") },"
+                + _eol +
+                "        { 4, \"Harry Strickland\", (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") },"
+                + _eol +
+                "        { 5, \"The Imp\", (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") },"
+                + _eol +
+                "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") },"
+                + _eol +
+                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }"
+                + _eol +
                 "    });",
                 o =>
                 {
@@ -2223,8 +2232,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    column: \"Geometries\"," + _eol +
                 "    values: new object[]" + _eol +
                 "    {" + _eol +
-                "        (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\")," + _eol +
-                "        (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")" + _eol +
+                "        (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\"),"
+                + _eol +
+                "        (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")"
+                + _eol +
                 "    });",
                 o =>
                 {
@@ -2743,7 +2754,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new SqlServerTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             new RelationalTypeMappingSourceDependencies(
-                                new IRelationalTypeMappingSourcePlugin[] { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance), })))));
+                                new IRelationalTypeMappingSourcePlugin[]
+                                    { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance) })))));
 
             var builder = new IndentedStringBuilder();
             generator.Generate("mb", new[] { operation }, builder);
@@ -2757,7 +2769,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("GeoAPI"),
-                    BuildReference.ByName("NetTopologySuite"),
+                    BuildReference.ByName("NetTopologySuite")
                 },
                 Sources =
                 {

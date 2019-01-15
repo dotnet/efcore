@@ -82,7 +82,8 @@ INNER JOIN (
 ORDER BY [t1].[CustomerID], [t1].[OrderID]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)] // Test does not pass on SqlServer 2008. TODO: See issue#7160
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        // Test does not pass on SqlServer 2008. TODO: See issue#7160
         public override Task Include_duplicate_reference()
         {
             return base.Include_duplicate_reference();

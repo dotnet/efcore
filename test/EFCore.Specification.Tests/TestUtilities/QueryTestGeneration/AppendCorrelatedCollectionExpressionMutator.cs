@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-            && IsEntityType(expression.Type.GetGenericArguments()[0])
-            && ContainsCollectionNavigation(expression.Type.GetGenericArguments()[0]);
+               && IsEntityType(expression.Type.GetGenericArguments()[0])
+               && ContainsCollectionNavigation(expression.Type.GetGenericArguments()[0]);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var outerLambdaBody = Expression.Call(
                 toList,
-                    Expression.Call(
+                Expression.Call(
                     where,
                     Expression.Property(outerPrm, navigation.PropertyInfo),
                     Expression.Lambda(Expression.Constant(true), innerPrm)));

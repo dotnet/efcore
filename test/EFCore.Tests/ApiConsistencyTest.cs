@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using EntityFrameworkServiceCollectionExtensions = Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

@@ -722,7 +722,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Child>();
             var toy = modelBuilder.Entity<Toy>();
 
-            Assert.False(toy.Metadata.GetForeignKeys().Any(fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow))));
+            Assert.False(
+                toy.Metadata.GetForeignKeys().Any(fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow))));
 
             Validate(modelBuilder);
 
@@ -1828,7 +1829,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Post>();
 
             Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
-            Assert.Equal("PostDetailsId", model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
+            Assert.Equal(
+                "PostDetailsId", model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
 
             Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
@@ -1867,7 +1869,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_sides_and_values_do_not_match()
+        public virtual void
+            ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_sides_and_values_do_not_match()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
@@ -1942,7 +1945,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void ForeignKeyAttribute_throws_if_applied_on_property_on_both_side_but_navigations_are_connected_by_inverse_property()
+        public virtual void
+            ForeignKeyAttribute_throws_if_applied_on_property_on_both_side_but_navigations_are_connected_by_inverse_property()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -1952,7 +1956,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void ForeignKeyAttribute_throws_if_applied_on_both_navigations_connected_by_inverse_property_but_values_do_not_match()
+        public virtual void
+            ForeignKeyAttribute_throws_if_applied_on_both_navigations_connected_by_inverse_property_but_values_do_not_match()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -2222,11 +2227,13 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BookDetails>();
                 modelBuilder.Entity<Book>().Property(d => d.Id).ValueGeneratedNever();
             }
+
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(c => c
-                    .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning )
-                    .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
-                    .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning));
+                => base.AddOptions(builder).ConfigureWarnings(
+                    c => c
+                        .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning)
+                        .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
+                        .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning));
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Model.Name;

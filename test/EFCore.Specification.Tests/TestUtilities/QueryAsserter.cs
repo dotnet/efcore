@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -226,11 +226,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (isAsync)
                 {
-                    actual = await actualAsyncQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    actual = await actualAsyncQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                 }
                 else
                 {
-                    actual = actualSyncQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    actual = actualSyncQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                 }
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>());
@@ -269,11 +271,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (isAsync)
                 {
-                    actual = await actualAsyncQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    actual = await actualAsyncQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                 }
                 else
                 {
-                    actual = actualSyncQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    actual = actualSyncQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                 }
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>());
@@ -425,7 +429,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    var query = actualQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
@@ -642,7 +647,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
+                    var query = actualQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
@@ -801,7 +807,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool isAsync,
             string testMethodName)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
+            => AssertIncludeQuery(
+                query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         public override async Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
@@ -882,7 +889,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string testMethodName)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
+            => AssertIncludeQuery(
+                query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
 
         public override async Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
@@ -1019,8 +1027,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             using (var context = _contextCreator())
             {
                 var actual = isAsync
-                    ? await actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context)).AnyAsync()
-                    : actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context)).Any();
+                    ? await actualQuery(
+                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context)).AnyAsync()
+                    : actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context))
+                        .Any();
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>()).Any();
 
@@ -1226,10 +1236,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             using (var context = _contextCreator())
             {
                 var actual = isAsync
-                    ? await actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context)).FirstOrDefaultAsync()
-                    : actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context)).FirstOrDefault();
+                    ? await actualQuery(
+                            SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context))
+                        .FirstOrDefaultAsync()
+                    : actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context))
+                        .FirstOrDefault();
 
-                var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>()).FirstOrDefault();
+                var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>())
+                    .FirstOrDefault();
 
                 if (asserter == null
                     && expected != null)

@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -19,7 +20,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
@@ -365,7 +365,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
-            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
 
             public void CommitTransaction()
             {
@@ -384,18 +386,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
             }
 
-            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) =>
+                throw new NotImplementedException();
+
             public void UnregisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
             public string ConnectionString { get; }
             public DbConnection DbConnection { get; }
             public Guid ConnectionId { get; }
             public int? CommandTimeout { get; set; }
             public bool Open(bool errorsExpected = false) => true;
-            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) => throw new NotImplementedException();
+
+            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) =>
+                throw new NotImplementedException();
+
             public bool Close() => true;
             public bool IsMultipleActiveResultSetsEnabled { get; }
-            public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
-            public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> BeginTransactionAsync(
+                System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 
             public void Dispose()

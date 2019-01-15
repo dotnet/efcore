@@ -128,7 +128,9 @@ WHERE (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0) OR ([c].[ContactName
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
+                cs => cs.Where(
+                    c => c.ContactName.Contains(LocalMethod1().ToLower())
+                         || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
 
             AssertSql(

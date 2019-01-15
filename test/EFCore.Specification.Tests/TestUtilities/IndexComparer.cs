@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
-                   && x.IsUnique == y.IsUnique
-                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
+                  && x.IsUnique == y.IsUnique
+                  && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IIndex obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);

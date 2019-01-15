@@ -218,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Can_register_multiple_scoped_service_with_full_factory_non_generic()
         {
-            TestMultipleScoped(b => b.TryAdd(typeof(IEntityStateListener), typeof(FakeEntityStateListener), p => new FakeEntityStateListener()));
+            TestMultipleScoped(
+                b => b.TryAdd(typeof(IEntityStateListener), typeof(FakeEntityStateListener), p => new FakeEntityStateListener()));
         }
 
         [Fact]
@@ -229,7 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(
                 CoreStrings.ImplementationTypeRequired(nameof(IEntityStateListener)),
                 Assert.Throws<InvalidOperationException>(
-                        () => builder.TryAdd(typeof(IEntityStateListener), typeof(IEntityStateListener), p => new FakeEntityStateListener()))
+                        () => builder.TryAdd(
+                            typeof(IEntityStateListener), typeof(IEntityStateListener), p => new FakeEntityStateListener()))
                     .Message);
         }
 

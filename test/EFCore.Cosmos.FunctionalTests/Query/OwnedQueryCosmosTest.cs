@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -85,33 +85,35 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                                         OwnedPersonId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressOwnedPersonId = 1,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 2,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 3,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 4,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    });
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 1,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 2,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 3,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 4,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            });
 
-                                    cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId).OnDelete(DeleteBehavior.Restrict);
-                                });
+                                        cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
+                                            .OnDelete(DeleteBehavior.Restrict);
+                                    });
                             });
 
                         eb.OwnsMany(
@@ -144,7 +146,7 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                                         Id = -40,
                                         ClientId = 4
                                     }
-                                    );
+                                );
                             });
                     });
 
@@ -170,21 +172,22 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                                         BranchId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressBranchId = 2,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        }, new
-                                        {
-                                            OwnedAddressBranchId = 3,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        });
-                                });
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
+                                    {
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 2,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            }, new
+                                            {
+                                                OwnedAddressBranchId = 3,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            });
+                                    });
                             });
                     });
 
@@ -207,16 +210,17 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                                         LeafAId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressLeafAId = 3,
-                                        PlanetId = 1,
-                                        Name = "Mexico"
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressLeafAId = 3,
+                                                PlanetId = 1,
+                                                Name = "Mexico"
+                                            });
                                     });
-                                });
                             });
                     });
 
@@ -239,58 +243,65 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
                                         LeafBId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressLeafBId = 4,
-                                        PlanetId = 1,
-                                        Name = "Panama"
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressLeafBId = 4,
+                                                PlanetId = 1,
+                                                Name = "Panama"
+                                            });
                                     });
-                                });
                             });
                     });
 
-                modelBuilder.Entity<Planet>(pb =>
-                {
-                    pb.HasData(new
+                modelBuilder.Entity<Planet>(
+                    pb =>
                     {
-                        Id = 1,
-                        id = Guid.NewGuid().ToString(),
-                        StarId = 1
-                    });
-                });
-
-                modelBuilder.Entity<Moon>(mb =>
-                {
-                    mb.HasData(new
-                    {
-                        Id = 1,
-                        id = Guid.NewGuid().ToString(),
-                        PlanetId = 1,
-                        Diameter = 3474
-                    });
-                });
-
-                modelBuilder.Entity<Star>(sb =>
-                {
-                    sb.HasData(new
-                    {
-                        Id = 1,
-                        id = Guid.NewGuid().ToString(),
-                        Name = "Sol"
+                        pb.HasData(
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                StarId = 1
+                            });
                     });
 
-                    sb.OwnsMany(
-                        s => s.Composition, ob =>
-                        {
-                            ob.HasKey(o => o.Id);
-                            ob.HasData(
-                              new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                              new { Id = "He", Name = "Helium", StarId = 1 });
-                        });
-                });
+                modelBuilder.Entity<Moon>(
+                    mb =>
+                    {
+                        mb.HasData(
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                PlanetId = 1,
+                                Diameter = 3474
+                            });
+                    });
+
+                modelBuilder.Entity<Star>(
+                    sb =>
+                    {
+                        sb.HasData(
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Sol"
+                            });
+
+                        sb.OwnsMany(
+                            s => s.Composition, ob =>
+                            {
+                                ob.HasKey(o => o.Id);
+                                ob.HasData(
+                                    new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                                    new { Id = "He", Name = "Helium", StarId = 1 });
+                            });
+                    });
             }
         }
     }

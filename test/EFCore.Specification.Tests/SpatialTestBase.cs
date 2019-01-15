@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : SpatialFixtureBase, new()
     {
         protected SpatialTestBase(TFixture fixture)
-             => Fixture = fixture;
+            => Fixture = fixture;
 
         protected virtual TFixture Fixture { get; }
 
@@ -78,12 +78,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AddRange(
-                        new PointEntity()
+                        new PointEntity
                         {
                             Id = id1,
-                            Point = point,
+                            Point = point
                         },
-                        new PolygonEntity()
+                        new PolygonEntity
                         {
                             Id = id2,
                             Polygon = polygon

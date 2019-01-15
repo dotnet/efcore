@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 {
                     _connectionAvailable = TryConnect();
                 }
+
                 return _connectionAvailable.Value;
             }
         }

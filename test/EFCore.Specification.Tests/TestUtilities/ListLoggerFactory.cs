@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _cancellationTokenSource = null;
             }
 
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            public void Log<TState>(
+                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
                 lock (_sync) // Guard against tests with explicit concurrency
                 {
@@ -102,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         _cancellationTokenSource.Cancel();
                         _cancellationTokenSource = null;
                     }
+
                     TestOutputHelper?.WriteLine(message + Environment.NewLine);
                 }
 

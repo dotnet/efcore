@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Equal(0, entity.Id);
                         }
+
                         Assert.Equal(1777, entities[100].Id);
 
                         var tempValueIdentityMap = entities.ToDictionary(
@@ -72,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Equal(0, entity.Id);
                         }
+
                         Assert.Equal(1777, entities[100].Id);
 
                         foreach (var entity in entities)
@@ -154,11 +156,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                     });
 
-                modelBuilder.Entity<WithBackingFields>(b =>
-                {
-                    b.Property(e => e.NullableAsNonNullable).HasComputedColumnSql("1");
-                    b.Property(e => e.NonNullableAsNullable).HasComputedColumnSql("1");
-                });
+                modelBuilder.Entity<WithBackingFields>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableAsNonNullable).HasComputedColumnSql("1");
+                        b.Property(e => e.NonNullableAsNullable).HasComputedColumnSql("1");
+                    });
 
                 base.OnModelCreating(modelBuilder, context);
             }

@@ -477,7 +477,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("LemonSupreme")
                 .HasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
 
@@ -499,7 +500,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("LemonSupreme")
                 .HasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
         }
@@ -514,7 +516,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("LemonSupreme")
                 .HasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
 
@@ -536,7 +539,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("LemonSupreme")
                 .HasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
         }
@@ -766,7 +770,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.NotNull(index.SqlServer().IncludeProperties);
-            Assert.Collection(index.SqlServer().IncludeProperties,
+            Assert.Collection(
+                index.SqlServer().IncludeProperties,
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
@@ -785,7 +790,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.True(index.IsUnique);
             Assert.NotNull(index.SqlServer().IncludeProperties);
-            Assert.Collection(index.SqlServer().IncludeProperties,
+            Assert.Collection(
+                index.SqlServer().IncludeProperties,
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
@@ -808,7 +814,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(annotation.Value as bool?);
 
             Assert.NotNull(index.SqlServer().IncludeProperties);
-            Assert.Collection(index.SqlServer().IncludeProperties,
+            Assert.Collection(
+                index.SqlServer().IncludeProperties,
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
@@ -825,7 +832,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.NotNull(index.SqlServer().IncludeProperties);
-            Assert.Collection(index.SqlServer().IncludeProperties,
+            Assert.Collection(
+                index.SqlServer().IncludeProperties,
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 

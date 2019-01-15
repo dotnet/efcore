@@ -691,7 +691,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("smallmoney", typeof(decimal), null, false)]
         [InlineData("text", typeof(string), null, false)]
         [InlineData("time", typeof(TimeSpan), null, false)]
-        [InlineData("timestamp", typeof(byte[]), 8, false)] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
+        [InlineData(
+            "timestamp", typeof(byte[]), 8, false)] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
         [InlineData("tinyint", typeof(byte), null, false)]
         [InlineData("uniqueidentifier", typeof(Guid), null, false)]
         [InlineData("varbinary(333)", typeof(byte[]), 333, false)]

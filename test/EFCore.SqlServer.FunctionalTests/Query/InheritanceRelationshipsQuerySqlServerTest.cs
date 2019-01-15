@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class InheritanceRelationshipsQuerySqlServerTest
         : InheritanceRelationshipsQueryTestBase<InheritanceRelationshipsQuerySqlServerFixture>
     {
-        public InheritanceRelationshipsQuerySqlServerTest(InheritanceRelationshipsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public InheritanceRelationshipsQuerySqlServerTest(
+            InheritanceRelationshipsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();

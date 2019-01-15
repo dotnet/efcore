@@ -80,10 +80,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         {
             var expected = CreateVehicles().OrderBy(v => v.Name).ToList();
             var actual = Vehicles
-                            .Include(v => v.Operator)
-                            .Include(v => ((PoweredVehicle)v).Engine)
-                            .ThenInclude(e => (e as CombustionEngine).FuelTank)
-                            .OrderBy(v => v.Name).ToList();
+                .Include(v => v.Operator)
+                .Include(v => ((PoweredVehicle)v).Engine)
+                .ThenInclude(e => (e as CombustionEngine).FuelTank)
+                .OrderBy(v => v.Name).ToList();
             Assert.Equal(expected, actual);
         }
 

@@ -881,7 +881,7 @@ FROM [Customers] AS [c]
 ORDER BY (SELECT 1)
 OFFSET @__p_0 ROWS");
         }
-        
+
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override async Task Skip_orderby_const(bool isAsync)
         {
@@ -3629,7 +3629,8 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(bool isAsync)
+        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
+            bool isAsync)
         {
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(isAsync);
 
@@ -3639,7 +3640,8 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[OrderID] = 10000)");
         }
 
-        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(bool isAsync)
+        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
+            bool isAsync)
         {
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(isAsync);
 

@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -223,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
-                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder))
+                    .Message);
         }
 
         [Fact]

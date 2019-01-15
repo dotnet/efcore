@@ -4,17 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -467,7 +464,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
-            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TRelatedEntity, TProperty>> propertyExpression);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+                Expression<Func<TRelatedEntity, TProperty>> propertyExpression);
 
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> Ignore(string propertyName);
 
@@ -506,7 +505,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasChangeTrackingStrategy(
                 ChangeTrackingStrategy changeTrackingStrategy);
 
-            public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+            public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(
+                PropertyAccessMode propertyAccessMode);
 
             public abstract DataBuilder<TRelatedEntity> HasData(params TRelatedEntity[] data);
 
@@ -537,12 +537,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior);
 
-            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasEntityTypeAnnotation(string annotation, object value);
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasEntityTypeAnnotation(
+                string annotation, object value);
+
             public abstract TestKeyBuilder HasKey(Expression<Func<TDependentEntity, object>> keyExpression);
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
-            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+                Expression<Func<TDependentEntity, TProperty>> propertyExpression);
 
             public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(string propertyName);
 
@@ -577,7 +581,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasChangeTrackingStrategy(
                 ChangeTrackingStrategy changeTrackingStrategy);
 
-            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> UsePropertyAccessMode(
+                PropertyAccessMode propertyAccessMode);
 
             public abstract DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data);
 

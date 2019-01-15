@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -48,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             else
             {
                 var databaseModelFactory = CreateDatabaseModelFactory(loggerFactory);
-                var databaseModel = databaseModelFactory.Create(connection.DbConnection, Enumerable.Empty<string>(), Enumerable.Empty<string>());
+                var databaseModel = databaseModelFactory.Create(
+                    connection.DbConnection, Enumerable.Empty<string>(), Enumerable.Empty<string>());
 
                 var operations = new List<MigrationOperation>();
 

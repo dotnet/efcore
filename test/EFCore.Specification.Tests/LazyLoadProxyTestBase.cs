@@ -1967,6 +1967,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
+
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual LastName LastName { get; private set; }
 

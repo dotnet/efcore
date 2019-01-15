@@ -206,11 +206,13 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 
             Assert.Equal(
                 model.FindEntityType(typeof(Order)).FindProperty("Id"),
-                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId").Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId")
+                    .Properties[0].GetGenerationProperty());
 
             Assert.Equal(
                 model.FindEntityType(typeof(Product)).FindProperty("Id"),
-                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId").Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId")
+                    .Properties[0].GetGenerationProperty());
         }
 
         private class Category

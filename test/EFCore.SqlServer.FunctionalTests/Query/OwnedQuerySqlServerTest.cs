@@ -787,7 +787,8 @@ LEFT JOIN [Star] AS [p.PersonAddress.Country.Planet.Star] ON [p.PersonAddress.Co
 WHERE [p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')");
         }
 
-        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
+        public override void
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
         {
             base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection();
 

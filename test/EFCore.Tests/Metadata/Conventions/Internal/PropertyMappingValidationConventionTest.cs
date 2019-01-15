@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -22,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property(nameof(NonPrimitiveAsPropertyEntity.Property), typeof(NavigationAsProperty), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(
+                nameof(NonPrimitiveAsPropertyEntity.Property), typeof(NavigationAsProperty), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(
-                CoreStrings.NavigationNotAdded(typeof(NavigationEntity).ShortDisplayName(), "Navigation", typeof(PrimitivePropertyEntity).Name),
+                CoreStrings.NavigationNotAdded(
+                    typeof(NavigationEntity).ShortDisplayName(), "Navigation", typeof(PrimitivePropertyEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 

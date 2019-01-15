@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
             public IEnumerable<IEntityType> GetEntityTypes() => throw new NotImplementedException();
             public IEntityType FindEntityType(string name) => throw new NotImplementedException();
-            public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType) => throw new NotImplementedException();
+
+            public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType) =>
+                throw new NotImplementedException();
         }
 
         [Fact]
@@ -140,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.ClashingNonWeakEntityType(
                     nameof(Customer) + "." + nameof(Customer.Orders) + "#"
                     + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);
 
             Assert.Equal(
                 CoreStrings.ForeignKeySelfReferencingDependentEntityType(

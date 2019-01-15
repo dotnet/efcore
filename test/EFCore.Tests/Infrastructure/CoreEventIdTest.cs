@@ -28,13 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
             var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
-            var property = new Property("A", typeof(int), propertyInfo, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var property = new Property(
+                "A", typeof(int), propertyInfo, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherEntityType = new EntityType(typeof(object), entityType.Model, ConfigurationSource.Convention);
             var otherProperty = otherEntityType.AddProperty("A", typeof(int), ConfigurationSource.Convention);
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);
-            var queryModel = new QueryModel(new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
+            var queryModel = new QueryModel(
+                new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
             var includeResultOperator = new IncludeResultOperator(new[] { "Foo" }, Expression.Constant("A"));
             var options = new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options;
 
@@ -62,7 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IForeignKey), () => foreignKey },
                 { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
                 { typeof(ISet<object>), () => new HashSet<object>() },
-                { typeof(IList<IDictionary<string, string>>), () => new List<IDictionary<string, string>> { new Dictionary<string, string> { { "A", "B"} } } },
+                {
+                    typeof(IList<IDictionary<string, string>>),
+                    () => new List<IDictionary<string, string>> { new Dictionary<string, string> { { "A", "B" } } }
+                },
                 { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() }
             };
 

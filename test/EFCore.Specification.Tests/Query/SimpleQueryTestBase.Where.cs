@@ -1233,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, es) =>
                     from c in cs
                     from e in es
-                        // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
                           && (e.City == "London" && e.Country == "UK")

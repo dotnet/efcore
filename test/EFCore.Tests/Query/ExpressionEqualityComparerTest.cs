@@ -58,10 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void Default_expressions_are_compared_correctly()
         {
             var expressionComparer = ExpressionEqualityComparer.Instance;
-            
+
             Expression e1 = Expression.Default(typeof(int));
             Expression e2 = Expression.Default(typeof(int));
-            Expression e3 = Expression.Default(typeof(string));            
+            Expression e3 = Expression.Default(typeof(string));
 
             Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
             Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));

@@ -497,7 +497,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestPropertyListener : IPropertyListener
         {
-            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } =
+                new List<Tuple<InternalEntityEntry, IPropertyBase>>();
+
             public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
 
             public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)

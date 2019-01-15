@@ -225,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore
             var optionsBuilder = GenericCheck(
                 new DbContextOptionsBuilder<UnkoolContext>().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
-            Assert.Equal(QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
+            Assert.Equal(
+                QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
         }
 
         [Fact]
@@ -239,7 +240,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
         }
 
-        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) => optionsBuilder;
+        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) =>
+            optionsBuilder;
 
         [Fact]
         public void Generic_builder_returns_generic_options()

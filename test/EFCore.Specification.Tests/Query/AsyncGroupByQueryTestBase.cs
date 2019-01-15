@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : ReferenceEquals(this, obj)
                         ? true
                         : obj.GetType() == GetType()
-                            && Equals((ProjectedType)obj);
+                          && Equals((ProjectedType)obj);
 
             // ReSharper disable once NonReadonlyMemberInGetHashCode
             public override int GetHashCode() => Order.GetHashCode();

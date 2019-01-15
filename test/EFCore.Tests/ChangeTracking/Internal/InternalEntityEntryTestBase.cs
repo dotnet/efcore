@@ -1103,7 +1103,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entry.AcceptChanges();
 
-            Assert.Equal(entityState == EntityState.Deleted || entityState == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged, entry.EntityState);
+            Assert.Equal(
+                entityState == EntityState.Deleted || entityState == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged,
+                entry.EntityState);
             if (entityState == EntityState.Unchanged)
             {
                 Assert.Equal("Kool", entry[valueProperty]);
@@ -1112,7 +1114,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 Assert.Equal("Pickle", entry[valueProperty]);
-                Assert.Equal(entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle", entry.GetOriginalValue(valueProperty));
+                Assert.Equal(
+                    entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle",
+                    entry.GetOriginalValue(valueProperty));
             }
         }
 
@@ -1277,7 +1281,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var fkProperty1 = entityType.FindProperty("FirstId1");
             var fkProperty2 = entityType.FindProperty("FirstId2");
 
-            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+            var entry = CreateInternalEntry(
+                InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
             entry[entityType.FindProperty("Id1")] = 66;
             entry[entityType.FindProperty("Id2")] = "Bar";
@@ -1299,7 +1304,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var fkProperty1 = entityType.FindProperty("FirstId1");
             var fkProperty2 = entityType.FindProperty("FirstId2");
 
-            var entry = CreateInternalEntry(InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
+            var entry = CreateInternalEntry(
+                InMemoryTestHelpers.Instance.CreateContextServices(model), entityType, new CompositeSecondDependent());
 
             entry[entityType.FindProperty("Id1")] = 66;
             entry[entityType.FindProperty("Id2")] = "Bar";
@@ -1459,7 +1465,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return entry;
         }
 
-        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, in ValueBuffer valueBuffer)
+        protected virtual InternalEntityEntry CreateInternalEntry(
+            IServiceProvider contextServices, IEntityType entityType, object entity, in ValueBuffer valueBuffer)
         {
             var entry = new InternalEntityEntryFactory()
                 .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer);

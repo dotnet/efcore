@@ -124,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var targetPrincipalEntityType = targetEntityType.Model.FindEntityType(foreignKey.PrincipalEntityType.Name);
                 var clonedForeignKey = targetEntityType.AddForeignKey(
                     foreignKey.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList(),
-                    targetPrincipalEntityType.FindKey(foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
+                    targetPrincipalEntityType.FindKey(
+                        foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
                 clonedForeignKey.IsUnique = foreignKey.IsUnique;
                 clonedForeignKey.IsRequired = foreignKey.IsRequired;

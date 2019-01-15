@@ -249,14 +249,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType);
 
             var navigation = foreignKey.HasPrincipalToDependent(
-                typeof(MyEntity).GetProperty(nameof(MyEntity.AsICollectionWithCustomComparer), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+                typeof(MyEntity).GetProperty(
+                    nameof(MyEntity.AsICollectionWithCustomComparer),
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
             new BackingFieldConvention().Apply(foreignKey.Builder, navigation);
 
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
             var entity = new MyEntity(initialize: false);
-            var value = new MyEntityWithCustomComparer() { Id = 1 };
+            var value = new MyEntityWithCustomComparer
+                { Id = 1 };
 
             Assert.False(accessor.Contains(entity, value));
 
@@ -390,7 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyUnavailableCollection"));
 
             Assert.Equal(
-                CoreStrings.NavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
+                CoreStrings.NavigationCannotCreateType(
+                    "AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 

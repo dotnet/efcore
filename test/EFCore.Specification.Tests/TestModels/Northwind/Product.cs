@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                   && Equals((Product)obj);
+                  && Equals((Product)obj);
         }
 
         public override int GetHashCode() => ProductID.GetHashCode();

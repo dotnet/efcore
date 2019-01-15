@@ -886,10 +886,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expected.OptionalSingleAk?.Single?.AlternateId, actual.OptionalSingleAk?.Single?.AlternateId);
             Assert.Equal(expected.OptionalSingleAk?.SingleComposite?.Id, actual.OptionalSingleAk?.SingleComposite?.Id);
             Assert.Equal(expected.OptionalSingleAkDerived?.Single?.AlternateId, actual.OptionalSingleAkDerived?.Single?.AlternateId);
-            Assert.Equal(expected.OptionalSingleAkMoreDerived?.Single?.AlternateId, actual.OptionalSingleAkMoreDerived?.Single?.AlternateId);
+            Assert.Equal(
+                expected.OptionalSingleAkMoreDerived?.Single?.AlternateId, actual.OptionalSingleAkMoreDerived?.Single?.AlternateId);
             Assert.Equal(expected.RequiredNonPkSingleAk?.Single?.AlternateId, actual.RequiredNonPkSingleAk?.Single?.AlternateId);
-            Assert.Equal(expected.RequiredNonPkSingleAkDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkDerived?.Single?.AlternateId);
-            Assert.Equal(expected.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId);
+            Assert.Equal(
+                expected.RequiredNonPkSingleAkDerived?.Single?.AlternateId, actual.RequiredNonPkSingleAkDerived?.Single?.AlternateId);
+            Assert.Equal(
+                expected.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId,
+                actual.RequiredNonPkSingleAkMoreDerived?.Single?.AlternateId);
 
             Assert.Equal(
                 expected.RequiredCompositeChildren.OrderBy(e => e.Id).Select(
@@ -1350,7 +1354,9 @@ namespace Microsoft.EntityFrameworkCore
             private int? _parentId;
             private Root _parent;
             private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
-            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+
+            private ICollection<OptionalComposite2> _compositeChildren =
+                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -1780,7 +1786,9 @@ namespace Microsoft.EntityFrameworkCore
             private Guid _parentId;
             private Root _parent;
             private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
-            private IEnumerable<RequiredComposite2> _compositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
+
+            private IEnumerable<RequiredComposite2> _compositeChildren =
+                new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -1886,7 +1894,9 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private Guid _parentAlternateId;
             private Root _parent;
-            private ICollection<OptionalOverlaping2> _compositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance);
+
+            private ICollection<OptionalOverlaping2> _compositeChildren =
+                new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -2029,7 +2039,9 @@ namespace Microsoft.EntityFrameworkCore
             private Guid? _parentId;
             private Root _parent;
             private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
-            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+
+            private ICollection<OptionalComposite2> _compositeChildren =
+                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {

@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -101,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -296,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(
+                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -313,7 +317,8 @@ namespace Microsoft.EntityFrameworkCore
                     .AddTransient<NorthwindContext>()
                     .AddSingleton(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options).BuildServiceProvider();
 
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
@@ -360,7 +365,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
+                            .Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }

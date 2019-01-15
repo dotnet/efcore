@@ -32,26 +32,43 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         static ExpressionMutator()
         {
-            WhereMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.Where) && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Count() == 2).Single();
-            SelectMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.Select) && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Count() == 2).Single();
-            OrderByMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.OrderBy) && m.GetParameters().Count() == 2).Single();
-            OrderByDescendingMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.OrderByDescending) && m.GetParameters().Count() == 2).Single();
-            ThenByMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.ThenBy) && m.GetParameters().Count() == 2).Single();
-            ThenByDescendingMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.ThenByDescending) && m.GetParameters().Count() == 2).Single();
+            WhereMethodInfo = typeof(Queryable).GetMethods().Where(
+                m => m.Name == nameof(Queryable.Where)
+                     && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Count() == 2).Single();
+            SelectMethodInfo = typeof(Queryable).GetMethods().Where(
+                m => m.Name == nameof(Queryable.Select)
+                     && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Count() == 2).Single();
+            OrderByMethodInfo = typeof(Queryable).GetMethods()
+                .Where(m => m.Name == nameof(Queryable.OrderBy) && m.GetParameters().Count() == 2).Single();
+            OrderByDescendingMethodInfo = typeof(Queryable).GetMethods()
+                .Where(m => m.Name == nameof(Queryable.OrderByDescending) && m.GetParameters().Count() == 2).Single();
+            ThenByMethodInfo = typeof(Queryable).GetMethods()
+                .Where(m => m.Name == nameof(Queryable.ThenBy) && m.GetParameters().Count() == 2).Single();
+            ThenByDescendingMethodInfo = typeof(Queryable).GetMethods()
+                .Where(m => m.Name == nameof(Queryable.ThenByDescending) && m.GetParameters().Count() == 2).Single();
             TakeMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.Take)).Single();
-            JoinMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.Join) && m.GetParameters().Count() == 5).Single();
-            IncludeMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m => m.Name == nameof(EntityFrameworkQueryableExtensions.Include) && m.GetParameters()[1].ParameterType != typeof(string)).Single();
-            ThenIncludeCollectionMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
-                && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>)).Single();
+            JoinMethodInfo = typeof(Queryable).GetMethods().Where(m => m.Name == nameof(Queryable.Join) && m.GetParameters().Count() == 5)
+                .Single();
+            IncludeMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
+                    m => m.Name == nameof(EntityFrameworkQueryableExtensions.Include)
+                         && m.GetParameters()[1].ParameterType != typeof(string))
+                .Single();
+            ThenIncludeCollectionMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
+                    m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
+                         && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
+                         && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Single();
 
-            ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                && m != ThenIncludeCollectionMethodInfo).Single();
+            ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
+                m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
+                     && m != ThenIncludeCollectionMethodInfo).Single();
 
             ToListMethodInfo = typeof(Enumerable).GetMethods().Where(m => m.Name == nameof(Enumerable.ToList)).Single();
 
-            EnumerableWhereMethodInfo = typeof(Enumerable).GetMethods().Where(m => m.Name == nameof(Enumerable.Where) && m.GetParameters()[1].ParameterType.GetGenericArguments().Count() == 2).Single();
-            EnumerableAnyMethodInfo = typeof(Enumerable).GetMethods().Where(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Count() == 1).Single();
+            EnumerableWhereMethodInfo = typeof(Enumerable).GetMethods().Where(
+                m => m.Name == nameof(Enumerable.Where) && m.GetParameters()[1].ParameterType.GetGenericArguments().Count() == 2).Single();
+            EnumerableAnyMethodInfo = typeof(Enumerable).GetMethods()
+                .Where(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Count() == 1).Single();
         }
 
         public ExpressionMutator(DbContext context)
@@ -67,19 +84,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         protected static bool IsQueryableResult(Expression expression)
             => IsQueryableType(expression.Type)
-                || expression.Type.GetInterfaces().Any(i => IsQueryableType(i));
+               || expression.Type.GetInterfaces().Any(i => IsQueryableType(i));
 
         private static bool IsOrderedQueryableType(Type type)
             => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>);
 
         protected static bool IsOrderedQueryableResult(Expression expression)
             => IsOrderedQueryableType(expression.Type)
-                || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
+               || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
 
         protected static bool IsOrderedableType(Type type)
             => type != typeof(IGeometry)
-            && !type.GetInterfaces().Any(i => i == typeof(IGeometry))
-            && type.GetInterfaces().Any(i => i == typeof(IComparable));
+               && !type.GetInterfaces().Any(i => i == typeof(IGeometry))
+               && type.GetInterfaces().Any(i => i == typeof(IComparable));
 
         protected List<PropertyInfo> FilterPropertyInfos(Type type, List<PropertyInfo> properties)
         {
@@ -88,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 properties = properties.Where(p => p.Name != "Chars").ToList();
             }
 
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 properties = properties.Where(p => p.Name != "Item" && p.Name != "Capacity").ToList();
             }
@@ -104,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 properties = properties.Where(p => p.Name != "Rank" && p.Name != "IsFixedSize" && p.Name != "IsSynchronized").ToList();
             }
 
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 properties = properties.Where(p => p.Name != "Value").ToList();
             }
@@ -112,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var entityType = Context.Model.FindEntityType(type);
             if (entityType != null)
             {
-                properties = properties.Where(p => entityType.GetProperties().Where(pp => pp.PropertyInfo != null).Select(pp => pp.Name).Contains(p.Name)).ToList();
+                properties = properties.Where(
+                    p => entityType.GetProperties().Where(pp => pp.PropertyInfo != null).Select(pp => pp.Name).Contains(p.Name)).ToList();
             }
 
             return properties;
@@ -126,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         protected class ExpressionInjector : ExpressionVisitor
         {
-            private Expression _expressionToInject;
-            private Func<Expression, Expression> _injectionPattern;
+            private readonly Expression _expressionToInject;
+            private readonly Func<Expression, Expression> _injectionPattern;
 
             public ExpressionInjector(Expression expressionToInject, Func<Expression, Expression> injectionPattern)
             {
@@ -141,10 +161,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                     return _injectionPattern(node);
                 }
-                else
-                {
-                    return base.Visit(node);
-                }
+
+                return base.Visit(node);
             }
         }
     }

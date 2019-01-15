@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
-using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -189,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"),
+                Assert.Equal(
+                    RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 
@@ -343,7 +343,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"),
+                Assert.Equal(
+                    RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 
@@ -629,7 +630,8 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool autoTransaction)
+        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes(
+            bool autoTransaction)
         {
             using (var context = CreateContext())
             {
@@ -835,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (DirtyReadsOccur)
                         {
-                            using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
+                            using (innerContext.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
                             {
                                 Assert.Equal(Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                             }
@@ -843,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (SnapshotSupported)
                         {
-                            using (innerContext.Database.BeginTransaction(IsolationLevel.Snapshot))
+                            using (innerContext.Database.BeginTransaction(System.Data.IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Customers, innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToList());
                             }
@@ -887,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (DirtyReadsOccur)
                         {
-                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
+                            using (await innerContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted))
                             {
                                 Assert.Equal(Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                             }
@@ -895,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (SnapshotSupported)
                         {
-                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot))
+                            using (await innerContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Customers, await innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToListAsync());
                             }
@@ -966,8 +968,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     using (context.Database.BeginTransaction(
                         DirtyReadsOccur
-                            ? IsolationLevel.ReadUncommitted
-                            : IsolationLevel.Unspecified))
+                            ? System.Data.IsolationLevel.ReadUncommitted
+                            : System.Data.IsolationLevel.Unspecified))
                     {
                         var ex = Assert.Throws<InvalidOperationException>(
                             () =>
@@ -1095,8 +1097,8 @@ namespace Microsoft.EntityFrameworkCore
                     var ex = Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction(
                             DirtyReadsOccur
-                                ? IsolationLevel.ReadUncommitted
-                                : IsolationLevel.Unspecified));
+                                ? System.Data.IsolationLevel.ReadUncommitted
+                                : System.Data.IsolationLevel.Unspecified));
                     Assert.Equal(RelationalStrings.ConflictingEnlistedTransaction, ex.Message);
                     context.Database.CloseConnection();
                 }
@@ -1344,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore
                 return !(obj is TransactionCustomer otherCustomer)
                     ? false
                     : Id == otherCustomer.Id
-                       && Name == otherCustomer.Name;
+                      && Name == otherCustomer.Name;
             }
 
             public override string ToString() => "Id = " + Id + ", Name = " + Name;

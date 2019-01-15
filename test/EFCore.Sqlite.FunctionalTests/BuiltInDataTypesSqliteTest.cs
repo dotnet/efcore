@@ -327,7 +327,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 69), 69);
+                AssertMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 69), 69);
             }
         }
 
@@ -369,7 +370,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 78), 78);
+                AssertNullMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 78), 78);
             }
         }
 
@@ -733,9 +735,12 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 169), 169);
-                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 170), 170);
-                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 171), 171);
+                AssertMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 169), 169);
+                AssertMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 170), 170);
+                AssertMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 171), 171);
             }
         }
 
@@ -765,9 +770,12 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 278), 278);
-                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 279), 279);
-                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 280), 280);
+                AssertNullMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 278), 278);
+                AssertNullMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 279), 279);
+                AssertNullMappedNullableDataTypesWithIdentity(
+                    context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.AltId == 280), 280);
             }
         }
 
@@ -819,9 +827,12 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 278), 278);
-                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 279), 279);
-                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 280), 280);
+                AssertNullMappedSizedDataTypesWithIdentity(
+                    context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 278), 278);
+                AssertNullMappedSizedDataTypesWithIdentity(
+                    context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 279), 279);
+                AssertNullMappedSizedDataTypesWithIdentity(
+                    context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.AltId == 280), 280);
             }
         }
 
@@ -1590,7 +1601,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Decimal).HasColumnType("decimal(3)");
                     });
 
-                modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
+                modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(
+                    b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

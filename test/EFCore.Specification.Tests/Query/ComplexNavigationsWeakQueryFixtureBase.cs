@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
@@ -58,18 +57,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<InheritanceLeaf2>().Property(e => e.Id).ValueGeneratedNever();
 
             // FK name needs to be explicitly provided because issue #9310
-            modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne().HasForeignKey<InheritanceBase1>("InheritanceBase2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne().HasForeignKey<InheritanceBase1>("InheritanceBase2Id")
+                .IsRequired(false);
             modelBuilder.Entity<InheritanceBase2>().HasMany(e => e.Collection).WithOne();
 
             modelBuilder.Entity<InheritanceDerived1>().HasBaseType<InheritanceBase1>();
-            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceSameType).WithOne().HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived1Id").IsRequired(false);
-            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceDifferentType).WithOne().HasForeignKey<InheritanceLeaf1>("DifferentTypeReference_InheritanceDerived1Id").IsRequired(false);
-            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionSameType).WithOne().HasForeignKey("SameTypeCollection_InheritanceDerived1Id").IsRequired(false);
-            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionDifferentType).WithOne().HasForeignKey("DifferentTypeCollection_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceSameType).WithOne()
+                .HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceDifferentType).WithOne()
+                .HasForeignKey<InheritanceLeaf1>("DifferentTypeReference_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionSameType).WithOne()
+                .HasForeignKey("SameTypeCollection_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionDifferentType).WithOne()
+                .HasForeignKey("DifferentTypeCollection_InheritanceDerived1Id").IsRequired(false);
 
             modelBuilder.Entity<InheritanceDerived2>().HasBaseType<InheritanceBase1>();
-            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceSameType).WithOne().HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived2Id").IsRequired(false);
-            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceDifferentType).WithOne().HasForeignKey<InheritanceLeaf2>("DifferentTypeReference_InheritanceDerived2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceSameType).WithOne()
+                .HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceDifferentType).WithOne()
+                .HasForeignKey<InheritanceLeaf2>("DifferentTypeReference_InheritanceDerived2Id").IsRequired(false);
             modelBuilder.Entity<InheritanceDerived2>().HasMany(e => e.CollectionSameType).WithOne().IsRequired(false);
             modelBuilder.Entity<InheritanceDerived2>().HasMany(e => e.CollectionDifferentType).WithOne().IsRequired(false);
 

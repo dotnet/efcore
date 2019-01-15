@@ -380,7 +380,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
 
         private static async Task<T> ExecuteCommandAsync<T>(
-            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, IReadOnlyList<object> parameters)
+            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction,
+            IReadOnlyList<object> parameters)
         {
             if (connection.State != ConnectionState.Closed)
             {

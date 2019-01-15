@@ -22,21 +22,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Configure(),
                 b =>
                 {
-                    b.Entity<ComplexCaseChild13108>(e =>
-                    {
-                        e.HasKey(c => c.Key);
-                        e.Property("ParentKey");
-                        e.HasOne(c => c.Parent).WithMany(c => c.Children).HasForeignKey("ParentKey");
-                    });
+                    b.Entity<ComplexCaseChild13108>(
+                        e =>
+                        {
+                            e.HasKey(c => c.Key);
+                            e.Property("ParentKey");
+                            e.HasOne(c => c.Parent).WithMany(c => c.Children).HasForeignKey("ParentKey");
+                        });
 
                     b.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
                 }))
             {
                 var model = (Model)context.Model;
-                Assert.Equal(ConfigurationSource.Convention,
+                Assert.Equal(
+                    ConfigurationSource.Convention,
                     model.FindEntityType(typeof(ComplexCaseChild13108))
-                    .GetProperties().Where(p => p.Name == "ParentKey").Single()
-                    .GetTypeConfigurationSource());
+                        .GetProperties().Where(p => p.Name == "ParentKey").Single()
+                        .GetTypeConfigurationSource());
             }
         }
 
@@ -60,12 +62,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public virtual void EntityType_name_is_stored_culture_invariantly()
         {
             using (var context = new CustomModelBuildingContext(
-                 Configure(),
-                 b =>
-                 {
-                     b.Entity<Entityß>();
-                     b.Entity<Entityss>();
-                 }))
+                Configure(),
+                b =>
+                {
+                    b.Entity<Entityß>();
+                    b.Entity<Entityss>();
+                }))
             {
                 Assert.Equal(2, context.Model.GetEntityTypes().Count());
                 Assert.Equal(2, context.Model.FindEntityType(typeof(Entityss)).GetNavigations().Count());
@@ -88,21 +90,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public virtual void Explicitly_set_shadow_FK_name_is_preserved_with_HasPrincipalKey()
         {
             using (var context = new CustomModelBuildingContext(
-                 Configure(),
-                 b =>
-                 {
-                     b.Entity<User13300>(m =>
-                     {
-                         m.Property("_email");
+                Configure(),
+                b =>
+                {
+                    b.Entity<User13300>(
+                        m =>
+                        {
+                            m.Property("_email");
 
-                         m.HasMany<Profile13300>("_profiles")
-                             .WithOne("User")
-                             .HasForeignKey("Email")
-                             .HasPrincipalKey("_email");
-                     });
+                            m.HasMany<Profile13300>("_profiles")
+                                .WithOne("User")
+                                .HasForeignKey("Email")
+                                .HasPrincipalKey("_email");
+                        });
 
-                     b.Entity<Profile13300>().Property<string>("Email");
-                 }))
+                    b.Entity<Profile13300>().Property<string>("Email");
+                }))
             {
                 var model = context.Model;
 
@@ -132,20 +135,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public virtual void Attribute_set_shadow_FK_name_is_preserved_with_HasPrincipalKey()
         {
             using (var context = new CustomModelBuildingContext(
-                 Configure(),
-                 b =>
-                 {
-                     b.Entity<User13694>(m =>
-                     {
-                         m.Property("_email");
+                Configure(),
+                b =>
+                {
+                    b.Entity<User13694>(
+                        m =>
+                        {
+                            m.Property("_email");
 
-                         m.HasMany<Profile13694>("_profiles")
-                             .WithOne("User")
-                             .HasPrincipalKey("_email");
-                     });
+                            m.HasMany<Profile13694>("_profiles")
+                                .WithOne("User")
+                                .HasPrincipalKey("_email");
+                        });
 
-                     b.Entity<Profile13694>().Property<string>("Email");
-                 }))
+                    b.Entity<Profile13694>().Property<string>("Email");
+                }))
             {
                 var model = context.Model;
 

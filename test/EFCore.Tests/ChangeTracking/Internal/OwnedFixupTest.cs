@@ -1208,7 +1208,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
                 if (!_ignoreDuplicates)
                 {
-                    optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
+                    optionsBuilder.ConfigureWarnings(
+                        w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
                 }
             }
         }

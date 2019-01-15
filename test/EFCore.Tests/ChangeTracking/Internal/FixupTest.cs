@@ -1432,7 +1432,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         Assert.Equal(principal.Id, dependent.CategoryId);
                         Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                        Assert.Equal(
+                            entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                     });
             }
         }
@@ -1883,7 +1884,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Equal(principal.Id, dependent.ParentId);
                         Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
                         Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
-                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                        Assert.Equal(
+                            entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                     });
             }
         }
@@ -1983,7 +1985,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         Assert.Equal(principal.Id, dependent.ParentId);
                         Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-                        Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
+                        Assert.Equal(
+                            entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                     });
             }
         }
@@ -2204,7 +2207,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Modified, EntityState.Modified)]
         [InlineData(EntityState.Unchanged, EntityState.Added)]
         [InlineData(EntityState.Unchanged, EntityState.Modified)]
-        public void Replace_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        public void Replace_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set(
+            EntityState oldEntityState, EntityState newEntityState)
         {
             Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: false, setToDependent: true, detectChanges: true);
         }
@@ -2297,7 +2301,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Modified, EntityState.Modified)]
         [InlineData(EntityState.Unchanged, EntityState.Added)]
         [InlineData(EntityState.Unchanged, EntityState.Modified)]
-        public void Replace_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState oldEntityState, EntityState newEntityState)
+        public void Replace_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set(
+            EntityState oldEntityState, EntityState newEntityState)
         {
             Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: false, setToPrincipal: true);
         }

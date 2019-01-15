@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
             var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
-            var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(m => m.Key == "PackageVersion").Value;
+            var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .Single(m => m.Key == "PackageVersion").Value;
 
             Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }

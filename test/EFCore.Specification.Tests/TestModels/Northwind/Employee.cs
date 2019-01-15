@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                   && Equals((Employee)obj);
+                  && Equals((Employee)obj);
         }
 
         public override int GetHashCode() => EmployeeID.GetHashCode();

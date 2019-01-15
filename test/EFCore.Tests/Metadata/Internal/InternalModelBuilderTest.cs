@@ -188,7 +188,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            Assert.NotNull(orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(
+                orderEntityTypeBuilder.HasForeignKey(
+                    typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -224,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var specialCustomerEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
 
             Assert.NotNull(customerEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
-            Assert.NotNull(specialCustomerEntityTypeBuilder.HasBaseType(customerEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
+            Assert.NotNull(
+                specialCustomerEntityTypeBuilder.HasBaseType(customerEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -241,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
 
-            Assert.NotNull(orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+            Assert.NotNull(
+                orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 

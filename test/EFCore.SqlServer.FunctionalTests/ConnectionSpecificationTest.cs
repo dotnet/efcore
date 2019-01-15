@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
+                using (var context = new ConnectionInOnConfiguringContext(
+                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -308,10 +309,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
             }
         }
 

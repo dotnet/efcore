@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.InvalidSetTypeEntity(nameof(Product)),
+                Assert.Equal(
+                    CoreStrings.InvalidSetTypeEntity(nameof(Product)),
                     Assert.Throws<InvalidOperationException>(() => context.Query<Product>().ToArray()).Message);
             }
         }
@@ -97,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer).Select(cv => cv.Orders.Where(cc => true).ToList()));
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
+                    .Select(cv => cv.Orders.Where(cc => true).ToList()));
         }
 
         [Theory(Skip = "See issue#13587")]

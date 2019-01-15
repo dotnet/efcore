@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
     public class StringConcatWithSelfExpressionMutator : ExpressionMutator
     {
-        private ExpressionFinder _expressionFinder = new ExpressionFinder();
+        private readonly ExpressionFinder _expressionFinder = new ExpressionFinder();
 
         public StringConcatWithSelfExpressionMutator(DbContext context)
             : base(context)
@@ -42,13 +42,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            private bool _insideLambda = false;
+            private bool _insideLambda;
 
             public List<Expression> FoundExpressions { get; } = new List<Expression>();
 
             public override Expression Visit(Expression node)
             {
-                if (_insideLambda && node?.Type == typeof(string) && node.NodeType != ExpressionType.Parameter)
+                if (_insideLambda
+                    && node?.Type == typeof(string)
+                    && node.NodeType != ExpressionType.Parameter)
                 {
                     FoundExpressions.Add(node);
                 }
@@ -70,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (node != null && node.IsEFProperty())
+                if (node != null
+                    && node.IsEFProperty())
                 {
                     return node;
                 }

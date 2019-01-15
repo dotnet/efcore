@@ -101,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("Byte"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.FindProperty("NullableInt"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<long>>(selector.Select(entityType.FindProperty("NullableLong"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
+            Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(
+                selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<decimal>>(selector.Select(entityType.FindProperty("Decimal"), entityType));
             Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));

@@ -9,15 +9,14 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -32,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Fixture.ListLoggerFactory.Clear();
         }
 
-        private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+        private void Test(
+            string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
 
@@ -933,7 +933,9 @@ CREATE TABLE DependentTable (
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
                     Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), Message);
+                    Assert.Equal(
+                        SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"),
+                        Message);
                 },
                 @"
 DROP TABLE DependentTable;

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -17,7 +18,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -94,11 +94,11 @@ namespace Microsoft.EntityFrameworkCore
             ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
             var transaction = async
-                ? await context.Database.BeginTransactionAsync(IsolationLevel.Chaos)
-                : context.Database.BeginTransaction(IsolationLevel.Chaos);
+                ? await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Chaos)
+                : context.Database.BeginTransaction(System.Data.IsolationLevel.Chaos);
 
             Assert.Same(dbConnection.DbTransactions.Single(), transaction.GetDbTransaction());
-            Assert.Equal(IsolationLevel.Chaos, transaction.GetDbTransaction().IsolationLevel);
+            Assert.Equal(System.Data.IsolationLevel.Chaos, transaction.GetDbTransaction().IsolationLevel);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
             var dbConnection = new FakeDbConnection("A=B");
             var context = RelationalTestHelpers.Instance.CreateContext();
             ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
-            var transaction = new FakeDbTransaction(dbConnection, IsolationLevel.Chaos);
+            var transaction = new FakeDbTransaction(dbConnection, System.Data.IsolationLevel.Chaos);
 
             Assert.Same(transaction, context.Database.UseTransaction(transaction).GetDbTransaction());
         }
@@ -124,12 +124,12 @@ namespace Microsoft.EntityFrameworkCore
 
             if (async)
             {
-                await context.Database.BeginTransactionAsync(IsolationLevel.Chaos);
+                await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Chaos);
                 Assert.Equal(1, transactionManager.BeginAsyncCount);
             }
             else
             {
-                context.Database.BeginTransaction(IsolationLevel.Chaos);
+                context.Database.BeginTransaction(System.Data.IsolationLevel.Chaos);
                 Assert.Equal(1, transactionManager.BeginCount);
             }
         }

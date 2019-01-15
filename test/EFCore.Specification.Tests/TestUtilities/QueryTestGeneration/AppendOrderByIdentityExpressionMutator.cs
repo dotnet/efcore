@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-            && IsOrderedableType(expression.Type.GetGenericArguments()[0]);
+               && IsOrderedableType(expression.Type.GetGenericArguments()[0]);
 
         public override Expression Apply(Expression expression, Random random)
         {

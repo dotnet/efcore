@@ -16,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-
     public abstract class ModelCodeGeneratorTestBase
     {
         public static ConventionSet BuildNonValidatingConventionSet()

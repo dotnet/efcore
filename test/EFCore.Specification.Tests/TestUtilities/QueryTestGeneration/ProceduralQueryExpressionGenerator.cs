@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
     public class ProceduralQueryExpressionGenerator
     {
-        private List<ExpressionMutator> _mutators;
+        private readonly List<ExpressionMutator> _mutators;
 
         // used to hard code the seed used for test generation
         public static readonly int? Seed = null;
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 new AppendCorrelatedCollectionExpressionMutator(context),
                 new AppendIncludeToExistingExpressionMutator(context),
                 new InjectIncludeExpressionMutator(context),
-                new InjectWhereExpressionMutator(context),
+                new InjectWhereExpressionMutator(context)
             };
         }
 
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
     public class ProcedurallyGeneratedQueryExecutor
     {
-        private static Dictionary<string, List<string>> _knownFailingTests = new Dictionary<string, List<string>>();
+        private static readonly Dictionary<string, List<string>> _knownFailingTests = new Dictionary<string, List<string>>();
 
         static ProcedurallyGeneratedQueryExecutor()
         {
@@ -67,41 +66,60 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Where_Join_Exists_Inequality", "Year, Month, and Day parameters describe an un-representable DateTime.");
             AddExpectedFailure("Where_Join_Any", "Year, Month, and Day parameters describe an un-representable DateTime.");
 
-            AddExpectedFailure("Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast", "Arithmetic overflow error");
-            AddExpectedFailure("Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault", "Sequence contains more than one element");
+            AddExpectedFailure(
+                "Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast",
+                "Arithmetic overflow error");
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault", "Sequence contains more than one element");
 
             // NRE due to client eval
-            AddExpectedFailure("GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method", "Object reference not set to an instance of an object.");
+            AddExpectedFailure(
+                "GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method",
+                "Object reference not set to an instance of an object.");
             AddExpectedFailure("Null_reference_protection_complex_client_eval", "Object reference not set to an instance of an object.");
-            AddExpectedFailure("Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter", "Object reference not set to an instance of an object.");
-            AddExpectedFailure("Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault", "Object reference not set to an instance of an object.");
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter",
+                "Object reference not set to an instance of an object.");
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault",
+                "Object reference not set to an instance of an object.");
             AddExpectedFailure("Select_null_propagation_negative4", "Object reference not set to an instance of an object.");
             AddExpectedFailure("Select_null_propagation_negative5", "Object reference not set to an instance of an object.");
-            AddExpectedFailure("Select_conditional_with_anonymous_type_and_null_constant", "Object reference not set to an instance of an object.");
+            AddExpectedFailure(
+                "Select_conditional_with_anonymous_type_and_null_constant", "Object reference not set to an instance of an object.");
             AddExpectedFailure("SelectMany_with_order_by_and_Include", "Object reference not set to an instance of an object.");
             AddExpectedFailure("Include_with_orderby_skip_preserves_ordering", "Object reference not set to an instance of an object.");
             AddExpectedFailure("SelectMany_with_Include_and_order_by", "Object reference not set to an instance of an object.");
-            AddExpectedFailure("Where_complex_predicate_with_with_nav_prop_and_OrElse1", "Object reference not set to an instance of an object.");
+            AddExpectedFailure(
+                "Where_complex_predicate_with_with_nav_prop_and_OrElse1", "Object reference not set to an instance of an object.");
             AddExpectedFailure("SelectMany_with_Include1", "Object reference not set to an instance of an object.");
             AddExpectedFailure("Include_collection_with_Cast_to_base", "Object reference not set to an instance of an object.");
 
             AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result", "Value cannot be null.");
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result", "Value cannot be null.");
+            AddExpectedFailure(
+                "Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result", "Value cannot be null.");
             AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3", "Value cannot be null.");
             AddExpectedFailure("SelectMany_with_Include_and_order_by", "Value cannot be null.");
 
             // using EF.Property on client due to client eval
             AddExpectedFailure("SelectMany_navigation_comparison3", "The EF.Property<T> method may only be used within LINQ queries.");
-            AddExpectedFailure("Manually_created_left_join_propagates_nullability_to_navigations", "The EF.Property<T> method may only be used within LINQ queries.");
-            AddExpectedFailure("Correlated_collections_left_join_with_self_reference", "The EF.Property<T> method may only be used within LINQ queries.");
-            AddExpectedFailure("Correlated_collections_on_left_join_with_null_value", "The EF.Property<T> method may only be used within LINQ queries.");
+            AddExpectedFailure(
+                "Manually_created_left_join_propagates_nullability_to_navigations",
+                "The EF.Property<T> method may only be used within LINQ queries.");
+            AddExpectedFailure(
+                "Correlated_collections_left_join_with_self_reference", "The EF.Property<T> method may only be used within LINQ queries.");
+            AddExpectedFailure(
+                "Correlated_collections_on_left_join_with_null_value", "The EF.Property<T> method may only be used within LINQ queries.");
             AddExpectedFailure("GroupBy_Shadow", "The EF.Property<T> method may only be used within LINQ queries.");
             AddExpectedFailure("GroupBy_Shadow3", "The EF.Property<T> method may only be used within LINQ queries.");
-            AddExpectedFailure("Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method", "The EF.Property<T> method may only be used within LINQ queries.");
+            AddExpectedFailure(
+                "Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method",
+                "The EF.Property<T> method may only be used within LINQ queries.");
 
             // ---------------------------------------------------------------- won't fix bugs -----------------------------------------------------------------
 
-            AddExpectedFailure("Select_constant_null_string", "A constant expression was encountered in the ORDER BY list, position 1."); // 12638
+            AddExpectedFailure(
+                "Select_constant_null_string", "A constant expression was encountered in the ORDER BY list, position 1."); // 12638
 
             // -------------------------------------------------------------- actual product bugs --------------------------------------------------------------
 
@@ -116,29 +134,58 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("GroupBy_aggregate_Pushdown", "Invalid column name 'c'."); // 12569
             AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "Invalid column name 'c'."); // 12569
 
-            AddExpectedFailure("Default_if_empty_top_level_arg", "Expression of type 'Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee' cannot be used for parameter of type"); // 12572
+            AddExpectedFailure(
+                "Default_if_empty_top_level_arg",
+                "Expression of type 'Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee' cannot be used for parameter of type"); // 12572
 
-            AddExpectedFailure("GroupBy_Select_First_GroupBy", "Query source (from Customer c in [g]) has already been associated with an expression."); // 12573
+            AddExpectedFailure(
+                "GroupBy_Select_First_GroupBy",
+                "Query source (from Customer c in [g]) has already been associated with an expression."); // 12573
 
             AddExpectedFailure("Join_Customers_Orders_Skip_Take", "Object reference not set to an instance of an object."); // 12574
-            AddExpectedFailure("Join_Customers_Orders_Projection_With_String_Concat_Skip_Take", "Object reference not set to an instance of an object."); // 12574
-            AddExpectedFailure("Join_Customers_Orders_Orders_Skip_Take_Same_Properties", "Object reference not set to an instance of an object."); // 12574
+            AddExpectedFailure(
+                "Join_Customers_Orders_Projection_With_String_Concat_Skip_Take",
+                "Object reference not set to an instance of an object."); // 12574
+            AddExpectedFailure(
+                "Join_Customers_Orders_Orders_Skip_Take_Same_Properties", "Object reference not set to an instance of an object."); // 12574
 
-            AddExpectedFailure("SelectMany_navigation_property", "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_navigation_property_and_filter_before", "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_navigation_property_and_filter_after", "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_where_with_subquery", "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_nested_navigation_property_required", "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_navigation_property_with_another_navigation_in_subquery", "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("SelectMany_navigation_property_with_another_navigation_in_subquery", "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
-            AddExpectedFailure("Multiple_SelectMany_calls", "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_navigation_property",
+                "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_navigation_property_and_filter_before",
+                "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_navigation_property_and_filter_after",
+                "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_where_with_subquery",
+                "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_nested_navigation_property_required",
+                "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_navigation_property_with_another_navigation_in_subquery",
+                "The property '' on entity type 'Level2' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "SelectMany_navigation_property_with_another_navigation_in_subquery",
+                "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
+            AddExpectedFailure(
+                "Multiple_SelectMany_calls",
+                "The property '' on entity type 'Level3' could not be found. Ensure that the property exists and has been included in the model."); // 12575
 
-            AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
-            AddExpectedFailure("GroupBy_Distinct", "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
+            AddExpectedFailure(
+                "GroupBy_with_orderby_take_skip_distinct",
+                "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
+            AddExpectedFailure(
+                "GroupBy_Distinct",
+                "Unable to cast object of type 'Remotion.Linq.Clauses.ResultOperators.DistinctResultOperator' to type 'Remotion.Linq.Clauses.ResultOperators.GroupResultOperator'."); // 12576
 
             AddExpectedFailure("Correlated_collections_naked_navigation_with_ToList", "Rewriting child expression from type"); // 12579
 
-            AddExpectedFailure("Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault", "Only one expression can be specified in the select list when the subquery is not introduced with EXISTS."); // 12580
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault",
+                "Only one expression can be specified in the select list when the subquery is not introduced with EXISTS."); // 12580
 
             AddExpectedFailure("Optional_navigation_type_compensation_works_with_DTOs", "Value cannot be null."); // 12591
             AddExpectedFailure("ToString_with_formatter_is_evaluated_on_the_client", "Value cannot be null."); // 12591
@@ -148,16 +195,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Queryable_reprojection", "Value cannot be null."); // 12591
             AddExpectedFailure("Queryable_simple_anonymous_subquery", "Value cannot be null."); // 12591
 
-            AddExpectedFailure("Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault", "Object reference not set to an instance of an object."); // 12597
-            AddExpectedFailure("Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2", "Object reference not set to an instance of an object."); // 12597
-            AddExpectedFailure("Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault", "Object reference not set to an instance of an object."); // 12597
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault",
+                "Object reference not set to an instance of an object."); // 12597
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2",
+                "Object reference not set to an instance of an object."); // 12597
+            AddExpectedFailure(
+                "Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault",
+                "Object reference not set to an instance of an object."); // 12597
 
-            AddExpectedFailure("Order_by_length_twice", "Unable to cast object of type 'System.Linq.Expressions.PropertyExpression' to type 'Remotion.Linq.Clauses.Expressions.QuerySourceReferenceExpression'."); // 12598
+            AddExpectedFailure(
+                "Order_by_length_twice",
+                "Unable to cast object of type 'System.Linq.Expressions.PropertyExpression' to type 'Remotion.Linq.Clauses.Expressions.QuerySourceReferenceExpression'."); // 12598
 
-            AddExpectedFailure("GroupBy_Shadow3", "Column 'Employees.Title' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause."); // 12598
+            AddExpectedFailure(
+                "GroupBy_Shadow3",
+                "Column 'Employees.Title' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause."); // 12598
 
             AddExpectedFailure("GroupBy_Shadow", "Unable to cast object of type 'System.String' to type"); // 12601
-            AddExpectedFailure("Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method", "Unable to cast object of type 'System.String' to type"); // 12601
+            AddExpectedFailure(
+                "Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method",
+                "Unable to cast object of type 'System.String' to type"); // 12601
 
             AddExpectedFailure("GroupBy_Shadow", "Value does not fall within the expected range."); // 12640
             AddExpectedFailure("GroupBy_Shadow3", "Value does not fall within the expected range."); // 12640
@@ -165,9 +224,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "_TrackGroupedEntities"); // 12641
 
-            AddExpectedFailure("Select_collection_navigation_simple", "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure("Correlated_collections_nested_with_custom_ordering", "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure("Correlated_collections_multiple_nested_complex_collections", "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
+            AddExpectedFailure(
+                "Select_collection_navigation_simple",
+                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
+            AddExpectedFailure(
+                "Correlated_collections_nested_with_custom_ordering",
+                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
+            AddExpectedFailure(
+                "Correlated_collections_multiple_nested_complex_collections",
+                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
 
             AddExpectedFailure("GroupJoin_GroupBy_Aggregate_5", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Key_as_part_of_element_selector", "Incorrect syntax near '+'."); // 12656
@@ -192,7 +257,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Join_on_entity_qsre_keys_inner_key_is_navigation", "Invalid column name 'Nickname'."); // 12786
             AddExpectedFailure("Client_method_on_collection_navigation_in_outer_join_key", "Invalid column name 'Nickname'."); // 12786
 
-            AddExpectedFailure("Join_navigation_translated_to_subquery_deeply_nested_non_key_join", "Parameter name: tableExpression"); // 12787
+            AddExpectedFailure(
+                "Join_navigation_translated_to_subquery_deeply_nested_non_key_join", "Parameter name: tableExpression"); // 12787
             AddExpectedFailure("Join_on_entity_qsre_keys_inner_key_is_nested_navigation", "Parameter name: tableExpression"); // 12787
             AddExpectedFailure("Join_navigation_translated_to_subquery_deeply_nested_required", "Parameter name: tableExpression"); // 12787
             AddExpectedFailure("Join_navigation_translated_to_subquery_nested", "Parameter name: tableExpression"); // 12787
@@ -221,72 +287,146 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Join_complex_GroupBy_Aggregate", "must be reducible node"); // 12799
             AddExpectedFailure("OrderBy_Take_GroupBy_Aggregate", "must be reducible node"); // 12799
 
-            AddExpectedFailure("Include_with_join_collection2", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
-            AddExpectedFailure("Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
-            AddExpectedFailure("Include_with_join_and_inheritance3", "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_with_join_collection2",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
+            AddExpectedFailure(
+                "Include_with_join_and_inheritance3",
+                "could not be found. Ensure that the property exists and has been included in the model."); // 12802
 
-            AddExpectedFailure("Join_navigation_translated_to_subquery_non_key_join", "Index was outside the bounds of the array."); // 12804
+            AddExpectedFailure(
+                "Join_navigation_translated_to_subquery_non_key_join", "Index was outside the bounds of the array."); // 12804
 
             AddExpectedFailure("OrderBy_Skip_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
             AddExpectedFailure("OrderBy_Skip_Take_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
             AddExpectedFailure("GroupJoin_complex_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
             AddExpectedFailure("OrderBy_GroupBy_SelectMany", "Value does not fall within the expected range."); // 12805
 
-            AddExpectedFailure("GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner", "Invalid column name 'Level1_Optional_Id'."); // 12806
+            AddExpectedFailure(
+                "GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner",
+                "Invalid column name 'Level1_Optional_Id'."); // 12806
 
-            AddExpectedFailure("Let_group_by_nav_prop", "A column has been specified more than once in the order by list. Columns in the order by list must be unique."); // 12816
+            AddExpectedFailure(
+                "Let_group_by_nav_prop",
+                "A column has been specified more than once in the order by list. Columns in the order by list must be unique."); // 12816
 
-            AddExpectedFailure("Select_expression_references_are_updated_correctly_with_subquery", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_int_to_string", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("ToString_with_formatter_is_evaluated_on_the_client", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Query_expression_with_to_string_and_contains", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Projection_containing_DateTime_subtraction", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_other_to_string", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_long_to_string", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_date_add_year", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_datetime_add_month", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_datetime_add_hour", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_datetime_add_minute", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_datetime_add_second", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_date_add_milliseconds_below_the_range", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_date_add_milliseconds_above_the_range", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_date_add_milliseconds_large_number_divided", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
-            AddExpectedFailure("Select_expression_datetime_add_ticks", "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_references_are_updated_correctly_with_subquery",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_int_to_string",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "ToString_with_formatter_is_evaluated_on_the_client",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Query_expression_with_to_string_and_contains",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Projection_containing_DateTime_subtraction",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_other_to_string",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_long_to_string",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_date_add_year",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_datetime_add_month",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_datetime_add_hour",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_datetime_add_minute",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_datetime_add_second",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_date_add_milliseconds_below_the_range",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_date_add_milliseconds_above_the_range",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_date_add_milliseconds_large_number_divided",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
+            AddExpectedFailure(
+                "Select_expression_datetime_add_ticks",
+                "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
 
-            AddExpectedFailure("Projection_containing_DateTime_subtraction", "Conversion failed when converting date and/or time from character string."); // 12797
+            AddExpectedFailure(
+                "Projection_containing_DateTime_subtraction",
+                "Conversion failed when converting date and/or time from character string."); // 12797
             AddExpectedFailure("Where_chain", "Conversion failed when converting date and/or time from character string."); // 12797
-            AddExpectedFailure("Projection_containing_DateTime_subtraction", "Conversion failed when converting date and/or time from character string."); // 12797
-            AddExpectedFailure("Where_Join_Exists_Inequality", "Conversion failed when converting date and/or time from character string."); // 12797
+            AddExpectedFailure(
+                "Projection_containing_DateTime_subtraction",
+                "Conversion failed when converting date and/or time from character string."); // 12797
+            AddExpectedFailure(
+                "Where_Join_Exists_Inequality", "Conversion failed when converting date and/or time from character string."); // 12797
             AddExpectedFailure("Where_Join_Any", "Conversion failed when converting date and/or time from character string."); // 12797
             AddExpectedFailure("Where_Join_Exists", "Conversion failed when converting date and/or time from character string."); // 12797
 
-            AddExpectedFailure("Parameter_extraction_short_circuits_1", "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
-            AddExpectedFailure("Parameter_extraction_short_circuits_3", "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
+            AddExpectedFailure(
+                "Parameter_extraction_short_circuits_1",
+                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
+            AddExpectedFailure(
+                "Parameter_extraction_short_circuits_3",
+                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
 
             AddExpectedFailure("Include_with_join_reference2", "Invalid column name '"); // 12827
             AddExpectedFailure("Include_with_join_and_inheritance1", "Invalid column name '"); // 12827
             AddExpectedFailure("Include_with_join_and_inheritance3", "Invalid column name '"); // 12827
 
-            AddExpectedFailure("Entity_equality_local", "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
-            AddExpectedFailure("Where_poco_closure", "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
+            AddExpectedFailure(
+                "Entity_equality_local",
+                "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
+            AddExpectedFailure(
+                "Where_poco_closure",
+                "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
 
-            AddExpectedFailure("Default_if_empty_top_level_positive", "Operation is not valid due to the current state of the object."); // 12872
+            AddExpectedFailure(
+                "Default_if_empty_top_level_positive", "Operation is not valid due to the current state of the object."); // 12872
             AddExpectedFailure("Default_if_empty_top_level", "Operation is not valid due to the current state of the object."); // 12872
 
             AddExpectedFailure("QueryType_with_defining_query", "Object reference not set to an instance of an object."); // 12873
 
-            AddExpectedFailure("QueryType_with_included_navs_multi_level", "Object reference not set to an instance of an object."); // 12874
+            AddExpectedFailure(
+                "QueryType_with_included_navs_multi_level", "Object reference not set to an instance of an object."); // 12874
 
-            AddExpectedFailure("Include_with_concat", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Concat_with_groupings", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Union_dbset", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Concat_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Union_simple", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Union_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
-            AddExpectedFailure("Where_subquery_concat_order_by_firstordefault_boolean", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Include_with_concat",
+                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Concat_with_groupings",
+                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Union_dbset", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Concat_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Union_simple", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Union_nested", ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
+            AddExpectedFailure(
+                "Where_subquery_concat_order_by_firstordefault_boolean",
+                ", but it has items of type 'Microsoft.EntityFrameworkCore.Query.Internal.AnonymousObject'."); // 12889
 
             AddExpectedFailure("Select_null_propagation_negative1", "Specified cast is not valid."); // 12958
             AddExpectedFailure("Select_null_propagation_negative2", "Specified cast is not valid."); // 12958
@@ -358,17 +498,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 else if (exception.Message == @"Invalid column name 'Key'.") // 12564
                 {
                 }
-                else if (exception.Message.StartsWith(@"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning"))
+                else if (exception.Message.StartsWith(
+                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning"))
                 {
                 }
                 else if (exception.Message.Contains(@"The expected type was 'System.Int64' but the actual value was of type")) // 12570
                 {
                 }
-                else if (exception.Message.Contains(@"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
-                    || exception.Message.Contains(@"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")) // 13753
+                else if (exception.Message.Contains(
+                             @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
+                         || exception.Message.Contains(
+                             @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
+                ) // 13753
                 {
                 }
-                else if (exception.Message == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'.") // 12788
+                else if (exception.Message
+                         == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
+                ) // 12788
                 {
                 }
                 else if (exception.Message.Contains(@"Incorrect syntax near the keyword 'AS'.")) // 12826

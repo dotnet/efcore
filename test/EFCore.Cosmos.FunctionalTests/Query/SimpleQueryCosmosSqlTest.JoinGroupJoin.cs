@@ -1,4 +1,7 @@
-﻿using System.Linq;
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
@@ -482,7 +485,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.GroupJoin_outer_projection(isAsync);
 
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -492,7 +495,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.GroupJoin_outer_projection2(isAsync);
 
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -501,7 +504,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await base.GroupJoin_outer_projection3(isAsync);
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -511,7 +514,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.GroupJoin_outer_projection4(isAsync);
 
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -520,11 +523,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await base.GroupJoin_outer_projection_reverse(isAsync);
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")",
-    //
-    @"SELECT c
+                //
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }

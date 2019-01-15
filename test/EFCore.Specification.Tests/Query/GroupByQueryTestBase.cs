@@ -867,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -897,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -987,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     g =>
                         new
                         {
-                            Sum = g.Sum(o => o.OrderID),
+                            Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Sum);
         }
@@ -1217,7 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
-                        .Select(g => g.Sum(e => e.OrderID + 1)));
+                    .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
         [ConditionalTheory]
@@ -1227,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.GroupBy(o => o.CustomerID, o => new { o.OrderID, o.OrderDate })
-                        .Select(g => g.Sum(e => e.OrderID + 1)));
+                    .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
         [ConditionalTheory]
@@ -1237,7 +1237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID)
-                        .Select(g => g.Sum(e => e + 1)));
+                    .Select(g => g.Sum(e => e + 1)));
         }
 
         [ConditionalTheory]
@@ -1247,7 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.GroupBy(o => o.CustomerID, o => o.OrderID + 1)
-                        .Select(g => g.Sum(e => e)));
+                    .Select(g => g.Sum(e => e)));
         }
 
         #endregion
@@ -1446,7 +1446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (os, cs) =>
                     (from o in os.Where(o => o.OrderID < 10400).OrderBy(o => o.OrderDate).Take(100)
                      join c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
-                                 .OrderBy(c => c.City).Skip(10).Take(50)
+                             .OrderBy(c => c.City).Skip(10).Take(50)
                          on o.CustomerID equals c.CustomerID
                      group o by c.CustomerID)
                     .Select(
@@ -1595,7 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (os, cs) =>
                     (from c in cs.Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
-                                 .OrderBy(c => c.City).Skip(10).Take(50)
+                         .OrderBy(c => c.City).Skip(10).Take(50)
                      join o in os.Where(o => o.OrderID < 10400).OrderBy(o => o.OrderDate).Take(100)
                          on c.CustomerID equals o.CustomerID into grouping
                      from o in grouping
@@ -1704,7 +1704,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.GroupBy(o => o.Customer.CustomerID)
-                        .Select(g => new
+                    .Select(
+                        g => new
                         {
                             g.Key,
                             Count = g.Count()
@@ -2191,7 +2192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : ReferenceEquals(this, obj)
                         ? true
                         : obj.GetType() == GetType()
-                            && Equals((ProjectedType)obj);
+                          && Equals((ProjectedType)obj);
 
             // ReSharper disable once NonReadonlyMemberInGetHashCode
             public override int GetHashCode() => Order.GetHashCode();
@@ -2587,7 +2588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os =>
                     // TODO: See issue#11215
-                        os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
+                    os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalTheory]
@@ -2950,10 +2951,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertSingleResult<Order>(
                 isAsync,
                 os => (from o in os
-                      group o by new { o.CustomerID } into g
-                      select g.Where(e => e.OrderID < 10300).Count()).LongCount(),
+                       group o by new { o.CustomerID }
+                       into g
+                       select g.Where(e => e.OrderID < 10300).Count()).LongCount(),
                 os => (from o in os
-                       group o by new { o.CustomerID } into g
+                       group o by new { o.CustomerID }
+                       into g
                        select g.Where(e => e.OrderID < 10300).Count()).LongCountAsync());
         }
 

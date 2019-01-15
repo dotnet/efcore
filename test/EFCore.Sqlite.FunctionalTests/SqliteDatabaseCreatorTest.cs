@@ -59,11 +59,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private DbContext CreateContext(string connectionString)
             => new DbContext(
-                    new DbContextOptionsBuilder()
-                        .UseSqlite(connectionString)
-                        .UseInternalServiceProvider(
-                            SqliteTestStoreFactory.Instance.AddProviderServices(new ServiceCollection())
-                                .BuildServiceProvider(validateScopes: true))
-                        .Options);
+                new DbContextOptionsBuilder()
+                    .UseSqlite(connectionString)
+                    .UseInternalServiceProvider(
+                        SqliteTestStoreFactory.Instance.AddProviderServices(new ServiceCollection())
+                            .BuildServiceProvider(validateScopes: true))
+                    .Options);
     }
 }

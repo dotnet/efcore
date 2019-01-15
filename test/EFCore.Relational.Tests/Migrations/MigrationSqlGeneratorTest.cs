@@ -77,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.AddForeignKeyOperation_with_name();
 
             Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"FK_People_Companies\" FOREIGN KEY (\"EmployerId1\", \"EmployerId2\") REFERENCES \"hr\".\"Companies\" (\"Id1\", \"Id2\") ON DELETE CASCADE;" + EOL,
+                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"FK_People_Companies\" FOREIGN KEY (\"EmployerId1\", \"EmployerId2\") REFERENCES \"hr\".\"Companies\" (\"Id1\", \"Id2\") ON DELETE CASCADE;"
+                + EOL,
                 Sql);
         }
 
@@ -122,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.AddUniqueConstraintOperation_with_name();
 
             Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"AK_People_DriverLicense\" UNIQUE (\"DriverLicense_State\", \"DriverLicense_Number\");" + EOL,
+                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"AK_People_DriverLicense\" UNIQUE (\"DriverLicense_State\", \"DriverLicense_Number\");"
+                + EOL,
                 Sql);
         }
 
@@ -194,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;"
+                + EOL,
                 Sql);
         }
 

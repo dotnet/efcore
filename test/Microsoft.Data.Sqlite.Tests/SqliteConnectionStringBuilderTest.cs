@@ -215,7 +215,8 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Clear_resets_everything()
         {
-            var builder = new SqliteConnectionStringBuilder("Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
+            var builder = new SqliteConnectionStringBuilder(
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
 
             builder.Clear();
 

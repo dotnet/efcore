@@ -517,7 +517,8 @@ WHERE [o].[CustomerID] = N'ALFKI'
 ORDER BY [o].[OrderID]");
         }
 
-        public override async Task Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast(bool isAsync)
+        public override async Task Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast(
+            bool isAsync)
         {
             await base.Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast(isAsync);
 
@@ -665,9 +666,11 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        public override async Task
+            Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
+            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+                isAsync);
 
             AssertSql(
                 "");
@@ -732,9 +735,13 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(bool isAsync)
+        public override async Task
+            Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
+                bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(isAsync);
+            await base
+                .Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
+                    isAsync);
 
             AssertSql(
                 "");
@@ -778,7 +785,8 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
         }
 
-        public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
+        public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(
+            bool isAsync)
         {
             await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
 

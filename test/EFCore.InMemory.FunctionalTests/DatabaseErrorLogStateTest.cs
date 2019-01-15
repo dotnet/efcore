@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
                 Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-                Assert.EndsWith(ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+                Assert.EndsWith(
+                    ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
             }
         }
 
@@ -95,11 +96,12 @@ namespace Microsoft.EntityFrameworkCore
             => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
 
         private Task Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
-            => Query_logs_DatabaseErrorLogState_test(c =>
-            {
-                test(c);
-                return Task.CompletedTask;
-            });
+            => Query_logs_DatabaseErrorLogState_test(
+                c =>
+                {
+                    test(c);
+                    return Task.CompletedTask;
+                });
 
         private async Task Query_logs_DatabaseErrorLogState_test(Func<BloggingContext, Task> test)
         {
@@ -129,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("Jim said to throw from ctor!", ex.Message);
                 Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
                 Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-                Assert.EndsWith(ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+                Assert.EndsWith(
+                    ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
             }
         }
 

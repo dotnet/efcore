@@ -5,10 +5,7 @@ using System;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -200,7 +197,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.StartsWith(
                 CoreStrings.HiLoBadBlockSize,
-                Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy).Message);
+                Assert.Throws<ArgumentOutOfRangeException>(
+                    () => cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy).Message);
         }
 
         [Fact]

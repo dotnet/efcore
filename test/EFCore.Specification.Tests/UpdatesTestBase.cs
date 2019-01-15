@@ -32,15 +32,15 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AFewBytes.AddRange(
-                        new AFewBytes()
+                        new AFewBytes
                         {
                             Id = id1,
-                            Bytes = bytes,
+                            Bytes = bytes
                         },
-                        new AFewBytes()
+                        new AFewBytes
                         {
                             Id = id2,
-                            Bytes = bytes,
+                            Bytes = bytes
                         });
 
                     context.SaveChanges();

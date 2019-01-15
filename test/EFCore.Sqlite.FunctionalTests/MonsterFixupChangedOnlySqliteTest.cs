@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class MonsterFixupChangedOnlySqliteTest : MonsterFixupTestBase<MonsterFixupChangedOnlySqliteTest.MonsterFixupChangedOnlySqliteFixture>
+    public class MonsterFixupChangedOnlySqliteTest : MonsterFixupTestBase<
+        MonsterFixupChangedOnlySqliteTest.MonsterFixupChangedOnlySqliteFixture>
     {
         public MonsterFixupChangedOnlySqliteTest(MonsterFixupChangedOnlySqliteFixture fixture)
             : base(fixture)

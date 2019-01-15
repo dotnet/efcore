@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             }
 
             return excludedFrameworks.HasFlag(TestPlatform.Mac)
-                && RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                   && RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
                 ? false
                 : true;
         }

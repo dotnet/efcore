@@ -14,19 +14,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         {
         }
 
-        public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public override ResultSetMapping AppendInsertOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             AppendInsertOperationCalls++;
             return base.AppendInsertOperation(commandStringBuilder, command, commandPosition);
         }
 
-        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public override ResultSetMapping AppendUpdateOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             AppendUpdateOperationCalls++;
             return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition);
         }
 
-        public override ResultSetMapping AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public override ResultSetMapping AppendDeleteOperation(
+            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             AppendDeleteOperationCalls++;
             return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition);
@@ -49,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                 .Append(" = ")
                 .Append("provider_specific_identity()");
 
-        protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+        protected override ResultSetMapping AppendSelectAffectedCountCommand(
+            StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
             commandStringBuilder
                 .Append("SELECT provider_specific_rowcount();").Append(Environment.NewLine).Append(Environment.NewLine);

@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryInMemoryFixture>
     {
         // ReSharper disable once UnusedParameter.Local
-        public ComplexNavigationsWeakQueryInMemoryTest(ComplexNavigationsWeakQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public ComplexNavigationsWeakQueryInMemoryTest(
+            ComplexNavigationsWeakQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

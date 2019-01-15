@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -147,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void RequiredAttribute_does_not_set_is_required_for_collection_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -168,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void RequiredAttribute_does_not_set_is_required_for_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -191,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void RequiredAttribute_inverts_when_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -223,7 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var model = (Model)modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
-            Assert.True(model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
+            Assert.True(
+                model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
+                    .IsRequired);
         }
 
         [Fact]
@@ -252,7 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void InversePropertyAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -283,7 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void InversePropertyAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -309,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void InversePropertyAttribute_does_not_configure_ambiguous_navigations()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<AmbiguousDependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(AmbiguousPrincipal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(
+                typeof(AmbiguousPrincipal), ConfigurationSource.Convention);
 
             dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -423,7 +430,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();
 
             Assert.Equal(
-                CoreStrings.SelfReferencingNavigationWithInverseProperty("AnotherEntity", nameof(SelfReferencingEntity), "AnotherEntity", nameof(SelfReferencingEntity)),
+                CoreStrings.SelfReferencingNavigationWithInverseProperty(
+                    "AnotherEntity", nameof(SelfReferencingEntity), "AnotherEntity", nameof(SelfReferencingEntity)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         CreateInversePropertyAttributeConvention()
@@ -436,7 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<NonExistentNavigation>();
 
             Assert.Equal(
-                CoreStrings.InvalidNavigationWithInverseProperty("Principal", nameof(NonExistentNavigation), "WrongNavigation", nameof(Principal)),
+                CoreStrings.InvalidNavigationWithInverseProperty(
+                    "Principal", nameof(NonExistentNavigation), "WrongNavigation", nameof(Principal)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         CreateInversePropertyAttributeConvention()
@@ -462,7 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<MismatchedInverseProperty>();
 
             Assert.Equal(
-                CoreStrings.InversePropertyMismatch("Principal", nameof(MismatchedInverseProperty), "MismatchedInverseProperty", nameof(Principal)),
+                CoreStrings.InversePropertyMismatch(
+                    "Principal", nameof(MismatchedInverseProperty), "MismatchedInverseProperty", nameof(Principal)),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         CreateInversePropertyAttributeConvention()
@@ -477,7 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -503,7 +514,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -529,7 +541,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_dependent_to_principal_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -555,7 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_principal_to_dependent_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -586,7 +600,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -612,7 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_on_field_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentField>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(PrincipalField), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(PrincipalField), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -638,7 +654,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Dependent), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Dependent), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -668,7 +685,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_sets_composite_foreign_key_properties_when_applied_on_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                     principalEntityTypeBuilder,
@@ -698,7 +716,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_throws_when_values_on_property_and_navigtaion_in_entity_type_do_not_match()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<FkPropertyNavigationMismatch>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -715,7 +734,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_throws_when_defining_composite_foreign_key_using_attribute_on_properties()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeFkOnProperty>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -732,7 +752,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_throws_when_property_list_on_navigation_is_in_incorrect_format()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<InvalidPropertyListOnNavigation>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -749,7 +770,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_throws_when_same_set_of_properties_are_pointed_by_multiple_navigations()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<MultipleNavigationsSameFk>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder =
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -766,7 +788,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void ForeignKeyAttribute_throws_when_specified_on_principal_property_with_collection()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(InvertedPrincipal), ConfigurationSource.Convention);
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(
+                typeof(InvertedPrincipal), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,

@@ -10,7 +10,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -74,14 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void One_to_many_unidirectional_is_upgraded_to_one_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder =
+                principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
+            principalEntityBuilder.Relationship(
+                    dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
 
-            VerifyRelationship(dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToOnePrincipal.NavigationProperty.Name, unique: true);
+            VerifyRelationship(
+                dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToOnePrincipal.NavigationProperty.Name, unique: true);
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -89,17 +91,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Two_one_to_many_unidirectional_are_upgraded_to_one_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder =
+                principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
+            principalEntityBuilder.Relationship(
+                    dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, OneToOneDependent.NavigationProperty, null, ConfigurationSource.Convention)
+            dependentEntityBuilder.Relationship(
+                    principalEntityBuilder, OneToOneDependent.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
 
-            VerifyRelationship(dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToOnePrincipal.NavigationProperty.Name, unique: true);
+            VerifyRelationship(
+                dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToOnePrincipal.NavigationProperty.Name, unique: true);
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -107,9 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void One_to_many_unidirectional_is_not_upgraded_to_one_to_one_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder =
+                principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Explicit)
+            principalEntityBuilder.Relationship(
+                    dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
@@ -133,13 +141,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void One_to_many_unidirectional_is_upgraded_to_one_to_many_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToManyDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(
+                typeof(OneToManyDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, null, OneToManyPrincipal.NavigationProperty, ConfigurationSource.Convention);
+            dependentEntityBuilder.Relationship(
+                principalEntityBuilder, null, OneToManyPrincipal.NavigationProperty, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
 
-            VerifyRelationship(dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToManyPrincipal.NavigationProperty.Name, unique: false);
+            VerifyRelationship(
+                dependentEntityBuilder.Metadata.GetNavigations().Single(), OneToManyPrincipal.NavigationProperty.Name, unique: false);
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -147,9 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void One_to_many_unidirectional_is_not_upgraded_to_one_to_many_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToManyDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(
+                typeof(OneToManyDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, null, OneToManyPrincipal.NavigationProperty, ConfigurationSource.Explicit);
+            dependentEntityBuilder.Relationship(
+                principalEntityBuilder, null, OneToManyPrincipal.NavigationProperty, ConfigurationSource.Explicit);
 
             Assert.Same(dependentEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
 
@@ -184,13 +197,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Many_to_one_unidirectional_is_upgraded_to_many_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToManyDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(
+                typeof(OneToManyDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, OneToManyDependent.NavigationProperty, null, ConfigurationSource.Convention);
+            dependentEntityBuilder.Relationship(
+                principalEntityBuilder, OneToManyDependent.NavigationProperty, null, ConfigurationSource.Convention);
 
             Assert.Same(principalEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(principalEntityBuilder));
 
-            VerifyRelationship(principalEntityBuilder.Metadata.GetNavigations().Single(), OneToManyDependent.NavigationProperty.Name, unique: false);
+            VerifyRelationship(
+                principalEntityBuilder.Metadata.GetNavigations().Single(), OneToManyDependent.NavigationProperty.Name, unique: false);
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -198,9 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Many_to_one_unidirectional_is_not_upgraded_to_many_to_one_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
-            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToManyDependent), ConfigurationSource.Convention);
+            var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(
+                typeof(OneToManyDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, OneToManyDependent.NavigationProperty, null, ConfigurationSource.Explicit);
+            dependentEntityBuilder.Relationship(
+                principalEntityBuilder, OneToManyDependent.NavigationProperty, null, ConfigurationSource.Explicit);
 
             Assert.Same(principalEntityBuilder, CreateRelationshipDiscoveryConvention().Apply(principalEntityBuilder));
 
@@ -248,10 +266,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Existing_relationship_is_removed_if_ambiguous()
         {
-            var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
-            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
+            var entityBuilderFirst =
+                CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
+            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(
+                typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
-            entityBuilderFirst.Relationship(entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.Convention);
+            entityBuilderFirst.Relationship(
+                entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.Convention);
 
             Assert.Same(entityBuilderFirst, CreateRelationshipDiscoveryConvention().Apply(entityBuilderFirst));
 
@@ -264,15 +285,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Existing_relationship_removes_ambiguity_if_higher_source()
         {
-            var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
-            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
+            var entityBuilderFirst =
+                CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
+            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(
+                typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
-            entityBuilderFirst.Relationship(entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+            entityBuilderFirst.Relationship(
+                entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderFirst, CreateRelationshipDiscoveryConvention().Apply(entityBuilderFirst));
 
-            VerifyRelationship(entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.CollectionNavigationProperty.Name), null, unique: false, singleRelationship: false);
-            VerifyRelationship(entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.NonCollectionNavigationProperty.Name), nameof(MultipleNavigationsSecond.MultipleNavigationsFirst), unique: true, singleRelationship: false);
+            VerifyRelationship(
+                entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.CollectionNavigationProperty.Name), null, unique: false,
+                singleRelationship: false);
+            VerifyRelationship(
+                entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.NonCollectionNavigationProperty.Name),
+                nameof(MultipleNavigationsSecond.MultipleNavigationsFirst), unique: true, singleRelationship: false);
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -281,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsSecond>(
                 MultipleNavigationsSecond.IgnoreCollectionNavigation);
-            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
+            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(
+                typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
             Assert.Same(entityBuilderFirst, CreateRelationshipDiscoveryConvention().Apply(entityBuilderFirst));
 
@@ -294,10 +323,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Existing_relationship_is_removed_if_ambiguous_inverse()
         {
-            var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
-            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
+            var entityBuilderFirst =
+                CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
+            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(
+                typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
-            entityBuilderFirst.Relationship(entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.Convention);
+            entityBuilderFirst.Relationship(
+                entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.Convention);
 
             Assert.Same(entityBuilderSecond, CreateRelationshipDiscoveryConvention().Apply(entityBuilderSecond));
 
@@ -319,15 +351,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Existing_relationship_removes_ambiguity_in_inverse_if_higher_source()
         {
-            var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
-            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
+            var entityBuilderFirst =
+                CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
+            var entityBuilderSecond = entityBuilderFirst.ModelBuilder.Entity(
+                typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
-            entityBuilderFirst.Relationship(entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+            entityBuilderFirst.Relationship(
+                entityBuilderSecond, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderSecond, CreateRelationshipDiscoveryConvention().Apply(entityBuilderSecond));
 
-            VerifyRelationship(entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.CollectionNavigationProperty.Name), null, unique: false, singleRelationship: false);
-            VerifyRelationship(entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.NonCollectionNavigationProperty.Name), nameof(MultipleNavigationsSecond.MultipleNavigationsFirst), unique: true, singleRelationship: false);
+            VerifyRelationship(
+                entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.CollectionNavigationProperty.Name), null, unique: false,
+                singleRelationship: false);
+            VerifyRelationship(
+                entityBuilderFirst.Metadata.FindNavigation(MultipleNavigationsFirst.NonCollectionNavigationProperty.Name),
+                nameof(MultipleNavigationsSecond.MultipleNavigationsFirst), unique: true, singleRelationship: false);
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -351,7 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(firstFK.IsRequired);
             Assert.False(firstFK.IsUnique);
             Assert.Equal(
-                new[] { MultipleNavigationsFirst.NonCollectionNavigationProperty.Name, MultipleNavigationsFirst.CollectionNavigationProperty.Name },
+                new[]
+                {
+                    MultipleNavigationsFirst.NonCollectionNavigationProperty.Name,
+                    MultipleNavigationsFirst.CollectionNavigationProperty.Name
+                },
                 firstEntityType.GetNavigations().Select(n => n.Name));
 
             Assert.Equal(2, secondEntityType.GetProperties().Count());
@@ -579,8 +622,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(derivedBuilder, CreateRelationshipDiscoveryConvention().Apply(derivedBuilder));
 
-            VerifyRelationship(baseBuilder.Metadata.GetNavigations().Single(), expectedInverseName: null, unique: false, singleRelationship: false);
-            VerifyRelationship(entityBuilder.Metadata.GetNavigations().Single(), nameof(DerivedOne.DerivedNavigation), unique: true, singleRelationship: false);
+            VerifyRelationship(
+                baseBuilder.Metadata.GetNavigations().Single(), expectedInverseName: null, unique: false, singleRelationship: false);
+            VerifyRelationship(
+                entityBuilder.Metadata.GetNavigations().Single(), nameof(DerivedOne.DerivedNavigation), unique: true,
+                singleRelationship: false);
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -619,8 +665,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            VerifyRelationship(baseBuilder.Metadata.GetNavigations().Single(), expectedInverseName: null, unique: false, singleRelationship: false);
-            VerifyRelationship(entityBuilder.Metadata.GetNavigations().Single(), nameof(DerivedOne.DerivedNavigation), unique: true, singleRelationship: false);
+            VerifyRelationship(
+                baseBuilder.Metadata.GetNavigations().Single(), expectedInverseName: null, unique: false, singleRelationship: false);
+            VerifyRelationship(
+                entityBuilder.Metadata.GetNavigations().Single(), nameof(DerivedOne.DerivedNavigation), unique: true,
+                singleRelationship: false);
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -759,7 +808,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void One_to_many_unidirectional_self_ref_is_discovered()
         {
-            var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation2, SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
+            var entityBuilder = CreateInternalEntityBuilder<SelfRef>(
+                SelfRef.IgnoreNavigation2, SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
 
@@ -788,8 +838,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: null, unique: false, singleRelationship: false);
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: null, unique: false, singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: null, unique: false,
+                singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: null, unique: false,
+                singleRelationship: false);
         }
 
         [Fact]
@@ -827,8 +881,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: null, unique: false, singleRelationship: false);
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: nameof(SelfRef.SelfRef3), unique: false, singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: null, unique: false,
+                singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: nameof(SelfRef.SelfRef3),
+                unique: false, singleRelationship: false);
         }
 
         [Fact]
@@ -856,12 +914,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>();
 
-            entityBuilder.Relationship(entityBuilder, nameof(SelfRef.SelfRef1), nameof(SelfRef.SelfRef3), ConfigurationSource.DataAnnotation);
+            entityBuilder.Relationship(
+                entityBuilder, nameof(SelfRef.SelfRef1), nameof(SelfRef.SelfRef3), ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: nameof(SelfRef.SelfRef3), unique: false, singleRelationship: false);
-            VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: nameof(SelfRef.SelfRef4), unique: false, singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: nameof(SelfRef.SelfRef3),
+                unique: false, singleRelationship: false);
+            VerifySelfRef(
+                entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef2)), expectedInverseName: nameof(SelfRef.SelfRef4),
+                unique: false, singleRelationship: false);
         }
 
         [Fact]

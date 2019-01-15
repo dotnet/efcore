@@ -1854,7 +1854,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
-        public virtual void Save_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public virtual void Save_optional_many_to_one_dependents_with_alternate_key(
+            ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new1 = new OptionalAk1
             {
@@ -2026,7 +2027,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
-        public virtual void Save_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public virtual void Save_required_many_to_one_dependents_with_alternate_key(
+            ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var newRoot = new Root
             {

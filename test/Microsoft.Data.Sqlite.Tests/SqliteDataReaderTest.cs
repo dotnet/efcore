@@ -44,9 +44,9 @@ namespace Microsoft.Data.Sqlite
         public void FieldCount_throws_when_closed()
             => X_throws_when_closed(
                 r =>
-                    {
-                        var x = r.FieldCount;
-                    }, "FieldCount");
+                {
+                    var x = r.FieldCount;
+                }, "FieldCount");
 
         [Fact]
         public void GetBoolean_works()
@@ -114,6 +114,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+
         [Fact]
         public void GetBytes_works_with_overflow()
         {
@@ -260,7 +261,6 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
-
 
         [Fact]
         public void GetStream_works_with_float()

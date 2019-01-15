@@ -53,19 +53,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Returns_null_when_no_inverse()
         {
-            var products = BuildModel(createCategory: false).FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "Products");
+            var products = BuildModel(createCategory: false).FindEntityType(typeof(Category)).GetNavigations()
+                .Single(e => e.Name == "Products");
 
             Assert.Null(products.FindInverse());
 
-            var category = BuildModel(createProducts: false).FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "Category");
+            var category = BuildModel(createProducts: false).FindEntityType(typeof(Product)).GetNavigations()
+                .Single(e => e.Name == "Category");
 
             Assert.Null(category.FindInverse());
 
-            var featuredCategory = BuildModel(createFeaturedProduct: false).FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "FeaturedProductCategory");
+            var featuredCategory = BuildModel(createFeaturedProduct: false).FindEntityType(typeof(Product)).GetNavigations()
+                .Single(e => e.Name == "FeaturedProductCategory");
 
             Assert.Null(featuredCategory.FindInverse());
 
-            var featuredProduct = BuildModel(createFeaturedProductCategory: false).FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "FeaturedProduct");
+            var featuredProduct = BuildModel(createFeaturedProductCategory: false).FindEntityType(typeof(Category)).GetNavigations()
+                .Single(e => e.Name == "FeaturedProduct");
 
             Assert.Null(featuredProduct.FindInverse());
         }
@@ -86,7 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private class Product
         {
             public static readonly PropertyInfo CategoryProperty = typeof(Product).GetProperty(nameof(Category));
-            public static readonly PropertyInfo FeaturedProductCategoryProperty = typeof(Product).GetProperty(nameof(FeaturedProductCategory));
+
+            public static readonly PropertyInfo FeaturedProductCategoryProperty =
+                typeof(Product).GetProperty(nameof(FeaturedProductCategory));
 
             public int Id { get; set; }
 
@@ -119,8 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var categoryType = model.FindEntityType(typeof(Category));
             var productType = model.FindEntityType(typeof(Product));
 
-            var categoryFk = productType.GetOrAddForeignKey(productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
-            var featuredProductFk = categoryType.GetOrAddForeignKey(categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
+            var categoryFk = productType.GetOrAddForeignKey(
+                productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
+            var featuredProductFk = categoryType.GetOrAddForeignKey(
+                categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
             featuredProductFk.IsUnique = true;
 
             if (createProducts)

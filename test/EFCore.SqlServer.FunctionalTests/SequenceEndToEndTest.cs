@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore
                     for (var i = 0; i < 29; i++)
                     {
                         Assert.Equal(
-                        dbName.EndsWith("1", StringComparison.Ordinal) ? 3 : 0,
-                        pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                            dbName.EndsWith("1", StringComparison.Ordinal) ? 3 : 0,
+                            pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
                         Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
                     }
                 }

@@ -168,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA").Select(p => p.PersonAddress.Country.Name);
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA")
+                    .Select(p => p.PersonAddress.Country.Name);
                 var result = query.ToList();
 
                 Assert.Equal(4, result.Count);
@@ -305,11 +306,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
+        public virtual void
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol").Select(p => p.PersonAddress.Country.Planet.Star);
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol")
+                    .Select(p => p.PersonAddress.Country.Planet.Star);
                 var result = query.ToList();
 
                 Assert.Equal(4, result.Count);
@@ -368,33 +371,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         OwnedPersonId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressOwnedPersonId = 1,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 2,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 3,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    }, new
-                                    {
-                                        OwnedAddressOwnedPersonId = 4,
-                                        PlanetId = 1,
-                                        Name = "USA"
-                                    });
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 1,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 2,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 3,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            }, new
+                                            {
+                                                OwnedAddressOwnedPersonId = 4,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            });
 
-                                    cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId).OnDelete(DeleteBehavior.Restrict);
-                                });
+                                        cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
+                                            .OnDelete(DeleteBehavior.Restrict);
+                                    });
                             });
 
                         eb.OwnsMany(
@@ -427,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         Id = -40,
                                         ClientId = 4
                                     }
-                                    );
+                                );
                             });
                     });
 
@@ -452,21 +457,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         BranchId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressBranchId = 2,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        }, new
-                                        {
-                                            OwnedAddressBranchId = 3,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        });
-                                });
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
+                                    {
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 2,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            }, new
+                                            {
+                                                OwnedAddressBranchId = 3,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            });
+                                    });
                             });
                     });
 
@@ -488,18 +494,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         LeafAId = 3
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
-
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressLeafAId = 3,
-                                        PlanetId = 1,
-                                        Name = "Mexico"
+                                        cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
+                                            .OnDelete(DeleteBehavior.Restrict);
+
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressLeafAId = 3,
+                                                PlanetId = 1,
+                                                Name = "Mexico"
+                                            });
                                     });
-                                });
                             });
                     });
 
@@ -521,18 +529,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         LeafBId = 4
                                     });
 
-                                ab.OwnsOne(a => a.Country, cb =>
-                                {
-                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId).OnDelete(DeleteBehavior.Restrict);
-
-                                    cb.HasData(
-                                    new
+                                ab.OwnsOne(
+                                    a => a.Country, cb =>
                                     {
-                                        OwnedAddressLeafBId = 4,
-                                        PlanetId = 1,
-                                        Name = "Panama"
+                                        cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
+                                            .OnDelete(DeleteBehavior.Restrict);
+
+                                        cb.HasData(
+                                            new
+                                            {
+                                                OwnedAddressLeafBId = 4,
+                                                PlanetId = 1,
+                                                Name = "Panama"
+                                            });
                                     });
-                                });
                             });
                     });
 
@@ -540,18 +550,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 modelBuilder.Entity<Moon>(mb => mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 }));
 
-                modelBuilder.Entity<Star>(sb =>
-                {
-                    sb.HasData(new Star { Id = 1, Name = "Sol" });
-                    sb.OwnsMany(
-                        s => s.Composition, ob =>
-                        {
-                            ob.HasKey(e => e.Id);
-                            ob.HasData(
-                                new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                                new { Id = "He", Name = "Helium", StarId = 1 });
-                        });
-                });
+                modelBuilder.Entity<Star>(
+                    sb =>
+                    {
+                        sb.HasData(new Star { Id = 1, Name = "Sol" });
+                        sb.OwnsMany(
+                            s => s.Composition, ob =>
+                            {
+                                ob.HasKey(e => e.Id);
+                                ob.HasData(
+                                    new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                                    new { Id = "He", Name = "Helium", StarId = 1 });
+                            });
+                    });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

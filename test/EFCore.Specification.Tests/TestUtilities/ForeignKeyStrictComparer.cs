@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : ForeignKeyComparer.Instance.Equals(x, y)
-                   && (x.IsUnique == y.IsUnique)
-                   && (x.IsRequired == y.IsRequired)
-                   && (!_compareNavigations
-                       || (new NavigationComparer(_compareAnnotations).Equals(x.DependentToPrincipal, y.DependentToPrincipal)
-                           && new NavigationComparer(_compareAnnotations).Equals(x.PrincipalToDependent, y.PrincipalToDependent)))
-                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
+                  && (x.IsUnique == y.IsUnique)
+                  && (x.IsRequired == y.IsRequired)
+                  && (!_compareNavigations
+                      || (new NavigationComparer(_compareAnnotations).Equals(x.DependentToPrincipal, y.DependentToPrincipal)
+                          && new NavigationComparer(_compareAnnotations).Equals(x.PrincipalToDependent, y.PrincipalToDependent)))
+                  && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IForeignKey obj) => ForeignKeyComparer.Instance.GetHashCode(obj);

@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("separated_by_underscores", "SeparatedByUnderscores")]
         [InlineData("PascalCase_withUnderscore", "PascalCaseWithUnderscore")]
         [InlineData("ALL_CAPS", "AllCaps")]
-        [InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999", "Numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
+        [InlineData(
+            "numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999", "Numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
         [InlineData("We1!*~&%rdCh@r^act()0rs", "We1RdChRAct0rs")]
         public void Generates_candidate_identifiers(string input, string output)
         {

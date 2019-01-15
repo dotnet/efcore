@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+                        .UseSqlServer(
+                            TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);

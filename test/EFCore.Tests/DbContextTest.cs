@@ -589,7 +589,9 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
         {
-            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
@@ -907,9 +909,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakeServiceProvider = new FakeServiceProvider();
             var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .Options);
 
-            var scopeService = Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
+            var scopeService =
+                Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
 
             Assert.False(scopeService.Disposed);
 

@@ -556,10 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Distance = e.Location.Distance(point)
                     }),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                });
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
         }
 
         [ConditionalTheory]
@@ -575,10 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Distance = e.Location.Distance(new GeoPoint(1, 0))
                     }),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                });
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
         }
 
         [ConditionalTheory]
@@ -594,10 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Distance = new GeoPoint(1, 0).Distance(e.Location)
                     }),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                });
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
         }
 
         [ConditionalTheory]
@@ -635,11 +626,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es => es
                     .Select(
-                    e => new
-                    {
-                        e.Id,
-                        EqualsTopologically = e.Point == null ? (bool?)null : e.Point.EqualsTopologically(point)
-                    }),
+                        e => new
+                        {
+                            e.Id,
+                            EqualsTopologically = e.Point == null ? (bool?)null : e.Point.EqualsTopologically(point)
+                        }),
                 elementSorter: x => x.Id);
         }
 
@@ -849,11 +840,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es => es.Select(
                     e =>
-                    new
-                    {
-                        e.Id,
-                        IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple
-                    }),
+                        new
+                        {
+                            e.Id,
+                            IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple
+                        }),
                 elementSorter: x => x.Id);
         }
 

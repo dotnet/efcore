@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected async virtual Task GiveMeSomeTimeAsync(DbContext db)
+        protected virtual async Task GiveMeSomeTimeAsync(DbContext db)
         {
             var stillExists = true;
             for (var i = 0; stillExists && i < 10; i++)

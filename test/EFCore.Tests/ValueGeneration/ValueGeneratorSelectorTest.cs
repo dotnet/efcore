@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            var selector = new ValueGeneratorSelector(new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
+            var selector = new ValueGeneratorSelector(
+                new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
 
             Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
 

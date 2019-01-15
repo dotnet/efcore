@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var candidateExpressions = new List<Expression>
             {
-                Expression.Constant(random.Choose(new List<bool>{ true, false })),
+                Expression.Constant(random.Choose(new List<bool> { true, false }))
             };
 
             if (typeArgument == typeof(bool))
@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 var firstProperty = random.Choose(propertyGroup);
                 var secondProperty = random.Choose(propertyGroup.Where(p => p != firstProperty).ToList());
 
-                candidateExpressions.Add(Expression.NotEqual(Expression.Property(prm, firstProperty), Expression.Property(prm, secondProperty)));
+                candidateExpressions.Add(
+                    Expression.NotEqual(Expression.Property(prm, firstProperty), Expression.Property(prm, secondProperty)));
             }
 
             // compare property to constant
@@ -119,16 +120,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 _mutator = mutator;
             }
 
-            public List<Expression> FoundExpressions { get; set; } = new List<Expression>();
+            public List<Expression> FoundExpressions { get; } = new List<Expression>();
 
             public override Expression Visit(Expression expression)
             {
                 if (expression is MethodCallExpression methodCallExpression
                     && (methodCallExpression.Method.Name == "ThenInclude"
-                    || methodCallExpression.Method.Name == "ThenBy"
-                    || methodCallExpression.Method.Name == "ThenByDescending"
-                    || methodCallExpression.Method.Name == "Skip"
-                    || methodCallExpression.Method.Name == "Take"))
+                        || methodCallExpression.Method.Name == "ThenBy"
+                        || methodCallExpression.Method.Name == "ThenByDescending"
+                        || methodCallExpression.Method.Name == "Skip"
+                        || methodCallExpression.Method.Name == "Take"))
                 {
                     return expression;
                 }

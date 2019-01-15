@@ -187,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"), modelBuilder.Model);
+                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"),
+                modelBuilder.Model);
         }
 
         [Fact]
@@ -283,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "just_string(max)", "default_int_mapping"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "just_string(max)",
+                    "default_int_mapping"), modelBuilder.Model);
         }
 
         [Fact]
@@ -297,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "just_string(30)", "just_string(15)"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "just_string(30)",
+                    "just_string(15)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -310,7 +313,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "1", ""), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "1", ""),
+                modelBuilder.Model);
         }
 
         [Fact]
@@ -323,7 +327,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "NULL", "1"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "NULL", "1"),
+                modelBuilder.Model);
         }
 
         [Fact]
@@ -336,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "1", ""), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "1", ""),
+                modelBuilder.Model);
         }
 
         [Fact]
@@ -349,7 +355,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                    nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), nameof(Animal)), modelBuilder.Model);
+                    nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), nameof(Animal)),
+                modelBuilder.Model);
         }
 
         [Fact]
@@ -545,7 +552,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Animal>();
             var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .HasConstraintName("FK_Animal_Person_Name").Metadata;
-            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name).HasPrincipalKey<Person>(p => p.Name)
+            var fk2 = modelBuilder.Entity<Dog>().HasOne<Person>().WithOne().HasForeignKey<Dog>(d => d.Name)
+                .HasPrincipalKey<Person>(p => p.Name)
                 .HasConstraintName("FK_Animal_Person_Name").Metadata;
 
             VerifyError(

@@ -14,15 +14,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         {
         }
 
-        protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+        protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
+            ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
         {
             var skipReason = testMethod.EvaluateSkipConditions();
             return skipReason != null
-                ? new[] { new SkippedTestCase(skipReason, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod) }
+                ? new[]
+                {
+                    new SkippedTestCase(
+                        skipReason, DiagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(),
+                        discoveryOptions.MethodDisplayOptionsOrDefault(), testMethod)
+                }
                 : base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
         }
 
-        protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
+        protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(
+            ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
         {
             var skipReason = testMethod.EvaluateSkipConditions();
             return skipReason != null

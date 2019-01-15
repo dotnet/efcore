@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
         private bool Equals(Level2 other)
         {
-            return Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date) && Level1_Required_Id == other.Level1_Required_Id && Level1_Optional_Id == other.Level1_Optional_Id;
+            return Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date)
+                   && Level1_Required_Id == other.Level1_Required_Id && Level1_Optional_Id == other.Level1_Optional_Id;
         }
 
         public override int GetHashCode()

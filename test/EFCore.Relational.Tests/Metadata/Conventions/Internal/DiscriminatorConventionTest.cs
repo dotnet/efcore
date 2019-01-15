@@ -58,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var derivedTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity), ConfigurationSource.Explicit);
             Assert.Same(derivedTypeBuilder, derivedTypeBuilder.HasBaseType(entityTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
-            Assert.Same(derivedTypeBuilder.Metadata, entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity).FullName, ConfigurationSource.Convention).Metadata);
+            Assert.Same(
+                derivedTypeBuilder.Metadata,
+                entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity).FullName, ConfigurationSource.Convention).Metadata);
 
             Assert.True(new DiscriminatorConvention().Apply(derivedTypeBuilder, oldBaseType: null));
 

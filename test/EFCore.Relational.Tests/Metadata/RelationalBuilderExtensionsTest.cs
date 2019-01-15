@@ -326,7 +326,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer).HasForeignKey(e => e.CustomerId);
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
 
@@ -345,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -366,7 +368,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -380,7 +383,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -401,7 +405,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }

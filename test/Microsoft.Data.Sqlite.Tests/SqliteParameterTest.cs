@@ -436,7 +436,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact, UseCulture("ar-SA")]
+        [Fact]
+        [UseCulture("ar-SA")]
         public void Bind_DateTime_with_Arabic_Culture()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -463,7 +464,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact, UseCulture("ar-SA")]
+        [Fact]
+        [UseCulture("ar-SA")]
         public void Bind_DateTimeOffset_with_Arabic_Culture()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

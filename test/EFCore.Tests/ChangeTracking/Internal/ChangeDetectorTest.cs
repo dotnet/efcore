@@ -308,7 +308,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.ChangeTracker.DetectChanges();
 
                 Assert.Equal(EntityState.Modified, entityEntry.State);
-                Assert.Equal(new[] { 1, 767, 3, 4 }, propertyEntry.CurrentValue);            }
+                Assert.Equal(new[] { 1, 767, 3, 4 }, propertyEntry.CurrentValue);
+            }
         }
 
         private static void AssertDetected(EntityEntry<Baxter> entityEntry, PropertyEntry<Baxter, int[]> propertyEntry)
@@ -2389,7 +2390,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestRelationshipListener : INavigationListener, IKeyListener
         {
-            public Tuple<InternalEntityEntry, IProperty, IReadOnlyList<IKey>, IReadOnlyList<IForeignKey>, object, object> KeyChange { get; set; }
+            public Tuple<InternalEntityEntry, IProperty, IReadOnlyList<IKey>, IReadOnlyList<IForeignKey>, object, object> KeyChange
+            {
+                get;
+                set;
+            }
+
             public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
@@ -2398,7 +2404,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ReferenceChange = Tuple.Create(entry, navigation, oldValue, newValue);
             }
 
-            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
+            public void NavigationCollectionChanged(
+                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
             }

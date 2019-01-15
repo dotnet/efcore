@@ -12,12 +12,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     public class ConditionalTestFrameworkExecutor : XunitTestFrameworkExecutor
     {
-        public ConditionalTestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider, IMessageSink diagnosticMessageSink)
+        public ConditionalTestFrameworkExecutor(
+            AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider, IMessageSink diagnosticMessageSink)
             : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
         {
         }
 
-        protected override void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
+        protected override void RunTestCases(
+            IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
         {
             var skipReason = EvaluateSkipConditions(AssemblyInfo);
             if (string.IsNullOrEmpty(skipReason))
@@ -44,7 +46,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 
         private static IMessageBus CreateMessageBus(IMessageSink messageSink, ITestFrameworkExecutionOptions executionOptions)
         {
-            return executionOptions.SynchronousMessageReportingOrDefault() ? new SynchronousMessageBus(messageSink) : (IMessageBus)new MessageBus(messageSink);
+            return executionOptions.SynchronousMessageReportingOrDefault()
+                ? new SynchronousMessageBus(messageSink)
+                : (IMessageBus)new MessageBus(messageSink);
         }
 
         private static string EvaluateSkipConditions(IAssemblyInfo assembly)

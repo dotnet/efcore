@@ -2219,7 +2219,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productWebFeature1 = toAdd[0].AddEx(
                 new TProductWebFeature
                 {
-                    Heading = "Waffle Style",
+                    Heading = "Waffle Style"
                 });
 
             productPhoto1.InitializeCollections();
@@ -2230,7 +2230,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productWebFeature2 = toAdd[0].AddEx(
                 new TProductWebFeature
                 {
-                    Heading = "What does the waffle say?",
+                    Heading = "What does the waffle say?"
                 });
 
             productReview3.InitializeCollections();

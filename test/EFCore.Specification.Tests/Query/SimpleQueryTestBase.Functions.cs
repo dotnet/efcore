@@ -650,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Int_Compare_to_simple_zero(bool isAsync)
         {
             var orderId = 10250;
-            
+
             await AssertQuery<Order>(
                 isAsync,
                 cs => cs.Where(c => c.OrderID.CompareTo(orderId) == 0),
@@ -1477,7 +1477,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Order>(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderBy(r => r.A));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
+                    .OrderBy(r => r.A));
         }
 
         [ConditionalTheory]
@@ -1486,7 +1487,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Order>(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A).OrderByDescending(r => r.A));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
+                    .OrderByDescending(r => r.A));
         }
 
         [ConditionalTheory]
@@ -1495,7 +1497,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Order>(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderByDescending(r => r.A).ThenBy(r => r.A));
+                os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderByDescending(r => r.A)
+                    .ThenBy(r => r.A));
         }
     }
 }

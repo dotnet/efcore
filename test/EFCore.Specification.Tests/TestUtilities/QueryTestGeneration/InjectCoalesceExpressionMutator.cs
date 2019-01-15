@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
     public class InjectCoalesceExpressionMutator : ExpressionMutator
     {
-        private ExpressionFinder _expressionFinder = new ExpressionFinder();
+        private readonly ExpressionFinder _expressionFinder = new ExpressionFinder();
 
         public InjectCoalesceExpressionMutator(DbContext context)
             : base(context)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            private bool _insideLambda = false;
+            private bool _insideLambda;
 
             public List<Expression> FoundExpressions { get; } = new List<Expression>();
 

@@ -472,7 +472,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
             var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntity), ConfigurationSource.Convention);
             anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.Navigation(ownedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention)
+            anotherEntityTypeBuilder.Navigation(
+                    ownedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention)
                 .RelatedEntityTypes(anotherEntityTypeBuilder.Metadata, ownedTypeBuilder.Metadata, ConfigurationSource.Convention);
 
             VerifyError(
@@ -618,7 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Theory]
         [InlineData(ChangeTrackingStrategy.Snapshot)]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
-        public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(ChangeTrackingStrategy changeTrackingStrategy)
+        public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(
+            ChangeTrackingStrategy changeTrackingStrategy)
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
@@ -666,26 +668,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_for_ignored_invalid_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<EntityWithInvalidProperties>(eb =>
-            {
-                eb.Ignore(e => e.NotImplemented);
+            modelBuilder.Entity<EntityWithInvalidProperties>(
+                eb =>
+                {
+                    eb.Ignore(e => e.NotImplemented);
 
-                eb.HasData(
-                    new EntityWithInvalidProperties
-                    {
-                        Id = -1
-                    });
+                    eb.HasData(
+                        new EntityWithInvalidProperties
+                        {
+                            Id = -1
+                        });
 
-                eb.HasData(
-                    new {
-                        Id = -2,
-                        NotImplemented = true,
-                        Static = 1,
-                        WriteOnly = 1,
-                        ReadOnly = 1,
-                        PrivateGetter = 1
-                    });
-            });
+                    eb.HasData(
+                        new
+                        {
+                            Id = -2,
+                            NotImplemented = true,
+                            Static = 1,
+                            WriteOnly = 1,
+                            ReadOnly = 1,
+                            PrivateGetter = 1
+                        });
+                });
 
             Validate(modelBuilder.Model);
 
@@ -774,8 +778,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<NonSignedIntegerKeyEntity>(e => e.HasData(entity));
 
-            Assert.Equal(ValueGenerated.OnAdd,
-                modelBuilder.Model.FindEntityType(typeof(NonSignedIntegerKeyEntity)).FindProperty(nameof(NonSignedIntegerKeyEntity.Id)).ValueGenerated);
+            Assert.Equal(
+                ValueGenerated.OnAdd,
+                modelBuilder.Model.FindEntityType(typeof(NonSignedIntegerKeyEntity)).FindProperty(nameof(NonSignedIntegerKeyEntity.Id))
+                    .ValueGenerated);
             VerifyError(
                 CoreStrings.SeedDatumDefaultValue(nameof(NonSignedIntegerKeyEntity), nameof(NonSignedIntegerKeyEntity.Id), entity.Id),
                 modelBuilder.Model);

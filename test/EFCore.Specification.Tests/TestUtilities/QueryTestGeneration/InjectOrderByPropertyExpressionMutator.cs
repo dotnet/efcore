@@ -74,15 +74,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
                     .Where(p => IsOrderedableType(p.PropertyType)).ToList();
 
-            private bool _insideThenInclude = false;
-            private InjectOrderByPropertyExpressionMutator _mutator;
+            private bool _insideThenInclude;
+            private readonly InjectOrderByPropertyExpressionMutator _mutator;
 
             public ExpressionFinder(InjectOrderByPropertyExpressionMutator mutator)
             {
                 _mutator = mutator;
             }
 
-            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; set; } = new Dictionary<Expression, List<PropertyInfo>>();
+            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new Dictionary<Expression, List<PropertyInfo>>();
 
             public override Expression Visit(Expression expression)
             {
@@ -90,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 var insideThenInclude = default(bool?);
                 if (expression is MethodCallExpression methodCallExpression
                     && (methodCallExpression.Method.Name == "ThenInclude"
-                    || methodCallExpression.Method.Name == "ThenBy"
-                    || methodCallExpression.Method.Name == "ThenByDescending"))
+                        || methodCallExpression.Method.Name == "ThenBy"
+                        || methodCallExpression.Method.Name == "ThenByDescending"))
                 {
                     insideThenInclude = _insideThenInclude;
                     _insideThenInclude = true;

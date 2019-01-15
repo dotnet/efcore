@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new SqliteModelValidator(
                 new ModelValidatorDependencies(validationLogger, modelLogger),
                 new RelationalModelValidatorDependencies(
-                new SqliteTypeMappingSource(
-                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+                    new SqliteTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
     }
 }

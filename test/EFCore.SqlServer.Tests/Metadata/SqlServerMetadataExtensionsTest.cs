@@ -893,7 +893,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
+        public void
+            TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
         {
             var modelBuilder = GetModelBuilder();
 

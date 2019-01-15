@@ -8,7 +8,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<ConvertToProviderTypesSqliteTest.ConvertToProviderTypesSqliteFixture>
+    public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<
+        ConvertToProviderTypesSqliteTest.ConvertToProviderTypesSqliteFixture>
     {
         public ConvertToProviderTypesSqliteTest(ConvertToProviderTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

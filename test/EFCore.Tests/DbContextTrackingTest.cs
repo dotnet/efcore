@@ -297,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context_async()
         {
-            return TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRangeAsync(e[0]), (c, e) => c.AddRangeAsync(e[0]), EntityState.Added);
+            return TrackMultipleEntitiesDefaultValuesTest(
+                (c, e) => c.AddRangeAsync(e[0]), (c, e) => c.AddRangeAsync(e[0]), EntityState.Added);
         }
 
         [Fact]
@@ -315,7 +316,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted()
         {
-            return TrackMultipleEntitiesDefaultValuesTest((c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
+            return TrackMultipleEntitiesDefaultValuesTest(
+                (c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
         }
 
         private static Task TrackMultipleEntitiesDefaultValuesTest(
@@ -689,7 +691,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted_Enumerable()
         {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
+            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+                (c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
         }
 
         [Fact]
@@ -701,19 +704,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph_async()
         {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
+            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+                (c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
         }
 
         [Fact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
         {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Added);
+            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+                (c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Added);
         }
 
         [Fact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
         {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Added);
+            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+                (c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Added);
         }
 
         private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(

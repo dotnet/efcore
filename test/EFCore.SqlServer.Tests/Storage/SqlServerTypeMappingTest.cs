@@ -314,9 +314,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override Type GetNestedType(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
             public override Type GetElementType() => throw new NotImplementedException();
             protected override bool HasElementTypeImpl() => throw new NotImplementedException();
-            protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override PropertyInfo GetPropertyImpl(
+                string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) =>
+                throw new NotImplementedException();
+
             public override PropertyInfo[] GetProperties(BindingFlags bindingAttr) => throw new NotImplementedException();
-            protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override MethodInfo GetMethodImpl(
+                string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types,
+                ParameterModifier[] modifiers) => throw new NotImplementedException();
+
             public override MethodInfo[] GetMethods(BindingFlags bindingAttr) => throw new NotImplementedException();
             public override FieldInfo GetField(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
             public override FieldInfo[] GetFields(BindingFlags bindingAttr) => throw new NotImplementedException();
@@ -327,9 +335,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             protected override bool IsPointerImpl() => throw new NotImplementedException();
             protected override bool IsPrimitiveImpl() => throw new NotImplementedException();
             protected override bool IsCOMObjectImpl() => throw new NotImplementedException();
-            public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+
+            public override object InvokeMember(
+                string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers,
+                CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+
             public override Type UnderlyingSystemType { get; }
-            protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+
+            protected override ConstructorInfo GetConstructorImpl(
+                BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) =>
+                throw new NotImplementedException();
+
             public override string Name => throw new NotImplementedException();
             public override Guid GUID => throw new NotImplementedException();
             public override Module Module => throw new NotImplementedException();

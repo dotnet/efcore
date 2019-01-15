@@ -138,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected class EntityWithInvalidProperties
         {
             public int Id { get; set; }
+
             public bool NotImplemented
             {
                 get => throw new NotImplementedException();

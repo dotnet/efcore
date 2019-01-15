@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(typeof(int), "int")]
         [InlineData(typeof(List<int>), "System.Collections.Generic.List<int>")]
         [InlineData(typeof(Dictionary<int, string>), "System.Collections.Generic.Dictionary<int, string>")]
-        [InlineData(typeof(Dictionary<int, List<string>>), "System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<string>>")]
+        [InlineData(
+            typeof(Dictionary<int, List<string>>), "System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<string>>")]
         [InlineData(typeof(List<List<string>>), "System.Collections.Generic.List<System.Collections.Generic.List<string>>")]
         // Classes inside NonGeneric class
         [InlineData(
@@ -80,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(typeof(Outer<int>.F<int, string>), "F<int, string>")]
         [InlineData(typeof(Outer<int>.F<int, Outer<int>.E<string>>), "F<int, E<string>>")]
         [InlineData(typeof(Outer<int>.E<Outer<int>.E<string>>), "E<E<string>>")]
-        [InlineData(typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>), "InnerGenericLeafNode<bool>")]
+        [InlineData(
+            typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>), "InnerGenericLeafNode<bool>")]
         public void Can_pretty_print_CLR_name(Type type, string expected)
         {
             Assert.Equal(expected, type.ShortDisplayName());
@@ -141,7 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 { typeof(Dictionary<,>), false, "Dictionary<,>" },
                 { typeof(List<>), true, "System.Collections.Generic.List<>" },
                 { typeof(Dictionary<,>), true, "System.Collections.Generic.Dictionary<,>" },
-                { typeof(Level1<>.Level2<>.Level3<>), true, "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Level1<>+Level2<>+Level3<>" },
+                {
+                    typeof(Level1<>.Level2<>.Level3<>), true,
+                    "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+Level1<>+Level2<>+Level3<>"
+                },
                 {
                     typeof(PartiallyClosedGeneric<>).BaseType,
                     true,

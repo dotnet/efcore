@@ -537,7 +537,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                             c1,
                             c2
                         })
-                    .Where(r => (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value) || (r.c2.LastName == null && r.c1.NullableBool == false))
+                    .Where(
+                        r => (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue
+                              && r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value)
+                             || (r.c2.LastName == null && r.c1.NullableBool == false))
                     .ToList().Select(
                         r => new
                         {
@@ -587,7 +590,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })
                     .Where(
                         r =>
-                            (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
+                            (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue
+                             && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
                             || r.c1.NullableBool == null
                             || (r.c2.LastName == null && r.c1.NullableBool == true))
                     .ToList().Select(

@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 ? Expression.Parameter(propertyElementType, "prm")
                 : Expression.Parameter(entityType, "prm");
 
-            if (navigations != null && navigations.Any())
+            if (navigations != null
+                && navigations.Any())
             {
                 var j = random.Next(navigations.Count);
                 var navigation = navigations[j];
@@ -93,15 +94,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 _mutator = mutator;
             }
 
-            public List<Expression> FoundExpressions = new List<Expression>();
+            public readonly List<Expression> FoundExpressions = new List<Expression>();
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 // can't handle string overloads = need type information to construct Expression calls.
                 if (node != null
                     && (node.Method.MethodIsClosedFormOf(IncludeMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo)))
+                        || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
+                        || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo)))
                 {
                     FoundExpressions.Add(node);
 

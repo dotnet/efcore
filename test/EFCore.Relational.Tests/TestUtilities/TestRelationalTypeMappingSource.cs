@@ -193,8 +193,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return storeTypeName != null
-                && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
-                && (clrType == null || mappingFromName.ClrType == clrType)
+                   && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
+                   && (clrType == null || mappingFromName.ClrType == clrType)
                 ? mappingFromName
                 : null;
         }

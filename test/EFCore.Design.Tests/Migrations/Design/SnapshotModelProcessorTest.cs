@@ -151,20 +151,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var model = builder.Model;
             ((Model)model).SetProductVersion("2.1.0");
 
-            builder.Entity<Blog>(b =>
-            {
-                b.Property(e => e.Id);
-                b.HasKey(e => e.Id);
+            builder.Entity<Blog>(
+                b =>
+                {
+                    b.Property(e => e.Id);
+                    b.HasKey(e => e.Id);
 
-                b.OwnsOne(e => e.Details, d => d.HasForeignKey(e => e.BlogId));
-            });
+                    b.OwnsOne(e => e.Details, d => d.HasForeignKey(e => e.BlogId));
+                });
 
             var reporter = new TestOperationReporter();
             new SnapshotModelProcessor(reporter).Process(model);
 
             Assert.Empty(reporter.Messages);
-            Assert.Equal(nameof(BlogDetails.BlogId),
-                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).GetTargetType().FindPrimaryKey().Properties.Single().Name);
+            Assert.Equal(
+                nameof(BlogDetails.BlogId),
+                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).GetTargetType().FindPrimaryKey().Properties.Single()
+                    .Name);
         }
 
         private void AddAnnotations(IMutableAnnotatable element)

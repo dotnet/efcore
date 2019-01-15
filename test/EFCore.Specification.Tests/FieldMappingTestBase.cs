@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1088,6 +1087,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             private int _id;
+
             private string _title;
             private ICollection<PostNavFields> _posts;
 
@@ -1115,6 +1115,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             private int _id;
+
             private string _title;
             private int _blogId;
 
@@ -2030,11 +2031,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
                 }
 
-                context.Add(new LoginSession
-                {
-                    User = new User2(),
-                    Users = new List<User2> { new User2() }
-                });
+                context.Add(
+                    new LoginSession
+                    {
+                        User = new User2(),
+                        Users = new List<User2> { new User2() }
+                    });
 
                 context.SaveChanges();
             }

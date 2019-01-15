@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
     public partial class SimpleQueryCosmosTest : SimpleQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
     {
-        public SimpleQueryCosmosTest(NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
+        public SimpleQueryCosmosTest(
+            NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
             ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public async virtual Task Simple_IQueryable(bool isAsync)
+        public virtual async Task Simple_IQueryable(bool isAsync)
         {
             await AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
 
@@ -49,11 +50,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Shaper_command_caching_when_parameter_names_different();
 
             AssertSql(
-    @"SELECT c
+                @"SELECT c
 FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)",
-    //
-    @"SELECT c
+                //
+                @"SELECT c
 FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)");
         }
@@ -898,7 +899,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertSingleResult<Customer>(
                 isAsync,
                 syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))),
-                asyncQuery: cs => cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
+                asyncQuery: cs =>
+                    cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -910,8 +912,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await AssertSingleResult<Customer>(
                 isAsync,
-                syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
-                asyncQuery: cs => cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                syncQuery: cs => cs.All(
+                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                asyncQuery: cs => cs.AllAsync(
+                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1802,10 +1806,10 @@ WHERE (c[""Discriminator""] = ""Product"")");
                 isAsync,
                 (pr, od) =>
                     pr.Where(p => p.ProductID == 72)
-                      .Where(
-                        p => od
-                            .Where(o => o.ProductID == p.ProductID)
-                            .Select(odd => odd.Quantity).Contains<short>(5)),
+                        .Where(
+                            p => od
+                                .Where(o => o.ProductID == p.ProductID)
+                                .Select(odd => odd.Quantity).Contains<short>(5)),
                 entryCount: 1);
 
             AssertSql(
@@ -2551,7 +2555,8 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(bool isAsync)
+        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
+            bool isAsync)
         {
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(isAsync);
 
@@ -2561,7 +2566,8 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(bool isAsync)
+        public override async Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
+            bool isAsync)
         {
             await base.No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(isAsync);
 
@@ -2598,9 +2604,9 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 (os, ods) =>
                     os.Where(
                         o => o.OrderID > 11002 && o.OrderID < 11004
-                             && ods.Where(od => od.Product.ProductName == "Chai")
-                                 .Select(od => od.OrderID)
-                                 .Contains(o.OrderID)),
+                                               && ods.Where(od => od.Product.ProductName == "Chai")
+                                                   .Select(od => od.OrderID)
+                                                   .Contains(o.OrderID)),
                 entryCount: 1);
 
             AssertSql(
@@ -3509,7 +3515,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
-                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
+                cs => cs.Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
                 entryCount: 89);
 
             AssertSql(

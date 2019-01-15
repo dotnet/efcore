@@ -87,13 +87,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(WithValue(propertyName));
+                {
+                    context.Add(WithValue(propertyName));
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave(propertyName, "Anais"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave(propertyName, "Anais"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Theory]
@@ -114,13 +114,13 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -145,13 +145,13 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(WithValue(propertyName)).Entity;
+                {
+                    var entity = context.Add(WithValue(propertyName)).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context => Assert.Equal("Pink", GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -176,13 +176,13 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -205,13 +205,13 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -234,13 +234,13 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(WithValue(propertyName)).Entity;
+                {
+                    var entity = context.Add(WithValue(propertyName)).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -261,13 +261,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Attach(WithValue(propertyName, 1)).Property(propertyName).IsModified = true;
+                {
+                    context.Attach(WithValue(propertyName, 1)).Property(propertyName).IsModified = true;
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyAfterSave(propertyName, "Anais"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave(propertyName, "Anais"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Theory]
@@ -288,22 +288,22 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var entry = context.Entry(context.Set<Anais>().Find(id));
-                        entry.State = EntityState.Modified;
-                        entry.Property(propertyName).CurrentValue = "Daisy";
-                        entry.Property(propertyName).IsModified = false;
+                {
+                    var entry = context.Entry(context.Set<Anais>().Find(id));
+                    entry.State = EntityState.Modified;
+                    entry.Property(propertyName).CurrentValue = "Daisy";
+                    entry.Property(propertyName).IsModified = false;
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -327,22 +327,22 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var entry = context.Entry(context.Set<Anais>().Find(id));
-                        entry.State = EntityState.Modified;
-                        entry.Property(propertyName).CurrentValue = "Daisy";
-                        entry.Property(propertyName).IsModified = false;
+                {
+                    var entry = context.Entry(context.Set<Anais>().Find(id));
+                    entry.State = EntityState.Modified;
+                    entry.Property(propertyName).CurrentValue = "Daisy";
+                    entry.Property(propertyName).IsModified = false;
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -366,22 +366,22 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var entry = context.Entry(context.Set<Anais>().Find(id));
-                        entry.State = EntityState.Modified;
-                        entry.Property(propertyName).CurrentValue = "Daisy";
-                        entry.Property(propertyName).IsModified = true;
+                {
+                    var entry = context.Entry(context.Set<Anais>().Find(id));
+                    entry.State = EntityState.Modified;
+                    entry.Property(propertyName).CurrentValue = "Daisy";
+                    entry.Property(propertyName).IsModified = true;
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -407,22 +407,22 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var entry = context.Entry(context.Set<Anais>().Find(id));
-                        entry.State = EntityState.Modified;
-                        entry.Property(propertyName).CurrentValue = "Daisy";
-                        entry.Property(propertyName).IsModified = false;
+                {
+                    var entry = context.Entry(context.Set<Anais>().Find(id));
+                    entry.State = EntityState.Modified;
+                    entry.Property(propertyName).CurrentValue = "Daisy";
+                    entry.Property(propertyName).IsModified = false;
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -446,21 +446,21 @@ namespace Microsoft.EntityFrameworkCore
             var id = 0;
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Anais()).Entity;
+                {
+                    var entity = context.Add(new Anais()).Entity;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        id = entity.Id;
-                    },
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var entry = context.Entry(context.Set<Anais>().Find(id));
-                        entry.State = EntityState.Modified;
-                        entry.Property(propertyName).CurrentValue = "Daisy";
+                {
+                    var entry = context.Entry(context.Set<Anais>().Find(id));
+                    entry.State = EntityState.Modified;
+                    entry.Property(propertyName).CurrentValue = "Daisy";
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
@@ -481,13 +481,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(new Gumball { Id = 1 });
+                {
+                    context.Add(new Gumball { Id = 1 });
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -497,16 +497,16 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Add(new Gumball { Identity = "Masami" });
-                        entry.Property(e => e.Identity).IsTemporary = true;
+                {
+                    var entry = context.Add(new Gumball { Identity = "Masami" });
+                    entry.Property(e => e.Identity).IsTemporary = true;
 
-                        context.SaveChanges();
-                        id = entry.Entity.Id;
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
 
-                        Assert.Equal("Banana Joe", entry.Entity.Identity);
-                        Assert.False(entry.Property(e => e.Identity).IsTemporary);
-                    },
+                    Assert.Equal("Banana Joe", entry.Entity.Identity);
+                    Assert.False(entry.Property(e => e.Identity).IsTemporary);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -517,16 +517,16 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Add(new Gumball { Identity = "Banana Joe" });
-                        entry.Property(e => e.Identity).IsTemporary = true;
+                {
+                    var entry = context.Add(new Gumball { Identity = "Banana Joe" });
+                    entry.Property(e => e.Identity).IsTemporary = true;
 
-                        context.SaveChanges();
-                        id = entry.Entity.Id;
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
 
-                        Assert.Equal("Banana Joe", entry.Entity.Identity);
-                        Assert.False(entry.Property(e => e.Identity).IsTemporary);
-                    },
+                    Assert.Equal("Banana Joe", entry.Entity.Identity);
+                    Assert.False(entry.Property(e => e.Identity).IsTemporary);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -537,14 +537,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Banana Joe", entity.Identity);
-                    },
+                    Assert.Equal("Banana Joe", entity.Identity);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -553,13 +553,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
+                {
+                    context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -569,14 +569,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball { Identity = "Masami" }).Entity;
+                {
+                    var entity = context.Add(new Gumball { Identity = "Masami" }).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Masami", entity.Identity);
-                    },
+                    Assert.Equal("Masami", entity.Identity);
+                },
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -587,25 +587,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Anton", gumball.IdentityReadOnlyAfterSave);
+                    Assert.Equal("Anton", gumball.IdentityReadOnlyAfterSave);
 
-                        gumball.IdentityReadOnlyAfterSave = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.IdentityReadOnlyAfterSave = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyAfterSave("IdentityReadOnlyAfterSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave("IdentityReadOnlyAfterSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -615,25 +615,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Banana Joe", gumball.Identity);
+                    Assert.Equal("Banana Joe", gumball.Identity);
 
-                        gumball.Identity = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.Identity = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Masami", gumball.Identity);
-                    },
+                    Assert.Equal("Masami", gumball.Identity);
+                },
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -644,28 +644,28 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Banana Joe", gumball.Identity);
+                    Assert.Equal("Banana Joe", gumball.Identity);
 
-                        gumball.Identity = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.Identity = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.Entry(gumball).Property(e => e.Identity).OriginalValue = "Masami";
-                        context.Entry(gumball).Property(e => e.Identity).IsModified = false;
+                    context.Entry(gumball).Property(e => e.Identity).OriginalValue = "Masami";
+                    context.Entry(gumball).Property(e => e.Identity).IsModified = false;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Masami", gumball.Identity);
-                    },
+                    Assert.Equal("Masami", gumball.Identity);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
@@ -676,15 +676,15 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
-                        entry.Property(e => e.AlwaysIdentity).IsTemporary = true;
+                {
+                    var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
+                    entry.Property(e => e.AlwaysIdentity).IsTemporary = true;
 
-                        context.SaveChanges();
-                        id = entry.Entity.Id;
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
 
-                        Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
-                    },
+                    Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
@@ -695,14 +695,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Banana Joe", entity.AlwaysIdentity);
-                    },
+                    Assert.Equal("Banana Joe", entity.AlwaysIdentity);
+                },
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
@@ -711,13 +711,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
+                {
+                    context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -727,25 +727,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Anton", gumball.AlwaysIdentityReadOnlyAfterSave);
+                    Assert.Equal("Anton", gumball.AlwaysIdentityReadOnlyAfterSave);
 
-                        gumball.AlwaysIdentityReadOnlyAfterSave = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.AlwaysIdentityReadOnlyAfterSave = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -755,28 +755,28 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
+                    Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
 
-                        gumball.AlwaysIdentity = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.AlwaysIdentity = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.Entry(gumball).Property(e => e.AlwaysIdentity).OriginalValue = "Masami";
-                        context.Entry(gumball).Property(e => e.AlwaysIdentity).IsModified = false;
+                    context.Entry(gumball).Property(e => e.AlwaysIdentity).OriginalValue = "Masami";
+                    context.Entry(gumball).Property(e => e.AlwaysIdentity).IsModified = false;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Masami", gumball.AlwaysIdentity);
-                    }, context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
+                    Assert.Equal("Masami", gumball.AlwaysIdentity);
+                }, context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
         [Fact]
@@ -786,15 +786,15 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Add(new Gumball { Computed = "Masami" });
-                        entry.Property(e => e.Computed).IsTemporary = true;
+                {
+                    var entry = context.Add(new Gumball { Computed = "Masami" });
+                    entry.Property(e => e.Computed).IsTemporary = true;
 
-                        context.SaveChanges();
-                        id = entry.Entity.Id;
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
 
-                        Assert.Equal("Alan", entry.Entity.Computed);
-                    },
+                    Assert.Equal("Alan", entry.Entity.Computed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
@@ -805,14 +805,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Alan", entity.Computed);
-                    },
+                    Assert.Equal("Alan", entity.Computed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
@@ -821,13 +821,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
+                {
+                    context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -837,14 +837,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball { Computed = "Masami" }).Entity;
+                {
+                    var entity = context.Add(new Gumball { Computed = "Masami" }).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Masami", entity.Computed);
-                    },
+                    Assert.Equal("Masami", entity.Computed);
+                },
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
@@ -855,25 +855,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Tina Rex", gumball.ComputedReadOnlyAfterSave);
+                    Assert.Equal("Tina Rex", gumball.ComputedReadOnlyAfterSave);
 
-                        gumball.ComputedReadOnlyAfterSave = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.ComputedReadOnlyAfterSave = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyAfterSave("ComputedReadOnlyAfterSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave("ComputedReadOnlyAfterSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -883,25 +883,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Alan", gumball.Computed);
+                    Assert.Equal("Alan", gumball.Computed);
 
-                        gumball.Computed = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.Computed = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Masami", gumball.Computed);
-                    },
+                    Assert.Equal("Masami", gumball.Computed);
+                },
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
@@ -912,28 +912,28 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Alan", gumball.Computed);
+                    Assert.Equal("Alan", gumball.Computed);
 
-                        gumball.Computed = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.Computed = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.Entry(gumball).Property(e => e.Computed).OriginalValue = "Masami";
-                        context.Entry(gumball).Property(e => e.Computed).IsModified = false;
+                    context.Entry(gumball).Property(e => e.Computed).OriginalValue = "Masami";
+                    context.Entry(gumball).Property(e => e.Computed).IsModified = false;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Alan", gumball.Computed);
-                    },
+                    Assert.Equal("Alan", gumball.Computed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
@@ -944,15 +944,15 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
-                        entry.Property(e => e.AlwaysComputed).IsTemporary = true;
+                {
+                    var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
+                    entry.Property(e => e.AlwaysComputed).IsTemporary = true;
 
-                        context.SaveChanges();
-                        id = entry.Entity.Id;
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
 
-                        Assert.Equal("Alan", entry.Entity.AlwaysComputed);
-                    },
+                    Assert.Equal("Alan", entry.Entity.AlwaysComputed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
@@ -963,14 +963,14 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
+                    context.SaveChanges();
+                    id = entity.Id;
 
-                        Assert.Equal("Alan", entity.AlwaysComputed);
-                    },
+                    Assert.Equal("Alan", entity.AlwaysComputed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
@@ -979,13 +979,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
+                {
+                    context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -995,25 +995,25 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Tina Rex", gumball.AlwaysComputedReadOnlyAfterSave);
+                    Assert.Equal("Tina Rex", gumball.AlwaysComputedReadOnlyAfterSave);
 
-                        gumball.AlwaysComputedReadOnlyAfterSave = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.AlwaysComputedReadOnlyAfterSave = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        Assert.Equal(
-                            CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -1023,28 +1023,28 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        var entity = context.Add(new Gumball()).Entity;
+                {
+                    var entity = context.Add(new Gumball()).Entity;
 
-                        context.SaveChanges();
-                        id = entity.Id;
-                    },
+                    context.SaveChanges();
+                    id = entity.Id;
+                },
                 context =>
-                    {
-                        var gumball = context.Set<Gumball>().Single(e => e.Id == id);
+                {
+                    var gumball = context.Set<Gumball>().Single(e => e.Id == id);
 
-                        Assert.Equal("Alan", gumball.AlwaysComputed);
+                    Assert.Equal("Alan", gumball.AlwaysComputed);
 
-                        gumball.AlwaysComputed = "Masami";
-                        gumball.NotStoreGenerated = "Larry Needlemeye";
+                    gumball.AlwaysComputed = "Masami";
+                    gumball.NotStoreGenerated = "Larry Needlemeye";
 
-                        context.Entry(gumball).Property(e => e.AlwaysComputed).OriginalValue = "Masami";
-                        context.Entry(gumball).Property(e => e.AlwaysComputed).IsModified = false;
+                    context.Entry(gumball).Property(e => e.AlwaysComputed).OriginalValue = "Masami";
+                    context.Entry(gumball).Property(e => e.AlwaysComputed).IsModified = false;
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        Assert.Equal("Alan", gumball.AlwaysComputed);
-                    },
+                    Assert.Equal("Alan", gumball.AlwaysComputed);
+                },
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
@@ -1147,13 +1147,17 @@ namespace Microsoft.EntityFrameworkCore
         protected class WithBackingFields
         {
             private int _id;
+
+#pragma warning disable RCS1085 // Use auto-implemented property.
             public int Id
             {
                 get => _id;
                 set => _id = value;
             }
+#pragma warning restore RCS1085 // Use auto-implemented property.
 
             private int? _nullableAsNonNullable = 0;
+
             public int NullableAsNonNullable
             {
                 get => (int)_nullableAsNonNullable;
@@ -1161,6 +1165,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             private int _nonNullableAsNullable;
+
             public int? NonNullableAsNullable
             {
                 get => _nonNullableAsNullable;
@@ -1177,15 +1182,15 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected class GuidToString: WithConverter<Guid>
+        protected class GuidToString : WithConverter<Guid>
         {
         }
 
-        protected class GuidToBytes: WithConverter<Guid>
+        protected class GuidToBytes : WithConverter<Guid>
         {
         }
 
-        protected class ShortToBytes: WithConverter<short>
+        protected class ShortToBytes : WithConverter<short>
         {
         }
 
@@ -1216,224 +1221,225 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Gumball>(
                     b =>
-                        {
-                            var property = b.Property(e => e.Id).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    {
+                        var property = b.Property(e => e.Id).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.Identity).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.Identity).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.IdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.IdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.IdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.IdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.AlwaysIdentity).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.AlwaysIdentity).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.Computed).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.Computed).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.ComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.ComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.ComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.ComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.AlwaysComputed).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.AlwaysComputed).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.AlwaysComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                        });
+                        property = b.Property(e => e.AlwaysComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                    });
 
                 modelBuilder.Entity<Anais>(
                     b =>
-                        {
-                            b.Property(e => e.Never).ValueGeneratedNever();
+                    {
+                        b.Property(e => e.Never).ValueGeneratedNever();
 
-                            var property = b.Property(e => e.NeverUseBeforeUseAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        var property = b.Property(e => e.NeverUseBeforeUseAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.NeverIgnoreBeforeUseAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.NeverIgnoreBeforeUseAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.NeverThrowBeforeUseAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.NeverThrowBeforeUseAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.NeverUseBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.NeverUseBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.NeverIgnoreBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.NeverIgnoreBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.NeverThrowBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.NeverThrowBeforeIgnoreAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.NeverUseBeforeThrowAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.NeverUseBeforeThrowAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.NeverIgnoreBeforeThrowAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.NeverIgnoreBeforeThrowAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.NeverThrowBeforeThrowAfter).ValueGeneratedNever().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.NeverThrowBeforeThrowAfter).ValueGeneratedNever().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            b.Property(e => e.OnAdd).ValueGeneratedOnAdd();
+                        b.Property(e => e.OnAdd).ValueGeneratedOnAdd();
 
-                            property = b.Property(e => e.OnAddUseBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddUseBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddIgnoreBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddIgnoreBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddThrowBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddThrowBeforeUseAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddUseBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddUseBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddIgnoreBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddIgnoreBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddThrowBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddThrowBeforeIgnoreAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddUseBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddUseBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnAddIgnoreBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddIgnoreBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnAddThrowBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddThrowBeforeThrowAfter).ValueGeneratedOnAdd().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            b.Property(e => e.OnAddOrUpdate).ValueGeneratedOnAddOrUpdate();
+                        b.Property(e => e.OnAddOrUpdate).ValueGeneratedOnAddOrUpdate();
 
-                            property = b.Property(e => e.OnAddOrUpdateUseBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddOrUpdateUseBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddOrUpdateThrowBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnAddOrUpdateThrowBeforeUseAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnAddOrUpdateUseBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddOrUpdateUseBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddOrUpdateThrowBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnAddOrUpdateThrowBeforeIgnoreAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            b.Property(e => e.OnUpdate).ValueGeneratedOnUpdate();
+                        b.Property(e => e.OnUpdate).ValueGeneratedOnUpdate();
 
-                            property = b.Property(e => e.OnUpdateUseBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnUpdateUseBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnUpdateThrowBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Save;
+                        property = b.Property(e => e.OnUpdateThrowBeforeUseAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Save;
 
-                            property = b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+                        property = b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
-                            property = b.Property(e => e.OnUpdateUseBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Save;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnUpdateUseBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Save;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                        property = b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
 
-                            property = b.Property(e => e.OnUpdateThrowBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
-                            property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                            property.AfterSaveBehavior = PropertySaveBehavior.Throw;
-                        });
+                        property = b.Property(e => e.OnUpdateThrowBeforeThrowAfter).ValueGeneratedOnUpdate().Metadata;
+                        property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                        property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                    });
 
                 modelBuilder.Entity<Darwin>();
 
-                modelBuilder.Entity<WithBackingFields>(b =>
-                {
-                    b.Property(e => e.Id).HasField("_id");
-                    b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
-                    b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
-                });
+                modelBuilder.Entity<WithBackingFields>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasField("_id");
+                        b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
+                        b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
+                    });
             }
         }
     }

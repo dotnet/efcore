@@ -37,8 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
 
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
-            Assert.NotSame(baseTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
-                           entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
+            Assert.NotSame(
+                baseTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
+                entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
         }
@@ -62,10 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
 
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
-            Assert.NotSame(baseTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
-                           entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
-            Assert.Same(entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
-                           derivedTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
+            Assert.NotSame(
+                baseTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
+                entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
+            Assert.Same(
+                entityTypeBuilder.Metadata.Cosmos().DiscriminatorProperty,
+                derivedTypeBuilder.Metadata.Cosmos().DiscriminatorProperty);
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Cosmos().DiscriminatorValue);
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.Cosmos().DiscriminatorValue);

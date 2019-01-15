@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var expectedType = expected.GetType();
             if (expectedType.GetTypeInfo().IsGenericType
-                && expectedType.GetTypeInfo().ImplementedInterfaces.Any(i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                && expectedType.GetTypeInfo().ImplementedInterfaces.Any(
+                    i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
                 var typeArgument = expectedType.GenericTypeArguments[0];
                 var assertCollectionMethodInfo = _assertCollectionMethodInfo.MakeGenericMethod(typeArgument);
@@ -108,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected, actual);
         }
 
-        protected virtual void AssertCollection<TElement>(IEnumerable<TElement> expected, IEnumerable<TElement> actual, IEnumerable<IExpectedInclude> expectedIncludes)
+        protected virtual void AssertCollection<TElement>(
+            IEnumerable<TElement> expected, IEnumerable<TElement> actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
             if (expected == null
                 && actual == null)

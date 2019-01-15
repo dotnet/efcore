@@ -119,7 +119,7 @@ FROM [Customers] AS [c]");
         {
             await base.Sum_over_nested_subquery_is_client_eval(isAsync);
             AssertSql(
-               @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]");
         }
 
@@ -127,7 +127,7 @@ FROM [Customers] AS [c]");
         {
             await base.Sum_over_min_subquery_is_client_eval(isAsync);
             AssertSql(
-               @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]");
         }
 
@@ -236,7 +236,7 @@ FROM [Customers] AS [c]");
         {
             await base.Average_over_nested_subquery_is_client_eval(isAsync);
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -247,7 +247,7 @@ ORDER BY [c].[CustomerID]");
         {
             await base.Average_over_max_subquery_is_client_eval(isAsync);
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -344,7 +344,7 @@ FROM [Customers] AS [c]");
             await base.Min_over_nested_subquery_is_client_eval(isAsync);
 
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -356,7 +356,7 @@ ORDER BY [c].[CustomerID]");
             await base.Min_over_max_subquery_is_client_eval(isAsync);
 
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -409,7 +409,7 @@ FROM [Customers] AS [c]");
             await base.Max_over_nested_subquery_is_client_eval(isAsync);
 
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -421,7 +421,7 @@ ORDER BY [c].[CustomerID]");
             await base.Max_over_sum_subquery_is_client_eval(isAsync);
 
             AssertSql(
-               @"@__p_0='3'
+                @"@__p_0='3'
 
 SELECT TOP(@__p_0) [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -1167,7 +1167,8 @@ WHERE [o].[ProductID] = 42");
 
             Assert.DoesNotContain(
                 CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
-                    "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"),
+                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Project_constant_Sum(bool isAsync)

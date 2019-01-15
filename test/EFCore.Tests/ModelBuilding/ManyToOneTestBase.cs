@@ -44,8 +44,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { nameof(Customer.AlternateKey), principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { nameof(Order.AnotherCustomerId), fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { nameof(Customer.AlternateKey), principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { nameof(Order.AnotherCustomerId), fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -195,8 +199,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -302,9 +310,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
                 Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
                 AssertEqual(
-                    new[] { "AnotherCustomerId", existingFk.Properties.Single().Name, fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[]
+                    {
+                        "AnotherCustomerId", existingFk.Properties.Single().Name, fk.Properties.Single().Name,
+                        dependentKey.Properties.Single().Name
+                    },
                     dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
@@ -348,8 +362,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -389,8 +407,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(BigMak.Pickles), principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -431,8 +452,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -546,8 +569,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != fk));
                 Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != fk));
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties.Single().Name, fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties.Single().Name, fkProperty.Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -589,8 +615,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -707,8 +736,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != fk));
                 Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != fk));
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties.Single().Name, fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties.Single().Name, fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -747,8 +779,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fkProperty.Name, "BurgerId", dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -847,8 +882,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -949,8 +988,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -996,8 +1039,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Orders", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1147,8 +1194,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
 
                 Assert.Equal(2, principalType.GetKeys().Count());
@@ -1198,8 +1247,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
 
                 Assert.Equal(2, principalType.GetKeys().Count());
@@ -1261,8 +1312,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Whoopper.Tomatoes), principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1316,8 +1371,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Tomatoes", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1382,8 +1441,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Tomatoes", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
 
                 Assert.Equal(2, principalType.GetKeys().Count());
@@ -1454,8 +1517,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Tomatoes", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
 
                 Assert.Equal(2, principalType.GetKeys().Count());
@@ -2034,7 +2101,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
-            public virtual void Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
+            public virtual void
+                Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
             {
                 var modelBuilder = CreateModelBuilder();
                 var gamma = modelBuilder.Entity<Gamma>().Metadata;
@@ -2060,7 +2128,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
 
-                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                Assert.Equal(
+                    "ShadowId",
+                    modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
             [Fact]
@@ -2080,7 +2150,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
 
-                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                Assert.Equal(
+                    "ShadowId",
+                    modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
             [Fact]
@@ -2105,7 +2177,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
 
-                Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single().Name);
+                Assert.Equal(
+                    "KappaId",
+                    modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single()
+                        .Name);
             }
         }
     }

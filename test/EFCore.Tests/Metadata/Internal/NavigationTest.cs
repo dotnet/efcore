@@ -61,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var queryType = model.AddQueryType(typeof(A));
             var fkProperty = queryType.AddProperty("p", typeof(int));
             var fk = queryType.AddForeignKey(fkProperty, key, entityType);
-            Assert.Equal(CoreStrings.NavigationToQueryType(nameof(B.ManyAs), nameof(A)),
+            Assert.Equal(
+                CoreStrings.NavigationToQueryType(nameof(B.ManyAs), nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => fk.HasPrincipalToDependent(nameof(B.ManyAs))).Message);
         }
 

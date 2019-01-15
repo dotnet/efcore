@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         public override void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => base.GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence());
+            var ex = Assert.Throws<NotSupportedException>(
+                () => base.GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence());
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
     }

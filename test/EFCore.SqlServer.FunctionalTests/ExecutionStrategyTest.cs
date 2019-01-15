@@ -8,12 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable AccessToDisposedClosure
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 var retryMessage =
-                    "A transient exception has been encountered during execution and the operation will be retried after 0ms." + Environment.NewLine +
+                    "A transient exception has been encountered during execution and the operation will be retried after 0ms."
+                    + Environment.NewLine +
                     "System.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
                 {
@@ -215,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore
                     cancellationToken));
         }
 
-        private async Task Test_commit_failure_async(bool realFailure, Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
+        private async Task Test_commit_failure_async(
+            bool realFailure, Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
         {
             CleanContext();
 

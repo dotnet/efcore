@@ -637,7 +637,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { firstEntry, secondEntry })
+                .ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -1004,7 +1005,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(EntityState.Deleted, true)]
         [InlineData(EntityState.Deleted, false)]
         [Theory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state, bool sensitiveLogging)
+        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(
+            EntityState state, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;

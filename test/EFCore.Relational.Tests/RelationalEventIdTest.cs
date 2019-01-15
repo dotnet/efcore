@@ -29,7 +29,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
-using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -42,10 +41,12 @@ namespace Microsoft.EntityFrameworkCore
             var constantExpression = Expression.Constant("A");
             var model = new Model(new ConventionSet());
             var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
-            var property = new Property("A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var property = new Property(
+                "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model);
 
-            var queryModel = new QueryModel(new MainFromClause("A", typeof(object), constantExpression), new SelectClause(constantExpression));
+            var queryModel = new QueryModel(
+                new MainFromClause("A", typeof(object), constantExpression), new SelectClause(constantExpression));
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -97,8 +98,12 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeMigrator : IMigrator
         {
             public void Migrate(string targetMigration = null) => throw new NotImplementedException();
-            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
-            public string GenerateScript(string fromMigration = null, string toMigration = null, bool idempotent = false) => throw new NotImplementedException();
+
+            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken()) =>
+                throw new NotImplementedException();
+
+            public string GenerateScript(string fromMigration = null, string toMigration = null, bool idempotent = false) =>
+                throw new NotImplementedException();
         }
 
         private class FakeMigrationsAssembly : IMigrationsAssembly
@@ -123,17 +128,28 @@ namespace Microsoft.EntityFrameworkCore
 
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
-            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
+
+            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) =>
+                throw new NotImplementedException();
+
             public void UnregisterBufferable([NotNull] IBufferable bufferable) => throw new NotImplementedException();
-            public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
+            public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
-            public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> BeginTransactionAsync(
+                System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
+
             public bool Close() => throw new NotImplementedException();
             public void CommitTransaction() => throw new NotImplementedException();
             public void Dispose() => throw new NotImplementedException();
             public bool Open(bool errorsExpected = false) => throw new NotImplementedException();
-            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) => throw new NotImplementedException();
+
+            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) =>
+                throw new NotImplementedException();
+
             public void ResetState() => throw new NotImplementedException();
             public void RollbackTransaction() => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
@@ -149,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
             public override void ChangeDatabase(string databaseName) => throw new NotImplementedException();
             public override void Close() => throw new NotImplementedException();
             public override void Open() => throw new NotImplementedException();
-            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
+            protected override DbTransaction BeginDbTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
             protected override DbCommand CreateDbCommand() => throw new NotImplementedException();
         }
 
@@ -201,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeDbTransaction : DbTransaction
         {
-            public override IsolationLevel IsolationLevel => IsolationLevel.Chaos;
+            public override System.Data.IsolationLevel IsolationLevel => System.Data.IsolationLevel.Chaos;
             protected override DbConnection DbConnection => throw new NotImplementedException();
             public override void Commit() => throw new NotImplementedException();
             public override void Rollback() => throw new NotImplementedException();
@@ -211,9 +227,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             public override bool GetBoolean(int ordinal) => throw new NotImplementedException();
             public override byte GetByte(int ordinal) => throw new NotImplementedException();
-            public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) => throw new NotImplementedException();
+
+            public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
+                throw new NotImplementedException();
+
             public override char GetChar(int ordinal) => throw new NotImplementedException();
-            public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => throw new NotImplementedException();
+
+            public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
+                throw new NotImplementedException();
+
             public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
             public override DateTime GetDateTime(int ordinal) => throw new NotImplementedException();
             public override decimal GetDecimal(int ordinal) => throw new NotImplementedException();

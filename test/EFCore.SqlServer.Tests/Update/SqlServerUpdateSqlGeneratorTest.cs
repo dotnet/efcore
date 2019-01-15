@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal("SET NOCOUNT ON;" + Environment.NewLine, sb.ToString());
         }
 
-        protected override void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder)
+        protected override void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(
+            StringBuilder stringBuilder)
         {
             Assert.Equal(
                 "INSERT INTO [dbo].[Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
@@ -46,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        protected override void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
+        protected override void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(
+            StringBuilder stringBuilder)
         {
             Assert.Equal(
                 "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
@@ -57,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        protected override void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(StringBuilder stringBuilder)
+        protected override void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(
+            StringBuilder stringBuilder)
         {
             AssertBaseline(
                 @"INSERT INTO [dbo].[Ducks]
@@ -83,7 +86,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
                 stringBuilder.ToString());
         }
 
-        protected override void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(StringBuilder stringBuilder)
+        protected override void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(
+            StringBuilder stringBuilder)
         {
             AssertBaseline(
                 @"INSERT INTO [dbo].[Ducks]

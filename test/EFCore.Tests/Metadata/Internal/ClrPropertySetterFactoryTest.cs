@@ -172,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_singlebasetype()
         {
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
-            var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_Override)));
+            var property = entityType.AddProperty(
+                typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity1();
 
             new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
@@ -183,7 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_multiplebasetypes()
         {
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
-            var property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_Override)));
+            var property = entityType.AddProperty(
+                typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity2();
 
             new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
@@ -194,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_singlebasetype()
         {
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
-            var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_NoOverride)));
+            var property = entityType.AddProperty(
+                typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity1();
 
             new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
@@ -205,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_multiplebasetypes()
         {
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
-            var property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_NoOverride)));
+            var property = entityType.AddProperty(
+                typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity2();
 
             new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);

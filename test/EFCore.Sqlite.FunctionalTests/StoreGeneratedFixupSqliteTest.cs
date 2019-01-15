@@ -9,7 +9,8 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupSqliteTest : StoreGeneratedFixupRelationalTestBase<StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>
+    public class StoreGeneratedFixupSqliteTest : StoreGeneratedFixupRelationalTestBase<
+        StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>
     {
         public StoreGeneratedFixupSqliteTest(StoreGeneratedFixupSqliteFixture fixture)
             : base(fixture)

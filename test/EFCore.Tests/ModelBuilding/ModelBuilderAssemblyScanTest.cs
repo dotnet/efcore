@@ -16,9 +16,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public ModelBuilderAssemblyScanTest()
         {
-            _mockEntityTypeAssembly = MockAssembly.Create(typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2), typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
-            _mockQueryTypeAssembly = MockAssembly.Create(typeof(ScannerCustomerQueryConfiguration), typeof(ScannerCustomerQueryConfiguration2), typeof(AbstractCustomerQueryConfiguration), typeof(AbstractCustomerEntityQueryConfigurationImpl));
-            _mockMixedTypeAssembly = MockAssembly.Create(typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomer2QueryConfiguration));
+            _mockEntityTypeAssembly = MockAssembly.Create(
+                typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),
+                typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
+            _mockQueryTypeAssembly = MockAssembly.Create(
+                typeof(ScannerCustomerQueryConfiguration), typeof(ScannerCustomerQueryConfiguration2),
+                typeof(AbstractCustomerQueryConfiguration), typeof(AbstractCustomerEntityQueryConfigurationImpl));
+            _mockMixedTypeAssembly = MockAssembly.Create(
+                typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomer2QueryConfiguration));
         }
 
         [Fact]
@@ -42,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public void Should_support_filtering_for_entity_type_configurations()
         {
             var builder = CreateModelBuilder();
-            builder.ApplyConfigurationsFromAssembly(_mockEntityTypeAssembly, type => type.Name == nameof(ScannerCustomerEntityConfiguration));
+            builder.ApplyConfigurationsFromAssembly(
+                _mockEntityTypeAssembly, type => type.Name == nameof(ScannerCustomerEntityConfiguration));
 
             var entityType = builder.Model.FindEntityType(typeof(ScannerCustomer));
             // ScannerCustomerEntityConfiguration called
@@ -53,20 +59,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName)).GetMaxLength());
             // AbstractCustomerEntityConfigurationImpl not called
             Assert.Empty(entityType.GetIndexes());
-
         }
 
         [Fact]
         public void Should_skip_abstract_classes_for_entity_type_configurations()
         {
             var builder = CreateModelBuilder();
-            builder.ApplyConfigurationsFromAssembly(_mockEntityTypeAssembly, type => type.Name == nameof(AbstractCustomerEntityConfiguration));
+            builder.ApplyConfigurationsFromAssembly(
+                _mockEntityTypeAssembly, type => type.Name == nameof(AbstractCustomerEntityConfiguration));
 
             var entityType = builder.Model.FindEntityType(typeof(ScannerCustomer));
             // No configuration should occur
             Assert.Null(entityType);
         }
-
 
         [Fact]
         public void Should_scan_assemblies_for_query_type_configurations()
@@ -100,14 +105,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName)).GetMaxLength());
             // AbstractCustomerEntityQueryConfigurationImpl not called
             Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.Address)).GetMaxLength());
-
         }
 
         [Fact]
         public void Should_skip_abstract_classes_for_query_type_configurations()
         {
             var builder = CreateModelBuilder();
-            builder.ApplyConfigurationsFromAssembly(_mockQueryTypeAssembly, type => type.Name == nameof(AbstractCustomerEntityConfiguration));
+            builder.ApplyConfigurationsFromAssembly(
+                _mockQueryTypeAssembly, type => type.Name == nameof(AbstractCustomerEntityConfiguration));
 
             var entityType = builder.Model.FindEntityType(typeof(ScannerCustomer));
             // No configuration should occur

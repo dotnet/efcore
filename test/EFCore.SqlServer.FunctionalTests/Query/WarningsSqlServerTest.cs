@@ -91,7 +91,8 @@ WHERE [x].[OrderID] = 10248",
         {
             base.Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning();
 
-            Assert.Contains(CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison.GenerateMessage("Orders"),
+            Assert.Contains(
+                CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison.GenerateMessage("Orders"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -99,7 +100,8 @@ WHERE [x].[OrderID] = 10248",
         {
             base.Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning();
 
-            Assert.Contains(CoreStrings.LogPossibleUnintendedReferenceComparison.GenerateMessage("[c].Orders", "[c].Orders"),
+            Assert.Contains(
+                CoreStrings.LogPossibleUnintendedReferenceComparison.GenerateMessage("[c].Orders", "[c].Orders"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
     }

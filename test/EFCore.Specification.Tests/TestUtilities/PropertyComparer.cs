@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : x.Name == y.Name
-                   && x.ClrType == y.ClrType
-                   && x.IsShadowProperty == y.IsShadowProperty
-                   && x.IsNullable == y.IsNullable
-                   && x.IsConcurrencyToken == y.IsConcurrencyToken
-                   && x.ValueGenerated == y.ValueGenerated
-                   && x.BeforeSaveBehavior == y.BeforeSaveBehavior
-                   && x.AfterSaveBehavior == y.AfterSaveBehavior
-                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
+                  && x.ClrType == y.ClrType
+                  && x.IsShadowProperty == y.IsShadowProperty
+                  && x.IsNullable == y.IsNullable
+                  && x.IsConcurrencyToken == y.IsConcurrencyToken
+                  && x.ValueGenerated == y.ValueGenerated
+                  && x.BeforeSaveBehavior == y.BeforeSaveBehavior
+                  && x.AfterSaveBehavior == y.AfterSaveBehavior
+                  && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IProperty obj) => obj.Name.GetHashCode();

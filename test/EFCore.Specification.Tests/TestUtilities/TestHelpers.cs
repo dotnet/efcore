@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
 
-            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
+            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length)
+                .First();
             var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
 
             Assert.Equal(constructorParameters.Count, serviceProperties.Count);
@@ -158,7 +159,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new DbContext(CreateOptions(model, CreateServiceProvider(customServices)));
 
         public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
-            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider(customServices)).Options);
+            => new DbContext(
+                new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider(customServices)).Options);
 
         public DbContext CreateContext(IServiceCollection customServices)
             => new DbContext(CreateOptions(CreateServiceProvider(customServices)));
@@ -169,7 +171,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
             => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, options)).Instance;
 
-        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider)).Instance;
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) =>
+            ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider)).Instance;
 
         public IServiceProvider CreateContextServices(IModel model)
             => ((IInfrastructure<IServiceProvider>)CreateContext(model)).Instance;
@@ -203,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = new CompositeConventionSetBuilder(
-                contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
+                    contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                 .AddConventions(conventionSet);
 
             if (!skipValidation)
@@ -221,8 +224,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var contextServices = CreateContextServices();
 
             var conventionSet = new CoreConventionSetBuilder(
-                            contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                            .CreateConventionSet();
+                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
+                .CreateConventionSet();
             conventionSet = new CompositeConventionSetBuilder(
                     contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                 .AddConventions(conventionSet);
@@ -298,7 +301,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     if (elementAsserter != null)
                     {
-                        throw new InvalidOperationException("Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                        throw new InvalidOperationException(
+                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);
@@ -337,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     if (elementAsserter != null)
                     {
-                        throw new InvalidOperationException("Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                        throw new InvalidOperationException(
+                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);
@@ -376,7 +381,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     if (elementAsserter != null)
                     {
-                        throw new InvalidOperationException("Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                        throw new InvalidOperationException(
+                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);

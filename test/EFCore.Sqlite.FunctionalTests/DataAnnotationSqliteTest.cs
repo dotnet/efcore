@@ -98,14 +98,16 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""" + _eol +
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name"""
+                + _eol +
                 @"FROM ""Sample"" AS ""r""" + _eol +
                 @"WHERE ""r"".""UniqueNo"" = 1" + _eol +
                 "LIMIT 1",
                 Sql);
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""" + _eol +
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name"""
+                + _eol +
                 @"FROM ""Sample"" AS ""r""" + _eol +
                 @"WHERE ""r"".""UniqueNo"" = 1" + _eol +
                 "LIMIT 1" + _eol +
@@ -141,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore
                 "@p3='Third Additional Name' (Size = 21)" + _eol +
                 "@p4='Third Name' (Size = 10)" + _eol +
                 _eol +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + _eol +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")"
+                + _eol +
                 "VALUES (@p0, @p1, @p2, @p3, @p4);" + _eol +
                 @"SELECT ""UniqueNo""" + _eol +
                 @"FROM ""Sample""" + _eol +
@@ -182,7 +185,8 @@ namespace Microsoft.EntityFrameworkCore
                 "@p3='Two' (Size = 3)" + _eol +
                 "@p4='One' (Size = 3)" + _eol +
                 _eol +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + _eol +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")"
+                + _eol +
                 "VALUES (@p0, @p1, @p2, @p3, @p4);" + _eol +
                 @"SELECT ""UniqueNo""" + _eol +
                 @"FROM ""Sample""" + _eol +
@@ -196,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore
                 "@p3='Two' (Size = 3)" + _eol +
                 "@p4='One' (Size = 3)" + _eol +
                 _eol +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + _eol +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")"
+                + _eol +
                 "VALUES (@p0, @p1, @p2, @p3, @p4);" + _eol +
                 @"SELECT ""UniqueNo""" + _eol +
                 @"FROM ""Sample""" + _eol +

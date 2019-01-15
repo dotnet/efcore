@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
     {
         private const string Name = "Northwind";
 
-        public new static CosmosNorthwindTestStoreFactory Instance { get; }
+        public static new CosmosNorthwindTestStoreFactory Instance { get; }
             = new CosmosNorthwindTestStoreFactory();
 
         protected CosmosNorthwindTestStoreFactory()

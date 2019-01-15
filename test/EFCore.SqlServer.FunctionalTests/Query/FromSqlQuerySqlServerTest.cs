@@ -660,8 +660,8 @@ WHERE [o].[CustomerID] IN (
 
                 Assert.Equal(26, actual.Length);
 
-            AssertSql(
-                @"@p0='London' (Size = 4000)
+                AssertSql(
+                    @"@p0='London' (Size = 4000)
 @title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -672,8 +672,8 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
     ) AS [c]
 )",
-                //
-                @"@city='London' (Nullable = false) (Size = 6)
+                    //
+                    @"@city='London' (Nullable = false) (Size = 6)
 @p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]

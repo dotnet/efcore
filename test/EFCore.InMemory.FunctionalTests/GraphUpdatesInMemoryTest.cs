@@ -39,12 +39,14 @@ namespace Microsoft.EntityFrameworkCore
             return null;
         }
 
-        public override void Save_required_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public override void Save_required_one_to_one_changed_by_reference_with_alternate_key(
+            ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             // Cascade delete not supported by in-memory database
         }
 
-        public override void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public override void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
+            ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             // Cascade delete not supported by in-memory database
         }

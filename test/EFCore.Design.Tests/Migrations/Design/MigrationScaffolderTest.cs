@@ -50,9 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
-            var code = new CSharpHelper(new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+            var code = new CSharpHelper(
+                new SqlServerTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
             var reporter = new TestOperationReporter();
             var migrationAssembly
                 = new MigrationsAssembly(

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-                && HasValidPropertyToOrderBy(expression);
+               && HasValidPropertyToOrderBy(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var lambdaBody = (Expression)Expression.Property(prm, properties[i]);
 
             if (properties[i].PropertyType.IsValueType
-                && !(properties[i].PropertyType.IsGenericType && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                && !(properties[i].PropertyType.IsGenericType
+                     && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 var nullablePropertyType = typeof(Nullable<>).MakeGenericType(properties[i].PropertyType);
 

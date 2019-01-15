@@ -160,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertFirst(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -241,7 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertFirstOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertFirstOrDefault(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -301,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingle(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingle(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -342,7 +345,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleOrDefault(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -383,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertLast(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertLast(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -424,7 +429,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertLastOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertLastOrDefault(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
         #endregion
 
@@ -994,7 +1000,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertQuery(
+                query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1>(
             bool isAsync,
@@ -1006,7 +1013,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1018,7 +1026,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertQuery(
+                query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1031,7 +1040,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1, TItem2, TItem3>(
             bool isAsync,
@@ -1058,7 +1068,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         #endregion
 
@@ -1380,7 +1391,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
+            => AssertIncludeQuery(
+                isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1>(
             bool isAsync,
@@ -1393,7 +1405,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertIncludeQuery(
+                actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync,
+                testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1406,7 +1420,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
+            => AssertIncludeQuery(
+                isAsync, query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, testMethodName);
 
         public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             bool isAsync,
@@ -1420,7 +1435,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertIncludeQuery(
+                actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync,
+                testMethodName);
 
         #endregion
 
@@ -1445,7 +1462,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertSingleResult(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1466,7 +1484,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertSingleResult(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1487,7 +1506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertSingleResult(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         protected Task AssertSingleResult<TItem1>(
             bool isAsync,
@@ -1508,7 +1528,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleResult(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertSingleResult(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         #endregion
 
@@ -1524,7 +1545,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Asserters
 
-        public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+        public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(
+            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
@@ -1533,7 +1555,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
         }
 
-        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(
+            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
@@ -1574,7 +1597,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
             where TResult : class
         {
-            return caller == null ? new List<TResult>() { default } : caller.DefaultIfEmpty();
+            return caller == null
+                ? new List<TResult>
+                    { default }
+                : caller.DefaultIfEmpty();
         }
 
         #endregion

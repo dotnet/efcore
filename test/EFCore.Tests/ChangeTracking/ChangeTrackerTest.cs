@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -68,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogPropertyChangeDetectedSensitive.GenerateMessage(nameof(Cat), nameof(Cat.Name), "Smokey", "Smoke-a-doke", "{Id: 1}")
+                        ? CoreStrings.LogPropertyChangeDetectedSensitive.GenerateMessage(
+                            nameof(Cat), nameof(Cat.Name), "Smokey", "Smoke-a-doke", "{Id: 1}")
                         : CoreStrings.LogPropertyChangeDetected.GenerateMessage(nameof(Cat), nameof(Cat.Name)),
                     message);
 
@@ -262,8 +262,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogStateChangedSensitive.GenerateMessage(nameof(Cat), "{Id: 1}", nameof(LikeAZooContextSensitive), EntityState.Unchanged, EntityState.Deleted)
-                        : CoreStrings.LogStateChanged.GenerateMessage(nameof(Cat), nameof(LikeAZooContext), EntityState.Unchanged, EntityState.Deleted),
+                        ? CoreStrings.LogStateChangedSensitive.GenerateMessage(
+                            nameof(Cat), "{Id: 1}", nameof(LikeAZooContextSensitive), EntityState.Unchanged, EntityState.Deleted)
+                        : CoreStrings.LogStateChanged.GenerateMessage(
+                            nameof(Cat), nameof(LikeAZooContext), EntityState.Unchanged, EntityState.Deleted),
                     message);
             }
         }
@@ -304,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     Assert.Equal(
                         sensitive
-                            ? CoreStrings.LogTempValueGeneratedSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            ? CoreStrings.LogTempValueGeneratedSensitive.GenerateMessage(
+                                nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
                             : CoreStrings.LogTempValueGenerated.GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
                         message);
                 }
@@ -312,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     Assert.Equal(
                         sensitive
-                            ? CoreStrings.LogValueGeneratedSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            ? CoreStrings.LogValueGeneratedSensitive.GenerateMessage(
+                                nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
                             : CoreStrings.LogValueGenerated.GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
                         message);
                 }
@@ -369,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogCascadeDeleteSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
+                        ? CoreStrings.LogCascadeDeleteSensitive.GenerateMessage(
+                            nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
                         : CoreStrings.LogCascadeDelete.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
                     message);
             }
@@ -396,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreStrings.LogCascadeDeleteOrphanSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
+                        ? CoreStrings.LogCascadeDeleteOrphanSensitive.GenerateMessage(
+                            nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
                         : CoreStrings.LogCascadeDeleteOrphan.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
                     message);
             }
@@ -2610,7 +2616,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void TrackGraph_does_not_call_DetectChanges()
         {
-            var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();

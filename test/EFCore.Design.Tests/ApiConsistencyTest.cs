@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static readonly Type[] _fluentApiTypes =
         {
-            typeof(DesignTimeServiceCollectionExtensions),
+            typeof(DesignTimeServiceCollectionExtensions)
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;

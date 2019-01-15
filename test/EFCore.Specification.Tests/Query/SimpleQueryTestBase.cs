@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     from c in cs
 #pragma warning disable CS1718 // Comparison made to same variable
-                        // ReSharper disable once EqualExpressionComparison
+                    // ReSharper disable once EqualExpressionComparison
                     where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
                     select c.CustomerID);
@@ -395,9 +395,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     (from c1 in cs
                      where c1 == local
-                     select c1).Join(from c2 in cs
-                                     where c2 == local
-                                     select c2, o => o, i => i, (o, i) => o).Select(e => e.CustomerID));
+                     select c1).Join(
+                        from c2 in cs
+                        where c2 == local
+                        select c2, o => o, i => i, (o, i) => o).Select(e => e.CustomerID));
         }
 
         [ConditionalTheory]
@@ -766,13 +767,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Select(c => new
-                {
-                    c.CustomerID,
-                    Data1 = hasData ? customer.CustomerID : "none",
-                    Data2 = customer != null ? customer.CustomerID : "none",
-                    Data3 = !hasData ? "none" : customer.CustomerID
-                }));
+                cs => cs.Select(
+                    c => new
+                    {
+                        c.CustomerID,
+                        Data1 = hasData ? customer.CustomerID : "none",
+                        Data2 = customer != null ? customer.CustomerID : "none",
+                        Data3 = !hasData ? "none" : customer.CustomerID
+                    }));
         }
 
         [ConditionalTheory]
@@ -2533,8 +2535,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es =>
                     (from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                     select e).Join(from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
-                                    select e, o => o, i => i, (o, i) => o));
+                     select e).Join(
+                        from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
+                        select e, o => o, i => i, (o, i) => o));
         }
 
         // issue #12567
@@ -3511,7 +3514,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                           // ReSharper disable once UseMethodAny.0
+                       // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
@@ -4567,7 +4570,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         //[InlineData(true)] issue #12449
-        public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(bool isAsync)
+        public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
+            bool isAsync)
         {
             return AssertQuery<Customer, Order>(
                 isAsync,
@@ -4596,7 +4600,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         //[InlineData(true)] issue #12449
-        public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(bool isAsync)
+        public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
+            bool isAsync)
         {
             return AssertQuery<Customer, Order>(
                 isAsync,
@@ -4951,7 +4956,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Skip(40).Take(5),
+                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Skip(40)
+                    .Take(5),
                 entryCount: 48,
                 assertOrder: true);
         }
@@ -4989,7 +4995,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(
                         outer =>
                             (from c in cs
-                             let customers = cs.Where(cc => cs.OrderBy(inner => inner.CustomerID).Take(10).Distinct().Any()).Select(cc => cc.CustomerID)
+                             let customers = cs.Where(cc => cs.OrderBy(inner => inner.CustomerID).Take(10).Distinct().Any())
+                                 .Select(cc => cc.CustomerID)
                              where customers.Any()
                              select customers).Any()),
                 entryCount: 1);
@@ -5738,7 +5745,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       where orders.Select(t => t.OrderID).Contains(o.OrderID)
-                      group o by o.CustomerID into g
+                      group o by o.CustomerID
+                      into g
                       orderby g.Key
                       select g.OrderByDescending(x => x.OrderID),
                 assertOrder: true,
@@ -5753,7 +5761,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       where ClientEvalPredicate(o)
-                      group o by o.CustomerID into g
+                      group o by o.CustomerID
+                      into g
                       orderby g.Key
                       select g.OrderByDescending(x => x.OrderID),
                 assertOrder: true,
@@ -5768,7 +5777,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       orderby ClientEvalSelector(o)
-                      group o by o.CustomerID into g
+                      group o by o.CustomerID
+                      into g
                       orderby g.Key
                       select g.OrderByDescending(x => x.OrderID),
                 assertOrder: true,
@@ -5803,9 +5813,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Customer, Order>(
                 isAsync,
-                (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A")
-                    && os.Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
-                        == os.Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails));
+                (cs, os) => cs.Where(
+                    c => c.CustomerID.StartsWith("A")
+                         && os.Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
+                         == os.Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails));
         }
     }
 }

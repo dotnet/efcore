@@ -165,8 +165,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     catch (DbUpdateConcurrencyException ex2)
                     {
-                        Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
-                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                        Assert.Equal(
+                            LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
+                                l =>
+                                    l.Id == CoreEventId.OptimisticConcurrencyException).Level);
 
                         var entry2 = ex2.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry2.Entity);
@@ -210,8 +212,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     catch (DbUpdateConcurrencyException ex2)
                     {
-                        Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
-                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                        Assert.Equal(
+                            LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
+                                l =>
+                                    l.Id == CoreEventId.OptimisticConcurrencyException).Level);
 
                         var entry2 = ex2.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry2.Entity);
@@ -280,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")] // TODO: See issue#1368
+        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
+        // TODO: See issue#1368
         public virtual Task
             Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
@@ -295,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")] // TODO: See issue#1368
+        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
+        // TODO: See issue#1368
         public virtual Task
             Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
@@ -409,7 +415,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+        public virtual Task
+            Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
@@ -444,7 +451,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+        public virtual Task
+            Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
@@ -678,10 +686,13 @@ namespace Microsoft.EntityFrameworkCore
                                 storeChange(innerContext);
                                 await innerContext.SaveChangesAsync();
 
-                                var updateException = await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+                                var updateException =
+                                    await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
-                                Assert.Equal(LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
-                                    l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                                Assert.Equal(
+                                    LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
+                                        l =>
+                                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
                                 Fixture.ListLoggerFactory.Clear();
 
                                 resolver(context, updateException);

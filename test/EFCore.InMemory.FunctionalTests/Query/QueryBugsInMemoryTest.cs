@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable MergeConditionalExpression
@@ -19,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
-
         #region Bug9849
 
         [Fact]
@@ -603,7 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         using (var ctx = new MyContext5456())
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
+                                .ToListAsync();
 
                             Assert.Equal(198, result.Count);
                         }
@@ -639,7 +636,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         using (var ctx = new MyContext5456())
                         {
-                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                            var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
+                                .ToListAsync();
 
                             Assert.Equal(198, result.Count);
                         }

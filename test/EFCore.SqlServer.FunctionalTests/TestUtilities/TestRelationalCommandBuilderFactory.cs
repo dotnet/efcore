@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public Task<int> ExecuteNonQueryAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
+                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 
@@ -113,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public async Task<object> ExecuteScalarAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
+                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 
@@ -144,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = new CancellationToken())
+                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 

@@ -52,16 +52,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            private bool _insideThenBy = false;
+            private readonly bool _insideThenBy = false;
 
-            private InjectJoinWithSelfExpressionMutator _mutator;
+            private readonly InjectJoinWithSelfExpressionMutator _mutator;
 
             public ExpressionFinder(InjectJoinWithSelfExpressionMutator mutator)
             {
                 _mutator = mutator;
             }
 
-            public List<Expression> FoundExpressions { get; set; } = new List<Expression>();
+            public List<Expression> FoundExpressions { get; } = new List<Expression>();
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {

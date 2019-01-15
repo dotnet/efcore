@@ -207,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
-                Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+                Assert.Equal(
+                    3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
             }
         }
 
@@ -232,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
-                Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+                Assert.Equal(
+                    3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
             }
         }
 
@@ -437,7 +439,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
-                Assert.Equal(2, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+                Assert.Equal(
+                    2, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
             }
         }
 
@@ -558,7 +561,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
-                Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+                Assert.Equal(
+                    3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
             }
         }
 
@@ -583,7 +587,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
-                Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+                Assert.Equal(
+                    3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
             }
         }
 

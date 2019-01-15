@@ -575,10 +575,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.All(context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.True(driversLocal.Contains(e)));
                 Assert.All(context.ChangeTracker.Entries<TestDriver>().Select(e => e.Entity), e => Assert.True(driversLocal.Contains(e)));
-                Assert.All(context.ChangeTracker.Entries<TestDriver>().Select(e => e.Entity), e => Assert.True(testDriversLocal.Contains(e)));
+                Assert.All(
+                    context.ChangeTracker.Entries<TestDriver>().Select(e => e.Entity), e => Assert.True(testDriversLocal.Contains(e)));
                 Assert.All(context.ChangeTracker.Entries<Team>().Select(e => e.Entity), e => Assert.True(teamsLocal.Contains(e)));
 
-                Assert.All(context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.False(teamsLocal.Contains((object)e)));
+                Assert.All(
+                    context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.False(teamsLocal.Contains((object)e)));
             }
         }
 

@@ -1665,7 +1665,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
-            Assert.NotNull(entityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+            Assert.NotNull(
+                entityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
 
             if (useScope)
             {
@@ -1721,7 +1722,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                var result = dependentEntityBuilder.Relationship(principalEntityBuilder, OrderDetails.OrderProperty, Order.OrderDetailsProperty, ConfigurationSource.Convention);
+                var result = dependentEntityBuilder.Relationship(
+                    principalEntityBuilder, OrderDetails.OrderProperty, Order.OrderDetailsProperty, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1805,7 +1807,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var builder = new InternalModelBuilder(new Model(conventions));
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
-            var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention);
+            var relationshipBuilder = dependentEntityBuilder.Relationship(
+                principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
@@ -1936,7 +1939,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 foreignKey,
-                dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+                dependentEntityBuilder.Metadata.RemoveForeignKey(
+                    foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
         private class ForeignKeyUniquenessChangedConvention : IForeignKeyUniquenessChangedConvention
@@ -2030,7 +2034,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 foreignKey,
-                dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+                dependentEntityBuilder.Metadata.RemoveForeignKey(
+                    foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
         private class ForeignKeyRequirednessChangedConvention : IForeignKeyRequirednessChangedConvention
@@ -2124,7 +2129,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 foreignKey,
-                dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+                dependentEntityBuilder.Metadata.RemoveForeignKey(
+                    foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
         private class ForeignKeyOwnershipChangedConvention : IForeignKeyOwnershipChangedConvention

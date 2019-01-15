@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #if NET461
-
 using System;
 using System.IO;
 using System.Linq;
@@ -39,7 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public void Assembly_load_errors_are_wrapped()
         {
             var targetDir = AppDomain.CurrentDomain.BaseDirectory;
-            using (var executor = new AppDomainOperationExecutor(Assembly.GetExecutingAssembly().Location, Path.Combine(targetDir, "Unknown.dll"), targetDir, null, null, null))
+            using (var executor =
+ new AppDomainOperationExecutor(Assembly.GetExecutingAssembly().Location, Path.Combine(targetDir, "Unknown.dll"), targetDir, null, null, null))
             {
                 Assert.Throws<WrappedException>(() => executor.GetContextTypes());
             }

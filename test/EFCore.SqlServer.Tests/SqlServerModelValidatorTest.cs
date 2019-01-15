@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"), modelBuilder.Model);
+                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"),
+                modelBuilder.Model);
         }
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
@@ -66,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "nvarchar(30)", "nvarchar(15)"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "nvarchar(30)",
+                    "nvarchar(15)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)",
+                    "nvarchar(max)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -103,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
-                    nameof(Cat), nameof(Cat.Identity), nameof(Dog), nameof(Dog.Identity), nameof(Cat.Identity), nameof(Animal)), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Identity), nameof(Dog), nameof(Dog.Identity), nameof(Cat.Identity), nameof(Animal)),
+                modelBuilder.Model);
         }
 
         [Fact]

@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConvertToProviderTypesInMemoryTest : ConvertToProviderTypesTestBase<ConvertToProviderTypesInMemoryTest.ConvertToProviderTypesInMemoryFixture>
+    public class ConvertToProviderTypesInMemoryTest : ConvertToProviderTypesTestBase<
+        ConvertToProviderTypesInMemoryTest.ConvertToProviderTypesInMemoryFixture>
     {
         public ConvertToProviderTypesInMemoryTest(ConvertToProviderTypesInMemoryFixture fixture)
             : base(fixture)

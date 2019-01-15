@@ -1053,19 +1053,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task Current_values_can_be_read_or_set_for_an_object_in_the_Deleted_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Deleted, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.CurrentValues), EntityState.Deleted, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
@@ -1077,19 +1080,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Unchanged, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.CurrentValues), EntityState.Unchanged, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
@@ -1101,19 +1107,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Modified, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.CurrentValues), EntityState.Modified, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
@@ -1125,19 +1134,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Added_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Added, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.CurrentValues), EntityState.Added, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual Task Original_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
@@ -1149,19 +1161,22 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task Current_values_can_be_read_or_set_for_a_Detached_object()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Detached, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.CurrentValues), EntityState.Detached, expectOriginalValues: false);
         }
 
         [Fact]
         public virtual Task Original_values_can_be_read_or_set_for_a_Detached_object()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
         public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object()
         {
-            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(
+                e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
@@ -1934,7 +1949,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         {
-            return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
@@ -1962,7 +1978,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
-            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
@@ -1993,7 +2010,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
-            return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
@@ -2025,7 +2043,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
         {
-            return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
@@ -2063,7 +2082,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
         {
-            return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
@@ -2101,7 +2121,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public Task Store_values_really_are_store_values_not_current_or_original_values()
         {
-            return Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return Store_values_really_are_store_values_not_current_or_original_values_implementation(
+                e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]

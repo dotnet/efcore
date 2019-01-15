@@ -1371,7 +1371,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = 1,
@@ -1396,7 +1396,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = eRootJoined,
@@ -1422,7 +1422,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once MergeConditionalExpression
+                                // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -1773,7 +1773,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                             {
                                 using (var ctx = new MyContext5456(_options))
                                 {
-                                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToListAsync();
+                                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
+                                        .ToListAsync();
 
                                     Assert.Equal(198, result.Count);
                                 }
@@ -1811,7 +1812,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                             {
                                 using (var ctx = new MyContext5456(_options))
                                 {
-                                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToListAsync();
+                                    var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
+                                        .ToListAsync();
 
                                     Assert.Equal(198, result.Count);
                                 }
@@ -2340,7 +2342,8 @@ WHERE [c].[Id] = @__id_0");
                     var id = 0;
                     // ReSharper disable once AccessToModifiedClosure
                     Expression<Func<Entity8909, bool>> whereExpression = c => c.Id == id;
-                    Expression<Func<Entity8909, bool>> containsExpression = c => context.Entities.Where(whereExpression).Select(e => e.Id).Contains(c.Id);
+                    Expression<Func<Entity8909, bool>> containsExpression =
+                        c => context.Entities.Where(whereExpression).Select(e => e.Id).Contains(c.Id);
 
                     id = 1;
                     context.Entities.Where(containsExpression).ToList();
@@ -4428,7 +4431,7 @@ FROM [Prices] AS [e]");
                             DecimalColumn = 3.0m,
                             Price = 0.00345223m
                         }
-                        );
+                    );
 
                     context.SaveChanges();
 
@@ -4584,10 +4587,11 @@ FROM [Prices] AS [e]");
                                 select new
                                 {
                                     blog.Name,
-                                    Comments = blog.Comments.Select(u => new
-                                    {
-                                        u.Id,
-                                    }).ToArray(),
+                                    Comments = blog.Comments.Select(
+                                        u => new
+                                        {
+                                            u.Id
+                                        }).ToArray()
                                 };
                     var result = query.ToList();
                     Assert.Equal(1, result[0].Comments.Count());
@@ -4612,20 +4616,25 @@ FROM [Prices] AS [e]");
         {
             public DbSet<Blog12748> Blogs { get; set; }
             public DbSet<Comment12748> Comments { get; set; }
+
             public MyContext12748(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             }
         }
+
         public class Blog12748
         {
             [Key]
             public byte[] Name { get; set; }
+
             public List<Comment12748> Comments { get; set; }
         }
+
         public class Comment12748
         {
             public int Id { get; set; }
@@ -4646,7 +4655,7 @@ FROM [Prices] AS [e]");
                 {
                     var query = (from e in context.Employees
                                  join d in context.EmployeeDevices
-                                    on e.Id equals d.EmployeeId into grouping
+                                     on e.Id equals d.EmployeeId into grouping
                                  from j in grouping.DefaultIfEmpty()
                                  select new Holder13025
                                  {
@@ -4692,10 +4701,12 @@ FROM [Prices] AS [e]");
         {
             public DbSet<Employee13025> Employees { get; set; }
             public DbSet<EmployeeDevice13025> EmployeeDevices { get; set; }
+
             public MyContext13025(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             }
@@ -4750,7 +4761,7 @@ FROM [Prices] AS [e]");
             public virtual DbSet<DefinitionHistory12170> DefinitionHistories { get; set; }
 
             public MyContext12170(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -4776,7 +4787,7 @@ FROM [Prices] AS [e]");
             public virtual OptionalChangePoint12170 RemovedPoint { get; set; }
         }
 
-        public partial class DefinitionHistory12170
+        public class DefinitionHistory12170
         {
             public int Id { get; set; }
             public int MacGuffinDefinitionID { get; set; }
@@ -4784,7 +4795,7 @@ FROM [Prices] AS [e]");
             public OptionalChangePoint12170 EndedPoint { get; set; }
         }
 
-        public partial class Definition12170
+        public class Definition12170
         {
             public int Id { get; set; }
             public virtual MasterChangeInfo12170 ChangeInfo { get; set; }
@@ -4857,7 +4868,7 @@ FROM [Prices] AS [e]");
             public DbSet<ElementarySchool11944> ElementarySchools { get; set; }
 
             public MyContext11944(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -4898,7 +4909,8 @@ FROM [Prices] AS [e]");
             {
                 using (var context = new MyContext13118(_options))
                 {
-                    var testDateList = new List<DateTime>() { new DateTime(2018, 10, 07) };
+                    var testDateList = new List<DateTime>
+                        { new DateTime(2018, 10, 07) };
                     var findRecordsWithDateInList = context.ReproEntity
                         .Where(a => testDateList.Contains(a.MyTime))
                         .ToList();
@@ -4939,7 +4951,7 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
             public virtual DbSet<ReproEntity13118> ReproEntity { get; set; }
 
             public MyContext13118(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -5010,7 +5022,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
             public DbSet<Todo> Todos { get; set; }
 
             public MyContext12732(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
         }
@@ -5038,16 +5050,20 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                 using (var context = new MyContext13157(_options))
                 {
                     var partners = context.Partners
-                        .Select(x => new
-                        {
-                            Addresses = x.Addresses.Select(y => new
+                        .Select(
+                            x => new
                             {
-                                Turnovers = y.Turnovers == null ? null : new
-                                {
-                                    y.Turnovers.AmountIn
-                                },
-                            }).ToList()
-                        }).ToList();
+                                Addresses = x.Addresses.Select(
+                                    y => new
+                                    {
+                                        Turnovers = y.Turnovers == null
+                                            ? null
+                                            : new
+                                            {
+                                                y.Turnovers.AmountIn
+                                            }
+                                    }).ToList()
+                            }).ToList();
 
                     Assert.Single(partners);
                     Assert.Single(partners[0].Addresses);
@@ -5093,7 +5109,7 @@ ORDER BY [t].[Id]");
                                 }
                             }
                         }
-                        );
+                    );
 
                     context.SaveChanges();
                     ClearLog();
@@ -5105,7 +5121,7 @@ ORDER BY [t].[Id]");
             public virtual DbSet<Partner13157> Partners { get; set; }
 
             public MyContext13157(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -5160,11 +5176,11 @@ ORDER BY [t].[Id]");
                 context =>
                 {
                     context.AddRange(
-                        new Order13346 { Amount = 1},
-                        new Order13346 { Amount = 2},
-                        new Order13346 { Amount = 3},
-                        new Order13346 { Amount = 4}
-                        );
+                        new Order13346 { Amount = 1 },
+                        new Order13346 { Amount = 2 },
+                        new Order13346 { Amount = 3 },
+                        new Order13346 { Amount = 4 }
+                    );
 
                     context.SaveChanges();
                     ClearLog();
@@ -5176,7 +5192,7 @@ ORDER BY [t].[Id]");
             public virtual DbSet<Order13346> Orders { get; set; }
 
             public MyContext13346(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -5184,7 +5200,7 @@ ORDER BY [t].[Id]");
             {
                 modelBuilder.Query<OrderSummary13346>().ToQuery(
                     () => Query<OrderSummary13346>()
-                            .FromSql("SELECT o.Amount From Orders AS o"));
+                        .FromSql("SELECT o.Amount From Orders AS o"));
             }
         }
 
@@ -5238,7 +5254,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
             public virtual DbSet<BaseEntity13079> BaseEntities { get; set; }
 
             public MyContext13079(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
 
@@ -5294,11 +5310,13 @@ FROM [InventoryPools] AS [p]");
         {
             return CreateTestStore(
                 () => new MyContext13587(_options),
-                context => {
-                    context.InventoryPools.Add(new InventoryPool13587
-                    {
-                        Quantity = 2,
-                    });
+                context =>
+                {
+                    context.InventoryPools.Add(
+                        new InventoryPool13587
+                        {
+                            Quantity = 2
+                        });
 
                     context.SaveChanges();
 
@@ -5311,7 +5329,7 @@ FROM [InventoryPools] AS [p]");
             public virtual DbSet<InventoryPool13587> InventoryPools { get; set; }
 
             public MyContext13587(DbContextOptions options)
-               : base(options)
+                : base(options)
             {
             }
         }

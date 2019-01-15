@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                var actual = await context.Set<Customer>()
+                    .FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArrayAsync();
 
                 Assert.Equal(14, actual.Length);
@@ -42,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSql(
+                        NormalizeDelimeters(
+                            "SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
@@ -55,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT [Region], [PostalCode], [PostalCode] AS [Foo], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSql(
+                        NormalizeDelimeters(
+                            "SELECT [Region], [PostalCode], [PostalCode] AS [Foo], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
@@ -106,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = await (from c in context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT * FROM [Customers]"))
-                             from o in context.Set<Order>().FromSql(NormalizeDelimeters("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
+                             from o in context.Set<Order>().FromSql(
+                                 NormalizeDelimeters("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
                              where c.CustomerID == o.CustomerID
                              select new
                              {
@@ -129,8 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = await (from c in context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
-                             from o in context.Set<Order>().FromSql(NormalizeDelimeters("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
+                    = await (from c in context.Set<Customer>().FromSql(
+                                 NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                             from o in context.Set<Order>().FromSql(
+                                 NormalizeDelimeters("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
                              where c.CustomerID == o.CustomerID
                              select new
                              {
@@ -185,7 +193,8 @@ FROM [Customers]"))
 
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city, contactTitle)
+                var actual = await context.Set<Customer>().FromSql(
+                        NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city, contactTitle)
                     .ToArrayAsync();
 
                 Assert.Equal(3, actual.Length);
@@ -202,7 +211,8 @@ FROM [Customers]"))
 
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                var actual = await context.Set<Customer>().FromSql(
+                        NormalizeDelimeters("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArrayAsync();
 
@@ -325,7 +335,8 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Customers.FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                var actual = await context.Customers
+                    .FromSql(NormalizeDelimeters("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArrayAsync();
 
                 Assert.Equal(14, actual.Length);
@@ -376,6 +387,7 @@ FROM [Customers]"))
 
                 Assert.Equal(ConnectionState.Closed, connection.State);
             }
+
             Fixture.TestStore.OpenConnection();
         }
 

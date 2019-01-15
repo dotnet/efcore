@@ -229,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
-        public static ModelBuilderTest.TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(
+        public static ModelBuilderTest.TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity,
+            TDependentEntity>(
             this ModelBuilderTest.TestCollectionOwnershipBuilder<TEntity, TDependentEntity> builder,
             string name)
             where TEntity : class

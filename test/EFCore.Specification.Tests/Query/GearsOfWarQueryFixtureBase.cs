@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             modelBuilder.Entity<City>().HasKey(c => c.Name);
             modelBuilder.Entity<City>(
-                    city => city.Metadata.AddIndexedProperty(City.NationPropertyName, typeof(string)));
+                city => city.Metadata.AddIndexedProperty(City.NationPropertyName, typeof(string)));
 
             modelBuilder.Entity<Gear>(
                 b =>

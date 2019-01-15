@@ -8,14 +8,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore
             return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: true);
         }
 
-        private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
+        private static async Task Returns_false_when_database_does_not_exist_test(
+            bool async, bool ambientTransaction, bool useCanConnect, bool file)
         {
             using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
@@ -325,7 +326,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("Blogs", tables.Single());
 
                     var columns = testDatabase.Query<string>(
-                        "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME").ToArray();
+                            "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")
+                        .ToArray();
                     Assert.Equal(14, columns.Length);
 
                     Assert.Equal(
@@ -695,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    #pragma warning disable RCS1102 // Make class static.
+#pragma warning disable RCS1102 // Make class static.
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorTest
     {

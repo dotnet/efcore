@@ -161,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore
                           || !type.GetTypeInfo().IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                           || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                           || parameterType.GetTypeInfo().IsValueType && !parameterType.GetTypeInfo().IsNullableType())
-                         && attributes.Any(a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
+                         && attributes.Any(
+                             a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
                          || parameterType.GetTypeInfo().IsValueType
                          && parameterType.GetTypeInfo().IsNullableType()
                          && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
