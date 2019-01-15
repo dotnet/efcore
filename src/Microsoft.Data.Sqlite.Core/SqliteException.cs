@@ -28,7 +28,6 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
-        /// ///
         /// <param name="extendedErrorCode">The extended SQLite error code.</param>
         public SqliteException(string message, int errorCode, int extendedErrorCode)
             : base(message)
