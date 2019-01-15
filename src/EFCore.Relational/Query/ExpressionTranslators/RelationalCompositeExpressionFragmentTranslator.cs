@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             = new List<IExpressionFragmentTranslator>
             {
                 new ComparisonTranslator(),
-                new StringConcatTranslator()
             };
 
         /// <summary>

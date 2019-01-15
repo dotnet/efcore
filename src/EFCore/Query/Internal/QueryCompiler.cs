@@ -106,9 +106,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = _compiledQueryCache
                     .GetOrAddQuery(
                         _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                        () => CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType));
+                        () => CompileQueryCore<TResult>(_database, query));
 
             return compiledQuery(queryContext);
+        }
+
+        public virtual Func<QueryContext, TResult> CompileQueryCore<TResult>(
+            IDatabase database,
+            Expression query)
+        {
+            return database.CompileQuery2<TResult>(query);
         }
 
         /// <summary>

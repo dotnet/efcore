@@ -64,6 +64,12 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Boundary(bool isAsync)
+        {
+            return base.Boundary(isAsync);
+        }
+
         public override async Task Buffer(bool isAsync)
         {
             await base.Buffer(isAsync);
@@ -71,6 +77,18 @@ FROM [PointEntity] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], [e].[Polygon].STBuffer(1.0E0) AS [Buffer]
 FROM [PolygonEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Buffer_quadrantSegments(bool isAsync)
+        {
+            return base.Buffer_quadrantSegments(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Centroid(bool isAsync)
+        {
+            return base.Centroid(isAsync);
         }
 
         public override async Task Contains(bool isAsync)
@@ -109,6 +127,24 @@ FROM [MultiLineStringEntity] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], [e].[LineString].STNumPoints() AS [Count]
 FROM [LineStringEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task CoveredBy(bool isAsync)
+        {
+            return base.CoveredBy(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Covers(bool isAsync)
+        {
+            return base.Covers(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Crosses(bool isAsync)
+        {
+            return base.Crosses(isAsync);
         }
 
         public override async Task Difference(bool isAsync)
@@ -228,6 +264,12 @@ FROM [GeoPointEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Envelope(bool isAsync)
+        {
+            return base.Envelope(isAsync);
+        }
+
         public override async Task EqualsTopologically(bool isAsync)
         {
             await base.EqualsTopologically(isAsync);
@@ -287,6 +329,12 @@ FROM [PolygonEntity] AS [e]");
 FROM [LineStringEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task InteriorPoint(bool isAsync)
+        {
+            return base.InteriorPoint(isAsync);
+        }
+
         public override async Task Intersection(bool isAsync)
         {
             await base.Intersection(isAsync);
@@ -334,6 +382,18 @@ FROM [MultiLineStringEntity] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], [e].[MultiLineString].STIsEmpty() AS [IsEmpty]
 FROM [MultiLineStringEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task IsRing(bool isAsync)
+        {
+            return base.IsRing(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task IsSimple(bool isAsync)
+        {
+            return base.IsSimple(isAsync);
         }
 
         public override async Task IsValid(bool isAsync)
@@ -445,6 +505,24 @@ SELECT [e].[Id], [e].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task PointOnSurface(bool isAsync)
+        {
+            return base.PointOnSurface(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Relate(bool isAsync)
+        {
+            return base.Relate(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Reverse(bool isAsync)
+        {
+            return base.Reverse(isAsync);
+        }
+
         public override async Task SRID(bool isAsync)
         {
             await base.SRID(isAsync);
@@ -510,6 +588,12 @@ FROM [PointEntity] AS [e]");
 FROM [PointEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Touches(bool isAsync)
+        {
+            return base.Touches(isAsync);
+        }
+
         public override async Task Union(bool isAsync)
         {
             await base.Union(isAsync);
@@ -519,6 +603,12 @@ FROM [PointEntity] AS [e]");
 
 SELECT [e].[Id], [e].[Polygon].STUnion(@__polygon_0) AS [Union]
 FROM [PolygonEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Union_void(bool isAsync)
+        {
+            return base.Union_void(isAsync);
         }
 
         public override async Task Within(bool isAsync)

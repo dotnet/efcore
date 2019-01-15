@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryContextFactory : QueryContextFactory
     {
         private readonly IRelationalConnection _connection;
+        private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -30,11 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
+            IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
             : base(dependencies)
         {
             _connection = connection;
             ExecutionStrategyFactory = executionStrategyFactory;
+            _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
         }
 
         /// <summary>
@@ -50,6 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override QueryContext Create()
-            => new RelationalQueryContext(Dependencies, CreateQueryBuffer, _connection, ExecutionStrategyFactory);
+            => new RelationalQueryContext(Dependencies, CreateQueryBuffer, _connection, ExecutionStrategyFactory, _relationalCommandBuilderFactory);
     }
 }

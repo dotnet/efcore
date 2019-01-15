@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        firstEntityType, materializationContextParameter, indexMap);
+                        firstEntityType, "instance", materializationContextParameter, indexMap);
 
             if (concreteEntityTypes.Count == 1)
             {
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 materializer
                     = _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityType, materializationContextParameter, indexMap);
+                            concreteEntityType, "instance", materializationContextParameter, indexMap);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(

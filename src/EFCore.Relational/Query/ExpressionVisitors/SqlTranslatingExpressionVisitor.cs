@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             TExpression sourceExpression,
             Func<TExpression, RelationalQueryModelVisitor, Func<IProperty, IQuerySource, SelectExpression, Expression>, Expression> binder)
         {
-            Expression BindPropertyToSelectExpression(
+            Expression bindPropertyToSelectExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
                 => selectExpression.BindProperty(
                     property,
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var boundExpression = binder(
                 sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
                 {
-                    var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+                    var boundPropertyExpression = bindPropertyToSelectExpression(property, querySource, selectExpression);
 
                     if (_targetSelectExpression != null
                         && selectExpression != _targetSelectExpression)
@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             while (outerQueryModelVisitor != null && canBindToOuterQueryModelVisitor)
             {
-                boundExpression = binder(sourceExpression, outerQueryModelVisitor, BindPropertyToSelectExpression);
+                boundExpression = binder(sourceExpression, outerQueryModelVisitor, bindPropertyToSelectExpression);
 
                 if (boundExpression != null)
                 {

@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
+            IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
             : base(dependencies, queryBufferFactory)
         {
             Check.NotNull(connection, nameof(connection));
@@ -30,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Connection = connection;
             ExecutionStrategyFactory = executionStrategyFactory;
+            RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
         }
 
         /// <summary>
@@ -47,5 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The execution strategy factory.
         /// </value>
         public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; }
     }
 }

@@ -20,13 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         public SqliteCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies)
             : base(dependencies)
         {
-            var sqliteTranslators = new List<IMemberTranslator>
-            {
-                new SqliteDateTimeMemberTranslator(),
-                new SqliteLengthTranslator()
-            };
-
-            AddTranslators(sqliteTranslators);
         }
     }
 }

@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1264,6 +1265,7 @@ FROM [Customers] AS [c]
 WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip ="ClientEval")]
         public override async Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
             await base.TrimStart_with_char_argument_in_predicate(isAsync);
@@ -1273,6 +1275,7 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.TrimStart_with_char_array_argument_in_predicate(isAsync);
@@ -1292,6 +1295,7 @@ FROM [Customers] AS [c]
 WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
             await base.TrimEnd_with_char_argument_in_predicate(isAsync);
@@ -1301,6 +1305,7 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.TrimEnd_with_char_array_argument_in_predicate(isAsync);
@@ -1320,6 +1325,7 @@ FROM [Customers] AS [c]
 WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
             await base.Trim_with_char_argument_in_predicate(isAsync);
@@ -1329,6 +1335,7 @@ WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.Trim_with_char_array_argument_in_predicate(isAsync);

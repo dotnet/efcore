@@ -20,14 +20,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         public SqlServerCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies)
             : base(dependencies)
         {
-            var sqlServerTranslators = new List<IMemberTranslator>
-            {
-                new SqlServerArrayLengthTranslator(),
-                new SqlServerDateTimeMemberTranslator(),
-                new SqlServerStringLengthTranslator()
-            };
-
-            AddTranslators(sqlServerTranslators);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return Expression.Lambda<Func<IEntityType, MaterializationContext, object>>(
                     _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityTypes[0], materializationContextParameter),
+                            concreteEntityTypes[0], "instance", materializationContextParameter),
                     entityTypeParameter,
                     materializationContextParameter);
             }
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             returnLabelTarget,
                             _entityMaterializerSource
                                 .CreateMaterializeExpression(
-                                    concreteEntityTypes[0], materializationContextParameter))),
+                                    concreteEntityTypes[0], "instance", materializationContextParameter))),
                     Expression.Label(
                         returnLabelTarget,
                         Expression.Default(returnLabelTarget.Type))
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         Expression.Return(
                             returnLabelTarget,
                             _entityMaterializerSource
-                                .CreateMaterializeExpression(concreteEntityType, materializationContextParameter)),
+                                .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextParameter)),
                         blockExpressions[0]);
             }
 

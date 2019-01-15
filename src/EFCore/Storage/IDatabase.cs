@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -67,5 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="queryModel"> An object model representing the query to be executed. </param>
         /// <returns> A function that will asynchronously execute the query. </returns>
         Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] QueryModel queryModel);
+
+        Func<QueryContext, TResult> CompileQuery2<TResult>([NotNull] Expression query);
     }
 }

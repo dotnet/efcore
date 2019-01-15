@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
+            [NotNull] string entityInstanceName,
             [NotNull] Expression materializationExpression,
             [CanBeNull] int[] indexMap = null);
 

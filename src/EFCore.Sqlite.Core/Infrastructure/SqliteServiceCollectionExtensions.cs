@@ -11,11 +11,13 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
@@ -80,11 +82,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()
-                .TryAdd<IMemberTranslator, SqliteCompositeMemberTranslator>()
+                .TryAdd<EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator, SqliteCompositeMemberTranslator>()
                 .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAdd<ISqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalResultOperatorHandler, SqliteResultOperatorHandler>()
+
+                // New Query Pipeline
+                .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()
+                .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()
+                .TryAdd<IQuerySqlGeneratorFactory2, SqliteQuerySqlGeneratorFactory2>()
+
                 .TryAddProviderSpecificServices(
                     b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 
