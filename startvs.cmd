@@ -17,7 +17,7 @@ SET MSBuildSDKsPath=%DOTNET_ROOT%sdk\3.0.100-preview-010010\Sdks
 SET sln=%1
 
 IF NOT EXIST "%DOTNET_ROOT%\dotnet.exe" (
-    restore.cmd
+    call restore.cmd
 )
 
 echo ProTip^: You can drag and drop a solution file onto startvs.cmd
