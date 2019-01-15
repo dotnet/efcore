@@ -586,35 +586,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             using (builder.Indent())
             {
-                for (var i = 0; i < operation.Columns.Count; i++)
-                {
-                    var column = operation.Columns[i];
-                    ColumnDefinition(column, model, builder);
-
-                    if (i != operation.Columns.Count - 1)
-                    {
-                        builder.AppendLine(",");
-                    }
-                }
-
-                if (operation.PrimaryKey != null)
-                {
-                    builder.AppendLine(",");
-                    PrimaryKeyConstraint(operation.PrimaryKey, model, builder);
-                }
-
-                foreach (var uniqueConstraint in operation.UniqueConstraints)
-                {
-                    builder.AppendLine(",");
-                    UniqueConstraint(uniqueConstraint, model, builder);
-                }
-
-                foreach (var foreignKey in operation.ForeignKeys)
-                {
-                    builder.AppendLine(",");
-                    ForeignKeyConstraint(foreignKey, model, builder);
-                }
-
+                CreateTableColumns(operation, model, builder);
+                CreateTableConstraints(operation, model, builder);
                 builder.AppendLine();
             }
 
@@ -1201,6 +1174,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for the column definitions in an <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTableColumns(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            for (var i = 0; i < operation.Columns.Count; i++)
+            {
+                var column = operation.Columns[i];
+                ColumnDefinition(column, model, builder);
+
+                if (i != operation.Columns.Count - 1)
+                {
+                    builder.AppendLine(",");
+                }
+            }
+        }
+
+        /// <summary>
         ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -1370,6 +1369,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for the constraints of a <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTableConstraints(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            CreateTablePrimaryKeyContstraint(operation, model, builder);
+            CreateTableUniqueConstraints(operation, model, builder);
+            CreateTableForeignKeys(operation, model, builder);
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for the foreign key constraints of a <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTableForeignKeys(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var foreignKey in operation.ForeignKeys)
+            {
+                builder.AppendLine(",");
+                ForeignKeyConstraint(foreignKey, model, builder);
+            }
+        }
+
+        /// <summary>
         ///     Generates a SQL fragment for a foreign key constraint of an <see cref="AddForeignKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -1419,6 +1458,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for the primary key constraint of a <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTablePrimaryKeyContstraint(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.PrimaryKey != null)
+            {
+                builder.AppendLine(",");
+                PrimaryKeyConstraint(operation.PrimaryKey, model, builder);
+            }
+        }
+
+        /// <summary>
         ///     Generates a SQL fragment for a primary key constraint of an <see cref="AddPrimaryKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -1448,6 +1508,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.Append("(")
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for the unique constraints of a <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTableUniqueConstraints(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var uniqueConstraint in operation.UniqueConstraints)
+            {
+                builder.AppendLine(",");
+                UniqueConstraint(uniqueConstraint, model, builder);
+            }
         }
 
         /// <summary>
