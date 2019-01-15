@@ -985,7 +985,7 @@ FROM [Entities1] AS [e]
 WHERE CASE
     WHEN @__p_0 = CAST(1 AS bit)
     THEN CAST(1 AS bit) ELSE CASE
-        WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
+        WHEN [e].[StringA] LIKE N'A%'
         THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 END = CAST(1 AS bit)");
@@ -1008,7 +1008,7 @@ WHERE CASE
         THEN CASE
             WHEN [e].[BoolA] = CAST(1 AS bit)
             THEN CASE
-                WHEN [e].[StringA] LIKE N'A' + N'%' AND (LEFT([e].[StringA], LEN(N'A')) = N'A')
+                WHEN [e].[StringA] LIKE N'A%'
                 THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
             END ELSE CAST(0 AS bit)
         END ELSE CAST(1 AS bit)

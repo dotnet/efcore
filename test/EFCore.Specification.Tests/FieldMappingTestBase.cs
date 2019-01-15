@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Tasklist#19#Include")]
         public virtual void Field_mapping_with_conversion_does_not_throw()
         {
             using (var context = CreateContext())
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_auto_props(bool tracking)
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_auto_props(bool tracking)
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_hiding_props(bool tracking)
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_hiding_props(bool tracking)
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_full_props(bool tracking)
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_full_props(bool tracking)
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_full_props_with_named_fields(bool tracking)
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_full_props_with_named_fields(bool tracking)
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_read_only_props(bool tracking)
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_read_only_props(bool tracking)
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_read_only_props_with_named_fields(bool tracking)
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_read_only_props_with_named_fields(bool tracking)
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_write_only_props(bool tracking)
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_write_only_props(bool tracking)
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_write_only_props_with_named_fields(bool tracking)
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_write_only_props_with_named_fields(bool tracking)
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_fields_only(bool tracking)
@@ -626,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_fields_only(bool tracking)
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_fields_only_for_navs_too(bool tracking)
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "Tasklist#19#Include")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_fields_only_only_for_navs_too(bool tracking)

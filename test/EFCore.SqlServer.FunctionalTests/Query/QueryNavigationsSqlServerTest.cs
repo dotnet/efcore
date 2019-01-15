@@ -445,9 +445,7 @@ WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([join.Custome
                 @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o1]
 CROSS JOIN [Orders] AS [o2]
-LEFT JOIN [Customers] AS [join.Customer] ON [o1].[CustomerID] = [join.Customer].[CustomerID]
-LEFT JOIN [Customers] AS [join.Customer.Customer] ON [o2].[CustomerID] = [join.Customer.Customer].[CustomerID]
-WHERE (([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND ([o2].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o2].[CustomerID], LEN(N'A')) = N'A'))) AND (([join.Customer].[CustomerID] = [join.Customer.Customer].[CustomerID]) OR ([join.Customer].[CustomerID] IS NULL AND [join.Customer.Customer].[CustomerID] IS NULL))");
+WHERE ([o1].[CustomerID] LIKE N'A%' AND [o2].[CustomerID] LIKE N'A%') AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))");
         }
 
         public override async Task Select_Where_Navigation_Null(bool isAsync)
@@ -491,7 +489,7 @@ WHERE [e.Manager].[EmployeeID] IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate], [t].[CustomerID]
@@ -499,7 +497,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[CustomerID]");
         }
@@ -526,7 +524,7 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate], [t].[CustomerID]
@@ -534,7 +532,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[CustomerID]");
         }
@@ -820,7 +818,7 @@ END AS [conditional], [o].[OrderID] AS [scalar2], (
     WHERE [o].[OrderID] = [od2].[OrderID]
 ) AS [collection2]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [o].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Collection_select_nav_prop_sum(bool isAsync)
@@ -889,7 +887,7 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')
+WHERE [e].[CustomerID] LIKE N'A%'
 ORDER BY [e].[CustomerID]",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
@@ -933,7 +931,7 @@ WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011) AND (@_outer_
     WHERE [o].[CustomerID] = N'ALFKI'
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [e].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Collection_select_nav_prop_single_or_default_then_nav_prop_nested(bool isAsync)
@@ -943,7 +941,7 @@ WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) =
             AssertSql(
                 @"SELECT 1
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [e].[CustomerID] LIKE N'A%'",
                 //
                 @"SELECT TOP(2) [o.Customer0].[City]
 FROM [Orders] AS [o0]
@@ -978,7 +976,7 @@ WHERE [o0].[OrderID] = 10643");
     WHERE [oo].[CustomerID] = N'ALFKI'
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [e].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby(bool isAsync)
@@ -994,7 +992,7 @@ WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) =
     ORDER BY [o].[CustomerID]
 )
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] LIKE N'A' + N'%' AND (LEFT([e].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [e].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Navigation_fk_based_inside_contains(bool isAsync)
@@ -1205,7 +1203,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
@@ -1308,7 +1306,7 @@ WHERE (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID] DESC");
         }
 
@@ -1420,7 +1418,7 @@ LEFT JOIN (
     FROM [Orders] AS [oo]
     WHERE [oo].[OrderID] NOT IN (10308, 10625, 10759, 10926)
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"@_outer_OrderID='10643'
@@ -1582,7 +1580,7 @@ WHERE @_outer_OrderID = [o0].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]");
         }
 

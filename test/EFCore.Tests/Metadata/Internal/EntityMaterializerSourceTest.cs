@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
             => Expression.Lambda<Func<MaterializationContext, object>>(
-                    source.CreateMaterializeExpression(entityType, _contextParameter),
+                    source.CreateMaterializeExpression(entityType, "instance", _contextParameter),
                     _contextParameter)
                 .Compile();
 

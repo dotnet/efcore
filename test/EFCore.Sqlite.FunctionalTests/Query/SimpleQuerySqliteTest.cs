@@ -322,7 +322,7 @@ WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) = 88")
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1, length('M')) = 'M')");
+WHERE ""c"".""ContactName"" LIKE 'M%'");
         }
 
         public override async Task String_StartsWith_Identity(bool isAsync)
@@ -352,7 +352,7 @@ WHERE (""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%' AND (substr(""c""
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1, length('M')) = 'M')");
+WHERE ""c"".""ContactName"" LIKE 'M%'");
         }
 
         public override async Task String_EndsWith_Literal(bool isAsync)
@@ -362,7 +362,7 @@ WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", -length('b')) = 'b'");
+WHERE ""c"".""ContactName"" LIKE '%b'");
         }
 
         public override async Task String_EndsWith_Identity(bool isAsync)
@@ -392,7 +392,7 @@ WHERE (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""C
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", -length('m')) = 'm'");
+WHERE ""c"".""ContactName"" LIKE '%m'");
         }
 
         public override async Task String_Contains_Literal(bool isAsync)

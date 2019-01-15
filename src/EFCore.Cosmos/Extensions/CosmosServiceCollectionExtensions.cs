@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -17,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -42,6 +44,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosMemberAccessBindingExpressionVisitorFactory>()
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
+
+                // New Query pipeline
+                .TryAdd<IEntityQueryableTranslatorFactory, CosmosEntityQueryableTranslatorFactory>()
+                .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, CosmosQueryableMethodTranslatingExpressionVisitorFactory>()
+                .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, CosmosShapedQueryCompilingExpressionVisitorFactory>()
+
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()

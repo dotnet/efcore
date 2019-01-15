@@ -58,12 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new NotImplementedException();
         }
 
-        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<TResult> IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

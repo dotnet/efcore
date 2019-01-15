@@ -1104,7 +1104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
         {

@@ -682,15 +682,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        protected static string LocalMethod1()
-        {
-            return "M";
-        }
-
-        protected static string LocalMethod2()
-        {
-            return "m";
-        }
+        protected static string LocalMethod1() => "M";
+        protected static string LocalMethod2() => "m";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

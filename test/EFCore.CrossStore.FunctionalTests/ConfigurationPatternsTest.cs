@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerConfiguredCondition]
         public class NestedContextDifferentStores
         {
-            [ConditionalFact]
+            [ConditionalFact(Skip = "Tasklist#22")]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
                 using (SqlServerTestStore.GetNorthwindStore())
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "Tasklist#22")]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
             {
                 using (SqlServerTestStore.GetNorthwindStore())

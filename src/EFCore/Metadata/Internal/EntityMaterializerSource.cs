@@ -42,11 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Expression CreateReadValueExpression(
             Expression valueBuffer,
             Type type,
-            int index)
+            int index,
+            IPropertyBase property)
             => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
-                Expression.Constant(index));
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
-            in ValueBuffer valueBuffer, int index)
+            in ValueBuffer valueBuffer, int index, IPropertyBase property)
             => (TValue)valueBuffer[index];
 
         /// <summary>
@@ -71,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
+            string entityInstanceName,
             Expression materializationExpression,
             int[] indexMap = null)
         {
@@ -135,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return constructorExpression;
             }
 
-            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, "instance");
+            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, entityInstanceName);
 
             var blockExpressions
                 = new List<Expression>
@@ -157,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         : CreateReadValueExpression(
                             valueBufferExpression,
                             memberInfo.GetMemberType(),
-                            indexMap?[property.GetIndex()] ?? property.GetIndex());
+                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property);
 
                 blockExpressions.Add(
                     property.IsIndexedProperty()
@@ -197,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
                     return Expression.Lambda<Func<MaterializationContext, object>>(
-                            CreateMaterializeExpression(e, materializationContextParameter),
+                            CreateMaterializeExpression(e, "instance", materializationContextParameter),
                             materializationContextParameter)
                         .Compile();
                 });

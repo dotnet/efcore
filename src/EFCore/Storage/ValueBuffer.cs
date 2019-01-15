@@ -113,8 +113,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private bool Equals(ValueBuffer other)
-            => Equals(_values, other._values)
-               && _offset == other._offset;
+        {
+            if (_offset != other._offset)
+            {
+                return false;
+            }
+
+            if (_values.Length != other._values.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < _values.Length; i++)
+            {
+                if (!Equals(_values[i], other._values[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         ///     Gets the hash code for the value buffer.
@@ -126,7 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             unchecked
             {
-                return ((_values?.GetHashCode() ?? 0) * 397) ^ _offset;
+                return _values != null
+                    ? _values.Aggregate((_offset.GetHashCode()), (current, value) => (current * 397) ^ (value?.GetHashCode() ?? 0))
+                    : _offset.GetHashCode();
             }
         }
     }

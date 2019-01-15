@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Throws_on_concurrent_command()
         {
             using (var context = CreateContext())

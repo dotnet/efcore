@@ -981,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: c => c.ContactName.StartsWith("A"));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested_negated(bool isAsync)
         {
@@ -990,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => cs.Where(c => !os.Any(o => o.CustomerID.StartsWith("A"))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested_negated2(bool isAsync)
         {
@@ -1001,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          && !os.Any(o => o.CustomerID.StartsWith("A"))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested_negated3(bool isAsync)
         {
@@ -1012,7 +1012,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          && c.City != "London"));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested(bool isAsync)
         {
@@ -1022,7 +1022,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested2(bool isAsync)
         {
@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 85);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_nested3(bool isAsync)
         {
@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 85);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "TaskList#6")]
         public virtual void Any_with_multiple_conditions_still_uses_exists()
         {
             using (var context = CreateContext())
@@ -1075,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: c => c.ContactName.StartsWith(c.ContactName));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Tasklist#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_top_level_subquery(bool isAsync)
         {
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 asyncQuery: cs => cs.AllAsync(c1 => cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Tasklist#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_top_level_subquery_ef_property(bool isAsync)
         {
@@ -1251,7 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_or(bool isAsync)
         {
@@ -1271,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 100);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_or2(bool isAsync)
         {
@@ -1291,7 +1291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 16);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_or3(bool isAsync)
         {
@@ -1312,7 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_or4(bool isAsync)
         {
@@ -1334,7 +1334,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_or_with_parameter(bool isAsync)
         {
@@ -1421,7 +1421,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_expression(bool isAsync)
         {
@@ -1436,7 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_expression_same_parametername(bool isAsync)
         {
@@ -1797,7 +1797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_bool(bool isAsync)
         {
@@ -1810,7 +1810,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 77);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_collection(bool isAsync)
         {
@@ -1824,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 43);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#14")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition(bool isAsync)
         {
@@ -1875,7 +1875,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#12")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
         {
@@ -1899,7 +1899,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e1);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "TaskList#12")]
         public virtual void Where_query_composition_entity_equality_no_elements_Single()
         {
             using (var ctx = CreateContext())
@@ -1912,7 +1912,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#12")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool isAsync)
         {
@@ -1924,7 +1924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e1);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "TaskList#12")]
         public virtual void Where_query_composition_entity_equality_multiple_elements_SingleOrDefault()
         {
             using (var ctx = CreateContext())
@@ -1937,7 +1937,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#12")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
         {
@@ -1968,7 +1968,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#14")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition2_FirstOrDefault(bool isAsync)
         {
@@ -2067,7 +2067,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 85);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#14")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_recursive_trivial(bool isAsync)
         {
@@ -2375,7 +2375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select c));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskItem#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Any(bool isAsync)
         {
@@ -2384,7 +2384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Any(o => o.OrderDate == new DateTime(2008, 10, 24))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskItem#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists(bool isAsync)
         {
@@ -2393,7 +2393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskItem#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists_Inequality(bool isAsync)
         {
@@ -2403,7 +2403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskItem#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists_Constant(bool isAsync)
         {
@@ -2412,7 +2412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskItem#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Not_Exists(bool isAsync)
         {
@@ -2458,7 +2458,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_join_select(bool isAsync)
         {
@@ -2472,7 +2472,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_orderby_join_select(bool isAsync)
         {
@@ -2487,7 +2487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 88);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#11")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_join_orderby_join_select(bool isAsync)
         {
@@ -2503,7 +2503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 88);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many(bool isAsync)
         {
@@ -2517,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#10")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_orderby_select_many(bool isAsync)
         {
@@ -2890,7 +2890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "OrderByOrderBy should ignore inner ordering")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_multiple(bool isAsync)
         {
@@ -3560,7 +3560,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Deadlock")]
         public virtual void Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -3596,7 +3596,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Deadlock")]
         public virtual void Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())
@@ -4760,7 +4760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new
                     {
-                        A = c.CustomerID + c.City
+                        A = c.City + c.CustomerID
                     }).Distinct().Where(n => n.A == "ALFKIBerlin"),
                 e => e.A);
         }
@@ -4774,7 +4774,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new
                     {
-                        A = c.CustomerID + c.City
+                        A = c.City + c.CustomerID
                     }).Distinct().OrderBy(n => n.A),
                 assertOrder: true);
         }
@@ -4788,12 +4788,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: cs => cs.Select(
                     c => new
                     {
-                        A = c.CustomerID + c.City
+                        A = c.City + c.CustomerID
                     }).Distinct().Count(n => n.A.StartsWith("A")),
                 asyncQuery: cs => cs.Select(
                     c => new
                     {
-                        A = c.CustomerID + c.City
+                        A = c.City + c.CustomerID
                     }).Distinct().CountAsync(n => n.A.StartsWith("A")));
         }
 
@@ -4806,12 +4806,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new
                     {
-                        A = c.CustomerID + c.City
+                        A = c.City + c.CustomerID
                     }).OrderBy(n => n.A),
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Anonymous_subquery_orderby(bool isAsync)
         {
@@ -4907,7 +4907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new DTO<string>
                     {
-                        Property = c.CustomerID + c.City
+                        Property = c.City + c.CustomerID
                     }).Distinct().Where(n => n.Property == "ALFKIBerlin"),
                 e => e.Property,
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
@@ -4922,7 +4922,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new DTO<string>
                     {
-                        Property = c.CustomerID + c.City
+                        Property = c.City + c.CustomerID
                     }).Distinct().OrderBy(n => n.Property),
                 assertOrder: true,
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
@@ -4937,12 +4937,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 syncQuery: cs => cs.Select(
                     c => new DTO<string>
                     {
-                        Property = c.CustomerID + c.City
+                        Property = c.City + c.CustomerID
                     }).Distinct().Count(n => n.Property.StartsWith("A")),
                 asyncQuery: cs => cs.Select(
                     c => new DTO<string>
                     {
-                        Property = c.CustomerID + c.City
+                        Property = c.City + c.CustomerID
                     }).Distinct().CountAsync(n => n.Property.StartsWith("A")));
         }
 
@@ -4955,7 +4955,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => new DTO<string>
                     {
-                        Property = c.CustomerID + c.City
+                        Property = c.City + c.CustomerID
                     }).OrderBy(n => n.Property),
                 assertOrder: true,
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
@@ -5810,6 +5810,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Order>(elementAsserter: (e, a) => Assert.Equal(e.OrderID, a.OrderID)));
         }
+
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

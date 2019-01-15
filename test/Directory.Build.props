@@ -3,6 +3,6 @@
 
   <PropertyGroup>
     <StandardTestTfms>netcoreapp3.0</StandardTestTfms>
-    <StandardTestTfms Condition="'$(DeveloperBuild)' != 'True'">net461;$(StandardTestTfms)</StandardTestTfms>
+    <StandardTestTfms Condition="'$(DeveloperBuild)' != 'True'">$(StandardTestTfms)</StandardTestTfms>
   </PropertyGroup>
 </Project>

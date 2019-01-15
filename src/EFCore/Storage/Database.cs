@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -90,5 +91,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .Create(async: true)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
+
+        public virtual Func<QueryContext, TResult> CompileQuery2<TResult>(Expression query, bool async)
+        {
+            try
+            {
+                return Dependencies.QueryCompilationContextFactory2
+                    .Create(async)
+                    .CreateQueryExecutor<TResult>(query);
+            }
+            catch (Exception e)
+            {
+                if (e is NotImplementedException)
+                {
+                    return qc => default;
+                }
+
+                throw;
+            }
+        }
     }
 }

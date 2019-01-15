@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Translators_handle_static_members()
         {
             using (var db = Fixture.CreateContext())

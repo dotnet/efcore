@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'M' + N'%' AND (LEFT([c].[ContactName], LEN(N'M')) = N'M')");
+WHERE [c].[ContactName] LIKE N'M%'");
         }
 
         public override async Task String_StartsWith_Identity(bool isAsync)
@@ -46,7 +47,7 @@ WHERE ([c].[ContactName] LIKE [c].[ContactName] + N'%' AND (LEFT([c].[ContactNam
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'M' + N'%' AND (LEFT([c].[ContactName], LEN(N'M')) = N'M')");
+WHERE [c].[ContactName] LIKE N'M%'");
         }
 
         public override async Task String_EndsWith_Literal(bool isAsync)
@@ -56,7 +57,7 @@ WHERE [c].[ContactName] LIKE N'M' + N'%' AND (LEFT([c].[ContactName], LEN(N'M'))
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE RIGHT([c].[ContactName], LEN(N'b')) = N'b'");
+WHERE [c].[ContactName] LIKE N'%b'");
         }
 
         public override async Task String_EndsWith_Identity(bool isAsync)
@@ -86,7 +87,7 @@ WHERE (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]) OR 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE RIGHT([c].[ContactName], LEN(N'm')) = N'm'");
+WHERE [c].[ContactName] LIKE N'%m'");
         }
 
         public override async Task String_Contains_Literal(bool isAsync)
@@ -1264,6 +1265,7 @@ FROM [Customers] AS [c]
 WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip ="ClientEval")]
         public override async Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
             await base.TrimStart_with_char_argument_in_predicate(isAsync);
@@ -1273,6 +1275,7 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.TrimStart_with_char_array_argument_in_predicate(isAsync);
@@ -1292,6 +1295,7 @@ FROM [Customers] AS [c]
 WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
             await base.TrimEnd_with_char_argument_in_predicate(isAsync);
@@ -1301,6 +1305,7 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.TrimEnd_with_char_array_argument_in_predicate(isAsync);
@@ -1320,6 +1325,7 @@ FROM [Customers] AS [c]
 WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
             await base.Trim_with_char_argument_in_predicate(isAsync);
@@ -1329,6 +1335,7 @@ WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "ClientEval")]
         public override async Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {
             await base.Trim_with_char_array_argument_in_predicate(isAsync);

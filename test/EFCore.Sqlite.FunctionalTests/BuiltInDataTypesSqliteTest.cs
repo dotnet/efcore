@@ -26,6 +26,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Translate_array_length()
+        {
+            using (var db = CreateContext())
+            {
+                db.Set<MappedDataTypesWithIdentity>()
+                    .Where(p => p.Blob.Length == 0)
+                    .Select(p => p.Blob.Length)
+                    .FirstOrDefault();
+
+                Assert.Equal(
+                    @"SELECT length(""p"".""Blob"")
+FROM ""MappedDataTypesWithIdentity"" AS ""p""
+WHERE length(""p"".""Blob"") = 0
+LIMIT 1",
+                    Fixture.TestSqlLoggerFactory.Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [Fact]
         public virtual void Can_insert_and_query_decimal()
         {
             using (var context = CreateContext())

@@ -3,7 +3,6 @@
 
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
