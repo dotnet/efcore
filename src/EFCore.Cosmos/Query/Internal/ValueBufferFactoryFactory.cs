@@ -27,11 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression.NewArrayInit(
                     typeof(object),
                     usedProperties
-                        .Select(p =>
+                        .Select(
+                            p =>
                                 CreateGetValueExpression(
                                     _jObjectParameter,
                                     p))),
-                                _jObjectParameter);
+                _jObjectParameter);
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
@@ -46,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (storeName.Length == 0)
             {
                 var type = property.FindMapping()?.ClrType
-                    ?? property.GetValueConverter()?.ProviderClrType
-                    ?? property.ClrType;
+                           ?? property.GetValueConverter()?.ProviderClrType
+                           ?? property.ClrType;
 
                 return Expression.Default(type);
             }

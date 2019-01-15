@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
 
                 if (key.SqlServer().IsClustered
-                     != duplicateKey.SqlServer().IsClustered)
+                    != duplicateKey.SqlServer().IsClustered)
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.DuplicateKeyMismatchedClustering(

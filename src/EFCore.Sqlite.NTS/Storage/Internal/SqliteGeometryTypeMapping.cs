@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected SqliteGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-                ValueConverter<TGeometry, byte[]> converter)
+            ValueConverter<TGeometry, byte[]> converter)
             : base(parameters, converter)
         {
         }

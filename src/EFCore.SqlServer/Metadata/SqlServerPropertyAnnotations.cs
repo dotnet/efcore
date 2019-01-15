@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                && IsCompatible(Property)
+                   && IsCompatible(Property)
                 ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
                 : null;
         }
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected override object GetDefaultValue(bool fallback)
         {
             return fallback
-                && ValueGenerationStrategy != null
+                   && ValueGenerationStrategy != null
                 ? null
                 : base.GetDefaultValue(fallback);
         }
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected override string GetDefaultValueSql(bool fallback)
         {
             return fallback
-                && ValueGenerationStrategy != null
+                   && ValueGenerationStrategy != null
                 ? null
                 : base.GetDefaultValueSql(fallback);
         }
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected override string GetComputedColumnSql(bool fallback)
         {
             return fallback
-                && ValueGenerationStrategy != null
+                   && ValueGenerationStrategy != null
                 ? null
                 : base.GetComputedColumnSql(fallback);
         }
@@ -403,8 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var type = property.ClrType;
 
             return (type.IsInteger()
-                || type == typeof(decimal))
-                    && !HasConverter(property);
+                    || type == typeof(decimal))
+                   && !HasConverter(property);
         }
 
         private static bool HasConverter(IProperty property)

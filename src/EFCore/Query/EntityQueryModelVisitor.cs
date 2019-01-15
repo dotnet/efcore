@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -644,11 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .MakeGenericMethod(outputExpression.Type)
                                 .Invoke(
                                     null,
-                                    new object[]
-                                    {
-                                        entityTrackingInfos,
-                                        outputExpression
-                                    })));
+                                    new object[] { entityTrackingInfos, outputExpression })));
             }
         }
 
@@ -1181,11 +1176,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
             return queryModel.BodyClauses.ElementAtOrDefault(index - 1) is GroupJoinClause groupJoinClause
-                && groupJoinClause == referencedQuerySource
-                && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
-                && subQueryModel.BodyClauses.Count == 0
-                && subQueryModel.ResultOperators.Count == 1
-                && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
+                   && groupJoinClause == referencedQuerySource
+                   && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
+                   && subQueryModel.BodyClauses.Count == 0
+                   && subQueryModel.ResultOperators.Count == 1
+                   && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
                 ? true
                 : false;
         }
@@ -1231,8 +1226,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                  || !(selectClause.Selector is QuerySourceReferenceExpression))
                 && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
-                    .Any(t => t == typeof(GroupResultOperator)
-                           || t == typeof(AllResultOperator)))
+                    .Any(
+                        t => t == typeof(GroupResultOperator)
+                             || t == typeof(AllResultOperator)))
             {
                 var asyncSelector = selector;
                 var taskLiftingExpressionVisitor = new TaskLiftingExpressionVisitor();
@@ -1465,10 +1461,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && LinqOperatorProvider is AsyncLinqOperatorProvider asyncLinqOperatorProvider)
                 {
                     return Expression.Call(
-                            asyncLinqOperatorProvider
-                                .ToAsyncEnumerable
-                                .MakeGenericMethod(elementType),
-                            expression);
+                        asyncLinqOperatorProvider
+                            .ToAsyncEnumerable
+                            .MakeGenericMethod(elementType),
+                        expression);
                 }
             }
 

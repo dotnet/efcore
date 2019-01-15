@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var method = methodCallExpression.Method;
 
             return Equals(method, _guidNewGuid)
-                || Equals(method, _randomNextNoArgs)
-                || Equals(method, _randomNextOneArg)
-                || Equals(method, _randomNextTwoArgs)
+                   || Equals(method, _randomNextNoArgs)
+                   || Equals(method, _randomNextOneArg)
+                   || Equals(method, _randomNextTwoArgs)
                 ? false
                 : base.IsEvaluatableMethodCall(methodCallExpression);
         }
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var member = memberExpression.Member;
 
             return Equals(member, _dateTimeNow)
-                || Equals(member, _dateTimeUtcNow)
-                || Equals(member, _dateTimeToday)
-                || Equals(member, _dateTimeOffsetNow)
-                || Equals(member, _dateTimeOffsetUtcNow)
+                   || Equals(member, _dateTimeUtcNow)
+                   || Equals(member, _dateTimeToday)
+                   || Equals(member, _dateTimeOffsetNow)
+                   || Equals(member, _dateTimeOffsetUtcNow)
                 ? false
                 : base.IsEvaluatableMember(memberExpression);
         }

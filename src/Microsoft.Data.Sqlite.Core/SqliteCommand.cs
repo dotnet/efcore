@@ -311,6 +311,7 @@ namespace Microsoft.Data.Sqlite
                         ? Resources.TransactionRequired
                         : Resources.TransactionConnectionMismatch);
             }
+
             if (_connection.Transaction?.ExternalRollback == true)
             {
                 throw new InvalidOperationException(Resources.TransactionCompleted);
@@ -480,6 +481,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
             }
+
             if (_commandText == null)
             {
                 throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteNonQuery)));
@@ -502,6 +504,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteScalar)));
             }
+
             if (_commandText == null)
             {
                 throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteScalar)));
@@ -539,6 +542,7 @@ namespace Microsoft.Data.Sqlite
 
                     Thread.Sleep(150);
                 }
+
                 tail = nextTail;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
@@ -583,7 +587,7 @@ namespace Microsoft.Data.Sqlite
 
         private static bool IsBusy(int rc)
             => rc == raw.SQLITE_LOCKED
-                || rc == raw.SQLITE_BUSY
-                || rc == raw.SQLITE_LOCKED_SHAREDCACHE;
+               || rc == raw.SQLITE_BUSY
+               || rc == raw.SQLITE_LOCKED_SHAREDCACHE;
     }
 }

@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
         {
             get => (string)Annotations.Metadata[CosmosAnnotationNames.ContainerName];
 
-            [param: CanBeNull]
-            set => SetDefaultContainerName(value);
+            [param: CanBeNull] set => SetDefaultContainerName(value);
         }
 
         protected virtual bool SetDefaultContainerName([CanBeNull] string value)

@@ -21,24 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private readonly ConcurrentDictionary<(Type ModelClrType, Type ProviderClrType), ValueConverterInfo> _converters
             = new ConcurrentDictionary<(Type, Type), ValueConverterInfo>();
 
-        private static readonly Type[] _signedPreferred =
-            { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
+        private static readonly Type[] _signedPreferred = { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
 
-        private static readonly Type[] _unsignedPreferred =
-            { typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
+        private static readonly Type[] _unsignedPreferred = { typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
 
-        private static readonly Type[] _floatingPreferred =
-            { typeof(float), typeof(double), typeof(decimal) };
+        private static readonly Type[] _floatingPreferred = { typeof(float), typeof(double), typeof(decimal) };
 
-        private static readonly Type[] _charPreferred =
-            { typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
+        private static readonly Type[] _charPreferred = { typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
 
-        private static readonly Type[] _numerics =
-        {
-            typeof(int), typeof(long), typeof(short), typeof(byte),
-            typeof(ulong), typeof(uint), typeof(ushort), typeof(sbyte),
-            typeof(decimal), typeof(double), typeof(float)
-        };
+        private static readonly Type[] _numerics = { typeof(int), typeof(long), typeof(short), typeof(byte), typeof(ulong), typeof(uint), typeof(ushort), typeof(sbyte), typeof(decimal), typeof(double), typeof(float) };
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.

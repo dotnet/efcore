@@ -58,10 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new ExpressionTreeParser(
                     nodeTypeProvider,
                     new CompoundExpressionTreeProcessor(
-                        new IExpressionTreeProcessor[]
-                        {
-                            new PartialEvaluatingExpressionTreeProcessor(_reLinqEvaluatableExpressionFilter),
-                            new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
-                        })));
+                        new IExpressionTreeProcessor[] { new PartialEvaluatingExpressionTreeProcessor(_reLinqEvaluatableExpressionFilter), new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault()) })));
     }
 }

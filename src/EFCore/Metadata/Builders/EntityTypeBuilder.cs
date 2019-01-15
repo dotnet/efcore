@@ -655,8 +655,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string navigationName)
             => (navigationName == null
-                ? null
-                : Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata))
+                   ? null
+                   : Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata))
                ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 
         /// <summary>
@@ -665,8 +665,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         protected virtual EntityType FindRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
             => (navigationName == null
-                ? null
-                : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata))
+                   ? null
+                   : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata))
                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
         /// <summary>

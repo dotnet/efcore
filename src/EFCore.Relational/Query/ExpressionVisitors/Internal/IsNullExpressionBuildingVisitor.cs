@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return left != null
-                && right != null
+                   && right != null
                 ? Expression.MakeBinary(expressionType, left, right)
                 : left ?? right;
         }

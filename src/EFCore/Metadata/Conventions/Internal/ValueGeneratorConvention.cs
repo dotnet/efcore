@@ -102,8 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual ValueGenerated? GetValueGenerated([NotNull] Property property)
             => !property.IsForeignKey()
-                    && property.PrimaryKey?.Properties.Count(p => !p.IsForeignKey()) == 1
-                    && CanBeGenerated(property)
+               && property.PrimaryKey?.Properties.Count(p => !p.IsForeignKey()) == 1
+               && CanBeGenerated(property)
                 ? ValueGenerated.OnAdd
                 : (ValueGenerated?)null;
 
@@ -117,10 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var propertyType = property.ClrType.UnwrapNullableType();
             return (propertyType.IsInteger()
-                 && propertyType != typeof(byte))
-                || propertyType == typeof(Guid)
-                || propertyType == typeof(string)
-                || propertyType == typeof(byte[])
+                    && propertyType != typeof(byte))
+                   || propertyType == typeof(Guid)
+                   || propertyType == typeof(string)
+                   || propertyType == typeof(byte[])
                 ? true
                 : false;
         }

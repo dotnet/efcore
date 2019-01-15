@@ -43,12 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                                 "substr",
                                 // ReSharper disable once PossibleNullReferenceException
                                 methodCallExpression.Object.Type,
-                                new[]
-                                {
-                                    methodCallExpression.Object,
-                                    Expression.Constant(1),
-                                    new SqlFunctionExpression("length", typeof(int), new[] { patternExpression })
-                                }),
+                                new[] { methodCallExpression.Object, Expression.Constant(1), new SqlFunctionExpression("length", typeof(int), new[] { patternExpression }) }),
                             patternExpression)));
 
                 return patternExpression is ConstantExpression patternConstantExpression

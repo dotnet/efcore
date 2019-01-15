@@ -43,12 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         materializer.ReturnType)
                     .Invoke(
                         null,
-                        new object[]
-                        {
-                            originalShaper,
-                            materializer.Compile(),
-                            storeMaterializerExpression ? materializer : null
-                        });
+                        new object[] { originalShaper, materializer.Compile(), storeMaterializerExpression ? materializer : null });
 
             return shaper;
         }

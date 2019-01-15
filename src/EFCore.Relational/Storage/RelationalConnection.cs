@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The newly created transaction. </returns>
         [NotNull]
         // ReSharper disable once RedundantNameQualifier
-        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(System.Data.IsolationLevel.Unspecified);
+        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             // ReSharper disable once RedundantNameQualifier
-            => await BeginTransactionAsync(System.Data.IsolationLevel.Unspecified, cancellationToken);
+            => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         /// <summary>
         ///     Begins a new transaction.

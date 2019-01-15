@@ -85,9 +85,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     Enumerable.Empty<Expression>(),
                     resultTypeMapping);
             }
+
             if (Equals(member, _ogcGeometryType))
             {
-                var whenThenList = new List<CaseWhenClause>()
+                var whenThenList = new List<CaseWhenClause>
                 {
                     new CaseWhenClause(Expression.Constant("Point"), Expression.Constant(OgcGeometryType.Point)),
                     new CaseWhenClause(Expression.Constant("LineString"), Expression.Constant(OgcGeometryType.LineString)),
@@ -113,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         Enumerable.Empty<Expression>()),
                     whenThenList.ToArray());
             }
+
             if (Equals(member, _srid))
             {
                 return new SqlFunctionExpression(

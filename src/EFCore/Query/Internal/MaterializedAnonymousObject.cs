@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return obj is null
                 ? false
                 : obj is MaterializedAnonymousObject anonymousObject
-                   && _values.SequenceEqual(anonymousObject._values);
+                  && _values.SequenceEqual(anonymousObject._values);
         }
 
         /// <summary>

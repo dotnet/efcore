@@ -72,11 +72,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         return new SqlFunctionExpression(
                             "CONVERT",
                             memberExpression.Type,
-                            new Expression[]
-                            {
-                                new SqlFragmentExpression("date"),
-                                new SqlFunctionExpression("GETDATE", memberExpression.Type)
-                            });
+                            new Expression[] { new SqlFragmentExpression("date"), new SqlFunctionExpression("GETDATE", memberExpression.Type) });
 
                     case nameof(DateTime.TimeOfDay):
                         return new ExplicitCastExpression(

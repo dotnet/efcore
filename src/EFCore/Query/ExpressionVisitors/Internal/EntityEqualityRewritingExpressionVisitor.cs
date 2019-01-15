@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool IsInvalidSubQueryExpression(Expression expression)
             => expression is SubQueryExpression subQuery
-                && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
+               && _queryCompilationContext.DuplicateQueryModels.Contains(subQuery.QueryModel);
 
         private Expression RewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right)
         {
@@ -281,8 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // Skipping composite key with subquery since it requires to copy subquery
             // which would cause same subquery to be visited twice
             return keyProperties.Count > 1
-                && (left.RemoveConvert() is SubQueryExpression
-                    || right.RemoveConvert() is SubQueryExpression)
+                   && (left.RemoveConvert() is SubQueryExpression
+                       || right.RemoveConvert() is SubQueryExpression)
                 ? null
                 : Expression.MakeBinary(
                     nodeType,
@@ -310,10 +310,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static Expression UnwrapLastNavigation(Expression expression)
             => (expression as MemberExpression)?.Expression
-                ?? (expression is MethodCallExpression methodCallExpression
-                    && methodCallExpression.Method.IsEFPropertyMethod()
-                    ? methodCallExpression.Arguments[0]
-                    : null);
+               ?? (expression is MethodCallExpression methodCallExpression
+                   && methodCallExpression.Method.IsEFPropertyMethod()
+                   ? methodCallExpression.Arguments[0]
+                   : null);
 
         private static Expression CreateKeyAccessExpression(
             Expression target,

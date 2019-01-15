@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
         {
             return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
-                   || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
+                    || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
                    && QueryCompilationContext.QueryAnnotations
                        .OfType<FromSqlResultOperator>()
                        .All(a => a.QuerySource != querySource);
@@ -695,8 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = new Dictionary<IQuerySource, Expression>
                 {
                     {
-                        queryModel.MainFromClause,
-                        QueryCompilationContext.QuerySourceMapping
+                        queryModel.MainFromClause, QueryCompilationContext.QuerySourceMapping
                             .GetExpression(queryModel.MainFromClause)
                     }
                 };
@@ -889,11 +888,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AddQuery(querySource, subSelectExpression);
 
                     return new QuerySourceUpdater(
-                                querySource,
-                                QueryCompilationContext,
-                                LinqOperatorProvider,
-                                subSelectExpression)
-                            .Visit(subQueryModelVisitor.Expression);
+                            querySource,
+                            QueryCompilationContext,
+                            LinqOperatorProvider,
+                            subSelectExpression)
+                        .Visit(subQueryModelVisitor.Expression);
                 }
             }
 
@@ -1446,7 +1445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var queryMethods = QueryCompilationContext.QueryMethodProvider;
 
             return methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod)
-                || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod)
+                   || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod)
                 ? true
                 : false;
         }
@@ -1454,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private MethodCallExpression UnwrapShapedQueryExpression(MethodCallExpression expression)
         {
             return expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
-                || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)
+                   || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)
                 ? (MethodCallExpression)expression.Arguments[0]
                 : expression;
         }
@@ -1855,10 +1854,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
             return referencedQuerySource != groupJoinClause
-                || queryModel.CountQuerySourceReferences(groupJoinClause) != 1
-                || subQueryModel.BodyClauses.Count != 0
-                || subQueryModel.ResultOperators.Count != 1
-                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
+                   || queryModel.CountQuerySourceReferences(groupJoinClause) != 1
+                   || subQueryModel.BodyClauses.Count != 0
+                   || subQueryModel.ResultOperators.Count != 1
+                   || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
                 ? false
                 : true;
         }

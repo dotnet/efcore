@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -58,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         public CoreConventionSetBuilderDependencies(
-                [NotNull] ITypeMappingSource typeMappingSource,
-                [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
-                [CanBeNull] IParameterBindingFactories parameterBindingFactories,
-                [CanBeNull] IMemberClassifier memberClassifier,
-                [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            [NotNull] ITypeMappingSource typeMappingSource,
+            [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
+            [CanBeNull] IParameterBindingFactories parameterBindingFactories,
+            [CanBeNull] IMemberClassifier memberClassifier,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 

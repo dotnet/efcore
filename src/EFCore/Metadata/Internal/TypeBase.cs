@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public abstract class TypeBase : ConventionalAnnotatable, IMutableTypeBase
     {
         private ConfigurationSource _configurationSource;
+
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -223,8 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
-            => new KeyBuilder(DependentEntityType.Builder.PrimaryKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new KeyBuilder(
+                DependentEntityType.Builder.PrimaryKey(
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -288,8 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TDependentEntity, object>> indexExpression)
-            => new IndexBuilder(DependentEntityType.Builder.HasIndex(
-                Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new IndexBuilder(
+                DependentEntityType.Builder.HasIndex(
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -338,8 +339,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceOwnershipBuilder<TDependentEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             [NotNull] Expression<Func<TDependentEntity, TRelatedEntity>> navigationExpression)
             where TRelatedEntity : class
-            => OwnsOneBuilder<TRelatedEntity>(new PropertyIdentity(
-                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+            => OwnsOneBuilder<TRelatedEntity>(
+                new PropertyIdentity(
+                    Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
 
         /// <summary>
         ///     <para>

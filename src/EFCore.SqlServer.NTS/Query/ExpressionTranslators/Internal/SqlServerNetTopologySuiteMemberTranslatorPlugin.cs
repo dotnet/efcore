@@ -19,16 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public SqlServerNetTopologySuiteMemberTranslatorPlugin(IRelationalTypeMappingSource typeMappingSource)
         {
-            Translators = new IMemberTranslator[]
-            {
-                new SqlServerCurveMemberTranslator(typeMappingSource),
-                new SqlServerGeometryMemberTranslator(typeMappingSource),
-                new SqlServerGeometryCollectionMemberTranslator(),
-                new SqlServerLineStringMemberTranslator(),
-                new SqlServerMultiCurveMemberTranslator(),
-                new SqlServerPointMemberTranslator(),
-                new SqlServerPolygonMemberTranslator(typeMappingSource)
-            };
+            Translators = new IMemberTranslator[] { new SqlServerCurveMemberTranslator(typeMappingSource), new SqlServerGeometryMemberTranslator(typeMappingSource), new SqlServerGeometryCollectionMemberTranslator(), new SqlServerLineStringMemberTranslator(), new SqlServerMultiCurveMemberTranslator(), new SqlServerPointMemberTranslator(), new SqlServerPolygonMemberTranslator(typeMappingSource) };
         }
 
         /// <summary>

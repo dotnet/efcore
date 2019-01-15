@@ -127,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
-            [DebuggerStepThrough]
-            get;
+            [DebuggerStepThrough] get;
             [DebuggerStepThrough]
             [param: CanBeNull]
             set;
@@ -575,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return _primaryKey != null
-                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
+                   && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
                 ? _primaryKey
                 : null;
         }
@@ -901,9 +900,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (principalKey.ReferencingForeignKeys == null)
             {
                 principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
-                    {
-                        foreignKey
-                    };
+                {
+                    foreignKey
+                };
             }
             else
             {
@@ -914,9 +913,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
             {
                 principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
-                    {
-                        foreignKey
-                    };
+                {
+                    foreignKey
+                };
             }
             else
             {
@@ -1632,7 +1631,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 isIndexedProperty: false);
         }
 
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -2175,26 +2173,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IMutableModel IMutableEntityType.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IEntityType IEntityType.BaseType
         {
-            [DebuggerStepThrough]
-            get => _baseType;
+            [DebuggerStepThrough] get => _baseType;
         }
 
         IMutableEntityType IMutableEntityType.BaseType
@@ -2211,8 +2205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IEntityType IEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough]
-            get => DefiningEntityType;
+            [DebuggerStepThrough] get => DefiningEntityType;
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)

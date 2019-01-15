@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             { typeof(ICurve).GetRuntimeProperty(nameof(ICurve.EndPoint)), "STEndPoint" },
             { typeof(ICurve).GetRuntimeProperty(nameof(ICurve.IsClosed)), "STIsClosed" },
-            { typeof(ICurve).GetRuntimeProperty(nameof(ICurve.StartPoint)), "STStartPoint" },
+            { typeof(ICurve).GetRuntimeProperty(nameof(ICurve.StartPoint)), "STStartPoint" }
         };
 
         private static readonly MemberInfo _isRing = typeof(ICurve).GetRuntimeProperty(nameof(ICurve.IsRing));
@@ -68,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     Enumerable.Empty<Expression>(),
                     resultTypeMapping);
             }
-            else if (!isGeography && Equals(member, _isRing))
+
+            if (!isGeography
+                && Equals(member, _isRing))
             {
                 return new SqlFunctionExpression(
                     memberExpression.Expression,

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     NetTopologySuite specific extension methods for <see cref="SqliteDbContextOptionsBuilder"/>.
+    ///     NetTopologySuite specific extension methods for <see cref="SqliteDbContextOptionsBuilder" />.
     /// </summary>
     public static class SqliteNetTopologySuiteDbContextOptionsBuilderExtensions
     {
@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore
             var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
             var infrastructure = (IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder;
             var sqliteExtension = coreOptionsBuilder.Options.FindExtension<SqliteOptionsExtension>()
-                ?? new SqliteOptionsExtension();
+                                  ?? new SqliteOptionsExtension();
             var ntsExtension = coreOptionsBuilder.Options.FindExtension<SqliteNetTopologySuiteOptionsExtension>()
-                ?? new SqliteNetTopologySuiteOptionsExtension();
+                               ?? new SqliteNetTopologySuiteOptionsExtension();
 
             infrastructure.AddOrUpdateExtension(sqliteExtension.WithLoadSpatialite(true));
             infrastructure.AddOrUpdateExtension(ntsExtension);

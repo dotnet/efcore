@@ -20,14 +20,16 @@ namespace Microsoft.Data.Sqlite
         /// <param name="errorCode">The SQLite error code.</param>
         public SqliteException(string message, int errorCode)
             : this(message, errorCode, errorCode)
-        { }
+        {
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteException" /> class.
         /// </summary>
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
-        /// /// <param name="extendedErrorCode">The extended SQLite error code.</param>
+        /// ///
+        /// <param name="extendedErrorCode">The extended SQLite error code.</param>
         public SqliteException(string message, int errorCode, int extendedErrorCode)
             : base(message)
         {
@@ -68,7 +70,9 @@ namespace Microsoft.Data.Sqlite
 
             string message;
             int extendedErrorCode;
-            if (db == null || db.ptr == IntPtr.Zero || rc != raw.sqlite3_errcode(db))
+            if (db == null
+                || db.ptr == IntPtr.Zero
+                || rc != raw.sqlite3_errcode(db))
             {
                 message = raw.sqlite3_errstr(rc) + " " + Resources.DefaultNativeError;
                 extendedErrorCode = rc;

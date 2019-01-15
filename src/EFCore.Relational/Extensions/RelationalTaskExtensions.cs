@@ -51,7 +51,7 @@ namespace System.Threading.Tasks
                     }
                     else
                     {
-                        taskCompletionSource.TrySetResult((T?)t.Result);
+                        taskCompletionSource.TrySetResult(t.Result);
                     }
                 },
                 TaskContinuationOptions.ExecuteSynchronously);

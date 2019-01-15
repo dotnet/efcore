@@ -136,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((LikeExpression)obj);
         }
+
         private bool Equals(LikeExpression other)
             => ExpressionEqualityComparer.Instance.Equals(Match, other.Match)
                && ExpressionEqualityComparer.Instance.Equals(Pattern, other.Pattern)

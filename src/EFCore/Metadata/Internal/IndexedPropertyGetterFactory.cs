@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -35,7 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
-            var indexerParameterList = new List<Expression>() { Expression.Constant(propertyBase.Name) };
+            var indexerParameterList = new List<Expression>
+            {
+                Expression.Constant(propertyBase.Name)
+            };
             Expression readExpression = Expression.MakeIndex(
                 entityParameter, propertyInfo, indexerParameterList);
 

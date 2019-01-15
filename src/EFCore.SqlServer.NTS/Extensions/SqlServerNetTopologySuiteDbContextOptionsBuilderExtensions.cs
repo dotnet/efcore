@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     NetTopologySuite specific extension methods for <see cref="SqlServerDbContextOptionsBuilder"/>.
+    ///     NetTopologySuite specific extension methods for <see cref="SqlServerDbContextOptionsBuilder" />.
     /// </summary>
     public static class SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions
     {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
 
             var extension = coreOptionsBuilder.Options.FindExtension<SqlServerNetTopologySuiteOptionsExtension>()
-                ?? new SqlServerNetTopologySuiteOptionsExtension();
+                            ?? new SqlServerNetTopologySuiteOptionsExtension();
 
             ((IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder).AddOrUpdateExtension(extension);
 

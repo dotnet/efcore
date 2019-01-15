@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal

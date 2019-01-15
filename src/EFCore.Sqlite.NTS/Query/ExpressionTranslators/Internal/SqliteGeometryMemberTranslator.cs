@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
 
                 return newExpression;
             }
+
             if (Equals(member, _geometryType))
             {
                 return new CaseExpression(
@@ -82,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     new CaseWhenClause(Expression.Constant("MULTIPOLYGON"), Expression.Constant("MultiPolygon")),
                     new CaseWhenClause(Expression.Constant("GEOMETRYCOLLECTION"), Expression.Constant("GeometryCollection")));
             }
+
             if (Equals(member, _ogcGeometryType))
             {
                 return new CaseExpression(

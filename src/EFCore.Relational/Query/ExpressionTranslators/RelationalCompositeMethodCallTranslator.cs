@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                     new EqualsTranslator(dependencies.Logger),
                     new GetValueOrDefaultTranslator(),
                     new IsNullOrEmptyTranslator(),
-                    new LikeTranslator(),
+                    new LikeTranslator()
                 };
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
             => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
-               ?? Enumerable.Concat(_plugins, _methodCallTranslators)
+               ?? _plugins.Concat(_methodCallTranslators)
                    .Select(translator => translator.Translate(methodCallExpression))
                    .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 

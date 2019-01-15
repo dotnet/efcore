@@ -93,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         argumentTypeMappings[i] = _typeMappingSource.FindMapping(type);
                     }
                 }
+
                 if (!anyGeometryArguments)
                 {
                     argumentTypeMappings = null;
@@ -113,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     _typeMappingSource.FindMapping(methodCallExpression.Object.Type, storeType),
                     argumentTypeMappings);
             }
+
             if (Equals(method, _getGeometryN))
             {
                 return new SqlFunctionExpression(
@@ -122,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     new[] { Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) },
                     _typeMappingSource.FindMapping(typeof(IGeometry), storeType));
             }
+
             if (Equals(method, _isWithinDistance))
             {
                 return Expression.LessThanOrEqual(

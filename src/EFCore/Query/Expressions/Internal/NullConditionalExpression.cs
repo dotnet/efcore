@@ -91,13 +91,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             }
 
             return Block(
-                    new[] { nullableCaller, result },
-                    Assign(nullableCaller, Caller),
-                    Assign(result, Default(_type)),
-                    IfThen(
-                        NotEqual(nullableCaller, Default(nullableCallerType)),
-                        Assign(result, operation)),
-                    result);
+                new[] { nullableCaller, result },
+                Assign(nullableCaller, Caller),
+                Assign(result, Default(_type)),
+                IfThen(
+                    NotEqual(nullableCaller, Default(nullableCallerType)),
+                    Assign(result, operation)),
+                result);
         }
 
         /// <summary>
@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var newAccessOperation = visitor.Visit(AccessOperation);
 
             return newCaller != Caller
-                || newAccessOperation != AccessOperation
-                && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation))
+                   || newAccessOperation != AccessOperation
+                   && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation))
                 ? new NullConditionalExpression(newCaller, newAccessOperation)
                 : (this);
         }

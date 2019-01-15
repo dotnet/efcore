@@ -335,7 +335,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" /> instances that are defined in provided assembly.
+        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" />
+        ///     instances that are defined in provided assembly.
         /// </summary>
         /// <param name="assembly"> The assembly to scan. </param>
         /// <param name="predicate"> Optional predicate to filter types within the assembly. </param>
@@ -456,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <returns>
-        ///     The finalized <see cref="IModel"/>.
+        ///     The finalized <see cref="IModel" />.
         /// </returns>
         public virtual IModel FinalizeModel()
         {

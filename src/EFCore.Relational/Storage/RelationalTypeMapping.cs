@@ -344,8 +344,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
+            : this(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
         {
         }
 
@@ -410,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (!oldBehavior)
                 {
                     var storeTypeChanged = mappingInfo.StoreTypeNameBase != null
-                                            && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
+                                           && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
 
                     clone = storeTypeChanged
                         ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))

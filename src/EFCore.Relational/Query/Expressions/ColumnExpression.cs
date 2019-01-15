@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                   && Equals((ColumnExpression)obj);
+                  && Equals((ColumnExpression)obj);
         }
 
         private bool Equals([NotNull] ColumnExpression other)

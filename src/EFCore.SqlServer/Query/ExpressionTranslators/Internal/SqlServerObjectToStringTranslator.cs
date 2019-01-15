@@ -47,20 +47,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             return methodCallExpression.Method.Name == nameof(ToString)
-                && methodCallExpression.Arguments.Count == 0
-                && methodCallExpression.Object != null
-                && _typeMapping.TryGetValue(
-                    methodCallExpression.Object.Type
-                        .UnwrapNullableType(),
-                    out var storeType)
+                   && methodCallExpression.Arguments.Count == 0
+                   && methodCallExpression.Object != null
+                   && _typeMapping.TryGetValue(
+                       methodCallExpression.Object.Type
+                           .UnwrapNullableType(),
+                       out var storeType)
                 ? new SqlFunctionExpression(
                     functionName: "CONVERT",
                     returnType: methodCallExpression.Type,
-                    arguments: new[]
-                    {
-                        new SqlFragmentExpression(storeType),
-                        methodCallExpression.Object
-                    })
+                    arguments: new[] { new SqlFragmentExpression(storeType), methodCallExpression.Object })
                 : null;
         }
     }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -35,7 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TValue), "value");
-            var indexerParameterList = new List<Expression>() { Expression.Constant(propertyBase.Name) };
+            var indexerParameterList = new List<Expression>
+            {
+                Expression.Constant(propertyBase.Name)
+            };
 
             // the indexer expects the value to be an object, but the indexed property
             // can have been declared as a different type so cast it to that if necessary

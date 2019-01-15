@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                   && Equals((AliasExpression)obj);
+                  && Equals((AliasExpression)obj);
         }
 
         private bool Equals(AliasExpression other)

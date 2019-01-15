@@ -144,9 +144,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static bool ShortCircuitBinaryExpression(Expression expression, ExpressionType nodeType)
             => expression is ConstantExpression constantExpression
-                && constantExpression.Value is bool constantValue
-                && ((constantValue && nodeType == ExpressionType.OrElse)
-                    || (!constantValue && nodeType == ExpressionType.AndAlso));
+               && constantExpression.Value is bool constantValue
+               && ((constantValue && nodeType == ExpressionType.OrElse)
+                   || (!constantValue && nodeType == ExpressionType.AndAlso));
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     _currentQueryProvider = queryProvider;
                 }
                 else if (!ReferenceEquals(queryProvider, _currentQueryProvider)
-                    && queryProvider.GetType() == _currentQueryProvider.GetType())
+                         && queryProvider.GetType() == _currentQueryProvider.GetType())
                 {
                     throw new InvalidOperationException(CoreStrings.ErrorInvalidQueryable);
                 }
@@ -229,9 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             parameterName
                 = CompiledQueryCache.CompiledQueryParameterPrefix
-                    + parameterName
-                    + "_"
-                    + _parameterValues.ParameterValues.Count;
+                  + parameterName
+                  + "_"
+                  + _parameterValues.ParameterValues.Count;
 
             _parameterValues.AddParameter(parameterName, parameterValue);
 
@@ -314,6 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         // Try again when we compile the delegate
                     }
+
                     break;
 
                 case ConstantExpression constantExpression:
@@ -324,9 +325,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     break;
 
                 case UnaryExpression unaryExpression
-                when (unaryExpression.NodeType == ExpressionType.Convert
-                      || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                    && (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
+                    when (unaryExpression.NodeType == ExpressionType.Convert
+                          || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                         && (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
                     return GetValue(unaryExpression.Operand, out parameterName);
             }
 
@@ -386,8 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var parentContainsClosure = _containsClosure;
 
                 _evaluatable = IsEvalutableNodeType(expression)
-                    // Extension point to disable funcletization
-                    && _evaluatableExpressionFilter.IsEvaluatableExpression(expression);
+                               // Extension point to disable funcletization
+                               && _evaluatableExpressionFilter.IsEvaluatableExpression(expression);
                 _containsClosure = false;
 
                 base.Visit(expression);
@@ -503,10 +504,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
                 _evaluatable = !(constantExpression.Value is IDetachableContext)
-                                    && !(constantExpression.Value is IQueryable);
+                               && !(constantExpression.Value is IQueryable);
 #pragma warning disable RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
                 _containsClosure = constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate) // Closure
-                    || constantExpression.Type == typeof(ValueBuffer); // Find method
+                                   || constantExpression.Type == typeof(ValueBuffer); // Find method
 #pragma warning restore RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
 
                 return base.VisitConstant(constantExpression);

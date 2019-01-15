@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class AdditionalFromClauseOptimizingQueryModelVisitor : QueryModelVisitorBase
     {
-        private QueryCompilationContext _queryCompilationContext;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

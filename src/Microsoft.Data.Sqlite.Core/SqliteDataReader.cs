@@ -408,8 +408,8 @@ namespace Microsoft.Data.Sqlite
 
         /// <summary>
         ///     Retrieves data as a Stream. If the reader includes rowid (or any of its aliases), a
-        ///     <see cref="SqliteBlob"/> is returned. Otherwise, the all of the data is read into memory and a
-        ///     <see cref="MemoryStream"/> is returned.
+        ///     <see cref="SqliteBlob" /> is returned. Otherwise, the all of the data is read into memory and a
+        ///     <see cref="MemoryStream" /> is returned.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The returned object.</returns>
@@ -444,6 +444,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetValue)));
             }
+
             if (!_stepped || _done)
             {
                 throw new InvalidOperationException(Resources.NoData);

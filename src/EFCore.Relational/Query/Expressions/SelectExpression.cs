@@ -125,8 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual TableExpressionBase ProjectStarTable
         {
             get => _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null);
-            [param: CanBeNull]
-            set => _projectStarTable = value;
+            [param: CanBeNull] set => _projectStarTable = value;
         }
 
         /// <summary>
@@ -775,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                 case ConditionalExpression conditionalExpression:
                     return FindResultTypeMapping(conditionalExpression.IfTrue)
-                        ?? FindResultTypeMapping(conditionalExpression.IfFalse);
+                           ?? FindResultTypeMapping(conditionalExpression.IfFalse);
 
                 case SqlFunctionExpression sqlFunctionExpression:
                     return sqlFunctionExpression.ResultTypeMapping;
@@ -872,8 +871,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             var currentOrderingIndex = _orderBy.FindIndex(
-                                                    e => e.Expression.Equals(expression)
-                                                         || e.Expression.Equals(removedProjection));
+                e => e.Expression.Equals(expression)
+                     || e.Expression.Equals(removedProjection));
             if (currentOrderingIndex != -1)
             {
                 var oldOrdering = _orderBy[currentOrderingIndex];

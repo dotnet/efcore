@@ -263,15 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             obj: null,
                             parameters: new object[]
                             {
-                                _querySource,
-                                QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                                && !entityType.IsQueryType,
-                                entityType.FindPrimaryKey(),
-                                materializer,
-                                materializerExpression,
-                                typeIndexMap,
-                                QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
-                                && !entityType.IsQueryType
+                                _querySource, QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
+                                              && !entityType.IsQueryType,
+                                entityType.FindPrimaryKey(), materializer, materializerExpression, typeIndexMap, QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
+                                                                                                                 && !entityType.IsQueryType
                             });
             }
             else

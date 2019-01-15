@@ -28,9 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                     methodCallExpression.Type,
                     new[]
                     {
-                        methodCallExpression.Object,
-                        methodCallExpression.Arguments[0] is ConstantExpression constantExpression
-                        && constantExpression.Value is int value
+                        methodCallExpression.Object, methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                                                     && constantExpression.Value is int value
                             ? (Expression)Expression.Constant(value + 1)
                             : Expression.Add(
                                 methodCallExpression.Arguments[0],

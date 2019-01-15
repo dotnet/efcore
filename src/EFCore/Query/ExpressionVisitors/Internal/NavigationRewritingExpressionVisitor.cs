@@ -1033,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (!ShouldRewrite(navigation))
                 {
-                    if(sourceExpression.Type != navigation.DeclaringEntityType.ClrType)
+                    if (sourceExpression.Type != navigation.DeclaringEntityType.ClrType)
                     {
                         sourceExpression = Expression.Condition(
                             Expression.TypeIs(sourceExpression, navigation.DeclaringEntityType.ClrType),
@@ -1081,9 +1081,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var navigationJoin
                     = navigationJoins
-                        .FirstOrDefault(nj =>
-                            nj.QuerySource == (sourceExpression as QuerySourceReferenceExpression ?? sourceQsre).ReferencedQuerySource
-                            && nj.Navigation == navigation);
+                        .FirstOrDefault(
+                            nj =>
+                                nj.QuerySource == (sourceExpression as QuerySourceReferenceExpression ?? sourceQsre).ReferencedQuerySource
+                                && nj.Navigation == navigation);
 
                 if (navigationJoin == null)
                 {
@@ -1132,8 +1133,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return propertyType == null
                 ? sourceExpression
                 : optionalNavigationInChain
-                ? conditionalAccessPropertyCreator(sourceExpression)
-                : propertyCreator(sourceExpression);
+                    ? conditionalAccessPropertyCreator(sourceExpression)
+                    : propertyCreator(sourceExpression);
         }
 
         private void RewriteNavigationIntoGroupJoin(

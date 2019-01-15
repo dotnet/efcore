@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return GetPropertyCount(entityType) == 0
                 ? (() => Snapshot.Empty)
                 : Expression.Lambda<Func<ISnapshot>>(
-                    CreateConstructorExpression(entityType, null))
-                .Compile();
+                        CreateConstructorExpression(entityType, null))
+                    .Compile();
         }
 
         /// <summary>
@@ -163,7 +163,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         _snapshotCollectionMethod,
                         memberAccess)
                     : CreateSnapshotValueExpression(memberAccess, propertyBase);
-
             }
 
             var constructorExpression = Expression.Convert(

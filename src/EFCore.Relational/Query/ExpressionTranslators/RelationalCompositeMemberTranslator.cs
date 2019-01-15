@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     A SQL expression representing the translated MemberExpression.
         /// </returns>
         public virtual Expression Translate(MemberExpression memberExpression)
-            => Enumerable.Concat(_plugins, _translators)
+            => _plugins.Concat(_translators)
                 .Select(translator => translator.Translate(memberExpression))
                 .FirstOrDefault(translatedMember => translatedMember != null);
 

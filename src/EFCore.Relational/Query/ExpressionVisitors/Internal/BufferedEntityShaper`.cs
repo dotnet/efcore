@@ -50,14 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Debug.Assert(queryContext != null);
 
             return (TEntity)queryContext.QueryBuffer
-                    .GetEntity(
-                        Key,
-                        new EntityLoadInfo(
-                            new MaterializationContext(valueBuffer, queryContext.Context),
-                            Materializer,
-                            _typeIndexMap),
-                        queryStateManager: IsTrackingQuery,
-                        throwOnNullKey: !AllowNullResult);
+                .GetEntity(
+                    Key,
+                    new EntityLoadInfo(
+                        new MaterializationContext(valueBuffer, queryContext.Context),
+                        Materializer,
+                        _typeIndexMap),
+                    queryStateManager: IsTrackingQuery,
+                    throwOnNullKey: !AllowNullResult);
         }
 
         /// <summary>

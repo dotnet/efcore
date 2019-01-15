@@ -830,6 +830,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         dependentEntry.SetProperty(dependentProperty, principalValue, setModified);
                     }
+
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
                     dependentEntry.SetRelationshipSnapshotValue(dependentProperty, principalValue);
                 }

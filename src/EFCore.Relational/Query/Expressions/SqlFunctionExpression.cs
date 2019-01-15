@@ -263,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                         RelationalStrings.SqlFunctionArgumentsAndMappingsMismatch,
                         nameof(argumentTypeMappings));
                 }
+
                 if (ArgumentTypeMappings.Any(m => m == null))
                 {
                     throw new ArgumentException(

@@ -169,10 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             methodCallExpression.Arguments[0])));
 
                 return Expression.Convert(
-                        Expression.ArrayAccess(
-                            _resultsParameter,
-                            Expression.Constant(_taskExpressions.Count - 1)),
-                        methodCallExpression.Method.ReturnType);
+                    Expression.ArrayAccess(
+                        _resultsParameter,
+                        Expression.Constant(_taskExpressions.Count - 1)),
+                    methodCallExpression.Method.ReturnType);
             }
 
             return base.VisitMethodCall(methodCallExpression);

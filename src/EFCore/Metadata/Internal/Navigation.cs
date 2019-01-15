@@ -225,26 +225,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IForeignKey INavigation.ForeignKey
         {
-            [DebuggerStepThrough]
-            get => ForeignKey;
+            [DebuggerStepThrough] get => ForeignKey;
         }
 
         IMutableForeignKey IMutableNavigation.ForeignKey
         {
-            [DebuggerStepThrough]
-            get => ForeignKey;
+            [DebuggerStepThrough] get => ForeignKey;
         }
 
         IEntityType INavigation.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         IMutableEntityType IMutableNavigation.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>

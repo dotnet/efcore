@@ -130,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .IsAssignableFrom(resultItemTypeInfo)
                 ? entityQueryModelVisitor.Expression
                 : Expression.Call(
-                entityQueryModelVisitor.LinqOperatorProvider
-                    .Cast.MakeGenericMethod(castResultOperator.CastItemType),
-                entityQueryModelVisitor.Expression);
+                    entityQueryModelVisitor.LinqOperatorProvider
+                        .Cast.MakeGenericMethod(castResultOperator.CastItemType),
+                    entityQueryModelVisitor.Expression);
         }
 
         private static Expression HandleConcat(
@@ -371,9 +371,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
                 && (methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                        .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
                     || methodCallExpression.Method
-                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
+                        .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Last down below Select
 
@@ -443,9 +443,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
                 && (methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                        .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
                     || methodCallExpression.Method
-                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
+                        .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Skip down below Select
 
@@ -482,9 +482,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityQueryModelVisitor.Expression is MethodCallExpression methodCallExpression
                 && (methodCallExpression.Method
-                    .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
+                        .MethodIsClosedFormOf(entityQueryModelVisitor.LinqOperatorProvider.Select)
                     || methodCallExpression.Method
-                    .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
+                        .MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)))
             {
                 // Push Take down below Select
 

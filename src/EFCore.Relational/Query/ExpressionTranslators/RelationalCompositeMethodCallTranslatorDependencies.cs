@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <param name="plugins"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalCompositeMethodCallTranslatorDependencies With(
-                [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
+            [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
             => new RelationalCompositeMethodCallTranslatorDependencies(Logger, plugins);
     }
 }

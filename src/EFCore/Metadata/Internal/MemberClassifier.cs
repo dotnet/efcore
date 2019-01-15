@@ -52,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             targetType = targetType.UnwrapNullableType();
 
             return targetType.GetTypeInfo().IsInterface
-                || targetType.GetTypeInfo().IsValueType
-                || targetType == typeof(object)
-                || _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()) != null
-                || _typeMappingSource.FindMapping(targetType) != null
-                || targetType.GetTypeInfo().IsArray
+                   || targetType.GetTypeInfo().IsValueType
+                   || targetType == typeof(object)
+                   || _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()) != null
+                   || _typeMappingSource.FindMapping(targetType) != null
+                   || targetType.GetTypeInfo().IsArray
                 ? null
                 : targetType;
         }

@@ -138,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal
             }
 
             return _restrictedBinaryExpressions.TryGetValue(visitedExpression.NodeType, out var restrictedTypes)
-                && visitedExpression is BinaryExpression visitedBinaryExpression
-                && (restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Left))
-                    || restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Right)))
+                   && visitedExpression is BinaryExpression visitedBinaryExpression
+                   && (restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Left))
+                       || restrictedTypes.Contains(GetProviderType(visitedBinaryExpression.Right)))
                 ? null
                 : visitedExpression;
         }

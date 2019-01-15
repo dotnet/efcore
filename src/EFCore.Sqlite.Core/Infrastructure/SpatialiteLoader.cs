@@ -147,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             assetFullPath = candidateFullPath;
                         }
                     }
+
                     Debug.Assert(assetFullPath != null);
 
                     var assetDirectory = Path.GetDirectoryName(assetFullPath);

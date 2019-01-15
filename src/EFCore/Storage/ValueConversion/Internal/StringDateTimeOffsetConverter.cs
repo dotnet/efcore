@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected new static Expression<Func<DateTimeOffset, string>> ToString()
+        protected static new Expression<Func<DateTimeOffset, string>> ToString()
             => v => v.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz");
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => _stringConcatMethodInfo.Equals(methodCallExpression.Method)
-            ? Expression.Add(methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], _stringConcatMethodInfo)
-            : null;
+                ? Expression.Add(methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], _stringConcatMethodInfo)
+                : null;
     }
 }

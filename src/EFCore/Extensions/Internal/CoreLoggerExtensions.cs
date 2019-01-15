@@ -1359,11 +1359,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         definition,
                         NonDefiningInverseNavigationWarning,
                         new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
-                            new Tuple<MemberInfo, Type>(definingNavigation, targetType.ClrType)
-                        }));
+                        new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType), new Tuple<MemberInfo, Type>(definingNavigation, targetType.ClrType) }));
             }
         }
 
@@ -1417,11 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         definition,
                         NonOwnershipInverseNavigationWarning,
                         new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
-                            new Tuple<MemberInfo, Type>(ownershipNavigation, targetType.ClrType)
-                        }));
+                        new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType), new Tuple<MemberInfo, Type>(ownershipNavigation, targetType.ClrType) }));
             }
         }
 
@@ -1474,16 +1466,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
                         ForeignKeyAttributesOnBothPropertiesWarning,
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(firstNavigation.GetIdentifyingMemberInfo(), firstNavigation.DeclaringEntityType.ClrType),
-                            new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
-                        },
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(secondNavigation.GetIdentifyingMemberInfo(), secondNavigation.DeclaringEntityType.ClrType),
-                            new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
-                        }));
+                        new[] { new Tuple<MemberInfo, Type>(firstNavigation.GetIdentifyingMemberInfo(), firstNavigation.DeclaringEntityType.ClrType), new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType) },
+                        new[] { new Tuple<MemberInfo, Type>(secondNavigation.GetIdentifyingMemberInfo(), secondNavigation.DeclaringEntityType.ClrType), new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType) }));
             }
         }
 

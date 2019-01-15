@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var existingConfigurationSource = annotation.GetConfigurationSource();
             return !configurationSource.Overrides(existingConfigurationSource)
-                || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource)
+                   || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource)
                 ? false
                 : true;
         }

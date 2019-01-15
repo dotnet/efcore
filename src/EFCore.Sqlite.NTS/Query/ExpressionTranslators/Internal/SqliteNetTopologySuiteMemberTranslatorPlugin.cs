@@ -17,15 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<IMemberTranslator> Translators { get; }
-            = new IMemberTranslator[]
-            {
-                new SqliteCurveMemberTranslator(),
-                new SqliteGeometryMemberTranslator(),
-                new SqliteGeometryCollectionMemberTranslator(),
-                new SqliteLineStringMemberTranslator(),
-                new SqliteMultiCurveMemberTranslator(),
-                new SqlitePointMemberTranslator(),
-                new SqlitePolygonMemberTranslator()
-            };
+            = new IMemberTranslator[] { new SqliteCurveMemberTranslator(), new SqliteGeometryMemberTranslator(), new SqliteGeometryCollectionMemberTranslator(), new SqliteLineStringMemberTranslator(), new SqliteMultiCurveMemberTranslator(), new SqlitePointMemberTranslator(), new SqlitePolygonMemberTranslator() };
     }
 }

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <param name="plugins"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalCompositeMemberTranslatorDependencies With(
-                [NotNull] IEnumerable<IMemberTranslatorPlugin> plugins)
+            [NotNull] IEnumerable<IMemberTranslatorPlugin> plugins)
             => new RelationalCompositeMemberTranslatorDependencies(plugins);
     }
 }

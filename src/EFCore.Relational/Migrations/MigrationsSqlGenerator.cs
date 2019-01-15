@@ -1582,8 +1582,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName
-        // Any property that maps to the column will work because model validator has
-        // checked that all properties result in the same column definition.
+            // Any property that maps to the column will work because model validator has
+            // checked that all properties result in the same column definition.
         )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
                 .FirstOrDefault(p => p.Relational().ColumnName == columnName);

@@ -50,11 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
                     QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
                     entityType.Cosmos().ContainerName,
                     new SelectExpression(entityType, _querySource)),
-                new EntityShaper(entityType,
+                new EntityShaper(
+                    entityType,
                     trackingQuery: QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                        && !entityType.IsQueryType,
+                                   && !entityType.IsQueryType,
                     useQueryBuffer: QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
-                        && !entityType.IsQueryType,
+                                    && !entityType.IsQueryType,
                     _entityMaterializerSource));
         }
     }

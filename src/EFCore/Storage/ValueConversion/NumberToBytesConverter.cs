@@ -163,16 +163,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 BindingFlags.Static | BindingFlags.NonPublic);
 
         private static byte[] ReverseLong(byte[] bytes)
-            => new[]
-                { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
+            => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseInt(byte[] bytes)
-            => new[]
-                { bytes[3], bytes[2], bytes[1], bytes[0] };
+            => new[] { bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseShort(byte[] bytes)
-            => new[]
-                { bytes[1], bytes[0] };
+            => new[] { bytes[1], bytes[0] };
 
         private static int GetByteCount()
         {

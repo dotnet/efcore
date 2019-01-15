@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             Func<string, string> schemaFilter)
         {
             return schemaFilter != null
-                || tables.Count > 0
+                   || tables.Count > 0
                 ? ((s, t) =>
                 {
                     var tableFilterBuilder = new StringBuilder();

@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     {
         private readonly Dictionary<IEntityType, DocumentSource> _documentCollections
             = new Dictionary<IEntityType, DocumentSource>();
+
         private readonly CosmosClientWrapper _cosmosClient;
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -65,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
                     }
+
                     continue;
                 }
 
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 }
             }
 
-            foreach(var rootEntry in rootEntriesToSave)
+            foreach (var rootEntry in rootEntriesToSave)
             {
                 if (!entriesSaved.Contains(rootEntry)
                     && Save(rootEntry))
@@ -110,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
                     }
+
                     continue;
                 }
 

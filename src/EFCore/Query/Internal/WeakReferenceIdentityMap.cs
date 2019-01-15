@@ -142,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : new NullIncludeComparer()
                 : new PrincipalToDependentIncludeComparer<TKey>(
-                (TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer),
-                navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
-                PrincipalKeyValueFactory);
+                    (TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer),
+                    navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
+                    PrincipalKeyValueFactory);
         }
 
         /// <summary>
@@ -158,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ? new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : (IIncludeKeyComparer)new NullIncludeComparer()
                 : new PrincipalToDependentIncludeComparer<TKey>(
-                PrincipalKeyValueFactory.CreateFromCurrentValues(entry),
-                navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
-                PrincipalKeyValueFactory);
+                    PrincipalKeyValueFactory.CreateFromCurrentValues(entry),
+                    navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
+                    PrincipalKeyValueFactory);
         }
     }
 }

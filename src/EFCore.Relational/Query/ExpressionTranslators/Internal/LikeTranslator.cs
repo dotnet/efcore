@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             return Equals(methodCallExpression.Method, _methodInfo)
                 ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2])
                 : Equals(methodCallExpression.Method, _methodInfoWithEscape)
-                ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], methodCallExpression.Arguments[3])
-                : null;
+                    ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], methodCallExpression.Arguments[3])
+                    : null;
         }
     }
 }

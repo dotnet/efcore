@@ -74,17 +74,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
 
                 return newExpression;
             }
+
             if (Equals(method, _getGeometryN))
             {
                 return new SqlFunctionExpression(
                     "GeometryN",
                     methodCallExpression.Type,
-                    new[]
-                    {
-                        methodCallExpression.Object,
-                        Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1))
-                    });
+                    new[] { methodCallExpression.Object, Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) });
             }
+
             if (Equals(method, _isWithinDistance))
             {
                 return Expression.LessThanOrEqual(

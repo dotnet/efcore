@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         && entityType.QueryFilter != null)
                     {
                         var parameterizedFilter
-                                = (LambdaExpression)_parameterExtractingExpressionVisitor
-                                    .ExtractParameters(entityType.QueryFilter);
+                            = (LambdaExpression)_parameterExtractingExpressionVisitor
+                                .ExtractParameters(entityType.QueryFilter);
 
                         var oldParameterExpression = parameterizedFilter.Parameters[0];
                         var newParameterExpression = Expression.Parameter(type, oldParameterExpression.Name);

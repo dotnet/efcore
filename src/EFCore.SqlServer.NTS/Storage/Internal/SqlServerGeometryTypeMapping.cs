@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         [UsedImplicitly]
         public SqlServerGeometryTypeMapping(IGeometryServices geometryServices, string storeType)
             : base(
-                  new GeometryValueConverter<TGeometry>(
-                      CreateReader(geometryServices, IsGeography(storeType)),
-                      CreateWriter(IsGeography(storeType))),
-                  storeType)
+                new GeometryValueConverter<TGeometry>(
+                    CreateReader(geometryServices, IsGeography(storeType)),
+                    CreateWriter(IsGeography(storeType))),
+                storeType)
             => _isGeography = IsGeography(storeType);
 
         /// <summary>
@@ -132,10 +132,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static SqlServerBytesReader CreateReader(IGeometryServices services, bool isGeography)
-            => new SqlServerBytesReader(services) { IsGeography = isGeography };
+            => new SqlServerBytesReader(services)
+            {
+                IsGeography = isGeography
+            };
 
         private static SqlServerBytesWriter CreateWriter(bool isGeography)
-            => new SqlServerBytesWriter { IsGeography = isGeography };
+            => new SqlServerBytesWriter
+            {
+                IsGeography = isGeography
+            };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);

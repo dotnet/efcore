@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private ValueComparer _comparer;
         private ValueComparer _keyComparer;
-        private ValueComparer _structuralComparer;
+        private readonly ValueComparer _structuralComparer;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.

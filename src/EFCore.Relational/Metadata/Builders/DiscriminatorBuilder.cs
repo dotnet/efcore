@@ -67,10 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var entityTypeBuilder =
                 EntityTypeBuilder.Metadata.IsQueryType
-                ? EntityTypeBuilder.ModelBuilder.Query(
-                    entityType, AnnotationsBuilder.ConfigurationSource)
-                : EntityTypeBuilder.ModelBuilder.Entity(
-                    entityType, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+                    ? EntityTypeBuilder.ModelBuilder.Query(
+                        entityType, AnnotationsBuilder.ConfigurationSource)
+                    : EntityTypeBuilder.ModelBuilder.Entity(
+                        entityType, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
 
             return HasValue(entityTypeBuilder, value);
         }
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var entityTypeBuilder =
                 EntityTypeBuilder.Metadata.IsQueryType
-                ? EntityTypeBuilder.ModelBuilder.Query(
-                    entityTypeName, AnnotationsBuilder.ConfigurationSource)
-                : EntityTypeBuilder.ModelBuilder.Entity(
-                    entityTypeName, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+                    ? EntityTypeBuilder.ModelBuilder.Query(
+                        entityTypeName, AnnotationsBuilder.ConfigurationSource)
+                    : EntityTypeBuilder.ModelBuilder.Entity(
+                        entityTypeName, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
 
             return HasValue(entityTypeBuilder, value);
         }

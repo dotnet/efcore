@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     ///         or backing field will be used when reading and writing to a property or field.
     ///     </para>
     ///     <para>
-    ///         The default behavior is <see cref="PreferField"/>. Prior to EF Core 3.0,
-    ///         the default behavior was <see cref="PreferFieldDuringConstruction"/>.
+    ///         The default behavior is <see cref="PreferField" />. Prior to EF Core 3.0,
+    ///         the default behavior was <see cref="PreferFieldDuringConstruction" />.
     ///     </para>
     /// </summary>
     public enum PropertyAccessMode

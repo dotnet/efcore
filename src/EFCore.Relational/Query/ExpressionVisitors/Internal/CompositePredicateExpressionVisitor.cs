@@ -68,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
                 return binaryExpression.NodeType == ExpressionType.Equal
-                    && binaryExpression.Left.RemoveConvert() is ConditionalExpression conditionalExpression
-                    && conditionalExpression.Test is DiscriminatorPredicateExpression discriminatorPredicateExpression
-                    && conditionalExpression.IfFalse.IsNullConstantExpression()
+                       && binaryExpression.Left.RemoveConvert() is ConditionalExpression conditionalExpression
+                       && conditionalExpression.Test is DiscriminatorPredicateExpression discriminatorPredicateExpression
+                       && conditionalExpression.IfFalse.IsNullConstantExpression()
                     ? Expression.AndAlso(
                         discriminatorPredicateExpression.Reduce(),
                         Expression.Equal(

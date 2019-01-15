@@ -39,9 +39,9 @@ namespace System
             type = type.UnwrapNullableType();
 
             return type.IsInteger()
-                || type == typeof(decimal)
-                || type == typeof(float)
-                || type == typeof(double);
+                   || type == typeof(decimal)
+                   || type == typeof(float)
+                   || type == typeof(double);
         }
 
         public static bool IsInteger(this Type type)
@@ -61,9 +61,9 @@ namespace System
 
         public static bool IsSignedInteger(this Type type)
             => type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(sbyte);
+               || type == typeof(long)
+               || type == typeof(short)
+               || type == typeof(sbyte);
 
         public static bool IsAnonymousType(this Type type)
             => type.Name.StartsWith("<>")

@@ -34,14 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                 timestring = strftimeFunction.Arguments[1];
 
                 // Prepend its modifier arguments (if any) to the current call
-                modifiers = Enumerable.Concat(strftimeFunction.Arguments.Skip(2), modifiers);
+                modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
             }
 
             return new SqlFunctionExpression(
                 "strftime",
                 returnType,
-                Enumerable.Concat(
-                    new[] { Expression.Constant(format), timestring },
+                new[] { Expression.Constant(format), timestring }.Concat(
                     modifiers));
         }
     }

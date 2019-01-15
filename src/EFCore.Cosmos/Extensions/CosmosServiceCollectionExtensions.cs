@@ -41,7 +41,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
-
                 );
 
             builder.TryAddCoreServices();

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
@@ -47,16 +46,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             var discriminatorProperty = entityType.Cosmos().DiscriminatorProperty;
 
             var discriminatorPredicate = Equal(
-                           new KeyAccessExpression(discriminatorProperty, FromExpression),
-                           Constant(concreteEntityTypes[0].Cosmos().DiscriminatorValue, discriminatorProperty.ClrType));
+                new KeyAccessExpression(discriminatorProperty, FromExpression),
+                Constant(concreteEntityTypes[0].Cosmos().DiscriminatorValue, discriminatorProperty.ClrType));
 
             if (concreteEntityTypes.Count > 1)
             {
                 discriminatorPredicate
                     = concreteEntityTypes
                         .Skip(1)
-                        .Select(concreteEntityType
-                            => Constant(concreteEntityType.Cosmos().DiscriminatorValue, discriminatorProperty.ClrType))
+                        .Select(
+                            concreteEntityType
+                                => Constant(concreteEntityType.Cosmos().DiscriminatorValue, discriminatorProperty.ClrType))
                         .Aggregate(
                             discriminatorPredicate, (current, discriminatorValue) =>
                                 OrElse(

@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         blockExpressions.Add(
                             collection
-                                ? (Expression)Expression.Call(
+                                ? Expression.Call(
                                     Expression.Constant(inverseNavigation.GetCollectionAccessor()),
                                     _collectionAccessorAddMethodInfo,
                                     relatedArrayAccessExpression,

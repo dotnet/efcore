@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An <see cref="OptimisticConcurrencyException"/> was thrown during the call to
+        ///         An <see cref="OptimisticConcurrencyException" /> was thrown during the call to
         ///         <see cref="DbContext.SaveChanges()" />
         ///     </para>
         ///     <para>

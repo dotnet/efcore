@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public class CosmosQueryModelVisitor : EntityQueryModelVisitor
     {
-        public CosmosQueryModelVisitor(EntityQueryModelVisitorDependencies dependencies,
+        public CosmosQueryModelVisitor(
+            EntityQueryModelVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
@@ -55,15 +56,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         Expression = new QueryShaperExpression(
                             QueryCompilationContext.IsAsyncQuery,
-                            Expression.Call(LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
-                            queryShaperExpression.QueryExpression,
-                            Expression.Lambda(predicate, CurrentParameter)),
+                            Expression.Call(
+                                LinqOperatorProvider.Where.MakeGenericMethod(CurrentParameter.Type),
+                                queryShaperExpression.QueryExpression,
+                                Expression.Lambda(predicate, CurrentParameter)),
                             queryShaperExpression.Shaper);
 
                         if (CurrentParameter.Type == typeof(JObject))
                         {
                             UpdateCurrentParameter(fromClause, previousParameterType);
                         }
+
                         return;
                     }
 

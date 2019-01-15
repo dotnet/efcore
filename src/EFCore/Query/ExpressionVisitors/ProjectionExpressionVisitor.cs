@@ -89,20 +89,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         // We call .Result here so that the types still line up (we remove the .Result in TaskLiftingExpressionVisitor).
 
                         return toQueryableMethodCallExpression.Arguments[0].Type.IsGenericType
-                            && toQueryableMethodCallExpression.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
-                                ? (Expression)Expression.Property(
-                                    ResultOperatorHandler.CallWithPossibleCancellationToken(
-                                        _materializeCollectionNavigationAsyncMethodInfo
-                                            .MakeGenericMethod(
-                                                materializeCollectionNavigationMethodCallExpression.Method
-                                                    .GetGenericArguments()[0]),
-                                        materializeCollectionNavigationMethodCallExpression.Arguments[0],
-                                        toQueryableMethodCallExpression.Arguments[0]),
-                                    nameof(Task<object>.Result))
-                                : Expression.Call(
-                                    materializeCollectionNavigationMethodCallExpression.Method,
+                               && toQueryableMethodCallExpression.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
+                            ? (Expression)Expression.Property(
+                                ResultOperatorHandler.CallWithPossibleCancellationToken(
+                                    _materializeCollectionNavigationAsyncMethodInfo
+                                        .MakeGenericMethod(
+                                            materializeCollectionNavigationMethodCallExpression.Method
+                                                .GetGenericArguments()[0]),
                                     materializeCollectionNavigationMethodCallExpression.Arguments[0],
-                                    toQueryableMethodCallExpression.Arguments[0]);
+                                    toQueryableMethodCallExpression.Arguments[0]),
+                                nameof(Task<object>.Result))
+                            : Expression.Call(
+                                materializeCollectionNavigationMethodCallExpression.Method,
+                                materializeCollectionNavigationMethodCallExpression.Arguments[0],
+                                toQueryableMethodCallExpression.Arguments[0]);
                     }
                     case MethodCallExpression newMethodCallExpression
                         when newMethodCallExpression.Method.Equals(methodCallExpression.Method)
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return subExpression;
         }
 
-        /// <summary>Visits the children of the <see cref="UnaryExpression"/>.</summary>
+        /// <summary>Visits the children of the <see cref="UnaryExpression" />.</summary>
         /// <param name="unaryExpression">The expression to visit.</param>
         /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)

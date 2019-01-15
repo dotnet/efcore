@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         new[] { Expression.Constant(1) },
                         _typeMappingSource.FindMapping(typeof(ILineString), storeType));
                 }
-                else if (Equals(_numInteriorRings, member))
+
+                if (Equals(_numInteriorRings, member))
                 {
                     return Expression.Subtract(
                         new SqlFunctionExpression(

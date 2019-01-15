@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class EntityQueryable<TResult>
         : IOrderedQueryable<TResult>,
-          IAsyncEnumerable<TResult>,
-          IDetachableContext,
-          IListSource
+            IAsyncEnumerable<TResult>,
+            IDetachableContext,
+            IListSource
     {
         private static readonly EntityQueryable<TResult> _detached
             = new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance);

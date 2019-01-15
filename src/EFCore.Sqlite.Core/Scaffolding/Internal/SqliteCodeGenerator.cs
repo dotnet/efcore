@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             => new MethodCallCodeFragment(
                 nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite),
                 providerOptions == null
-                ? new object[] { connectionString }
-                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+                    ? new object[] { connectionString }
+                    : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
     }
 }

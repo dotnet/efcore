@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
@@ -103,11 +102,11 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        ///     Gets or sets the default <see cref="SqliteCommand.CommandTimeout"/> value for commands created using
+        ///     Gets or sets the default <see cref="SqliteCommand.CommandTimeout" /> value for commands created using
         ///     this connection. This is also used for internal commands in methods like
-        ///     <see cref="BeginTransaction()"/>.
+        ///     <see cref="BeginTransaction()" />.
         /// </summary>
-        /// <value>The default <see cref="SqliteCommand.CommandTimeout"/> value.</value>
+        /// <value>The default <see cref="SqliteCommand.CommandTimeout" /> value.</value>
         public virtual int DefaultTimeout { get; set; } = 30;
 
         /// <summary>
@@ -148,6 +147,7 @@ namespace Microsoft.Data.Sqlite
             {
                 return;
             }
+
             if (ConnectionString == null)
             {
                 throw new InvalidOperationException(Resources.OpenRequiresSetConnectionString);
@@ -178,6 +178,7 @@ namespace Microsoft.Data.Sqlite
                         flags |= raw.SQLITE_OPEN_URI;
                         filename = "file:" + filename;
                     }
+
                     break;
 
                 default:
@@ -218,7 +219,6 @@ namespace Microsoft.Data.Sqlite
                 {
                     filename = Path.Combine(dataDirectory, filename);
                 }
-
             }
 
             var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
@@ -325,7 +325,12 @@ namespace Microsoft.Data.Sqlite
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
-            => new SqliteCommand { Connection = this, CommandTimeout = DefaultTimeout, Transaction = Transaction };
+            => new SqliteCommand
+            {
+                Connection = this,
+                CommandTimeout = DefaultTimeout,
+                Transaction = Transaction
+            };
 
         /// <summary>
         ///     Creates a new command associated with the connection.
@@ -407,6 +412,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)));
             }
+
             if (Transaction != null)
             {
                 throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported);
@@ -460,6 +466,7 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BackupDatabase)));
             }
+
             if (destination == null)
             {
                 throw new ArgumentNullException(nameof(destination));
@@ -471,6 +478,7 @@ namespace Microsoft.Data.Sqlite
                 destination.Open();
                 close = true;
             }
+
             try
             {
                 using (var backup = raw.sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
@@ -516,28 +524,28 @@ namespace Microsoft.Data.Sqlite
             if (function != null)
             {
                 func = (ctx, user_data, args) =>
+                {
+                    // TODO: Avoid allocation when niladic
+                    var values = new SqliteParameterReader(name, args);
+
+                    try
                     {
-                        // TODO: Avoid allocation when niladic
-                        var values = new SqliteParameterReader(name, args);
+                        // TODO: Avoid closure by passing function via user_data
+                        var result = function((TState)user_data, values);
 
-                        try
+                        new SqliteResultBinder(ctx, result).Bind();
+                    }
+                    catch (Exception ex)
+                    {
+                        raw.sqlite3_result_error(ctx, ex.Message);
+
+                        if (ex is SqliteException sqlEx)
                         {
-                            // TODO: Avoid closure by passing function via user_data
-                            var result = function((TState)user_data, values);
-
-                            new SqliteResultBinder(ctx, result).Bind();
+                            // NB: This must be called after sqlite3_result_error()
+                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
                         }
-                        catch (Exception ex)
-                        {
-                            raw.sqlite3_result_error(ctx, ex.Message);
-
-                            if (ex is SqliteException sqlEx)
-                            {
-                                // NB: This must be called after sqlite3_result_error()
-                                raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
-                            }
-                        }
-                    };
+                    }
+                };
             }
 
             var rc = raw.sqlite3_create_function(
@@ -572,62 +580,62 @@ namespace Microsoft.Data.Sqlite
             if (func != null)
             {
                 func_step = (ctx, user_data, args) =>
+                {
+                    var context = (AggregateContext<TAccumulate>)user_data;
+                    if (context.Exception != null)
                     {
-                        var context = (AggregateContext<TAccumulate>)user_data;
-                        if (context.Exception != null)
-                        {
-                            return;
-                        }
+                        return;
+                    }
 
-                        // TODO: Avoid allocation when niladic
-                        var reader = new SqliteParameterReader(name, args);
+                    // TODO: Avoid allocation when niladic
+                    var reader = new SqliteParameterReader(name, args);
 
-                        try
-                        {
-                            // TODO: Avoid closure by passing func via user_data
-                            // NB: No need to set ctx.state since we just mutate the instance
-                            context.Accumulate = func(context.Accumulate, reader);
-                        }
-                        catch (Exception ex)
-                        {
-                            context.Exception = ex;
-                        }
-                    };
+                    try
+                    {
+                        // TODO: Avoid closure by passing func via user_data
+                        // NB: No need to set ctx.state since we just mutate the instance
+                        context.Accumulate = func(context.Accumulate, reader);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Exception = ex;
+                    }
+                };
             }
 
             delegate_function_aggregate_final func_final = null;
             if (resultSelector != null)
             {
                 func_final = (ctx, user_data) =>
+                {
+                    var context = (AggregateContext<TAccumulate>)user_data;
+
+                    if (context.Exception == null)
                     {
-                        var context = (AggregateContext<TAccumulate>)user_data;
-
-                        if (context.Exception == null)
+                        try
                         {
-                            try
-                            {
-                                // TODO: Avoid closure by passing resultSelector via user_data
-                                var result = resultSelector(context.Accumulate);
+                            // TODO: Avoid closure by passing resultSelector via user_data
+                            var result = resultSelector(context.Accumulate);
 
-                                new SqliteResultBinder(ctx, result).Bind();
-                            }
-                            catch (Exception ex)
-                            {
-                                context.Exception = ex;
-                            }
+                            new SqliteResultBinder(ctx, result).Bind();
                         }
-
-                        if (context.Exception != null)
+                        catch (Exception ex)
                         {
-                            raw.sqlite3_result_error(ctx, context.Exception.Message);
-
-                            if (context.Exception is SqliteException sqlEx)
-                            {
-                                // NB: This must be called after sqlite3_result_error()
-                                raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
-                            }
+                            context.Exception = ex;
                         }
-                    };
+                    }
+
+                    if (context.Exception != null)
+                    {
+                        raw.sqlite3_result_error(ctx, context.Exception.Message);
+
+                        if (context.Exception is SqliteException sqlEx)
+                        {
+                            // NB: This must be called after sqlite3_result_error()
+                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                        }
+                    }
+                };
             }
 
             var rc = raw.sqlite3_create_function(

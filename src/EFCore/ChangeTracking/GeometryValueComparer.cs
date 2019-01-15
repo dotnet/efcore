@@ -13,13 +13,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="GeometryValueComparer{TGeometry}"/> class.
+        ///     Initializes a new instance of the <see cref="GeometryValueComparer{TGeometry}" /> class.
         /// </summary>
         public GeometryValueComparer()
             : base(
-                  GetEqualsExpression(),
-                  CreateDefaultHashCodeExpression(favorStructuralComparisons: false),
-                  GetSnapshotExpression())
+                GetEqualsExpression(),
+                CreateDefaultHashCodeExpression(favorStructuralComparisons: false),
+                GetSnapshotExpression())
         {
         }
 

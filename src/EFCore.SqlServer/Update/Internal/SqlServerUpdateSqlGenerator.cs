@@ -354,9 +354,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             return property.ClrType == typeof(byte[])
-                && typeName != null
-                && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                   && typeName != null
+                   && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                       || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 ? property.IsNullable ? "varbinary(8)" : "binary(8)"
                 : typeName;
         }

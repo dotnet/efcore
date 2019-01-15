@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -175,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     errorMessage = hasGetter
-                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode))
-                        : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                        : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                     return false;
                 }
@@ -255,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     errorMessage = hasGetter
                         ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
-                        : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+                        : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                     return false;
                 }
@@ -324,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 errorMessage = hasSetter
                     ? CoreStrings.NoGetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
-                    : CoreStrings.NoProperty(fieldInfo?.Name,propertyBase.DeclaringType.DisplayName(),nameof(PropertyAccessMode));
+                    : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
                 return false;
             }

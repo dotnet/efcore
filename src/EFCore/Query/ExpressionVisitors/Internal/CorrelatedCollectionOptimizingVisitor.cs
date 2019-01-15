@@ -245,9 +245,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 foreach (var existingClonedOrdering in exisitingClonedOrderByClause.Orderings)
                 {
                     var matchingIndex = subQueryProjection
-                        .Select((o, i) => new { o, i })
-                        .Where(e => ExpressionEqualityComparer.Instance.Equals(e.o, existingClonedOrdering.Expression)
-                             || AreEquivalentPropertyExpressions(e.o, existingClonedOrdering.Expression)).Select(e => (int?)e.i).FirstOrDefault();
+                        .Select(
+                            (o, i) => new
+                            {
+                                o,
+                                i
+                            })
+                        .Where(
+                            e => ExpressionEqualityComparer.Instance.Equals(e.o, existingClonedOrdering.Expression)
+                                 || AreEquivalentPropertyExpressions(e.o, existingClonedOrdering.Expression)).Select(e => (int?)e.i).FirstOrDefault();
 
                     if (matchingIndex == null)
                     {
@@ -578,12 +584,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 propertyName2 = memberExpression2.Member.Name;
             }
 
-            return qsre1!= null
-                && qsre2 != null
-                && propertyName1 != null
-                && propertyName2 != null
-                && qsre1.ReferencedQuerySource == qsre2.ReferencedQuerySource
-                && propertyName1 == propertyName2;
+            return qsre1 != null
+                   && qsre2 != null
+                   && propertyName1 != null
+                   && propertyName2 != null
+                   && qsre1.ReferencedQuerySource == qsre2.ReferencedQuerySource
+                   && propertyName1 == propertyName2;
         }
 
         private static bool ProcessResultOperators(QueryModel queryModel)

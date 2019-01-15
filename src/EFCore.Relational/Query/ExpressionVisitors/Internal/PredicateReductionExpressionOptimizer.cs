@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 return newRight is ConstantExpression rightConstant
-                    && (bool?)rightConstant.Value == true
+                       && (bool?)rightConstant.Value == true
                     ? newLeft.Type == typeof(bool) ? newLeft : Expression.Convert(newLeft, typeof(bool))
                     : node.Update(newLeft, node.Conversion, newRight);
             }

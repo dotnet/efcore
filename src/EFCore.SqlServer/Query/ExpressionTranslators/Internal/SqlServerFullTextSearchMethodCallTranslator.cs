@@ -56,11 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 return new SqlFunctionExpression(
                     FreeTextFunctionName,
                     typeof(bool),
-                    new[]
-                    {
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2]
-                    });
+                    new[] { methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] });
             }
 
             if (Equals(methodCallExpression.Method, _freeTextMethodInfoWithLanguage))
@@ -72,9 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     typeof(bool),
                     new[]
                     {
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2],
-                        new SqlFragmentExpression(
+                        methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], new SqlFragmentExpression(
                             $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
                     });
             }
@@ -86,11 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 return new SqlFunctionExpression(
                     ContainsFunctionName,
                     typeof(bool),
-                    new[]
-                    {
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2]
-                    });
+                    new[] { methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] });
             }
 
             if (Equals(methodCallExpression.Method, _containsMethodInfoWithLanguage))
@@ -102,9 +92,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                     typeof(bool),
                     new[]
                     {
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2],
-                        new SqlFragmentExpression(
+                        methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], new SqlFragmentExpression(
                             $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
                     });
             }

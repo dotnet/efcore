@@ -303,8 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
                     }
 
-                    foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership
-                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                    foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(
+                        fk => !fk.IsOwnership
+                              && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.PrincipalOwnedType(
@@ -319,8 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 entityType.DisplayName()));
                     }
 
-                    foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null
-                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                    foreach (var fk in entityType.GetDeclaredForeignKeys().Where(
+                        fk => !fk.IsOwnership && fk.PrincipalToDependent != null
+                                              && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InverseToOwnedType(
@@ -339,8 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
             => inheritedFk != null
-                && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
-                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
+               && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
+               && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -569,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             if (!property.IsNullable
                                 && ((!property.RequiresValueGenerator()
-                                        && (property.ValueGenerated & ValueGenerated.OnAdd) == 0)
+                                     && (property.ValueGenerated & ValueGenerated.OnAdd) == 0)
                                     || property.IsKey()))
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
@@ -583,6 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumSignedNumericValue(entityType.DisplayName(), property.Name));
                             }
+
                             throw new InvalidOperationException(CoreStrings.SeedDatumDefaultValue(entityType.DisplayName(), property.Name, property.ClrType.GetDefaultValue()));
                         }
                         else if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))

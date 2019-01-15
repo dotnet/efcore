@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -473,5 +472,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(FieldInfo)
                 .GetTypeInfo()
                 .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);    }
+                .Single(m => m.GetParameters().Length == 2);
+    }
 }

@@ -178,12 +178,13 @@ namespace Microsoft.Data.Sqlite
         {
             var blob = GetCachedBlob(ordinal);
 
-            long bytesToRead = (long)blob.Length - dataOffset;
+            long bytesToRead = blob.Length - dataOffset;
             if (buffer != null)
             {
-                bytesToRead = System.Math.Min(bytesToRead, length);
+                bytesToRead = Math.Min(bytesToRead, length);
                 Array.Copy(blob, dataOffset, buffer, bufferOffset, bytesToRead);
             }
+
             return bytesToRead;
         }
 
@@ -192,14 +193,15 @@ namespace Microsoft.Data.Sqlite
             var text = GetString(ordinal);
 
             int charsToRead = text.Length - (int)dataOffset;
-            charsToRead = System.Math.Min(charsToRead, length);
+            charsToRead = Math.Min(charsToRead, length);
             text.CopyTo((int)dataOffset, buffer, bufferOffset, charsToRead);
             return charsToRead;
         }
 
         public virtual Stream GetStream(int ordinal)
         {
-            if (ordinal < 0 || ordinal >= FieldCount)
+            if (ordinal < 0
+                || ordinal >= FieldCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
@@ -228,7 +230,9 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 var columnName = raw.sqlite3_column_origin_name(_stmt, i);
-                if ((columnName == "rowid") || (columnName == "_rowid_") || (columnName == "oid"))
+                if ((columnName == "rowid")
+                    || (columnName == "_rowid_")
+                    || (columnName == "oid"))
                 {
                     rowidOrdinal = i;
                     break;
@@ -245,7 +249,8 @@ namespace Microsoft.Data.Sqlite
                     out var primaryKey,
                     out var autoInc);
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
-                if ((dataType == "INTEGER") && (primaryKey != 0))
+                if ((dataType == "INTEGER")
+                    && (primaryKey != 0))
                 {
                     rowidOrdinal = i;
                     break;
@@ -273,7 +278,8 @@ namespace Microsoft.Data.Sqlite
 
         private byte[] GetCachedBlob(int ordinal)
         {
-            if (ordinal < 0 || ordinal >= FieldCount)
+            if (ordinal < 0
+                || ordinal >= FieldCount)
             {
                 // NB: Message is provided by the framework
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);

@@ -126,9 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return discriminatorType == null
                 ? RemoveDiscriminator()
                 : DiscriminatorProperty != null
-                   && DiscriminatorProperty.ClrType == discriminatorType
-                ? DiscriminatorBuilder(null, null)
-                : DiscriminatorBuilder(null, discriminatorType);
+                  && DiscriminatorProperty.ClrType == discriminatorType
+                    ? DiscriminatorBuilder(null, null)
+                    : DiscriminatorBuilder(null, discriminatorType);
         }
 
         /// <summary>
@@ -151,10 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return propertyInfo == null
                 ? RemoveDiscriminator()
                 : DiscriminatorProperty != null
-                   && DiscriminatorProperty.Name == propertyInfo.GetSimpleMemberName()
-                   && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
-                ? DiscriminatorBuilder(null, null)
-                : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);
+                  && DiscriminatorProperty.Name == propertyInfo.GetSimpleMemberName()
+                  && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
+                    ? DiscriminatorBuilder(null, null)
+                    : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);
         }
 
         private DiscriminatorBuilder RemoveDiscriminator()

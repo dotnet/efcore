@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var newOperand = Visit(node.Operand);
             return node.NodeType == ExpressionType.Convert
-                && newOperand?.Type == typeof(ValueBuffer)
+                   && newOperand?.Type == typeof(ValueBuffer)
                 ? newOperand
                 : node.Update(newOperand);
         }
@@ -335,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             querySource = querySource ?? newExpression.Arguments.FirstOrDefault();
 
             return newExpression != methodCallExpression
-                && querySource?.Type == typeof(ValueBuffer)
+                   && querySource?.Type == typeof(ValueBuffer)
                 ? _queryModelVisitor.BindMethodCallToValueBuffer(methodCallExpression, querySource) ?? newExpression
                 : _queryModelVisitor.BindMethodCallToEntity(methodCallExpression, newExpression) ?? newExpression;
         }

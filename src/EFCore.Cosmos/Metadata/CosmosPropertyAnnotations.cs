@@ -23,10 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
         public virtual string PropertyName
         {
             get => ((string)Annotations.Metadata[CosmosAnnotationNames.PropertyName])
-                    ?? Property.Name;
+                   ?? Property.Name;
 
-            [param: CanBeNull]
-            set => SetPropertyName(value);
+            [param: CanBeNull] set => SetPropertyName(value);
         }
 
         protected virtual bool SetPropertyName([CanBeNull] string value)

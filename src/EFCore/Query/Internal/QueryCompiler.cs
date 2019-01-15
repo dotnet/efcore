@@ -276,8 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             try
             {
                 return (Func<QueryContext, TResult>)CompileAsyncQueryMethod
-                   .MakeGenericMethod(resultItemType)
-                   .Invoke(database, new object[] { queryModel });
+                    .MakeGenericMethod(resultItemType)
+                    .Invoke(database, new object[] { queryModel });
             }
             catch (TargetInvocationException e)
             {

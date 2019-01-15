@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 (typeof(IStructuralComparable).IsAssignableFrom(type)
                                     ? _structuralCompareMethod
                                     : _compareMethod)
-                                    .MakeGenericMethod(t),
+                                .MakeGenericMethod(t),
                                 Expression.Convert(xParameter, t),
                                 Expression.Convert(yParameter, t)),
                             xParameter,

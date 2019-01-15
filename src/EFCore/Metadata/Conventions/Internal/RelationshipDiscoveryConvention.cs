@@ -230,8 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                candidates.Add(new RelationshipCandidate(
-                    actualTargetEntityTypeBuilder, relationshipCandidate.NavigationProperties, relationshipCandidate.InverseProperties));
+                candidates.Add(
+                    new RelationshipCandidate(
+                        actualTargetEntityTypeBuilder, relationshipCandidate.NavigationProperties, relationshipCandidate.InverseProperties));
             }
 
             return candidates;
@@ -246,7 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Type targetClrType,
             MemberInfo navigationInfo,
             ConfigurationSource? configurationSource)
-            => GetTargetEntityTypeBuilder(entityTypeBuilder, targetClrType, navigationInfo,
+            => GetTargetEntityTypeBuilder(
+                entityTypeBuilder, targetClrType, navigationInfo,
                 entityTypeBuilder.Metadata.FindOwnership(), configurationSource);
 
         private static InternalEntityTypeBuilder GetTargetEntityTypeBuilder(
@@ -564,8 +566,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (inverseCandidate != null)
             {
                 var relationshipsToDerivedTypes = relationshipCandidatesHierarchy
-                    .Where(r => r.TargetTypeBuilder != relationshipCandidate.TargetTypeBuilder
-                                && relationshipCandidate.TargetTypeBuilder.Metadata.IsAssignableFrom(r.TargetTypeBuilder.Metadata));
+                    .Where(
+                        r => r.TargetTypeBuilder != relationshipCandidate.TargetTypeBuilder
+                             && relationshipCandidate.TargetTypeBuilder.Metadata.IsAssignableFrom(r.TargetTypeBuilder.Metadata));
                 foreach (var relationshipToDerivedType in relationshipsToDerivedTypes)
                 {
                     relationshipToDerivedType.InverseProperties.RemoveAll(i => i.GetSimpleMemberName() == inverseCandidate.GetSimpleMemberName());
@@ -647,8 +650,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var existingNavigation = entityType.FindNavigation(relationshipCandidate.NavigationProperties.Single().GetSimpleMemberName());
                     if (existingNavigation != null
-                         && existingNavigation.ForeignKey.DeclaringEntityType == targetEntityType
-                         && existingNavigation.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
+                        && existingNavigation.ForeignKey.DeclaringEntityType == targetEntityType
+                        && existingNavigation.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
                     {
                         ambiguousOwnership = false;
                     }

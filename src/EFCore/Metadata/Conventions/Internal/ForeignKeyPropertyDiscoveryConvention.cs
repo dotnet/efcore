@@ -240,13 +240,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationshipBuilder = foreignKey.Builder;
             using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                var temporaryProperties = foreignKey.Properties.Where(p =>
-                    p.IsShadowProperty
-                    && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+                var temporaryProperties = foreignKey.Properties.Where(
+                    p =>
+                        p.IsShadowProperty
+                        && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
                 var keysToDetach = temporaryProperties.SelectMany(
-                    p => p.GetContainingKeys()
-                        .Where(k => ConfigurationSource.Convention.Overrides(k.GetConfigurationSource())))
+                        p => p.GetContainingKeys()
+                            .Where(k => ConfigurationSource.Convention.Overrides(k.GetConfigurationSource())))
                     .Distinct().ToList();
 
                 List<RelationshipSnapshot> detachedRelationships = null;
@@ -336,12 +337,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
             return (dependentPkProperties != null)
-                && ForeignKey.AreCompatible(
-                    propertiesToReference,
-                    dependentPkProperties,
-                    principalEntityType,
-                    dependentEntityType,
-                    false)
+                   && ForeignKey.AreCompatible(
+                       propertiesToReference,
+                       dependentPkProperties,
+                       principalEntityType,
+                       dependentEntityType,
+                       false)
                 ? dependentPkProperties
                 : null;
         }
@@ -433,13 +434,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         isKeyContainedInForeignKey = false;
                         break;
                     }
-                    else
+
+                    if (!foreignKey.IsUnique)
                     {
-                        if (!foreignKey.IsUnique)
-                        {
-                            // Stop searching if match found, but is incompatible
-                            return true;
-                        }
+                        // Stop searching if match found, but is incompatible
+                        return true;
                     }
                 }
 

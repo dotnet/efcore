@@ -250,12 +250,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 ? new SqlFunctionExpression(
                     functionName: "DATEDIFF",
                     returnType: methodCallExpression.Type,
-                    arguments: new[]
-                    {
-                        new SqlFragmentExpression(datePart),
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2]
-                    })
+                    arguments: new[] { new SqlFragmentExpression(datePart), methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] })
                 : null;
         }
     }

@@ -199,17 +199,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             return entityType.Model.ShouldBeOwnedType(entityType.ClrType)
-                && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata)
+                   && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata)
                 ? targetEntityTypeBuilder.Owns(
                     entityTypeBuilder.Metadata.ClrType,
                     inverseNavigationPropertyInfo,
                     navigationMemberInfo,
                     ConfigurationSource.Convention)
                 : targetEntityTypeBuilder.Relationship(
-                entityTypeBuilder,
-                inverseNavigationPropertyInfo,
-                navigationMemberInfo,
-                ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder,
+                    inverseNavigationPropertyInfo,
+                    navigationMemberInfo,
+                    ConfigurationSource.DataAnnotation);
         }
 
         /// <summary>
@@ -339,11 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (ambiguousInverse != null)
                         {
                             _logger.MultipleInversePropertiesSameTargetWarning(
-                                new[]
-                                {
-                                    Tuple.Create(referencingNavigationWithAttribute.Item1, referencingNavigationWithAttribute.Item2.ClrType),
-                                    Tuple.Create(ambiguousInverse.Value.Item1, ambiguousInverse.Value.Item2.ClrType)
-                                },
+                                new[] { Tuple.Create(referencingNavigationWithAttribute.Item1, referencingNavigationWithAttribute.Item2.ClrType), Tuple.Create(ambiguousInverse.Value.Item1, ambiguousInverse.Value.Item2.ClrType) },
                                 inverseNavigation.Key,
                                 entityType.ClrType);
                             break;

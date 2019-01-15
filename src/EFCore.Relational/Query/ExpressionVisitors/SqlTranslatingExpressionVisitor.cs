@@ -615,10 +615,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             // (this supports joining on an indexed property)
             var operand =
                 methodCallExpression.Method.IsEFIndexer()
-                ? null
-                :  _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
-                    ? methodCallExpression.Object
-                    : Visit(methodCallExpression.Object);
+                    ? null
+                    : _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                        ? methodCallExpression.Object
+                        : Visit(methodCallExpression.Object);
 
             if (operand != null
                 || methodCallExpression.Object == null)
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     ?.GetProjectionForMemberInfo(memberExpression.Member);
 
                 return _topLevelPredicate != null
-                    && sql is AliasExpression aliasExpression
+                       && sql is AliasExpression aliasExpression
                     ? aliasExpression.Expression
                     : sql;
             }

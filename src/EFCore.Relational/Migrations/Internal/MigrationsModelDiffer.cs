@@ -28,39 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     /// </summary>
     public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
-        private static readonly Type[] _dropOperationTypes =
-        {
-            typeof(DropIndexOperation),
-            typeof(DropPrimaryKeyOperation),
-            typeof(DropSequenceOperation),
-            typeof(DropUniqueConstraintOperation)
-        };
+        private static readonly Type[] _dropOperationTypes = { typeof(DropIndexOperation), typeof(DropPrimaryKeyOperation), typeof(DropSequenceOperation), typeof(DropUniqueConstraintOperation) };
 
-        private static readonly Type[] _alterOperationTypes =
-        {
-            typeof(AddPrimaryKeyOperation),
-            typeof(AddUniqueConstraintOperation),
-            typeof(AlterSequenceOperation)
-        };
+        private static readonly Type[] _alterOperationTypes = { typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation) };
 
-        private static readonly Type[] _renameOperationTypes =
-        {
-            typeof(RenameColumnOperation),
-            typeof(RenameIndexOperation),
-            typeof(RenameSequenceOperation)
-        };
+        private static readonly Type[] _renameOperationTypes = { typeof(RenameColumnOperation), typeof(RenameIndexOperation), typeof(RenameSequenceOperation) };
 
-        private static readonly Type[] _columnOperationTypes =
-        {
-            typeof(AddColumnOperation),
-            typeof(AlterColumnOperation)
-        };
+        private static readonly Type[] _columnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
 
-        private static readonly Type[] _constraintOperationTypes =
-        {
-            typeof(AddForeignKeyOperation),
-            typeof(CreateIndexOperation)
-        };
+        private static readonly Type[] _constraintOperationTypes = { typeof(AddForeignKeyOperation), typeof(CreateIndexOperation) };
 
         private IStateManager _sourceStateManager;
         private IStateManager _targetStateManager;
@@ -829,9 +805,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var nextSource = source.DefiningEntityType ?? source.BaseType;
             var nextTarget = target.DefiningEntityType ?? target.BaseType;
             return nextSource == null
-                || !sourceTable.EntityTypes.Contains(nextSource)
-                || nextTarget == null
-                || !targetTable.EntityTypes.Contains(nextTarget)
+                   || !sourceTable.EntityTypes.Contains(nextSource)
+                   || nextTarget == null
+                   || !targetTable.EntityTypes.Contains(nextTarget)
                 ? true
                 : EntityTypePathEquals(nextSource, nextTarget, diffContext);
         }

@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var property = entityType.GetRuntimeProperties().Find(propertyName);
             return property != null
-                && Attribute.IsDefined(property, typeof(TCustomAttribute), inherit: true)
+                   && Attribute.IsDefined(property, typeof(TCustomAttribute), inherit: true)
                 ? property.GetCustomAttributes<TCustomAttribute>(true)
                 : Enumerable.Empty<TCustomAttribute>();
         }

@@ -128,10 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 // TODO: Use convention batch to get the updated builder, see #214
                 return Metadata.FindPrimaryKey(properties).Builder;
             }
-            else
-            {
-                return keyBuilder;
-            }
+
+            return keyBuilder;
         }
 
         /// <summary>
@@ -425,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return builder != null
-                && builder.Metadata.Builder == null
+                   && builder.Metadata.Builder == null
                 ? Metadata.FindProperty(propertyName)?.Builder
                 : builder;
         }
@@ -739,16 +737,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
                     {
                         if (foreignKey.Builder.Navigations(
-                            isDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
-                            isDependent ? (PropertyIdentity?)null : PropertyIdentity.None,
-                            configurationSource) == null)
+                                isDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
+                                isDependent ? (PropertyIdentity?)null : PropertyIdentity.None,
+                                configurationSource) == null)
                         {
                             Metadata.Unignore(name);
                             return false;
                         }
                     }
                     else if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
-                            foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                                 foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                     {
                         Metadata.Unignore(name);
                         return false;
@@ -984,8 +982,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedProperties = DetachProperties(duplicatedProperties);
 
                     var propertiesToRemove = Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties())
-                        .Where(p => !p.GetConfigurationSource()
-                            .Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name)))
+                        .Where(
+                            p => !p.GetConfigurationSource()
+                                .Overrides(baseEntityType.FindIgnoredMemberConfigurationSource(p.Name)))
                         .ToList();
                     foreach (var property in propertiesToRemove)
                     {
@@ -1067,8 +1066,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         foreach (var key in Metadata.GetKeys()
-                            .Where(k => k.ReferencingForeignKeys != null
-                                        && k.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                            .Where(
+                                k => k.ReferencingForeignKeys != null
+                                     && k.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
                         {
                             foreach (var referencingForeignKey in key.ReferencingForeignKeys.ToList())
                             {
@@ -2199,7 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                        .RemoveForeignKey(existingNavigation.ForeignKey, configurationSource) == null)
+                            .RemoveForeignKey(existingNavigation.ForeignKey, configurationSource) == null)
                     {
                         return null;
                     }
@@ -2309,11 +2309,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool RemoveNonOwnershipRelationships(ForeignKey ownership, ConfigurationSource configurationSource)
         {
             var incompatibleRelationships = Metadata.GetDerivedForeignKeysInclusive()
-                .Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null
-                    && !Contains(ownership, fk))
-                .Concat(Metadata.GetDerivedReferencingForeignKeysInclusive()
-                    .Where(fk => !fk.IsOwnership
-                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                .Where(
+                    fk => !fk.IsOwnership && fk.PrincipalToDependent != null
+                                          && !Contains(ownership, fk))
+                .Concat(
+                    Metadata.GetDerivedReferencingForeignKeysInclusive()
+                        .Where(
+                            fk => !fk.IsOwnership
+                                  && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                 .Distinct()
                 .ToList();
 
@@ -2332,8 +2335,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool Contains(IForeignKey inheritedFk, IForeignKey derivedFk)
             => inheritedFk != null
-                && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
-                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
+               && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
+               && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -2574,6 +2577,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 {
                                     canReuniquify = true;
                                 }
+
                                 break;
                             }
 
@@ -2586,6 +2590,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 {
                                     canReuniquify = true;
                                 }
+
                                 break;
                             }
                         }
@@ -2637,7 +2642,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         return null;
                     }
-                    else if (clrProperty != null)
+
+                    if (clrProperty != null)
                     {
                         propertyBuilder = Property(clrProperty, configurationSource.Value);
                     }

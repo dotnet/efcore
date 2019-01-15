@@ -159,7 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         string line;
                         while ((line = reader.ReadLine()) != null)
                         {
-
                             _relationalCommandBuilder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
                         }
                     }
@@ -315,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var orderByList = new List<Ordering>(selectExpression.OrderBy);
 
                 // Filter out constant and parameter expressions (SELECT 1) if there is no skip or take #10410
-                if (selectExpression.Limit == null && selectExpression.Offset == null)
+                if (selectExpression.Limit == null
+                    && selectExpression.Offset == null)
                 {
                     orderByList.RemoveAll(o => IsOrderByExpressionConstant(ApplyOptimizations(o.Expression, searchCondition: false)));
                 }
@@ -588,11 +588,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var rightBooleanConstant = GetBooleanConstantValue(binaryExpression.Right);
 
                 if ((binaryExpression.NodeType == ExpressionType.Equal
-                    && leftBooleanConstant == true
-                    && rightBooleanConstant == true)
+                     && leftBooleanConstant == true
+                     && rightBooleanConstant == true)
                     || (binaryExpression.NodeType == ExpressionType.NotEqual
-                    && leftBooleanConstant == false
-                    && rightBooleanConstant == false))
+                        && leftBooleanConstant == false
+                        && rightBooleanConstant == false))
                 {
                     return;
                 }
@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private bool IsOrderByExpressionConstant([NotNull] Expression processedExpression)
         {
             return processedExpression.RemoveConvert() is ConstantExpression
-                || processedExpression.RemoveConvert() is ParameterExpression;
+                   || processedExpression.RemoveConvert() is ParameterExpression;
         }
 
         /// <summary>
@@ -870,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     break;
 
                 case NewArrayExpression newArrayExpression
-                when newArrayExpression.NodeType == ExpressionType.NewArrayInit:
+                    when newArrayExpression.NodeType == ExpressionType.NewArrayInit:
                     substitutions = new string[newArrayExpression.Expressions.Count];
 
                     for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
@@ -1991,7 +1991,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 // Convert nodes are transparent to SQL hence no conversion needed
                 return unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked
+                       || unaryExpression.NodeType == ExpressionType.ConvertChecked
                     ? unaryExpression
                     : ApplyConversion(unaryExpression);
             }
@@ -2034,8 +2034,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         var newElseResult = Visit(caseExpression.ElseResult);
 
                         newExpression = newOperand != caseExpression.Operand
-                                || whenThenListChanged
-                                || newElseResult != caseExpression.ElseResult
+                                        || whenThenListChanged
+                                        || newElseResult != caseExpression.ElseResult
                             ? new CaseExpression(newOperand, newWhenThenList, newElseResult)
                             : caseExpression;
                         break;
@@ -2065,17 +2065,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 expression = expression.RemoveConvert();
 
                 return !(expression is BinaryExpression)
-                    && expression.NodeType != ExpressionType.Not
-                    && expression.NodeType != ExpressionType.Extension
+                       && expression.NodeType != ExpressionType.Not
+                       && expression.NodeType != ExpressionType.Extension
                     ? false
                     : expression.IsComparisonOperation()
-                       || expression.IsLogicalOperation()
-                       || expression.NodeType == ExpressionType.Not
-                       || expression is ExistsExpression
-                       || expression is InExpression
-                       || expression is IsNullExpression
-                       || expression is LikeExpression
-                       || expression is ComparisonExpression;
+                      || expression.IsLogicalOperation()
+                      || expression.NodeType == ExpressionType.Not
+                      || expression is ExistsExpression
+                      || expression is InExpression
+                      || expression is IsNullExpression
+                      || expression is LikeExpression
+                      || expression is ComparisonExpression;
             }
 
             private static Expression BuildCompareToExpression(Expression expression, bool compareTo)

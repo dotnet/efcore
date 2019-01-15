@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
-        private bool _isIndexedProperty;
+        private readonly bool _isIndexedProperty;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
             _isIndexedProperty = propertyInfo != null
-                && propertyInfo.IsEFIndexerProperty();
+                                 && propertyInfo.IsEFIndexerProperty();
         }
 
         /// <summary>

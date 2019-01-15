@@ -35,14 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
             get => EntityType.BaseType != null
                 ? GetAnnotations(EntityType.RootType()).ContainerName
                 : ((string)Annotations.Metadata[CosmosAnnotationNames.ContainerName])
-                    ?? GetDefaultContainerName();
+                  ?? GetDefaultContainerName();
 
-            [param: CanBeNull]
-            set => SetContainerName(value);
+            [param: CanBeNull] set => SetContainerName(value);
         }
 
         private string GetDefaultContainerName() => GetAnnotations(EntityType.Model).DefaultContainerName
-            ?? EntityType.ShortName();
+                                                    ?? EntityType.ShortName();
 
         protected virtual bool SetContainerName([CanBeNull] string value)
             => Annotations.SetAnnotation(
@@ -62,8 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
 
                 return propertyName == null ? null : EntityType.FindProperty(propertyName);
             }
-            [param: CanBeNull]
-            set => SetDiscriminatorProperty(value);
+            [param: CanBeNull] set => SetDiscriminatorProperty(value);
         }
 
         protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value)
@@ -106,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
         public virtual object DiscriminatorValue
         {
             get => Annotations.Metadata[CosmosAnnotationNames.DiscriminatorValue];
-            [param: CanBeNull]
-            set => SetDiscriminatorValue(value);
+            [param: CanBeNull] set => SetDiscriminatorValue(value);
         }
 
         protected virtual bool SetDiscriminatorValue([CanBeNull] object value)

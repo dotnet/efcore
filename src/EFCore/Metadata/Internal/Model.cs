@@ -204,6 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             throw new InvalidOperationException(CoreStrings.DuplicateQueryType(entityType.DisplayName()));
                         }
+
                         throw new InvalidOperationException(CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
                     }
 
@@ -211,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
                     }
+
                     throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                 }
 
@@ -482,9 +484,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return !_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType)
                 ? null
                 : entityTypesWithSameType
-                .FirstOrDefault(
-                    e => e.DefiningNavigationName == definingNavigationName
-                         && e.DefiningEntityType.Name == definingEntityTypeName);
+                    .FirstOrDefault(
+                        e => e.DefiningNavigationName == definingNavigationName
+                             && e.DefiningEntityType.Name == definingEntityTypeName);
         }
 
         /// <summary>

@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="plugins"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalTypeMappingSourceDependencies With(
-                [NotNull] IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
+            [NotNull] IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
             => new RelationalTypeMappingSourceDependencies(plugins);
     }
 }

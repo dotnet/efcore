@@ -50,16 +50,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private bool IsSpatialiteColumn(AddColumnOperation operation, IModel model)
             => SqliteTypeMappingSource.IsSpatialiteType(
                 operation.ColumnType
-                    ?? GetColumnType(
-                        operation.Schema,
-                        operation.Table,
-                        operation.Name,
-                        operation.ClrType,
-                        operation.IsUnicode,
-                        operation.MaxLength,
-                        operation.IsFixedLength,
-                        operation.IsRowVersion,
-                        model));
+                ?? GetColumnType(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation.ClrType,
+                    operation.IsUnicode,
+                    operation.MaxLength,
+                    operation.IsFixedLength,
+                    operation.IsRowVersion,
+                    model));
 
         private IReadOnlyList<MigrationOperation> RewriteOperations(
             IReadOnlyList<MigrationOperation> migrationOperations,
@@ -154,16 +154,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var dimension = operation[SqliteAnnotationNames.Dimension] as string;
 
             var geometryType = operation.ColumnType
-                ?? GetColumnType(
-                    operation.Schema,
-                    operation.Table,
-                    operation.Name,
-                    operation.ClrType,
-                    operation.IsUnicode,
-                    operation.MaxLength,
-                    operation.IsFixedLength,
-                    operation.IsRowVersion,
-                    model);
+                               ?? GetColumnType(
+                                   operation.Schema,
+                                   operation.Table,
+                                   operation.Name,
+                                   operation.ClrType,
+                                   operation.IsUnicode,
+                                   operation.MaxLength,
+                                   operation.IsFixedLength,
+                                   operation.IsRowVersion,
+                                   model);
             if (!string.IsNullOrEmpty(dimension))
             {
                 geometryType += dimension;

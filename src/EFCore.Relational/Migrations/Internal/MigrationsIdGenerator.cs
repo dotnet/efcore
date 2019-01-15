@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private const string Format = "yyyyMMddHHmmss";
 
         private DateTime _lastTimestamp = DateTime.MinValue;
-        private object _lock = new object();
+        private readonly object _lock = new object();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

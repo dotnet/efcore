@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual string LogFragment
             => _logFragment
-                ?? (_logFragment = _useLazyLoadingProxies
-                        ? "using lazy-loading proxies "
-                        : "");
+               ?? (_logFragment = _useLazyLoadingProxies
+                   ? "using lazy-loading proxies "
+                   : "");
     }
 }

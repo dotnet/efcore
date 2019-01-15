@@ -7,7 +7,6 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-
     public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
     {
         // This methods are non-deterministic and result varies based on time of running the query.
@@ -54,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         return false;
                     }
+
                     break;
 
                 case MethodCallExpression methodCallExpression:
@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         return false;
                     }
+
                     break;
             }
 

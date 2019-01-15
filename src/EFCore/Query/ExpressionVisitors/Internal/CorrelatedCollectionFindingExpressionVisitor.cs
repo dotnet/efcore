@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                        if (collectionNavigation != null && querySource != null)
+                        if (collectionNavigation != null
+                            && querySource != null)
                         {
                             _queryModelVisitor.QueryCompilationContext.RegisterCorrelatedSubqueryMetadata(
                                 subQueryModel.MainFromClause,

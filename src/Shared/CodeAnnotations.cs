@@ -6,16 +6,20 @@ using System;
 namespace JetBrains.Annotations
 {
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter
-        | AttributeTargets.Property | AttributeTargets.Delegate
+        AttributeTargets.Method
+        | AttributeTargets.Parameter
+        | AttributeTargets.Property
+        | AttributeTargets.Delegate
         | AttributeTargets.Field)]
     internal sealed class NotNullAttribute : Attribute
     {
     }
 
     [AttributeUsage(
-        AttributeTargets.Method | AttributeTargets.Parameter
-        | AttributeTargets.Property | AttributeTargets.Delegate
+        AttributeTargets.Method
+        | AttributeTargets.Parameter
+        | AttributeTargets.Property
+        | AttributeTargets.Delegate
         | AttributeTargets.Field)]
     internal sealed class CanBeNullAttribute : Attribute
     {

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     public class CaseExpression : Expression, IPrintable
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CaseExpression"/> class.
+        ///     Initializes a new instance of the <see cref="CaseExpression" /> class.
         /// </summary>
         /// <param name="whenClauses"> The list of when clauses. </param>
         public CaseExpression([NotNull] params CaseWhenClause[] whenClauses)
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CaseExpression"/> class.
+        ///     Initializes a new instance of the <see cref="CaseExpression" /> class.
         /// </summary>
         /// <param name="operand"> The case operand expression. </param>
         /// <param name="whenClauses"> The list of when clauses. </param>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CaseExpression"/> class.
+        ///     Initializes a new instance of the <see cref="CaseExpression" /> class.
         /// </summary>
         /// <param name="whenClauses"> The list of when clauses. </param>
         /// <param name="elseResult"> The else result expression. </param>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CaseExpression"/> class.
+        ///     Initializes a new instance of the <see cref="CaseExpression" /> class.
         /// </summary>
         /// <param name="operand"> The case operand expression. </param>
         /// <param name="whenClauses"> The list of when clauses. </param>
@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             foreach (var whenClause in whenClauses)
             {
-                if (operand != null && whenClause.Test.Type != expectedWhenOperandType)
+                if (operand != null
+                    && whenClause.Test.Type != expectedWhenOperandType)
                 {
                     throw new ArgumentException(
                         RelationalStrings.CaseWhenClauseTestTypeUnexpected(
@@ -74,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             expectedWhenOperandType),
                         nameof(whenClauses));
                 }
+
                 if (whenClause.Result.Type != resultType)
                 {
                     throw new ArgumentException(
@@ -82,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 }
             }
 
-            if (elseResult != null && elseResult.Type != resultType)
+            if (elseResult != null
+                && elseResult.Type != resultType)
             {
                 throw new ArgumentException(
                     RelationalStrings.CaseElseResultTypeUnexpected(elseResult.Type, resultType),
@@ -111,16 +114,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual Expression ElseResult { get; }
 
         /// <summary>
-        ///      Gets the node type of this <see cref="Expression"/>.
+        ///     Gets the node type of this <see cref="Expression" />.
         /// </summary>
-        /// <value> One of the <see cref="ExpressionType"/> values. </value>
+        /// <value> One of the <see cref="ExpressionType" /> values. </value>
         public override ExpressionType NodeType
             => ExpressionType.Extension;
 
         /// <summary>
-        ///     Gets the static type of the expression that this <see cref="Expression"/> represents.
+        ///     Gets the static type of the expression that this <see cref="Expression" /> represents.
         /// </summary>
-        /// <value> The <see cref="Type"/> that represents the static type of the expression. </value>
+        /// <value> The <see cref="Type" /> that represents the static type of the expression. </value>
         public override Type Type { get; }
 
         /// <summary>
@@ -187,12 +190,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool Equals(CaseExpression other)
             => (Operand == null
-                    ? other.Operand == null
-                    : Operand.Equals(other.Operand))
-                && Enumerable.SequenceEqual(WhenClauses, other.WhenClauses, EqualityComparer<CaseWhenClause>.Default)
-                && (ElseResult == null
-                    ? other.ElseResult == null
-                    : ElseResult.Equals(other.ElseResult));
+                   ? other.Operand == null
+                   : Operand.Equals(other.Operand))
+               && WhenClauses.SequenceEqual(other.WhenClauses, EqualityComparer<CaseWhenClause>.Default)
+               && (ElseResult == null
+                   ? other.ElseResult == null
+                   : ElseResult.Equals(other.ElseResult));
 
         /// <summary>
         ///     Gets a hash code for the current object.

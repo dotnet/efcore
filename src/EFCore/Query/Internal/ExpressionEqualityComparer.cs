@@ -317,7 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
         {
-            if (x == null || y == null)
+            if (x == null
+                || y == null)
             {
                 return false;
             }
@@ -469,8 +470,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return a.IsEntityQueryable()
-                    && b.IsEntityQueryable()
-                    && a.Value.GetType() == b.Value.GetType()
+                       && b.IsEntityQueryable()
+                       && a.Value.GetType() == b.Value.GetType()
                     ? true
                     : Equals(a.Value, b.Value);
             }

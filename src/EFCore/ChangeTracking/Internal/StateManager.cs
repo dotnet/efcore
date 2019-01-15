@@ -292,9 +292,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var clrType = entity.GetType();
             var entityType = baseEntityType.ClrType == clrType
-                || baseEntityType.HasDefiningNavigation()
-                    ? baseEntityType
-                    : _model.FindRuntimeEntityType(clrType);
+                             || baseEntityType.HasDefiningNavigation()
+                ? baseEntityType
+                : _model.FindRuntimeEntityType(clrType);
 
             var newEntry = valueBuffer.IsEmpty
                 ? _internalEntityEntryFactory.Create(this, entityType, entity)
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return _identityMaps == null
-                || !_identityMaps.TryGetValue(key, out var identityMap)
+                   || !_identityMaps.TryGetValue(key, out var identityMap)
                 ? null
                 : identityMap;
         }

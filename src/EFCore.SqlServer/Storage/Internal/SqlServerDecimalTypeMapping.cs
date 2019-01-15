@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None)
             : base(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(decimal)),
-                    storeType,
-                    storeTypePostfix,
-                    dbType)
-                  .WithPrecisionAndScale(precision, scale))
+                        new CoreTypeMappingParameters(typeof(decimal)),
+                        storeType,
+                        storeTypePostfix,
+                        dbType)
+                    .WithPrecisionAndScale(precision, scale))
         {
         }
 

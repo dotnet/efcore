@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
 
                 var itemName = innerMainFromClause.HasGeneratedItemName()
-                                  && !isGeneratedNameOuter
+                               && !isGeneratedNameOuter
                     ? fromClause.ItemName
                     : innerMainFromClause.ItemName;
 
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     var entityType = _queryCompilationContext.Model.FindEntityType(searchedItemType)
-                        ?? _queryCompilationContext.FindEntityType(queryModel.MainFromClause);
+                                     ?? _queryCompilationContext.FindEntityType(queryModel.MainFromClause);
 
                     if (entityType != null)
                     {
@@ -412,6 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     _queryCompilationContext.AddOrUpdateMapping(newQuerySource, entityType);
                 }
+
                 foreach (var queryAnnotation in _queryCompilationContext.QueryAnnotations.Where(qa => qa.QuerySource == oldQuerySource))
                 {
                     queryAnnotation.QuerySource = newQuerySource;

@@ -35,10 +35,12 @@ namespace System.Reflection
             {
                 return targetMember;
             }
+
             if (targetMember is MethodInfo targetMethod)
             {
                 return targetMethod.OnInterface(interfaceType);
             }
+
             if (targetMember is PropertyInfo targetProperty)
             {
                 var targetGetMethod = targetProperty.GetMethod;

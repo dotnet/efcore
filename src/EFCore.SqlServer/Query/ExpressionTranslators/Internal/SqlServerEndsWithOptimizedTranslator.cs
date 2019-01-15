@@ -33,11 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                             "RIGHT",
                             // ReSharper disable once PossibleNullReferenceException
                             methodCallExpression.Object.Type,
-                            new[]
-                            {
-                                methodCallExpression.Object,
-                                new SqlFunctionExpression("LEN", typeof(int), new[] { patternExpression })
-                            }),
+                            new[] { methodCallExpression.Object, new SqlFunctionExpression("LEN", typeof(int), new[] { patternExpression }) }),
                         patternExpression));
 
                 return patternExpression is ConstantExpression patternConstantExpression

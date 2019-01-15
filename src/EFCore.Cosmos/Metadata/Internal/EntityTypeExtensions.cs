@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
     {
         public static bool IsDocumentRoot(this IEntityType entityType)
             => entityType.BaseType == null
-            ? !entityType.IsOwned()
-                || entityType[CosmosAnnotationNames.ContainerName] != null
-            : entityType.BaseType.IsDocumentRoot();
+                ? !entityType.IsOwned()
+                  || entityType[CosmosAnnotationNames.ContainerName] != null
+                : entityType.BaseType.IsDocumentRoot();
     }
 }

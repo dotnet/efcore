@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var targetClrType = _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
             return targetClrType == null
-                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                   || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? null
                 : targetClrType;
         }

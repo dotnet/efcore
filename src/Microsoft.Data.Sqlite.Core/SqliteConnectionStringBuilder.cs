@@ -48,7 +48,6 @@ namespace Microsoft.Data.Sqlite
         private bool _foreignKeys;
         private bool _recursiveTriggers;
 
-
         static SqliteConnectionStringBuilder()
         {
             var validKeywords = new string[6];

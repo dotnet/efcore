@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public CosmosQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] CosmosClientWrapper cosmosClient)
-               : base(dependencies)
+            : base(dependencies)
         {
             _cosmosClient = cosmosClient;
         }

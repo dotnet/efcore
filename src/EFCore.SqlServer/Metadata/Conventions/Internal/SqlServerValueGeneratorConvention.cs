@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
             return valueGenerated != null
                 ? valueGenerated
                 : property.SqlServer().GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
-                ? ValueGenerated.OnAdd
-                : (ValueGenerated?)null;
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null;
         }
     }
 }

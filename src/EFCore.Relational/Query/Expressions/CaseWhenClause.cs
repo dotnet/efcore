@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     /// <summary>
-    ///     Represents one when clause of a <see cref="CaseExpression"/>.
+    ///     Represents one when clause of a <see cref="CaseExpression" />.
     /// </summary>
     public class CaseWhenClause
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CaseWhenClause"/> class.
+        ///     Initializes a new instance of the <see cref="CaseWhenClause" /> class.
         /// </summary>
         /// <param name="test"> The when operand expression. </param>
         /// <param name="result"> The result expression. </param>
@@ -55,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool Equals(CaseWhenClause other)
             => (Test == null
-                    ? other.Test == null
-                    : Test.Equals(other.Test))
-                && (Result == null
-                    ? other.Result == null
-                    : Result.Equals(other.Result));
+                   ? other.Test == null
+                   : Test.Equals(other.Test))
+               && (Result == null
+                   ? other.Result == null
+                   : Result.Equals(other.Result));
 
         /// <summary>
         ///     Gets a hash code for the current object.

@@ -82,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>(
             [NotNull] Expression<Func<TQuery, TProperty>> propertyExpression) => new PropertyBuilder<TProperty>(
-                Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
-                    ConfigurationSource.Explicit));
+            Builder.Property(
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
+                ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the query type. This method is typically used to remove properties

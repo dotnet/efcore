@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => Operand.Equals(other.Operand)
                && (Values == null
                    ? other.Values == null
-                    : ExpressionEqualityComparer.Instance.SequenceEquals(Values, other.Values))
+                   : ExpressionEqualityComparer.Instance.SequenceEquals(Values, other.Values))
                && (SubQuery == null
                    ? other.SubQuery == null
                    : SubQuery.Equals(other.SubQuery));

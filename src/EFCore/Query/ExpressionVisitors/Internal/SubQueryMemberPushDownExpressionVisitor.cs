@@ -152,11 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         = methodCallExpression
                             .Update(
                                 null,
-                                new[]
-                                {
-                                    clonedSubSelector,
-                                    methodCallExpression.Arguments[1]
-                                });
+                                new[] { clonedSubSelector, methodCallExpression.Arguments[1] });
 
                     subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
@@ -179,10 +175,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var newOperand = Visit(unaryExpression.Operand);
                 return newOperand is UnaryExpression innerUnaryExpression
-                    && (innerUnaryExpression.NodeType == ExpressionType.Convert
-                        || innerUnaryExpression.NodeType == ExpressionType.ConvertChecked)
-                    && innerUnaryExpression.Operand.Type == unaryExpression.Type
-                    && innerUnaryExpression.Operand.Type != typeof(object)
+                       && (innerUnaryExpression.NodeType == ExpressionType.Convert
+                           || innerUnaryExpression.NodeType == ExpressionType.ConvertChecked)
+                       && innerUnaryExpression.Operand.Type == unaryExpression.Type
+                       && innerUnaryExpression.Operand.Type != typeof(object)
                     ? innerUnaryExpression.Operand
                     : unaryExpression.Update(newOperand);
             }

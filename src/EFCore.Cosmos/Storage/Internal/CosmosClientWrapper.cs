@@ -4,12 +4,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -51,10 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private CosmosClient Client =>
             _client
-            ?? (_client = new CosmosClient(new CosmosConfiguration(_endPoint, _authKey)
-                    {
-                        UserAgentSuffix = _userAgent
-                    }));
+            ?? (_client = new CosmosClient(
+                new CosmosConfiguration(_endPoint, _authKey)
+                {
+                    UserAgentSuffix = _userAgent
+                }));
 
         public bool CreateDatabaseIfNotExists()
             => _executionStrategyFactory.Create().Execute(
@@ -143,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var pk = new PartitionKeyDefinition();
             pk.Paths.Add("/" + parameters.PartitionKey);
 
-            var settings = new CosmosContainerSettings()
+            var settings = new CosmosContainerSettings
             {
                 Id = parameters.ContainerId,
                 PartitionKey = pk
@@ -283,6 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 queryDefinition.UseParameter(parameter.Name, parameter.Value);
             }
+
             return items.CreateItemQuery<T>(queryDefinition, maxConcurrency: 16);
         }
 

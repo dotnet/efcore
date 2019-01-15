@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-
     public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
     {
         private readonly IModel _model;

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var argument = methodCallExpression.Arguments[0];
 
                 return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && methodCallExpression.Object.Type != argument.Type
+                       && methodCallExpression.Object.Type != argument.Type
                     ? TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression)
                     : Expression.Equal(methodCallExpression.Object, argument);
             }
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var left = methodCallExpression.Arguments[0].RemoveConvert();
                 var right = methodCallExpression.Arguments[1].RemoveConvert();
                 return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && left.Type != right.Type
+                       && left.Type != right.Type
                     ? TranslateEquals(left, right, methodCallExpression)
                     : Expression.Equal(left, right);
             }

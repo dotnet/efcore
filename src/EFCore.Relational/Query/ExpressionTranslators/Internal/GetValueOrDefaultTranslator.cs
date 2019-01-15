@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         methodCallExpression.Object,
                         methodCallExpression.Type.GenerateDefaultValueConstantExpression());
                 }
-                else if (methodCallExpression.Arguments.Count == 1)
+
+                if (methodCallExpression.Arguments.Count == 1)
                 {
                     return Expression.Coalesce(
                         methodCallExpression.Object,

@@ -723,13 +723,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return principalProperties != null
-                && dependentProperties != null
-                && !AreCompatible(
-                    principalProperties,
-                    dependentProperties,
-                    principalEntityType,
-                    dependentEntityType,
-                    shouldThrow)
+                   && dependentProperties != null
+                   && !AreCompatible(
+                       principalProperties,
+                       dependentProperties,
+                       principalEntityType,
+                       dependentEntityType,
+                       shouldThrow)
                 ? false
                 : true;
         }

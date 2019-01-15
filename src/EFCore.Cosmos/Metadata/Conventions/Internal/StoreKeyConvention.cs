@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
         public Annotation Apply(InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
-            if(name == CosmosAnnotationNames.ContainerName)
+            if (name == CosmosAnnotationNames.ContainerName)
             {
                 Apply(entityTypeBuilder);
             }

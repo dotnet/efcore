@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class MethodInfoBasedNodeTypeRegistryFactory : INodeTypeProviderFactory
     {
         private static readonly object _syncLock = new object();
+
         private static readonly MethodNameBasedNodeTypeRegistry _methodNameBasedNodeTypeRegistry
             = MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly();
 
@@ -50,11 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _methodInfoBasedNodeTypeRegistry
                 .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
 
-            _nodeTypeProviders = new INodeTypeProvider[]
-            {
-                    _methodInfoBasedNodeTypeRegistry,
-                    _methodNameBasedNodeTypeRegistry
-            };
+            _nodeTypeProviders = new INodeTypeProvider[] { _methodInfoBasedNodeTypeRegistry, _methodNameBasedNodeTypeRegistry };
         }
 
         /// <summary>
@@ -70,11 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             lock (_syncLock)
             {
                 _methodInfoBasedNodeTypeRegistry.Register(methods, nodeType);
-                _nodeTypeProviders = new INodeTypeProvider[]
-                {
-                        _methodInfoBasedNodeTypeRegistry,
-                        _methodNameBasedNodeTypeRegistry
-                };
+                _nodeTypeProviders = new INodeTypeProvider[] { _methodInfoBasedNodeTypeRegistry, _methodNameBasedNodeTypeRegistry };
             }
         }
 

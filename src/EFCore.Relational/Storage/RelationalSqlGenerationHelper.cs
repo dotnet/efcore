@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">The candidate name for the parameter placeholder.</param>
         public virtual void GenerateParameterNamePlaceholder(StringBuilder builder, string name)
-            => GenerateParameterName(builder,name);
+            => GenerateParameterName(builder, name);
 
         /// <summary>
         ///     Generates the escaped SQL representation of an identifier (column name, table name, etc.).

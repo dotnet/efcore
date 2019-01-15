@@ -143,79 +143,98 @@ namespace Microsoft.Data.Sqlite
             {
                 return (T)(object)GetBoolean(ordinal);
             }
+
             if (type == typeof(byte))
             {
                 return (T)(object)GetByte(ordinal);
             }
+
             if (type == typeof(byte[]))
             {
                 return (T)(object)GetBlob(ordinal);
             }
+
             if (type == typeof(char))
             {
                 return (T)(object)GetChar(ordinal);
             }
+
             if (type == typeof(DateTime))
             {
                 return (T)(object)GetDateTime(ordinal);
             }
+
             if (type == typeof(DateTimeOffset))
             {
                 return (T)(object)GetDateTimeOffset(ordinal);
             }
+
             if (type == typeof(DBNull))
             {
                 // NB: NULL values handled above
                 throw new InvalidCastException();
             }
+
             if (type == typeof(decimal))
             {
                 return (T)(object)GetDecimal(ordinal);
             }
+
             if (type == typeof(double))
             {
                 return (T)(object)GetDouble(ordinal);
             }
+
             if (type == typeof(float))
             {
                 return (T)(object)GetFloat(ordinal);
             }
+
             if (type == typeof(Guid))
             {
                 return (T)(object)GetGuid(ordinal);
             }
+
             if (type == typeof(int))
             {
                 return (T)(object)GetInt32(ordinal);
             }
+
             if (type == typeof(long))
             {
                 return (T)(object)GetInt64(ordinal);
             }
+
             if (type == typeof(sbyte))
             {
                 return (T)(object)((sbyte)GetInt64(ordinal));
             }
+
             if (type == typeof(short))
             {
                 return (T)(object)GetInt16(ordinal);
             }
+
             if (type == typeof(string))
             {
                 return (T)(object)GetString(ordinal);
             }
+
             if (type == typeof(TimeSpan))
             {
                 return (T)(object)GetTimeSpan(ordinal);
             }
+
             if (type == typeof(uint))
             {
                 return (T)(object)((uint)GetInt64(ordinal));
             }
+
             if (type == typeof(ulong))
             {
                 return (T)(object)((ulong)GetInt64(ordinal));
             }
+
             if (type == typeof(ushort))
             {
                 return (T)(object)((ushort)GetInt64(ordinal));

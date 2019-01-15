@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
                 return expression is ExistsExpression existsExpression
                     ? VisitExistExpression(existsExpression)
                     : expression is SelectExpression selectExpression
-                    ? VisitSelectExpression(selectExpression)
-                    : base.Visit(expression);
+                        ? VisitSelectExpression(selectExpression)
+                        : base.Visit(expression);
             }
 
             private static bool RequiresRowNumberPaging(SelectExpression selectExpression)

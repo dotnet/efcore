@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { ExpressionType.Equal, ExpressionType.Equal },
             { ExpressionType.NotEqual, ExpressionType.NotEqual }
         };
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -60,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
         private static Expression RemoveNullConditional(Expression expression)
             => expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
-            ? RemoveNullConditional(nullConditionalExpression.AccessOperation)
-            : expression;
+                ? RemoveNullConditional(nullConditionalExpression.AccessOperation)
+                : expression;
 
         private static Expression TranslateInternal(
             Func<ExpressionType, ExpressionType> opFunc,
@@ -85,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     right = methodCall.Arguments[1];
                 }
                 else if (methodCall.Method.Name == "CompareTo"
-                    && methodCall.Arguments.Count == 1
-                    && methodCall.Object != null
-                    && methodCall.Object.Type == methodCall.Arguments[0].Type)
+                         && methodCall.Arguments.Count == 1
+                         && methodCall.Object != null
+                         && methodCall.Object.Type == methodCall.Arguments[0].Type)
                 {
                     left = methodCall.Object;
                     right = methodCall.Arguments[0];

@@ -29,10 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
                 return new SqlFunctionExpression(
                     "PointN",
                     methodCallExpression.Type,
-                    new[] {
-                        methodCallExpression.Object,
-                        Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1))
-                    });
+                    new[] { methodCallExpression.Object, Expression.Add(methodCallExpression.Arguments[0], Expression.Constant(1)) });
             }
 
             return null;

@@ -44,34 +44,37 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         yield return property;
                     }
+
                     break;
 
                 case SqlFunctionExpression functionExpression:
+                {
+                    IEnumerable<Expression> arguments = functionExpression.Arguments;
+                    if (functionExpression.Instance != null)
                     {
-                        IEnumerable<Expression> arguments = functionExpression.Arguments;
-                        if (functionExpression.Instance != null)
-                        {
-                            arguments = arguments.Concat(new[] { functionExpression.Instance });
-                        }
-                        foreach (var property in arguments.SelectMany(FindProperties))
-                        {
-                            yield return property;
-                        }
+                        arguments = arguments.Concat(new[] { functionExpression.Instance });
                     }
+
+                    foreach (var property in arguments.SelectMany(FindProperties))
+                    {
+                        yield return property;
+                    }
+                }
                     break;
 
                 case MethodCallExpression methodCallExpression:
+                {
+                    IEnumerable<Expression> arguments = methodCallExpression.Arguments;
+                    if (methodCallExpression.Object != null)
                     {
-                        IEnumerable<Expression> arguments = methodCallExpression.Arguments;
-                        if (methodCallExpression.Object != null)
-                        {
-                            arguments = arguments.Concat(new[] { methodCallExpression.Object });
-                        }
-                        foreach (var property in arguments.SelectMany(FindProperties))
-                        {
-                            yield return property;
-                        }
+                        arguments = arguments.Concat(new[] { methodCallExpression.Object });
                     }
+
+                    foreach (var property in arguments.SelectMany(FindProperties))
+                    {
+                        yield return property;
+                    }
+                }
                     break;
 
                 case MemberExpression memberExpression:
@@ -79,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         yield return property;
                     }
+
                     break;
             }
         }

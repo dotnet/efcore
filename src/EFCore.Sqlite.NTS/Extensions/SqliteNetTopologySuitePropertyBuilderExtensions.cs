@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 dimension += "Z";
             }
+
             if (ordinates.HasFlag(Ordinates.M))
             {
                 dimension += "M";

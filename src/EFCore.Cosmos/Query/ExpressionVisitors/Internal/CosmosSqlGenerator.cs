@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
             { ExpressionType.Not, "~" },
 
             // Others
-            { ExpressionType.Coalesce, " ?? " },
+            { ExpressionType.Coalesce, " ?? " }
         };
 
         public CosmosSqlQuery GenerateSqlQuerySpec(
@@ -116,7 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
             {
                 _sqlBuilder.Append("null");
             }
-            else if (value.GetType().IsNumeric() || value is DateTime || value is DateTimeOffset)
+            else if (value.GetType().IsNumeric()
+                     || value is DateTime
+                     || value is DateTimeOffset)
             {
                 var jsonValue = JToken.FromObject(value);
                 _sqlBuilder.Append(jsonValue.ToString(Formatting.None));

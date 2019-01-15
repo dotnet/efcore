@@ -34,22 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Check.NotNull(materializer, nameof(materializer));
 
             return (Shaper)_createCompositeShaperMethodInfo
-                    .MakeGenericMethod(
-                        outerShaper.GetType(),
-                        outerShaper.Type,
-                        innerShaper.GetType(),
-                        innerShaper.Type,
-                        materializer.ReturnType)
-                    .Invoke(
-                        null,
-                        new object[]
-                        {
-                            querySource,
-                            outerShaper,
-                            innerShaper,
-                            materializer.Compile(),
-                            storeMaterializerExpression ? materializer : null
-                        });
+                .MakeGenericMethod(
+                    outerShaper.GetType(),
+                    outerShaper.Type,
+                    innerShaper.GetType(),
+                    innerShaper.Type,
+                    materializer.ReturnType)
+                .Invoke(
+                    null,
+                    new object[] { querySource, outerShaper, innerShaper, materializer.Compile(), storeMaterializerExpression ? materializer : null });
         }
 
         private static readonly MethodInfo _createCompositeShaperMethodInfo
@@ -135,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Shaper Unwrap(IQuerySource querySource)
                 => _outerShaper.Unwrap(querySource)
-                       ?? _innerShaper.Unwrap(querySource)
-                       ?? base.Unwrap(querySource);
+                   ?? _innerShaper.Unwrap(querySource)
+                   ?? base.Unwrap(querySource);
         }
     }
 }

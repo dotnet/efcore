@@ -49,20 +49,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                 var amountToAdd = methodCallExpression.Arguments.First();
 
                 return !datePart.Equals("year")
-                    && !datePart.Equals("month")
-                    && amountToAdd is ConstantExpression constantExpression
-                    && ((double)constantExpression.Value >= int.MaxValue
-                        || (double)constantExpression.Value <= int.MinValue)
+                       && !datePart.Equals("month")
+                       && amountToAdd is ConstantExpression constantExpression
+                       && ((double)constantExpression.Value >= int.MaxValue
+                           || (double)constantExpression.Value <= int.MinValue)
                     ? null
                     : new SqlFunctionExpression(
-                    functionName: "DATEADD",
-                    returnType: methodCallExpression.Type,
-                    arguments: new[]
-                    {
-                        new SqlFragmentExpression(datePart),
-                        amountToAdd,
-                        methodCallExpression.Object
-                    });
+                        functionName: "DATEADD",
+                        returnType: methodCallExpression.Type,
+                        arguments: new[] { new SqlFragmentExpression(datePart), amountToAdd, methodCallExpression.Object });
             }
 
             return null;

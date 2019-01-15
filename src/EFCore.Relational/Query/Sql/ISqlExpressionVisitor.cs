@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitColumnReference([NotNull] ColumnReferenceExpression columnReferenceExpression);
 
         /// <summary>
-        /// Visits a case expression.
+        ///     Visits a case expression.
         /// </summary>
         /// <param name="caseExpression"> The case expression. </param>
         /// <returns> An expression. </returns>
