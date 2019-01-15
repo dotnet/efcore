@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class InMemoryDbContextOptionsExtensions
     {
-        private const string LegacySharedName = "___Shared_Database___";
-
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
