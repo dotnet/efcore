@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     <para>
     ///         Instances of this class are returned from a call to
     ///         <see
-    ///             cref="SqlServerDbContextOptionsExtensions.UseSqlServer(DbContextOptionsBuilder,string,System.Action{Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder}(Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder))" />
+    ///             cref="SqlServerDbContextOptionsExtensions.UseSqlServer(DbContextOptionsBuilder,string,System.Action{Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder})" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
