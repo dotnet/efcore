@@ -316,8 +316,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static T Execute<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
-            => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().Execute(
+            => new TestSqlServerRetryingExecutionStrategy().Execute(
                     new
                     {
                         connection,
@@ -326,8 +325,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         useTransaction,
                         parameters
                     },
-                    state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters))
-                : ExecuteCommand(connection, execute, sql, useTransaction, parameters);
+                    state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
 
         private static T ExecuteCommand<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)

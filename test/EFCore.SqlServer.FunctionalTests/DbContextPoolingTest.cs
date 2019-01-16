@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ using Xunit.Abstractions;
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DbContextPoolingTest
+    public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
             where TContextService : class
@@ -654,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore
         private readonly ITestOutputHelper _testOutputHelper = null;
 
         // ReSharper disable once UnusedParameter.Local
-        public DbContextPoolingTest(ITestOutputHelper testOutputHelper)
+        public DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         {
             //_testOutputHelper = testOutputHelper;
         }
