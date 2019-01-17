@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         document["__partitionKey"] = "0";
 
                         document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
-                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
+                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue, CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItem(
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         document["__partitionKey"] = "0";
 
                         document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
-                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue);
+                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue, CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItemAsync(

@@ -27,10 +27,12 @@ namespace Microsoft.EntityFrameworkCore
                 context.AddRange(
                     new Person
                     {
+                        Id = 1,
                         Name = "Lewis"
                     },
                     new Person
                     {
+                        Id = 2,
                         Name = "Seb",
                         SSN = new SocialSecurityNumber
                         {
@@ -39,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new Person
                     {
+                        Id = 3,
                         Name = "Kimi",
                         SSN = new SocialSecurityNumber
                         {
@@ -47,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new Person
                     {
+                        Id = 4,
                         Name = "Valtteri"
                     });
 
@@ -76,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new Person
                     {
+                        Id = 5,
                         Name = "Charles",
                         SSN = new SocialSecurityNumber
                         {
@@ -134,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 1,
                         Dependents = new List<NonNullableDependent>
                         {
-                            new NonNullableDependent()
+                            new NonNullableDependent{Id = 1}
                         }
                     }).Entity;
 
@@ -232,29 +237,26 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_query_and_update_with_conversion_for_custom_struct()
         {
-            int id;
             using (var context = CreateContext())
             {
                 var load = context.Set<Load>().Add(
-                    new Load { Fuel = new Fuel(1.1) }).Entity;
+                    new Load { LoadId = 1, Fuel = new Fuel(1.1) }).Entity;
 
                 Assert.Equal(1, context.SaveChanges());
-
-                id = load.LoadId;
             }
 
             using (var context = CreateContext())
             {
-                var load = context.Set<Load>().Single(e => e.LoadId == id && e.Fuel.Equals(new Fuel(1.1)));
+                var load = context.Set<Load>().Single(e => e.LoadId == 1 && e.Fuel.Equals(new Fuel(1.1)));
 
-                Assert.Equal(id, load.LoadId);
+                Assert.Equal(1, load.LoadId);
                 Assert.Equal(1.1, load.Fuel.Volume);
             }
         }
 
         protected class Load
         {
-            public int LoadId { get; private set; }
+            public int LoadId { get; set; }
 
             public Fuel Fuel { get; set; }
         }
@@ -321,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Set<StringListDataType>().Add(
                     new StringListDataType
                     {
+                        Id = 1,
                         Strings = new List<string>
                         {
                             "Gum",
@@ -354,8 +357,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Entity<Person>()
-                    .Property(p => p.SSN)
+                modelBuilder.Entity<Person>(b =>
+                {
+                    b.Property(p => p.SSN)
                     .HasConversion(
                         ssn => ssn.HasValue
                             ? ssn.Value.Number
@@ -367,9 +371,10 @@ namespace Microsoft.EntityFrameworkCore
                             }
                             : new SocialSecurityNumber?());
 
-                modelBuilder.Entity<Person>()
-                    .HasIndex(p => p.SSN)
+                    b.Property(p => p.Id).ValueGeneratedNever();
+                    b.HasIndex(p => p.SSN)
                     .IsUnique();
+                });
 
                 modelBuilder.Entity<NullablePrincipal>(
                     b =>
@@ -379,6 +384,9 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id).HasConversion(v => v, v => (int)v);
                     });
 
+                modelBuilder.Entity<NonNullableDependent>(
+                    b => b.Property(e => e.Id).ValueGeneratedNever());
+
                 modelBuilder.Entity<User>(
                     b =>
                     {
@@ -387,7 +395,11 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<Load>(
-                    b => b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v)));
+                    b =>
+                    {
+                        b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v));
+                        b.Property(e => e.LoadId).ValueGeneratedNever();
+                    });
 
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
@@ -680,7 +692,11 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<StringListDataType>(
-                    b => b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList()));
+                    b =>
+                    {
+                        b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                    });
             }
         }
     }

@@ -885,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                 break;
 
                             case ParameterExpression parameter:
-                                if (_parametersValues.ContainsKey(parameter.Name))
+                                if (parameters.ContainsKey(parameter.Name))
                                 {
                                     substitutions[i] = SqlGenerator.GenerateParameterName(parameter.Name);
 
@@ -1076,21 +1076,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
 
             _typeMapping = parentTypeMapping;
-        }
-
-        private static void AddInExpressionValues(
-            object value, List<Expression> inConstants, Expression expression)
-        {
-            if (value is IEnumerable valuesEnumerable
-                && value.GetType() != typeof(string)
-                && value.GetType() != typeof(byte[]))
-            {
-                inConstants.AddRange(valuesEnumerable.Cast<object>().Select(Expression.Constant));
-            }
-            else
-            {
-                inConstants.Add(expression);
-            }
         }
 
         /// <summary>

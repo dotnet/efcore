@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -19,18 +21,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
     {
         private const string _rootAlias = "c";
         private readonly IQuerySource _querySource;
+        private readonly ISqlGeneratorFactory _querySqlGeneratorFactory;
 
         public EntityProjectionExpression Projection { get; }
         public Expression FromExpression { get; }
         public Expression FilterExpression { get; private set; }
 
-        public SelectExpression(IEntityType entityType, IQuerySource querySource)
+        public SelectExpression(IEntityType entityType, IQuerySource querySource, ISqlGeneratorFactory querySqlGeneratorFactory)
         {
             Projection = new EntityProjectionExpression(entityType, _rootAlias);
             FromExpression = new RootReferenceExpression(entityType, _rootAlias);
             EntityType = entityType;
             FilterExpression = GetDiscriminatorPredicate(entityType);
             _querySource = querySource;
+            _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
         public BinaryExpression GetDiscriminatorPredicate(IEntityType entityType)
@@ -96,10 +100,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
 
         public IEntityType EntityType { get; }
 
-        public override string ToString()
-            => new CosmosSqlGenerator().GenerateSqlQuerySpec(this, new Dictionary<string, object>()).Query;
+        /// <summary>
+        ///     Creates the default query SQL generator.
+        /// </summary>
+        /// <returns>
+        ///     The new default query SQL generator.
+        /// </returns>
+        public virtual ISqlGenerator CreateDefaultQuerySqlGenerator()
+            => _querySqlGeneratorFactory.CreateDefault(this);
+
+        /// <summary>
+        ///     Creates the FromSql query SQL generator.
+        /// </summary>
+        /// <param name="sql"> The SQL. </param>
+        /// <param name="arguments"> The arguments. </param>
+        /// <returns>
+        ///     The new FromSql query SQL generator.
+        /// </returns>
+        public virtual ISqlGenerator CreateFromSqlQuerySqlGenerator(
+            [NotNull] string sql,
+            [NotNull] Expression arguments)
+            => _querySqlGeneratorFactory.CreateFromSql(this, sql, arguments);
 
         public CosmosSqlQuery ToSqlQuery(IReadOnlyDictionary<string, object> parameterValues)
-            => new CosmosSqlGenerator().GenerateSqlQuerySpec(this, parameterValues);
+            => CreateDefaultQuerySqlGenerator().GenerateSqlQuery(parameterValues);
+
+        public override string ToString()
+            => ToSqlQuery(new Dictionary<string, object>()).Query;
     }
 }

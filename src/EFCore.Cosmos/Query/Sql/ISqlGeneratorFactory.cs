@@ -3,14 +3,14 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query.Sql
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Sql
 {
     /// <summary>
-    ///     A factory for instances of <see cref="IQuerySqlGenerator" />.
+    ///     A factory for instances of <see cref="ISqlGenerator" />.
     /// </summary>
-    public interface IQuerySqlGeneratorFactory
+    public interface ISqlGeneratorFactory
     {
         /// <summary>
         ///     Creates the default SQL generator.
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     The default SQL generator.
         /// </returns>
-        IQuerySqlGenerator CreateDefault([NotNull] SelectExpression selectExpression);
+        ISqlGenerator CreateDefault([NotNull] SelectExpression selectExpression);
 
         /// <summary>
         ///     Creates a FromSql SQL generator.
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     The FromSql SQL generator.
         /// </returns>
-        IQuerySqlGenerator CreateFromSql(
+        ISqlGenerator CreateFromSql(
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] Expression arguments);

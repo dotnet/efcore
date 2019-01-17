@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (seed == null)
             {
-                seed = c => { };
+                seed = _ => { };
             }
 
             if (_shared)

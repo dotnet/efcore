@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -66,32 +68,35 @@ namespace Microsoft.EntityFrameworkCore
 
             builder.Append('\'');
 
-            if (parameterValue is DateTime dateTimeValue)
+            switch (parameterValue)
             {
-                builder.Append(dateTimeValue.ToString("s"));
-            }
-            else if (parameterValue is DateTimeOffset dateTimeOffsetValue)
-            {
-                builder.Append(dateTimeOffsetValue.ToString("o"));
-            }
-            else if (parameterValue is byte[] binaryValue)
-            {
-                builder.Append("0x");
+                case JToken jTokenValue:
+                    builder.Append(jTokenValue.ToString(Formatting.None).Trim('"'));
+                    break;
+                case DateTime dateTimeValue:
+                    builder.Append(dateTimeValue.ToString("s"));
+                    break;
+                case DateTimeOffset dateTimeOffsetValue:
+                    builder.Append(dateTimeOffsetValue.ToString("o"));
+                    break;
+                case byte[] binaryValue:
+                    builder.Append("0x");
 
-                for (var i = 0; i < binaryValue.Length; i++)
-                {
-                    if (i > 31)
+                    for (var i = 0; i < binaryValue.Length; i++)
                     {
-                        builder.Append("...");
-                        break;
+                        if (i > 31)
+                        {
+                            builder.Append("...");
+                            break;
+                        }
+
+                        builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
                     }
 
-                    builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
-                }
-            }
-            else
-            {
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
+                    break;
+                default:
+                    builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
+                    break;
             }
 
             builder.Append('\'');

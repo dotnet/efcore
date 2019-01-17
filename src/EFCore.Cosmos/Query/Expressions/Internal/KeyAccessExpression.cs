@@ -9,21 +9,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
 {
     public class KeyAccessExpression : Expression
     {
-        private readonly IPropertyBase _propertyBase;
         private readonly Expression _outerExpression;
-
-        public override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => _propertyBase.ClrType;
 
         public KeyAccessExpression(IPropertyBase propertyBase, Expression outerExpression)
         {
-            _propertyBase = propertyBase;
+            PropertyBase = propertyBase;
             _outerExpression = outerExpression;
         }
 
+        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override Type Type => PropertyBase.ClrType;
+        public IPropertyBase PropertyBase { get; }
+
         public override string ToString()
         {
-            return $"{_outerExpression}[\"{_propertyBase.Name}\"]";
+            return $"{_outerExpression}[\"{PropertyBase.Name}\"]";
         }
     }
 }

@@ -477,6 +477,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 foreach (var propertyEntry in context.Entry(entity).Properties)
                 {
+                    if (propertyEntry.Metadata.ValueGenerated != ValueGenerated.Never)
+                    {
+                        continue;
+                    }
+
                     Assert.Equal(
                         source.Property(propertyEntry.Metadata.Name).CurrentValue,
                         propertyEntry.CurrentValue);
@@ -845,6 +850,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 foreach (var propertyEntry in context.Entry(entity).Properties)
                 {
+                    if (propertyEntry.Metadata.ValueGenerated != ValueGenerated.Never)
+                    {
+                        continue;
+                    }
+
                     Assert.Equal(
                         source.Property(propertyEntry.Metadata.Name).CurrentValue,
                         propertyEntry.CurrentValue);

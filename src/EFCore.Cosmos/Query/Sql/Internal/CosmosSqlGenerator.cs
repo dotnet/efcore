@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,13 +8,22 @@ using System.Linq.Expressions;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Sql.Internal
 {
-    public class CosmosSqlGenerator : ExpressionVisitor
+    public class CosmosSqlGenerator : ExpressionVisitor, ISqlGenerator
     {
+        private readonly SelectExpression _selectExpression;
+        private readonly ITypeMappingSource _typeMappingSource;
+        private CoreTypeMapping _typeMapping;
+
         private readonly StringBuilder _sqlBuilder = new StringBuilder();
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
@@ -56,42 +65,59 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
             { ExpressionType.Coalesce, " ?? " }
         };
 
-        public CosmosSqlQuery GenerateSqlQuerySpec(
-            SelectExpression selectExpression,
+        public CosmosSqlGenerator(SelectExpression selectExpression, ITypeMappingSource typeMappingSource)
+        {
+            _selectExpression = selectExpression;
+            _typeMappingSource = typeMappingSource;
+        }
+
+        public CosmosSqlQuery GenerateSqlQuery(
             IReadOnlyDictionary<string, object> parameterValues)
         {
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
             _sqlParameters = new List<SqlParameter>();
 
-            Visit(selectExpression);
+            Visit(_selectExpression);
 
             return new CosmosSqlQuery(_sqlBuilder.ToString(), _sqlParameters);
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (_operatorMap.ContainsKey(binaryExpression.NodeType))
+            if (!_operatorMap.TryGetValue(binaryExpression.NodeType, out var op))
             {
-                _sqlBuilder.Append("(");
-                Visit(binaryExpression.Left);
-                var op = _operatorMap[binaryExpression.NodeType];
-
-                if (binaryExpression.NodeType == ExpressionType.Add
-                    && binaryExpression.Left.Type == typeof(string))
-                {
-                    op = " || ";
-                }
-
-                _sqlBuilder.Append(op);
-
-                Visit(binaryExpression.Right);
-                _sqlBuilder.Append(")");
-
-                return binaryExpression;
+                return base.VisitBinary(binaryExpression);
             }
 
-            return base.VisitBinary(binaryExpression);
+            var parentTypeMapping = _typeMapping;
+
+            if (binaryExpression.IsComparisonOperation()
+                || binaryExpression.NodeType == ExpressionType.Add
+                || binaryExpression.NodeType == ExpressionType.Coalesce)
+            {
+                _typeMapping
+                    = FindTypeMapping(binaryExpression.Left)
+                      ?? FindTypeMapping(binaryExpression.Right)
+                      ?? parentTypeMapping;
+            }
+
+            _sqlBuilder.Append("(");
+            Visit(binaryExpression.Left);
+
+            if (binaryExpression.NodeType == ExpressionType.Add
+                && binaryExpression.Left.Type == typeof(string))
+            {
+                op = " || ";
+            }
+
+            _sqlBuilder.Append(op);
+
+            Visit(binaryExpression.Right);
+            _sqlBuilder.Append(")");
+
+            _typeMapping = parentTypeMapping;
+            return binaryExpression;
         }
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
@@ -109,29 +135,68 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            var value = constantExpression.Value;
+            var jToken = GenerateJToken(constantExpression.Value, constantExpression.Type, _typeMapping);
 
-            if (value is null)
+            _sqlBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
+
+            return constantExpression;
+        }
+
+        private JToken GenerateJToken(object value, Type type, CoreTypeMapping typeMapping)
+        {
+            var mappingClrType = typeMapping?.ClrType.UnwrapNullableType();
+            if (mappingClrType != null
+                && (value == null
+                    || mappingClrType.IsInstanceOfType(value)
+                    || (value.GetType().IsInteger()
+                        && (mappingClrType.IsInteger()
+                            || mappingClrType.IsEnum))))
             {
-                _sqlBuilder.Append("null");
-            }
-            else if (value.GetType().IsNumeric()
-                     || value is DateTime
-                     || value is DateTimeOffset)
-            {
-                var jsonValue = JToken.FromObject(value);
-                _sqlBuilder.Append(jsonValue.ToString(Formatting.None));
-            }
-            else if (value is bool boolValue)
-            {
-                _sqlBuilder.Append(boolValue ? "true" : "false");
+                if (value?.GetType().IsInteger() == true
+                    && mappingClrType.IsEnum)
+                {
+                    value = Enum.ToObject(mappingClrType, value);
+                }
             }
             else
             {
-                _sqlBuilder.Append("\"").Append(value).Append("\"");
+                var mappingType = (value?.GetType() ?? type).UnwrapNullableType();
+                typeMapping = _typeMappingSource.FindMapping(mappingType);
+
+                if (typeMapping == null)
+                {
+                    throw new InvalidOperationException($"Unsupported parameter type {mappingType.ShortDisplayName()}");
+                }
             }
 
-            return constantExpression;
+            var converter = typeMapping.Converter;
+            if (converter != null)
+            {
+                value = converter.ConvertToProvider(value);
+            }
+
+            if (value == null)
+            {
+                return null;
+            }
+
+            return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+        }
+
+        private CoreTypeMapping FindTypeMapping(Expression expression)
+            => FindProperty(expression)?.FindMapping();
+
+        private static IProperty FindProperty(Expression expression)
+        {
+            switch (expression)
+            {
+                case KeyAccessExpression keyAccessExpression:
+                    return keyAccessExpression.PropertyBase as IProperty;
+                case UnaryExpression unaryExpression:
+                    return FindProperty(unaryExpression.Operand);
+            }
+
+            return null;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
@@ -175,7 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
 
             if (_sqlParameters.All(sp => sp.Name != parameterName))
             {
-                _sqlParameters.Add(new SqlParameter(parameterName, _parameterValues[parameterExpression.Name]));
+                var jToken = GenerateJToken(_parameterValues[parameterExpression.Name], parameterExpression.Type, _typeMapping);
+                _sqlParameters.Add(new SqlParameter(parameterName, jToken));
             }
 
             _sqlBuilder.Append(parameterName);

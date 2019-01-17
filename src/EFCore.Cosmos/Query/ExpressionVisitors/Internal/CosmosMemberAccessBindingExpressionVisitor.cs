@@ -1,10 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -19,11 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
 {
     public class CosmosMemberAccessBindingExpressionVisitor : RelinqExpressionVisitor
     {
-        private static readonly MethodInfo _getItemMethodInfo
-            = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
-                .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
-                .GetMethod;
-
         private readonly QuerySourceMapping _querySourceMapping;
         private readonly CosmosQueryModelVisitor _queryModelVisitor;
         private readonly bool _inProjection;
@@ -63,10 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
                                     return memberExpression;
                                 }
 
-                                newExpression = CreateGetValueExpression(newExpression, property);
+                                newExpression = CreateGetValueExpression(newExpression, (IProperty)property);
                             }
 
-                            return newExpression;
+                            if (newExpression != null)
+                            {
+                                return newExpression;
+                            }
                         }
                     }
 
@@ -99,12 +97,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
 
                         if (qsre != null)
                         {
-                            foreach (var property in properties)
-                            {
-                                newSource = CreateGetValueExpression(newSource, property);
-                            }
+                            Debug.Assert(properties.Count == 1);
 
-                            return newSource;
+                            newSource = CreateGetValueExpression(newSource, (IProperty)properties[0]);
+
+                            if (newSource != null)
+                            {
+                                return newSource;
+                            }
                         }
                     }
                 }
@@ -161,12 +161,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
 
         private static Expression CreateGetValueExpression(
             Expression jObjectExpression,
-            IPropertyBase property)
-            => Expression.Convert(
-                Expression.Call(
-                    jObjectExpression,
-                    _getItemMethodInfo,
-                    Expression.Constant((property as IProperty)?.Cosmos().PropertyName ?? property.Name)),
-                property.ClrType);
+            IProperty property)
+        {
+            var storeName = property.Cosmos().PropertyName;
+            if (storeName.Length == 0)
+            {
+                return null;
+            }
+
+            return ValueBufferFactoryFactory.CreateGetStoreValueExpression(jObjectExpression, property, storeName);
+        }
     }
 }

@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        //[ConditionalTheory]
-        //[InlineData(true)]
-        //[InlineData(false)]
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
         public async Task EnsureCreated_returns_false_when_database_and_collections_exists(bool async)
         {
             using (var testDatabase = CosmosTestStore.Create("EnsureCreatedReady"))
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        //[ConditionalTheory]
-        //[InlineData(true)]
-        //[InlineData(false)]
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
         public async Task EnsureDeleted_returns_false_when_database_does_not_exist(bool async)
         {
             using (var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging"))

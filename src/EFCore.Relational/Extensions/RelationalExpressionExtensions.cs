@@ -80,8 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         // Issue#11266 This method is being used by provider code. Do not break.
         public static IProperty FindProperty([NotNull] this Expression expression, [NotNull] Type targetType)
         {
-            targetType = targetType.UnwrapNullableType();
-
             switch (expression)
             {
                 case ColumnExpression columnExpression:
@@ -102,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             new[] { functionExpression.Instance });
                     }
 
+                    targetType = targetType.UnwrapNullableType();
                     var properties = arguments
                         .Select(e => e.FindProperty(targetType))
                         .Where(p => p != null && p.ClrType.UnwrapNullableType() == targetType)

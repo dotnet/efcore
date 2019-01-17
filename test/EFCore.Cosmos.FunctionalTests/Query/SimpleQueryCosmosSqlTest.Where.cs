@@ -446,7 +446,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__predicateTupl
             await base.Where_simple_closure_constant(isAsync);
 
             AssertSql(
-                @"@__predicate_0='True'
+                @"@__predicate_0='true'
 
 SELECT c
 FROM root c
@@ -1342,7 +1342,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (NOT(c[""Discontinued""]) = (c["
             await base.Where_bool_parameter(isAsync);
 
             AssertSql(
-                @"@__prm_0='True'
+                @"@__prm_0='true'
 
 SELECT c
 FROM root c
@@ -1354,7 +1354,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND @__prm_0)");
             await base.Where_bool_parameter_compared_to_binary_expression(isAsync);
 
             AssertSql(
-                @"@__prm_0='True'
+                @"@__prm_0='true'
 
 SELECT c
 FROM root c
@@ -1366,7 +1366,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] > 50) != @__p
             await base.Where_bool_member_and_parameter_compared_to_binary_expression_nested(isAsync);
 
             AssertSql(
-                @"@__prm_0='True'
+                @"@__prm_0='true'
 
 SELECT c
 FROM root c
@@ -1515,7 +1515,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""])
             await base.Where_ternary_boolean_condition_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='True'
+                @"@__flag_0='true'
 
 SELECT c
 FROM root c
@@ -1527,7 +1527,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
             await base.Where_ternary_boolean_condition_false(isAsync);
 
             AssertSql(
-                @"@__flag_0='False'
+                @"@__flag_0='false'
 
 SELECT c
 FROM root c
@@ -1540,7 +1540,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
 
             AssertSql(
                 @"@__productId_0='15'
-@__flag_1='True'
+@__flag_1='true'
 
 SELECT c
 FROM root c
@@ -1552,7 +1552,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] < @__productI
             await base.Where_ternary_boolean_condition_with_false_as_result_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='True'
+                @"@__flag_0='true'
 
 SELECT c
 FROM root c
@@ -1564,7 +1564,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
             await base.Where_ternary_boolean_condition_with_false_as_result_false(isAsync);
 
             AssertSql(
-                @"@__flag_0='False'
+                @"@__flag_0='false'
 
 SELECT c
 FROM root c
@@ -1807,7 +1807,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.TypeBinary_short_circuit(isAsync);
 
             AssertSql(
-                @"@__p_0='False'
+                @"@__p_0='false'
 
 SELECT c
 FROM root c

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -25,11 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly string _endPoint;
         private readonly string _authKey;
         private CosmosClient _client;
-        private CosmosDatabase _database;
-        private readonly Dictionary<string, CosmosItems> _items = new Dictionary<string, CosmosItems>();
         private readonly IExecutionStrategyFactory _executionStrategyFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
+        public static readonly JsonSerializer Serializer = new JsonSerializer();
+
+        static CosmosClientWrapper()
+        {
+            Serializer.Converters.Add(new ByteArrayConverter());
+            Serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+        }
 
         public CosmosClientWrapper(
             [NotNull] IDbContextOptions dbContextOptions,
@@ -50,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             ?? (_client = new CosmosClient(
                 new CosmosConfiguration(_endPoint, _authKey)
                 {
-                    UserAgentSuffix = _userAgent
+                    UserAgentSuffix = _userAgent,
+                    ConnectionMode = ConnectionMode.Direct
                 }));
 
         public bool CreateDatabaseIfNotExists()
@@ -73,19 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var response = await Client.Databases.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken);
-            _database = response.Database;
 
             return response.StatusCode == HttpStatusCode.Created;
-        }
-
-        private async Task<CosmosDatabase> GetDatabaseAsync(CancellationToken cancellationToken)
-        {
-            if (_database == null)
-            {
-                await CreateDatabaseIfNotExistsAsync(cancellationToken);
-            }
-
-            return _database;
         }
 
         public bool DeleteDatabase()
@@ -106,8 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var database = await GetDatabaseAsync(cancellationToken);
-            var response = await database.DeleteAsync(cancellationToken: cancellationToken);
+            var response = await Client.Databases[_databaseId].DeleteAsync(cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.NoContent;
         }
@@ -135,8 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            var database = await GetDatabaseAsync(cancellationToken);
-
             var pk = new PartitionKeyDefinition();
             pk.Paths.Add("/" + parameters.PartitionKey);
 
@@ -146,19 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 PartitionKey = pk
             };
 
-            CosmosContainer container = await database.Containers.CreateContainerIfNotExistsAsync(settings, cancellationToken: cancellationToken);
-            _items[parameters.ContainerId] = container.Items;
-            return true;
-        }
-
-        private async Task<CosmosItems> GetItemsAsync(string containerId, CancellationToken cancellationToken)
-        {
-            if (!_items.ContainsKey(containerId))
-            {
-                await CreateContainerIfNotExistsAsync(containerId, null, cancellationToken);
-            }
-
-            return _items[containerId];
+            var container = await Client.Databases[_databaseId].Containers
+                .CreateContainerIfNotExistsAsync(settings, cancellationToken: cancellationToken);
+            return container.StatusCode == HttpStatusCode.Created;
         }
 
         public bool CreateItem(
@@ -184,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, JToken Document) parameters,
             CancellationToken cancellationToken = default)
         {
-            var items = await GetItemsAsync(parameters.ContainerId, cancellationToken);
+            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
             var response = await items.CreateItemAsync("0", parameters.Document, new CosmosItemRequestOptions(), cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -217,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var (containerId, itemId, document) = parameters;
 
-            var items = await GetItemsAsync(containerId, cancellationToken);
+            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
             var response = await items.ReplaceItemAsync("0", itemId, document, cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.OK;
@@ -246,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string DocumentId) parameters,
             CancellationToken cancellationToken = default)
         {
-            var items = await GetItemsAsync(parameters.ContainerId, cancellationToken);
+            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
             var response = await items.DeleteItemAsync<JObject>("0", parameters.DocumentId, cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.NoContent;
@@ -274,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string containerId,
             CosmosSqlQuery query)
         {
-            var items = GetItemsAsync(containerId, CancellationToken.None).GetAwaiter().GetResult();
+            var items = Client.Databases[_databaseId].Containers[containerId].Items;
             var queryDefinition = new CosmosSqlQueryDefinition(query.Query);
             foreach (var parameter in query.Parameters)
             {

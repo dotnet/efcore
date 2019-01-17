@@ -572,13 +572,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             if (!property.IsNullable
                                 && ((!property.RequiresValueGenerator()
                                      && (property.ValueGenerated & ValueGenerated.OnAdd) == 0)
-                                    || property.IsKey()))
+                                    || property.IsPrimaryKey()))
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                             }
                         }
                         else if (property.RequiresValueGenerator()
-                                 && property.IsKey()
+                                 && property.IsPrimaryKey()
                                  && property.ClrType.IsDefaultValue(value))
                         {
                             if (property.ClrType.IsSignedInteger())

@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return base.Visit(expression);
         }
 
-        private static bool PreserveConvertNode(Expression expression)
+        protected virtual bool PreserveConvertNode(Expression expression)
         {
             if (expression is UnaryExpression unaryExpression
                 && (unaryExpression.NodeType == ExpressionType.Convert
@@ -96,10 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return true;
                 }
 
-                if (unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
+                if (unaryExpression.Operand.Type.UnwrapNullableType().IsEnum
+                    || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(char))
                 {
                     return true;
                 }
+
+                return PreserveConvertNode(unaryExpression.Operand);
             }
 
             return false;
