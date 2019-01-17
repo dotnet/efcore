@@ -29,9 +29,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>1e3f27b8791c6192d30e6a070a0d6a632aa8fef2</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27315-8">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview-27316-4">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>2664188b4a47cbdfde7b8462f7f5aa225292f322</Sha>
+      <Sha>bc9c41141c5f0c4903325fe0ded2625c41a5770a</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview.19065.5">
       <Uri>https://github.com/aspnet/Extensions</Uri>
