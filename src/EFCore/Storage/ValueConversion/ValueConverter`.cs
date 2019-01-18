@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class ValueConverter<TModel, TProvider> : ValueConverter
     {
-        private Func<object, object> _convertToProvider;
-        private Func<object, object> _convertFromProvider;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
         /// </summary>
@@ -32,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
-            _convertToProvider = SanitizeConverter(convertToProviderExpression);
-            _convertFromProvider = SanitizeConverter(convertFromProviderExpression);
+            ConvertToProvider = SanitizeConverter(convertToProviderExpression);
+            ConvertFromProvider = SanitizeConverter(convertFromProviderExpression);
         }
 
         private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
@@ -58,17 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when writing data to the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public override Func<object, object> ConvertToProvider
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertToProvider, this, c => SanitizeConverter(c.ConvertToProviderExpression));
+        public override Func<object, object> ConvertToProvider { get; }
 
         /// <summary>
         ///     Gets the function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public override Func<object, object> ConvertFromProvider
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertFromProvider, this, c => SanitizeConverter(c.ConvertFromProviderExpression));
+        public override Func<object, object> ConvertFromProvider { get; }
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,
