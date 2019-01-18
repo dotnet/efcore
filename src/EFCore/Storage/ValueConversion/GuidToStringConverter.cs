@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public GuidToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public GuidToStringConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToGuid(),

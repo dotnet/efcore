@@ -1584,7 +1584,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Property AddProperty(
             [NotNull] string name,
-            [CanBeNull] Type propertyType = null,
+            [CanBeNull] Type? propertyType = null,
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit)

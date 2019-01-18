@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string? navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));

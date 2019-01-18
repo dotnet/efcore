@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool> predicate = null)
+        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool>? predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()

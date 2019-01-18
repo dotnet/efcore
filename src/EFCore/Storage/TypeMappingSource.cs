@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
-        private readonly ConcurrentDictionary<(TypeMappingInfo, Type, ValueConverter), CoreTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<(TypeMappingInfo, Type, ValueConverter), CoreTypeMapping>();
+        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private CoreTypeMapping FindMappingWithConversion(
             in TypeMappingInfo mappingInfo,
-            [CanBeNull] IReadOnlyList<IProperty> principals)
+            [CanBeNull] IReadOnlyList<IProperty>? principals)
         {
-            Type providerClrType = null;
-            ValueConverter customConverter = null;
+            Type? providerClrType = null;
+            ValueConverter? customConverter = null;
             if (principals != null)
             {
                 for (var i = 0; i < principals.Count; i++)
@@ -123,7 +123,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         mapping = mapping.Clone(converter);
                     }
 
+#nullable disable
+                    // It seems like if we failed to find a mapping, we insert a null into _explicitMappings.
+                    // However, ConcurrentDictionary's GetOrAdd() signature hasn't yet been updated to reflect that
+                    // this is possible.
                     return mapping;
+#nullable enable
                 });
 
             ValidateMapping(resolvedMapping, principals?[0]);
@@ -141,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(IProperty property)
+        public override CoreTypeMapping? FindMapping(IProperty property)
         {
             var mapping = property.FindMapping();
             if (mapping != null)
@@ -168,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(Type type)
+        public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
         /// <summary>
@@ -186,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public override CoreTypeMapping FindMapping(MemberInfo member)
+        public override CoreTypeMapping? FindMapping(MemberInfo member)
             => FindMappingWithConversion(new TypeMappingInfo(member), null);
     }
 }

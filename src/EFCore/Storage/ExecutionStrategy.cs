@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private TResult ExecuteImplementation<TState, TResult>(
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded,
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded,
             TState state)
         {
             while (true)
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task<TResult> ExecuteImplementationAsync<TState, TResult>(
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             TState state,
             CancellationToken cancellationToken)
         {

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             Expression materializationExpression,
-            int[] indexMap = null)
+            int[]? indexMap = null)
         {
             if (!entityType.HasClrType())
             {

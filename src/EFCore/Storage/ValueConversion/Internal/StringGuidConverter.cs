@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringGuidConverter(
             [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
             [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }

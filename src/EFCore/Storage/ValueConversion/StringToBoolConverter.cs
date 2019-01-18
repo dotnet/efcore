@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToBoolConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => Convert.ToBoolean(v),
                 v => Convert.ToString(v),

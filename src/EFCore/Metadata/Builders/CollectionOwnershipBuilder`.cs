@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-            [CanBeNull] Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TDependentEntity, TNewRelatedEntity>>? navigationExpression = null)
             where TNewRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();

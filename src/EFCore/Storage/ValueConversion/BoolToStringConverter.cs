@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public BoolToStringConverter(
             [NotNull] string falseValue,
             [NotNull] string trueValue,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 Check.NotEmpty(falseValue, nameof(falseValue)),
                 Check.NotEmpty(trueValue, nameof(trueValue)),

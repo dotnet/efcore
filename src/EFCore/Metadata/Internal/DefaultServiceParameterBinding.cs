@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public DefaultServiceParameterBinding(
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase consumedProperty = null)
+            [CanBeNull] IPropertyBase? consumedProperty = null)
             : base(parameterType, serviceType, consumedProperty)
         {
         }

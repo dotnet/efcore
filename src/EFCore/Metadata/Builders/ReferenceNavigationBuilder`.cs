@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany([CanBeNull] string navigationName = null)
+        public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany([CanBeNull] string? navigationName = null)
             => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string? navigationName = null)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,

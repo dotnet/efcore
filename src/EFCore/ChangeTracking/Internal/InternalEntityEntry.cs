@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private CurrentValueType GetValueType(
             IProperty property,
-            Func<object, object, bool> equals = null)
+            Func<object, object, bool>? equals = null)
         {
             var tempIndex = property.GetStoreGeneratedIndex();
             if (tempIndex == -1)

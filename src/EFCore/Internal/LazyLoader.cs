@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // ReSharper disable once AssignNullToNotNullAttribute
-        public virtual void Load(object entity, [CallerMemberName] string navigationName = null)
+        public virtual void Load(object entity, [CallerMemberName] string? navigationName = null)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             object entity,
             CancellationToken cancellationToken = default,
             // ReSharper disable once AssignNullToNotNullAttribute
-            [CallerMemberName] string navigationName = null)
+            [CallerMemberName] string? navigationName = null)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));

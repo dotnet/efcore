@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] string navigationName,
+            [CanBeNull] string? navigationName,
             [NotNull] InternalRelationshipBuilder builder)
             : base(declaringEntityType, relatedEntityType, navigationName, builder)
         {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] PropertyInfo? navigationProperty,
             [NotNull] InternalRelationshipBuilder builder)
             : base(declaringEntityType, relatedEntityType, navigationProperty, builder)
         {
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string navigationName = null)
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string? navigationName = null)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
+            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
             => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                 DeclaringEntityType,
                 RelatedEntityType,

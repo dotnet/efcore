@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected ServiceParameterBinding(
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase consumedProperty = null)
+            [CanBeNull] IPropertyBase? consumedProperty = null)
             : base(parameterType, consumedProperty != null ? new[] { consumedProperty } : Array.Empty<IPropertyBase>())
         {
             ServiceType = serviceType;

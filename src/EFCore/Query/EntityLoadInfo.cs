@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public readonly struct EntityLoadInfo
     {
         private readonly Func<MaterializationContext, object> _materializer;
-        private readonly Dictionary<Type, int[]> _typeIndexMap;
+        private readonly Dictionary<Type, int[]>? _typeIndexMap;
         private readonly MaterializationContext _materializationContext;
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityLoadInfo(
             in MaterializationContext materializationContext,
             [NotNull] Func<MaterializationContext, object> materializer,
-            [CanBeNull] Dictionary<Type, int[]> typeIndexMap = null)
+            [CanBeNull] Dictionary<Type, int[]>? typeIndexMap = null)
         {
             // hot path
             Debug.Assert(materializer != null);

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam1, TParam2, TParam3, TParam4> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception> _logAction;
+        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public EventDefinition(
             EventId eventId,
             LogLevel level,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception> logAction)
+            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception?> logAction)
             : this(eventId, level, null, logAction)
         {
         }
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventId eventId,
             LogLevel level,
             [CanBeNull] string eventIdCode,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception> logAction)
+            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception?> logAction)
             : base(eventId, level, eventIdCode)
         {
             Check.NotNull(logAction, nameof(logAction));
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] TParam2 arg2,
             [CanBeNull] TParam3 arg3,
             [CanBeNull] TParam4 arg4,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, arg1, arg2, arg3, arg4, exception);
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] TParam2 arg2,
             [CanBeNull] TParam3 arg3,
             [CanBeNull] TParam4 arg4,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (warningBehavior)

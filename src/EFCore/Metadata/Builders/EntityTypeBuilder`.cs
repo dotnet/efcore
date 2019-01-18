@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TEntity, TRelatedEntity>>? navigationExpression = null)
             where TRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>>? navigationExpression = null)
             where TRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();

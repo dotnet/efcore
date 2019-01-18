@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToTicksConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public DateTimeToTicksConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => v.Ticks,
                 v => new DateTime(v),

@@ -3136,7 +3136,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static MethodInfo GetMethod<TResult>(
-            string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
+            string name, int parameterCount = 0, Func<MethodInfo, bool>? predicate = null)
             => GetMethod(
                 name,
                 parameterCount,
@@ -3144,7 +3144,7 @@ namespace Microsoft.EntityFrameworkCore
                       && (predicate == null || predicate(mi)));
 
         private static MethodInfo GetMethod(
-            string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
+            string name, int parameterCount = 0, Func<MethodInfo, bool>? predicate = null)
             => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
                 .Single(
                     mi => mi.GetParameters().Length == parameterCount + 1

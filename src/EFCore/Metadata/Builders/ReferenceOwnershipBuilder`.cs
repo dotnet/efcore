@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-            [CanBeNull] Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TRelatedEntity, TNewRelatedEntity>>? navigationExpression = null)
             where TNewRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasMany<TNewRelatedEntity>(
-            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TNewRelatedEntity>>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TNewRelatedEntity>>>? navigationExpression = null)
             where TNewRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] string navigationName,
+            [CanBeNull] string? navigationName,
             [NotNull] InternalRelationshipBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] PropertyInfo? navigationProperty,
             [NotNull] InternalRelationshipBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
+        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string? navigationName = null)
             => new ReferenceCollectionBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -123,14 +123,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string? navigationName)
             => WithOneBuilder(PropertyIdentity.Create(navigationName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo? navigationProperty)
             => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
 
         private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)

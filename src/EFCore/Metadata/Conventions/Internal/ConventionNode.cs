@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private bool _readonly;
 #endif
 
-            public ConventionScope(ConventionScope parent, List<ConventionNode> children = null)
+            public ConventionScope(ConventionScope parent, List<ConventionNode>? children = null)
             {
                 Parent = parent;
                 _children = children;

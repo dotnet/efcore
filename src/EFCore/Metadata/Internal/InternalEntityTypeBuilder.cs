@@ -2608,7 +2608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<Property> GetOrCreateProperties(
             [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource? configurationSource,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties = null,
+            [CanBeNull] IReadOnlyList<Property>? referencedProperties = null,
             bool required = false,
             bool useDefaultType = false)
         {

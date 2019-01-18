@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToBinaryConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public DateTimeToBinaryConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => v.ToBinary(),
                 v => DateTime.FromBinary(v),

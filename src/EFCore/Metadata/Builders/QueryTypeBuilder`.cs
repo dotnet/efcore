@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TQuery, TRelatedEntity> HasOne<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TQuery, TRelatedEntity>> navigationExpression = null)
+            [CanBeNull] Expression<Func<TQuery, TRelatedEntity>>? navigationExpression = null)
             where TRelatedEntity : class
         {
             var relatedEntityType = Builder.Metadata.FindInDefinitionPath(typeof(TRelatedEntity)) ??

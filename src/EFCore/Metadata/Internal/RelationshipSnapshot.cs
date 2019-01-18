@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Attach([CanBeNull] InternalEntityTypeBuilder entityTypeBuilder = null)
+        public virtual InternalRelationshipBuilder Attach([CanBeNull] InternalEntityTypeBuilder? entityTypeBuilder = null)
         {
             entityTypeBuilder = entityTypeBuilder ?? Relationship.Metadata.DeclaringEntityType.Builder;
             var newRelationship = Relationship.Attach(entityTypeBuilder);

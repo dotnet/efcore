@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
         ///           }
         ///       </code>
@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
+            [CanBeNull] Action<DbContextOptionsBuilder>? optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
@@ -76,7 +76,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
         ///           }
         ///       </code>
@@ -107,7 +107,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
+            [CanBeNull] Action<DbContextOptionsBuilder>? optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContextImplementation : DbContext, TContextService
@@ -305,7 +305,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
         ///           }
         ///       </code>
@@ -334,7 +334,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
         ///           }
         ///       </code>
@@ -379,7 +379,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services
         ///                   .AddEntityFrameworkSqlServer()
         ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
@@ -439,7 +439,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services
         ///                   .AddEntityFrameworkSqlServer()
         ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>

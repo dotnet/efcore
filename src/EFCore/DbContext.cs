@@ -53,17 +53,17 @@ namespace Microsoft.EntityFrameworkCore
         IDbQueryCache,
         IDbContextPoolable
     {
-        private IDictionary<Type, object> _sets;
-        private IDictionary<Type, object> _queries;
+        private IDictionary<Type, object>? _sets;
+        private IDictionary<Type, object>? _queries;
         private readonly DbContextOptions _options;
 
-        private IDbContextServices _contextServices;
-        private IDbContextDependencies _dbContextDependencies;
-        private DatabaseFacade _database;
-        private ChangeTracker _changeTracker;
+        private IDbContextServices? _contextServices;
+        private IDbContextDependencies? _dbContextDependencies;
+        private DatabaseFacade? _database;
+        private ChangeTracker? _changeTracker;
 
-        private IServiceScope _serviceScope;
-        private IDbContextPool _dbContextPool;
+        private IServiceScope? _serviceScope;
+        private IDbContextPool? _dbContextPool;
         private bool _initializing;
         private bool _disposed;
 
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                ((IResettableService)_changeTracker)?.ResetState();
+                ((IResettableService?)_changeTracker)?.ResetState();
             }
 
             if (_database != null)

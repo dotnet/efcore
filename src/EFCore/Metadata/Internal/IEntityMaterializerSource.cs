@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression materializationExpression,
-            [CanBeNull] int[] indexMap = null);
+            [CanBeNull] int[]? indexMap = null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

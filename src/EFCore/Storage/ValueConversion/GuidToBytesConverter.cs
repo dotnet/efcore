@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public GuidToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public GuidToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => v.ToByteArray(),
                 v => v == null ? Guid.Empty : new Guid(v),

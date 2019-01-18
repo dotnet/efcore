@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public CompositeValueConverter(
             [NotNull] ValueConverter converter1,
             [NotNull] ValueConverter converter2,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 Compose(
                     (Expression<Func<TModel, TMiddle>>)converter1.ConvertToProviderExpression,

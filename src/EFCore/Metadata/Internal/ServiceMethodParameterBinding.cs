@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
             [NotNull] MethodInfo method,
-            [CanBeNull] IPropertyBase consumedProperty = null)
+            [CanBeNull] IPropertyBase? consumedProperty = null)
             : base(parameterType, serviceType, consumedProperty)
         {
             Method = method;

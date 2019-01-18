@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull] ref TValue target,
+            [CanBeNull] ref TValue? target,
             [CanBeNull] TParam param,
             [NotNull] Func<TParam, TValue> valueFactory)
             where TValue : class

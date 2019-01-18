@@ -1501,7 +1501,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool CanSetForeignKey(
             IReadOnlyList<Property> properties,
             ConfigurationSource? configurationSource,
-            EntityType dependentEntityType = null,
+            EntityType? dependentEntityType = null,
             bool overrideSameSource = true)
             => CanSetForeignKey(
                 properties,
@@ -1513,7 +1513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool CanSetForeignKey(
             IReadOnlyList<Property> properties,
-            EntityType dependentEntityType,
+            EntityType? dependentEntityType,
             ConfigurationSource? configurationSource,
             out bool resetIsRequired,
             out bool resetPrincipalKey,
@@ -1536,7 +1536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool CanSetForeignKey(
             IReadOnlyList<Property> properties,
-            EntityType dependentEntityType,
+            EntityType? dependentEntityType,
             IReadOnlyList<Property> principalKeyProperties,
             EntityType principalEntityType,
             ConfigurationSource? configurationSource,
@@ -1719,13 +1719,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalRelationshipBuilder ReplaceForeignKey(
             ConfigurationSource? configurationSource,
-            InternalEntityTypeBuilder principalEntityTypeBuilder = null,
-            InternalEntityTypeBuilder dependentEntityTypeBuilder = null,
+            InternalEntityTypeBuilder? principalEntityTypeBuilder = null,
+            InternalEntityTypeBuilder? dependentEntityTypeBuilder = null,
             PropertyIdentity? navigationToPrincipal = null,
             PropertyIdentity? navigationToDependent = null,
-            IReadOnlyList<Property> dependentProperties = null,
-            IReadOnlyList<Property> oldNameDependentProperties = null,
-            IReadOnlyList<Property> principalProperties = null,
+            IReadOnlyList<Property>? dependentProperties = null,
+            IReadOnlyList<Property>? oldNameDependentProperties = null,
+            IReadOnlyList<Property>? principalProperties = null,
             bool? isUnique = null,
             bool? isRequired = null,
             bool? isOwnership = null,

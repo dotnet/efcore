@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public StringToCharConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public StringToCharConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 ToChar(),
                 ToString(),

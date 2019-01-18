@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ConverterMappingHints _defaultHints = CreateDefaultHints();
 
-        private static ConverterMappingHints CreateDefaultHints()
+        private static ConverterMappingHints? CreateDefaultHints()
         {
             if (typeof(TProvider).UnwrapNullableType() == typeof(decimal))
             {
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
-        public CastingConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public CastingConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 Convert<TModel, TProvider>(),
                 Convert<TProvider, TModel>(),

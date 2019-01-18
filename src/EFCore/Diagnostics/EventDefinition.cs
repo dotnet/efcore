@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition : EventDefinitionBase
     {
-        private readonly Action<ILogger, Exception> _logAction;
+        private readonly Action<ILogger, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public EventDefinition(
             EventId eventId,
             LogLevel level,
-            [NotNull] Action<ILogger, Exception> logAction)
+            [NotNull] Action<ILogger, Exception?> logAction)
             : this(eventId, level, null, logAction)
         {
         }
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventId eventId,
             LogLevel level,
             [CanBeNull] string eventIdCode,
-            [NotNull] Action<ILogger, Exception> logAction)
+            [NotNull] Action<ILogger, Exception?> logAction)
             : base(eventId, level, eventIdCode)
         {
             Check.NotNull(logAction, nameof(logAction));
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="exception"> Optional exception associated with this event. </param>
         /// <returns> The message string. </returns>
-        public virtual string GenerateMessage([CanBeNull] Exception exception = null)
+        public virtual string GenerateMessage([CanBeNull] Exception? exception = null)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, exception);
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual void Log<TLoggerCategory>(
             [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
             WarningBehavior warningBehavior,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (warningBehavior)

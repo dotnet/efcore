@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         /// <param name="type"> The type of results returned by the query. </param>
-        protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel, [CanBeNull] Type type = null)
+        protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel, [CanBeNull] Type? type = null)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -1432,7 +1432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </returns>
         public virtual Expression ReplaceClauseReferences(
             [NotNull] Expression expression,
-            [CanBeNull] IQuerySource querySource = null,
+            [CanBeNull] IQuerySource? querySource = null,
             bool inProjection = false)
         {
             Check.NotNull(expression, nameof(expression));
@@ -1530,7 +1530,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Type memberType,
             [NotNull] Expression expression,
             int index,
-            [CanBeNull] IProperty property = null)
+            [CanBeNull] IProperty? property = null)
         {
             Check.NotNull(memberType, nameof(memberType));
             Check.NotNull(expression, nameof(expression));

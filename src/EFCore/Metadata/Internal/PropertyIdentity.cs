@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
-        public static PropertyIdentity Create([CanBeNull] string name)
+        public static PropertyIdentity Create([CanBeNull] string? name)
             => name == null ? None : new PropertyIdentity(name);
 
         /// <summary>
@@ -67,14 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
-        public static PropertyIdentity Create([CanBeNull] MemberInfo property)
+        public static PropertyIdentity Create([CanBeNull] MemberInfo? property)
             => property == null ? None : new PropertyIdentity(property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static PropertyIdentity Create([CanBeNull] Navigation navigation)
+        public static PropertyIdentity Create([CanBeNull] Navigation? navigation)
             => navigation?.GetIdentifyingMemberInfo() == null
                 ? Create(navigation?.Name)
                 : Create(navigation.GetIdentifyingMemberInfo());

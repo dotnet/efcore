@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             int? precision = null,
             int? scale = null,
             bool? unicode = null,
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
         {
             Size = size;
             Precision = precision;
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         /// <param name="hints"> The hints to add. </param>
         /// <returns> The combined hints. </returns>
-        public virtual ConverterMappingHints With([CanBeNull] ConverterMappingHints hints)
+        public virtual ConverterMappingHints With([CanBeNull] ConverterMappingHints? hints)
             => hints == null
                 ? this
                 : new ConverterMappingHints(
@@ -76,6 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use for model
         ///     values when this converter is being used.
         /// </summary>
-        public virtual Func<IProperty, IEntityType, ValueGenerator> ValueGeneratorFactory { get; }
+        public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
     }
 }

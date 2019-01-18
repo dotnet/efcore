@@ -528,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<InternalEntityTypeBuilder> FindLeastDerivedEntityTypes([NotNull] Type type, [CanBeNull] Func<InternalEntityTypeBuilder, bool> condition = null)
+        public virtual IReadOnlyList<InternalEntityTypeBuilder> FindLeastDerivedEntityTypes([NotNull] Type type, [CanBeNull] Func<InternalEntityTypeBuilder, bool>? condition = null)
         {
             var cache = new Dictionary<TypeInfo, int>
             {

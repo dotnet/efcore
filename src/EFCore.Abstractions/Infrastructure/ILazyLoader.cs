@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="entity"> The entity on which the navigation property is located. </param>
         /// <param name="navigationName"> The navigation property name. </param>
         // ReSharper disable once AssignNullToNotNullAttribute
-        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string navigationName = null);
+        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string? navigationName = null);
 
         /// <summary>
         ///     Loads a navigation property if it has not already been loaded.
@@ -35,6 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] object entity,
             CancellationToken cancellationToken = default,
             // ReSharper disable once AssignNullToNotNullAttribute
-            [NotNull] [CallerMemberName] string navigationName = null);
+            [NotNull] [CallerMemberName] string? navigationName = null);
     }
 }

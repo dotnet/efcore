@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         // ReSharper disable once StaticMemberInGenericType
         private static readonly ConverterMappingHints _defaultHints = CreateDefaultHints();
 
-        private static ConverterMappingHints CreateDefaultHints()
+        private static ConverterMappingHints? CreateDefaultHints()
         {
             var underlyingModelType = typeof(TEnum).UnwrapEnumType();
 
@@ -35,10 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public EnumToNumberConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public EnumToNumberConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
+#nullable disable
                 ToNumber(),
                 ToEnum(),
+#nullable enable
                 _defaultHints == null
                     ? mappingHints
                     : _defaultHints.With(mappingHints))

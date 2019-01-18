@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => ToBytes(v),
                 v => v == null ? default : FromBytes(v),
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static byte[] ToBytes(DateTimeOffset value)
         {
-            var timeBytes = (byte[])_longToBytes.ConvertToProvider(value.DateTime.ToBinary());
-            var offsetBytes = (byte[])_shortToBytes.ConvertToProvider(value.Offset.TotalMinutes);
+            var timeBytes = (byte[])_longToBytes.ConvertToProvider(value.DateTime.ToBinary())!;
+            var offsetBytes = (byte[])_shortToBytes.ConvertToProvider(value.Offset.TotalMinutes)!;
             return timeBytes.Concat(offsetBytes).ToArray();
         }
 

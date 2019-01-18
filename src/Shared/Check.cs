@@ -8,6 +8,10 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
+// Disable nullability checks until all projects using this file are converted to perform nullability checks
+// themselves
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [DebuggerStepThrough]
