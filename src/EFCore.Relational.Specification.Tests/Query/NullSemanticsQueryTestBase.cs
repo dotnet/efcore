@@ -498,6 +498,43 @@ namespace Microsoft.EntityFrameworkCore.Query
                 useRelationalNulls: false);
         }
 
+        [Fact]
+        public virtual void Null_comparison_in_selector_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.Select(e => e.NullableStringA != "Foo");
+                var result = query.ToList();
+
+                Assert.Equal(27, result.Count);
+                Assert.Equal(18, result.Where(r => r).Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Null_comparison_in_order_by_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.OrderBy(e => e.NullableStringA != "Foo").ThenBy(e => e.NullableIntB != 10);
+                var result = query.ToList();
+
+                Assert.Equal(27, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Null_comparison_in_join_key_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.Join(ctx.Entities2, e1 => e1.NullableStringA != "Foo", e2 => e2.NullableBoolB != true, (o, i) => new { o, i });
+                var result = query.ToList();
+
+                Assert.Equal(405, result.Count);
+            }
+        }
+
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> query,
             bool useDatabaseNullSemantics = false)
