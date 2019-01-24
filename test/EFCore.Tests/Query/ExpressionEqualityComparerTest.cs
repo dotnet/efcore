@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -71,6 +72,41 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(expressionComparer.Equals(e1, e1));
         }
 
+        [Fact]
+        public void Index_expressions_are_compared_correctly()
+        {
+            var expressionComparer = ExpressionEqualityComparer.Instance;
+
+            var param = Expression.Parameter(typeof(Indexable));
+            var prop = typeof(Indexable).GetProperty("Item");
+            var e1 = Expression.MakeIndex(param, prop, new Expression[] { Expression.Constant(1) });
+            var e2 = Expression.MakeIndex(param, prop, new Expression[] { Expression.Constant(2) });
+            var e3 = Expression.MakeIndex(param, prop, new Expression[] { Expression.Constant(2) });
+
+            Assert.Equal(ExpressionType.Index, e1.NodeType);
+            Assert.NotNull(e1.Indexer);
+            Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e1));
+            Assert.True(expressionComparer.Equals(e1, e1));
+            Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+            Assert.False(expressionComparer.Equals(e1, e2));
+            Assert.Equal(expressionComparer.GetHashCode(e2), expressionComparer.GetHashCode(e3));
+            Assert.True(expressionComparer.Equals(e2, e3));
+
+            param = Expression.Parameter(typeof(int[]));
+            e1 = Expression.ArrayAccess(param, Expression.Constant(1));
+            e2 = Expression.ArrayAccess(param, Expression.Constant(2));
+            e3 = Expression.ArrayAccess(param, Expression.Constant(2));
+
+            Assert.Equal(ExpressionType.Index, e1.NodeType);
+            Assert.Null(e1.Indexer);
+            Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e1));
+            Assert.True(expressionComparer.Equals(e1, e1));
+            Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+            Assert.False(expressionComparer.Equals(e1, e2));
+            Assert.Equal(expressionComparer.GetHashCode(e2), expressionComparer.GetHashCode(e3));
+            Assert.True(expressionComparer.Equals(e2, e3));
+        }
+
         private class Node
         {
             [UsedImplicitly]
@@ -78,6 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             [UsedImplicitly]
             public List<string> Descriptions { set; get; }
+        }
+
+        private class Indexable
+        {
+            public int this[int index] => 0;
         }
     }
 }
