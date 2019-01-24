@@ -1154,6 +1154,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         public virtual void ClearOrderBy() => _orderBy.Clear();
 
+        internal virtual void ClearGroupBy() => _groupBy.Clear();
+
         /// <summary>
         ///     Adds a SQL CROSS JOIN to this SelectExpression.
         /// </summary>

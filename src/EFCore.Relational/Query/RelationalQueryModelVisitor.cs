@@ -26,6 +26,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -396,10 +397,131 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinEliminator = new JoinEliminator();
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
 
+            var useRelationalNulls = RelationalOptionsExtension.Extract(ContextOptions).UseRelationalNulls;
             foreach (var selectExpression in QueriesBySource.Values)
             {
                 joinEliminator.EliminateJoins(selectExpression);
                 compositePredicateVisitor.Visit(selectExpression);
+
+                // off by default
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue13285", out var isEnabled) && isEnabled)
+                {
+                    if (useRelationalNulls)
+                    {
+                        new RelationalNullsMarkingExpressionVisitor().Visit(selectExpression);
+                    }
+                }
+            }
+        }
+
+        private class RelationalNullsMarkingExpressionVisitor : RelinqExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
+                {
+                    return new NullCompensatedExpression(binaryExpression);
+                }
+
+                return base.VisitBinary(binaryExpression);
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is NullCompensatedExpression)
+                {
+                    return extensionExpression;
+                }
+
+                if (extensionExpression is SelectExpression selectExpression)
+                {
+                    if (selectExpression.Projection.Any())
+                    {
+                        var projectionsChanged = default(bool);
+                        var newProjections = new List<Expression>();
+                        foreach (var projection in selectExpression.Projection)
+                        {
+                            var newProjection = Visit(projection);
+                            if (newProjection != projection)
+                            {
+                                projectionsChanged = true;
+                            }
+
+                            newProjections.Add(newProjection);
+                        }
+
+                        if (projectionsChanged)
+                        {
+                            selectExpression.ClearProjection();
+                            foreach (var newProjection in newProjections)
+                            {
+                                selectExpression.AddToProjection(newProjection);
+                            }
+                        }
+                    }
+
+                    if (selectExpression.Predicate != null)
+                    {
+                        selectExpression.Predicate = Visit(selectExpression.Predicate);
+                    }
+
+                    if (selectExpression.GroupBy.Any())
+                    {
+                        var groupByChanged = default(bool);
+                        var newGroupBys = new List<Expression>();
+                        foreach (var groupBy in selectExpression.GroupBy)
+                        {
+                            var newGroupBy = Visit(groupBy);
+                            if (newGroupBy != groupBy)
+                            {
+                                groupByChanged = true;
+                            }
+
+                            newGroupBys.Add(newGroupBy);
+                        }
+
+                        if (groupByChanged)
+                        {
+                            selectExpression.ClearGroupBy();
+                            selectExpression.AddToGroupBy(newGroupBys.ToArray());
+                        }
+                    }
+
+                    if (selectExpression.Having != null)
+                    {
+                        selectExpression.Having = Visit(selectExpression.Having);
+                    }
+
+                    if (selectExpression.OrderBy.Any())
+                    {
+                        var orderByChanged = default(bool);
+                        var newOrderings = new List<Ordering>();
+                        foreach (var ordering in selectExpression.OrderBy)
+                        {
+                            var newOrdering = ordering;
+                            var newOrderBy = Visit(ordering.Expression);
+                            if (newOrderBy != ordering.Expression)
+                            {
+                                orderByChanged = true;
+                                newOrdering = new Ordering(newOrderBy, ordering.OrderingDirection);
+                            }
+
+                            newOrderings.Add(newOrdering);
+                        }
+
+                        if (orderByChanged)
+                        {
+                            selectExpression.ClearOrderBy();
+                            foreach (var newOrdering in newOrderings)
+                            {
+                                selectExpression.AddToOrderBy(newOrdering);
+                            }
+                        }
+                    }
+                }
+
+                return base.VisitExtension(extensionExpression);
             }
         }
 
