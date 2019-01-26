@@ -42,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override Expression BindToParameter(
             Expression materializationExpression,
-            Expression entityTypeExpression,
-            Expression entityExpression)
+            Expression entityTypeExpression)
         {
             var parameters = Method.GetParameters().Select(
                 (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Expression.Assign(
                         serviceVariable,
-                        base.BindToParameter(materializationExpression, entityTypeExpression, entityExpression)),
+                        base.BindToParameter(materializationExpression, entityTypeExpression)),
                     Expression.Assign(
                         delegateVariable,
                         Expression.Condition(
