@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override Expression BindToParameter(
             Expression materializationExpression,
-            Expression entityTypeExpression,
-            Expression entityExpression)
+            Expression entityTypeExpression)
             => Expression.Call(
                 _getServiceMethod.MakeGenericMethod(ServiceType),
                 Expression.Convert(

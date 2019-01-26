@@ -27,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override Expression BindToParameter(
             Expression materializationExpression,
-            Expression entityTypeExpression,
-            Expression entityExpression)
+            Expression entityTypeExpression)
             => entityTypeExpression;
     }
 }

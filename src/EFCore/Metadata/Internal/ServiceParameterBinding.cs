@@ -43,8 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
             => BindToParameter(
                 bindingInfo.MaterializationContextExpression,
-                Expression.Constant(bindingInfo.EntityType),
-                null);
+                Expression.Constant(bindingInfo.EntityType));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -52,8 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public abstract Expression BindToParameter(
             [NotNull] Expression materializationExpression,
-            [NotNull] Expression entityTypeExpression,
-            [CanBeNull] Expression entityExpression);
+            [NotNull] Expression entityTypeExpression);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -68,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var entityParam = Expression.Parameter(typeof(object));
 
                     return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
-                        b.BindToParameter(materializationContextParam, entityTypeParam, entityParam),
+                        b.BindToParameter(materializationContextParam, entityTypeParam),
                         materializationContextParam,
                         entityTypeParam,
                         entityParam).Compile();
