@@ -57,14 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
 
                 var nestedValue = entry.GetCurrentValue(ownedNavigation);
+                var nestedPropertyName = fk.DeclaringEntityType.Cosmos().ContainingPropertyName;
                 if (nestedValue == null)
                 {
-                    document[ownedNavigation.Name] = null;
+                    document[nestedPropertyName] = null;
                 }
                 else if (fk.IsUnique)
                 {
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
-                    document[ownedNavigation.Name] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+                    document[nestedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
                 }
                 else
                 {
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
                     }
 
-                    document[ownedNavigation.Name] = array;
+                    document[nestedPropertyName] = array;
                 }
             }
 
@@ -111,11 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
                 var nestedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
                 var nestedValue = entry.GetCurrentValue(ownedNavigation);
+                var nestedPropertyName = fk.DeclaringEntityType.Cosmos().ContainingPropertyName;
                 if (nestedValue == null)
                 {
-                    if (document[ownedNavigation.Name] != null)
+                    if (document[nestedPropertyName] != null)
                     {
-                        document[ownedNavigation.Name] = null;
+                        document[nestedPropertyName] = null;
                         anyPropertyUpdated = true;
                     }
                 }
@@ -127,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         return document;
                     }
 
-                    if (document[ownedNavigation.Name] is JObject nestedDocument)
+                    if (document[nestedPropertyName] is JObject nestedDocument)
                     {
                         nestedDocument = nestedDocumentSource.UpdateDocument(nestedDocument, nestedEntry);
                     }
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
                     if (nestedDocument != null)
                     {
-                        document[ownedNavigation.Name] = nestedDocument;
+                        document[nestedPropertyName] = nestedDocument;
                         anyPropertyUpdated = true;
                     }
                 }
@@ -156,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
                     }
 
-                    document[ownedNavigation.Name] = array;
+                    document[nestedPropertyName] = array;
                     anyPropertyUpdated = true;
                 }
             }

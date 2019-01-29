@@ -10,5 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
         string ContainerName { get; }
         IProperty DiscriminatorProperty { get; }
         object DiscriminatorValue { get; }
+        string ContainingPropertyName { get; }
     }
 }
