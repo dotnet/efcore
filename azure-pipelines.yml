@@ -86,5 +86,6 @@ jobs:
           steps:
             - bash: sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
+              continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               name: Build
