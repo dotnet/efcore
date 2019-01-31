@@ -26,7 +26,7 @@ namespace Microsoft.Data.Sqlite
         private const string FilenameKeyword = "Filename";
         private const string PasswordKeyword = "Password";
         private const string ForeignKeysKeyword = "Foreign Keys";
-        private const string RecursiveTriggersKeywrod = "Recursive Triggers";
+        private const string RecursiveTriggersKeyword = "Recursive Triggers";
 
         private enum Keywords
         {
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Sqlite
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
             validKeywords[(int)Keywords.Password] = PasswordKeyword;
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
-            validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeywrod;
+            validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Sqlite
                 [CacheKeyword] = Keywords.Cache,
                 [PasswordKeyword] = Keywords.Password,
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
-                [RecursiveTriggersKeywrod] = Keywords.RecursiveTriggers,
+                [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Sqlite
         public bool RecursiveTriggers
         {
             get => _recursiveTriggers;
-            set => base[RecursiveTriggersKeywrod] = _recursiveTriggers = value;
+            set => base[RecursiveTriggersKeyword] = _recursiveTriggers = value;
         }
 
         /// <summary>
