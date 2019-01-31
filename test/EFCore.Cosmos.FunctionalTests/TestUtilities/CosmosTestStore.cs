@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
@@ -72,19 +73,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             if (await context.Database.EnsureCreatedAsync())
             {
                 var cosmosClient = context.GetService<CosmosClientWrapper>();
-                var seedData = JArray.Parse(File.ReadAllText(_dataFilePath));
-
-                foreach (var entityData in seedData)
+                var serializer = new JsonSerializer();
+                using (var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read))
+                using (var sr = new StreamReader(fs))
+                using (var reader = new JsonTextReader(sr))
                 {
-                    var entityName = (string)entityData["Name"];
-
-                    foreach (var document in entityData["Data"])
+                    while (reader.Read())
                     {
-                        document["id"] = $"{entityName}|{document["id"]}";
-                        document["Discriminator"] = entityName;
-                        document["__partitionKey"] = "0";
-                        // TODO: Stream the document
-                        await cosmosClient.CreateItemAsync("NorthwindContext", document);
+                        if (reader.TokenType == JsonToken.StartArray)
+                        {
+                            NextEntityType:
+                            while (reader.Read())
+                            {
+                                if (reader.TokenType == JsonToken.StartObject)
+                                {
+                                    string entityName = null;
+                                    while (reader.Read())
+                                    {
+                                        if (reader.TokenType == JsonToken.PropertyName)
+                                        {
+                                            switch (reader.Value)
+                                            {
+                                                case "Name":
+                                                    reader.Read();
+                                                    entityName = (string)reader.Value;
+                                                    break;
+                                                case "Data":
+                                                    while (reader.Read())
+                                                    {
+                                                        if (reader.TokenType == JsonToken.StartObject)
+                                                        {
+                                                            var document = serializer.Deserialize<JObject>(reader);
+
+                                                            document["id"] = $"{entityName}|{document["id"]}";
+                                                            document["Discriminator"] = entityName;
+                                                            document["__partitionKey"] = "0";
+
+                                                            await cosmosClient.CreateItemAsync("NorthwindContext", document);
+                                                        }
+                                                        else if (reader.TokenType == JsonToken.EndObject)
+                                                        {
+                                                            goto NextEntityType;
+                                                        }
+                                                    }
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

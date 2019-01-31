@@ -4,8 +4,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -131,18 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            var pk = new PartitionKeyDefinition();
-            pk.Paths.Add("/" + parameters.PartitionKey);
+            var response = await Client.Databases[_databaseId].Containers
+                .CreateContainerIfNotExistsAsync(
+                new CosmosContainerSettings(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
 
-            var settings = new CosmosContainerSettings
-            {
-                Id = parameters.ContainerId,
-                PartitionKey = pk
-            };
-
-            var container = await Client.Databases[_databaseId].Containers
-                .CreateContainerIfNotExistsAsync(settings, cancellationToken: cancellationToken);
-            return container.StatusCode == HttpStatusCode.Created;
+            return response.StatusCode == HttpStatusCode.Created;
         }
 
         public bool CreateItem(
@@ -168,10 +163,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, JToken Document) parameters,
             CancellationToken cancellationToken = default)
         {
-            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-            var response = await items.CreateItemAsync("0", parameters.Document, new CosmosItemRequestOptions(), cancellationToken: cancellationToken);
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
+            using (var jsonWriter = new JsonTextWriter(writer))
+            {
+                JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+                await jsonWriter.FlushAsync();
 
-            return response.StatusCode == HttpStatusCode.Created;
+                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
+                using (var response = await items.CreateItemStreamAsync("0", stream, new CosmosItemRequestOptions(), cancellationToken))
+                {
+                    return response.StatusCode == HttpStatusCode.Created;
+                }
+            }
         }
 
         public bool ReplaceItem(
@@ -199,12 +203,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string ItemId, JObject Document) parameters,
             CancellationToken cancellationToken = default)
         {
-            var (containerId, itemId, document) = parameters;
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
+            using (var jsonWriter = new JsonTextWriter(writer))
+            {
+                JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
+                await jsonWriter.FlushAsync();
 
-            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-            var response = await items.ReplaceItemAsync("0", itemId, document, cancellationToken: cancellationToken);
-
-            return response.StatusCode == HttpStatusCode.OK;
+                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
+                using (var response = await items.ReplaceItemStreamAsync("0", parameters.ItemId, stream, null, cancellationToken))
+                {
+                    return response.StatusCode == HttpStatusCode.OK;
+                }
+            }
         }
 
         public bool DeleteItem(
@@ -231,9 +242,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-            var response = await items.DeleteItemAsync<JObject>("0", parameters.DocumentId, cancellationToken: cancellationToken);
-
-            return response.StatusCode == HttpStatusCode.NoContent;
+            using (var response = await items.DeleteItemStreamAsync("0", parameters.DocumentId, null, cancellationToken))
+            {
+                return response.StatusCode == HttpStatusCode.NoContent;
+            }
         }
 
         public IEnumerable<JObject> ExecuteSqlQuery(
@@ -254,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new DocumentAsyncEnumerable(this, containerId, query);
         }
 
-        private CosmosResultSetIterator<T> CreateQuery<T>(
+        private CosmosResultSetIterator CreateQuery(
             string containerId,
             CosmosSqlQuery query)
         {
@@ -265,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 queryDefinition.UseParameter(parameter.Name, parameter.Value);
             }
 
-            return items.CreateItemQuery<T>(queryDefinition, maxConcurrency: 16);
+            return items.CreateItemQueryAsStream(queryDefinition, "0");
         }
 
         private class DocumentEnumerable : IEnumerable<JObject>
@@ -290,8 +302,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             private class Enumerator : IEnumerator<JObject>
             {
-                private CosmosResultSetIterator<JObject> _query;
-                private IEnumerator<JObject> _underlyingEnumerator;
+                private CosmosResultSetIterator _query;
+                private Stream _responseStream;
+                private StreamReader _reader;
+                private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
@@ -307,16 +321,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 object IEnumerator.Current => Current;
 
-                public void Dispose() => _underlyingEnumerator?.Dispose();
-
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public bool MoveNext()
                 {
-                    if (_underlyingEnumerator == null)
+                    if (_jsonReader == null)
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery<JObject>(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)
@@ -325,20 +337,61 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _underlyingEnumerator = _query.FetchNextSetAsync().GetAwaiter().GetResult().GetEnumerator();
+                        _responseStream = _query.FetchNextSetAsync().GetAwaiter().GetResult().Content;
+                        _reader = new StreamReader(_responseStream);
+                        _jsonReader = new JsonTextReader(_reader);
+
+                        while (_jsonReader.Read())
+                        {
+                            if (_jsonReader.TokenType == JsonToken.StartObject)
+                            {
+                                while (_jsonReader.Read())
+                                {
+                                    if (_jsonReader.TokenType == JsonToken.StartArray)
+                                    {
+                                        goto ObjectFound;
+                                    }
+                                }
+                            }
+                        }
+
+                        ObjectFound:
+                        ;
                     }
 
-                    var hasNext = _underlyingEnumerator.MoveNext();
-                    if (hasNext)
+                    while (_jsonReader.Read())
                     {
-                        Current = (JObject)_underlyingEnumerator.Current.First.First;
-                        return true;
+                        if (_jsonReader.TokenType == JsonToken.StartObject)
+                        {
+                            while (_jsonReader.Read())
+                            {
+                                if (_jsonReader.TokenType == JsonToken.StartObject)
+                                {
+                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+                                    return true;
+                                }
+                            }
+                        }
                     }
 
-                    _underlyingEnumerator.Dispose();
-                    _underlyingEnumerator = null;
+                    _jsonReader.Close();
+                    _jsonReader = null;
+                    _reader.Dispose();
+                    _reader = null;
+                    _responseStream.Dispose();
+                    _responseStream = null;
 
                     return MoveNext();
+                }
+
+                public void Dispose()
+                {
+                    _jsonReader?.Close();
+                    _jsonReader = null;
+                    _reader?.Dispose();
+                    _reader = null;
+                    _responseStream?.Dispose();
+                    _responseStream = null;
                 }
 
                 public void Reset() => throw new NotImplementedException();
@@ -365,8 +418,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             private class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
-                private CosmosResultSetIterator<JObject> _query;
-                private IEnumerator<JObject> _underlyingEnumerator;
+                private CosmosResultSetIterator _query;
+                private Stream _responseStream;
+                private StreamReader _reader;
+                private JsonTextReader _jsonReader;
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
@@ -380,18 +435,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 public JObject Current { get; private set; }
 
-                public void Dispose() => _underlyingEnumerator?.Dispose();
-
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (_underlyingEnumerator == null)
+                    if (_jsonReader == null)
                     {
                         if (_query == null)
                         {
-                            _query = _cosmosClient.CreateQuery<JObject>(_containerId, _cosmosSqlQuery);
+                            _query = _cosmosClient.CreateQuery(_containerId, _cosmosSqlQuery);
                         }
 
                         if (!_query.HasMoreResults)
@@ -400,19 +453,60 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _underlyingEnumerator = (await _query.FetchNextSetAsync(cancellationToken)).GetEnumerator();
+                        _responseStream = (await _query.FetchNextSetAsync(cancellationToken)).Content;
+                        _reader = new StreamReader(_responseStream);
+                        _jsonReader = new JsonTextReader(_reader);
+
+                        while (_jsonReader.Read())
+                        {
+                            if (_jsonReader.TokenType == JsonToken.StartObject)
+                            {
+                                while (_jsonReader.Read())
+                                {
+                                    if (_jsonReader.TokenType == JsonToken.StartArray)
+                                    {
+                                        goto ObjectFound;
+                                    }
+                                }
+                            }
+                        }
+
+                        ObjectFound:
+                        ;
                     }
 
-                    var hasNext = _underlyingEnumerator.MoveNext();
-                    if (hasNext)
+                    while (_jsonReader.Read())
                     {
-                        Current = (JObject)_underlyingEnumerator.Current.First.First;
-                        return true;
+                        if (_jsonReader.TokenType == JsonToken.StartObject)
+                        {
+                            while (_jsonReader.Read())
+                            {
+                                if (_jsonReader.TokenType == JsonToken.StartObject)
+                                {
+                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+                                    return true;
+                                }
+                            }
+                        }
                     }
 
-                    _underlyingEnumerator.Dispose();
-                    _underlyingEnumerator = null;
+                    _jsonReader.Close();
+                    _jsonReader = null;
+                    _reader.Dispose();
+                    _reader = null;
+                    _responseStream.Dispose();
+                    _responseStream = null;
                     return await MoveNext(cancellationToken);
+                }
+
+                public void Dispose()
+                {
+                    _jsonReader?.Close();
+                    _jsonReader = null;
+                    _reader?.Dispose();
+                    _reader = null;
+                    _responseStream?.Dispose();
+                    _responseStream = null;
                 }
 
                 public void Reset() => throw new NotImplementedException();
