@@ -6,6 +6,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] IProperty property);
+        CoreTypeMapping? FindMapping([NotNull] IProperty property);
 
         /// <summary>
         ///     <para>
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] MemberInfo member);
+        CoreTypeMapping? FindMapping([NotNull] MemberInfo member);
 
         /// <summary>
         ///     <para>
@@ -57,6 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] Type type);
+        CoreTypeMapping? FindMapping([NotNull] Type type);
     }
 }

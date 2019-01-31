@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception> _logAction;
+        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public EventDefinition(
             EventId eventId,
             LogLevel level,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception> logAction)
+            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception?> logAction)
             : this(eventId, level, null, logAction)
         {
         }
@@ -40,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public EventDefinition(
             EventId eventId,
             LogLevel level,
-            [CanBeNull] string eventIdCode,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception> logAction)
+            [CanBeNull] string? eventIdCode,
+            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception?> logAction)
             : base(eventId, level, eventIdCode)
         {
             Check.NotNull(logAction, nameof(logAction));
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] TParam4 arg4,
             [CanBeNull] TParam5 arg5,
             [CanBeNull] TParam6 arg6,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, arg1, arg2, arg3, arg4, arg5, arg6, exception);
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] TParam4 arg4,
             [CanBeNull] TParam5 arg5,
             [CanBeNull] TParam6 arg6,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (warningBehavior)

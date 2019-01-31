@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // ReSharper disable once AssignNullToNotNullAttribute
-        public virtual void Load(object entity, [CallerMemberName] string navigationName = null)
+        public virtual void Load(object entity, [CallerMemberName] string navigationName = "")
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             object entity,
             CancellationToken cancellationToken = default,
             // ReSharper disable once AssignNullToNotNullAttribute
-            [CallerMemberName] string navigationName = null)
+            [CallerMemberName] string navigationName = "")
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
@@ -83,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName, [NotNullWhenTrue] out NavigationEntry? navigationEntry)
         {
             EntityEntry GetEntryWithoutDetectChanges()
             {
@@ -107,22 +109,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
                 var entityEntry = GetEntryWithoutDetectChanges();
-                navigationEntry = entityEntry.Navigation(navigationName);
+                var tempNavigationEntry = entityEntry.Navigation(navigationName);
 
                 if (entityEntry.State == EntityState.Detached)
                 {
-                    var value = navigationEntry.CurrentValue;
+                    var value = tempNavigationEntry.CurrentValue;
                     if (value == null
-                        || (navigationEntry.Metadata.IsCollection()
+                        || (tempNavigationEntry.Metadata.IsCollection()
                             && !((IEnumerable)value).Any()))
                     {
                         Logger.DetachedLazyLoadingWarning(Context, entity, navigationName);
                     }
                 }
-                else if (!navigationEntry.IsLoaded)
+                else if (!tempNavigationEntry.IsLoaded)
                 {
                     Logger.NavigationLazyLoading(Context, entity, navigationName);
 
+                    navigationEntry = tempNavigationEntry;
                     return true;
                 }
             }

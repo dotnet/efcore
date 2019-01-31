@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -20,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        object Find([CanBeNull] object[] keyValues);
+        object? Find([CanBeNull] object[]? keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<object> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken = default);
+        Task<object?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -53,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        object[] GetDatabaseValues([NotNull] InternalEntityEntry entry);
+        object[]? GetDatabaseValues([NotNull] InternalEntityEntry entry);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<object[]> GetDatabaseValuesAsync(
+        Task<object[]?> GetDatabaseValuesAsync(
             [NotNull] InternalEntityEntry entry, CancellationToken cancellationToken = default);
     }
 }
