@@ -465,10 +465,10 @@ namespace Microsoft.Data.Sqlite
         /// <param name="behavior">A description of query's results and its effect on the database.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
+        protected override Task<DbDataReader> ExecuteDbDataReaderAsync(
             CommandBehavior behavior,
             CancellationToken cancellationToken)
-            => await ExecuteReaderAsync(behavior, cancellationToken);
+            => ExecuteReaderAsync(behavior, cancellationToken);
 
         /// <summary>
         ///     Executes the <see cref="CommandText" /> against the database.

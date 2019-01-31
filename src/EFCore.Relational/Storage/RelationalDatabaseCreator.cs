@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
-        public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default)
-            => await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
+        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
+            => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
 
         /// <summary>
         ///     Gets the commands that will create all tables from the model.
