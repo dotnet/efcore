@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.19079.11">
+    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview.19080.5">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>673fe7880790e79549266cea25a385af82917b6e</Sha>
+      <Sha>9e074e4a3f3626fa953f36ab79e3cd3e6db1c9de</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview.19079.8">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -41,21 +41,21 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>f41cfded3c12eec0efea89ece1dafe43afa9c6b8</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.19079.11">
+    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.19080.5">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>673fe7880790e79549266cea25a385af82917b6e</Sha>
+      <Sha>9e074e4a3f3626fa953f36ab79e3cd3e6db1c9de</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview.19079.11">
+    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview.19080.5">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>673fe7880790e79549266cea25a385af82917b6e</Sha>
+      <Sha>9e074e4a3f3626fa953f36ab79e3cd3e6db1c9de</Sha>
     </Dependency>
-    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview.19079.11">
+    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview.19080.5">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>673fe7880790e79549266cea25a385af82917b6e</Sha>
+      <Sha>9e074e4a3f3626fa953f36ab79e3cd3e6db1c9de</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview.19079.11">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview.19080.5">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>673fe7880790e79549266cea25a385af82917b6e</Sha>
+      <Sha>9e074e4a3f3626fa953f36ab79e3cd3e6db1c9de</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
