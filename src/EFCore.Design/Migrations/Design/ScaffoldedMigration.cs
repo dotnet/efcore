@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Initializes a new instance of the <see cref="ScaffoldedMigration" /> class.
         /// </summary>
         /// <param name="fileExtension"> The file extension code files should use. </param>
-        /// <param name="previousMigrationId"> The previous migraiton's ID. </param>
+        /// <param name="previousMigrationId"> The previous migration's ID. </param>
         /// <param name="migrationCode"> The contents of the migration file. </param>
         /// <param name="migrationId"> The migration's ID. </param>
         /// <param name="metadataCode"> The contents of the migration metadata file. </param>
@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string FileExtension { get; }
 
         /// <summary>
-        ///     Gets the previous migraiton's ID.
+        ///     Gets the previous migration's ID.
         /// </summary>
-        /// <value> The previous migraiton's ID. </value>
+        /// <value> The previous migration's ID. </value>
         public virtual string PreviousMigrationId { get; }
 
         /// <summary>

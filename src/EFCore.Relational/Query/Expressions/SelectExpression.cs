@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                && Offset == null
                && Projection.Count == 0
                && OrderBy.Count == 0
-               // GroupBy is intentionally ommitted because GroupBy does not require a pushdown.
+               // GroupBy is intentionally omitted because GroupBy does not require a pushdown.
                //&& GroupBy.Count == 0
                && Tables.Count == 1;
 

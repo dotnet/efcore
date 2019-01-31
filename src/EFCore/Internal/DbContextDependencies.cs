@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IAsyncQueryProvider queryProvider,
             [NotNull] IStateManager stateManager,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> infrastuctureLogger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> infrastructureLogger)
         {
             ChangeDetector = changeDetector;
             SetSource = setSource;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             QueryProvider = queryProvider;
             StateManager = stateManager;
             UpdateLogger = updateLogger;
-            InfrastructureLogger = infrastuctureLogger;
+            InfrastructureLogger = infrastructureLogger;
             EntityFinderFactory = new EntityFinderFactory(entityFinderSource, stateManager, setSource, currentContext.Context);
         }
 

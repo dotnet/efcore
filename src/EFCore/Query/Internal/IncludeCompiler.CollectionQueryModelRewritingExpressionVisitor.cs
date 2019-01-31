@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .StartsWith(nameof(IQueryBuffer.IncludeCollection), StringComparison.Ordinal)
                     && (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value != -1) // -1 == unable to optimize (GJ)
                 {
-                    var lambaArgument = methodCallExpression.Arguments[8];
-                    var convertExpression = lambaArgument as UnaryExpression;
+                    var lambdaArgument = methodCallExpression.Arguments[8];
+                    var convertExpression = lambdaArgument as UnaryExpression;
 
                     var subQueryExpression
                         = (SubQueryExpression)
-                        ((LambdaExpression)(convertExpression?.Operand ?? lambaArgument))
+                        ((LambdaExpression)(convertExpression?.Operand ?? lambdaArgument))
                         .Body.RemoveConvert();
 
                     var navigation
@@ -554,10 +554,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                             if (projectionExpression is MethodCallExpression methodCall
                                                 && methodCall.Method.IsEFPropertyMethod())
                                             {
-                                                var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
+                                                var propertyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
                                                 var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
 
-                                                return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                return propertyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
                                                        && propertyName == orderingExpressionName;
                                             }
 

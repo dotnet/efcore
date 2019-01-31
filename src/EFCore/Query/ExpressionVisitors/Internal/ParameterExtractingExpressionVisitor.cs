@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var parentEvaluatable = _evaluatable;
                 var parentContainsClosure = _containsClosure;
 
-                _evaluatable = IsEvalutableNodeType(expression)
+                _evaluatable = IsEvaluatableNodeType(expression)
                                // Extension point to disable funcletization
                                && _evaluatableExpressionFilter.IsEvaluatableExpression(expression);
                 _containsClosure = false;
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return base.VisitConstant(constantExpression);
             }
 
-            private static bool IsEvalutableNodeType(Expression expression)
+            private static bool IsEvaluatableNodeType(Expression expression)
             {
                 if (expression.NodeType == ExpressionType.Extension)
                 {
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         return false;
                     }
 
-                    return IsEvalutableNodeType(expression.ReduceAndCheck());
+                    return IsEvaluatableNodeType(expression.ReduceAndCheck());
                 }
 
                 return true;

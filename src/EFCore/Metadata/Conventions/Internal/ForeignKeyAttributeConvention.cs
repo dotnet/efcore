@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal?.Name;
-            var principalToDepedentNavigationName = foreignKey.PrincipalToDependent?.Name;
+            var principalToDependentNavigationName = foreignKey.PrincipalToDependent?.Name;
 
             if (GetInversePropertyAttribute(foreignKey.PrincipalToDependent) != null
                 || GetInversePropertyAttribute(foreignKey.DependentToPrincipal) != null)
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     CoreStrings.InvalidRelationshipUsingDataAnnotations(
                         dependentToPrincipalNavigationName,
                         foreignKey.DeclaringEntityType.DisplayName(),
-                        principalToDepedentNavigationName,
+                        principalToDependentNavigationName,
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 ? null
                 : foreignKey.PrincipalEntityType.Builder.Relationship(
                       foreignKey.DeclaringEntityType.Builder,
-                      principalToDepedentNavigationName,
+                      principalToDependentNavigationName,
                       null,
                       ConfigurationSource.DataAnnotation) == null
                     ? null

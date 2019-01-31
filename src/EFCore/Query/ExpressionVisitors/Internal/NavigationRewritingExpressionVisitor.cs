@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var subQuery = (qsre.ReferencedQuerySource as FromClauseBase)?.FromExpression as SubQueryExpression
                                ?? (qsre.ReferencedQuerySource as JoinClause)?.InnerSequence as SubQueryExpression;
 
-                // if qsre is pointing to a subquery, look for DefaulIfEmpty result operators inside
+                // if qsre is pointing to a subquery, look for DefaultIfEmpty result operators inside
                 // if such operator is found then we need to add null-compensation logic
                 // unless the query model has a GroupBy operator - qsre coming from groupby can never be null
                 if (subQuery != null
@@ -1273,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             AdditionalFromClause additionalFromClauseBeingProcessed)
         {
             var collectionNavigation = navigations.Last();
-            var adddedJoinClauses = new List<IBodyClause>();
+            var addedJoinClauses = new List<IBodyClause>();
 
             foreach (var navigation in navigations)
             {
@@ -1304,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     ParentQueryModel.BodyClauses.Remove(additionalFromClauseBeingProcessed);
 
                     var i = additionalFromClauseIndex;
-                    foreach (var addedJoinClause in adddedJoinClauses)
+                    foreach (var addedJoinClause in addedJoinClauses)
                     {
                         ParentQueryModel.BodyClauses.Insert(i++, addedJoinClause);
                     }
@@ -1345,7 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
                 else
                 {
-                    adddedJoinClauses.Add(joinClause);
+                    addedJoinClauses.Add(joinClause);
                     outerQuerySourceReferenceExpression = innerQuerySourceReferenceExpression;
                 }
             }

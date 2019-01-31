@@ -122,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var propertyCallExpressions
                     = ((NewArrayExpression)newExpression.Arguments.Single()).Expressions;
 
-                var newProperyCallExpressions = new List<Expression>();
+                var newPropertyCallExpressions = new List<Expression>();
                 foreach (var propertyCallExpression in propertyCallExpressions)
                 {
-                    newProperyCallExpressions.Add(Visit(propertyCallExpression.RemoveConvert()));
+                    newPropertyCallExpressions.Add(Visit(propertyCallExpression.RemoveConvert()));
                 }
 
                 return Expression.New(
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         : MaterializedAnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
                         typeof(object),
-                        newProperyCallExpressions.Select(e => Expression.Convert(e, typeof(object)))));
+                        newPropertyCallExpressions.Select(e => Expression.Convert(e, typeof(object)))));
             }
 
             var newNewExpression = base.VisitNew(newExpression);

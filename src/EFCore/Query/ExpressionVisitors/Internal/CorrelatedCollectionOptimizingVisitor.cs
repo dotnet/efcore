@@ -190,9 +190,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // - customer specified orderings on child
 
             var parentOrderings = new List<Ordering>();
-            foreach (var exisingParentOrderByClause in _parentQueryModel.BodyClauses.OfType<OrderByClause>())
+            foreach (var existingParentOrderByClause in _parentQueryModel.BodyClauses.OfType<OrderByClause>())
             {
-                parentOrderings.AddRange(exisingParentOrderByClause.Orderings);
+                parentOrderings.AddRange(existingParentOrderByClause.Orderings);
             }
 
             var originEntityType = _queryCompilationContext.Model.FindEntityType(originQuerySource.Type);
@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var subQueryProjection = new List<Expression>();
             var orderingsToProjectionMapping = new List<int>();
-            foreach (var exisitingClonedOrderByClause in clonedParentQueryModel.BodyClauses.OfType<OrderByClause>())
+            foreach (var existingClonedOrderByClause in clonedParentQueryModel.BodyClauses.OfType<OrderByClause>())
             {
-                foreach (var existingClonedOrdering in exisitingClonedOrderByClause.Orderings)
+                foreach (var existingClonedOrdering in existingClonedOrderByClause.Orderings)
                 {
                     var matchingIndex = subQueryProjection
                         .Select(
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 queryModel.BodyClauses.Add(orderByClause = new OrderByClause());
             }
 
-            // all exisiting order by clauses are guaranteed to be present in the parent ordering list,
+            // all existing order by clauses are guaranteed to be present in the parent ordering list,
             // so we can safely remove them from the original order by clause
             orderByClause.Orderings.Clear();
 

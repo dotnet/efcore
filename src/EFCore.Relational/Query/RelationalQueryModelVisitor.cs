@@ -1359,7 +1359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generated a client-eval warning
         /// </summary>
         /// <param name="queryModel"> The query model </param>
-        /// <param name="queryModelElement"> The expression being client-eval'd. </param>
+        /// <param name="queryModelElement"> The expression being evaluated by the client. </param>
         protected virtual void WarnClientEval(
             [NotNull] QueryModel queryModel,
             [NotNull] object queryModelElement)
