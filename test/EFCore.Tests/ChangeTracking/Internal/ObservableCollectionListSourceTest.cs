@@ -10,14 +10,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class ObservableCollectionListSourceTest
     {
         [Fact]
-        public void ObservableCollectionListSource_exposes_ObervableCollection_parameterless_constructor()
+        public void ObservableCollectionListSource_exposes_ObservableCollection_parameterless_constructor()
         {
             var ols = new ObservableCollectionListSource<FakeEntity>();
             Assert.Equal(0, ols.Count);
         }
 
         [Fact]
-        public void ObservableCollectionListSource_exposes_ObervableCollection_IEnumerable_constructor()
+        public void ObservableCollectionListSource_exposes_ObservableCollection_IEnumerable_constructor()
         {
             IEnumerable<FakeEntity> entities = new[] { new FakeEntity(), new FakeEntity() };
             var ols = new ObservableCollectionListSource<FakeEntity>(entities);
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public void ObservableCollectionListSource_exposes_ObervableCollection_List_constructor()
+        public void ObservableCollectionListSource_exposes_ObservableCollection_List_constructor()
         {
             var entities = new List<FakeEntity>
             {

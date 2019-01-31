@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="modelNamespace"> The namespace for model classes. </param>
         /// <param name="contextNamespace"> The namespace for context class. </param>
         /// <param name="language"> The programming language to scaffold for. </param>
-        /// <param name="contextDir"> The DbContext output dirctory. </param>
+        /// <param name="contextDir"> The DbContext output directory. </param>
         /// <param name="contextName"> The <see cref="DbContext" /> name. </param>
         /// <param name="modelOptions"> The options to use when reverse engineering a model from the database. </param>
         /// <param name="codeOptions"> The options to use when generating code for the model. </param>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Saves a scaffolded model to disk.
         /// </summary>
         /// <param name="scaffoldedModel"> The scaffolded model. </param>
-        /// <param name="outputDir"> The output dirctory. </param>
+        /// <param name="outputDir"> The output directory. </param>
         /// <param name="overwriteFiles"> True to overwrite any existing files. </param>
         /// <returns> The model files. </returns>
         SavedModelFiles Save(

@@ -574,21 +574,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitMemberInit(MemberInitExpression memeberInitExpression)
+        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            _stringBuilder.Append("new " + memeberInitExpression.Type.ShortDisplayName());
+            _stringBuilder.Append("new " + memberInitExpression.Type.ShortDisplayName());
 
-            var appendAction = memeberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
+            var appendAction = memberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
             appendAction("{ ");
             _stringBuilder.IncrementIndent();
 
-            for (var i = 0; i < memeberInitExpression.Bindings.Count; i++)
+            for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
             {
-                if (memeberInitExpression.Bindings[i] is MemberAssignment assignment)
+                if (memberInitExpression.Bindings[i] is MemberAssignment assignment)
                 {
                     _stringBuilder.Append(assignment.Member.Name + " = ");
                     Visit(assignment.Expression);
-                    appendAction(i == memeberInitExpression.Bindings.Count - 1 ? " " : ", ");
+                    appendAction(i == memberInitExpression.Bindings.Count - 1 ? " " : ", ");
                 }
                 else
                 {
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.DecrementIndent();
             AppendLine("}");
 
-            return memeberInitExpression;
+            return memberInitExpression;
         }
 
         private static readonly List<string> _simpleMethods = new List<string>

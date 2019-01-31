@@ -359,14 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private class AttributeWriter
         {
-            private readonly string _attibuteName;
+            private readonly string _attributeName;
             private readonly List<string> _parameters = new List<string>();
 
             public AttributeWriter([NotNull] string attributeName)
             {
                 Check.NotEmpty(attributeName, nameof(attributeName));
 
-                _attibuteName = attributeName;
+                _attributeName = attributeName;
             }
 
             public void AddParameter([NotNull] string parameter)
@@ -378,8 +378,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             public override string ToString()
                 => "[" + (_parameters.Count == 0
-                       ? StripAttribute(_attibuteName)
-                       : StripAttribute(_attibuteName) + "(" + string.Join(", ", _parameters) + ")") + "]";
+                       ? StripAttribute(_attributeName)
+                       : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")") + "]";
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)

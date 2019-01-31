@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="contextType"> The migration's <see cref="DbContext" /> type. </param>
         /// <param name="migrationName"> The migration's name. </param>
         /// <param name="migrationId"> The migration's ID. </param>
-        /// <param name="targetModel"> The migraiton's target model. </param>
+        /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         public override string GenerateMetadata(
             string migrationNamespace,

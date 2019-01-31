@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private T _addNewInstance;
         private T _cancelNewInstance;
 
-        private readonly ICollection<T> _obervableCollection;
+        private readonly ICollection<T> _observableCollection;
         private bool _inCollectionChanged;
         private bool _changingObservableCollection;
 
@@ -27,14 +27,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ObservableBackedBindingList([NotNull] ICollection<T> obervableCollection)
-            : base(obervableCollection.ToList())
+        public ObservableBackedBindingList([NotNull] ICollection<T> observableCollection)
+            : base(observableCollection.ToList())
         {
-            _obervableCollection = obervableCollection;
+            _observableCollection = observableCollection;
 
-            Debug.Assert(obervableCollection is INotifyCollectionChanged);
+            Debug.Assert(_observableCollection is INotifyCollectionChanged);
 
-            ((INotifyCollectionChanged)obervableCollection).CollectionChanged += ObservableCollectionChanged;
+            ((INotifyCollectionChanged)observableCollection).CollectionChanged += ObservableCollectionChanged;
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void ObservableCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             // Don't try to change the binding list if the original change came from the binding list
-            // and the ObervableCollection is just being changed to match it.
+            // and the ObservableCollection is just being changed to match it.
             if (!_changingObservableCollection)
             {
                 try
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         // <param name="item"> The item. </param>
         private void AddToObservableCollection(T item)
         {
-            // Don't try to change the ObervableCollection if the original change
+            // Don't try to change the ObservableCollection if the original change
             // came from the ObservableCollection
             if (!_inCollectionChanged)
             {
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     // We don't want to try to put that change into the ObservableCollection again,
                     // so we set a flag to prevent this.
                     _changingObservableCollection = true;
-                    _obervableCollection.Add(item);
+                    _observableCollection.Add(item);
                 }
                 finally
                 {
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         // <param name="item"> The item. </param>
         private void RemoveFromObservableCollection(T item)
         {
-            // Don't try to change the ObervableCollection if the original change
+            // Don't try to change the ObservableCollection if the original change
             // came from the ObservableCollection
             if (!_inCollectionChanged)
             {
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     // We don't want to try to put that change into the ObservableCollection again,
                     // so we set a flag to prevent this.
                     _changingObservableCollection = true;
-                    _obervableCollection.Remove(item);
+                    _observableCollection.Remove(item);
                 }
                 finally
                 {

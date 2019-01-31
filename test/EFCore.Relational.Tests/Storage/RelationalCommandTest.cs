@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeNonQueryCount);
             Assert.Equal(0, disposeCount);
 
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeNonQueryCount);
             Assert.Equal(0, disposeCount);
 
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeScalarCount);
             Assert.Equal(0, disposeCount);
 
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeScalarCount);
             Assert.Equal(0, disposeCount);
 
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var expectedCount = 1;
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeReaderCount);
             Assert.Equal(0, disposeCount);
 
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var expectedCount = 1;
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
 
-            // Durring command execution
+            // During command execution
             Assert.Equal(1, executeReaderCount);
             Assert.Equal(0, disposeCount);
 

@@ -948,33 +948,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var anyAmbiguityRemoved = false;
             foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                var ambigousNavigations = GetAmbigousNavigations(derivedEntityType);
-                if (ambigousNavigations == null)
+                var ambiguousNavigations = GetAmbiguousNavigations(derivedEntityType);
+                if (ambiguousNavigations == null)
                 {
                     continue;
                 }
 
-                KeyValuePair<MemberInfo, Type>? ambigousNavigation = null;
-                foreach (var navigation in ambigousNavigations)
+                KeyValuePair<MemberInfo, Type>? ambiguousNavigation = null;
+                foreach (var navigation in ambiguousNavigations)
                 {
                     if (navigation.Key.GetSimpleMemberName() == ignoredMemberName)
                     {
-                        ambigousNavigation = navigation;
+                        ambiguousNavigation = navigation;
                     }
                 }
 
-                if (ambigousNavigation == null)
+                if (ambiguousNavigation == null)
                 {
                     continue;
                 }
 
                 anyAmbiguityRemoved = true;
 
-                var targetClrType = ambigousNavigation.Value.Value;
+                var targetClrType = ambiguousNavigation.Value.Value;
                 RemoveAmbiguous(derivedEntityType, targetClrType);
 
                 var targetType = GetTargetEntityTypeBuilder(
-                    entityTypeBuilder, targetClrType, ambigousNavigation.Value.Key, null)?.Metadata;
+                    entityTypeBuilder, targetClrType, ambiguousNavigation.Value.Key, null)?.Metadata;
                 if (targetType != null)
                 {
                     RemoveAmbiguous(targetType, derivedEntityType.ClrType);
@@ -1075,8 +1075,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             while (entityType != null)
             {
-                var ambigousNavigations = GetAmbigousNavigations(entityType);
-                if (ambigousNavigations?.ContainsKey(navigationProperty) == true)
+                var ambiguousNavigations = GetAmbiguousNavigations(entityType);
+                if (ambiguousNavigations?.ContainsKey(navigationProperty) == true)
                 {
                     return true;
                 }
@@ -1104,11 +1104,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static bool HasDeclaredAmbiguousNavigationsTo(EntityType sourceEntityType, Type targetClrType)
         {
-            var ambigousNavigations = GetAmbigousNavigations(sourceEntityType);
-            return ambigousNavigations?.ContainsValue(targetClrType) == true;
+            var ambiguousNavigations = GetAmbiguousNavigations(sourceEntityType);
+            return ambiguousNavigations?.ContainsValue(targetClrType) == true;
         }
 
-        private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbigousNavigations(EntityType entityType)
+        private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbiguousNavigations(EntityType entityType)
             => entityType.FindAnnotation(AmbiguousNavigationsAnnotationName)?.Value
                 as ImmutableSortedDictionary<MemberInfo, Type>;
 
@@ -1120,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return;
             }
 
-            var currentAmbiguousNavigations = GetAmbigousNavigations(entityTypeBuilder.Metadata);
+            var currentAmbiguousNavigations = GetAmbiguousNavigations(entityTypeBuilder.Metadata);
             var newAmbiguousNavigations = ImmutableSortedDictionary.CreateRange(
                 MemberInfoNameComparer.Instance,
                 navigationProperties.Where(n => currentAmbiguousNavigations?.ContainsKey(n) != true)
@@ -1133,26 +1133,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     : currentAmbiguousNavigations;
             }
 
-            SetAmbigousNavigations(entityTypeBuilder, newAmbiguousNavigations);
+            SetAmbiguousNavigations(entityTypeBuilder, newAmbiguousNavigations);
         }
 
         private static bool RemoveAmbiguous(EntityType entityType, Type targetType)
         {
-            var ambigousNavigations = GetAmbigousNavigations(entityType);
-            if (ambigousNavigations?.IsEmpty == false)
+            var ambiguousNavigations = GetAmbiguousNavigations(entityType);
+            if (ambiguousNavigations?.IsEmpty == false)
             {
-                var newAmbigousNavigations = ambigousNavigations;
-                foreach (var ambigousNavigation in ambigousNavigations)
+                var newAmbiguousNavigations = ambiguousNavigations;
+                foreach (var ambiguousNavigation in ambiguousNavigations)
                 {
-                    if (targetType.IsAssignableFrom(ambigousNavigation.Value))
+                    if (targetType.IsAssignableFrom(ambiguousNavigation.Value))
                     {
-                        newAmbigousNavigations = newAmbigousNavigations.Remove(ambigousNavigation.Key);
+                        newAmbiguousNavigations = newAmbiguousNavigations.Remove(ambiguousNavigation.Key);
                     }
                 }
 
-                if (ambigousNavigations.Count != newAmbigousNavigations.Count)
+                if (ambiguousNavigations.Count != newAmbiguousNavigations.Count)
                 {
-                    SetAmbigousNavigations(entityType.Builder, newAmbigousNavigations);
+                    SetAmbiguousNavigations(entityType.Builder, newAmbiguousNavigations);
                     return true;
                 }
             }
@@ -1160,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return false;
         }
 
-        private static void SetAmbigousNavigations(
+        private static void SetAmbiguousNavigations(
             InternalEntityTypeBuilder entityTypeBuilder,
             ImmutableSortedDictionary<MemberInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(AmbiguousNavigationsAnnotationName, ambiguousNavigations, ConfigurationSource.Convention);

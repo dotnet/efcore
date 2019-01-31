@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
             if (underlyingModelType.IsEnum)
             {
-                foreach (var converterInfo in FindNumericConvertions(
+                foreach (var converterInfo in FindNumericConventions(
                     underlyingModelType,
                     underlyingProviderType,
                     typeof(EnumToNumberConverter<,>),
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             }
             else if (underlyingModelType == typeof(bool))
             {
-                foreach (var converterInfo in FindNumericConvertions(
+                foreach (var converterInfo in FindNumericConventions(
                     typeof(bool),
                     underlyingProviderType,
                     typeof(BoolToZeroOneConverter<>),
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 }
                 else if (_numerics.Contains(underlyingProviderType))
                 {
-                    foreach (var converterInfo in FindNumericConvertions(
+                    foreach (var converterInfo in FindNumericConventions(
                         typeof(string),
                         underlyingProviderType,
                         typeof(StringToNumberConverter<>),
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                          || underlyingProviderType == typeof(string)
                          || _numerics.Contains(underlyingProviderType)))
             {
-                foreach (var converterInfo in FindNumericConvertions(
+                foreach (var converterInfo in FindNumericConventions(
                     underlyingModelType,
                     underlyingProviderType,
                     typeof(CastingConverter<,>),
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     k => CharToStringConverter.DefaultInfo);
             }
 
-            foreach (var converterInfo in FindNumericConvertions(
+            foreach (var converterInfo in FindNumericConventions(
                 underlyingModelType,
                 underlyingProviderType,
                 typeof(CastingConverter<,>),
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             }
         }
 
-        private IEnumerable<ValueConverterInfo> FindNumericConvertions(
+        private IEnumerable<ValueConverterInfo> FindNumericConventions(
             Type modelType,
             Type providerType,
             Type converterType,

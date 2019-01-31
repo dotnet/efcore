@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to ConfigureWanings. </param>
+        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
         /// <param name="logAction"> A cached delegate for logging the event. </param>
         public EventDefinition(
             EventId eventId,

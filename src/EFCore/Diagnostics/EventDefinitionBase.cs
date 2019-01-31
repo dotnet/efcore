@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to ConfigureWanings. </param>
+        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
         protected EventDefinitionBase(EventId eventId, LogLevel level, [CanBeNull] string eventIdCode)
         {
             EventId = eventId;
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual LogLevel Level { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     A string representing the code that should be passed to ConfigureWanings to suppress this event as an error.
+        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/> to suppress this event as an error.
         /// </summary>
         public virtual string EventIdCode { get; }
 
