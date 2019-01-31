@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -1840,7 +1842,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
         /// </summary>
-        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
+        public static string ConflictingRelationshipNavigation([CanBeNull] object? newPrincipalEntityType, [CanBeNull] object? newPrincipalNavigation, [CanBeNull] object? newDependentEntityType, [CanBeNull] object? newDependentNavigation, [CanBeNull] object? existingPrincipalEntityType, [CanBeNull] object? existingPrincipalNavigation, [CanBeNull] object? existingDependentEntityType, [CanBeNull] object? existingDependentNavigation)
             => string.Format(
                 GetString("ConflictingRelationshipNavigation", nameof(newPrincipalEntityType), nameof(newPrincipalNavigation), nameof(newDependentEntityType), nameof(newDependentNavigation), nameof(existingPrincipalEntityType), nameof(existingPrincipalNavigation), nameof(existingDependentEntityType), nameof(existingDependentNavigation)),
                 newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);

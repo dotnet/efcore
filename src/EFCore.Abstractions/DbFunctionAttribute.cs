@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
-        private string _functionName;
-        private string _schema;
+        private string? _functionName;
+        private string? _schema;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="functionName">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string functionName, [CanBeNull] string schema = null)
+        public DbFunctionAttribute([NotNull] string functionName, [CanBeNull] string? schema = null)
         {
             Check.NotEmpty(functionName, nameof(functionName));
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        public virtual string FunctionName
+        public virtual string? FunctionName
         {
             get => _functionName;
             [param: NotNull]
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The schema of the function in the database.
         /// </summary>
-        public virtual string Schema
+        public virtual string? Schema
         {
             get => _schema;
             [param: CanBeNull] set => _schema = value;

@@ -16,7 +16,7 @@
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <DebugType>portable</DebugType>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>

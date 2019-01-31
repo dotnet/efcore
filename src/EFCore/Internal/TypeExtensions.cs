@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value)
+        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object? value)
             => (value?.Equals(type.GetDefaultValue()) != false);
 
         /// <summary>

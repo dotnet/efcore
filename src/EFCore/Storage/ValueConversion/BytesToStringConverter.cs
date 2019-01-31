@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -19,10 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public BytesToStringConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
+#nullable disable // https://github.com/dotnet/roslyn/issues/30953
                 v => v == null ? null : Convert.ToBase64String(v),
                 v => v == null ? null : Convert.FromBase64String(v),
+#nullable enable
                 mappingHints)
         {
         }

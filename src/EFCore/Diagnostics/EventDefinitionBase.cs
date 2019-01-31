@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="eventIdCode"> A string representing the code that should be passed to ConfigureWanings. </param>
-        protected EventDefinitionBase(EventId eventId, LogLevel level, [CanBeNull] string eventIdCode)
+        protected EventDefinitionBase(EventId eventId, LogLevel level, [CanBeNull] string? eventIdCode)
         {
             EventId = eventId;
             Level = level;
@@ -50,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     A string representing the code that should be passed to ConfigureWanings to suppress this event as an error.
         /// </summary>
-        public virtual string EventIdCode { get; }
+        public virtual string? EventIdCode { get; }
 
         /// <summary>
         ///     Returns a warning-as-error exception wrapping the given message for this event.
@@ -79,11 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         protected sealed class MessageExtractingLogger : ILogger
         {
+            private string? _message;
+
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public string Message { get; [param: CanBeNull] private set; }
+            public string Message {
+                get => _message ?? throw new InvalidOperationException();
+                private set => _message = value;
+            }
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
