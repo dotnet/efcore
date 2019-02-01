@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 #pragma warning disable RCS1102 // Make class static.
@@ -67,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore
                     => Database.SetCommandTimeout(commandTimeout);
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(new FakeDbConnection("A=B"));
+                    => optionsBuilder
+                        .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                        .UseSqlServer(new FakeDbConnection("A=B"));
             }
         }
     }

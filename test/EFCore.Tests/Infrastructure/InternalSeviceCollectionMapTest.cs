@@ -250,7 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Same_INavigationFixer_is_returned_for_all_registrations()
         {
-            using (var context = new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options))
+            using (var context = new DbContext(
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options))
             {
                 var navFixer = context.GetService<INavigationFixer>();
 

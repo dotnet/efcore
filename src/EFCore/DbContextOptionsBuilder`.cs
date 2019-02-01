@@ -187,6 +187,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Enables or disables caching of internal service providers. Disabling caching can
+        ///         massively impact performance and should only be used in testing scenarios that
+        ///         build many service providers for test isolation.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
+        ///     </para>
+        /// </summary>
+        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableServiceProviderCaching(bool cacheServiceProvider = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableServiceProviderCaching(cacheServiceProvider);
+
+        /// <summary>
+        ///     <para>
         ///         Sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
         ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
         ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and

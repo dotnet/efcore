@@ -141,7 +141,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Fraggle> Fraggles { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FraggleContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(FraggleContext));
         }
 
         private class Fraggle

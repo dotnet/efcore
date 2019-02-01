@@ -7,6 +7,7 @@ using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -106,6 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected override DbContextOptions ContextOptions { get; }
-            = new DbContextOptionsBuilder().UseSqlite("Filename=dummmy.db").Options;
+            = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider())
+                .UseSqlite("Filename=dummmy.db").Options;
     }
 }

@@ -632,7 +632,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private class MyContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(MyContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(MyContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<B>().HasKey(

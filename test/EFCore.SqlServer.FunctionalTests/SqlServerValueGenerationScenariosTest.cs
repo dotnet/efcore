@@ -1290,7 +1290,11 @@ END");
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
+                => optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(
+                        SqlServerTestStore.CreateConnectionString(_databaseName),
+                        b => b.ApplyConfiguration());
         }
     }
 }

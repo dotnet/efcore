@@ -133,7 +133,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(GetType().FullName);
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1117,7 +1119,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(GetType().FullName);
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)

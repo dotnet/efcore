@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 #pragma warning restore RCS1213 // Remove unused member declaration.
                 => new TestWebHost(
                     new ServiceCollection()
-                        .AddDbContext<TestContext>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                        .AddDbContext<TestContext>(b =>
+                            b.EnableServiceProviderCaching(false)
+                             .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .BuildServiceProvider());
         }
 

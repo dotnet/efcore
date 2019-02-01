@@ -3517,6 +3517,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
             {
                 optionsBuilder
                     .UseLoggerFactory(_loggerFactory)
+                    .EnableServiceProviderCaching(false)
                     .UseSqlServer(
                         SqlServerTestStore.CreateConnectionString("RowNumberPaging_Owned"),
                         b => b.UseRowNumberForPaging());

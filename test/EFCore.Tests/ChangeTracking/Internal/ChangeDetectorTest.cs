@@ -359,7 +359,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             protected virtual bool UseTypeMapping => false;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {

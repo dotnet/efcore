@@ -142,7 +142,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Artist> Artists { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(SimpleContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(SimpleContext));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);

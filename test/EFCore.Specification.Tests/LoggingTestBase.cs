@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -15,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Logs_context_initialization_default_options()
         {
-            Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder()));
+            Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder));
         }
 
         [Fact]
@@ -23,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("NoTracking " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
+                ActualMessage(s => CreateOptionsBuilder(s).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
         }
 
         [Fact]
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("SensitiveDataLoggingEnabled " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder().EnableSensitiveDataLogging()));
+                ActualMessage(s => CreateOptionsBuilder(s).EnableSensitiveDataLogging()));
         }
 
         protected virtual string ExpectedMessage(string optionsFragment)
@@ -41,16 +44,18 @@ namespace Microsoft.EntityFrameworkCore
                 ProviderName,
                 optionsFragment ?? "None").Trim();
 
-        protected abstract DbContextOptionsBuilder CreateOptionsBuilder();
+        protected abstract DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services);
 
         protected abstract string ProviderName { get; }
 
         protected virtual string DefaultOptions => null;
 
-        protected virtual string ActualMessage(DbContextOptionsBuilder optionsBuilder)
+        protected virtual string ActualMessage(Func<IServiceCollection, DbContextOptionsBuilder> optionsActions)
         {
             var loggerFactory = new ListLoggerFactory();
-            using (var context = new LoggingContext(optionsBuilder.UseLoggerFactory(loggerFactory)))
+            var optionsBuilder = optionsActions(new ServiceCollection().AddSingleton<ILoggerFactory>(loggerFactory));
+
+            using (var context = new LoggingContext(optionsBuilder))
             {
                 var _ = context.Model;
             }

@@ -50,7 +50,9 @@ namespace Microsoft.EntityFrameworkCore
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                => optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
         }
 
         [Fact]
@@ -93,7 +95,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connection, b => b.ApplyConfiguration());
+                => optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(_connection, b => b.ApplyConfiguration());
 
             public override void Dispose()
             {
@@ -141,6 +145,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class NoUseSqlServerContext : NorthwindContextBase
         {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.EnableServiceProviderCaching(false);
         }
 
         [Fact]
@@ -191,7 +197,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(_connection, b => b.ApplyConfiguration());
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(_connection, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -246,7 +254,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -269,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
                 = new ServiceCollection()
                     .AddSingleton<IConfiguration>(configBuilder.Build())
                     .AddDbContext<UseConfigurationContext>(
-                        b => b.UseSqlServer(connectionString))
+                        b => b.UseSqlServer(connectionString).EnableServiceProviderCaching(false))
                     .BuildServiceProvider();
 
             using (SqlServerTestStore.GetNorthwindStore())

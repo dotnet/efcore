@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entityType = model.AddEntityType(typeof(object));
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                .UseModel(model)
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
@@ -154,7 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).UseInMemoryDatabase(Guid.NewGuid().ToString());
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseModel(model)
+                .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -18,12 +19,18 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false)]
         public void It_enforces_foreign_key(bool suppress)
         {
+            var serviceProvider = new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider();
             using (var testStore = (SqliteTestStore)SqliteTestStore.GetOrCreate("ForeignKeyTest")
-                .Initialize(null, t => new MyContext(t.AddProviderOptions(new DbContextOptionsBuilder()).Options), null))
+                .Initialize(
+                    serviceProvider,
+                    t => new MyContext(
+                        t.AddProviderOptions(new DbContextOptionsBuilder())
+                            .UseInternalServiceProvider(serviceProvider).Options),
+                    null))
             {
                 testStore.CloseConnection();
 
-                var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder());
+                var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider));
                 new SqliteDbContextOptionsBuilder(builder).SuppressForeignKeyEnforcement(suppress);
 
                 using (var context = new MyContext(builder.Options))
@@ -41,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var ex = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                         // ReSharper disable once PossibleNullReferenceException
-                        Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
+                        Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message,
+                            StringComparison.OrdinalIgnoreCase);
                     }
                 }
             }
@@ -84,7 +92,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var testStore = SqliteTestStore.GetOrCreateInitialized("ForeignKeyIndexTest"))
             {
-                var options = testStore.AddProviderOptions(new DbContextOptionsBuilder()).Options;
+                var options = testStore
+                    .AddProviderOptions(new DbContextOptionsBuilder())
+                    .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider())
+                    .Options;
 
                 testStore.ExecuteNonQuery(
                     @"

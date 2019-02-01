@@ -322,17 +322,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class SensitiveIdentityConflictContext : IdentityConflictContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.EnableSensitiveDataLogging();
-
-                base.OnConfiguring(optionsBuilder);
-            }
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(IdentityConflictContext))
+                    .EnableSensitiveDataLogging()
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultSensitiveServiceProvider);
         }
 
         private class IdentityConflictContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(IdentityConflictContext));
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(IdentityConflictContext))
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
