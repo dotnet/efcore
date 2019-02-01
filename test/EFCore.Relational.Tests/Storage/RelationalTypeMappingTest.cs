@@ -426,8 +426,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "NaN");
             Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "Infinity");
             Test_GenerateSqlLiteral_helper(typeMapping, float.NegativeInfinity, "-Infinity");
+#if NETCOREAPP3_0
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "-3.4028235E+38");
+            Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "3.4028235E+38");
+#else
             Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "-3.40282347E+38");
             Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "3.40282347E+38");
+#endif
         }
 
         [Fact]

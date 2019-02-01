@@ -1170,6 +1170,18 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
+#if NETCOREAPP3_0
+                @"@p0='77'
+@p1='2017-01-02T12:11:12' (Size = 3)
+@p2='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
+@p3='102.2' (Size = 3)
+@p4='101.1'
+@p5='103.3' (Size = 3)
+@p6='85.55000305175781' (Size = 25)
+@p7='85.5' (Size = 3)
+@p8='83.33000183105469' (Size = 25)
+@p9='83.3' (Size = 3)",
+#else
                 @"@p0='77'
 @p1='2017-01-02T12:11:12' (Size = 3)
 @p2='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
@@ -1180,6 +1192,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p7='85.5' (Size = 3)
 @p8='83.3300018310547' (Size = 25)
 @p9='83.3' (Size = 3)",
+#endif
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1930,6 +1943,18 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
+#if NETCOREAPP3_0
+                @"@p0='2017-01-02T12:11:12' (Size = 3)
+@p1='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
+@p2='102.2' (Size = 3)
+@p3='101.1'
+@p4='103.3' (Size = 3)
+@p5='85.55000305175781' (Size = 25)
+@p6='85.5' (Size = 3)
+@p7='83.33000183105469' (Size = 25)
+@p8='83.3' (Size = 3)
+@p9='77'",
+#else
                 @"@p0='2017-01-02T12:11:12' (Size = 3)
 @p1='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
 @p2='102.2' (Size = 3)
@@ -1940,6 +1965,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p7='83.3300018310547' (Size = 25)
 @p8='83.3' (Size = 3)
 @p9='77'",
+#endif
                 parameters,
                 ignoreLineEndingDifferences: true);
 

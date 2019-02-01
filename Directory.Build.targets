@@ -1,6 +1,11 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
+  <PropertyGroup>
+    <BundledNETCorePlatformsPackageVersion>$(MicrosoftNETCorePlatformsPackageVersion)</BundledNETCorePlatformsPackageVersion>
+    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
   <!-- This is required to workaround overlap between System.Collections.Generic.IAsyncEnumerable in System.Runtime and System.Interactive.Async. -->
   <Target Name="AddAssemblyAliasToReactiveAsync"
           AfterTargets="ResolveAssemblyReferences"
