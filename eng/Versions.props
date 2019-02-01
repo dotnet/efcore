@@ -47,7 +47,7 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19080.5</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27330-4</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27331-3</MicrosoftExtensionsDependencyModelPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreSources>
