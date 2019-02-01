@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         private class ProviderContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("Maltesers");
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("Maltesers");
         }
     }
 }

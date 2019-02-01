@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -263,10 +264,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             private readonly Action<ModelBuilder> _builder;
 
             public CustomModelBuildingContext(DbContextOptions options, Action<ModelBuilder> builder)
-                : base(
-                    new DbContextOptionsBuilder(options)
-                        .ReplaceService<IModelCacheKeyFactory, TestModelCacheKeyFactory>()
-                        .Options)
+                : base(options)
             {
                 _builder = builder;
             }
@@ -279,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
         }
 
-        private class TestModelCacheKeyFactory : IModelCacheKeyFactory
+        protected class TestModelCacheKeyFactory : IModelCacheKeyFactory
         {
             public object Create(DbContext context) => new object();
         }
@@ -307,6 +305,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected virtual DbContextOptions Configure()
             => new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(
+                    InMemoryFixture.BuildServiceProvider(
+                        new ServiceCollection()
+                            .AddSingleton<IModelCacheKeyFactory, TestModelCacheKeyFactory>()))
                 .UseInMemoryDatabase(nameof(CustomModelBuildingContext))
                 .Options;
     }

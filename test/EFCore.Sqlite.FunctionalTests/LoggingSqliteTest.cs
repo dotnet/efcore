@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -16,12 +17,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("SuppressForeignKeyEnforcement " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => ((SqliteDbContextOptionsBuilder)b).SuppressForeignKeyEnforcement())));
+                ActualMessage(s => CreateOptionsBuilder(s, b => ((SqliteDbContextOptionsBuilder)b).SuppressForeignKeyEnforcement())));
         }
 
         protected override DbContextOptionsBuilder CreateOptionsBuilder(
+            IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>> relationalAction)
-            => new DbContextOptionsBuilder().UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
+            => new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider())
+                .UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
 
         protected override string ProviderName => "Microsoft.EntityFrameworkCore.Sqlite";
     }

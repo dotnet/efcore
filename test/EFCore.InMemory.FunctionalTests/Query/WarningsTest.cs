@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var optionsBuilder
                 = new DbContextOptionsBuilder()
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -42,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var optionsBuilder
                 = new DbContextOptionsBuilder()
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -62,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var optionsBuilder
                 = new DbContextOptionsBuilder()
                     .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                    .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             using (var context = new DbContext(optionsBuilder.Options))
@@ -73,7 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Throws_when_warning_as_error_all()
         {
-            using (var context = new WarningAsErrorContext())
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider))
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
@@ -89,7 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Throws_when_warning_as_error_specific()
         {
-            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.FirstWithoutOrderByAndFilterWarning))
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.FirstWithoutOrderByAndFilterWarning))
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
@@ -107,7 +119,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var loggerFactory = new ListLoggerFactory();
 
-            using (var context = new WarningAsErrorContext(loggerFactory))
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 var _ = context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
@@ -118,7 +135,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Ignored_includes_can_be_configured_to_throw()
         {
-            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.IncludeIgnoredWarning))
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.IncludeIgnoredWarning))
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
@@ -135,7 +156,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
             var loggerFactory = new ListLoggerFactory();
-            using (var context = new WarningAsErrorContext(loggerFactory))
+
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 context.Add(
                     new WarningAsErrorEntity
@@ -147,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             WarningAsErrorEntity entity;
 
-            using (var context = new WarningAsErrorContext(loggerFactory))
+            using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
             }
@@ -166,8 +193,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var loggerFactory = new ListLoggerFactory();
 
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
+
             using (var context = new WarningAsErrorContext(
-                loggerFactory,
+                serviceProvider,
+                defaultThrow: false,
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
                 context.Add(
@@ -181,7 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             WarningAsErrorEntity entity;
 
             using (var context = new WarningAsErrorContext(
-                loggerFactory,
+                serviceProvider,
+                defaultThrow: false,
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
                 entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
@@ -199,7 +233,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var loggerFactory = new ListLoggerFactory();
 
-            using (var context = new WarningAsErrorContext(loggerFactory))
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 context.Add(
                     new WarningAsErrorEntity
@@ -209,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.SaveChanges();
             }
 
-            using (var context = new WarningAsErrorContext(loggerFactory))
+            using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 var entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
 
@@ -231,7 +270,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void No_throw_when_event_id_not_registered()
         {
-            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning))
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
+            using (var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning))
             {
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 context.WarningAsErrorEntities.FirstOrDefault();
@@ -240,16 +283,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class WarningAsErrorContext : DbContext
         {
-            private readonly ILoggerFactory _sink;
+            private readonly IServiceProvider _serviceProvider;
+            private readonly bool _defaultThrow;
             private readonly EventId? _toLog;
             private readonly EventId? _toThrow;
 
             public WarningAsErrorContext(
-                ILoggerFactory sink = null,
+                IServiceProvider serviceProvider,
+                bool defaultThrow = true,
                 EventId? toLog = null,
                 EventId? toThrow = null)
             {
-                _sink = sink;
+                _serviceProvider = serviceProvider;
+                _defaultThrow = defaultThrow;
                 _toLog = toLog;
                 _toThrow = toThrow;
             }
@@ -258,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(_sink ?? new ListLoggerFactory(m => false))
+                    .UseInternalServiceProvider(_serviceProvider)
                     .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
                         c =>
                         {
@@ -270,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 c.Log(_toLog.Value);
                             }
-                            else if (_sink == null)
+                            else if (_defaultThrow)
                             {
                                 c.Default(WarningBehavior.Throw);
                             }

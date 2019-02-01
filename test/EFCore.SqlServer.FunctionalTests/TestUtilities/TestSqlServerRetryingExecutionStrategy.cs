@@ -21,7 +21,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public TestSqlServerRetryingExecutionStrategy()
             : base(
-                new DbContext(new DbContextOptionsBuilder().UseSqlServer(TestEnvironment.DefaultConnection).Options),
+                new DbContext(
+                    new DbContextOptionsBuilder()
+                        .EnableServiceProviderCaching(false)
+                        .UseSqlServer(TestEnvironment.DefaultConnection).Options),
                 DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
         {
         }

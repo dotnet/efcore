@@ -117,7 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("9849");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("9849");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -224,7 +226,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("3595");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("3595");
             }
         }
 
@@ -500,7 +504,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("3101");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("3101");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -681,7 +687,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("5456");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("5456");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -741,7 +749,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase("8282");
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("8282");
             }
         }
 

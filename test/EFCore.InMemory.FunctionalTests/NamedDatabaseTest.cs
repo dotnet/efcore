@@ -254,7 +254,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_databaseName == null)
                 {
-                    optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                    optionsBuilder
+                        .EnableServiceProviderCaching(false)
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString());
                 }
                 else
                 {

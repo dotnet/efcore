@@ -711,7 +711,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private class NoFieldContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             public DbSet<NoField> NoFields { get; }
             public DbSet<NoFieldRelated> NoFieldRelateds { get; }

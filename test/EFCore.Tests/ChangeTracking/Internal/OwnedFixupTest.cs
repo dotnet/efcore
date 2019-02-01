@@ -1205,7 +1205,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(nameof(FixupContext));
+                optionsBuilder
+                    .UseInMemoryDatabase(nameof(FixupContext))
+                    .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider());
+
                 if (!_ignoreDuplicates)
                 {
                     optionsBuilder.ConfigureWarnings(

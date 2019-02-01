@@ -110,7 +110,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                     if (_fileName == null)
                     {
-                        using (var context = new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options))
+                        using (var context = new DbContext(
+                            AddProviderOptions(
+                                    new DbContextOptionsBuilder()
+                                        .EnableServiceProviderCaching(false))
+                                .Options))
                         {
                             Clean(context);
                             return true;

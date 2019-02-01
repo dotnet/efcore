@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -14,7 +15,14 @@ namespace Microsoft.EntityFrameworkCore
         protected override string StoreName { get; } = "MigrationsTest";
 
         public EmptyMigrationsContext CreateEmptyContext()
-            => new EmptyMigrationsContext(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
+            => new EmptyMigrationsContext(
+                TestStore.AddProviderOptions(
+                        new DbContextOptionsBuilder())
+                    .UseInternalServiceProvider(
+                        TestStoreFactory.AddProviderServices(
+                                new ServiceCollection())
+                            .BuildServiceProvider())
+                    .Options);
 
         public new virtual MigrationsContext CreateContext() => base.CreateContext();
 

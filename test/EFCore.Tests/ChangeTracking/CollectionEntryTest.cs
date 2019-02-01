@@ -576,7 +576,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class FreezerContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(FreezerContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(FreezerContext));
 
             public DbSet<Chunky> Icecream { get; set; }
 

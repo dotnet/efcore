@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public DbSet<DerivedWithoutPrivates> Entities { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(WithPrivatesContext));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(WithPrivatesContext));
         }
 
         [Fact]

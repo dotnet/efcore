@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder())
                 .EnableSensitiveDataLogging()
+                .EnableServiceProviderCaching(false)
                 .ConfigureWarnings(
                     b => b.Default(WarningBehavior.Throw)
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)

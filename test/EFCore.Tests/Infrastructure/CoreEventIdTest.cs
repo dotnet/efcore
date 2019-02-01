@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var queryModel = new QueryModel(
                 new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
             var includeResultOperator = new IncludeResultOperator(new[] { "Foo" }, Expression.Constant("A"));
-            var options = new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options;
+            var options = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase("D").Options;
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {

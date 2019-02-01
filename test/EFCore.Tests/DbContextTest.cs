@@ -217,7 +217,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Question> Questions { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(databaseName: "issue7119");
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(databaseName: "issue7119");
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -909,7 +911,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakeServiceProvider = new FakeServiceProvider();
             var context = new DbContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).UseInMemoryDatabase(Guid.NewGuid().ToString())
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(fakeServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .Options);
 
             var scopeService =
@@ -1047,7 +1051,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Test> Tests { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseInMemoryDatabase(nameof(NullShadowKeyContext));
+                => options
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(NullShadowKeyContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {

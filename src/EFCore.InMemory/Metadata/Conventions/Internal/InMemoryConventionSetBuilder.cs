@@ -28,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<DbContext>((p, o) =>
+                    o.UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())

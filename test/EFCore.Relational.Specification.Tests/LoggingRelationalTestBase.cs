@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("MaxBatchSize=10 " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.MaxBatchSize(10))));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.MaxBatchSize(10))));
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("CommandTimeout=10 " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.CommandTimeout(10))));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.CommandTimeout(10))));
         }
 
         [Fact]
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("UseRelationalNulls " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.UseRelationalNulls())));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.UseRelationalNulls())));
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("MigrationsAssembly=A.B.C " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.MigrationsAssembly("A.B.C"))));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsAssembly("A.B.C"))));
         }
 
         [Fact]
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("MigrationsHistoryTable=MyHistory " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.MigrationsHistoryTable("MyHistory"))));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsHistoryTable("MyHistory"))));
         }
 
         [Fact]
@@ -57,12 +58,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("MigrationsHistoryTable=mySchema.MyHistory " + DefaultOptions),
-                ActualMessage(CreateOptionsBuilder(b => b.MigrationsHistoryTable("MyHistory", "mySchema"))));
+                ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsHistoryTable("MyHistory", "mySchema"))));
         }
 
         protected abstract DbContextOptionsBuilder CreateOptionsBuilder(
+            IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<TBuilder, TExtension>> relationalAction);
 
-        protected override DbContextOptionsBuilder CreateOptionsBuilder() => CreateOptionsBuilder(null);
+        protected override DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services)
+            => CreateOptionsBuilder(services, null);
     }
 }
