@@ -6383,6 +6383,52 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class OptionalChildView
+        {
+            private readonly Action<object, string> _loader;
+            private RootClass _root;
+
+            public OptionalChildView()
+            {
+            }
+
+            public OptionalChildView(Action<object, string> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
+            public int? RootId { get; set; }
+
+            public RootClass Root
+            {
+                get => _loader.Load(this, ref _root);
+                set => _root = value;
+            }
+        }
+
+        protected class RequiredChildView
+        {
+            private readonly Action<object, string> _loader;
+            private RootClass _root;
+
+            public RequiredChildView()
+            {
+            }
+
+            public RequiredChildView(Action<object, string> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
+            public int RootId { get; set; }
+
+            public RootClass Root
+            {
+                get => _loader.Load(this, ref _root);
+                set => _root = value;
+            }
+        }
+
         protected DbContext CreateContext(bool lazyLoadingEnabled = false, bool noTracking = false)
         {
             var context = Fixture.CreateContext();
@@ -6507,6 +6553,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Product>();
                 modelBuilder.Entity<Deposit>();
                 modelBuilder.Entity<SimpleProduct>();
+
+                modelBuilder.Query<OptionalChildView>();
+                modelBuilder.Query<RequiredChildView>();
             }
 
             protected override void Seed(PoolableDbContext context)
