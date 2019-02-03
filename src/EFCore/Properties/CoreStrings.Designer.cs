@@ -35,13 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("InvalidEnumValue", nameof(argumentName), nameof(enumType)),
                 argumentName, enumType);
-
-        /// <summary>
-        ///     The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.
-        /// </summary>
-        public static string StillUsingTypeMapper
-            => GetString("StillUsingTypeMapper");
-
+        
         /// <summary>
         ///     The type mapping for '{type}' has not implemented code literal generation.
         /// </summary>
