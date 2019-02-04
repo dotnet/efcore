@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -74,6 +75,8 @@ namespace Microsoft.EntityFrameworkCore
                 ChangeTracker.AutoDetectChangesEnabled = false;
                 ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
+                ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
+                ChangeTracker.DeleteOrphansTiming= CascadeTiming.Never;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -289,6 +292,8 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.AutoDetectChangesEnabled = true;
             context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
 
             serviceScope.Dispose();
@@ -305,6 +310,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context2.ChangeTracker.AutoDetectChangesEnabled);
             Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
             Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
         }
 
@@ -322,6 +329,8 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.LazyLoadingEnabled = false;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = false;
+            context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
 
             serviceScope.Dispose();
 
@@ -335,6 +344,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(context2.ChangeTracker.AutoDetectChangesEnabled);
             Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
             Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.True(context2.Database.AutoTransactionsEnabled);
         }
 

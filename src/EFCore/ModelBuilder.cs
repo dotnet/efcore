@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -343,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool> predicate = null)
+        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool>? predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
@@ -392,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <typeparam name="T"> The entity type to be configured. </typeparam>
-        public virtual OwnedEntityTypeBuilder<T> Owned<T>()
+        public virtual OwnedEntityTypeBuilder<T>? Owned<T>()
             where T : class
         {
             Builder.Owned(typeof(T), ConfigurationSource.Explicit);
@@ -405,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
-        public virtual OwnedEntityTypeBuilder Owned([NotNull] Type type)
+        public virtual OwnedEntityTypeBuilder? Owned([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 

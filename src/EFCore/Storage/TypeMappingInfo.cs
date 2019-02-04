@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(principals, nameof(principals));
 
-            ValueConverter customConverter = null;
+            ValueConverter? customConverter = null;
             int? size = null;
             bool? isUnicode = null;
             for (var i = 0; i < principals.Count; i++)

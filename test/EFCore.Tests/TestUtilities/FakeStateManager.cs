@@ -114,6 +114,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public event EventHandler<EntityStateChangedEventArgs> StateChanged;
         public void OnStateChanged(InternalEntityEntry internalEntityEntry, EntityState oldState) => StateChanged?.Invoke(null, null);
         public bool SensitiveLoggingEnabled { get; }
+        public void CascadeChanges(bool force) => throw new NotImplementedException();
+        public void CascadeDelete(InternalEntityEntry entry, bool force) => throw new NotImplementedException();
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
     }
 }

@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find([CanBeNull] params object[] keyValues) => throw new NotImplementedException();
+        public virtual TEntity? Find([CanBeNull] params object[]? keyValues) => throw new NotImplementedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -83,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync([CanBeNull] params object[] keyValues) => throw new NotImplementedException();
+        public virtual Task<TEntity?> FindAsync([CanBeNull] params object[]? keyValues) => throw new NotImplementedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -95,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual Task<TEntity?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
         /// <summary>

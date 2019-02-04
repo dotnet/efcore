@@ -1250,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             entry[fkProperty] = null;
-            entry.HandleConceptualNulls(false);
+            entry.HandleConceptualNulls(false, force: false, isCascadeDelete: false);
 
             Assert.Equal(EntityState.Deleted, entry.EntityState);
         }
@@ -1268,7 +1268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Added);
 
             entry[fkProperty] = null;
-            entry.HandleConceptualNulls(false);
+            entry.HandleConceptualNulls(false, force: false, isCascadeDelete: false);
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
@@ -1291,7 +1291,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             entry[fkProperty1] = null;
-            entry.HandleConceptualNulls(false);
+            entry.HandleConceptualNulls(false, force: false, isCascadeDelete: false);
 
             Assert.Equal(EntityState.Deleted, entry.EntityState);
         }
@@ -1314,87 +1314,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             entry[fkProperty1] = null;
-            entry.HandleConceptualNulls(false);
+            entry.HandleConceptualNulls(false, force: false, isCascadeDelete: false);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
 
             Assert.Equal(77, entry[fkProperty1]);
             Assert.Null(entry[fkProperty2]);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Unchanged_entity_with_conceptually_null_FK_without_cascade_delete_throws(bool sensitiveLoggingEnabled)
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
-            var fkProperty = entityType.FindProperty("SomeEntityId");
-            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry.SetOriginalValue(keyProperties[0], 77);
-            entry.SetOriginalValue(keyProperties[1], "ReadySalted");
-            entry[keyProperties[0]] = 77;
-            entry[keyProperties[1]] = "ReadySalted";
-            entry[fkProperty] = 99;
-
-            entry.SetEntityState(EntityState.Unchanged);
-            entry[fkProperty] = null;
-
-            var exception = Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls(sensitiveLoggingEnabled)).Message;
-            if (sensitiveLoggingEnabled)
-            {
-                Assert.Equal(
-                    CoreStrings.RelationshipConceptualNullSensitive(
-                        model.FindEntityType(typeof(SomeEntity).FullName).DisplayName(),
-                        entityType.DisplayName(),
-                        "{Id1: 77, Id2: ReadySalted}"), exception);
-            }
-            else
-            {
-                Assert.Equal(
-                    CoreStrings.RelationshipConceptualNull(
-                        model.FindEntityType(typeof(SomeEntity).FullName).DisplayName(),
-                        entityType.DisplayName()), exception);
-            }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Unchanged_entity_with_conceptually_null_non_FK_property_throws(bool sensitiveLoggingEnabled)
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
-            var property = entityType.FindProperty("JustAProperty");
-            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry.SetOriginalValue(keyProperties[0], 77);
-            entry.SetOriginalValue(keyProperties[1], "ReadySalted");
-            entry[keyProperties[0]] = 77;
-            entry[keyProperties[1]] = "ReadySalted";
-            entry[property] = 99;
-
-            entry.SetEntityState(EntityState.Unchanged);
-            entry[property] = null;
-
-            var exception = Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls(sensitiveLoggingEnabled)).Message;
-            if (sensitiveLoggingEnabled)
-            {
-                Assert.Equal(
-                    CoreStrings.PropertyConceptualNullSensitive("JustAProperty", entityType.DisplayName(), "{Id1: 77, Id2: ReadySalted}"),
-                    exception);
-            }
-            else
-            {
-                Assert.Equal(
-                    CoreStrings.PropertyConceptualNull("JustAProperty", entityType.DisplayName()),
-                    exception);
-            }
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

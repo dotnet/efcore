@@ -98,15 +98,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(relatedDependent, relatedDependentEntry.Entity);
                 Assert.Same(dependent, dependentEntry.Entity);
 
-                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
-
                 Assert.Same(principal, principalEntry.Entity);
                 Assert.Equal(expectedState, principalEntry.State);
                 Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Equal(expectedRelatedState, relatedPrincipalEntry.State);
+                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
 
                 Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Equal(expectedRelatedState, relatedDependentEntry.State);
+                Assert.Equal(expectedState, relatedDependentEntry.State);
                 Assert.Same(dependent, dependentEntry.Entity);
                 Assert.Equal(expectedState, dependentEntry.State);
 
@@ -200,15 +198,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
                 Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
-
                 Assert.Same(principal, context.Entry(principal).Entity);
                 Assert.Equal(expectedState, context.Entry(principal).State);
                 Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedRelatedState, context.Entry(relatedPrincipal).State);
+                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Equal(expectedRelatedState, context.Entry(relatedDependent).State);
+                Assert.Equal(expectedState, context.Entry(relatedDependent).State);
                 Assert.Same(dependent, context.Entry(dependent).Entity);
                 Assert.Equal(expectedState, context.Entry(dependent).State);
             }
@@ -498,15 +494,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(relatedDependent, relatedDependentEntry.Entity);
                 Assert.Same(dependent, dependentEntry.Entity);
 
-                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
-
                 Assert.Same(principal, principalEntry.Entity);
                 Assert.Equal(expectedState, principalEntry.State);
                 Assert.Same(relatedPrincipal, relatedPrincipalEntry.Entity);
-                Assert.Equal(expectedRelatedState, relatedPrincipalEntry.State);
+                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, relatedPrincipalEntry.State);
 
                 Assert.Same(relatedDependent, relatedDependentEntry.Entity);
-                Assert.Equal(expectedRelatedState, relatedDependentEntry.State);
+                Assert.Equal(expectedState, relatedDependentEntry.State);
                 Assert.Same(dependent, dependentEntry.Entity);
                 Assert.Equal(expectedState, dependentEntry.State);
 
@@ -600,15 +594,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
                 Assert.Same(dependent, context.Entry(dependent).Entity);
 
-                var expectedRelatedState = expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState;
-
                 Assert.Same(principal, context.Entry(principal).Entity);
                 Assert.Equal(expectedState, context.Entry(principal).State);
                 Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedRelatedState, context.Entry(relatedPrincipal).State);
+                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
-                Assert.Equal(expectedRelatedState, context.Entry(relatedDependent).State);
+                Assert.Equal(expectedState, context.Entry(relatedDependent).State);
                 Assert.Same(dependent, context.Entry(dependent).Entity);
                 Assert.Equal(expectedState, context.Entry(dependent).State);
             }

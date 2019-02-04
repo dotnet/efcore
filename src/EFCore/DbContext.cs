@@ -20,6 +20,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -53,17 +55,17 @@ namespace Microsoft.EntityFrameworkCore
         IDbQueryCache,
         IDbContextPoolable
     {
-        private IDictionary<Type, object> _sets;
-        private IDictionary<Type, object> _queries;
+        private IDictionary<Type, object>? _sets;
+        private IDictionary<Type, object>? _queries;
         private readonly DbContextOptions _options;
 
-        private IDbContextServices _contextServices;
-        private IDbContextDependencies _dbContextDependencies;
-        private DatabaseFacade _database;
-        private ChangeTracker _changeTracker;
+        private IDbContextServices? _contextServices;
+        private IDbContextDependencies? _dbContextDependencies;
+        private DatabaseFacade? _database;
+        private ChangeTracker? _changeTracker;
 
-        private IServiceScope _serviceScope;
-        private IDbContextPool _dbContextPool;
+        private IServiceScope? _serviceScope;
+        private IDbContextPool? _dbContextPool;
         private bool _initializing;
         private bool _disposed;
 
@@ -575,7 +577,9 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
                 _database?.AutoTransactionsEnabled,
-                _changeTracker?.LazyLoadingEnabled);
+                _changeTracker?.LazyLoadingEnabled,
+                _changeTracker?.CascadeDeleteTiming,
+                _changeTracker?.DeleteOrphansTiming);
 
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
@@ -585,14 +589,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
                 Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
+                Debug.Assert(configurationSnapshot.CascadeDeleteTiming.HasValue);
+                Debug.Assert(configurationSnapshot.DeleteOrphansTiming.HasValue);
 
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
                 ChangeTracker.LazyLoadingEnabled = configurationSnapshot.LazyLoadingEnabled.Value;
+                ChangeTracker.CascadeDeleteTiming = configurationSnapshot.CascadeDeleteTiming.Value;
+                ChangeTracker.DeleteOrphansTiming = configurationSnapshot.DeleteOrphansTiming.Value;
             }
             else
             {
-                ((IResettableService)_changeTracker)?.ResetState();
+                ((IResettableService?)_changeTracker)?.ResetState();
             }
 
             if (_database != null)
@@ -1389,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        public virtual object? Find([NotNull] Type entityType, [CanBeNull] params object[]? keyValues)
         {
             CheckDisposed();
 
@@ -1406,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        public virtual Task<object?> FindAsync([NotNull] Type entityType, [CanBeNull] params object[]? keyValues)
         {
             CheckDisposed();
 
@@ -1424,7 +1432,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object> FindAsync([NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual Task<object?> FindAsync([NotNull] Type entityType, [CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
         {
             CheckDisposed();
 
@@ -1441,7 +1449,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
+        public virtual TEntity? Find<TEntity>([CanBeNull] params object[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1459,7 +1467,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
+        public virtual Task<TEntity?> FindAsync<TEntity>([CanBeNull] params object[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1478,7 +1486,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual Task<TEntity?> FindAsync<TEntity>([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();

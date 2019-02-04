@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -21,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        new TEntity Find([CanBeNull] object[] keyValues);
+        new TEntity? Find([CanBeNull] object[]? keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        new Task<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken = default);
+        new Task<TEntity?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -50,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         For entities being tracked by the <see cref="DbContext" />, the values of foreign key properties in
         ///         dependent entities are not changed. This can result in an inconsistent graph of entities
         ///         where the values of foreign key properties do not match the relationships in the
-        ///         graph. If a property remains in this state when <see cref="DbContext.SaveChanges()" />
-        ///         is called, then an exception will be thrown.
+        ///         graph.
         ///     </para>
         ///     <para>
         ///         If the database has been created from the model using Entity Framework Migrations or the

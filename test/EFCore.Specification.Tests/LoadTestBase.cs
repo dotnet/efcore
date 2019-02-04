@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -512,13 +513,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_collection_already_loaded(EntityState state)
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+        public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
@@ -543,7 +549,16 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
                 Assert.Equal(2, parent.Children.Count());
-                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+                }
+                else
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
@@ -630,13 +645,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state)
+        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+        public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
@@ -665,7 +685,16 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
                 Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                }
             }
         }
 
@@ -2498,16 +2527,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_collection_already_loaded(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
@@ -2532,7 +2569,16 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
 
                 Assert.Equal(2, parent.Children.Count());
-                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+                }
+                else
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
@@ -2582,16 +2628,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
@@ -2625,16 +2679,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
@@ -2663,7 +2725,16 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
                 Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                }
             }
         }
 
@@ -2754,16 +2825,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_collection_using_Query_already_loaded(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_collection_using_Query_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
@@ -2786,7 +2866,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, parent.Children.Count());
                 Assert.All(children.Select(e => e.Parent), c => Assert.Same(parent, c));
                 Assert.All(children, p => Assert.Contains(p, parent.Children));
-
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
         }
@@ -2866,16 +2945,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
@@ -2897,7 +2985,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(single);
                 Assert.Same(single, parent.Single);
                 Assert.Same(parent, single.Parent);
-
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
             }
         }
@@ -3638,16 +3725,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_collection_already_loaded_untyped(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
@@ -3672,7 +3767,16 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
 
                 Assert.Equal(2, parent.Children.Count());
-                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+                }
+                else
+                {
+                    Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
@@ -3765,16 +3869,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
@@ -3803,21 +3915,39 @@ namespace Microsoft.EntityFrameworkCore
                 var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
                 Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
+
+                if (state == EntityState.Deleted
+                    && deleteOrphansTiming != CascadeTiming.Never)
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                }
             }
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
@@ -3840,7 +3970,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, parent.Children.Count());
                 Assert.All(children.Select(e => ((Child)e).Parent), c => Assert.Same(parent, c));
                 Assert.All(children, p => Assert.Contains(p, parent.Children));
-
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
             }
         }
@@ -3920,16 +4049,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged, true)]
-        [InlineData(EntityState.Unchanged, false)]
-        [InlineData(EntityState.Modified, true)]
-        [InlineData(EntityState.Modified, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async)
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
@@ -3950,6 +4088,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.NotNull(single);
                 Assert.Same(single, parent.Single);
+
                 Assert.Same(parent, ((Single)single).Parent);
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());

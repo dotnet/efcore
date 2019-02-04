@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -17,15 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
-
-        /// <summary>
-        ///     The string argument '{argumentName}' cannot be empty.
-        /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
-            => string.Format(
-                GetString("ArgumentIsEmpty", nameof(argumentName)),
-                argumentName);
-
+        
         /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
@@ -41,13 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("InvalidEnumValue", nameof(argumentName), nameof(enumType)),
                 argumentName, enumType);
-
-        /// <summary>
-        ///     The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.
-        /// </summary>
-        public static string StillUsingTypeMapper
-            => GetString("StillUsingTypeMapper");
-
+        
         /// <summary>
         ///     The type mapping for '{type}' has not implemented code literal generation.
         /// </summary>
@@ -159,15 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("CannotLoadDetached", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
-
-        /// <summary>
-        ///     The collection argument '{argumentName}' must contain at least one element.
-        /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
-            => string.Format(
-                GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
-                argumentName);
-
+        
         /// <summary>
         ///     The entity type '{entityType}' requires a primary key to be defined.
         /// </summary>
@@ -1840,7 +1820,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
         /// </summary>
-        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
+        public static string ConflictingRelationshipNavigation([CanBeNull] object? newPrincipalEntityType, [CanBeNull] object? newPrincipalNavigation, [CanBeNull] object? newDependentEntityType, [CanBeNull] object? newDependentNavigation, [CanBeNull] object? existingPrincipalEntityType, [CanBeNull] object? existingPrincipalNavigation, [CanBeNull] object? existingDependentEntityType, [CanBeNull] object? existingDependentNavigation)
             => string.Format(
                 GetString("ConflictingRelationshipNavigation", nameof(newPrincipalEntityType), nameof(newPrincipalNavigation), nameof(newDependentEntityType), nameof(newDependentNavigation), nameof(existingPrincipalEntityType), nameof(existingPrincipalNavigation), nameof(existingDependentEntityType), nameof(existingDependentNavigation)),
                 newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
