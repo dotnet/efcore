@@ -52,7 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///            public void ConfigureServices(IServiceCollection services)
         ///            {
         ///                var connectionString = "connection string to database";
-        /// 
+        ///
         ///                services
         ///                    .AddEntityFrameworkSqlServer()
         ///                    .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
@@ -78,7 +78,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IModelValidator, SqlServerModelValidator>()
                 .TryAdd<IConventionSetBuilder, SqlServerConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
-                .TryAdd<ISingletonUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
                 .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                 .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqlServerConnection>())
