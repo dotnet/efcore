@@ -331,9 +331,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
 
-                    foreignKeyAttribute.AddParameter(
-                        _code.Literal(
-                            string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    if (navigation.ForeignKey.Properties.Count > 1)
+                    {
+                        foreignKeyAttribute.AddParameter(
+                              _code.Literal(
+                                  string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    }
+                    else
+                    {
+                        foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
+                    }
 
                     _sb.AppendLine(foreignKeyAttribute.ToString());
                 }
@@ -350,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
+                    inversePropertyAttribute.AddParameter($"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})");
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
