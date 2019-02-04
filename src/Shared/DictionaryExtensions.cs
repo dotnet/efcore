@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue Find<TKey, TValue>(
-            [NotNull] this IDictionary<TKey, TValue> source,
+            [NotNull] this IReadOnlyDictionary<TKey, TValue> source,
             [NotNull] TKey key)
             => !source.TryGetValue(key, out var value) ? default : value;
     }

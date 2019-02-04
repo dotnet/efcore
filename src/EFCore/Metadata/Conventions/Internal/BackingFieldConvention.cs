@@ -64,19 +64,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static FieldInfo TryMatchFieldName(Model model, Type entityClrType, Type propertyType, string propertyName)
         {
-            Dictionary<string, FieldInfo> fields;
+            IReadOnlyDictionary<string, FieldInfo> fields;
             var entityType = model.FindEntityType(entityClrType);
             if (entityType == null)
             {
-                fields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
+                var newFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
                 foreach (var field in entityClrType.GetRuntimeFields())
                 {
                     if (!field.IsStatic
-                        && !fields.ContainsKey(field.Name))
+                        && !newFields.ContainsKey(field.Name))
                     {
-                        fields[field.Name] = field;
+                        newFields[field.Name] = field;
                     }
                 }
+                fields = newFields;
             }
             else
             {
