@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27713.0
-MinimumVisualStudioVersion = 15.0.26730.03
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28418.106
+MinimumVisualStudioVersion = 16.0.28418.106
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{712F6813-A5CD-40D4-836F-F9667A3AE762}"
 	ProjectSection(SolutionItems) = preProject
 		src\EFCore.ruleset = src\EFCore.ruleset
