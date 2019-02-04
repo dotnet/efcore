@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(SqlServerMetadataExtensions),
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
-            typeof(SqlServerReferenceOwnershipBuilderExtensions),
+            typeof(SqlServerOwnedNavigationBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions)
         };

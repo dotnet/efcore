@@ -16,37 +16,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             return builder;
         }
 
-        public static ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> ForSqlServerIsMemoryOptimized<TEntity,
-            TRelatedEntity>(
-            this ModelBuilderTest.TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> builder, bool memoryOptimized = true)
-            where TEntity : class
-            where TRelatedEntity : class
-        {
-            switch (builder)
-            {
-                case IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>> genericBuilder:
-                    genericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
-                    break;
-                case IInfrastructure<ReferenceOwnershipBuilder> nongenericBuilder:
-                    nongenericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
-                    break;
-            }
-
-            return builder;
-        }
-
-        public static ModelBuilderTest.TestCollectionOwnershipBuilder<TEntity, TDependentEntity> ForSqlServerIsMemoryOptimized<TEntity,
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> ForSqlServerIsMemoryOptimized<TEntity,
             TDependentEntity>(
-            this ModelBuilderTest.TestCollectionOwnershipBuilder<TEntity, TDependentEntity> builder, bool memoryOptimized = true)
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder, bool memoryOptimized = true)
             where TEntity : class
             where TDependentEntity : class
         {
             switch (builder)
             {
-                case IInfrastructure<CollectionOwnershipBuilder<TEntity, TDependentEntity>> genericBuilder:
+                case IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>> genericBuilder:
                     genericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
                     break;
-                case IInfrastructure<CollectionOwnershipBuilder> nongenericBuilder:
+                case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
                     nongenericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
                     break;
             }

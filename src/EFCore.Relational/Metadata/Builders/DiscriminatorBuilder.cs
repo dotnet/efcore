@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ? EntityTypeBuilder.ModelBuilder.Query(
                         entityType, AnnotationsBuilder.ConfigurationSource)
                     : EntityTypeBuilder.ModelBuilder.Entity(
-                        entityType, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+                        entityType, AnnotationsBuilder.ConfigurationSource, owned: null);
 
             return HasValue(entityTypeBuilder, value);
         }
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ? EntityTypeBuilder.ModelBuilder.Query(
                         entityTypeName, AnnotationsBuilder.ConfigurationSource)
                     : EntityTypeBuilder.ModelBuilder.Entity(
-                        entityTypeName, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+                        entityTypeName, AnnotationsBuilder.ConfigurationSource, owned: null);
 
             return HasValue(entityTypeBuilder, value);
         }

@@ -1442,23 +1442,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             p => p.OrderDetails, cb =>
                             {
                                 cb.Property<int?>("OrderId");
-                                cb.HasForeignKey("OrderId");
-                                cb.HasOne(c => c.Order)
-                                    .WithOne(p => p.OrderDetails);
-                                cb.OwnsOne(
-                                    c => c.BillingAddress, scb =>
-                                    {
-                                        scb.HasForeignKey("OrderDetailsId");
-                                        scb.HasOne(sc => sc.OrderDetails)
-                                            .WithOne(c => c.BillingAddress);
-                                    });
-                                cb.OwnsOne(
-                                    c => c.ShippingAddress, scb =>
-                                    {
-                                        scb.HasForeignKey("OrderDetailsId");
-                                        scb.HasOne(sc => sc.OrderDetails)
-                                            .WithOne(c => c.ShippingAddress);
-                                    });
+                                cb.WithOwner(c => c.Order)
+                                    .HasForeignKey("OrderId");
+
+                                cb.OwnsOne(c => c.BillingAddress)
+                                  .WithOwner(c => c.OrderDetails)
+                                  .HasForeignKey("OrderDetailsId");
+
+                                cb.OwnsOne(c => c.ShippingAddress)
+                                  .WithOwner(c => c.OrderDetails)
+                                  .HasForeignKey("OrderDetailsId");
                             });
                     });
             }

@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     b.Property(e => e.Id);
                     b.HasKey(e => e.Id);
 
-                    b.OwnsOne(e => e.Details, d => d.HasForeignKey(e => e.BlogId));
+                    b.OwnsOne(e => e.Details).WithOwner().HasForeignKey(e => e.BlogId);
                 });
 
             var reporter = new TestOperationReporter();

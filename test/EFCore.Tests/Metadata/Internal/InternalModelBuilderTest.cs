@@ -356,9 +356,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count);
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
+            Assert.Equal(
+                CoreStrings.ClashingOwnedEntityType(typeof(Details).Name),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit)).Message);
+
+            Assert.True(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Explicit));
 
             Assert.False(model.ShouldBeOwnedType(typeof(Details)));
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
 
             Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => e.DefiningNavigationName != null));
 

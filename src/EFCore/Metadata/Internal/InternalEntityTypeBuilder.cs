@@ -2184,8 +2184,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var existingNavigation = Metadata.FindNavigation(navigation.Name);
                 if (existingNavigation != null)
                 {
-                    if (existingNavigation.GetTargetType().ClrType == targetEntityType.Type)
+                    if (existingNavigation.GetTargetType().Name == targetEntityType.Name)
                     {
+                        var existingOwnedEntityType = existingNavigation.ForeignKey.DeclaringEntityType;
+                        if (existingOwnedEntityType.HasDefiningNavigation())
+                        {
+                            if (targetEntityType.Type != null)
+                            {
+                                ModelBuilder.Entity(
+                                    targetEntityType.Type,
+                                    existingOwnedEntityType.DefiningNavigationName,
+                                    existingOwnedEntityType.DefiningEntityType,
+                                    configurationSource);
+                            }
+                            else
+                            {
+                                ModelBuilder.Entity(
+                                    targetEntityType.Name,
+                                    existingOwnedEntityType.DefiningNavigationName,
+                                    existingOwnedEntityType.DefiningEntityType,
+                                    configurationSource);
+                            }
+                        }
+                        else
+                        { 
+                            if (targetEntityType.Type != null)
+                            {
+                                ModelBuilder.Entity(targetEntityType.Type, configurationSource, owned: true);
+                            }
+                            else
+                            {
+                                ModelBuilder.Entity(targetEntityType.Name, configurationSource, owned: true);
+                            }
+                        }
+
                         var ownershipBuilder = existingNavigation.ForeignKey.Builder;
                         ownershipBuilder = ownershipBuilder
                             .IsRequired(true, configurationSource)
@@ -2207,8 +2239,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var principalBuilder = this;
                 var targetTypeName = targetEntityType.Name;
-                var targetType = targetEntityType.Type
-                                 ?? existingNavigation?.GetIdentifyingMemberInfo()?.GetMemberType();
+                var targetType = targetEntityType.Type;
+                if (targetType == null)
+                {
+                    var memberType = existingNavigation?.GetIdentifyingMemberInfo()?.GetMemberType();
+                    if (memberType != null)
+                    {
+                        targetType = memberType.TryGetSequenceType() ?? memberType;
+                    }
+                }
 
                 ownedEntityType = targetType == null
                     ? ModelBuilder.Metadata.FindEntityType(targetTypeName)?.Builder
@@ -2239,8 +2278,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ModelBuilder.Metadata.Unignore(targetTypeName);
 
                         ownedEntityType = targetType == null
-                            ? ModelBuilder.Entity(targetTypeName, configurationSource, allowOwned: true)
-                            : ModelBuilder.Entity(targetType, configurationSource, allowOwned: true);
+                            ? ModelBuilder.Entity(targetTypeName, configurationSource, owned: true)
+                            : ModelBuilder.Entity(targetType, configurationSource, owned: true);
                     }
 
                     if (ownedEntityType == null)

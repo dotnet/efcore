@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     || !foreignKey.DeclaringEntityType.Builder.ShouldReuniquifyTemporaryProperties(
                         foreignKey.Properties,
                         foreignKey.PrincipalKey.Properties,
-                        foreignKey.IsRequired,
+                        foreignKey.IsRequired && foreignKey.GetIsRequiredConfigurationSource().Overrides(ConfigurationSource.Convention),
                         GetPropertyBaseName(foreignKey))))
             {
                 return foreignKey.Builder;
@@ -241,8 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 var temporaryProperties = foreignKey.Properties.Where(
-                    p =>
-                        p.IsShadowProperty
+                    p => p.IsShadowProperty
                         && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
                 var keysToDetach = temporaryProperties.SelectMany(

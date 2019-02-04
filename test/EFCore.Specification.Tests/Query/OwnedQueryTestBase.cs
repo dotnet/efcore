@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -199,6 +201,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(5, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Set_throws_for_owned_type()
+        {
+            using (var ctx = CreateContext())
+            {
+                Assert.Equal(CoreStrings.InvalidSetTypeOwned(nameof(Order)),
+                    Assert.Throws<InvalidOperationException>(() => ctx.Set<Order>().ToList()).Message);
             }
         }
 

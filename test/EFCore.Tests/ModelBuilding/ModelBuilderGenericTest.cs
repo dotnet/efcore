@@ -218,29 +218,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder HasIndex(params string[] propertyNames)
                 => new TestIndexBuilder(EntityTypeBuilder.HasIndex(propertyNames));
 
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
-                => new GenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne(navigationExpression));
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne(navigationExpression));
 
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
-                Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
                 => Wrap(
                     EntityTypeBuilder.OwnsOne(
                         navigationExpression,
-                        r => buildAction(new GenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
-                => new GenericTestCollectionOwnershipBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsMany(navigationExpression));
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsMany(navigationExpression));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
-                Action<TestCollectionOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
                 => Wrap(
                     EntityTypeBuilder.OwnsMany(
                         navigationExpression,
-                        r => buildAction(new GenericTestCollectionOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
@@ -501,8 +501,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(ReferenceCollectionBuilder.OnDelete(deleteBehavior));
         }
 
-        protected class
-            GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+        protected class GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> :
+            TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -545,247 +545,146 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(ReferenceReferenceBuilder.OnDelete(deleteBehavior));
         }
 
-        protected class GenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>
-            : TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>, IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>
-            where TEntity : class
-            where TRelatedEntity : class
-        {
-            public GenericTestReferenceOwnershipBuilder(ReferenceOwnershipBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder)
-            {
-                ReferenceOwnershipBuilder = referenceOwnershipBuilder;
-            }
-
-            protected ReferenceOwnershipBuilder<TEntity, TRelatedEntity> ReferenceOwnershipBuilder { get; }
-
-            public override IMutableForeignKey Metadata => ReferenceOwnershipBuilder.Metadata;
-            public override IMutableEntityType OwnedEntityType => ReferenceOwnershipBuilder.OwnedEntityType;
-
-            protected virtual GenericTestReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity> Wrap<TNewEntity, TNewRelatedEntity>(
-                ReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity> referenceOwnershipBuilder)
-                where TNewEntity : class
-                where TNewRelatedEntity : class
-                => new GenericTestReferenceOwnershipBuilder<TNewEntity, TNewRelatedEntity>(referenceOwnershipBuilder);
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasEntityTypeAnnotation(string annotation, object value)
-                => Wrap(ReferenceOwnershipBuilder.HasEntityTypeAnnotation(annotation, value));
-
-            public override TestKeyBuilder HasKey(Expression<Func<TRelatedEntity, object>> keyExpression)
-                => new TestKeyBuilder(ReferenceOwnershipBuilder.HasKey(keyExpression));
-
-            public override TestKeyBuilder HasKey(params string[] propertyNames)
-                => new TestKeyBuilder(ReferenceOwnershipBuilder.HasKey(propertyNames));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKeyAnnotation(string annotation, object value)
-                => Wrap(ReferenceOwnershipBuilder.HasForeignKeyAnnotation(annotation, value));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                params string[] foreignKeyPropertyNames)
-                => Wrap(ReferenceOwnershipBuilder.HasForeignKey(foreignKeyPropertyNames));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKey(
-                Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceOwnershipBuilder.HasForeignKey(foreignKeyExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                params string[] keyPropertyNames)
-                => Wrap(ReferenceOwnershipBuilder.HasPrincipalKey(keyPropertyNames));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-                Expression<Func<TEntity, object>> keyExpression)
-                => Wrap(ReferenceOwnershipBuilder.HasPrincipalKey(keyExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
-                => Wrap(ReferenceOwnershipBuilder.OnDelete(deleteBehavior));
-
-            public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-                => new GenericTestPropertyBuilder<TProperty>(ReferenceOwnershipBuilder.Property<TProperty>(propertyName));
-
-            public override TestPropertyBuilder<TProperty> Property<TProperty>(
-                Expression<Func<TRelatedEntity, TProperty>> propertyExpression)
-                => new GenericTestPropertyBuilder<TProperty>(ReferenceOwnershipBuilder.Property(propertyExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> Ignore(string propertyName)
-                => Wrap(ReferenceOwnershipBuilder.Ignore(propertyName));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> Ignore(
-                Expression<Func<TRelatedEntity, object>> propertyExpression)
-                => Wrap(ReferenceOwnershipBuilder.Ignore(propertyExpression));
-
-            public override TestIndexBuilder HasIndex(params string[] propertyNames)
-                => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(propertyNames));
-
-            public override TestIndexBuilder HasIndex(Expression<Func<TRelatedEntity, object>> indexExpression)
-                => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(indexExpression));
-
-            public override TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
-                Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression)
-                => Wrap(ReferenceOwnershipBuilder.OwnsOne(navigationExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TNewRelatedEntity>(
-                Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression,
-                Action<TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity>> buildAction)
-                => Wrap(ReferenceOwnershipBuilder.OwnsOne(navigationExpression, r => buildAction(Wrap(r))));
-
-            public override TestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity> OwnsMany<TDependentEntity>(
-                Expression<Func<TRelatedEntity, IEnumerable<TDependentEntity>>> navigationExpression)
-                => new GenericTestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity>(
-                    ReferenceOwnershipBuilder.OwnsMany(navigationExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsMany<TDependentEntity>(
-                Expression<Func<TRelatedEntity, IEnumerable<TDependentEntity>>> navigationExpression,
-                Action<TestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity>> buildAction)
-                => Wrap(
-                    ReferenceOwnershipBuilder.OwnsMany(
-                        navigationExpression,
-                        r => buildAction(new GenericTestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity>(r))));
-
-            public override TestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-                Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)
-                => new GenericTestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity>(
-                    ReferenceOwnershipBuilder.HasOne(navigationExpression));
-
-            public override TestCollectionNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasMany<TNewRelatedEntity>(
-                Expression<Func<TRelatedEntity, IEnumerable<TNewRelatedEntity>>> navigationExpression = null)
-                => new GenericTestCollectionNavigationBuilder<TRelatedEntity, TNewRelatedEntity>(
-                    ReferenceOwnershipBuilder.HasMany(navigationExpression));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasChangeTrackingStrategy(
-                ChangeTrackingStrategy changeTrackingStrategy)
-                => Wrap(ReferenceOwnershipBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
-
-            public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(
-                PropertyAccessMode propertyAccessMode)
-                => Wrap(ReferenceOwnershipBuilder.UsePropertyAccessMode(propertyAccessMode));
-
-            public override DataBuilder<TRelatedEntity> HasData(params TRelatedEntity[] data)
-                => ReferenceOwnershipBuilder.HasData(data);
-
-            public override DataBuilder<TRelatedEntity> HasData(params object[] data)
-                => ReferenceOwnershipBuilder.HasData(data);
-
-            ReferenceOwnershipBuilder<TEntity, TRelatedEntity> IInfrastructure<ReferenceOwnershipBuilder<TEntity, TRelatedEntity>>.Instance
-                => ReferenceOwnershipBuilder;
-        }
-
-        protected class GenericTestCollectionOwnershipBuilder<TEntity, TDependentEntity>
-            : TestCollectionOwnershipBuilder<TEntity, TDependentEntity>,
-                IInfrastructure<CollectionOwnershipBuilder<TEntity, TDependentEntity>>
+        protected class GenericTestOwnershipBuilder<TEntity, TDependentEntity>
+            : TestOwnershipBuilder<TEntity, TDependentEntity>, IInfrastructure<OwnershipBuilder<TEntity, TDependentEntity>>
             where TEntity : class
             where TDependentEntity : class
         {
-            public GenericTestCollectionOwnershipBuilder(CollectionOwnershipBuilder<TEntity, TDependentEntity> collectionOwnershipBuilder)
+            public GenericTestOwnershipBuilder(OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder)
             {
-                CollectionOwnershipBuilder = collectionOwnershipBuilder;
+                OwnershipBuilder = ownershipBuilder;
             }
 
-            protected CollectionOwnershipBuilder<TEntity, TDependentEntity> CollectionOwnershipBuilder { get; }
+            protected OwnershipBuilder<TEntity, TDependentEntity> OwnershipBuilder { get; }
 
-            public override IMutableForeignKey Metadata => CollectionOwnershipBuilder.Metadata;
-            public override IMutableEntityType OwnedEntityType => CollectionOwnershipBuilder.OwnedEntityType;
+            public override IMutableForeignKey Metadata => OwnershipBuilder.Metadata;
 
-            protected virtual GenericTestCollectionOwnershipBuilder<TNewEntity, TNewDependentEntity> Wrap<TNewEntity, TNewDependentEntity>(
-                CollectionOwnershipBuilder<TNewEntity, TNewDependentEntity> collectionOwnershipBuilder)
+            protected virtual GenericTestOwnershipBuilder<TNewEntity, TNewDependentEntity> Wrap<TNewEntity, TNewDependentEntity>(
+                OwnershipBuilder<TNewEntity, TNewDependentEntity> ownershipBuilder)
                 where TNewEntity : class
                 where TNewDependentEntity : class
-                => new GenericTestCollectionOwnershipBuilder<TNewEntity, TNewDependentEntity>(collectionOwnershipBuilder);
+                => new GenericTestOwnershipBuilder<TNewEntity, TNewDependentEntity>(ownershipBuilder);
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasEntityTypeAnnotation(
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(string annotation, object value)
+                => Wrap(OwnershipBuilder.HasAnnotation(annotation, value));
+
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
+                params string[] foreignKeyPropertyNames)
+                => Wrap(OwnershipBuilder.HasForeignKey(foreignKeyPropertyNames));
+
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                => Wrap(OwnershipBuilder.HasForeignKey(foreignKeyExpression));
+
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
+                params string[] keyPropertyNames)
+                => Wrap(OwnershipBuilder.HasPrincipalKey(keyPropertyNames));
+
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
+                Expression<Func<TEntity, object>> keyExpression)
+                => Wrap(OwnershipBuilder.HasPrincipalKey(keyExpression));
+
+            OwnershipBuilder<TEntity, TDependentEntity> IInfrastructure<OwnershipBuilder<TEntity, TDependentEntity>>.Instance
+                => OwnershipBuilder;
+        }
+
+        protected class GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>
+            : TestOwnedNavigationBuilder<TEntity, TDependentEntity>,
+                IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>
+            where TEntity : class
+            where TDependentEntity : class
+        {
+            public GenericTestOwnedNavigationBuilder(OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
+            {
+                OwnedNavigationBuilder = ownedNavigationBuilder;
+            }
+
+            protected OwnedNavigationBuilder<TEntity, TDependentEntity> OwnedNavigationBuilder { get; }
+
+            public override IMutableForeignKey Metadata => OwnedNavigationBuilder.Metadata;
+            public override IMutableEntityType OwnedEntityType => OwnedNavigationBuilder.OwnedEntityType;
+
+            protected virtual GenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity> Wrap<TNewEntity, TNewDependentEntity>(
+                OwnedNavigationBuilder<TNewEntity, TNewDependentEntity> ownershipBuilder)
+                where TNewEntity : class
+                where TNewDependentEntity : class
+                => new GenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity>(ownershipBuilder);
+
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
                 string annotation, object value)
-                => Wrap(CollectionOwnershipBuilder.HasEntityTypeAnnotation(annotation, value));
+                => Wrap(OwnedNavigationBuilder.HasAnnotation(annotation, value));
 
             public override TestKeyBuilder HasKey(Expression<Func<TDependentEntity, object>> keyExpression)
-                => new TestKeyBuilder(CollectionOwnershipBuilder.HasKey(keyExpression));
+                => new TestKeyBuilder(OwnedNavigationBuilder.HasKey(keyExpression));
 
             public override TestKeyBuilder HasKey(params string[] propertyNames)
-                => new TestKeyBuilder(CollectionOwnershipBuilder.HasKey(propertyNames));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKeyAnnotation(
-                string annotation, object value)
-                => Wrap(CollectionOwnershipBuilder.HasForeignKeyAnnotation(annotation, value));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
-                params string[] foreignKeyPropertyNames)
-                => Wrap(CollectionOwnershipBuilder.HasForeignKey(foreignKeyPropertyNames));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
-                Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(CollectionOwnershipBuilder.HasForeignKey(foreignKeyExpression));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
-                params string[] keyPropertyNames)
-                => Wrap(CollectionOwnershipBuilder.HasPrincipalKey(keyPropertyNames));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
-                Expression<Func<TEntity, object>> keyExpression)
-                => Wrap(CollectionOwnershipBuilder.HasPrincipalKey(keyExpression));
-
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
-                => Wrap(CollectionOwnershipBuilder.OnDelete(deleteBehavior));
+                => new TestKeyBuilder(OwnedNavigationBuilder.HasKey(propertyNames));
 
             public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-                => new GenericTestPropertyBuilder<TProperty>(CollectionOwnershipBuilder.Property<TProperty>(propertyName));
+                => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.Property<TProperty>(propertyName));
 
             public override TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-                => new GenericTestPropertyBuilder<TProperty>(CollectionOwnershipBuilder.Property(propertyExpression));
+                => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.Property(propertyExpression));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(string propertyName)
-                => Wrap(CollectionOwnershipBuilder.Ignore(propertyName));
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(string propertyName)
+                => Wrap(OwnedNavigationBuilder.Ignore(propertyName));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(
                 Expression<Func<TDependentEntity, object>> propertyExpression)
-                => Wrap(CollectionOwnershipBuilder.Ignore(propertyExpression));
+                => Wrap(OwnedNavigationBuilder.Ignore(propertyExpression));
 
             public override TestIndexBuilder HasIndex(params string[] propertyNames)
-                => new TestIndexBuilder(CollectionOwnershipBuilder.HasIndex(propertyNames));
+                => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(propertyNames));
 
             public override TestIndexBuilder HasIndex(Expression<Func<TDependentEntity, object>> indexExpression)
-                => new TestIndexBuilder(CollectionOwnershipBuilder.HasIndex(indexExpression));
+                => new TestIndexBuilder(OwnedNavigationBuilder.HasIndex(indexExpression));
 
-            public override TestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
-                Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression)
-                => new GenericTestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity>(
-                    CollectionOwnershipBuilder.OwnsOne(navigationExpression));
+            public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
+                Expression<Func<TDependentEntity, TEntity>> referenceExpression = null)
+                => new GenericTestOwnershipBuilder<TEntity, TDependentEntity>(
+                    OwnedNavigationBuilder.WithOwner(referenceExpression));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OwnsOne<TNewRelatedEntity>(
-                Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression,
-                Action<TestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity>> buildAction)
-                => Wrap(
-                    CollectionOwnershipBuilder.OwnsOne(
-                        navigationExpression,
-                        r => buildAction(new GenericTestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity>(r))));
+            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
+                Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
+                => Wrap(OwnedNavigationBuilder.OwnsOne(navigationExpression));
 
-            public override TestCollectionOwnershipBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
+                Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
+                Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+                => Wrap(OwnedNavigationBuilder.OwnsOne(navigationExpression, r => buildAction(Wrap(r))));
+
+            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
-                => Wrap(CollectionOwnershipBuilder.OwnsMany(navigationExpression));
+                => Wrap(OwnedNavigationBuilder.OwnsMany(navigationExpression));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
-                Action<TestCollectionOwnershipBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
-                => Wrap(CollectionOwnershipBuilder.OwnsMany(navigationExpression, r => buildAction(Wrap(r))));
+                Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+                => Wrap(OwnedNavigationBuilder.OwnsMany(navigationExpression, r => buildAction(Wrap(r))));
 
             public override TestReferenceNavigationBuilder<TDependentEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TDependentEntity, TRelatedEntity>> navigationExpression = null)
                 => new GenericTestReferenceNavigationBuilder<TDependentEntity, TRelatedEntity>(
-                    CollectionOwnershipBuilder.HasOne(navigationExpression));
+                    OwnedNavigationBuilder.HasOne(navigationExpression));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasChangeTrackingStrategy(
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasChangeTrackingStrategy(
                 ChangeTrackingStrategy changeTrackingStrategy)
-                => Wrap(CollectionOwnershipBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
+                => Wrap(OwnedNavigationBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
 
-            public override TestCollectionOwnershipBuilder<TEntity, TDependentEntity> UsePropertyAccessMode(
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> UsePropertyAccessMode(
                 PropertyAccessMode propertyAccessMode)
-                => Wrap(CollectionOwnershipBuilder.UsePropertyAccessMode(propertyAccessMode));
+                => Wrap(OwnedNavigationBuilder.UsePropertyAccessMode(propertyAccessMode));
 
             public override DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data)
-                => CollectionOwnershipBuilder.HasData(data);
+                => OwnedNavigationBuilder.HasData(data);
 
             public override DataBuilder<TDependentEntity> HasData(params object[] data)
-                => CollectionOwnershipBuilder.HasData(data);
+                => OwnedNavigationBuilder.HasData(data);
 
-            CollectionOwnershipBuilder<TEntity, TDependentEntity> IInfrastructure<CollectionOwnershipBuilder<TEntity, TDependentEntity>>.
+            OwnedNavigationBuilder<TEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>.
                 Instance
-                => CollectionOwnershipBuilder;
+                => OwnedNavigationBuilder;
         }
     }
 }

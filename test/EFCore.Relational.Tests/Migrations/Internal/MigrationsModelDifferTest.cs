@@ -7491,6 +7491,62 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Old_style_ownership_to_new_style()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity("Order", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Order");
+                    });
+                },
+                source => {
+                    source.Entity("Order", b =>
+                    {
+                        b.OwnsOne("OrderInfo", "OrderInfo", b1 =>
+                        {
+                            b1.Property<int>("OrderId")
+                                .ValueGeneratedOnAdd();
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Order");
+
+                            b1.HasOne("Order")
+                                .WithOne("OrderInfo")
+                                .HasForeignKey("OrderInfo", "OrderId")
+                                .OnDelete(DeleteBehavior.Cascade);
+                        });
+                    });
+                },
+                target => {
+                    target.Entity("Order", b =>
+                    {
+                        b.OwnsOne("OrderInfo", "OrderInfo", b1 =>
+                        {
+                            b1.Property<int>("OrderId")
+                                .ValueGeneratedOnAdd();
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Order");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+                    });
+                },
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [Fact]
         public void Move_properties_to_owned_type()
         {
             Execute(

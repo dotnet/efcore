@@ -242,29 +242,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
                 }
 
+                var referenceProperty = reference.Property;
                 if (referenceName != null
                     && pointsToPrincipal
                     && RelatedEntityType != foreignKey.DeclaringEntityType)
                 {
-                    builder = reference.Property == null && ReferenceProperty == null
+                    builder = referenceProperty == null && ReferenceProperty == null
                         ? builder.Navigations(
-                            reference.Name, ReferenceName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                            referenceName, ReferenceName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
                         : builder.Navigations(
-                            reference.Property, ReferenceProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
+                            referenceProperty, ReferenceProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
                 }
                 else if (referenceName != null
                          && !pointsToPrincipal
                          && RelatedEntityType != foreignKey.PrincipalEntityType)
                 {
-                    builder = reference.Property == null && ReferenceProperty == null
+                    builder = referenceProperty == null && ReferenceProperty == null
                         ? builder.Navigations(
-                            ReferenceName, reference.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                            ReferenceName, referenceName, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
                         : builder.Navigations(
-                            ReferenceProperty, reference.Property, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
+                            ReferenceProperty, referenceProperty, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
                 }
                 else
                 {
-                    var referenceProperty = reference.Property;
                     if (referenceProperty != null)
                     {
                         builder = pointsToPrincipal
@@ -274,8 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     else
                     {
                         builder = pointsToPrincipal
-                            ? builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
-                            : builder.PrincipalToDependent(reference.Name, ConfigurationSource.Explicit);
+                            ? builder.DependentToPrincipal(referenceName, ConfigurationSource.Explicit)
+                            : builder.PrincipalToDependent(referenceName, ConfigurationSource.Explicit);
                     }
                 }
 

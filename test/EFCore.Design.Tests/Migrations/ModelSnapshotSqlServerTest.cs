@@ -895,9 +895,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 eo => eo.EntityWithTwoProperties, eb =>
                                 {
                                     eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
-                                    eb.HasForeignKey(e => e.AlternateId).HasConstraintName("FK_Custom");
-                                    eb.HasOne(e => e.EntityWithOneProperty)
-                                        .WithOne(e => e.EntityWithTwoProperties);
+                                    eb.WithOwner(e => e.EntityWithOneProperty)
+                                      .HasForeignKey(e => e.AlternateId)
+                                      .HasConstraintName("FK_Custom");
                                     eb.HasIndex(e => e.Id);
 
                                     eb.HasOne(e => e.EntityWithStringKey).WithOne();
@@ -978,11 +978,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.ToTable(""EntityWithOneProperty"");
 
-                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
-                                .WithOne(""EntityWithTwoProperties"")
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
-                                .HasConstraintName(""FK_Custom"")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner(""EntityWithOneProperty"")
+                                .HasForeignKey(""AlternateId"")
+                                .HasConstraintName(""FK_Custom"");
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
                                 .WithOne()
@@ -1026,10 +1024,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 .WithOne()
                                 .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
 
-                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
-                                .WithMany(""Properties"")
-                                .HasForeignKey(""EntityWithStringKeyId"")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner()
+                                .HasForeignKey(""EntityWithStringKeyId"");
                         });
                 });", usingSystem: true),
                 o =>
@@ -1043,7 +1039,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
                     Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
                     Assert.True(ownership1.IsRequired);
-                    Assert.Equal(DeleteBehavior.Cascade, ownership1.DeleteBehavior);
                     Assert.Equal("FK_Custom", ownership1.Relational().Name);
                     var ownedType1 = ownership1.DeclaringEntityType;
                     Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
@@ -1067,7 +1062,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.Relational().TableName);
 
                     var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
-                    Assert.Equal(DeleteBehavior.Cascade, ownership2.DeleteBehavior);
                     Assert.Equal("EntityWithStringKeyId", ownership2.Properties[0].Name);
                     Assert.Null(ownership2.DependentToPrincipal);
                     Assert.True(ownership2.IsRequired);
@@ -1124,10 +1118,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.ToTable(""Order"");
 
-                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
-                                .WithOne(""OrderInfo"")
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderId"")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
 
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
@@ -1141,10 +1133,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                                     b2.ToTable(""Order"");
 
-                                    b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"")
-                                        .WithOne(""StreetAddress"")
-                                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderInfoOrderId"")
-                                        .OnDelete(DeleteBehavior.Cascade);
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderInfoOrderId"");
                                 });
                         });
 
@@ -1158,10 +1148,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.ToTable(""Order"");
 
-                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
-                                .WithOne(""OrderBillingDetails"")
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
 
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
@@ -1175,10 +1163,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                                     b2.ToTable(""Order"");
 
-                                    b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
-                                        .WithOne(""StreetAddress"")
-                                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
-                                        .OnDelete(DeleteBehavior.Cascade);
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderDetailsOrderId"");
                                 });
                         });
 
@@ -1192,10 +1178,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.ToTable(""Order"");
 
-                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"")
-                                .WithOne(""OrderShippingDetails"")
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
 
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
                                 {
@@ -1209,10 +1193,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                                     b2.ToTable(""Order"");
 
-                                    b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"")
-                                        .WithOne(""StreetAddress"")
-                                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""OrderDetailsOrderId"")
-                                        .OnDelete(DeleteBehavior.Cascade);
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderDetailsOrderId"");
                                 });
                         });
                 });"),

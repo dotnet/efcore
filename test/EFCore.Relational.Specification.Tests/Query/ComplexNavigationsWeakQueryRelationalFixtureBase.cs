@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Level1>(eb => eb.ToTable(nameof(Level1)));
         }
 
-        protected override void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)
+        protected override void Configure(OwnedNavigationBuilder<Level1, Level2> l2)
         {
             base.Configure(l2);
 
@@ -27,14 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             l2.Property(l => l.Date).HasColumnName("OneToOne_Required_PK_Date");
         }
 
-        protected override void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
+        protected override void Configure(OwnedNavigationBuilder<Level2, Level3> l3)
         {
             base.Configure(l3);
 
             l3.ToTable(nameof(Level1));
         }
 
-        protected override void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
+        protected override void Configure(OwnedNavigationBuilder<Level3, Level4> l4)
         {
             base.Configure(l4);
 

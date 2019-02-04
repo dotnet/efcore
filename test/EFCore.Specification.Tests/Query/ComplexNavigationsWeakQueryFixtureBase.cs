@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level2Fk = batch.Run(level2Fk);
             }
 
-            Configure(new ReferenceOwnershipBuilder<Level1, Level2>((EntityType)level1, level2Fk.DeclaringEntityType, level2Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level1, Level2>((EntityType)level1, level2Fk.DeclaringEntityType, level2Fk.Builder));
 
             modelBuilder.Entity<InheritanceBase1>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<InheritanceBase2>().Property(e => e.Id).ValueGeneratedNever();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<ComplexNavigationGlobalization>().HasOne(g => g.Language);
         }
 
-        protected virtual void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)
+        protected virtual void Configure(OwnedNavigationBuilder<Level1, Level2> l2)
         {
             var level2 = l2.Ignore(e => e.OneToOne_Optional_Self2)
                 .Ignore(e => e.OneToMany_Required_Self2)
@@ -142,10 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level3Fk = batch.Run(level3Fk);
             }
 
-            Configure(new ReferenceOwnershipBuilder<Level2, Level3>((EntityType)level2, level3Fk.DeclaringEntityType, level3Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level2, Level3>((EntityType)level2, level3Fk.DeclaringEntityType, level3Fk.Builder));
         }
 
-        protected virtual void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
+        protected virtual void Configure(OwnedNavigationBuilder<Level2, Level3> l3)
         {
             var level3 = l3.Ignore(e => e.OneToOne_Optional_Self3)
                 .Ignore(e => e.OneToMany_Required_Self3)
@@ -193,10 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level4Fk = batch.Run(level4Fk);
             }
 
-            Configure(new ReferenceOwnershipBuilder<Level3, Level4>((EntityType)level3, level4Fk.DeclaringEntityType, level4Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level3, Level4>((EntityType)level3, level4Fk.DeclaringEntityType, level4Fk.Builder));
         }
 
-        protected virtual void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
+        protected virtual void Configure(OwnedNavigationBuilder<Level3, Level4> l4)
         {
             l4.Ignore(e => e.OneToOne_Optional_Self4)
                 .Ignore(e => e.OneToMany_Required_Self4)

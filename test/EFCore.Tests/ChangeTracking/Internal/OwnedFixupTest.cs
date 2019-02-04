@@ -1033,13 +1033,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return base.GetHashCode();
             }
 
-            public static bool operator ==(Parent value, Parent other)
+            public static bool operator ==(Parent _, Parent __)
             {
                 Assert.False(true);
                 return false;
             }
 
-            public static bool operator !=(Parent value, Parent other)
+            public static bool operator !=(Parent _, Parent __)
             {
                 Assert.False(true);
                 return true;
@@ -1065,13 +1065,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return base.GetHashCode();
             }
 
-            public static bool operator ==(Child value, Child other)
+            public static bool operator ==(Child _, Child __)
             {
                 Assert.False(true);
                 return false;
             }
 
-            public static bool operator !=(Child value, Child other)
+            public static bool operator !=(Child _, Child __)
             {
                 Assert.False(true);
                 return true;
@@ -1098,13 +1098,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return base.GetHashCode();
             }
 
-            public static bool operator ==(SubChild value, SubChild other)
+            public static bool operator ==(SubChild _, SubChild __)
             {
                 Assert.False(true);
                 return false;
             }
 
-            public static bool operator !=(SubChild value, SubChild other)
+            public static bool operator !=(SubChild _, SubChild __)
             {
                 Assert.False(true);
                 return true;
@@ -1154,31 +1154,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             p => p.Child1, cb =>
                             {
                                 cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.HasOne(c => c.Parent)
-                                    .WithOne(p => p.Child1);
-                                cb.OwnsOne(
-                                    c => c.SubChild, scb =>
-                                    {
-                                        scb.HasForeignKey("ChildId");
-                                        scb.HasOne(sc => sc.Child)
-                                            .WithOne(c => c.SubChild);
-                                    });
+                                cb.WithOwner(c => c.Parent)
+                                  .HasForeignKey("ParentId");
+
+                                cb.OwnsOne(c => c.SubChild)
+                                  .WithOwner(c => c.Child)
+                                  .HasForeignKey("ChildId");
                             });
                         pb.OwnsOne(
                             p => p.Child2, cb =>
                             {
                                 cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.HasOne(c => c.Parent)
-                                    .WithOne(p => p.Child2);
-                                cb.OwnsOne(
-                                    c => c.SubChild, scb =>
-                                    {
-                                        scb.HasForeignKey("ChildId");
-                                        scb.HasOne(sc => sc.Child)
-                                            .WithOne(c => c.SubChild);
-                                    });
+                                cb.WithOwner(c => c.Parent)
+                                  .HasForeignKey("ParentId");
+
+                                cb.OwnsOne(c => c.SubChild)
+                                  .WithOwner(c => c.Child)
+                                  .HasForeignKey("ChildId");
                             });
                     });
 
@@ -1190,15 +1182,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             p => p.Child1, cb =>
                             {
                                 cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
+                                cb.WithOwner()
+                                  .HasForeignKey("ParentId");
+
+                                cb.OwnsOne(c => c.SubChild)
+                                  .WithOwner()
+                                  .HasForeignKey("ChildId");
                             });
                         pb.OwnsOne(
                             p => p.Child2, cb =>
                             {
                                 cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => scb.HasForeignKey("ChildId"));
+                                cb.WithOwner()
+                                  .HasForeignKey("ParentId");
+
+                                cb.OwnsOne(c => c.SubChild)
+                                  .WithOwner()
+                                  .HasForeignKey("ChildId");
                             });
                     });
             }

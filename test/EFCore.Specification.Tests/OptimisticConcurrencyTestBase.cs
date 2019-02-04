@@ -320,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Concurrency exceptions with complex types
 
-        [Fact]
+        // Depends on an aggregate-friendly Reload, see #13890
+        //[Fact]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -691,8 +692,7 @@ namespace Microsoft.EntityFrameworkCore
 
                                 Assert.Equal(
                                     LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                                        l =>
-                                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                                        l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
                                 Fixture.ListLoggerFactory.Clear();
 
                                 resolver(context, updateException);

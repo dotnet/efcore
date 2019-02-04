@@ -274,7 +274,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             b => b.AlternateLabel, tb =>
                             {
                                 tb.Ignore(l => l.Book);
-                                tb.HasConstraintName("AlternateLabelFK");
+                                tb.WithOwner()
+                                  .HasConstraintName("AlternateLabelFK");
                                 tb.ToTable("TT", "TS");
                                 tb.ForSqlServerIsMemoryOptimized();
                                 tb.OwnsOne(
@@ -431,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c => c.Orders,
                     r =>
                     {
-                        r.HasConstraintName("Owned");
+                        r.WithOwner(o => o.Customer).HasConstraintName("Owned");
                         r.ToTable("bar", "foo");
                     });
 
@@ -454,11 +455,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 var entityBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasPrincipalKey(c => c.AlternateKey)
                     .ToTable("CustomerDetails");
                 entityBuilder.Property(d => d.CustomerId);
                 entityBuilder.HasIndex(d => d.CustomerId);
+                entityBuilder.WithOwner(d => d.Customer)
+                             .HasPrincipalKey(c => c.AlternateKey);
 
                 modelBuilder.Validate();
 
@@ -466,7 +467,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(Customer).FullName, owner.Name);
                 var ownership = owner.FindNavigation(nameof(Customer.Details)).ForeignKey;
                 Assert.True(ownership.IsOwnership);
-                Assert.Equal(DeleteBehavior.SetNull, ownership.DeleteBehavior);
                 Assert.Equal(nameof(Customer.Details), ownership.PrincipalToDependent.Name);
                 Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);

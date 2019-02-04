@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ReferenceCollectionBuilder : ReferenceCollectionBuilderBase
+    public class ReferenceCollectionBuilder : RelationshipBuilderBase
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

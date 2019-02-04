@@ -291,14 +291,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         || existingOwnership.PrincipalToDependent.Name != navigationInfo.GetSimpleMemberName()))
                 {
                     return configurationSource.HasValue
-                           && !targetClrType.Equals(entityTypeBuilder.Metadata.ClrType)
-                        ? entityTypeBuilder.ModelBuilder.Entity(
-                            targetClrType, navigationInfo.GetSimpleMemberName(), entityType, configurationSource.Value)
-                        : null;
+                       && !targetClrType.Equals(entityTypeBuilder.Metadata.ClrType)
+                    ? entityTypeBuilder.ModelBuilder.Entity(
+                        targetClrType, navigationInfo.GetSimpleMemberName(), entityType, configurationSource.Value)
+                    : null;
                 }
 
+                var owned = existingOwnership != null
+                    || entityType.Model.ShouldBeOwnedType(targetClrType);
                 targetEntityTypeBuilder = configurationSource.HasValue
-                    ? entityTypeBuilder.ModelBuilder.Entity(targetClrType, configurationSource.Value, allowOwned: true)
+                    ? entityTypeBuilder.ModelBuilder.Entity(targetClrType, configurationSource.Value, owned)
                     : targetEntityType?.Builder;
             }
             else if (!targetClrType.Equals(entityTypeBuilder.Metadata.ClrType))

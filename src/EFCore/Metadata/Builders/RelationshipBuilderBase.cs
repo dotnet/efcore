@@ -1,22 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     Base class used for configuring a relationship.
     /// </summary>
-    public class ReferenceReferenceBuilderBase : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
+    public abstract class RelationshipBuilderBase : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -26,62 +23,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ReferenceReferenceBuilderBase(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
+        public RelationshipBuilderBase(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
             [NotNull] InternalRelationshipBuilder builder)
             : this(builder, null)
         {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(builder, nameof(builder));
-
-            DeclaringEntityType = declaringEntityType;
-            RelatedEntityType = relatedEntityType;
+            PrincipalEntityType = principalEntityType;
+            DependentEntityType = dependentEntityType;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected ReferenceReferenceBuilderBase(
+        protected RelationshipBuilderBase(
             InternalRelationshipBuilder builder,
-            ReferenceReferenceBuilderBase oldBuilder,
-            bool inverted = false,
+            RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
         {
-            Builder = builder;
+            Check.NotNull(builder, nameof(builder));
 
+            Builder = builder;
             if (oldBuilder != null)
             {
-                if (inverted)
-                {
-                    if (oldBuilder._foreignKeyProperties != null
-                        || oldBuilder._principalKeyProperties != null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
-                    }
-                }
-
-                DeclaringEntityType = oldBuilder.DeclaringEntityType;
-                RelatedEntityType = oldBuilder.RelatedEntityType;
-
+                PrincipalEntityType = oldBuilder.PrincipalEntityType;
+                DependentEntityType = oldBuilder.DependentEntityType;
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
-                    : oldBuilder._foreignKeyProperties;
+                    : DependentEntityType.Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
                 _principalKeyProperties = principalKeySet
                     ? builder.Metadata.PrincipalKey.Properties
-                    : oldBuilder._principalKeyProperties;
+                    : PrincipalEntityType.Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
                 _required = requiredSet
                     ? builder.Metadata.IsRequired
                     : oldBuilder._required;
 
                 var foreignKey = builder.Metadata;
                 ForeignKey.AreCompatible(
-                    foreignKey.PrincipalEntityType,
-                    foreignKey.DeclaringEntityType,
+                    PrincipalEntityType,
+                    DependentEntityType,
                     foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
                     foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
                     _foreignKeyProperties,
@@ -93,24 +76,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Gets the first entity type used to configure this relationship.
+        ///     Gets the principal entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType DeclaringEntityType { get; }
+        protected virtual EntityType PrincipalEntityType { get; }
 
         /// <summary>
-        ///     Gets the second entity type used to configure this relationship.
+        ///     Gets the dependent entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType RelatedEntityType { get; }
+        protected virtual EntityType DependentEntityType { get; }
 
         /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
-        /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -121,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The model that this relationship belongs to.
         /// </summary>
         IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
+
+        /// <summary>
+        ///     Gets the internal builder being used to configure this relationship.
+        /// </summary>
+        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         #region Hidden System.Object members
 

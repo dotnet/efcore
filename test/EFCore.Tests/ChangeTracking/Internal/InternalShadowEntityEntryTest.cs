@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     eb.Property<int>(nameof(OwnerClass.Id));
                     eb.HasKey(nameof(OwnerClass.Id));
-                    var owned = eb.OwnsOne(typeof(OwnedClass).FullName, nameof(OwnerClass.Owned)).HasForeignKey("Id");
+                    var owned = eb.OwnsOne(typeof(OwnedClass).FullName, nameof(OwnerClass.Owned));
+                    owned.WithOwner().HasForeignKey("Id");
                     owned.HasKey("Id");
                     owned.Property<string>(nameof(OwnedClass.Value));
                 });

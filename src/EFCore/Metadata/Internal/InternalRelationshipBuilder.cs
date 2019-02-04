@@ -2193,7 +2193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToDependent,
                 dependentProperties,
                 principalProperties);
-            matchingRelationships = matchingRelationships.Distinct().Where(r => r.Metadata != Metadata).ToList();
+            matchingRelationships = matchingRelationships.Where(r => r.Metadata != Metadata).Distinct().ToList();
 
             var unresolvableRelationships = new List<InternalRelationshipBuilder>();
             var resolvableRelationships = new List<Tuple<InternalRelationshipBuilder, bool, Resolution, bool>>();

@@ -22,11 +22,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                var entityBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasPrincipalKey(c => c.AlternateKey);
-                entityBuilder.Property(d => d.CustomerId);
-                entityBuilder.HasIndex(d => d.CustomerId);
+                modelBuilder.Entity<Customer>()
+                    .OwnsOne(c => c.Details, db =>
+                    {
+                        db.WithOwner(d => d.Customer)
+                          .HasPrincipalKey(c => c.AlternateKey);
+                        db.Property(d => d.CustomerId);
+                        db.HasIndex(d => d.CustomerId);
+                    });
 
                 modelBuilder.Validate();
 
@@ -34,12 +37,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(Customer).FullName, owner.Name);
                 var ownership = owner.FindNavigation(nameof(Customer.Details)).ForeignKey;
                 Assert.True(ownership.IsOwnership);
-                Assert.Equal(DeleteBehavior.SetNull, ownership.DeleteBehavior);
                 Assert.Equal(nameof(Customer.Details), ownership.PrincipalToDependent.Name);
                 Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
                 var owned = ownership.DeclaringEntityType;
-                Assert.Same(entityBuilder.OwnedEntityType, owned);
                 Assert.Equal(1, owned.GetForeignKeys().Count());
                 Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
                 Assert.Equal(
@@ -57,8 +58,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().OwnsOne(
                     c => c.Details,
-                    r => r.HasEntityTypeAnnotation("foo", "bar")
-                        .HasForeignKeyAnnotation("bar", "foo"));
+                    r => r.HasAnnotation("foo", "bar")
+                        .WithOwner(d => d.Customer)
+                        .HasAnnotation("bar", "foo"));
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -141,7 +143,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
+                modelBuilder.Entity<Customer>()
+                    .OwnsOne(c => c.Details)
+                    .WithOwner(d => d.Customer)
                     .HasForeignKey(c => c.Id);
 
                 modelBuilder.Validate();
@@ -177,14 +181,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Can_configure_one_to_one_relationship_from_an_owned_type()
             {
-                Can_configure_one_to_one_relationship_from_an_owned_type(CreateModelBuilder());
-            }
-
-            protected virtual void Can_configure_one_to_one_relationship_from_an_owned_type(TestModelBuilder modelBuilder)
-            {
+                var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
                 modelBuilder.Ignore<Customer>();
+                modelBuilder.Entity<SpecialCustomer>();
                 modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details)
                     .HasOne<SpecialCustomer>()
                     .WithOne()
@@ -258,12 +259,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications)
                     .Ignore(nameof(Order.OrderId))
                     .Ignore(o => o.OrderCombination)
-                    .Ignore(o => o.Details)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .Ignore(o => o.Details);
                 entityBuilder.Property<int>("foo");
                 entityBuilder.HasIndex("foo");
                 entityBuilder.HasKey(o => o.AnotherCustomerId);
-                entityBuilder.HasPrincipalKey(c => c.AlternateKey);
+                entityBuilder.WithOwner(o => o.Customer)
+                    .HasPrincipalKey(c => c.AlternateKey);
 
                 modelBuilder.Validate();
 
@@ -272,7 +273,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 Assert.Same(entityBuilder.OwnedEntityType, owned);
                 Assert.True(ownership.IsOwnership);
-                Assert.Equal(DeleteBehavior.SetNull, ownership.DeleteBehavior);
                 Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
                 Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
@@ -304,16 +304,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c => c.Orders,
                     r =>
                     {
-                        r.HasEntityTypeAnnotation("foo", "bar")
-                            .HasForeignKeyAnnotation("bar", "foo");
+                        r.HasAnnotation("foo", "bar");
                         r.Property<uint>("Id");
                         r.HasKey("Id");
-                        r.HasForeignKey("DifferentCustomerId");
                         r.HasIndex(o => o.AnotherCustomerId);
                         r.Property(o => o.AnotherCustomerId).IsRequired();
-                        r.HasOne(o => o.Customer).WithMany(c => c.Orders);
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
+                        r.WithOwner(o => o.Customer)
+                            .HasAnnotation("bar", "foo")
+                            .HasForeignKey("DifferentCustomerId");
                     });
 
                 modelBuilder.Validate();
@@ -575,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>()
                     .OwnsMany(c => c.Orders)
                     .HasKey(o => o.OrderId);
+
                 var specialCustomer = modelBuilder.Entity<SpecialCustomer>()
                     .OwnsMany(
                         c => c.SpecialOrders, so =>
@@ -632,8 +633,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .OwnsMany(c => c.Orders)
                     .HasKey(o => o.OrderId);
 
-                modelBuilder.Ignore<SpecialOrder>();
-
                 modelBuilder.Validate();
 
                 var model = (Model)modelBuilder.Model;
@@ -687,12 +686,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<BookDetails>();
 
                 modelBuilder.Entity<Book>().OwnsOne(
-                    b => b.Label, l =>
+                    b => b.Label, lb =>
                     {
-                        l.HasForeignKey("BookLabelId");
-                        l.HasForeignKeyAnnotation("Foo", "Bar");
+                        lb.WithOwner()
+                          .HasForeignKey("BookLabelId")
+                          .HasAnnotation("Foo", "Bar");
                     });
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).HasForeignKey("BookLabelId");
+                modelBuilder.Entity<Book>()
+                    .OwnsOne(b => b.AlternateLabel)
+                    .WithOwner()
+                    .HasForeignKey("BookLabelId");
 
                 var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -1089,10 +1092,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Entity<CustomerDetails>();
-                modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details);
-                modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details);
 
-                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(CustomerDetails)).Count);
+                Assert.Equal(
+                    CoreStrings.ClashingNonOwnedEntityType(nameof(CustomerDetails)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details)).Message);
+            }
+
+            [Fact]
+            public virtual void Reconfiguring_owned_type_as_non_owned_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<Customer>();
+                var entityType = modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details).OwnedEntityType;
+
+                Assert.Equal(
+                    CoreStrings.ClashingOwnedEntityType(nameof(CustomerDetails)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
             }
 
             [Fact]
@@ -1107,11 +1125,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Fact]
             public virtual void Weak_types_with_FK_to_another_entity_works()
             {
-                Weak_types_with_FK_to_another_entity_works(CreateModelBuilder());
-            }
-
-            public virtual void Weak_types_with_FK_to_another_entity_works(TestModelBuilder modelBuilder)
-            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Country>();
                 var ownerEntityTypeBuilder = modelBuilder.Entity<BillingOwner>();
                 ownerEntityTypeBuilder.OwnsOne(
                     e => e.Bill1,

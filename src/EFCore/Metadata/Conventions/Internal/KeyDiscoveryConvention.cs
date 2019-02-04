@@ -58,10 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             List<Property> keyProperties = null;
             var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                             ?? entityType.FindOwnership();
+                ?? entityType.FindOwnership();
+            if (definingFk != null
+                && definingFk.DeclaringEntityType != entityType)
+            {
+                definingFk = null;
+            }
 
-            if (definingFk?.IsUnique == true
-                && definingFk.DeclaringEntityType == entityType)
+            if (definingFk?.IsUnique == true)
             {
                 keyProperties = definingFk.Properties.ToList();
             }
@@ -79,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            if (definingFk?.IsUnique == false
-                && definingFk.DeclaringEntityType == entityType)
+            if (definingFk?.IsUnique == false)
             {
                 if (keyProperties.Count == 0
                     || definingFk.Properties.Contains(keyProperties.First()))

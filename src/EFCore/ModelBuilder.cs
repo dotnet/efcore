@@ -394,12 +394,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <typeparam name="T"> The entity type to be configured. </typeparam>
-        public virtual OwnedEntityTypeBuilder<T>? Owned<T>()
+        public virtual OwnedEntityTypeBuilder<T> Owned<T>()
             where T : class
         {
             Builder.Owned(typeof(T), ConfigurationSource.Explicit);
 
-            return null;
+            return new OwnedEntityTypeBuilder<T>();
         }
 
         /// <summary>
@@ -407,13 +407,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
-        public virtual OwnedEntityTypeBuilder? Owned([NotNull] Type type)
+        public virtual OwnedEntityTypeBuilder Owned([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
             Builder.Owned(type, ConfigurationSource.Explicit);
 
-            return null;
+            return new OwnedEntityTypeBuilder();
         }
 
         /// <summary>

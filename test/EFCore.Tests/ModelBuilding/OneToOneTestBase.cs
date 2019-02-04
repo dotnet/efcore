@@ -4034,17 +4034,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
-                    .WithOne(e => e.NavOneToOnePrincipalEntity).IsRequired();
-
-                modelBuilder.Entity<OneToOnePrincipalEntity>(
-                    b => b.Ignore(e => e.NavOneToOneDependentEntityId));
                 modelBuilder.Entity<OneToOneDependentEntity>(
                     b =>
                     {
                         b.Ignore(e => e.OneToOnePrincipalEntityId);
                         b.Ignore(e => e.NavOneToOnePrincipalEntityId);
                     });
+
+                modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
+                    .WithOne(e => e.NavOneToOnePrincipalEntity).IsRequired();
+
+                modelBuilder.Entity<OneToOnePrincipalEntity>(
+                    b => b.Ignore(e => e.NavOneToOneDependentEntityId));
 
                 modelBuilder.Validate();
             }
@@ -4053,6 +4054,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Ignoring_properties_on_principal_resolves_ambiguity()
             {
                 var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OneToOneDependentEntity>(
+                    b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity).IsRequired();
@@ -4063,8 +4067,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(e => e.OneToOneDependentEntityId);
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                     });
-                modelBuilder.Entity<OneToOneDependentEntity>(
-                    b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
                 modelBuilder.Validate();
             }
@@ -4101,6 +4103,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Entity<OneToOneDependentEntity>(
+                    b =>
+                    {
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    });
+
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity).IsRequired();
 
@@ -4110,17 +4119,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(e => e.OneToOneDependentEntityId);
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                     });
-                modelBuilder.Entity<OneToOneDependentEntity>(
-                    b =>
-                    {
-                        b.Ignore(e => e.OneToOnePrincipalEntityId);
-                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                    });
 
                 Assert.Equal(
                     CoreStrings.AmbiguousOneToOneRelationship(
-                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name,
-                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name),
+                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
