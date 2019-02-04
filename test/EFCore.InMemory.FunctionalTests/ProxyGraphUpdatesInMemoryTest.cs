@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,15 +33,21 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store()
+            public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Optional_many_to_one_dependents_are_orphaned_in_store()
+            public override void Optional_many_to_one_dependents_are_orphaned_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_one_to_one_are_cascade_detached_when_Added()
+            public override void Required_one_to_one_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
@@ -52,27 +59,39 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
+            public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+            public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_many_to_one_dependents_are_cascade_deleted_in_store()
+            public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store()
+            public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added()
+            public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 
-            public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
+            public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+                CascadeTiming cascadeDeleteTiming,
+                CascadeTiming deleteOrphansTiming)
             {
             }
 

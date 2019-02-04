@@ -2127,6 +2127,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
                 var principal = new Parent(77);
                 var oldDependent = new Child(78, principal.Id);
                 oldDependent.SetParent(principal);
@@ -2218,6 +2220,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
                 var principal = new ParentPN
                 {
                     Id = 77
@@ -2312,6 +2316,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
                 var principal = new ParentDN
                 {
                     Id = 77
@@ -2369,6 +2375,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
                 var principal = new ParentNN
                 {
                     Id = 77

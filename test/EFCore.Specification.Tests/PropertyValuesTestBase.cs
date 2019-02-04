@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -1658,42 +1659,74 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Non_nullable_property_in_current_values_results_in_conceptual_null()
+        [Theory]
+        [InlineData(CascadeTiming.Immediate)]
+        [InlineData(CascadeTiming.OnSaveChanges)]
+        [InlineData(CascadeTiming.Never)]
+        public virtual void Non_nullable_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 var values = entry.CurrentValues;
+                var originalValue = values["Value"];
 
                 Assert.False(entry.GetInfrastructure().HasConceptualNull);
 
-                values["Value"] = null;
+                if (deleteOrphansTiming == CascadeTiming.Immediate)
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNullSensitive(
+                            "Value",
+                            nameof(Building),
+                            "{Value: " + Convert.ToString(originalValue, CultureInfo.InvariantCulture) + "}"),
+                        Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
+                }
+                else
+                {
+                    values["Value"] = null;
 
-                Assert.True(entry.GetInfrastructure().HasConceptualNull);
+                    Assert.True(entry.GetInfrastructure().HasConceptualNull);
 
-                Assert.Equal(1500000m, values["Value"]);
-                Assert.Equal(1500000m, building.Value);
+                    Assert.Equal(1500000m, values["Value"]);
+                    Assert.Equal(1500000m, building.Value);
+                }
             }
         }
 
-        [Fact]
-        public virtual void Non_nullable_shadow_property_in_current_values_results_in_conceptual_null()
+        [Theory]
+        [InlineData(CascadeTiming.Immediate)]
+        [InlineData(CascadeTiming.OnSaveChanges)]
+        [InlineData(CascadeTiming.Never)]
+        public virtual void Non_nullable_shadow_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
                 var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 var values = entry.CurrentValues;
 
                 Assert.False(entry.GetInfrastructure().HasConceptualNull);
 
-                values["Shadow1"] = null;
+                if (deleteOrphansTiming == CascadeTiming.Immediate)
+                {
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNullSensitive("Shadow1", nameof(Building), "{Shadow1: 11}"),
+                        Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+                }
+                else
+                {
+                    values["Shadow1"] = null;
 
-                Assert.True(entry.GetInfrastructure().HasConceptualNull);
+                    Assert.True(entry.GetInfrastructure().HasConceptualNull);
 
-                Assert.Equal(11, values["Shadow1"]);
+                    Assert.Equal(11, values["Shadow1"]);
+                }
             }
         }
 
