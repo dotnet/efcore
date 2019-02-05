@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
-            Assert.True(extension.EnforceForeignKeys);
         }
 
         [Fact]
@@ -83,18 +82,6 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
-        }
-
-        [Fact]
-        public void Can_suppress_foreign_keys()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-
-            optionsBuilder.UseSqlite("some string", b => b.SuppressForeignKeyEnforcement());
-
-            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
-
-            Assert.False(extension.EnforceForeignKeys);
         }
     }
 }

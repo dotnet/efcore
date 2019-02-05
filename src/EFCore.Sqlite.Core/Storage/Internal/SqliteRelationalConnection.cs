@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly bool _loadSpatialite;
-        private readonly bool _enforceForeignKeys = true;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -41,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (optionsExtension != null)
             {
                 _loadSpatialite = optionsExtension.LoadSpatialite;
-                _enforceForeignKeys = optionsExtension.EnforceForeignKeys;
             }
         }
 
@@ -66,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (base.Open(errorsExpected))
             {
                 LoadSpatialite();
-                EnableForeignKeys();
+
                 return true;
             }
 
@@ -82,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (await base.OpenAsync(cancellationToken, errorsExpected))
             {
                 LoadSpatialite();
-                EnableForeignKeys();
+
                 return true;
             }
 
@@ -100,18 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             connection.EnableExtensions();
             SpatialiteLoader.Load(DbConnection);
             connection.EnableExtensions(false);
-        }
-
-        private void EnableForeignKeys()
-        {
-            if (_enforceForeignKeys)
-            {
-                _rawSqlCommandBuilder.Build("PRAGMA foreign_keys=ON;").ExecuteNonQuery(this);
-            }
-            else
-            {
-                _rawSqlCommandBuilder.Build("PRAGMA foreign_keys=OFF;").ExecuteNonQuery(this);
-            }
         }
 
         /// <summary>

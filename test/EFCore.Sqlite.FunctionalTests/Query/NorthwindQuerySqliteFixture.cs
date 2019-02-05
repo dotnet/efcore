@@ -10,12 +10,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TModelCustomizer : IModelCustomizer, new()
     {
         protected override ITestStoreFactory TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            builder = base.AddOptions(builder);
-            new SqliteDbContextOptionsBuilder(builder).SuppressForeignKeyEnforcement();
-            return builder;
-        }
     }
 }

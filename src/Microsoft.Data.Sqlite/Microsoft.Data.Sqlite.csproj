@@ -23,7 +23,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawBundleGreenPackageVersion)">
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawBundleESqlite3PackageVersion)">
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
   </ItemGroup>
@@ -31,7 +31,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Include="lib\**\*">
       <Pack>True</Pack>

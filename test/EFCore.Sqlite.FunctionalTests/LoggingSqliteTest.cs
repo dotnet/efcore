@@ -12,14 +12,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
     {
-        [Fact]
-        public void Logs_context_initialization_no_FKs()
-        {
-            Assert.Equal(
-                ExpectedMessage("SuppressForeignKeyEnforcement " + DefaultOptions),
-                ActualMessage(s => CreateOptionsBuilder(s, b => ((SqliteDbContextOptionsBuilder)b).SuppressForeignKeyEnforcement())));
-        }
-
         protected override DbContextOptionsBuilder CreateOptionsBuilder(
             IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>> relationalAction)
