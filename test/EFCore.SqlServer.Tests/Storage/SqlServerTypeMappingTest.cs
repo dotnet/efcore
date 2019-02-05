@@ -12,6 +12,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -79,7 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public DbSet<WithRowVersion> _ { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Data Source=Branston");
+                => optionsBuilder
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Data Source=Branston");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -363,6 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         protected override DbContextOptions ContextOptions { get; }
-            = new DbContextOptionsBuilder().UseSqlServer("Server=Dummy").Options;
+            = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                .UseSqlServer("Server=Dummy").Options;
     }
 }

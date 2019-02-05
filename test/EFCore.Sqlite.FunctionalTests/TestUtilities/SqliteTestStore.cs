@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -16,16 +17,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new SqliteTestStore(name, sharedCache: sharedCache);
 
         public static SqliteTestStore GetOrCreateInitialized(string name)
-            => new SqliteTestStore(name).InitializeSqlite(null, (Func<DbContext>)null, null);
+            => new SqliteTestStore(name).InitializeSqlite(
+                new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider(),
+                (Func<DbContext>)null,
+                null);
 
         public static SqliteTestStore GetExisting(string name)
             => new SqliteTestStore(name, seed: false);
 
         public static SqliteTestStore Create(string name, bool sharedCache = true)
             => new SqliteTestStore(name, sharedCache: sharedCache, shared: false);
-
-        public static SqliteTestStore CreateInitialized(string name)
-            => new SqliteTestStore(name, shared: false).InitializeSqlite(null, (Func<DbContext>)null, null);
 
         private readonly bool _seed;
 

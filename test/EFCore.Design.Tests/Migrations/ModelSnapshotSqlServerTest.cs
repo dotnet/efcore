@@ -3325,7 +3325,9 @@ namespace RootNamespace
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddEntityFrameworkSqlServerNetTopologySuite()
-                .AddDbContext<DbContext>(o => o.UseSqlServer("Server=.", b => b.UseNetTopologySuite()))
+                .AddDbContext<DbContext>((p, o) =>
+                    o.UseSqlServer("Server=.", b => b.UseNetTopologySuite())
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())

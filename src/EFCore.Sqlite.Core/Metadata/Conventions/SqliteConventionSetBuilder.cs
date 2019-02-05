@@ -30,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
-                .AddDbContext<DbContext>(o => o.UseSqlite("Filename=_.db"))
+                .AddDbContext<DbContext>((p, o) =>
+                    o.UseSqlite("Filename=_.db")
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())

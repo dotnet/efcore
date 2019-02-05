@@ -108,7 +108,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public DbContext Context => new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options);
+        public DbContext Context => new DbContext(new DbContextOptionsBuilder()
+            .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+            .UseInMemoryDatabase("D")
+            .Options);
+
         public event EventHandler<EntityTrackedEventArgs> Tracked;
         public void OnTracked(InternalEntityEntry internalEntityEntry, bool fromQuery) => Tracked?.Invoke(null, null);
         public event EventHandler<EntityStateChangedEventArgs> StateChanged;

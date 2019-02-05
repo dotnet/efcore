@@ -650,7 +650,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class AggregateContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(AggregateContext));
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(AggregateContext))
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<Post> Posts { get; set; }

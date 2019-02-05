@@ -52,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public DbSet<Post> Posts { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(typeof(FixupContext).FullName);
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(typeof(FixupContext).FullName);
         }
 
         private class Blog

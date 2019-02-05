@@ -89,7 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContext<DbContext>(o => o.UseSqlServer("Server=."))
+                .AddDbContext<DbContext>((p, o) =>
+                    o.UseSqlServer("Server=.")
+                        .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())

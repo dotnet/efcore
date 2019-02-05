@@ -29,10 +29,14 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext, TContextService
             => new ServiceCollection()
                 .AddDbContextPool<TContextService, TContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .AddDbContextPool<ISecondContext, SecondContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .BuildServiceProvider();
 
@@ -40,10 +44,14 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
             => new ServiceCollection()
                 .AddDbContextPool<TContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .AddDbContextPool<SecondContext>(
-                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false),
                     poolSize)
                 .BuildServiceProvider();
 

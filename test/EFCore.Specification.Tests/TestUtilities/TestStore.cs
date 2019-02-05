@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract void Clean(DbContext context);
 
         protected virtual DbContext CreateDefaultContext()
-            => new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options);
+            => new DbContext(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
         protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider) => _globalTestStoreIndex;
 

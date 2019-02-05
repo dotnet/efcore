@@ -2690,6 +2690,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model)
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK")
                     .Options;
 

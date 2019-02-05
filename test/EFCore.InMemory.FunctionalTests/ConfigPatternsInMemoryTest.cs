@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
         }
 
         [Fact]
@@ -201,6 +202,9 @@ namespace Microsoft.EntityFrameworkCore
         private class NoServicesAndNoConfigBlogContext : DbContext
         {
             public DbSet<Blog> Blogs { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.EnableServiceProviderCaching(false);
         }
 
         [Fact]
@@ -360,7 +364,9 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase(nameof(InjectConfigurationBlogContext));
+            optionsBuilder
+                .EnableServiceProviderCaching(false)
+                .UseInMemoryDatabase(nameof(InjectConfigurationBlogContext));
 
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()

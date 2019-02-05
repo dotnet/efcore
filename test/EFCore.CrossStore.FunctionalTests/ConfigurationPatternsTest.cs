@@ -243,13 +243,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    var inMemoryServiceProvider = new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .BuildServiceProvider();
-
-                    var sqlServerServiceProvider = new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
-                        .BuildServiceProvider();
+                    var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;
+                    var sqlServerServiceProvider = SqlServerFixture.DefaultServiceProvider;
 
                     await NestedContextTest(
                         () => new BlogContext(inMemoryServiceProvider),

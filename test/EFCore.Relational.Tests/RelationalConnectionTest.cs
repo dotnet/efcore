@@ -103,11 +103,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_with_add_when_no_EF_services_because_parameterless_constructor_use_Database()
         {
-            var appServiceProivder = new ServiceCollection()
+            var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextNoConfiguration>()
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProivder
+            using (var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
@@ -129,6 +129,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class ConstructorTestContextNoConfiguration : DbContext
         {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInternalServiceProvider(
+                    new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
         }
 
         [Fact]

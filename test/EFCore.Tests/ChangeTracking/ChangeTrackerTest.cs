@@ -1040,12 +1040,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private static readonly ListLoggerFactory _loggerFactory
             = new ListLoggerFactory();
 
+        private static readonly IServiceProvider _serviceProvider
+            = InMemoryFixture.BuildServiceProvider(_loggerFactory);
+
+        private static readonly IServiceProvider _sensitiveProvider
+            = InMemoryFixture.BuildServiceProvider(_loggerFactory);
+
         private static readonly IServiceProvider _poolProvider
             = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContextPool<LikeAZooContextPooled>(
-                    p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
-                        .UseLoggerFactory(_loggerFactory))
+                    p =>
+                        p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
+                            .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider(_loggerFactory)))
                 .BuildServiceProvider();
 
         private class LikeAZooContextPooled : LikeAZooContext
@@ -1075,7 +1082,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(_loggerFactory)
+                    .UseInternalServiceProvider(_serviceProvider)
                     .UseInMemoryDatabase(nameof(LikeAZooContext));
         }
 
@@ -1084,7 +1091,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .EnableSensitiveDataLogging()
-                    .UseLoggerFactory(_loggerFactory)
+                    .UseInternalServiceProvider(_sensitiveProvider)
                     .UseInMemoryDatabase(nameof(LikeAZooContextSensitive));
         }
 
@@ -3073,7 +3080,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     });
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(TheShadows));
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(TheShadows));
         }
 
         private class Dark

@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .EnableServiceProviderCaching(false)
                     .UseInternalServiceProvider(_serviceProvider);
         }
     }

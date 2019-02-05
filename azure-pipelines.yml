@@ -40,6 +40,8 @@ jobs:
               - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
           steps:
             - powershell: |
+                SqlLocalDB stop MSSQLLocalDB -i
+                SqlLocalDB start MSSQLLocalDB
                 @'
                   DECLARE @name nvarchar(255);
                   DECLARE db CURSOR FOR SELECT Name FROM sysdatabases WHERE Name NOT IN ('master', 'tempdb', 'model', 'msdb');

@@ -41,9 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
         private string _logFragment;
+        private bool _cacheServiceProvider = true;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
+                .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw);
 
@@ -70,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
+            _cacheServiceProvider = copyFrom.ServiceProviderCachingEnabled;
 
             if (copyFrom._replacedServices != null)
             {
@@ -255,6 +258,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="cacheServiceProvider"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithCacheServiceProvider(bool cacheServiceProvider)
+        {
+            var clone = Clone();
+
+            clone._cacheServiceProvider = cacheServiceProvider;
+
+            return clone;
+        }
+
+        /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
         /// </summary>
         public virtual bool IsSensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
@@ -298,6 +316,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseQueryTrackingBehavior" /> method.
         /// </summary>
         public virtual QueryTrackingBehavior QueryTrackingBehavior => _queryTrackingBehavior;
+
+        /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.EnableServiceProviderCaching" /> method.
+        /// </summary>
+        public virtual bool ServiceProviderCachingEnabled => _cacheServiceProvider;
 
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
