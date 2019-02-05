@@ -723,7 +723,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entry.EntityState == EntityState.Detached)
             {
-                DbContextDependencies.EntityGraphAttacher.AttachGraph(entry, entityState, forceStateWhenUnknownKey: true);
+                DbContextDependencies.EntityGraphAttacher.AttachGraph(
+                    entry,
+                    entityState,
+                    entityState,
+                    forceStateWhenUnknownKey: true);
             }
             else
             {
@@ -743,6 +747,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
                     entry,
+                    entityState,
                     entityState,
                     forceStateWhenUnknownKey: true,
                     cancellationToken: cancellationToken);

@@ -2382,11 +2382,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
-            public override void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey)
+            public override void AttachGraph(
+                InternalEntityEntry rootEntry,
+                EntityState targetState,
+                EntityState storeGeneratedWithKeySetTargetState,
+                bool forceStateWhenUnknownKey)
             {
-                Attached = Tuple.Create(rootEntry, entityState);
+                Attached = Tuple.Create(rootEntry, targetState);
 
-                base.AttachGraph(rootEntry, entityState, forceStateWhenUnknownKey);
+                base.AttachGraph(rootEntry, targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey);
             }
         }
 

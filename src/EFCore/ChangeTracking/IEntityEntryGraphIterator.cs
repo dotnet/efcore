@@ -17,27 +17,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
         /// <param name="node"> The node that is being visited. </param>
-        /// <param name="state"> An arbitrary state object. </param>
         /// <param name="handleNode"> A delegate to call to handle the node. </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         void TraverseGraph<TState>(
-            [NotNull] EntityEntryGraphNode node,
-            [CanBeNull] TState state,
-            [NotNull] Func<EntityEntryGraphNode, TState, bool> handleNode);
+            [NotNull] EntityEntryGraphNode<TState> node,
+            [NotNull] Func<EntityEntryGraphNode<TState>, bool> handleNode);
 
         /// <summary>
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
         /// <param name="node"> The node that is being visited. </param>
-        /// <param name="state"> An arbitrary state object. </param>
         /// <param name="handleNode"> A delegate to call to handle the node. </param>
         /// <param name="cancellationToken">  A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         /// <returns> A task that represents the asynchronous operation. </returns>
         Task TraverseGraphAsync<TState>(
-            [NotNull] EntityEntryGraphNode node,
-            [CanBeNull] TState state,
-            [NotNull] Func<EntityEntryGraphNode, TState, CancellationToken, Task<bool>> handleNode,
+            [NotNull] EntityEntryGraphNode<TState> node,
+            [NotNull] Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default);
     }
 }

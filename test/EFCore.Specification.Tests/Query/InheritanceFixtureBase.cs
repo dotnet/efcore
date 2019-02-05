@@ -15,11 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Kiwi>();
             modelBuilder.Entity<Eagle>();
             modelBuilder.Entity<Bird>();
-            modelBuilder.Entity<Animal>().HasKey(e => e.Species);
+
+            modelBuilder.Entity<Animal>(b =>
+            {
+                b.HasKey(e => e.Species);
+                b.Property(e => e.Species).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<Rose>();
             modelBuilder.Entity<Daisy>();
             modelBuilder.Entity<Flower>();
-            modelBuilder.Entity<Plant>().HasKey(e => e.Species);
+
+            modelBuilder.Entity<Plant>(b =>
+            {
+                b.HasKey(e => e.Species);
+                b.Property(e => e.Species).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<Country>();
             modelBuilder.Entity<Drink>();
             modelBuilder.Entity<Tea>();

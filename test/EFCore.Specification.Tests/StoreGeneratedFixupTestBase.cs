@@ -3937,7 +3937,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Temporary_value_equals_database_generated_value()
+        public virtual void Temporary_value_equals_database_generated_value()
         {
             using (var context = CreateContext())
             {

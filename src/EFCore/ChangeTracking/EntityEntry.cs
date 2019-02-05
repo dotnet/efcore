@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         true since any value is considered a valid key value.
         ///     </para>
         /// </summary>
-        public virtual bool IsKeySet => InternalEntry.IsKeySet;
+        public virtual bool IsKeySet => InternalEntry.IsKeySet.IsSet;
 
         /// <summary>
         ///     Gets the current property values for this entity.

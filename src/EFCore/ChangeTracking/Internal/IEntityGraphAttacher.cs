@@ -17,7 +17,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void AttachGraph([NotNull] InternalEntityEntry rootEntry, EntityState entityState, bool forceStateWhenUnknownKey);
+        void AttachGraph(
+            [NotNull] InternalEntityEntry rootEntry,
+            EntityState targetState,
+            EntityState storeGeneratedWithKeySetTargetState,
+            bool forceStateWhenUnknownKey);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -25,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         Task AttachGraphAsync(
             [NotNull] InternalEntityEntry rootEntry,
-            EntityState entityState,
+            EntityState targetState,
+            EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default);
     }

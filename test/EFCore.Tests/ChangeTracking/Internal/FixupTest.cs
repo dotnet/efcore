@@ -1024,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.CategoryId);
                         Assert.Same(setToPrincipal ? principal : null, dependent.Category);
                         Assert.Equal(setToPrincipal || setToDependent ? new[] { dependent } : null, principal.Products);
-                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(setToPrincipal ? EntityState.Modified : EntityState.Detached, context.Entry(principal).State);
                         Assert.Equal(
                             entityState == EntityState.Unchanged && (setToPrincipal || setFk) ? EntityState.Modified : entityState,
                             context.Entry(dependent).State);
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Category);
                         Assert.Equal(setToDependent ? new[] { dependent } : null, principal.Products);
                         Assert.Equal(entityState, context.Entry(principal).State);
-                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                        Assert.Equal(setToDependent ? EntityState.Modified : EntityState.Detached, context.Entry(dependent).State);
                     });
             }
         }
@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Equal(principal.Id, dependent.CategoryId);
                         Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
                         Assert.Equal(entityState, context.Entry(principal).State);
-                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                        Assert.Equal(setToDependent ? EntityState.Modified : EntityState.Detached, context.Entry(dependent).State);
                     });
             }
         }
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         Assert.Equal(principal.Id, dependent.CategoryId);
                         Assert.Same(setToPrincipal ? principal : null, dependent.Category);
-                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(setToPrincipal ? EntityState.Modified : EntityState.Detached, context.Entry(principal).State);
                         Assert.Equal(
                             entityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
                             context.Entry(dependent).State);
@@ -1569,7 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Equal(setToPrincipal || setFk ? principal.Id : 0, dependent.ParentId);
                         Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
                         Assert.Same(setToPrincipal || setToDependent ? dependent : null, principal.Child);
-                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(setToPrincipal ? EntityState.Modified : EntityState.Detached, context.Entry(principal).State);
                         Assert.Equal(
                             entityState == EntityState.Unchanged && (setFk || setToPrincipal)
                                 ? EntityState.Modified
@@ -1684,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Same(setToDependent || setToPrincipal ? principal : null, dependent.Parent);
                         Assert.Same(setToDependent ? dependent : null, principal.Child);
                         Assert.Equal(entityState, context.Entry(principal).State);
-                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                        Assert.Equal(setToDependent ? EntityState.Modified : EntityState.Detached, context.Entry(dependent).State);
                     });
             }
         }
@@ -1818,7 +1818,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Assert.Equal(principal.Id, dependent.ParentId);
                         Assert.Same(setToDependent ? dependent : null, principal.Child);
                         Assert.Equal(entityState, context.Entry(principal).State);
-                        Assert.Equal(setToDependent ? EntityState.Added : EntityState.Detached, context.Entry(dependent).State);
+                        Assert.Equal(setToDependent ? EntityState.Modified : EntityState.Detached, context.Entry(dependent).State);
                     });
             }
         }
@@ -1883,7 +1883,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         Assert.Equal(principal.Id, dependent.ParentId);
                         Assert.Same(setToPrincipal ? principal : null, dependent.Parent);
-                        Assert.Equal(setToPrincipal ? EntityState.Added : EntityState.Detached, context.Entry(principal).State);
+                        Assert.Equal(setToPrincipal ? EntityState.Modified : EntityState.Detached, context.Entry(principal).State);
                         Assert.Equal(
                             entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, context.Entry(dependent).State);
                     });
