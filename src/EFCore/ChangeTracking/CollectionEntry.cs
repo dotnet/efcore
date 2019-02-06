@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name, collection: true)
         {
+            LocalDetectChanges();
         }
 
         /// <summary>
@@ -39,6 +40,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
+            LocalDetectChanges();
+        }
+
+        private void LocalDetectChanges()
+        {
+            var collection = CurrentValue;
+            if (collection != null)
+            {
+                foreach (var entity in collection.OfType<object>().ToList())
+                {
+                    InternalEntry.StateManager.Context.Entry(entity);
+                }
+            }
         }
 
         /// <summary>

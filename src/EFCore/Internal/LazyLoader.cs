@@ -87,28 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private bool ShouldLoad(object entity, string navigationName, [NotNullWhenTrue] out NavigationEntry? navigationEntry)
         {
-            EntityEntry GetEntryWithoutDetectChanges()
-            {
-                var autoDetectChangesEnabled = Context.ChangeTracker.AutoDetectChangesEnabled;
-                try
-                {
-                    Context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                    return Context.Entry(entity);
-                }
-                finally
-                {
-                    Context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChangesEnabled;
-                }
-            }
-
             if (_disposed)
             {
                 Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
             }
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
-                var entityEntry = GetEntryWithoutDetectChanges();
+                var entityEntry = Context.Entry(entity); // Will use local-DetectChanges, if enabled.
                 var tempNavigationEntry = entityEntry.Navigation(navigationName);
 
                 if (entityEntry.State == EntityState.Detached)

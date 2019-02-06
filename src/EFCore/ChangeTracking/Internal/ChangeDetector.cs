@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // State might change while detecting changes on other entries
                 if (entry.EntityState != EntityState.Detached)
                 {
-                    DetectChanges(entry);
+                    LocalDetectChanges(entry);
                 }
             }
 
@@ -137,6 +137,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void DetectChanges(InternalEntityEntry entry)
+            => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+
+        private void DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
+        {
+            if (entry.EntityState != EntityState.Detached)
+            {
+                foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+                {
+                    var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey);
+
+                    if (principalEntry != null
+                        && !visited.Contains(principalEntry))
+                    {
+                        visited.Add(principalEntry);
+                        DetectChanges(principalEntry, visited);
+                    }
+                }
+
+                LocalDetectChanges(entry);
+            }
+        }
+
+        private void LocalDetectChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 

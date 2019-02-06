@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name, collection: false)
         {
+            LocalDetectChanges();
         }
 
         /// <summary>
@@ -35,6 +36,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
+            LocalDetectChanges();
+        }
+
+        private void LocalDetectChanges()
+        {
+            if (!Metadata.IsDependentToPrincipal())
+            {
+                TargetEntry?.DetectChanges();
+            }
         }
 
         /// <summary>
