@@ -185,10 +185,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                 entry.SetRelationshipSnapshotValue(navigation, newValue);
+
                 newTargetEntry = targetEntityType.HasDefiningNavigation()
                     ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
                     : stateManager.GetOrCreateEntry(newValue);
-                _attacher.AttachGraph(newTargetEntry, EntityState.Added, forceStateWhenUnknownKey: false);
+
+                _attacher.AttachGraph(
+                    newTargetEntry,
+                    EntityState.Added,
+                    EntityState.Modified,
+                    forceStateWhenUnknownKey: false);
             }
         }
 
@@ -278,7 +284,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 else
                 {
                     stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
-                    _attacher.AttachGraph(newTargetEntry, EntityState.Added, forceStateWhenUnknownKey: false);
+
+                    _attacher.AttachGraph(
+                        newTargetEntry,
+                        EntityState.Added,
+                        EntityState.Modified,
+                        forceStateWhenUnknownKey: false);
                 }
 
                 entry.AddToCollectionSnapshot(navigation, newValue);
@@ -623,8 +634,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // truth and not attempt to ascertain relationships from navigation properties
             if (!fromQuery)
             {
-                var setModified = entry.EntityState != EntityState.Unchanged
-                                  && entry.EntityState != EntityState.Modified;
+                var setModified = entry.EntityState != EntityState.Unchanged;
 
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys())
                 {
@@ -716,8 +726,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationValue != null)
             {
-                var setModified = referencedEntry.EntityState != EntityState.Unchanged
-                                  && referencedEntry.EntityState != EntityState.Modified;
+                var setModified = referencedEntry.EntityState != EntityState.Unchanged;
 
                 if (!navigation.IsDependentToPrincipal())
                 {

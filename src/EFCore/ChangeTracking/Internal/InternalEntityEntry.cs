@@ -373,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IProperty property,
             bool changeState = true,
             bool isModified = true,
-            bool isConceptualNull = false)
+            bool isConceptualNull = false,
+            bool acceptChanges = false)
         {
             var propertyIndex = property.GetIndex();
             _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
@@ -416,6 +417,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     && currentState != EntityState.Detached
                     && property.GetOriginalValueIndex() != -1)
                 {
+                    if (acceptChanges)
+                    {
+                        SetOriginalValue(property, GetCurrentValue(property));
+                    }
+
                     SetProperty(property, GetOriginalValue(property), setModified: false);
                 }
 
@@ -1322,24 +1328,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsKeySet
+        public virtual (bool IsGenerated, bool IsSet) IsKeySet
         {
             get
             {
+                var isGenerated = false;
                 var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < keyProperties.Count; i++)
                 {
                     var keyProperty = keyProperties[i];
-                    if (HasDefaultValue(keyProperty)
-                        && (keyProperty.ValueGenerated == ValueGenerated.OnAdd || keyProperty.IsForeignKey()))
+                    var keyGenerated = keyProperty.ValueGenerated == ValueGenerated.OnAdd;
+
+                    if ((HasTemporaryValue(keyProperty)
+                         || HasDefaultValue(keyProperty))
+                        && (keyGenerated || keyProperty.IsForeignKey()))
                     {
-                        return false;
+                        return (true, false);
+                    }
+
+                    if (keyGenerated)
+                    {
+                        isGenerated = true;
                     }
                 }
 
-                return true;
+                return (isGenerated, true);
             }
         }
 

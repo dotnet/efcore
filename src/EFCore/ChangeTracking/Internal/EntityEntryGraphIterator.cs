@@ -22,11 +22,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void TraverseGraph<TState>(
-            EntityEntryGraphNode node,
-            TState state,
-            Func<EntityEntryGraphNode, TState, bool> handleNode)
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, bool> handleNode)
         {
-            if (!handleNode(node, state))
+            if (!handleNode(node))
             {
                 return;
             }
@@ -50,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 ? stateManager.GetOrCreateEntry(relatedEntity, targetEntityType)
                                 : stateManager.GetOrCreateEntry(relatedEntity);
                             TraverseGraph(
-                                node.CreateNode(node, targetEntry, navigation),
-                                state,
+                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode);
                         }
                     }
@@ -61,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             ? stateManager.GetOrCreateEntry(navigationValue, targetEntityType)
                             : stateManager.GetOrCreateEntry(navigationValue);
                         TraverseGraph(
-                            node.CreateNode(node, targetEntry, navigation),
-                            state,
+                            (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode);
                     }
                 }
@@ -74,12 +71,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task TraverseGraphAsync<TState>(
-            EntityEntryGraphNode node,
-            TState state,
-            Func<EntityEntryGraphNode, TState, CancellationToken, Task<bool>> handleNode,
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default)
         {
-            if (!await handleNode(node, state, cancellationToken))
+            if (!await handleNode(node, cancellationToken))
             {
                 return;
             }
@@ -103,8 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 ? stateManager.GetOrCreateEntry(relatedEntity, targetType)
                                 : stateManager.GetOrCreateEntry(relatedEntity);
                             await TraverseGraphAsync(
-                                node.CreateNode(node, targetEntry, navigation),
-                                state,
+                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode,
                                 cancellationToken);
                         }
@@ -115,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             ? stateManager.GetOrCreateEntry(navigationValue, targetType)
                             : stateManager.GetOrCreateEntry(navigationValue);
                         await TraverseGraphAsync(
-                            node.CreateNode(node, targetEntry, navigation),
-                            state,
+                            (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode,
                             cancellationToken);
                     }
