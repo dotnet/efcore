@@ -3525,7 +3525,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Note>().OwnsOne(n => n.User);
+                modelBuilder.Entity<Note>().OwnsOne(n => n.User).WithOwner().HasForeignKey(u => u.Id);
             }
         }
 

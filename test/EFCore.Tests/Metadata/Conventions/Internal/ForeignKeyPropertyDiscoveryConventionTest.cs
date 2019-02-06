@@ -284,9 +284,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Matches_PK_name_property()
+        public void Does_not_match_PK_name_property()
         {
-            var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentType.Relationship(
@@ -297,11 +297,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(fkProperty, fk.Properties.Single());
+            Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
@@ -361,13 +360,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Matches_PK_name_properties()
+        public void Does_not_match_PK_name_properties()
         {
-            var fkProperty1 = DependentTypeWithCompositeKey.Property(
+            DependentTypeWithCompositeKey.Property(
                 DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
-            var fkProperty2 = DependentTypeWithCompositeKey.Property(
-                DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
-            fkProperty2.IsRequired(true, ConfigurationSource.Convention);
+            DependentTypeWithCompositeKey.Property(
+                DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)
+                .IsRequired(true, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
                 PrincipalTypeWithCompositeKey,
@@ -377,12 +376,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(fkProperty1.Metadata, fk.Properties[0]);
-            Assert.Same(fkProperty2.Metadata, fk.Properties[1]);
+            Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
+            Assert.Equal("NavProp" + CompositePrimaryKey[1].Name + "1", fk.Properties[1].Name);
             Assert.Same(CompositePrimaryKey[0], fk.PrincipalKey.Properties[0]);
             Assert.Same(CompositePrimaryKey[1], fk.PrincipalKey.Properties[1]);
 
@@ -416,9 +414,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Does_not_match_PK_name_property_of_different_type()
+        public void Does_not_match_principal_type_plus_PK_name_property_of_different_type()
         {
-            var fkProperty = DependentType.Property("PeeKay", typeof(string), ConfigurationSource.Explicit).Metadata;
+            var fkProperty = DependentType.Property("PrincipalEntityPeeKay", typeof(string), ConfigurationSource.Explicit).Metadata;
             DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentType.Relationship(
@@ -439,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
                 CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
-                    "{'PeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
+                    "{'PrincipalEntityPeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -762,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Inverts_if_principal_entity_type_can_have_non_pk_fk_property()
         {
-            var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            var fkProperty = DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = PrincipalType.Relationship(DependentType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
@@ -787,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_invert_if_weak_entity_type_can_have_non_pk_fk_property()
         {
-            var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            var fkProperty = DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
@@ -812,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_invert_if_both_entity_types_can_have_non_pk_fk_property()
         {
-            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
             PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)

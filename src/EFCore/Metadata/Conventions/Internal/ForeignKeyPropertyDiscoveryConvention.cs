@@ -47,10 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            relationshipBuilder = DiscoverProperties(relationshipBuilder);
+            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder);
 
-            var fksToProcess = relationshipBuilder.Metadata.DeclaringEntityType.GetForeignKeysInHierarchy()
-                .Where(fk => fk != relationshipBuilder.Metadata)
+            // If new properties were used for this relationship we have to examine the other foreign keys
+            // in case they can use the properties used previously.
+            var fksToProcess = newRelationshipBuilder.Metadata.DeclaringEntityType.GetForeignKeysInHierarchy()
+                .Where(fk => fk != newRelationshipBuilder.Metadata)
                 .ToList();
 
             foreach (var fk in fksToProcess)
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            return relationshipBuilder;
+            return newRelationshipBuilder;
         }
 
         private InternalRelationshipBuilder DiscoverProperties(InternalRelationshipBuilder relationshipBuilder)
@@ -319,14 +321,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (TryFindMatchingProperties(foreignKey, entityTypeToReference.ShortName(), onDependent, matchPk, out match))
             {
                 return match;
-            }
-
-            if (!matchPk)
-            {
-                if (TryFindMatchingProperties(foreignKey, "", onDependent, false, out match))
-                {
-                    return match;
-                }
             }
 
             return match;
