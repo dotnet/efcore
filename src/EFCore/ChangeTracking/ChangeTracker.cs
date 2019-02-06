@@ -188,10 +188,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> True if there are changes to save, otherwise false. </returns>
         public virtual bool HasChanges()
         {
-            if (AutoDetectChangesEnabled)
-            {
-                DetectChanges();
-            }
+            TryDetectChanges();
 
             return StateManager.ChangedCount > 0;
         }

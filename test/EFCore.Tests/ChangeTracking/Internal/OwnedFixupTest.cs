@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(
                         CoreStrings.KeyReadOnly(
                             "ParentId",
-                            context.Entry(principal1).Reference(p => p.Child1).Metadata.GetTargetType().DisplayName()),
+                            "ParentPN.Child1#ChildPN"),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
                 else
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(
                         CoreStrings.KeyReadOnly(
                             "ParentId",
-                            context.Entry(principal1).Reference(p => p.Child1).Metadata.GetTargetType().DisplayName()),
+                            "Parent.Child1#Child"),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
                 else

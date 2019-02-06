@@ -474,6 +474,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private void TryDetectChanges(EntityEntry entry)
+        {
+            if (ChangeTracker.AutoDetectChangesEnabled)
+            {
+                 entry.DetectChanges();
+            }
+        }
+
         /// <summary>
         ///     Asynchronously saves all changes made in this context to the database.
         /// </summary>
@@ -684,9 +692,11 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
 
-            TryDetectChanges();
+            var entry = EntryWithoutDetectChanges(entity);
 
-            return EntryWithoutDetectChanges(entity);
+            TryDetectChanges(entry);
+
+            return entry;
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity)
@@ -711,9 +721,11 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
 
-            TryDetectChanges();
+            var entry = EntryWithoutDetectChanges(entity);
 
-            return EntryWithoutDetectChanges(entity);
+            TryDetectChanges(entry);
+
+            return entry;
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)

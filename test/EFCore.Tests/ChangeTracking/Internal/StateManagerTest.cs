@@ -897,9 +897,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>(),
-                BuildModel());
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -929,36 +927,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry2.SetEntityState(EntityState.Unchanged);
             entry3.SetEntityState(EntityState.Unchanged);
 
-            var changeDetector = (ChangeDetectorProxy)contextServices.GetRequiredService<IChangeDetector>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+
+            ((Category)entry1.Entity).Name = "Egarevebs";
+            ((Category)entry2.Entity).Name = "Doofs";
+            ((Category)entry3.Entity).Name = "Ffuts";
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(new[] { 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
+            Assert.Equal(EntityState.Modified, entry1.EntityState);
+            Assert.Equal(EntityState.Modified, entry2.EntityState);
+            Assert.Equal(EntityState.Modified, entry3.EntityState);
 
-            ((Category)entry2.Entity).Name = "Snacks";
-
-            changeDetector.DetectChanges(stateManager);
-
-            Assert.Equal(new[] { 77, 78, 79, 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
-        }
-
-        internal class ChangeDetectorProxy : ChangeDetector
-        {
-            public ChangeDetectorProxy(
-                IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-                ILoggingOptions loggingOptions)
-                : base(logger, loggingOptions)
-            {
-            }
-
-            public List<InternalEntityEntry> Entries { get; } = new List<InternalEntityEntry>();
-
-            public override void DetectChanges(InternalEntityEntry entry)
-            {
-                Entries.Add(entry);
-
-                base.DetectChanges(entry);
-            }
         }
 
         [Fact]
