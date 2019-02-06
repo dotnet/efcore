@@ -25,6 +25,7 @@
     <SQLitePCLRawCorePackageVersion>1.1.12</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
+    <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
     <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview4.19158.2</MicrosoftExtensionsCachingMemoryPackageVersion>
