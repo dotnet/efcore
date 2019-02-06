@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="typeMappingSource"> The type mapper. </param>
         public MigrationsSqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISingletonUpdateSqlGenerator updateSqlGenerator,
+            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
@@ -73,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     High level SQL generator.
         /// </summary>
-        public ISingletonUpdateSqlGenerator UpdateSqlGenerator { get; }
+        public IUpdateSqlGenerator UpdateSqlGenerator { get; }
 
         /// <summary>
         ///     Helpers for SQL generation.
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="updateSqlGenerator"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] ISingletonUpdateSqlGenerator updateSqlGenerator)
+        public MigrationsSqlGeneratorDependencies With([NotNull] IUpdateSqlGenerator updateSqlGenerator)
             => new MigrationsSqlGeneratorDependencies(
                 CommandBuilderFactory,
                 updateSqlGenerator,

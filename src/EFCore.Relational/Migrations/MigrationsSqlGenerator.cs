@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The <see cref="IUpdateSqlGenerator" />.
         /// </summary>
         protected virtual IUpdateSqlGenerator SqlGenerator
-            => (IUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
+            => Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets a comparer that can be used to compare two product versions.

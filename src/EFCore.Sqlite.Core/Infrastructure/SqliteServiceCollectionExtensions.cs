@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services
         ///                   .AddEntityFrameworkSqlite()
         ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
@@ -75,7 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IModelValidator, SqliteModelValidator>()
                 .TryAdd<IConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
-                .TryAdd<ISingletonUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
