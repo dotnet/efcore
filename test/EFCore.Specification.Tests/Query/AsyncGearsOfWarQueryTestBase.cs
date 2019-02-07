@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = await ctx.Missions.GroupBy(m => m.CodeName).Select(g => g.Sum(m => m.Rating)).ToListAsync();
-                Assert.Equal(6.3.ToString(), result.Sum().ToString());
+                Assert.Equal(6.3, result.Sum() ?? double.NaN, precision: 1);
             }
         }
     }

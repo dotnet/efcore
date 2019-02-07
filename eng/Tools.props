@@ -1,0 +1,35 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="InstallDotNet" AfterTargets="Restore">
+    <Error Condition="'$(_DotNetRoot)'==''" Text="_DotNetRoot is not defined" />
+
+    <Message Importance="High" Text="Installing dotnet runtime: %(DotNetRuntime.Identity)" />
+
+    <PropertyGroup>
+      <DotNetInstallScript Condition="'$(OS)' == 'Windows_NT'">$(RepoRoot)eng\dotnet-install.ps1</DotNetInstallScript>
+      <DotNetInstallScript Condition="'$(OS)' != 'Windows_NT'">$(RepoRoot)eng\dotnet-install.sh</DotNetInstallScript>
+
+      <DotNetInstallArgs Condition="'$(OS)' == 'Windows_NT'">-Architecture x64 -InstallDir $(_DotNetRoot) -Runtime dotnet -SkipNonVersionedFiles</DotNetInstallArgs>
+      <DotNetInstallArgs Condition="'$(OS)' != 'Windows_NT'">--architecture x64 --install-dir $(_DotNetRoot) --runtime dotnet --skip-non-versioned-files</DotNetInstallArgs>
+    </PropertyGroup>
+
+    <Error Condition="!Exists('$(DotNetInstallScript)')" Text="Could not find dotnet-install at $(DotNetInstallScript)" />
+
+    <!--
+      We're seeing issues on Linux in Azure Pipelines where MSBuild tries to set LC_ALL to utf8 when running a shell script.
+      We don't really care about this error and it's non-blocking, but MSBuild's default parsing still flags it as an error.
+      Setting IgnoreStandardErrorWarningFormat=true will work around that problem.
+    -->
+    <Exec
+      Condition="'$(OS)' == 'Windows_NT'"
+      Command="powershell -ExecutionPolicy ByPass -NoProfile -File &quot;$(DotNetInstallScript)&quot; $(DotNetInstallArgs) -Version %(DotNetRuntime.Identity)"
+      ConsoleToMsBuild="true"
+      IgnoreStandardErrorWarningFormat="true" />
+    <Exec
+      Condition="'$(OS)' != 'Windows_NT'"
+      Command="&quot;$(DotNetInstallScript)&quot; $(DotNetInstallArgs) --version %(DotNetRuntime.Identity)"
+      ConsoleToMsBuild="true"
+      IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
+</Project>

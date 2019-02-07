@@ -41,6 +41,10 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>980cd8d947331110bd124201e777521dc594346d</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.NETCore.Platforms" Version="3.0.0-preview.19106.8">
+      <Uri>https://github.com/dotnet/corefx</Uri>
+      <Sha>4d180567e9dc5500006b58480184f0dcfe967c1e</Sha>
+    </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview.19106.8">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>4d180567e9dc5500006b58480184f0dcfe967c1e</Sha>
@@ -62,6 +66,10 @@
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="1.0.0-beta.19106.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>b58add62b88ab28edd15932fb19f00b9e1c5e8dd</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview-27406-8">
+      <Uri>https://github.com/dotnet/core-setup</Uri>
+      <Sha>51d2cccdf6b5cfd9a94d4ccc3edc754c4e0097ab</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

@@ -509,8 +509,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var converter = _naturalStringToFloat.ConvertFromProviderExpression.Compile();
 
+#if NETCOREAPP3_0
+            Assert.Equal("3.4028235E+38", converter(float.MaxValue));
+            Assert.Equal("-3.4028235E+38", converter(float.MinValue));
+#else
             Assert.Equal("3.40282347E+38", converter(float.MaxValue));
             Assert.Equal("-3.40282347E+38", converter(float.MinValue));
+#endif
             Assert.Equal("-79.3335", converter((float)-79.3335));
             Assert.Equal("1E-09", converter((float)0.000000001));
             Assert.Equal("1E-20", converter((float)0.00000000000000000001));

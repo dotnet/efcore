@@ -41,6 +41,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
     <MicrosoftCSharpPackageVersion>4.6.0-preview.19106.8</MicrosoftCSharpPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview.19106.8</MicrosoftNETCorePlatformsPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19106.8</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19106.8</SystemComponentModelAnnotationsPackageVersion>
     <SystemDataSqlClientPackageVersion>4.7.0-preview.19106.8</SystemDataSqlClientPackageVersion>
@@ -48,7 +49,12 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
     <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview-27406-8</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview-27406-8</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <DotNetRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
+    <DotNetRuntime Include="2.0.9" />
+  </ItemGroup>
   <PropertyGroup>
     <RestoreSources>
       $(RestoreSources);
