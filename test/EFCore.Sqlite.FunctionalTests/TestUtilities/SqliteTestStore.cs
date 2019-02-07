@@ -81,12 +81,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             ((SqliteConnection)Connection).EnableExtensions();
             SpatialiteLoader.TryLoad(Connection);
-
-            using (var command = Connection.CreateCommand())
-            {
-                command.CommandText = "PRAGMA foreign_keys=ON;";
-                command.ExecuteNonQuery();
-            }
         }
 
         public int ExecuteNonQuery(string sql, params object[] parameters)

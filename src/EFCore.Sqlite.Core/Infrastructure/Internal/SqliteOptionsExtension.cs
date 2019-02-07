@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     /// </summary>
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
-        private bool _enforceForeignKeys = true;
         private bool _loadSpatialite;
         private string _logFragment;
 
@@ -37,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         protected SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
-            _enforceForeignKeys = copyFrom._enforceForeignKeys;
             _loadSpatialite = copyFrom._loadSpatialite;
         }
 
@@ -52,26 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool EnforceForeignKeys => _enforceForeignKeys;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual bool LoadSpatialite => _loadSpatialite;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual SqliteOptionsExtension WithEnforceForeignKeys(bool enforceForeignKeys)
-        {
-            var clone = (SqliteOptionsExtension)Clone();
-
-            clone._enforceForeignKeys = enforceForeignKeys;
-
-            return clone;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -121,11 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
                     var builder = new StringBuilder();
 
                     builder.Append(base.LogFragment);
-
-                    if (!_enforceForeignKeys)
-                    {
-                        builder.Append("SuppressForeignKeyEnforcement ");
-                    }
 
                     if (_loadSpatialite)
                     {
