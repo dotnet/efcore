@@ -233,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(ownership.IsOwnership);
                 Assert.True(ownership.IsUnique);
                 Assert.Equal(nameof(Customer.Details), ownership.DependentToPrincipal.Name);
-                Assert.Equal(nameof(Customer.Id), ownership.Properties.Single().Name);
-                Assert.Equal(nameof(Customer.Id), owned.FindPrimaryKey().Properties.Single().Name);
+                Assert.Equal("DetailsId", ownership.Properties.Single().Name);
+                Assert.Equal("DetailsId", owned.FindPrimaryKey().Properties.Single().Name);
                 Assert.Empty(owned.GetIndexes());
                 Assert.True(chainedOwnership.IsOwnership);
                 Assert.False(chainedOwnership.IsUnique);
