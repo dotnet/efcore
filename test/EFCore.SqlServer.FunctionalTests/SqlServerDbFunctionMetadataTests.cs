@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var dbFunction = modelBuilder.HasDbFunction(MethodFoo);
 
-            ((Model)modelBuilder.Model).Validate();
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("dbo", dbFunction.Metadata.Schema);
         }
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var dbFunction = modelBuilder.HasDbFunction(MethodFoo).HasSchema("abc");
 
-            ((Model)modelBuilder.Model).Validate();
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("abc", dbFunction.Metadata.Schema);
         }
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var dbFunction = modelBuilder.HasDbFunction(MethodFoo);
 
-            ((Model)modelBuilder.Model).Validate();
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("qwerty", dbFunction.Metadata.Schema);
         }

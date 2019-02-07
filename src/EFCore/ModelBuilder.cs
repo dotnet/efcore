@@ -461,12 +461,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The finalized <see cref="IModel" />.
         /// </returns>
-        public virtual IModel FinalizeModel()
-        {
-            Builder.Metadata.Validate();
-
-            return Model;
-        }
+        public virtual IModel FinalizeModel() => Builder.Metadata.Finalize();
 
         private InternalModelBuilder Builder => this.GetInfrastructure();
 

@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
         }
 
-        protected virtual void Validate(IModel model) => ((Model)model).Validate();
+        protected virtual void Validate(IModel model) => ((Model)model).Finalize();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
