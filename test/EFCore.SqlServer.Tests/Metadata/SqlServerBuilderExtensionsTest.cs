@@ -764,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Name)
+                .HasIndex(e => e.Name)
                 .ForSqlServerInclude(e => e.Offset);
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Name)
+                .HasIndex(e => e.Name)
                 .IsUnique()
                 .ForSqlServerInclude(e => e.Offset);
 
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Name)
+                .HasIndex(e => e.Name)
                 .HasAnnotation("Test:ShouldBeTrue", true)
                 .ForSqlServerInclude(e => e.Offset);
 
@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Name)
+                .HasIndex(e => e.Name)
                 .ForSqlServerIsOnline();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
@@ -1654,7 +1654,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var returnedBuilder = modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Name)
+                .HasIndex(e => e.Name)
                 .HasName("Eeeendeeex");
 
             AssertIsGeneric(returnedBuilder);
@@ -1673,7 +1673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var returnedBuilder = modelBuilder
                 .Entity<Customer>()
-                .ForSqlServerHasIndex(e => e.Id)
+                .HasIndex(e => e.Id)
                 .HasFilter("[Id] % 2 = 0");
 
             AssertIsGeneric(returnedBuilder);

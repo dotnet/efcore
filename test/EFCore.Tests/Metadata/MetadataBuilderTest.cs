@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .IndexBuilderExtension("V1")
                 .IndexBuilderExtension("V2");
 
-            Assert.IsType<IndexBuilder>(returnedBuilder);
+            Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<IndexBuilder>(returnedBuilder);
+            Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));

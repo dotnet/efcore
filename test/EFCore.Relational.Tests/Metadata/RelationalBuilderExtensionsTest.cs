@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasIndex(e => e.Id)
                 .HasFilter("[Id] % 2 = 0");
 
-            Assert.IsType<IndexBuilder>(returnedBuilder);
+            Assert.IsType<IndexBuilder<Customer>>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.FindEntityType(typeof(Customer)).GetIndexes().Single();
