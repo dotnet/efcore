@@ -327,7 +327,7 @@
   </data>
   <data name="LogRelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
-    <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
+    <comment>Debug RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogRelationalLoggerCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
