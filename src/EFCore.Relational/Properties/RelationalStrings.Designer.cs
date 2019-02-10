@@ -592,10 +592,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutedCommand
             = new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                 RelationalEventId.CommandExecuted,
-                LogLevel.Information,
+                LogLevel.Debug,
                 "RelationalEventId.CommandExecuted",
                 LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
-                    LogLevel.Information,
+                    LogLevel.Debug,
                     RelationalEventId.CommandExecuted,
                     _resourceManager.GetString("LogRelationalLoggerExecutedCommand")));
 
