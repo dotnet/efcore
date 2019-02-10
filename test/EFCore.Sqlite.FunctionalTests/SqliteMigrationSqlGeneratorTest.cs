@@ -310,6 +310,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddUniqueConstraintOperation)), ex.Message);
         }
 
+        public override void CreateCheckConstraintOperation_with_name()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.CreateCheckConstraintOperation_with_name());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(CreateCheckConstraintOperation)), ex.Message);
+        }
+        
         public override void AlterColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation());
@@ -479,6 +485,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropUniqueConstraintOperation());
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
+        }
+
+        public override void DropCheckConstraintOperation()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.DropCheckConstraintOperation());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropCheckConstraintOperation)), ex.Message);
         }
 
         [Fact]

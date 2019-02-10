@@ -321,6 +321,17 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [Fact]
+        public virtual void CreateCheckConstraintOperation_with_name()
+            => Generate(
+                new CreateCheckConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "CK_People_DriverLicense",
+                    ConstraintSql = "DriverLicense_Number > 0"
+                });
+        
+        [Fact]
         public virtual void AlterColumnOperation()
             => Generate(
                 new AlterColumnOperation
@@ -507,6 +518,13 @@ namespace Microsoft.EntityFrameworkCore
                             Columns = new[] { "SSN" }
                         }
                     },
+                    CheckConstraints =
+                    {
+                        new CreateCheckConstraintOperation
+                        {
+                            ConstraintSql = "SSN > 0"
+                        }
+                    },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
@@ -584,6 +602,16 @@ namespace Microsoft.EntityFrameworkCore
                     Table = "People",
                     Schema = "dbo",
                     Name = "AK_People_SSN"
+                });
+
+        [Fact]
+        public virtual void DropCheckConstraintOperation()
+            => Generate(
+                new DropCheckConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "CK_People_SSN"
                 });
 
         [Fact]

@@ -66,6 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string SequencePrefix = Prefix + "Sequence:";
 
         /// <summary>
+        ///     The prefix for serialized check constraint annotations.
+        /// </summary>
+        public const string CheckConstraints = Prefix + "CheckConstraints";
+
+        /// <summary>
         ///     The name for discriminator property annotations.
         /// </summary>
         public const string DiscriminatorProperty = Prefix + "DiscriminatorProperty";

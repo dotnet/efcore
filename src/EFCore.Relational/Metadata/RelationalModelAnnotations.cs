@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var annotationName = BuildAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema);
+            var annotationName = BuildSequenceAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema);
 
             return Model[annotationName] == null ? null : new Sequence(Model, annotationName);
         }
@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The sequence. </returns>
         public virtual IMutableSequence GetOrAddSequence([NotNull] string name, [CanBeNull] string schema = null)
             => FindSequence(name, schema)
-               ?? new Sequence((IMutableModel)Model, BuildAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema), name, schema);
+               ?? new Sequence((IMutableModel)Model, BuildSequenceAnnotationName(RelationalAnnotationNames.SequencePrefix, name, schema), name, schema);
 
-        private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
+        private static string BuildSequenceAnnotationName(string annotationPrefix, string name, string schema)
             => annotationPrefix + schema + "." + name;
 
         /// <summary>
@@ -166,5 +166,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     All <see cref="ISequence" />s contained in the model.
         /// </summary>
         IReadOnlyList<ISequence> IRelationalModelAnnotations.Sequences => Sequences;
+
+        /// <summary>
+        ///     All <see cref="ICheckConstraint" />s contained in the model.
+        /// </summary>
+        public virtual IReadOnlyList<ICheckConstraint> CheckConstraints
+            => CheckConstraint.GetCheckConstraints(Model).ToList();
+
+        /// <summary>
+        ///     Finds an <see cref="ICheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="schema"> The table schema that contains the check constraint. </param>
+        /// <param name="table"> The table that contains the check constraint. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     The <see cref="ICheckConstraint" /> or <c>null</c> if no check constraint with the given name in
+        ///     the given schema was found.
+        /// </returns>
+        public virtual ICheckConstraint FindCheckConstraint([NotNull] string name, [NotNull] string table, [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            return CheckConstraint.FindCheckConstraint(Model, name, table, schema);
+        }
+
+        /// <summary>
+        ///     Either returns the existing <see cref="ICheckConstraint" /> with the given name in the given schema
+        ///     or creates a new check constraint with the given name and schema.
+        /// </summary>
+        /// <param name="schema"> The table schema that contains the check constraint. </param>
+        /// <param name="table"> The table that contains the check constraint. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="constraintSql"> The logical constraint sql used in the check constraint. </param>
+        /// <returns> The check constraint. </returns>
+        public virtual ICheckConstraint GetOrAddCheckConstraint(
+            [NotNull] string name,
+            [NotNull] string constraintSql,
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+            => FindCheckConstraint(name, table, schema)
+               ?? new CheckConstraint((IMutableModel)Model, name, constraintSql, table, schema);
+
+        /// <summary>
+        ///     Finds an <see cref="ICheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="schema"> The table schema that contains the check constraint. </param>
+        /// <param name="table"> The table that contains the check constraint. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     The <see cref="ICheckConstraint" /> or <c>null</c> if no check constraint with the given name in
+        ///     the given schema was found.
+        /// </returns>
+        ICheckConstraint IRelationalModelAnnotations.FindCheckConstraint([NotNull] string name, [NotNull] string table, [CanBeNull] string schema)
+            => FindCheckConstraint(name, table, schema);
+
+        /// <summary>
+        ///     All <see cref="ICheckConstraint" />s contained in the model.
+        /// </summary>
+        IReadOnlyList<ICheckConstraint> IRelationalModelAnnotations.CheckConstraints => CheckConstraints;
     }
 }

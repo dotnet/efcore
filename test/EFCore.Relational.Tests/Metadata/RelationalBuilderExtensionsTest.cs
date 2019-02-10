@@ -546,6 +546,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_create_check_constraint()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            var checkConstraint = modelBuilder.Model.Relational().FindCheckConstraint("CK_Customer_AlternateId", "Customer");
+
+            Assert.NotNull(checkConstraint);
+            Assert.Equal("CK_Customer_AlternateId", checkConstraint.Name);
+            Assert.Equal("AlternateId > Id", checkConstraint.ConstraintSql);
+            Assert.Equal("Customer", checkConstraint.Table);
+            Assert.Equal(null, checkConstraint.Schema);
+        }
+
+        [Fact]
+        public void Can_create_check_constraint_with_schema_and_none_default_table_name()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToTable("Customizer", "db0")
+                .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            var checkConstraint = modelBuilder.Model.Relational().FindCheckConstraint("CK_Customer_AlternateId", "Customizer", "db0");
+
+            Assert.NotNull(checkConstraint);
+            Assert.Equal("CK_Customer_AlternateId", checkConstraint.Name);
+            Assert.Equal("AlternateId > Id", checkConstraint.ConstraintSql);
+            Assert.Equal("Customizer", checkConstraint.Table);
+            Assert.Equal("db0", checkConstraint.Schema);
+        }
+
+        [Fact]
         public void Can_set_discriminator_value_using_property_expression()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -926,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ValidateNamedSpecificSequence(sequence);
         }
-
+        
         private static void ValidateNamedSpecificSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     /// </summary>
     public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
-        private static readonly Type[] _dropOperationTypes = { typeof(DropIndexOperation), typeof(DropPrimaryKeyOperation), typeof(DropSequenceOperation), typeof(DropUniqueConstraintOperation) };
+        private static readonly Type[] _dropOperationTypes = { typeof(DropIndexOperation), typeof(DropPrimaryKeyOperation), typeof(DropSequenceOperation), typeof(DropUniqueConstraintOperation), typeof(DropCheckConstraintOperation) };
 
         private static readonly Type[] _alterOperationTypes = { typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation) };
 
@@ -156,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var dropTableOperations = new List<DropTableOperation>();
             var ensureSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
+            var createCheckConstraintOperations = new List<MigrationOperation>();
             var createTableOperations = new List<CreateTableOperation>();
             var alterDatabaseOperations = new List<MigrationOperation>();
             var alterTableOperations = new List<MigrationOperation>();
@@ -196,6 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else if (type == typeof(CreateSequenceOperation))
                 {
                     createSequenceOperations.Add(operation);
+                }
+                else if (type == typeof(CreateCheckConstraintOperation))
+                {
+                    createCheckConstraintOperations.Add(operation);
                 }
                 else if (type == typeof(CreateTableOperation))
                 {
@@ -326,6 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(renameOperations)
                 .Concat(alterDatabaseOperations)
                 .Concat(createSequenceOperations)
+                .Concat(createCheckConstraintOperations)
                 .Concat(alterTableOperations)
                 .Concat(columnOperations)
                 .Concat(computedColumnOperations)
@@ -358,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Concat(Diff(GetSchemas(source), GetSchemas(target), diffContext))
                     .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
                     .Concat(Diff(source.Relational().Sequences, target.Relational().Sequences, diffContext))
+                    .Concat(Diff(source.Relational().CheckConstraints, target.Relational().CheckConstraints, diffContext))
                     .Concat(
                         Diff(
                             diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
@@ -424,6 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(GetSchemas(target).SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => Add(t, diffContext)))
                 .Concat(target.Relational().Sequences.SelectMany(t => Add(t, diffContext)))
+                .Concat(target.Relational().CheckConstraints.SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         /// <summary>
@@ -435,7 +443,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext)
             => DiffAnnotations(source, null)
                 .Concat(diffContext.GetSourceTables().SelectMany(t => Remove(t, diffContext)))
-                .Concat(source.Relational().Sequences.SelectMany(t => Remove(t, diffContext)));
+                .Concat(source.Relational().Sequences.SelectMany(t => Remove(t, diffContext)))
+                .Concat(source.Relational().CheckConstraints.SelectMany(t => Remove(t, diffContext)));
 
         #endregion
 
@@ -1361,6 +1370,75 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Name = source.Relational().Name,
                 Schema = sourceEntityTypeAnnotations.Schema,
                 Table = sourceEntityTypeAnnotations.TableName
+            };
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
+
+            yield return operation;
+        }
+
+        #endregion
+
+        #region ICheckConstraint
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] IEnumerable<ICheckConstraint> source,
+            [NotNull] IEnumerable<ICheckConstraint> target,
+            [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source,
+                target,
+                diffContext,
+                Diff,
+                Add,
+                Remove,
+                (s, t, c) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
+                             && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                             && string.Equals(s.Table, t.Table, StringComparison.OrdinalIgnoreCase)
+                             && string.Equals(s.ConstraintSql, t.ConstraintSql, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] ICheckConstraint source, [NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
+            => Enumerable.Empty<MigrationOperation>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
+        {
+            var operation = new CreateCheckConstraintOperation
+            {
+                Schema = target.Schema,
+                Name = target.Name,
+                Table = target.Table,
+                ConstraintSql = target.ConstraintSql
+            };
+
+            operation.ConstraintSql = target.ConstraintSql;
+            operation.AddAnnotations(MigrationsAnnotations.For(target));
+
+            yield return operation;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ICheckConstraint source, [NotNull] DiffContext diffContext)
+        {
+            var operation = new DropCheckConstraintOperation
+            {
+                Schema = source.Schema,
+                Name = source.Name,
+                Table = source.Table
             };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 

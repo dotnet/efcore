@@ -117,6 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("BadSequenceString");
 
         /// <summary>
+        ///     Unable to deserialize check constraint from model metadata. See inner exception for details.
+        /// </summary>
+        public static string BadCheckConstraintString
+            => GetString("BadCheckConstraintString");
+
+        /// <summary>
         ///     The migration '{migrationName}' was not found.
         /// </summary>
         public static string MigrationNotFound([CanBeNull] object migrationName)

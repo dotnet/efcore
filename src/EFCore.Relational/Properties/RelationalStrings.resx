@@ -211,6 +211,9 @@
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
   </data>
+  <data name="BadCheckConstraintString" xml:space="preserve">
+    <value>Unable to deserialize check constraint from model metadata. See inner exception for details.</value>
+  </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
   </data>

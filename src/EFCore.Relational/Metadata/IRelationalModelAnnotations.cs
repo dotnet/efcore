@@ -25,6 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ISequence FindSequence([NotNull] string name, [CanBeNull] string schema = null);
 
         /// <summary>
+        ///     Finds an <see cref="ICheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="table"> The table that contains the check constraint. </param>
+        /// <param name="schema"> The table schema that contains the check constraint. </param>
+        /// <returns>
+        ///     The <see cref="ICheckConstraint" /> or <c>null</c> if no check constraint with the given name in
+        ///     the given schema was found.
+        /// </returns>
+        ICheckConstraint FindCheckConstraint([NotNull] string name, [NotNull] string table, [CanBeNull] string schema = null);
+
+        /// <summary>
         ///     Finds a <see cref="IDbFunction" /> that is mapped to the method represented by the given <see cref="MethodInfo" />.
         /// </summary>
         /// <param name="method"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
@@ -35,6 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     All <see cref="ISequence" />s contained in the model.
         /// </summary>
         IReadOnlyList<ISequence> Sequences { get; }
+
+        /// <summary>
+        ///     All <see cref="ICheckConstraint" />s contained in the model.
+        /// </summary>
+        IReadOnlyList<ICheckConstraint> CheckConstraints { get; }
 
         /// <summary>
         ///     All <see cref="IDbFunction" />s contained in the model.
