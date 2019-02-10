@@ -119,6 +119,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     <para>
+        ///         Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation returns an empty collection.
+        ///     </para>
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint) => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     <para>
         ///         Gets provider-specific Migrations annotations for the given <see cref="IModel" />
         ///         when it is being removed/altered.
         ///     </para>
@@ -207,5 +219,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sequence"> The sequence. </param>
         /// <returns> The annotations. </returns>
         public virtual IEnumerable<IAnnotation> ForRemove(ISequence sequence) => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />
+        ///         when it is being removed/altered.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation returns an empty collection.
+        ///     </para>
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        public virtual IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint) => Enumerable.Empty<IAnnotation>();
     }
 }

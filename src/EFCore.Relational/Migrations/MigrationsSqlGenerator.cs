@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(AlterDatabaseOperation), (g, o, m, b) => g.Generate((AlterDatabaseOperation)o, m, b) },
                 { typeof(AlterSequenceOperation), (g, o, m, b) => g.Generate((AlterSequenceOperation)o, m, b) },
                 { typeof(AlterTableOperation), (g, o, m, b) => g.Generate((AlterTableOperation)o, m, b) },
+                { typeof(CreateCheckConstraintOperation), (g, o, m, b) => g.Generate((CreateCheckConstraintOperation)o, m, b) },
                 { typeof(CreateIndexOperation), (g, o, m, b) => g.Generate((CreateIndexOperation)o, m, b) },
                 { typeof(CreateSequenceOperation), (g, o, m, b) => g.Generate((CreateSequenceOperation)o, m, b) },
                 { typeof(CreateTableOperation), (g, o, m, b) => g.Generate((CreateTableOperation)o, m, b) },
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 { typeof(DropSequenceOperation), (g, o, m, b) => g.Generate((DropSequenceOperation)o, m, b) },
                 { typeof(DropTableOperation), (g, o, m, b) => g.Generate((DropTableOperation)o, m, b) },
                 { typeof(DropUniqueConstraintOperation), (g, o, m, b) => g.Generate((DropUniqueConstraintOperation)o, m, b) },
+                { typeof(DropCheckConstraintOperation), (g, o, m, b) => g.Generate((DropCheckConstraintOperation)o, m, b) },
                 { typeof(EnsureSchemaOperation), (g, o, m, b) => g.Generate((EnsureSchemaOperation)o, m, b) },
                 { typeof(RenameColumnOperation), (g, o, m, b) => g.Generate((RenameColumnOperation)o, m, b) },
                 { typeof(RenameIndexOperation), (g, o, m, b) => g.Generate((RenameIndexOperation)o, m, b) },
@@ -305,6 +307,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             UniqueConstraint(operation, model, builder);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            EndStatement(builder);
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="CreateCheckConstraintOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] CreateCheckConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ADD ");
+            CheckConstraint(operation, model, builder);
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             EndStatement(builder);
         }
@@ -894,6 +920,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Builds commands for the given <see cref="DropCheckConstraintOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] DropCheckConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" DROP CONSTRAINT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            EndStatement(builder);
+        }
+
+        /// <summary>
         ///     <para>
         ///         Can be overridden by database providers to build commands for the given <see cref="RenameColumnOperation" />
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
@@ -1365,6 +1416,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             CreateTablePrimaryKeyContstraint(operation, model, builder);
             CreateTableUniqueConstraints(operation, model, builder);
+            CreateTableCheckConstraints(operation, model, builder);
             CreateTableForeignKeys(operation, model, builder);
         }
 
@@ -1541,6 +1593,57 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append("(")
                 .Append(ColumnList(operation.Columns))
+                .Append(")");
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for the check constraints of a <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CreateTableCheckConstraints(
+            [NotNull] CreateTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var checkConstraint in operation.CheckConstraints)
+            {
+                builder.AppendLine(",");
+                CheckConstraint(checkConstraint, model, builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for a check constraint of an <see cref="CreateCheckConstraintOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected virtual void CheckConstraint(
+            [NotNull] CreateCheckConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Name != null)
+            {
+                builder
+                    .Append("CONSTRAINT ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" ");
+            }
+
+            builder
+                .Append("CHECK ");
+            
+            builder.Append("(")
+                .Append(operation.ConstraintSql)
                 .Append(")");
         }
 

@@ -244,5 +244,31 @@ namespace Microsoft.EntityFrameworkCore
                 entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
                     .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
         }
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The entity type builder. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="constraintSql"> The logical constraint sql used in the check constraint. </param>
+        /// <returns> A builder to further configure the check constraint. </returns>
+        public static EntityTypeBuilder HasCheckConstraint(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [NotNull] string name,
+            [NotNull] string constraintSql)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotEmpty(name, nameof(name));
+
+            var relaionalEntityTypeBuilder = entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
+                                                    .Relational(ConfigurationSource.Explicit);
+
+            var tableName = relaionalEntityTypeBuilder.TableName;
+            var schema = relaionalEntityTypeBuilder.Schema;
+
+            entityTypeBuilder.Metadata.Model.Relational().GetOrAddCheckConstraint(name, constraintSql, tableName, schema);
+
+            return entityTypeBuilder;
+        }
     }
 }

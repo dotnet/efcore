@@ -72,6 +72,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         IEnumerable<IAnnotation> For([NotNull] ISequence sequence);
 
         /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />.
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> For([NotNull] ICheckConstraint checkConstraint);
+
+        /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="IModel" />
         ///     when it is being removed/altered.
         /// </summary>
@@ -126,5 +133,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sequence"> The sequence. </param>
         /// <returns> The annotations. </returns>
         IEnumerable<IAnnotation> ForRemove([NotNull] ISequence sequence);
+
+        /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />
+        ///     when it is being removed/altered.
+        /// </summary>
+        /// <param name="sequence"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> ForRemove([NotNull] ICheckConstraint sequence);
     }
 }

@@ -128,6 +128,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Sql);
         }
 
+        public override void CreateCheckConstraintOperation_with_name()
+        {
+            base.CreateCheckConstraintOperation_with_name();
+            
+            Assert.Equal(
+                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"CK_People_DriverLicense\" CHECK (DriverLicense_Number > 0);"
+                + EOL,
+                Sql);
+        }
+        
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             base.AlterSequenceOperation_with_minValue_and_maxValue();
@@ -212,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 "    \"SSN\" char(11) NULL," + EOL +
                 "    PRIMARY KEY (\"Id\")," + EOL +
                 "    UNIQUE (\"SSN\")," + EOL +
+                "    CHECK (SSN > 0)," + EOL +
                 "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
                 ");" + EOL,
                 Sql);
@@ -268,6 +279,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Assert.Equal(
                 "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"AK_People_SSN\";" + EOL,
+                Sql);
+        }
+
+        public override void DropCheckConstraintOperation()
+        {
+            base.DropCheckConstraintOperation();
+
+            Assert.Equal(
+                "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"CK_People_SSN\";" + EOL,
                 Sql);
         }
 

@@ -255,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
+                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     Assert.IsType<CreateIndexOperation>(upOps[2]);
@@ -723,6 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "Id", "MouseId", "BoneId" }, createTableOperation.Columns.Select(c => c.Name));
                     Assert.Equal(0, createTableOperation.ForeignKeys.Count);
                     Assert.Equal(0, createTableOperation.UniqueConstraints.Count);
+                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
                 },
                 downOps =>
                 {
@@ -2276,6 +2278,149 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Rook", addOperation.Table);
                     Assert.Equal("AK_Rook_AlternateId", addOperation.Name);
                     Assert.Equal(new[] { "AlternateRookId" }, addOperation.Columns);
+                });
+        }
+
+        [Fact]
+        public void Add_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Flamingo",
+                    x =>
+                    {
+                        x.ToTable("Flamingo", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                    }),
+                target => target.Entity(
+                    "Flamingo",
+                    x =>
+                    {
+                        x.ToTable("Flamingo", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Flamingo", operation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
+                    Assert.Equal("AlternateId > Id", operation.ConstraintSql);
+                });
+        }
+
+        [Fact]
+        public void Drop_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Penguin",
+                    x =>
+                    {
+                        x.ToTable("Penguin", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Penguin",
+                    x =>
+                    {
+                        x.ToTable("Penguin", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Penguin", operation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Rename_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Pelican",
+                    x =>
+                    {
+                        x.ToTable("Pelican", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Pelican",
+                    x =>
+                    {
+                        x.ToTable("Pelican", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo", "AlternateId > Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", dropOperation.Schema);
+                    Assert.Equal("Pelican", dropOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+
+                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    Assert.Equal("dbo", createOperation.Schema);
+                    Assert.Equal("Pelican", createOperation.Table);
+                    Assert.Equal("CK_Flamingo", createOperation.Name);
+                    Assert.Equal("AlternateId > Id", createOperation.ConstraintSql);
+                });
+        }
+
+        [Fact]
+        public void Alter_check_constraint_expression()
+        {
+            Execute(
+                source => source.Entity(
+                    "Rook",
+                    x =>
+                    {
+                        x.ToTable("Rook", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Rook",
+                    x =>
+                    {
+                        x.ToTable("Rook", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId < Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", dropOperation.Schema);
+                    Assert.Equal("Rook", dropOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+
+                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    Assert.Equal("dbo", createOperation.Schema);
+                    Assert.Equal("Rook", createOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);
+                    Assert.Equal("AlternateId < Id", createOperation.ConstraintSql);
                 });
         }
 

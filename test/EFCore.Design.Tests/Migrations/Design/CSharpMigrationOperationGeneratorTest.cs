@@ -404,6 +404,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [Fact]
+        public void CreateCheckConstraint_required_args()
+        {
+            Test(
+                new CreateCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Table = "Post",
+                    ConstraintSql = "AltId1 > AltId2"
+                },
+                "mb.CreateCheckConstraint(" + _eol +
+                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    constraintSql: \"AltId1 > AltId2\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("AltId1 > AltId2", o.ConstraintSql);
+                });
+        }
+
+        [Fact]
+        public void CreateCheckConstraint_all_args()
+        {
+            Test(
+                new CreateCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Schema = "dbo",
+                    Table = "Post",
+                    ConstraintSql = "AltId1 > AltId2"
+                },
+                "mb.CreateCheckConstraint(" + _eol +
+                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    constraintSql: \"AltId1 > AltId2\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("AltId1 > AltId2", o.ConstraintSql);
+                });
+        }
+        
+        [Fact]
         public void AlterColumnOperation_required_args()
         {
             Test(
@@ -1542,6 +1589,112 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [Fact]
+        public void CreateTableOperation_CheckConstraints_required_args()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "AltId1",
+                            ClrType = typeof(int)
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "AltId2",
+                            ClrType = typeof(int)
+                        }
+                    },
+                    CheckConstraints =
+                    {
+                        new CreateCheckConstraintOperation
+                        {
+                            Name = "CK_Post_AltId1_AltId2",
+                            Table = "Post",
+                            ConstraintSql = "AltId1 > AltId2"
+                        }
+                    }
+                },
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
+                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");" + _eol +
+                "    });",
+                o =>
+                {
+                    Assert.Equal(1, o.CheckConstraints.Count);
+
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.CheckConstraints[0].Name);
+                    Assert.Equal("Post", o.CheckConstraints[0].Table);
+                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].ConstraintSql);
+                });
+        }
+
+        [Fact]
+        public void CreateTableOperation_ChecksConstraints_all_args()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Schema = "dbo",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "AltId1",
+                            ClrType = typeof(int)
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "AltId2",
+                            ClrType = typeof(int)
+                        }
+                    },
+                    CheckConstraints =
+                    {
+                        new CreateCheckConstraintOperation
+                        {
+                            Name = "CK_Post_AltId1_AltId2",
+                            Schema = "dbo",
+                            Table = "Post",
+                            ConstraintSql = "AltId1 > AltId2"
+                        }
+                    }
+                },
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
+                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");" + _eol +
+                "    });",
+                o =>
+                {
+                    Assert.Equal(1, o.CheckConstraints.Count);
+
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.CheckConstraints[0].Name);
+                    Assert.Equal("dbo", o.CheckConstraints[0].Schema);
+                    Assert.Equal("Post", o.CheckConstraints[0].Table);
+                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].ConstraintSql);
+                });
+        }
+
+        [Fact]
         public void DropColumnOperation_required_args()
         {
             Test(
@@ -1818,6 +1971,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                });
+        }
+
+        [Fact]
+        public void DropCheckConstraintOperation_required_args()
+        {
+            Test(
+                new DropCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Table = "Post"
+                },
+                "mb.DropCheckConstraint(" + _eol +
+                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
+                "    table: \"Post\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
+                    Assert.Equal("Post", o.Table);
+                });
+        }
+
+        [Fact]
+        public void DropCheckConstraintOperation_all_args()
+        {
+            Test(
+                new DropCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropCheckConstraint(" + _eol +
+                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\");",
+                o =>
+                {
+                    Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });

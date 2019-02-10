@@ -628,6 +628,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Builds an <see cref="CreateCheckConstraintOperation" /> to create a new check constraint.
+        /// </summary>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="table"> The name of the table for the check constraint. </param>
+        /// <param name="constraintSql"> The constraint sql for the check constraint. </param>
+        /// <param name="schema"> The schema that contains the check constraint, or <c>null</c> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<CreateCheckConstraintOperation> CreateCheckConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string constraintSql,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new CreateCheckConstraintOperation
+            {
+                Schema = schema,
+                Name = name,
+                Table = table,
+                ConstraintSql = constraintSql
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<CreateCheckConstraintOperation>(operation);
+        }
+
+        /// <summary>
         ///     Builds an <see cref="CreateTableOperation" /> to create a new table.
         /// </summary>
         /// <typeparam name="TColumns"> Type of a typically anonymous type for building columns. </typeparam>
@@ -819,6 +847,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Operations.Add(operation);
 
             return new OperationBuilder<DropSequenceOperation>(operation);
+        }
+
+        /// <summary>
+        ///     Builds an <see cref="DropCheckConstraintOperation" /> to drop an existing check constraint.
+        /// </summary>
+        /// <param name="name"> The name of the check constraint to drop. </param>
+        /// <param name="table"> The name of the table for the check constraint to drop. </param>
+        /// <param name="schema"> The schema that contains the check constraint, or <c>null</c> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<DropCheckConstraintOperation> DropCheckConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new DropCheckConstraintOperation
+            {
+                Name = name,
+                Table = table,
+                Schema = schema
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropCheckConstraintOperation>(operation);
         }
 
         /// <summary>

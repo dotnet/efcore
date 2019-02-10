@@ -158,6 +158,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         }
 
         /// <summary>
+        ///     Configures a check constraint on the table.
+        /// </summary>
+        /// <param name="name"> The constraint name. </param>
+        /// <param name="constraintSql"> The sql expression used in the CHECK constraint. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual OperationBuilder<CreateCheckConstraintOperation> CheckConstraint(
+            [NotNull] string name,
+            [NotNull] string constraintSql)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(constraintSql, nameof(constraintSql));
+
+            var operation = new CreateCheckConstraintOperation
+            {
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                ConstraintSql = constraintSql
+            };
+            Operation.CheckConstraints.Add(operation);
+
+            return new OperationBuilder<CreateCheckConstraintOperation>(operation);
+        }
+
+        /// <summary>
         ///     Annotates the operation with the given name/value pair.
         /// </summary>
         /// <param name="name"> The annotation name. </param>
