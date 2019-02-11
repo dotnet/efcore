@@ -9,8 +9,16 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     A service that can be injected into entities to give them the capability
-    ///     of loading navigation properties automatically the first time they are accessed.
+    ///     <para>
+    ///         A service that can be injected into entities to give them the capability
+    ///         of loading navigation properties automatically the first time they are accessed.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is 'ServiceLifetime.Scoped'. This means that each
+    ///         'DbContext' instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface ILazyLoader
     {

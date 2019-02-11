@@ -4,9 +4,22 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     <para>
+    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///         directly from your code. This API may change or be removed in future releases.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    /// </summary>
     public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
     {
         // This methods are non-deterministic and result varies based on time of running the query.
@@ -39,6 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly MethodInfo _randomNextTwoArgs
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override bool IsEvaluatableExpression(Expression expression)
         {
             switch (expression)
