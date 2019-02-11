@@ -8,12 +8,20 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
     /// <summary>
-    ///     A base composite method call translator that dispatches to multiple specialized
-    ///     method call translators.
+    ///     <para>
+    ///         A base composite method call translator that dispatches to multiple specialized
+    ///         method call translators.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
+    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///     </para>
     /// </summary>
     public abstract class RelationalCompositeMethodCallTranslator : ICompositeMethodCallTranslator
     {

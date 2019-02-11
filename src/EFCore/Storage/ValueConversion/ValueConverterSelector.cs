@@ -8,15 +8,23 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 #nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     A registry of <see cref="ValueConverter" /> instances that can be used to find
-    ///     the preferred converter to use to convert to and from a given model type
-    ///     to a type that the database provider supports.
+    ///     <para>
+    ///         A registry of <see cref="ValueConverter" /> instances that can be used to find
+    ///         the preferred converter to use to convert to and from a given model type
+    ///         to a type that the database provider supports.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
+    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///     </para>
     /// </summary>
     public class ValueConverterSelector : IValueConverterSelector
     {
