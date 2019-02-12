@@ -66,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] ITypeMappingSource typeMappingSource,
             [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
             [CanBeNull] IParameterBindingFactories parameterBindingFactories,
-            [CanBeNull] IMemberClassifier memberClassifier,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            [CanBeNull] IMemberClassifier memberClassifier)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -99,9 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             ConstructorBindingFactory = constructorBindingFactory;
-
-            Logger = logger
-                     ?? new DiagnosticsLogger<DbLoggerCategory.Model>(new LoggerFactory(), new LoggingOptions(), new DiagnosticListener(""));
         }
 
         /// <summary>
@@ -129,19 +125,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public IConstructorBindingFactory ConstructorBindingFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
             => new CoreConventionSetBuilderDependencies(
-                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger);
+                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -150,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
             => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger);
+                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -159,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
             => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, logger);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -168,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
             => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier, Logger);
+                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -177,6 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IMemberClassifier memberClassifier)
             => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier, Logger);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier);
     }
 }

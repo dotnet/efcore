@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,8 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
-            [NotNull] Expression arguments)
-            : base(dependencies, selectExpression)
+            [NotNull] Expression arguments,
+            DiagnosticsLoggers loggers)
+            : base(dependencies, selectExpression, loggers)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(arguments, nameof(arguments));

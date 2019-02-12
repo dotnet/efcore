@@ -48,26 +48,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
         {
-            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention();
+            var logger = Dependencies.Logger;
+
+            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(logger);
 
             ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
-            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention();
+            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(logger);
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
-            var sharedTableConvention = new SharedTableConvention();
+            var sharedTableConvention = new SharedTableConvention(logger);
 
-            var discriminatorConvention = new DiscriminatorConvention();
-            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
+            var discriminatorConvention = new DiscriminatorConvention(logger);
+            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(
-                new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
+                new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sharedTableConvention);
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 
-            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());
+            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));
 
             return conventionSet;
         }

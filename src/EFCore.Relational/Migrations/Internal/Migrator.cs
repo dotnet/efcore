@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     _databaseCreator.Create();
                 }
 
-                var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());
+                var command = _rawSqlCommandBuilder.Build(
+                    _historyRepository.GetCreateScript());
 
                 command.ExecuteNonQuery(_connection);
             }
@@ -124,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     await _databaseCreator.CreateAsync(cancellationToken);
                 }
 
-                var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());
+                var command = _rawSqlCommandBuilder.Build(
+                    _historyRepository.GetCreateScript());
 
                 await command.ExecuteNonQueryAsync(_connection, cancellationToken: cancellationToken);
             }

@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return model;
         }
 
-        protected virtual ConventionSet GetConventionSet() =>
-            InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
+        protected virtual ConventionSet GetConventionSet()
+        {
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
+
+            return contextServices.GetRequiredService<ICoreConventionSetBuilder>()
+                .CreateConventionSet(
+                    new DiagnosticsLoggers(
+                        contextServices.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>()));
+        }
 
         [Table("ProductTable")]
         protected class Product

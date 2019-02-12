@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -253,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention().Apply(foreignKey.Builder, navigation);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(foreignKey.Builder, navigation);
 
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
@@ -411,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = foreignKey.HasPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention().Apply(foreignKey.Builder, navigation);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(foreignKey.Builder, navigation);
 
             return navigation;
         }

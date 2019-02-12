@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -21,8 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public TableNameFromDbSetConvention([CanBeNull] DbContext context, [CanBeNull] IDbSetFinder setFinder)
-            => _sets = setFinder?.CreateClrTypeDbSetMapping(context);
+        public TableNameFromDbSetConvention(
+            [CanBeNull] DbContext context,
+            [CanBeNull] IDbSetFinder setFinder,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        {
+            _sets = setFinder?.CreateClrTypeDbSetMapping(context);
+            Logger = logger;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

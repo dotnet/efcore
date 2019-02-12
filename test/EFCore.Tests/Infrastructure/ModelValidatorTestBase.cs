@@ -217,8 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             conventionSet.ModelBuiltConventions.Add(
                 new ValidatingConvention(
-                    TestHelpers.CreateModelValidator(
-                        CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled))));
+                    TestHelpers.CreateModelValidator(),
+                    new Diagnostics.DiagnosticsLoggers(
+                        CreateModelLogger(sensitiveDataLoggingEnabled),
+                        CreateValidationLogger(sensitiveDataLoggingEnabled))));
 
             return new ModelBuilder(conventionSet);
         }

@@ -149,9 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 IRelationalTypeMappingSource typeMappingSource)
-                : base(logger, typeMappingSource)
+                : base(typeMappingSource)
             {
             }
 

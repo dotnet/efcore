@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -203,15 +204,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
         {
             var contextServices = CreateContextServices();
+            var loggers = new DiagnosticsLoggers(
+                contextServices.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(),
+                contextServices.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>());
 
-            var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
+            var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>()
+                .CreateConventionSet(loggers);
+
             conventionSet = new CompositeConventionSetBuilder(
                     contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                 .AddConventions(conventionSet);
 
             if (!skipValidation)
             {
-                conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(contextServices.GetService<IModelValidator>()));
+                conventionSet.ModelBuiltConventions.Add(
+                    new ValidatingConvention(
+                        contextServices.GetService<IModelValidator>(),
+                        loggers));
             }
 
             return new ModelBuilder(conventionSet);
@@ -222,23 +231,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
             var contextServices = CreateContextServices();
+            var loggers = new DiagnosticsLoggers(modelLogger, validationLogger);
 
             var conventionSet = new CoreConventionSetBuilder(
                     contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                .CreateConventionSet();
+                .CreateConventionSet(loggers);
+
             conventionSet = new CompositeConventionSetBuilder(
                     contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                 .AddConventions(conventionSet);
 
-            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(CreateModelValidator(modelLogger, validationLogger)));
+            conventionSet.ModelBuiltConventions.Add(
+                new ValidatingConvention(
+                    CreateModelValidator(),
+                    loggers));
 
             return new ModelBuilder(conventionSet);
         }
 
-        public virtual IModelValidator CreateModelValidator(
-            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-            => new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger));
+        public virtual IModelValidator CreateModelValidator()
+            => new ModelValidator(new ModelValidatorDependencies());
 
         public InternalEntityEntry CreateInternalEntry<TEntity>(
             IModel model, EntityState entityState = EntityState.Detached, TEntity entity = null)

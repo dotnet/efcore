@@ -25,19 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var factory = new SqlServerModificationCommandBatchFactory(
-                new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    typeMapper),
-                new SqlServerSqlGenerationHelper(
-                    new RelationalSqlGenerationHelperDependencies()),
-                new SqlServerUpdateSqlGenerator(
-                    new UpdateSqlGeneratorDependencies(
-                        new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()),
-                        typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
+                new ModificationCommandBatchFactoryDependencies(
+                    new RelationalCommandBuilderFactory(
+                        typeMapper),
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerUpdateSqlGenerator(
+                        new UpdateSqlGeneratorDependencies(
+                            new SqlServerSqlGenerationHelper(
+                                new RelationalSqlGenerationHelperDependencies()),
+                            typeMapper)),
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            typeMapper, new CoreSingletonOptions())),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 optionsBuilder.Options);
 
             var batch = factory.Create();
@@ -57,19 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var factory = new SqlServerModificationCommandBatchFactory(
-                new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    typeMapper),
-                new SqlServerSqlGenerationHelper(
-                    new RelationalSqlGenerationHelperDependencies()),
-                new SqlServerUpdateSqlGenerator(
-                    new UpdateSqlGeneratorDependencies(
-                        new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()),
-                        typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
+                new ModificationCommandBatchFactoryDependencies(
+                    new RelationalCommandBuilderFactory(
+                        typeMapper),
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerUpdateSqlGenerator(
+                        new UpdateSqlGeneratorDependencies(
+                            new SqlServerSqlGenerationHelper(
+                                new RelationalSqlGenerationHelperDependencies()),
+                            typeMapper)),
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            typeMapper, new CoreSingletonOptions())),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 optionsBuilder.Options);
 
             var batch = factory.Create();

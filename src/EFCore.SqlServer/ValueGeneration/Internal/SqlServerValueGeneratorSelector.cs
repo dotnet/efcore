@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     {
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
-
         private readonly ISqlServerConnection _connection;
+        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -36,14 +37,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         public SqlServerValueGeneratorSelector(
             [NotNull] ValueGeneratorSelectorDependencies dependencies,
             [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ISqlServerConnection connection)
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
             : base(dependencies)
         {
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));
             Check.NotNull(connection, nameof(connection));
+            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
             _sequenceFactory = sequenceFactory;
             _connection = connection;
+            _rawSqlCommandBuilder = rawSqlCommandBuilder;
         }
 
         /// <summary>
@@ -63,7 +67,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             return property.GetValueGeneratorFactory() == null
                    && property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property, _connection), _connection)
+                ? _sequenceFactory.Create(
+                    property,
+                    Cache.GetOrAddSequenceState(property, _connection),
+                    _connection,
+                    _rawSqlCommandBuilder)
                 : base.Select(property, entityType);
         }
 

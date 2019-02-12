@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         private const string QueryFilterPrefix = "ef_filter";
@@ -31,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private IDictionary<Expression, bool> _evaluatableExpressions;
         private IQueryProvider _currentQueryProvider;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ParameterExtractingExpressionVisitor(
             IEvaluatableExpressionFilter evaluatableExpressionFilter,
             IParameterValues parameterValues,
@@ -52,6 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression ExtractParameters(Expression expression)
         {
             var oldEvaluatableExpressions = _evaluatableExpressions;
@@ -68,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression Visit(Expression expression)
         {
             if (expression == null)
@@ -84,6 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return base.Visit(expression);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual bool PreserveConvertNode(Expression expression)
         {
             if (expression is UnaryExpression unaryExpression
@@ -108,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             if (!binaryExpression.IsLogicalOperation())
@@ -151,6 +175,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                && ((constantValue && nodeType == ExpressionType.OrElse)
                    || (!constantValue && nodeType == ExpressionType.AndAlso));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if (constantExpression.Value is IDetachableContext detachableContext)

@@ -32,17 +32,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerModificationCommandBatch(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            // ReSharper disable once SuggestBaseTypeForParameter
-            [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
             int? maxBatchSize)
-            : base(
-                commandBuilderFactory,
-                sqlGenerationHelper,
-                updateSqlGenerator,
-                valueBufferFactoryFactory)
+            : base(dependencies)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

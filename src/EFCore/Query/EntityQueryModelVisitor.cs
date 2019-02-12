@@ -160,10 +160,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.Logger.BeginScope(this))
+            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+
+            using (logger.Logger.BeginScope(this))
             {
                 QueryCompilationContext.IsAsyncQuery = false;
-                QueryCompilationContext.Logger.QueryModelCompiling(queryModel);
+                logger.QueryModelCompiling(queryModel);
 
                 _blockTaskExpressions = false;
 
@@ -195,10 +197,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.Logger.BeginScope(this))
+            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+
+            using (logger.Logger.BeginScope(this))
             {
                 QueryCompilationContext.IsAsyncQuery = true;
-                QueryCompilationContext.Logger.QueryModelCompiling(queryModel);
+                logger.QueryModelCompiling(queryModel);
 
                 _blockTaskExpressions = false;
 
@@ -229,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
                     _expression,
                     Expression.Constant(QueryCompilationContext.ContextType),
-                    Expression.Constant(QueryCompilationContext.Logger),
+                    Expression.Constant(QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()),
                     QueryContextParameter);
 
         /// <summary>
@@ -290,6 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
+            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+
             queryModel.TransformExpressions(
                 new DuplicateQueryModelIdentifyingExpressionVisitor(_queryCompilationContext).Visit);
 
@@ -301,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var eagerLoadingExpressionVisitor = _eagerLoadingExpressionVisitorFactory
                 .Create(_queryCompilationContext, _querySourceTracingExpressionVisitorFactory);
             eagerLoadingExpressionVisitor.VisitQueryModel(queryModel);
-            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger, this).VisitQueryModel(queryModel);
+            new NondeterministicResultCheckingVisitor(logger, this).VisitQueryModel(queryModel);
 
             OnBeforeNavigationRewrite(queryModel);
 
@@ -347,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Log results
 
-            QueryCompilationContext.Logger.QueryModelOptimized(queryModel);
+            logger.QueryModelOptimized(queryModel);
         }
 
         /// <summary>
@@ -738,7 +744,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                QueryCompilationContext.Logger.QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
+                QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                    .QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
             }
         }
 

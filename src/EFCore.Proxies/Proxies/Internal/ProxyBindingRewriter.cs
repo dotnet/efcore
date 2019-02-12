@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -36,9 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         public ProxyBindingRewriter(
             [NotNull] IProxyFactory proxyFactory,
             [NotNull] IConstructorBindingFactory bindingFactory,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ProxiesOptionsExtension options)
         {
-            _directBindingConvention = new ConstructorBindingConvention(bindingFactory);
+            _directBindingConvention = new ConstructorBindingConvention(bindingFactory, logger);
             _proxyFactory = proxyFactory;
             _options = options;
         }

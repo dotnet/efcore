@@ -15,25 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class MigrationCommandListBuilder
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
+        private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;
 
         /// <summary>
         ///     Creates a new instance of the builder.
         /// </summary>
-        /// <param name="commandBuilderFactory">
-        ///     A factory used to create the underlying <see cref="IRelationalCommandBuilder" /> which
-        ///     is used to build commands.
-        /// </param>
-        /// s.
-        public MigrationCommandListBuilder([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+        /// <param name="dependencies"> Dependencies needed for SQL generations. </param>
+        public MigrationCommandListBuilder(
+            [NotNull] MigrationsSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            _commandBuilder = commandBuilderFactory.Create();
+            _dependencies = dependencies;
+            _commandBuilder = dependencies.CommandBuilderFactory.Create(dependencies.Logger);
         }
 
         /// <summary>
@@ -55,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (_commandBuilder.GetLength() != 0)
             {
                 _commands.Add(new MigrationCommand(_commandBuilder.Build(), suppressTransaction));
-                _commandBuilder = _commandBuilderFactory.Create();
+                _commandBuilder = _dependencies.CommandBuilderFactory.Create(_dependencies.Logger);
             }
 
             return this;

@@ -17,15 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class RequiredNavigationAttributeConvention : NavigationAttributeNavigationConvention<RequiredAttribute>
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RequiredNavigationAttributeConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            : base(logger)
         {
-            _logger = logger;
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse.Name);
                     if (attributes.Any())
                     {
-                        _logger.RequiredAttributeOnBothNavigations(navigation, inverse);
+                        Logger.RequiredAttributeOnBothNavigations(navigation, inverse);
                         return relationshipBuilder;
                     }
                 }
@@ -68,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return relationshipBuilder;
                 }
 
-                _logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
+                Logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 

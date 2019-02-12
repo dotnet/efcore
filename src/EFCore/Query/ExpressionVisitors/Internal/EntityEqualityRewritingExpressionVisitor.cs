@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
                 // log warning suggesting to use Any() instead.
-                _queryCompilationContext.Logger
+                _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
                     .PossibleUnintendedCollectionNavigationNullComparisonWarning(properties);
 
                 return Visit(
@@ -248,7 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (leftNavigation.Equals(rightNavigation))
                 {
                     // Log a warning that comparing 2 collections causes reference comparison
-                    _queryCompilationContext.Logger.PossibleUnintendedReferenceComparisonWarning(left, right);
+                    _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                        .PossibleUnintendedReferenceComparisonWarning(left, right);
 
                     return Visit(
                         Expression.MakeBinary(

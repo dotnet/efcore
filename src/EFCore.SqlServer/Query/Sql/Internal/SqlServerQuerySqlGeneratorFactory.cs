@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -41,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override IQuerySqlGenerator CreateDefault(SelectExpression selectExpression)
+        public override IQuerySqlGenerator CreateDefault(
+            SelectExpression selectExpression,
+            DiagnosticsLoggers loggers)
             => new SqlServerQuerySqlGenerator(
-                Dependencies,
-                Check.NotNull(selectExpression, nameof(selectExpression)),
-                _sqlServerOptions.RowNumberPagingEnabled);
+                Dependencies, selectExpression, _sqlServerOptions.RowNumberPagingEnabled, loggers);
     }
 }

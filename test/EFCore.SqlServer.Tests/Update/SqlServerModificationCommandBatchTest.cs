@@ -22,19 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var batch = new SqlServerModificationCommandBatch(
-                new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    typeMapper),
-                new SqlServerSqlGenerationHelper(
-                    new RelationalSqlGenerationHelperDependencies()),
-                new SqlServerUpdateSqlGenerator(
-                    new UpdateSqlGeneratorDependencies(
-                        new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()),
-                        typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
+                new ModificationCommandBatchFactoryDependencies(
+                    new RelationalCommandBuilderFactory(
+                        typeMapper),
+                    new SqlServerSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerUpdateSqlGenerator(
+                        new UpdateSqlGeneratorDependencies(
+                            new SqlServerSqlGenerationHelper(
+                                new RelationalSqlGenerationHelperDependencies()),
+                            typeMapper)),
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            typeMapper, new CoreSingletonOptions())),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 1);
 
             Assert.True(

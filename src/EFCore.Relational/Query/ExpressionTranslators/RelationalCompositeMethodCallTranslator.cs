@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                 = new List<IMethodCallTranslator>
                 {
                     new EnumHasFlagTranslator(),
-                    new EqualsTranslator(dependencies.Logger),
+                    new EqualsTranslator(),
                     new GetValueOrDefaultTranslator(),
                     new IsNullOrEmptyTranslator(),
                     new LikeTranslator()
@@ -62,13 +63,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
         /// <param name="model"> The current model. </param>
+        /// <param name="logger"> The logger. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
-            => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
+        public virtual Expression Translate(
+            MethodCallExpression methodCallExpression,
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression, logger)
                ?? _plugins.Concat(_methodCallTranslators)
-                   .Select(translator => translator.Translate(methodCallExpression))
+                   .Select(translator => translator.Translate(methodCallExpression, logger))
                    .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 
         /// <summary>

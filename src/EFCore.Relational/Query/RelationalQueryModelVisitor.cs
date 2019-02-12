@@ -86,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ParentQueryModelVisitor = parentQueryModelVisitor;
 
             _storeMaterializerExpression
-                = CoreStrings.LogQueryExecutionPlanned.GetLogBehavior(QueryCompilationContext.Logger) != WarningBehavior.Ignore;
+                = CoreStrings.LogQueryExecutionPlanned.GetLogBehavior(
+                      QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()) != WarningBehavior.Ignore;
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     TypedRelationalValueBufferFactoryFactory.DataReaderParameter,
                                     FastQueryMaterializerCreatingVisitor.DbContextParameter),
                                 Expression.Constant(QueryCompilationContext.ContextType),
-                                Expression.Constant(QueryCompilationContext.Logger));
+                                Expression.Constant(QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()));
                     }
                 }
             }
@@ -1484,7 +1485,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModelElement, nameof(queryModelElement));
 
-            QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, queryModelElement);
+            QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                .QueryClientEvaluationWarning(queryModel, queryModelElement);
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase

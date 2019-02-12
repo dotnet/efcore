@@ -613,10 +613,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             // if method is EFIndexer then we need to skip attempting to translate
             // the method call and fall through to binding the expression below
             // (this supports joining on an indexed property)
+            var compilationContext = _queryModelVisitor.QueryCompilationContext;
+
             var operand =
                 methodCallExpression.Method.IsEFIndexer()
                     ? null
-                    : _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                    : compilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
                         ? methodCallExpression.Object
                         : Visit(methodCallExpression.Object);
 
@@ -642,7 +644,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             ? Expression.Call(operand, methodCallExpression.Method, arguments)
                             : Expression.Call(methodCallExpression.Method, arguments);
 
-                    var translatedExpression = _methodCallTranslator.Translate(boundExpression, _queryModelVisitor.QueryCompilationContext.Model);
+                    var translatedExpression = _methodCallTranslator.Translate(
+                        boundExpression,
+                        compilationContext.Model,
+                        compilationContext.Loggers.GetLogger<DbLoggerCategory.Query>());
 
                     if (translatedExpression != null)
                     {

@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,23 +38,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void Validate(IModel model)
+        public override void Validate(IModel model, DiagnosticsLoggers loggers)
         {
-            base.Validate(model);
+            base.Validate(model, loggers);
 
-            ValidateNoSchemas(model);
-            ValidateNoSequences(model);
+            ValidateNoSchemas(model, loggers);
+            ValidateNoSequences(model, loggers);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateNoSchemas([NotNull] IModel model)
+        protected virtual void ValidateNoSchemas([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
+            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
+
             foreach (var entityType in model.GetEntityTypes().Where(e => e.Relational().Schema != null))
             {
-                Dependencies.Logger.SchemaConfiguredWarning(entityType, entityType.Relational().Schema);
+                logger.SchemaConfiguredWarning(entityType, entityType.Relational().Schema);
             }
         }
 
@@ -61,11 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateNoSequences([NotNull] IModel model)
+        protected virtual void ValidateNoSequences([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
+            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
+
             foreach (var sequence in model.Relational().Sequences)
             {
-                Dependencies.Logger.SequenceConfiguredWarning(sequence);
+                logger.SequenceConfiguredWarning(sequence);
             }
         }
     }

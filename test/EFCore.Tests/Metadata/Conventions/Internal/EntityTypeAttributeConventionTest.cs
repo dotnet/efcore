@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
 
-            new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
+            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
 
             Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
-            new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
+            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
 
             Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 
@@ -39,10 +40,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         ///     Translates the given method call expression.
         /// </summary>
         /// <param name="methodCallExpression">The method call expression.</param>
+        /// <param name="logger"> The logger. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(
+            MethodCallExpression methodCallExpression,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out var datePart))
             {

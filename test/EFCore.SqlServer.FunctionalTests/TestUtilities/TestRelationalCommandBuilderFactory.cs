@@ -14,19 +14,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         public TestRelationalCommandBuilderFactory(
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             IRelationalTypeMappingSource typeMappingSource)
         {
-            _logger = logger;
             _typeMappingSource = typeMappingSource;
         }
 
-        public virtual IRelationalCommandBuilder Create()
-            => new TestRelationalCommandBuilder(_logger, _typeMappingSource);
+        public virtual IRelationalCommandBuilder Create(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            => new TestRelationalCommandBuilder(logger, _typeMappingSource);
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {

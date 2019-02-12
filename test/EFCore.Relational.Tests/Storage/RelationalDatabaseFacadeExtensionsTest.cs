@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -339,10 +340,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
             private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
-            public TestRawSqlCommandBuilder(IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+            public TestRawSqlCommandBuilder(
+                IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 _commandBuilderFactory = relationalCommandBuilderFactory;
+                _logger = logger;
             }
 
             public string Sql { get; private set; }
@@ -355,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Sql = sql;
                 Parameters = parameters;
 
-                return new RawSqlCommand(_commandBuilderFactory.Create().Build(), new Dictionary<string, object>());
+                return new RawSqlCommand(_commandBuilderFactory.Create(_logger).Build(), new Dictionary<string, object>());
             }
         }
     }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,27 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="commandBuilderFactory"> The builder to build commands. </param>
-        /// <param name="sqlGenerationHelper"> A helper for SQL generation. </param>
-        /// <param name="updateSqlGenerator"> A SQL generator for insert, update, and delete commands. </param>
-        /// <param name="valueBufferFactoryFactory">
-        ///     A factory for creating factories for creating <see cref="ValueBuffer" />s to be used when reading from the data reader.
-        /// </param>
-        protected ReaderModificationCommandBatch(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+        /// <param name="dependencies"> Service dependencies. </param>
+        protected ReaderModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            SqlGenerationHelper = sqlGenerationHelper;
-            UpdateSqlGenerator = updateSqlGenerator;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _commandBuilderFactory = dependencies.CommandBuilderFactory;
+            SqlGenerationHelper = dependencies.SqlGenerationHelper;
+            UpdateSqlGenerator = dependencies.UpdateSqlGenerator;
+            _valueBufferFactoryFactory = dependencies.ValueBufferFactoryFactory;
+            Logger = dependencies.Logger;
         }
 
         /// <summary>
@@ -74,6 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     A SQL generator for insert, update, and delete commands.
         /// </summary>
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
+
+        /// <summary>
+        ///     A logger.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
@@ -201,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual RawSqlCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
-                .Create()
+                .Create(Logger)
                 .Append(GetCommandText());
 
             var parameterValues = new Dictionary<string, object>(GetParameterCount());

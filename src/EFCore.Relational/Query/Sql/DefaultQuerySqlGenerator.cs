@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -64,17 +65,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="selectExpression"> The select expression. </param>
+        /// <param name="loggers"> Some loggers. </param>
         protected DefaultQuerySqlGenerator(
             [NotNull] QuerySqlGeneratorDependencies dependencies,
-            [NotNull] SelectExpression selectExpression)
-
+            [NotNull] SelectExpression selectExpression,
+            DiagnosticsLoggers loggers)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(loggers, nameof(loggers));
 
             Dependencies = dependencies;
             SelectExpression = selectExpression;
+            Loggers = loggers;
         }
+
+        public virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Whether or not the generated SQL could have out-of-order projection columns.
@@ -129,7 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _relationalCommandBuilder = Dependencies.CommandBuilderFactory.Create();
+            _relationalCommandBuilder = Dependencies.CommandBuilderFactory.Create(
+                Loggers.GetLogger<DbLoggerCategory.Database.Command>());
+
             _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
 
             _parametersValues = parameterValues;
@@ -1680,7 +1688,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (_valueConverterWarningsEnabled
                 && typeMapping.Converter != null)
             {
-                Dependencies.Logger.ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
+                Loggers.GetLogger<DbLoggerCategory.Query>()
+                    .ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
             }
         }
 

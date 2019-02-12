@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ValueGenerator Create(
             [NotNull] IProperty property,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
-            [NotNull] ISqlServerConnection connection);
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder);
     }
 }

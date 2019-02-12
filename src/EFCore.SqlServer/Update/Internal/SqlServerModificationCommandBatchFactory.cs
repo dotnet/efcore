@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,10 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
     /// </summary>
     public class SqlServerModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly ISqlServerUpdateSqlGenerator _updateSqlGenerator;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly ModificationCommandBatchFactoryDependencies _dependencies;
         private readonly IDbContextOptions _options;
 
         /// <summary>
@@ -37,22 +33,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
             [NotNull] IDbContextOptions options)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(options, nameof(options));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerationHelper = sqlGenerationHelper;
-            _updateSqlGenerator = updateSqlGenerator;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _dependencies = dependencies;
             _options = options;
         }
 
@@ -64,12 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         {
             var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            return new SqlServerModificationCommandBatch(
-                _commandBuilderFactory,
-                _sqlGenerationHelper,
-                _updateSqlGenerator,
-                _valueBufferFactoryFactory,
-                optionsExtension?.MaxBatchSize);
+            return new SqlServerModificationCommandBatch(_dependencies, optionsExtension?.MaxBatchSize);
         }
     }
 }

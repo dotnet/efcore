@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -35,7 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return new CompositeConventionSetBuilder(
                             context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
                         .AddConventions(
-                            context.GetService<ICoreConventionSetBuilder>().CreateConventionSet());
+                            context.GetService<ICoreConventionSetBuilder>().CreateConventionSet(
+                                new DiagnosticsLoggers(
+                                    context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>())));
                 }
             }
         }

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -28,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         public SqlServerQuerySqlGenerator(
             [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] SelectExpression selectExpression,
-            bool rowNumberPagingEnabled)
-            : base(dependencies, selectExpression)
+            bool rowNumberPagingEnabled,
+            DiagnosticsLoggers loggers)
+            : base(dependencies, selectExpression, loggers)
         {
             if (rowNumberPagingEnabled)
             {

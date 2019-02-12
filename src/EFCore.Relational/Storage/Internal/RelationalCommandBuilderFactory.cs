@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
@@ -29,13 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalCommandBuilderFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            _logger = logger;
             _typeMappingSource = typeMappingSource;
         }
 
@@ -43,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IRelationalCommandBuilder Create() => CreateCore(_logger, _typeMappingSource);
+        public virtual IRelationalCommandBuilder Create(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            => CreateCore(logger, _typeMappingSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

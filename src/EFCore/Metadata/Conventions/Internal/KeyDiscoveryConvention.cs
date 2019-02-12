@@ -29,16 +29,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyOwnershipChangedConvention
     {
         private const string KeySuffix = "Id";
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public KeyDiscoveryConvention([CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        public KeyDiscoveryConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            _logger = logger;
+            Logger = logger;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 keyProperties = (List<Property>)DiscoverKeyProperties(entityType, candidateProperties);
                 if (keyProperties.Count > 1)
                 {
-                    _logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
+                    Logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
                     return entityTypeBuilder;
                 }
             }

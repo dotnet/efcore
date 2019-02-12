@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -163,12 +164,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
         {
+            var loggers = new DiagnosticsLoggers(
+                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
+                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+
             var conventionSet = new CompositeConventionSetBuilder(
                     context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                .AddConventions(
-                    context.GetService<ICoreConventionSetBuilder>().CreateConventionSet());
+                .AddConventions(context.GetService<ICoreConventionSetBuilder>()
+                    .CreateConventionSet(loggers));
 
-            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(context.GetService<IModelValidator>()));
+            conventionSet.ModelBuiltConventions.Add(
+                new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
 
             return conventionSet;
         }

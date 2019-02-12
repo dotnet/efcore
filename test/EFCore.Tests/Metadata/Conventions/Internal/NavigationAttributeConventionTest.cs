@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
-            new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(principalEntityTypeBuilder);
 
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
-            new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(principalEntityTypeBuilder);
 
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
@@ -830,7 +831,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(
-                    CreateTypeMapper()));
+                    CreateTypeMapper(),
+                    new TestLogger<DbLoggerCategory.Model>()));
 
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateLogger()));
 
@@ -848,12 +850,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private ModelBuilder CreateModelBuilder()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
+            var logger = CreateLogger();
+
             return new ModelBuilder(
                 new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                     .AddConventions(
                         new CoreConventionSetBuilder(
-                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(CreateLogger()))
-                            .CreateConventionSet()));
+                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(logger))
+                            .CreateConventionSet(
+                                new DiagnosticsLoggers(logger))));
         }
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()

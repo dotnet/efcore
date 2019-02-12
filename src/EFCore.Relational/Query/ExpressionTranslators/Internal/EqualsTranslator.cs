@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -16,26 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class EqualsTranslator : IMethodCallTranslator
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EqualsTranslator([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(logger, nameof(logger));
-
-            _logger = logger;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(
+            MethodCallExpression methodCallExpression,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(logger, nameof(logger));
 
             if (methodCallExpression.Method.Name == nameof(object.Equals)
                 && methodCallExpression.Arguments.Count == 1
@@ -45,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
                 return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
                        && methodCallExpression.Object.Type != argument.Type
-                    ? TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression)
+                    ? TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression, logger)
                     : Expression.Equal(methodCallExpression.Object, argument);
             }
 
@@ -57,14 +46,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 var right = methodCallExpression.Arguments[1].RemoveConvert();
                 return methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
                        && left.Type != right.Type
-                    ? TranslateEquals(left, right, methodCallExpression)
+                    ? TranslateEquals(left, right, methodCallExpression, logger)
                     : Expression.Equal(left, right);
             }
 
             return null;
         }
 
-        private Expression TranslateEquals(Expression left, Expression right, MethodCallExpression methodCallExpression)
+        private Expression TranslateEquals(
+            Expression left,
+            Expression right,
+            MethodCallExpression methodCallExpression,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             var unwrappedLeftType = left.Type.UnwrapNullableType();
             var unwrappedRightType = right.Type.UnwrapNullableType();
@@ -76,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     Expression.Convert(right, unwrappedRightType));
             }
 
-            _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression);
+            logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression);
 
             // Equals(object) always returns false if when comparing objects of different types
             return Expression.Constant(false);

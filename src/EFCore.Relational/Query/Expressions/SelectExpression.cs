@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -65,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
+            Loggers = queryCompilationContext.Loggers;
         }
 
         /// <summary>
@@ -94,6 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 _queryCompilationContext = null;
             }
         }
+
+        /// <summary>
+        ///     Loggers to use.
+        /// </summary>
+        protected virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Dependencies used to create a <see cref="SelectExpression" />
@@ -1455,7 +1462,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The new default query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateDefaultQuerySqlGenerator()
-            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this);
+            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this, Loggers);
 
         /// <summary>
         ///     Creates the FromSql query SQL generator.
@@ -1469,10 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string sql,
             [NotNull] Expression arguments)
             => Dependencies.QuerySqlGeneratorFactory
-                .CreateFromSql(
-                    this,
-                    Check.NotEmpty(sql, nameof(sql)),
-                    Check.NotNull(arguments, nameof(arguments)));
+                .CreateFromSql(this, sql, arguments, Loggers);
 
         /// <summary>
         ///     Convert this object into a string representation.
