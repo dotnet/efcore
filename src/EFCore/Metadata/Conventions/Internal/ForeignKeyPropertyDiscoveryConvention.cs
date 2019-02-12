@@ -30,16 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IPrimaryKeyChangedConvention,
         IModelBuiltConvention
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ForeignKeyPropertyDiscoveryConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            _logger = logger;
+            Logger = logger;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -408,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     p => !p.IsShadowProperty
                          || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
-                    _logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
+                    Logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
                 }
 
                 // Stop searching if match found, but is incompatible
@@ -654,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (conflictingShadowFk != null)
                         {
                             conflictingFkFound = true;
-                            _logger.ConflictingShadowForeignKeysWarning(conflictingShadowFk);
+                            Logger.ConflictingShadowForeignKeysWarning(conflictingShadowFk);
                         }
                     }
                 }

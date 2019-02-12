@@ -24,11 +24,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
 
-        public override IModelValidator CreateModelValidator(
-            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+        public override IModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
-                new ModelValidatorDependencies(validationLogger, modelLogger),
+                new ModelValidatorDependencies(),
                 new RelationalModelValidatorDependencies(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

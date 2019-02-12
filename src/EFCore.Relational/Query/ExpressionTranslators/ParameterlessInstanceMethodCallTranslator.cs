@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
@@ -37,10 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     Translates the given method call expression.
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="logger"> The loger. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(
+            MethodCallExpression methodCallExpression,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             if (_methodInfo.Equals(methodCallExpression.Method))
             {

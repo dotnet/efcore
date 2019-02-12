@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,10 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Creates a default query SQL generator.
         /// </summary>
         /// <param name="selectExpression"> The select expression. </param>
+        /// <param name="loggers"> Some loggers. </param>
         /// <returns>
         ///     The new default query SQL generator.
         /// </returns>
-        public abstract IQuerySqlGenerator CreateDefault(SelectExpression selectExpression);
+        public abstract IQuerySqlGenerator CreateDefault(
+            SelectExpression selectExpression,
+            DiagnosticsLoggers loggers);
 
         /// <summary>
         ///     Creates a query SQL generator for a FromSql query.
@@ -53,17 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="selectExpression"> The select expression. </param>
         /// <param name="sql"> The SQL. </param>
         /// <param name="arguments"> The arguments. </param>
+        /// <param name="loggers"> Some loggers. </param>
         /// <returns>
         ///     The query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateFromSql(
             SelectExpression selectExpression,
             string sql,
-            Expression arguments)
+            Expression arguments,
+            DiagnosticsLoggers loggers)
             => new FromSqlNonComposedQuerySqlGenerator(
-                Dependencies,
-                Check.NotNull(selectExpression, nameof(selectExpression)),
-                Check.NotEmpty(sql, nameof(sql)),
-                Check.NotNull(arguments, nameof(arguments)));
+                Dependencies, selectExpression, sql, arguments, loggers);
     }
 }

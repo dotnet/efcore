@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class InversePropertyAttributeConvention :
         NavigationAttributeEntityTypeConvention<InversePropertyAttribute>, IModelBuiltConvention
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -31,9 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public InversePropertyAttributeConvention(
             [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            : base(memberClassifier)
+            : base(memberClassifier, logger)
         {
-            _logger = logger;
         }
 
         /// <summary>
@@ -180,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
                 && ownership.PrincipalToDependent?.GetIdentifyingMemberInfo() != inverseNavigationPropertyInfo)
             {
-                _logger.NonOwnershipInverseNavigationWarning(
+                Logger.NonOwnershipInverseNavigationWarning(
                     entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     ownership.PrincipalToDependent.GetIdentifyingMemberInfo());
@@ -191,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
                 && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.GetSimpleMemberName())
             {
-                _logger.NonDefiningInverseNavigationWarning(
+                Logger.NonDefiningInverseNavigationWarning(
                     entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     entityType.DefiningEntityType.GetRuntimeProperties()[entityType.DefiningNavigationName]);
@@ -338,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             inverseNavigation.Value);
                         if (ambiguousInverse != null)
                         {
-                            _logger.MultipleInversePropertiesSameTargetWarning(
+                            Logger.MultipleInversePropertiesSameTargetWarning(
                                 new[] { Tuple.Create(referencingNavigationWithAttribute.Item1, referencingNavigationWithAttribute.Item2.ClrType), Tuple.Create(ambiguousInverse.Value.Item1, ambiguousInverse.Value.Item2.ClrType) },
                                 inverseNavigation.Key,
                                 entityType.ClrType);

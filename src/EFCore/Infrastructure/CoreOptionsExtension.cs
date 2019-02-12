@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var loggerFactory = GetLoggerFactory();
             if (loggerFactory != null)
             {
-                services.AddSingleton(loggerFactory);
+                services.AddScoped<ILoggerFactory>(_ => new ExternalLoggerFactory(loggerFactory));
             }
 
             var memoryCache = GetMemoryCache();
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private IMemoryCache GetMemoryCache()
-            => MemoryCache ?? ApplicationServiceProvider?.GetService<IMemoryCache>();
+            => MemoryCache;
 
         private ILoggerFactory GetLoggerFactory()
             => LoggerFactory ?? ApplicationServiceProvider?.GetService<ILoggerFactory>();
@@ -375,8 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_serviceProviderHash == null)
             {
-                var hashCode = GetLoggerFactory()?.GetHashCode() ?? 0L;
-                hashCode = (hashCode * 397) ^ (GetMemoryCache()?.GetHashCode() ?? 0L);
+                var hashCode = GetMemoryCache()?.GetHashCode() ?? 0L;
                 hashCode = (hashCode * 3) ^ _sensitiveDataLoggingEnabled.GetHashCode();
                 hashCode = (hashCode * 3) ^ _detailedErrorsEnabled.GetHashCode();
                 hashCode = (hashCode * 1073742113) ^ _warningsConfiguration.GetServiceProviderHashCode();
@@ -403,7 +402,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(debugInfo, nameof(debugInfo));
 
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseLoggerFactory)] = (GetLoggerFactory()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] = (GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] = _sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
             debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] = _detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);

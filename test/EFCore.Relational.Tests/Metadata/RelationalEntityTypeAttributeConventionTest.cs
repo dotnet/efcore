@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
 
-            new RelationalTableAttributeConvention().Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
 
             Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
 
-            new RelationalTableAttributeConvention().Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
 
             Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Schema);
@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 new PropertyDiscoveryConvention(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new TestLogger<DbLoggerCategory.Model>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

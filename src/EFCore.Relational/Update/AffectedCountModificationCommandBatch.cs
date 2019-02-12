@@ -27,18 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="AffectedCountModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="commandBuilderFactory"> The builder to build commands. </param>
-        /// <param name="sqlGenerationHelper"> A helper for SQL generation. </param>
-        /// <param name="updateSqlGenerator"> A SQL generator for insert, update, and delete commands. </param>
-        /// <param name="valueBufferFactoryFactory">
-        ///     A factory for creating factories for creating <see cref="ValueBuffer" />s to be used when reading from the data reader.
-        /// </param>
-        protected AffectedCountModificationCommandBatch(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
-            : base(commandBuilderFactory, sqlGenerationHelper, updateSqlGenerator, valueBufferFactoryFactory)
+        /// <param name="dependencies"> Service dependencies. </param>
+        protected AffectedCountModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+            : base(dependencies)
         {
         }
 

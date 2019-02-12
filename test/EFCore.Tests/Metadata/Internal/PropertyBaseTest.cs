@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -768,7 +769,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             try
             {
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
-                    .Validate(propertyBase.DeclaringType.Model);
+                    .Validate(propertyBase.DeclaringType.Model,
+                        new DiagnosticsLoggers(
+                            new TestLogger<DbLoggerCategory.Model>(),
+                            new TestLogger<DbLoggerCategory.Model.Validation>()));
 
                 Assert.Null(failMessage);
             }

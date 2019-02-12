@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -15,9 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     Translates the given method call expression.
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="logger"> The logger to use. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        Expression Translate([NotNull] MethodCallExpression methodCallExpression);
+        Expression Translate(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

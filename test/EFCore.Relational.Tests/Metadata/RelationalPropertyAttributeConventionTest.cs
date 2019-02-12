@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
 
-            new RelationalColumnAttributeConvention().Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
-            new RelationalColumnAttributeConvention().Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("BYTE", propertyBuilder.Metadata.Relational().ColumnType);
@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 new PropertyDiscoveryConvention(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new TestLogger<DbLoggerCategory.Model>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

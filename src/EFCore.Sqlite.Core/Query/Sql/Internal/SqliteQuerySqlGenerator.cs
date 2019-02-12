@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -22,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal
         /// </summary>
         public SqliteQuerySqlGenerator(
             [NotNull] QuerySqlGeneratorDependencies dependencies,
-            [NotNull] SelectExpression selectExpression)
-            : base(dependencies, selectExpression)
+            [NotNull] SelectExpression selectExpression,
+            DiagnosticsLoggers loggers)
+            : base(dependencies, selectExpression, loggers)
         {
         }
 

@@ -98,22 +98,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         .EnsureInitialized(serviceProvider, options);
                 }
 
-                var logger = serviceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
-
-                if (_configurations.Count == 0)
+                using (var scope = serviceProvider.CreateScope())
                 {
-                    logger.ServiceProviderCreated(serviceProvider);
-                }
-                else
-                {
-                    logger.ServiceProviderDebugInfo(
-                        debugInfo,
-                        _configurations.Values.Select(v => v.DebugInfo).ToList());
+                    var logger =
+                        scope.ServiceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
 
-                    if (_configurations.Count >= 20)
+                    if (_configurations.Count == 0)
                     {
-                        logger.ManyServiceProvidersCreatedWarning(
-                            _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                        logger.ServiceProviderCreated(serviceProvider);
+                    }
+                    else
+                    {
+                        logger.ServiceProviderDebugInfo(
+                            debugInfo,
+                            _configurations.Values.Select(v => v.DebugInfo).ToList());
+
+                        if (_configurations.Count >= 20)
+                        {
+                            logger.ManyServiceProvidersCreatedWarning(
+                                _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                        }
                     }
                 }
 

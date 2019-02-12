@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -43,22 +44,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void Validate(IModel model)
+        public override void Validate(IModel model, DiagnosticsLoggers loggers)
         {
-            base.Validate(model);
+            base.Validate(model, loggers);
 
-            ValidateDefaultDecimalMapping(model);
-            ValidateByteIdentityMapping(model);
-            ValidateNonKeyValueGeneration(model);
-            ValidateIndexIncludeProperties(model);
+            ValidateDefaultDecimalMapping(model, loggers);
+            ValidateByteIdentityMapping(model, loggers);
+            ValidateNonKeyValueGeneration(model, loggers);
+            ValidateIndexIncludeProperties(model, loggers);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model)
+        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
+            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
+
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
@@ -75,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     || (type != null
                         && ConfigurationSource.Convention.Overrides(type.GetConfigurationSource())))
                 {
-                    Dependencies.Logger.DecimalTypeDefaultWarning(property);
+                    logger.DecimalTypeDefaultWarning(property);
                 }
             }
         }
@@ -84,15 +87,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model)
+        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
+            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
+
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p => p.ClrType.UnwrapNullableType() == typeof(byte)
                          && p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
-                Dependencies.Logger.ByteIdentityColumnWarning(property);
+                logger.ByteIdentityColumnWarning(property);
             }
         }
 
@@ -100,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model)
+        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
@@ -121,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model)
+        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {
@@ -168,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void ValidateSharedTableCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
         {
             var firstMappedType = mappedTypes[0];
             var isMemoryOptimized = firstMappedType.SqlServer().IsMemoryOptimized;
@@ -185,16 +190,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            base.ValidateSharedTableCompatibility(mappedTypes, tableName);
+            base.ValidateSharedTableCompatibility(mappedTypes, tableName, loggers);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override void ValidateSharedColumnsCompatibility(IReadOnlyList<IEntityType> mappedTypes, string tableName)
+        protected override void ValidateSharedColumnsCompatibility(
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
         {
-            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName);
+            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, loggers);
 
             var identityColumns = new List<IProperty>();
             var propertyMappings = new Dictionary<string, IProperty>();
@@ -244,9 +250,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void ValidateSharedKeysCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
         {
-            base.ValidateSharedKeysCompatibility(mappedTypes, tableName);
+            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, loggers);
 
             var keyMappings = new Dictionary<string, IKey>();
 

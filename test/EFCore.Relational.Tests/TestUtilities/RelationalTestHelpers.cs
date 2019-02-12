@@ -29,11 +29,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 extension.WithConnection(new FakeDbConnection("Database=Fake")));
         }
 
-        public override IModelValidator CreateModelValidator(
-            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+        public override IModelValidator CreateModelValidator()
             => new RelationalModelValidator(
-                new ModelValidatorDependencies(validationLogger, modelLogger),
+                new ModelValidatorDependencies(),
                 new RelationalModelValidatorDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

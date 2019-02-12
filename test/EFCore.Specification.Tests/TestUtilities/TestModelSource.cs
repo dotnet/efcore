@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -19,10 +20,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
+        protected override IModel CreateModel(
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            IModelValidator validator,
+            DiagnosticsLoggers loggers)
         {
-            var conventionSet = CreateConventionSet(conventionSetBuilder);
-            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator));
+            var conventionSet = CreateConventionSet(conventionSetBuilder, loggers);
+            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, loggers));
 
             var modelBuilder = new ModelBuilder(conventionSet);
 

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -1689,7 +1690,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ConfigureOrdersHierarchy(modelBuilder);
             }
 
-            var validationConvention = new IgnoredMembersValidationConvention();
+            var logger = new TestLogger<DbLoggerCategory.Model>();
+            var validationConvention = new IgnoredMembersValidationConvention(logger);
             if (exceptionExpected)
             {
                 Assert.Equal(
@@ -1704,7 +1706,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var modelValidator = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
 
-            modelValidator.Validate(modelBuilder.Metadata);
+            modelValidator.Validate(
+                modelBuilder.Metadata,
+                new DiagnosticsLoggers(
+                    logger,
+                    new TestLogger<DbLoggerCategory.Model.Validation>()));
 
             Assert.Equal(
                 expectedIgnored,

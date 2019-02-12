@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
-        void Validate([NotNull] IModel model);
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use. </param>
+        void Validate([NotNull] IModel model, DiagnosticsLoggers loggers);
     }
 }

@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -116,11 +118,24 @@ Statement3
         }
 
         private MigrationCommandListBuilder CreateBuilder()
-            => new MigrationCommandListBuilder(
-                new RelationalCommandBuilderFactory(
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new TestRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+        {
+            var typeMappingSource = new TestRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
+
+            return new MigrationCommandListBuilder(
+                new MigrationsSqlGeneratorDependencies(
+                    new RelationalCommandBuilderFactory(typeMappingSource),
+                    new FakeSqlGenerator(
+                        new UpdateSqlGeneratorDependencies(
+                            generationHelper,
+                            typeMappingSource)),
+                    generationHelper,
+                    typeMappingSource,
+                    logger));
+        }
     }
 }

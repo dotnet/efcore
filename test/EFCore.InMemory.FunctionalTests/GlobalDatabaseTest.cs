@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Different_stores_are_used_when_AddDbContext_force_different_internal_service_provider()
+        public void AddDbContext_does_not_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
                 new DbContextOptionsBuilder()
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<BooFooContext>();
-                Assert.Empty(context.Foos.ToList());
+                Assert.NotEmpty(context.Foos.ToList());
             }
         }
 

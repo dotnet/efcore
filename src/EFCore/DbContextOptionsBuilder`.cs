@@ -64,18 +64,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
-        ///         for logging done by this context. It is never necessary to call this method since EF can obtain
-        ///         or create a logger factory automatically.
+        ///         for logging done by this context.
         ///     </para>
         ///     <para>
         ///         There is no need to call this method when using one of the 'AddDbContext' methods.
         ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
-        ///     </para>
-        ///     <para>
-        ///         Note that changing the logger factory can cause EF to build a new internal service provider, which
-        ///         may cause issues with performance. Generally it is expected that no more than one or two different
-        ///         instances will be used for a given application.
         ///     </para>
         ///     <para>
         ///         This method cannot be used if the application is setting the internal service provider
@@ -112,13 +106,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never
-        ///         necessary to call this method since EF can obtain or create a memory cache automatically.
-        ///     </para>
-        ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="IMemoryCache" /> used by EF is obtained from the
-        ///         application service provider.
+        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context.
         ///     </para>
         ///     <para>
         ///         Note that changing the memory cache can cause EF to build a new internal service provider, which

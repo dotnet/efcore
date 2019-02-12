@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             = new List<(Type, object)>
             {
                 (typeof(IRegisteredServices), new RegisteredServices(Enumerable.Empty<Type>())),
-                (typeof(ServiceParameterBindingFactory), new ServiceParameterBindingFactory(typeof(IStateManager)))
+                (typeof(ServiceParameterBindingFactory), new ServiceParameterBindingFactory(typeof(IStateManager))),
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model>), new TestLogger<DbLoggerCategory.Model>()),
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model.Validation>), new TestLogger<DbLoggerCategory.Model.Validation>()),
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Query>), new TestLogger<DbLoggerCategory.Query>())
             };
 
         public TService Create<TService>(params (Type Type, object Implementation)[] specialCases)

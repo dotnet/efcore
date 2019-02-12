@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,9 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </summary>
         /// <param name="methodCallExpression"> The method call expression. </param>
         /// <param name="model"> The current model. </param>
+        /// <param name="logger"> The logger. </param>
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        Expression Translate([NotNull] MethodCallExpression methodCallExpression, [NotNull] IModel model);
+        Expression Translate(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

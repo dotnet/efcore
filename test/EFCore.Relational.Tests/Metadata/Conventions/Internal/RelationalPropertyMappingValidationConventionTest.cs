@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return new PropertyMappingValidationConvention(
                 typeMappingSource,
                 TestServiceFactory.Instance.Create<IMemberClassifier>(
-                    (typeof(ITypeMappingSource), typeMappingSource)));
+                    (typeof(ITypeMappingSource), typeMappingSource)),
+                new TestLogger<DbLoggerCategory.Model>());
         }
     }
 }

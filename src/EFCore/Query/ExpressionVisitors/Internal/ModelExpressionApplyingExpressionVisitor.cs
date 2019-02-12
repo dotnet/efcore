@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ((QueryModelGenerator)queryModelGenerator).EvaluatableExpressionFilter,
                 _parameters,
                 _queryCompilationContext.ContextType,
-                _queryCompilationContext.Logger,
+                _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>(),
                 parameterize: false,
                 generateContextAccessors: true);
         }

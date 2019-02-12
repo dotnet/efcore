@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -270,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
-            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
             Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
@@ -291,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -313,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }

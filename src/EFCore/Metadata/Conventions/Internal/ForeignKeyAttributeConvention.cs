@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelBuiltConvention
     {
         private readonly IMemberClassifier _memberClassifier;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,8 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(memberClassifier, nameof(memberClassifier));
 
             _memberClassifier = memberClassifier;
-            _logger = logger;
+            Logger = logger;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -56,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (fkPropertyOnDependent != null
                 && fkPropertyOnPrincipal != null)
             {
-                _logger.ForeignKeyAttributesOnBothPropertiesWarning(
+                Logger.ForeignKeyAttributesOnBothPropertiesWarning(
                     foreignKey.PrincipalToDependent,
                     foreignKey.DependentToPrincipal,
                     fkPropertyOnPrincipal,
@@ -80,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (fkPropertiesOnDependentToPrincipal != null
                 && fkPropertiesOnPrincipalToDependent != null)
             {
-                _logger.ForeignKeyAttributesOnBothNavigationsWarning(
+                Logger.ForeignKeyAttributesOnBothNavigationsWarning(
                     relationshipBuilder.Metadata.DependentToPrincipal, relationshipBuilder.Metadata.PrincipalToDependent);
 
                 relationshipBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
@@ -149,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (fkPropertiesOnNavigation.Count != 1
                         || !Equals(fkPropertiesOnNavigation.First(), fkProperty.GetSimpleMemberName()))
                     {
-                        _logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
+                        Logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
                             fkPropertiesOnDependentToPrincipal != null
                                 ? relationshipBuilder.Metadata.DependentToPrincipal
                                 : relationshipBuilder.Metadata.PrincipalToDependent,

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -636,10 +638,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.Relational().ComputedColumnSql)})");
             }
 
+            var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
+                new LoggerFactory(),
+                new LoggingOptions(),
+                new DiagnosticListener(""));
+
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
             if (((Property)property).GetValueGeneratedConfigurationSource().HasValue
-                && new RelationalValueGeneratorConvention().GetValueGenerated((Property)property) != valueGenerated)
+                && new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated((Property)property) != valueGenerated)
             {
                 string methodName;
                 switch (valueGenerated)

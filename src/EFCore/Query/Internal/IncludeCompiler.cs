@@ -122,9 +122,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void LogIgnoredIncludes()
         {
+            var logger = _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+
             foreach (var includeResultOperator in _includeResultOperators.Where(iro => !iro.IsImplicitLoad))
             {
-                _queryCompilationContext.Logger.IncludeIgnoredWarning(includeResultOperator);
+                logger.IncludeIgnoredWarning(includeResultOperator);
             }
         }
 
@@ -182,7 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     continue;
                 }
 
-                _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
+                _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                    .NavigationIncluded(includeResultOperator);
+
                 _includeResultOperators.Remove(includeResultOperator);
             }
 

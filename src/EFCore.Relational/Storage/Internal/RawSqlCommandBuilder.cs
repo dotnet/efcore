@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,9 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///         directly from your code. This API may change or be removed in future releases.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public class RawSqlCommandBuilder : IRawSqlCommandBuilder
@@ -33,16 +35,21 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public RawSqlCommandBuilder(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(logger, nameof(logger));
 
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerationHelper = sqlGenerationHelper;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            Logger = logger;
         }
+
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -50,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual IRelationalCommand Build(string sql)
             => _relationalCommandBuilderFactory
-                .Create()
+                .Create(Logger)
                 .Append(Check.NotEmpty(sql, nameof(sql)))
                 .Build();
 
@@ -60,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual RawSqlCommand Build(string sql, IEnumerable<object> parameters)
         {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
+            var relationalCommandBuilder = _relationalCommandBuilderFactory.Create(Logger);
 
             var substitutions = new List<string>();
 

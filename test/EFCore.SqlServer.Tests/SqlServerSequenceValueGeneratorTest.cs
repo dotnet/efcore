@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -205,9 +206,12 @@ namespace Microsoft.EntityFrameworkCore
                 _current = -blockSize + 1;
             }
 
-            public IRelationalCommand Build(string sql) => new FakeRelationalCommand(this);
+            public IRelationalCommand Build(string sql)
+                => new FakeRelationalCommand(this);
 
-            public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
+            public RawSqlCommand Build(
+                string sql,
+                IEnumerable<object> parameters)
                 => new RawSqlCommand(
                     new FakeRelationalCommand(this),
                     new Dictionary<string, object>());

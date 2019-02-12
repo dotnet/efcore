@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private readonly IDbContextOptions _options;
         private readonly IConstructorBindingFactory _constructorBindingFactory;
         private readonly IProxyFactory _proxyFactory;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -36,11 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         public ProxiesConventionSetBuilder(
             [NotNull] IDbContextOptions options,
             [NotNull] IConstructorBindingFactory constructorBindingFactory,
-            [NotNull] IProxyFactory proxyFactory)
+            [NotNull] IProxyFactory proxyFactory,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             _options = options;
             _constructorBindingFactory = constructorBindingFactory;
             _proxyFactory = proxyFactory;
+            _logger = logger;
         }
 
         /// <summary>
@@ -53,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 new ProxyBindingRewriter(
                     _proxyFactory,
                     _constructorBindingFactory,
+                    _logger,
                     _options.FindExtension<ProxiesOptionsExtension>()));
 
             return conventionSet;

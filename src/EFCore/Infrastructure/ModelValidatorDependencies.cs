@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -50,43 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="logger"> The validation logger. </param>
-        /// <param name="modelLogger"> The model logger. </param>
-        public ModelValidatorDependencies(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
+        public ModelValidatorDependencies()
         {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(modelLogger, nameof(modelLogger));
-
-            Logger = logger;
-            ModelLogger = modelLogger;
         }
-
-        /// <summary>
-        ///     The validation logger.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; }
-
-        /// <summary>
-        ///     The model logger.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-            => new ModelValidatorDependencies(logger, ModelLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
-            => new ModelValidatorDependencies(Logger, modelLogger);
     }
 }

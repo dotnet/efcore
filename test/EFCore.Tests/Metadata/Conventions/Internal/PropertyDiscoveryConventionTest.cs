@@ -151,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
+                    new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -211,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>())
+                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
+                        new TestLogger<DbLoggerCategory.Model>())
                     .Apply(entityBuilder));
 
             Assert.Equal(
@@ -233,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>())
+                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
+                        new TestLogger<DbLoggerCategory.Model>())
                     .Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());

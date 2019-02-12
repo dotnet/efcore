@@ -26,16 +26,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IIndexUniquenessChangedConvention,
         IModelBuiltConvention
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ForeignKeyIndexConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            _logger = logger;
+            Logger = logger;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -296,8 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             var definition = CoreStrings.LogRedundantIndexRemoved;
-            if (definition.GetLogBehavior(_logger) == WarningBehavior.Ignore
-                && !_logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (definition.GetLogBehavior(Logger) == WarningBehavior.Ignore
+                && !Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 return modelBuilder;
             }
@@ -312,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         {
                             if (declaredForeignKey.Properties.Count != key.Properties.Count)
                             {
-                                _logger.RedundantIndexRemoved(declaredForeignKey.Properties, key.Properties);
+                                Logger.RedundantIndexRemoved(declaredForeignKey.Properties, key.Properties);
                             }
                         }
                     }
@@ -323,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         {
                             if (declaredForeignKey.Properties.Count != existingIndex.Properties.Count)
                             {
-                                _logger.RedundantIndexRemoved(declaredForeignKey.Properties, existingIndex.Properties);
+                                Logger.RedundantIndexRemoved(declaredForeignKey.Properties, existingIndex.Properties);
                             }
                         }
                     }

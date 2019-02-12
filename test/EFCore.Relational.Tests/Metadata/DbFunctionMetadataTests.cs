@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -488,7 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var conventionset = new ConventionSet();
 
-            conventionset.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());
+            conventionset.ModelAnnotationChangedConventions.Add(
+                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model>()));
 
             return new ModelBuilder(conventionset);
         }
