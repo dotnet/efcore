@@ -19,7 +19,6 @@
     <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
     <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
-    <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
     <SQLitePCLRawBundleESqlite3PackageVersion>1.1.12</SQLitePCLRawBundleESqlite3PackageVersion>
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>

@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="$(MicrosoftAzureCosmosPackageVersion)" />
   </ItemGroup>
 

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -465,11 +465,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Kappa Kappa { get; set; }
         }
 
-        protected class JsonProperty
+        protected class DynamicProperty
         {
             public int Id { get; set; }
 
-            public JObject JObject { get; set; }
+            public ExpandoObject ExpandoObject { get; set; }
         }
 
         protected interface IEntityBase
