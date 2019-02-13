@@ -61,6 +61,10 @@ jobs:
               displayName: Cleanup databases
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
+            # Detect OSS Components in use in the product. Only needs to run on one OS in the matrix.
+            - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+              displayName: Detect components
+              condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
             - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
               condition: eq(variables['system.pullrequest.isfork'], false)
