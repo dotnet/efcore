@@ -7,11 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text.Json;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using EFCommand = Microsoft.EntityFrameworkCore.Tools.Commands.RootCommand;
 
@@ -127,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 if (!string.IsNullOrEmpty(projectAssetsFile))
                 {
-                    using (var reader = new JsonTextReader(File.OpenText(projectAssetsFile)))
+                    using (var reader = JsonDocument.Parse(File.OpenRead(projectAssetsFile)))
                     {
-                        var projectAssets = JObject.ReadFrom(reader);
-                        var packageFolders = projectAssets["packageFolders"].Children<JProperty>().Select(p => p.Name);
+                        var projectAssets = reader.RootElement;
+                        var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
 
                         foreach (var packageFolder in packageFolders)
                         {
