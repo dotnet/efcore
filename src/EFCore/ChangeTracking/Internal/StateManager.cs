@@ -432,7 +432,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private IIdentityMap FindIdentityMap(IKey key)
         {
-            if (_identityMap0 == null)
+            if (_identityMap0 == null
+                || key == null)
             {
                 return null;
             }
