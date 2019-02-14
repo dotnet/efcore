@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(27, result.Count);
-                Assert.Equal(18, result.Where(r => r).Count());
+                Assert.Equal(9, result.Where(r => r).Count());
             }
         }
 
