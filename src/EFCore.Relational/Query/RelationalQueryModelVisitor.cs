@@ -403,13 +403,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 joinEliminator.EliminateJoins(selectExpression);
                 compositePredicateVisitor.Visit(selectExpression);
 
-                // off by default
-                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue13285", out var isEnabled) && isEnabled)
+                if (useRelationalNulls)
                 {
-                    if (useRelationalNulls)
-                    {
-                        new RelationalNullsMarkingExpressionVisitor().Visit(selectExpression);
-                    }
+                    new RelationalNullsMarkingExpressionVisitor().Visit(selectExpression);
                 }
             }
         }
