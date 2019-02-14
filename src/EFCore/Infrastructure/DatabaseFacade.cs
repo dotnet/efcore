@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <para>
         ///         For relational databases, the underlying DbTransaction can be obtained using the
-        ///         'Microsoft.EntityFrameworkCore.Storage.GetDbTransaction'extension method
+        ///         'Microsoft.EntityFrameworkCore.Storage.GetDbTransaction' extension method
         ///         on the returned <see cref="IDbContextTransaction" />.
         ///     </para>
         /// </summary>

@@ -52,20 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void GenerateParameterName([NotNull] StringBuilder builder, [NotNull] string name);
 
         /// <summary>
-        ///     Generates a valid parameter placehoder name for the given candidate name.
+        ///     Generates a valid parameter placeholder name for the given candidate name.
         /// </summary>
         /// <param name="name">
-        ///     The candidate name for the parameter placehoder.
+        ///     The candidate name for the parameter placeholder.
         /// </param>
-        /// <returns> A valid placehoder name based on the candidate name. </returns>
+        /// <returns> A valid placeholder name based on the candidate name. </returns>
         string GenerateParameterNamePlaceholder([NotNull] string name);
 
         /// <summary>
-        ///     Writes a valid parameter placehoder name for the given candidate name.
+        ///     Writes a valid parameter placeholder name for the given candidate name.
         /// </summary>
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name">
-        ///     The candidate name for the parameter placehoder.
+        ///     The candidate name for the parameter placeholder.
         /// </param>
         void GenerateParameterNamePlaceholder([NotNull] StringBuilder builder, [NotNull] string name);
 

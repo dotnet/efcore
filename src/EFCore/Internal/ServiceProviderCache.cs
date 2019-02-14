@@ -39,15 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 ValidateOptions(options);
 
-                var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
-                if (optionsInitialzer == null)
+                var optionsInitializer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
+                if (optionsInitializer == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NoEfServices);
                 }
 
                 if (providerRequired)
                 {
-                    optionsInitialzer.EnsureInitialized(internalServiceProvider, options);
+                    optionsInitializer.EnsureInitialized(internalServiceProvider, options);
                 }
 
                 return internalServiceProvider;

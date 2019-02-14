@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
-        public void ToBindingList_returns_a_new_binding_list_each_time_when_called_on_non_DbLocalView_ObervableCollections()
+        public void ToBindingList_returns_a_new_binding_list_each_time_when_called_on_non_DbLocalView_ObservableCollections()
         {
             var oc = new ObservableCollection<string>();
 
