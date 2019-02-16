@@ -1261,6 +1261,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Equal(1, property.SqlServer().IdentitySeed);
+            Assert.Equal(1, property.SqlServer().IdentityIncrement);
+            Assert.Null(property.SqlServer().HiLoSequenceName);
+
+            Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+        }
+
+        [Fact]
+        public void Can_set_identities_with_seed_and_identity_for_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseSqlServerIdentityColumn(100, 5);
+
+            var model = modelBuilder.Model;
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Equal(100, property.SqlServer().IdentitySeed);
+            Assert.Equal(5, property.SqlServer().IdentityIncrement);
             Assert.Null(property.SqlServer().HiLoSequenceName);
 
             Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));

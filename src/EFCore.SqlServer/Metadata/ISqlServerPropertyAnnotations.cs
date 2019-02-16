@@ -20,6 +20,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
 
         /// <summary>
+        ///     Gets the identity seed to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        int? IdentitySeed { get; }
+
+        /// <summary>
+        ///     Gets the identity increment to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        int? IdentityIncrement { get; }
+
+        /// <summary>
         ///     Gets the sequence name to use with
         ///     <see cref="SqlServerPropertyBuilderExtensions.ForSqlServerUseSequenceHiLo" />
         /// </summary>

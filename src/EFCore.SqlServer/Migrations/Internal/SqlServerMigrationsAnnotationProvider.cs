@@ -116,7 +116,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                 yield return new Annotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
+
+                var seed = property.SqlServer().IdentitySeed;
+                if (seed.HasValue)
+                {
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.IdentitySeed,
+                        seed.Value);
+                }
+
+                var increment = property.SqlServer().IdentityIncrement;
+                if (increment.HasValue)
+                {
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.IdentityIncrement,
+                        increment.Value);
+                }
             }
+
         }
 
         /// <summary>

@@ -109,5 +109,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
         protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
+
+        /// <summary>
+        ///     Gets or sets the seed for the identity to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        public virtual int? IdentitySeed
+        {
+            get => (int?)Annotations.Metadata[SqlServerAnnotationNames.IdentitySeed];
+            set => SetIdentitySeed(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set the seed for the identity to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetIdentitySeed(int? value)
+            => Annotations.SetAnnotation(
+                SqlServerAnnotationNames.IdentitySeed,
+                value);
+
+        /// <summary>
+        ///     Gets or sets the increment for the identity to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        public virtual int? IdentityIncrement
+        {
+            get => (int?)Annotations.Metadata[SqlServerAnnotationNames.IdentityIncrement];
+            set => SetIdentityIncrement(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set the increment for the identity to use with
+        ///     <see cref="SqlServerPropertyBuilderExtensions.UseSqlServerIdentityColumn" />
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetIdentityIncrement(int? value)
+            => Annotations.SetAnnotation(
+                SqlServerAnnotationNames.IdentityIncrement,
+                value);
     }
 }

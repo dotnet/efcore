@@ -90,6 +90,28 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;" + EOL,
                 Sql);
         }
+        [Fact]
+        public virtual void AddColumnOperation_identity_seed_increment()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Id",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    DefaultValue = 0,
+                    IsNullable = false,
+                    [SqlServerAnnotationNames.ValueGenerationStrategy] =
+                        SqlServerValueGenerationStrategy.IdentityColumn,
+                    [SqlServerAnnotationNames.IdentitySeed] = 100,
+                    [SqlServerAnnotationNames.IdentityIncrement] = 5
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);" + EOL,
+                Sql);
+        }
 
         public override void AddColumnOperation_without_column_type()
         {
