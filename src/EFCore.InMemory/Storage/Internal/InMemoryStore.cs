@@ -6,6 +6,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -45,6 +46,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             _tableFactory = tableFactory;
             _useNameMatching = useNameMatching;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(
+            IProperty property)
+        {
+            lock (_lock)
+            {
+                var entityType = property.DeclaringEntityType;
+                var key = _useNameMatching ? (object)entityType.Name : entityType;
+
+                return EnsureTable(key, entityType).GetIntegerValueGenerator<TProperty>(property);
+            }
         }
 
         /// <summary>
@@ -150,10 +167,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     Debug.Assert(!entityType.IsAbstract());
 
                     var key = _useNameMatching ? (object)entityType.Name : entityType;
-                    if (!_tables.Value.TryGetValue(key, out var table))
-                    {
-                        _tables.Value.Add(key, table = _tableFactory.Create(entityType));
-                    }
+                    var table = EnsureTable(key, entityType);
 
                     if (entry.SharedIdentityEntry != null)
                     {
@@ -185,6 +199,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             updateLogger.ChangesSaved(entries, rowsAffected);
 
             return rowsAffected;
+        }
+
+        private IInMemoryTable EnsureTable(object key, IEntityType entityType)
+        {
+            if (!_tables.Value.TryGetValue(key, out var table))
+            {
+                _tables.Value.Add(key, table = _tableFactory.Create(entityType));
+            }
+
+            return table;
         }
     }
 }
