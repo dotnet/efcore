@@ -42,7 +42,7 @@ jobs:
             - powershell: |
                 SqlLocalDB stop MSSQLLocalDB -i
                 SqlLocalDB start MSSQLLocalDB
-                & "$env:ProgramFiles\Microsoft SQL Server\110\Tools\Binn\SQLCMD.EXE" -S '(localdb)\MSSQLLocalDB' -Q @'
+                & "$env:ProgramFiles\Microsoft SQL Server\110\Tools\Binn\SQLCMD.EXE" -S '(localdb)\MSSQLLocalDB' -b -Q @'
                   DECLARE @name nvarchar(255);
                   DECLARE db CURSOR FOR SELECT Name FROM sysdatabases WHERE Name NOT IN ('master', 'tempdb', 'model', 'msdb');
                   OPEN db;
@@ -59,7 +59,6 @@ jobs:
                   DEALLOCATE db;
                 '@
               displayName: Cleanup databases
-              failOnStderr: true
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
             # Detect OSS Components in use in the product. Only needs to run on one OS in the matrix.
