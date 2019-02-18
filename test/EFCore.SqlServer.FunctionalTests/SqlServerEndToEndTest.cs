@@ -387,6 +387,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SNum
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public string Id { get; set; }
             public string TheWalrus { get; set; }
         }
@@ -408,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class BNum
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public byte[] Id { get; set; }
             public string TheWalrus { get; set; }
         }

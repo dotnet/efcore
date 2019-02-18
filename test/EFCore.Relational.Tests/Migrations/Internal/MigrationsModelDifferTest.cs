@@ -1586,8 +1586,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     x.ToTable("Crab");
 
-                    x.Property<string>("CrabId")
-                        .ValueGeneratedOnAdd();
+                    x.Property<string>("CrabId");
 
                     x.HasKey("CrabId");
                 });

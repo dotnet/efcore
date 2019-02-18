@@ -947,8 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
@@ -2176,8 +2175,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     GetHeading() + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
@@ -2226,8 +2224,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     GetHeading() + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
