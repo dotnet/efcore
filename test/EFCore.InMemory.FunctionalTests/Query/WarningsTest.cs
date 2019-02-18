@@ -302,6 +302,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; }
 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<WarningAsErrorEntity>()
+                    .Property(e => e.Id)
+                    .ValueGeneratedOnAdd();
+            }
+
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
