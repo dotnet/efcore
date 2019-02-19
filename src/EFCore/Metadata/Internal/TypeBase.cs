@@ -122,7 +122,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 // _runtimeProperties should not be mutated after it has been assigned
                 Thread.MemoryBarrier();
-                _runtimeProperties = runtimeProperties;
+                if (_runtimeProperties == null)
+                {
+                    _runtimeProperties = runtimeProperties;
+                    return runtimeProperties;
+                }
             }
 
             return _runtimeProperties;
