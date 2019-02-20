@@ -38,12 +38,12 @@
     <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview3.19120.1</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-preview.19107.12</MicrosoftCSharpPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview.19107.12</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19107.12</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19107.12</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.7.0-preview.19107.12</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19107.12</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-preview3.19119.6</MicrosoftCSharpPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview3.19119.6</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-preview3.19119.6</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview3.19119.6</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.7.0-preview3.19119.6</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview3.19119.6</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
     <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview3-27419-3</MicrosoftExtensionsDependencyModelPackageVersion>
