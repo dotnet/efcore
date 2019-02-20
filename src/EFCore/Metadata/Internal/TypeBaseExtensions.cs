@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var runtimeProperties = type is TypeBase typeBase
                 ? typeBase.GetRuntimeProperties().Values // better perf if we've already computed them once
-                : type.ClrType.GetRuntimeProperties();
+                : type.ClrType?.GetRuntimeProperties();
 
             // find the indexer with single argument of type string which returns an object
-            return runtimeProperties.FirstOrDefault(p => p.IsEFIndexerProperty());
+            return runtimeProperties?.FirstOrDefault(p => p.IsEFIndexerProperty());
         }
     }
 }

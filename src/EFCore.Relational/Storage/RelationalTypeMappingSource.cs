@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -207,7 +208,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             var principals = property.FindPrincipals();
-            return FindMappingWithConversion(new RelationalTypeMappingInfo(principals), principals);
+
+            string storeTypeName = null;
+            bool? isFixedLength = null;
+            for (var i = 0; i < principals.Count; i++)
+            {
+                var principal = principals[i];
+                if (storeTypeName == null)
+                {
+                    var columnType = (string)principal[RelationalAnnotationNames.ColumnType];
+                    if (columnType != null)
+                    {
+                        storeTypeName = columnType;
+                    }
+                }
+
+                if (isFixedLength == null)
+                {
+                    isFixedLength = principal.Relational().IsFixedLength;
+                }
+            }
+
+            var storeTypeNameBase = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
+
+            return FindMappingWithConversion(
+                new RelationalTypeMappingInfo(principals, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale), principals);
         }
 
         /// <summary>
@@ -244,7 +269,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(MemberInfo member)
-            => FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
+        {
+            if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
+            {
+                var storeTypeName = attribute.TypeName;
+                var storeTypeNameBase = ParseStoreTypeName(attribute.TypeName, out var unicode, out var size, out var precision, out var scale);
+
+                return FindMappingWithConversion(
+                    new RelationalTypeMappingInfo(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+            }
+            else
+            {
+                return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -261,7 +299,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeTypeName"> The database type name. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual RelationalTypeMapping FindMapping(string storeTypeName)
-            => FindMappingWithConversion(new RelationalTypeMappingInfo(storeTypeName), null);
+        {
+            var storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
+
+            return FindMappingWithConversion(
+                new RelationalTypeMappingInfo(storeTypeName, storeTypeBaseName, unicode, size, precision, scale), null);
+        }
 
         /// <summary>
         ///     <para>
@@ -295,9 +338,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool? fixedLength = null,
             int? precision = null,
             int? scale = null)
-            => FindMappingWithConversion(
+        {
+            string storeTypeBaseName = null;
+
+            if (storeTypeName != null)
+            {
+                storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
+                if (size == null)
+                {
+                    size = parsedSize;
+                }
+                if (precision == null)
+                {
+                    precision = parsedPrecision;
+                }
+                if (scale == null)
+                {
+                    scale = parsedScale;
+                }
+                if (unicode == null)
+                {
+                    unicode = parsedUnicode;
+                }
+            }
+
+            return FindMappingWithConversion(
                 new RelationalTypeMappingInfo(
-                    type, storeTypeName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
+                    type, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
+        }
 
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping)FindMapping(property);
@@ -307,5 +375,69 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(MemberInfo member)
             => (RelationalTypeMapping)FindMapping(member);
+
+        /// <summary>
+        ///     <para>
+        ///         Parses a provider-specific store type name, extracting the standard facets
+        ///         (e.g. size, precision) and returns the base store type name (without any facets).
+        ///     </para>
+        ///     <para>
+        ///         The default implementation supports sometype(size), sometype(precision) and
+        ///         sometype(precision, scale). Providers can override this to provide their own
+        ///         logic.
+        ///     </para>
+        /// </summary>
+        /// <param name="storeTypeName"> A provider-specific relational type name, including facets. </param>
+        /// <param name="unicode"> The Unicode or ANSI setting parsed from the type name, or <c>null</c> if none was specified. </param>
+        /// <param name="size"> The size parsed from the type name, or <c>null</c> if none was specified. </param>
+        /// <param name="precision"> The precision parsed from the type name, or <c>null</c> if none was specified. </param>
+        /// <param name="scale"> The scale parsed from the type name, or <c>null</c> if none was specified. </param>
+        /// <returns> The provider-specific relational type name, with any facets removed. </returns>
+        protected virtual string ParseStoreTypeName(
+            string storeTypeName,
+            out bool? unicode,
+            out int? size,
+            out int? precision,
+            out int? scale)
+        {
+            unicode = null;
+            size = null;
+            precision = null;
+            scale = null;
+
+            if (storeTypeName != null)
+            {
+                var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
+                if (openParen > 0)
+                {
+                    var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+                    if (closeParen > openParen)
+                    {
+                        var comma = storeTypeName.IndexOf(",", openParen + 1, StringComparison.Ordinal);
+                        if (comma > openParen && comma < closeParen)
+                        {
+                            if (int.TryParse(storeTypeName.Substring(openParen + 1, comma - openParen - 1), out var parsedPrecision))
+                            {
+                                precision = parsedPrecision;
+                            }
+
+                            if (int.TryParse(storeTypeName.Substring(comma + 1, closeParen - comma - 1), out var parsedScale))
+                            {
+                                scale = parsedScale;
+                            }
+                        }
+                        else if (int.TryParse(storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
+                        {
+                            size = parsedSize;
+                            precision = parsedSize;
+                        }
+
+                        return storeTypeName.Substring(0, openParen).Trim();
+                    }
+                }
+            }
+
+            return storeTypeName;
+        }
     }
 }
