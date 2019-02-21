@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();
             TryAdd<IModelCustomizer, ModelCustomizer>();
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
-            TryAdd<ILoggerFactory, LoggerFactory>();
+            TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
             TryAdd<IModelSource, ModelSource>();
             TryAdd<IInternalEntityEntryFactory, InternalEntityEntryFactory>();
             TryAdd<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>();
