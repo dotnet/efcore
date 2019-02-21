@@ -119,10 +119,21 @@ namespace Microsoft.EntityFrameworkCore
 
         private class MyLoggerProvider : ILoggerProvider
         {
-            public ILogger CreateLogger(string categoryName) => new MyListLogger(Log);
+            private bool _disposed;
+
+            public ILogger CreateLogger(string categoryName)
+            {
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(nameof(MyLoggerProvider));
+                }
+
+                return new MyListLogger(Log);
+            }
 
             public void Dispose()
             {
+                _disposed = true;
             }
 
             private class MyListLogger : ILogger
@@ -164,6 +175,58 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Theory]
+        [InlineData(ServiceLifetime.Scoped)]
+        [InlineData(ServiceLifetime.Singleton)]
+        public void Logger_factory_registered_on_application_service_provider_is_not_disposed(ServiceLifetime optionsLifetime)
+        {
+            for (var i = 0; i < 2; i++)
+            {
+                ILoggerFactory loggerFactory;
+
+                using (var appServiceProvider
+                    = new ServiceCollection()
+                        .AddScoped<Random>()
+                        .AddDbContext<ConstructorTestContext1A>(
+                            b => b.UseInMemoryDatabase("Scratch"), optionsLifetime: optionsLifetime)
+                        .BuildServiceProvider())
+                {
+                    loggerFactory = appServiceProvider.GetService<ILoggerFactory>();
+                    Random scopedExternalService;
+
+                    using (var scope = appServiceProvider.CreateScope())
+                    {
+                        var context = scope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
+
+                        // Should not throw
+                        var _ = context.Model;
+
+                        Assert.Same(loggerFactory, scope.ServiceProvider.GetService<ILoggerFactory>());
+
+                        scopedExternalService = scope.ServiceProvider.GetService<Random>();
+                        Assert.NotNull(scopedExternalService);
+                    }
+
+                    using (var scope = appServiceProvider.CreateScope())
+                    {
+                        var context = scope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
+
+                        // Should not throw
+                        var _ = context.Model;
+
+                        Assert.Same(loggerFactory, scope.ServiceProvider.GetService<ILoggerFactory>());
+
+                        Assert.NotSame(scopedExternalService, scope.ServiceProvider.GetService<Random>());
+                    }
+
+                    // Should not throw
+                    loggerFactory.CreateLogger("MyLogger");
+                }
+
+                Assert.Throws<ObjectDisposedException>(() => loggerFactory.CreateLogger("MyLogger"));
+            }
+        }
+
         [Fact]
         public void Can_use_GetInfrastructure_with_inferred_generic_to_get_service_provider()
         {
@@ -173,6 +236,28 @@ namespace Microsoft.EntityFrameworkCore
                     context.GetService<IChangeDetector>(),
                     context.GetInfrastructure().GetService<IChangeDetector>());
             }
+        }
+
+        [Fact]
+        public void Logger_factory_registered_on_internal_service_provider_is_not_disposed()
+        {
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .BuildServiceProvider();
+
+            var appServiceProvider
+                = new ServiceCollection()
+                    .AddDbContext<ConstructorTestContext1A>(
+                        b => b.UseInMemoryDatabase("Scratch")
+                            .UseInternalServiceProvider(serviceProvider))
+                    .BuildServiceProvider();
+
+            var context = appServiceProvider.GetRequiredService<ConstructorTestContext1A>();
+            var _ = context.Model;
+
+            context = appServiceProvider.GetRequiredService<ConstructorTestContext1A>();
+            _ = context.Model;
         }
 
         [Fact]
@@ -306,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
             var provider = serviceCollection.BuildServiceProvider();
 
-            Assert.IsType<LoggerFactory>(provider.GetRequiredService<ILoggerFactory>());
+            Assert.IsType<ScopedLoggerFactory>(provider.GetRequiredService<ILoggerFactory>());
         }
 
         [Fact]
