@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -50,8 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <returns> true if the extension was loaded; otherwise, false. </returns>
-        public static bool TryLoad([NotNull] DbConnection connection)
+        public static bool TryLoad([NotNull] SqliteConnection connection)
         {
+            var opened = false;
+            if (connection.State != ConnectionState.Open)
+            {
+                // NB: If closed, LoadExtension won't throw immidiately
+                connection.Open();
+                opened = true;
+            }
             try
             {
                 Load(connection);
@@ -61,6 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             catch (SqliteException ex) when (ex.SqliteErrorCode == 1)
             {
                 return false;
+            }
+            finally
+            {
+                if (opened)
+                {
+                    connection.Close();
+                }
             }
         }
 
@@ -73,17 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        public static void Load([NotNull] DbConnection connection)
+        public static void Load([NotNull] SqliteConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
             FindExtension();
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = "SELECT load_extension('mod_spatialite');";
-                command.ExecuteNonQuery();
-            }
+            connection.LoadExtension("mod_spatialite");
         }
 
         private static void FindExtension()

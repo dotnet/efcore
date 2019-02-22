@@ -84,8 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 connection.Open();
 
-                ((SqliteConnection)connection).EnableExtensions();
-                SpatialiteLoader.TryLoad(connection);
+                SpatialiteLoader.TryLoad((SqliteConnection)connection);
             }
 
             try

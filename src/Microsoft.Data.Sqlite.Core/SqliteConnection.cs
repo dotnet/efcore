@@ -33,6 +33,8 @@ namespace Microsoft.Data.Sqlite
         private readonly IDictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)> _aggregates
             = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(FunctionsKeyComparer.Instance);
 
+        private readonly HashSet<(string file, string proc)> _extensions = new HashSet<(string, string)>();
+
         private string _connectionString;
         private ConnectionState _state;
         private sqlite3 _db;
@@ -284,9 +286,22 @@ namespace Microsoft.Data.Sqlite
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
 
-                if (_extensionsEnabled)
+                var extensionsEnabledForLoad = false;
+                if (_extensions.Count != 0)
                 {
                     rc = raw.sqlite3_enable_load_extension(_db, 1);
+                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    extensionsEnabledForLoad = true;
+
+                    foreach (var item in _extensions)
+                    {
+                        LoadExtensionCore(item.file, item.proc);
+                    }
+                }
+
+                if (_extensionsEnabled != extensionsEnabledForLoad)
+                {
+                    rc = raw.sqlite3_enable_load_extension(_db, _extensionsEnabled ? 1 : 0);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
             }
@@ -479,6 +494,55 @@ namespace Microsoft.Data.Sqlite
             }
 
             _extensionsEnabled = enable;
+        }
+
+        /// <summary>
+        ///     Loads a SQLite extension library.
+        /// </summary>
+        /// <param name="file">The shared library containing the extension.</param>
+        /// <param name="proc">The entry point. If null, the default entry point is used.</param>
+        public virtual void LoadExtension(string file, string proc = null)
+        {
+            if (State == ConnectionState.Open)
+            {
+                int rc;
+
+                var extensionsEnabledForLoad = false;
+                if (!_extensionsEnabled)
+                {
+                    rc = raw.sqlite3_enable_load_extension(_db, 1);
+                    SqliteException.ThrowExceptionForRC(rc, _db);
+                    extensionsEnabledForLoad = true;
+                }
+
+                LoadExtensionCore(file, proc);
+
+                if (extensionsEnabledForLoad)
+                {
+                    rc = raw.sqlite3_enable_load_extension(_db, 0);
+                    SqliteException.ThrowExceptionForRC(rc, _db);
+                }
+            }
+
+            _extensions.Add((file, proc));
+        }
+
+        private void LoadExtensionCore(string file, string proc)
+        {
+            if (proc == null)
+            {
+                // NB: SQLitePCL.raw doesn't expose sqlite3_load_extension()
+                this.ExecuteNonQuery(
+                    "SELECT load_extension($file);",
+                    new SqliteParameter("$file", file));
+            }
+            else
+            {
+                this.ExecuteNonQuery(
+                    "SELECT load_extension($file, $proc);",
+                    new SqliteParameter("$file", file),
+                    new SqliteParameter("$proc", proc));
+            }
         }
 
         /// <summary>
