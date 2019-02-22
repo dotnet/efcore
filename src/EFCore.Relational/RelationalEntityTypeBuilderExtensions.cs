@@ -90,6 +90,81 @@ namespace Microsoft.EntityFrameworkCore
             => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
         /// <summary>
+        ///     Configures the view or table that the view maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="EntityTypeBuilder"> The builder for the query type being configured. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use ToTable() instead")]
+        public static EntityTypeBuilder ToView(
+            [NotNull] this EntityTypeBuilder EntityTypeBuilder,
+            [CanBeNull] string name)
+        {
+            Check.NotNull(EntityTypeBuilder, nameof(EntityTypeBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+
+            EntityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
+                .Relational(ConfigurationSource.Explicit)
+                .ToTable(name);
+
+            return EntityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the view or table that the view maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TQuery"> The query type being configured. </typeparam>
+        /// <param name="EntityTypeBuilder"> The builder for the query type being configured. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use ToTable() instead")]
+        public static EntityTypeBuilder<TQuery> ToView<TQuery>(
+            [NotNull] this EntityTypeBuilder<TQuery> EntityTypeBuilder,
+            [CanBeNull] string name)
+            where TQuery : class
+            => (EntityTypeBuilder<TQuery>)ToView((EntityTypeBuilder)EntityTypeBuilder, name);
+
+        /// <summary>
+        ///     Configures the view or table that the view maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="EntityTypeBuilder"> The builder for the query type being configured. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use ToTable() instead")]
+        public static EntityTypeBuilder ToView(
+            [NotNull] this EntityTypeBuilder EntityTypeBuilder,
+            [CanBeNull] string name,
+            [CanBeNull] string schema)
+        {
+            Check.NotNull(EntityTypeBuilder, nameof(EntityTypeBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            EntityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
+                .Relational(ConfigurationSource.Explicit)
+                .ToTable(name, schema);
+
+            return EntityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the view or table that the view maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TQuery"> The query type being configured. </typeparam>
+        /// <param name="EntityTypeBuilder"> The builder for the query type being configured. </param>
+        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="schema"> The schema of the view or table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use ToTable() instead")]
+        public static EntityTypeBuilder<TQuery> ToView<TQuery>(
+            [NotNull] this EntityTypeBuilder<TQuery> EntityTypeBuilder,
+            [CanBeNull] string name,
+            [CanBeNull] string schema)
+            where TQuery : class
+            => (EntityTypeBuilder<TQuery>)ToView((EntityTypeBuilder)EntityTypeBuilder, name, schema);
+
+        /// <summary>
         ///     Configures the discriminator column used to identify which entity type each row in a table represents
         ///     when an inheritance hierarchy is mapped to a single table in a relational database.
         /// </summary>

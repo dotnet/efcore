@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Query<AnimalQuery>()
+            modelBuilder.Entity<AnimalQuery>()
+                .HasNoKey()
                 .ToQuery(
                     () => context.Set<Bird>()
                         .Select(b => MaterializeView(b)));

@@ -38,12 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         LambdaExpression DefiningQuery { get; }
 
         /// <summary>
-        ///     Gets whether this entity type is a query type.
-        /// </summary>
-        /// <returns> true if the entity type is a query type; otherwise false. </returns>
-        bool IsQueryType { get; }
-
-        /// <summary>
         ///     <para>
         ///         Gets primary key for this entity. Returns null if no primary key is defined.
         ///     </para>

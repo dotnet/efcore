@@ -30,45 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Query_can_override_lower_or_equal_source_entity_type()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention, throwOnQuery: true));
-            Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation, throwOnQuery: true));
-            Assert.Equal(ConfigurationSource.DataAnnotation, model.FindEntityType(typeof(Customer)).GetConfigurationSource());
-            Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.DataAnnotation));
-            Assert.Null(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention, throwOnQuery: true));
-            Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Explicit, throwOnQuery: true));
-            Assert.Null(modelBuilder.Query(typeof(Customer), ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(
-                CoreStrings.CannotAccessEntityAsQuery(nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Query(typeof(Customer), ConfigurationSource.Explicit)).Message);
-        }
-
-        [Fact]
-        public void Entity_can_override_lower_or_equal_source_query_type()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.Convention));
-            Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.DataAnnotation));
-            Assert.Equal(ConfigurationSource.DataAnnotation, model.FindEntityType(typeof(Customer)).GetConfigurationSource());
-            Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation, throwOnQuery: true));
-            Assert.Null(modelBuilder.Query(typeof(Customer), ConfigurationSource.Convention));
-            Assert.NotNull(modelBuilder.Query(typeof(Customer), ConfigurationSource.Explicit));
-            Assert.Null(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation, throwOnQuery: true));
-
-            Assert.Equal(
-                CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit, throwOnQuery: true)).Message);
-        }
-
-        [Fact]
         public void Entity_returns_same_instance_for_entity_type_name()
         {
             var model = new Model();

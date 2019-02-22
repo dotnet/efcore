@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<Animal>().HasQueryFilter(a => a.CountryId == 1);
             }
 
-            modelBuilder.Query<AnimalQuery>();
-            modelBuilder.Query<BirdQuery>();
-            modelBuilder.Query<KiwiQuery>();
+            modelBuilder.Entity<AnimalQuery>().HasNoKey();
+            modelBuilder.Entity<BirdQuery>();
+            modelBuilder.Entity<KiwiQuery>();
         }
 
         protected override void Seed(InheritanceContext context) => InheritanceContext.SeedData(context);

@@ -188,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private class ScannerCustomerQueryConfiguration : IQueryTypeConfiguration<ScannerCustomer>
         {
             public void Configure(QueryTypeBuilder<ScannerCustomer> builder)
@@ -227,5 +228,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 builder.Property(c => c.FirstName).HasMaxLength(200);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

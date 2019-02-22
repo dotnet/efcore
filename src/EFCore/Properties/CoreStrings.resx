@@ -988,26 +988,11 @@
     <value>An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.</value>
     <comment>Warning CoreEventId.DetachedLazyLoadingWarning string string</comment>
   </data>
-  <data name="InvalidSetTypeQuery" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.</value>
+  <data name="KeylessTypeCannotBePrincipal" xml:space="preserve">
+    <value>Unable to create a foreign key with the keyless type '{entityType}' as the principal type. Only entity types with keys are allowed as foreign key principal types.</value>
   </data>
-  <data name="InvalidSetTypeEntity" xml:space="preserve">
-    <value>Cannot create a DbQuery for '{typeName}' because it is not a query type. Use the DbContext.Set method to create a DbSet instead.</value>
-  </data>
-  <data name="QueryTypeCannotBePrincipal" xml:space="preserve">
-    <value>Unable to create a foreign key with the query type '{queryType}' as the principal type. Only entity types are allowed as foreign key principal types.</value>
-  </data>
-  <data name="QueryTypeNotValid" xml:space="preserve">
-    <value>Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.</value>
-  </data>
-  <data name="MixedQueryEntityTypeInheritance" xml:space="preserve">
-    <value>Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.</value>
-  </data>
-  <data name="CannotAccessEntityAsQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be added to the model because an entity type with the same name already exists.</value>
-  </data>
-  <data name="CannotAccessQueryAsEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.</value>
+  <data name="KeylessTypeTracked" xml:space="preserve">
+    <value>Unable to track an instance of type '{type}' because it does not have a primary key. Only entity types with primary keys may be tracked.</value>
   </data>
   <data name="LogRedundantIndexRemoved" xml:space="preserve">
     <value>The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.</value>
@@ -1088,14 +1073,11 @@
   <data name="ErrorInvalidQueryable" xml:space="preserve">
     <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
-  <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.</value>
+  <data name="DerivedTypeDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base keyless entity types can have a defining query.</value>
   </data>
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.</value>
-  </data>
-  <data name="DuplicateQueryType" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.</value>
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
@@ -1113,11 +1095,14 @@
   <data name="ConstructorBindingFailed" xml:space="preserve">
     <value>cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
-  <data name="NavigationToQueryType" xml:space="preserve">
-    <value>The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.</value>
+  <data name="NavigationToKeylessType" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
   </data>
-  <data name="QueryTypeWithKey" xml:space="preserve">
-    <value>The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.</value>
+  <data name="KeylessTypeExistingKey" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be marked as keyless because it contains a key.</value>
+  </data>
+  <data name="KeylessTypeWithKey" xml:space="preserve">
+    <value>The key {key} cannot be added to keyless type '{entityType}'.</value>
   </data>
   <data name="LogRedundantForeignKey" xml:space="preserve">
     <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.</value>
@@ -1131,5 +1116,17 @@
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and should be accessed through the defining entities.</value>
+  </data>
+  <data name="InvalidSetKeylessOperation" xml:space="preserve">
+    <value>The invoked method is cannot be used for the entity type '{entityType}' because it does not have a primary key.</value>
+  </data>
+  <data name="NonKeylessEntityTypeDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot have a defining query because it has a primary key. Only keyless entity types can have a defining query.</value>
+  </data>
+  <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
+    <value>A '{derivedType}' cannot be configured as keyless because it is a derived type. The root type '{rootType}' must be configured as keyless. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
+  </data>
+  <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
+    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.</value>
   </data>
 </root>

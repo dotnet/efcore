@@ -36,12 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new LambdaExpression QueryFilter { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets or sets whether this entity type is a query type.
-        /// </summary>
-        /// <returns> true if the entity type is a query type; otherwise false. </returns>
-        new bool IsQueryType { get; set; }
-
-        /// <summary>
         ///     Gets the LINQ query used as the default source for queries of this type.
         /// </summary>
         new LambdaExpression DefiningQuery { get; [param: CanBeNull] set; }

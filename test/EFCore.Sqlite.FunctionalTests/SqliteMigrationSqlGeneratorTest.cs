@@ -351,6 +351,7 @@ namespace Microsoft.EntityFrameworkCore
                     x =>
                     {
                         x.Property<string>("FullName");
+                        x.HasKey("FullName");
                         x.HasIndex("FullName").IsUnique().HasFilter(@"""Id"" > 2");
                     }),
                 new RenameIndexOperation

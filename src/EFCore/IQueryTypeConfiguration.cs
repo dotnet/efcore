@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore
@@ -15,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     in <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
     /// </summary>
     /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
+    [Obsolete("Use IEntityTypeConfiguration<TEntity> instead")]
     public interface IQueryTypeConfiguration<TQuery>
         where TQuery : class
     {

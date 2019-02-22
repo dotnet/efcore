@@ -39,19 +39,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
-        private List<object> _data;
-
         private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
             = new SortedDictionary<string, ServiceProperty>(StringComparer.Ordinal);
 
+        private List<object> _data;
         private Key _primaryKey;
+        private bool _isKeyless;
         private EntityType _baseType;
         private LambdaExpression _queryFilter;
-
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
-        private ConfigurationSource? _baseTypeConfigurationSource;
         private ConfigurationSource? _primaryKeyConfigurationSource;
+        private ConfigurationSource? _isKeylessConfigurationSource;
+        private ConfigurationSource? _baseTypeConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts _counts;
@@ -127,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
-            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            get;
             [DebuggerStepThrough]
             [param: CanBeNull]
             set;
@@ -172,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsQueryType { get; set; }
+        public virtual bool IsKeyless => RootType()._isKeyless;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -185,6 +186,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual EntityType DefiningEntityType { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void HasNoKey(
+            bool keyless,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            if (_isKeyless == keyless)
+            {
+                UpdateIsKeylessConfigurationSource(configurationSource);
+                return;
+            }
+
+            if (keyless)
+            {
+                if (_baseType != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.DerivedEntityTypeHasNoKey(this.DisplayName(), RootType().DisplayName()));
+                }
+
+                if (_keys.Any())
+                {
+                    throw new InvalidOperationException(CoreStrings.KeylessTypeExistingKey(this.DisplayName()));
+                }
+            }
+
+            _isKeyless = keyless;
+            UpdateIsKeylessConfigurationSource(configurationSource);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ConfigurationSource? GetIsKeylessConfigurationSource() => _isKeylessConfigurationSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void UpdateIsKeylessConfigurationSource(ConfigurationSource configurationSource)
+            => _isKeylessConfigurationSource = configurationSource.Max(_isKeylessConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -213,12 +258,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (entityType != null)
             {
-                if (IsQueryType != entityType.IsQueryType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.MixedQueryEntityTypeInheritance(entityType.DisplayName(), this.DisplayName()));
-                }
-
                 if (this.HasClrType())
                 {
                     if (!entityType.HasClrType())
@@ -251,6 +290,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (_keys.Count > 0)
                 {
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(this.DisplayName()));
+                }
+
+                if (_isKeyless)
+                {
+                    throw new InvalidOperationException(CoreStrings.DerivedEntityCannotBeKeyless(this.DisplayName()));
                 }
 
                 var propertyCollisions = entityType.GetProperties()
@@ -462,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (_baseType != null)
             {
-                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), _baseType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), RootType().DisplayName()));
             }
 
             var oldPrimaryKey = _primaryKey;
@@ -620,6 +664,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_baseType != null)
             {
                 throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), _baseType.DisplayName()));
+            }
+
+            if (_isKeyless)
+            {
+                throw new InvalidOperationException(CoreStrings.KeylessTypeWithKey(Property.Format(properties), this.DisplayName()));
             }
 
             for (var i = 0; i < properties.Count; i++)
@@ -2173,22 +2222,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         IMutableModel IMutableEntityType.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         IEntityType IEntityType.BaseType
         {
-            [DebuggerStepThrough] get => _baseType;
+            [DebuggerStepThrough]
+            get => _baseType;
         }
 
         IMutableEntityType IMutableEntityType.BaseType
@@ -2205,7 +2258,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IEntityType IEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)

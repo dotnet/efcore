@@ -52,11 +52,9 @@ namespace Microsoft.EntityFrameworkCore
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
-        IDbQueryCache,
         IDbContextPoolable
     {
         private IDictionary<Type, object>? _sets;
-        private IDictionary<Type, object>? _queries;
         private readonly DbContextOptions _options;
 
         private IDbContextServices? _contextServices;
@@ -151,12 +149,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IDbQuerySource IDbContextDependencies.QuerySource => DbContextDependencies.QuerySource;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
@@ -218,28 +210,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        object IDbQueryCache.GetOrAddQuery(IDbQuerySource source, Type type)
-        {
-            CheckDisposed();
-
-            if (_queries == null)
-            {
-                _queries = new Dictionary<Type, object>();
-            }
-
-            if (!_queries.TryGetValue(type, out var query))
-            {
-                query = source.CreateQuery(this, type);
-                _queries[type] = query;
-            }
-
-            return query;
-        }
-
-        /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
@@ -249,13 +219,14 @@ namespace Microsoft.EntityFrameworkCore
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         /// <summary>
-        ///     Creates a <see cref="DbQuery{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
+        ///     Creates a <see cref="DbSet{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
         /// </summary>
         /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
-        /// <returns> A DbQuery for the given query type. </returns>
+        /// <returns> A DbQuery for the given keyless entity type. </returns>
+        [Obsolete("Use Set() for entity types without keys")]
         public virtual DbQuery<TQuery> Query<TQuery>()
             where TQuery : class
-            => (DbQuery<TQuery>)((IDbQueryCache)this).GetOrAddQuery(DbContextDependencies.QuerySource, typeof(TQuery));
+            => (DbQuery<TQuery>)Set<TQuery>();
 
         private IEntityFinder Finder(Type type)
         {
@@ -270,9 +241,9 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
-            if (entityType.IsQueryType)
+            if (entityType.FindPrimaryKey() == null)
             {
-                throw new InvalidOperationException(CoreStrings.InvalidSetTypeQuery(type.ShortDisplayName()));
+                throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(type.ShortDisplayName()));
             }
 
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
@@ -638,17 +609,6 @@ namespace Microsoft.EntityFrameworkCore
                 foreach (var set in _sets.Values)
                 {
                     if (set is IResettableService resettable)
-                    {
-                        resettable.ResetState();
-                    }
-                }
-            }
-
-            if (_queries != null)
-            {
-                foreach (var query in _queries.Values)
-                {
-                    if (query is IResettableService resettable)
                     {
                         resettable.ResetState();
                     }

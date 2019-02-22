@@ -35,12 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            if (builder.Metadata.IsQueryType)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.CannotAccessQueryAsEntity(builder.Metadata.DisplayName()));
-            }
-
             Builder = builder;
         }
 
@@ -111,6 +105,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
             => new KeyBuilder(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+
+        /// <summary>
+        ///     Configures the entity type to have no keys. It will only be usable for queries.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder HasNoKey()
+        {
+            Builder.HasNoKey(ConfigurationSource.Explicit);
+            return this;
+        }
 
         /// <summary>
         ///     <para>

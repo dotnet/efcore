@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ISet<IForeignKey> handledForeignKeys,
             bool fromQuery)
         {
-            var entityType = (EntityType)entry.EntityType;
+            var entityType = entry.EntityType;
             var stateManager = entry.StateManager;
             IForeignKey conflictingPrincipalForeignKey = null;
             var matchingPrincipal = false;
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
-                if (!foreignKey.DeclaringEntityType.IsQueryType
+                if (foreignKey.DeclaringEntityType.FindPrimaryKey() != null
                     && handledForeignKeys?.Contains(foreignKey) != true)
                 {
                     var dependents = stateManager.GetDependents(entry, foreignKey);
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys())
                 {
-                    if (!foreignKey.DeclaringEntityType.IsQueryType)
+                    if (foreignKey.DeclaringEntityType.FindPrimaryKey() != null)
                     {
                         var principalToDependent = foreignKey.PrincipalToDependent;
                         if (principalToDependent != null)

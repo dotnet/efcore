@@ -727,22 +727,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
-        public void Can_set_discriminator_values_for_query_types()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder.Ignore<Order>();
-
-            modelBuilder.Query<Customer>()
-                .HasDiscriminator<string>("Type")
-                .HasValue<Customer>("Base")
-                .HasValue<SpecialCustomer>("Derived");
-
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Customer)).IsQueryType);
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).IsQueryType);
-        }
-
-        [Fact]
         public void Can_set_schema_on_model()
         {
             var modelBuilder = CreateConventionModelBuilder();

@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private readonly IDbSetFinder _setFinder;
         private readonly IDbSetSource _setSource;
-        private readonly IDbQuerySource _querySource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -30,12 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public DbSetInitializer(
             [NotNull] IDbSetFinder setFinder,
-            [NotNull] IDbSetSource setSource,
-            [NotNull] IDbQuerySource querySource)
+            [NotNull] IDbSetSource setSource)
         {
             _setFinder = setFinder;
             _setSource = setSource;
-            _querySource = querySource;
         }
 
         /// <summary>
@@ -48,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 setInfo.Setter.SetClrValue(
                     context,
-                    setInfo.IsQueryType
-                        ? ((IDbQueryCache)context).GetOrAddQuery(_querySource, setInfo.ClrType)
-                        : ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
+                    ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
             }
         }
     }

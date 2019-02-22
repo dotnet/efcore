@@ -61,20 +61,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public Task Use_of_query_throws_if_context_is_disposed()
-        {
-            DbQuery<Curious> query;
-
-            using (var context = new EarlyLearningCenter())
-            {
-                query = context.Georges;
-            }
-
-            Assert.Throws<ObjectDisposedException>(() => query.ToList());
-            return Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
-        }
-
-        [Fact]
         public async Task Use_of_set_throws_if_obtained_from_disposed_context()
         {
             var context = new EarlyLearningCenter();
@@ -94,33 +80,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public Task Use_of_query_throws_if_obtained_from_disposed_context()
-        {
-            var context = new EarlyLearningCenter();
-            context.Dispose();
-
-            var query = context.Georges;
-
-            Assert.Throws<ObjectDisposedException>(() => query.ToList());
-            return Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
-        }
-
-        [Fact]
         public void Direct_use_of_Set_throws_if_context_disposed()
         {
             var context = new EarlyLearningCenter();
             context.Dispose();
 
             Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
-        }
-
-        [Fact]
-        public void Direct_use_of_Query_throws_if_context_disposed()
-        {
-            var context = new EarlyLearningCenter();
-            context.Dispose();
-
-            Assert.Throws<ObjectDisposedException>(() => context.Query<Curious>());
         }
 
         [Fact]
@@ -785,7 +750,6 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
-            public DbQuery<Curious> Georges { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

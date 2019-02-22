@@ -535,32 +535,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_ToQuery_on_derived_query_types()
+        public virtual void Detects_ToQuery_on_derived_keyless_types()
         {
             var modelBuilder = base.CreateConventionalModelBuilder();
             var context = new DbContext(new DbContextOptions<DbContext>());
-            modelBuilder.Query<Abstract>().ToQuery(() => context.Set<Abstract>());
-            modelBuilder.Query<Generic<int>>().ToQuery(() => context.Set<Generic<int>>());
+            modelBuilder.Entity<Abstract>().HasNoKey().ToQuery(() => context.Set<Abstract>());
+            modelBuilder.Entity<Generic<int>>().ToQuery(() => context.Set<Generic<int>>());
 
             VerifyError(
-                CoreStrings.DerivedQueryTypeDefiningQuery("Generic<int>", nameof(Abstract)),
-                modelBuilder.Model);
-        }
-
-        [Fact]
-        public virtual void Detects_keys_on_query_types()
-        {
-            var modelBuilder = base.CreateConventionalModelBuilder();
-            var context = new DbContext(new DbContextOptions<DbContext>());
-            var queryType = modelBuilder.Query<A>().Metadata;
-
-            if (queryType.GetKeys().Count() == 0)
-            {
-                queryType.AddKey(queryType.FindProperty(nameof(A.Id)));
-            }
-
-            VerifyError(
-                CoreStrings.QueryTypeWithKey("{'Id'}", nameof(A)),
+                CoreStrings.DerivedTypeDefiningQuery("Generic<int>", nameof(Abstract)),
                 modelBuilder.Model);
         }
 

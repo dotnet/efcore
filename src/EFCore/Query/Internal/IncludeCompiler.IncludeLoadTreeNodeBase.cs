@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     = queryCompilationContext.FindEntityType(targetQuerySourceReferenceExpression.ReferencedQuerySource)
                       ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type);
 
-                if (entityType.IsQueryType)
+                if (entityType.FindPrimaryKey() == null)
                 {
                     trackingQuery = false;
                 }

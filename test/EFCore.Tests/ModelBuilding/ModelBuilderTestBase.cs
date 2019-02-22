@@ -160,12 +160,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
-            public abstract TestQueryTypeBuilder<TQuery> Query<TQuery>()
-                where TQuery : class;
-
-            public abstract TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
-                where TQuery : class;
-
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
@@ -200,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
             public abstract TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);
             public abstract TestKeyBuilder HasAlternateKey(params string[] propertyNames);
+            public abstract TestEntityTypeBuilder<TEntity> HasNoKey();
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TEntity, TProperty>> propertyExpression);
@@ -258,36 +253,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public abstract class TestOwnedEntityTypeBuilder<TEntity>
             where TEntity : class
         {
-        }
-
-        public abstract class TestQueryTypeBuilder<TEntity>
-            where TEntity : class
-        {
-            public abstract IMutableEntityType Metadata { get; }
-            public abstract TestQueryTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
-
-            public abstract TestQueryTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
-                where TBaseEntity : class;
-
-            public abstract TestQueryTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
-
-            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
-                Expression<Func<TEntity, TProperty>> propertyExpression);
-
-            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
-
-            public abstract TestQueryTypeBuilder<TEntity> Ignore(
-                Expression<Func<TEntity, object>> propertyExpression);
-
-            public abstract TestQueryTypeBuilder<TEntity> Ignore(string propertyName);
-
-            public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
-                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
-                where TRelatedEntity : class;
-
-            public abstract TestQueryTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
-
-            public abstract TestQueryTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         }
 
         public class TestKeyBuilder : IInfrastructure<KeyBuilder>

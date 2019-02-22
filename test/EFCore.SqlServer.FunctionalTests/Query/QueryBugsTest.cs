@@ -3962,7 +3962,7 @@ WHERE EXISTS (
         }
 
         [Fact(Skip = "Issue#13361")]
-        public virtual void Query_type_used_inside_defining_query()
+        public virtual void Keyless_type_used_inside_defining_query()
         {
             using (CreateDatabase11803())
             {
@@ -4043,7 +4043,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
         {
             public DbSet<Faction> Factions { get; set; }
             public DbSet<Leader> Leaders { get; set; }
-            public DbQuery<LeaderQuery> LeadersQuery { get; set; }
+            public DbSet<LeaderQuery> LeadersQuery { get; set; }
 
             public MyContext11803(DbContextOptions options)
                 : base(options)
@@ -4056,7 +4056,8 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                 modelBuilder.Entity<Faction>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
 
                 modelBuilder
-                    .Query<FactionQuery>()
+                    .Entity<FactionQuery>()
+                    .HasNoKey()
                     .ToQuery(
                         () => Set<Leader>()
                             .Where(lq => lq.Name != "Foo")
@@ -4067,9 +4068,10 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                                 }));
 
                 modelBuilder
-                    .Query<LeaderQuery>()
+                    .Entity<LeaderQuery>()
+                    .HasNoKey()
                     .ToQuery(
-                        () => Query<FactionQuery>()
+                        () => Set<FactionQuery>()
                             .Where(fq => fq.Name != "Bar")
                             .Select(
                                 fq => new LeaderQuery
@@ -5160,7 +5162,7 @@ ORDER BY [t].[Id]");
             {
                 using (var context = new MyContext13346(_options))
                 {
-                    var query = context.Query<OrderSummary13346>().ToList();
+                    var query = context.Set<OrderSummary13346>().ToList();
 
                     Assert.Equal(4, query.Count);
 
@@ -5199,9 +5201,11 @@ ORDER BY [t].[Id]");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Query<OrderSummary13346>().ToQuery(
-                    () => Query<OrderSummary13346>()
-                        .FromSql("SELECT o.Amount From Orders AS o"));
+                modelBuilder.Entity<OrderSummary13346>()
+                    .HasNoKey()
+                    .ToQuery(
+                        () => Set<OrderSummary13346>()
+                            .FromSql("SELECT o.Amount From Orders AS o"));
             }
         }
 

@@ -178,9 +178,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
                 }
 
-                if (entityType.IsQueryType)
+                if (entityType.FindPrimaryKey() == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.QueryTypeNotValid(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);

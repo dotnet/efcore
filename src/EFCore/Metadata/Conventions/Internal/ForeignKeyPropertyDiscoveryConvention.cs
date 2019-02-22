@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var invertable = true;
             if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType
                 || foreignKey.IsOwnership
-                || foreignKey.DeclaringEntityType.IsQueryType
+                || foreignKey.DeclaringEntityType.IsKeyless
                 || foreignKey.IsSelfReferencing()
                 || foreignKey.PrincipalToDependent?.IsCollection() == true
                 || foreignKey.DeclaringEntityType.FindOwnership() != null)
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                 && foreignKey.DeclaringEntityType.DefiningEntityType != foreignKey.PrincipalEntityType
                 && !foreignKey.IsOwnership
-                && !foreignKey.DeclaringEntityType.IsQueryType
+                && !foreignKey.DeclaringEntityType.IsKeyless
                 && !foreignKey.IsSelfReferencing()
                 && foreignKey.PrincipalToDependent?.IsCollection() != true
                 && foreignKey.DeclaringEntityType.FindOwnership() == null)

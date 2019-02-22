@@ -300,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Person", x =>
                         {
                             x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                            x.HasKey("FullName");
                             x.HasIndex("FullName");
                         }),
                 new AlterColumnOperation
@@ -341,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             x.ForSqlServerIsMemoryOptimized();
                             x.Property<string>("Name");
+                            x.HasKey("Name");
                             x.HasIndex("Name");
                         }),
                 new AlterColumnOperation
@@ -379,6 +381,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Person", x =>
                         {
                             x.Property<string>("Name");
+                            x.HasKey("Name");
                             x.HasIndex("Name");
                         }),
                 new AlterColumnOperation
@@ -416,6 +419,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Person", x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
+                            x.HasKey("Name");
                             x.HasIndex("Name");
                         }),
                 new AlterColumnOperation
@@ -458,6 +462,7 @@ namespace Microsoft.EntityFrameworkCore
                             x.Property<string>("Name").HasMaxLength(30);
                             x.Property<string>("FirstName");
                             x.Property<string>("LastName");
+                            x.HasKey("Name");
                             x.HasIndex("FirstName", "LastName")
                                 .ForSqlServerInclude("Name");
                         }),
@@ -574,6 +579,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             x.Property<string>("FirstName").IsRequired();
                             x.Property<string>("LastName");
+                            x.HasKey("LastName");
                             x.HasIndex("FirstName", "LastName");
                         }),
                 new AlterColumnOperation
@@ -1100,7 +1106,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_unique_bound_not_null()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
+                modelBuilder => modelBuilder.Entity("People", x =>
+                {
+                    x.Property<string>("Name").IsRequired();
+                    x.HasKey("Name");
+                }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1118,8 +1128,12 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").ToTable("People", "dbo").ForSqlServerIsMemoryOptimized()
-                    .Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("People", x =>
+                {
+                    x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1138,7 +1152,12 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("People", x =>
+                {
+                    x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1157,7 +1176,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired(),
+                modelBuilder => modelBuilder.Entity("People", x =>
+                {
+                    x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
+                    x.HasKey("Name");
+                }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1249,7 +1272,12 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void DropIndexOperation_memoryOptimized()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized(),
+                modelBuilder => modelBuilder.Entity("People", x =>
+                {
+                    x.ForSqlServerIsMemoryOptimized();
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                }),
                 new DropIndexOperation
                 {
                     Name = "IX_People_Name",
