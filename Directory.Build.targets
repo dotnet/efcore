@@ -6,6 +6,11 @@
     <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Workaround https://github.com/dotnet/sdk/issues/2976 -->
+    <PackageReference Update="Microsoft.NETCore.Platforms" PrivateAssets="All" />
+  </ItemGroup>
+
   <!-- This is required to workaround overlap between System.Collections.Generic.IAsyncEnumerable in System.Runtime and System.Interactive.Async. -->
   <Target Name="AddAssemblyAliasToReactiveAsync"
           AfterTargets="ResolveAssemblyReferences"
