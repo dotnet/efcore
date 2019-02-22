@@ -345,12 +345,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> False since no database provider is registered. </returns>
         public virtual bool ApplyServices(IServiceCollection services)
         {
-            var loggerFactory = GetLoggerFactory();
-            if (loggerFactory != null)
-            {
-                services.AddScoped<ILoggerFactory>(_ => new ExternalLoggerFactory(loggerFactory));
-            }
-
             var memoryCache = GetMemoryCache();
             if (memoryCache != null)
             {
@@ -362,9 +356,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private IMemoryCache GetMemoryCache()
             => MemoryCache;
-
-        private ILoggerFactory GetLoggerFactory()
-            => LoggerFactory ?? ApplicationServiceProvider?.GetService<ILoggerFactory>();
 
         /// <summary>
         ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />

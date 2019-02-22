@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public class ListLoggerFactory : ILoggerFactory
     {
         private readonly Func<string, bool> _shouldLogCategory;
+        private bool _disposed;
 
         public ListLoggerFactory()
             : this(_ => true)
@@ -37,16 +38,30 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public virtual ILogger CreateLogger(string name)
-            => !_shouldLogCategory(name)
+        {
+            CheckDisposed();
+
+            return !_shouldLogCategory(name)
                 ? (ILogger)NullLogger.Instance
                 : Logger;
+        }
+
+        private void CheckDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ListLoggerFactory));
+            }
+        }
 
         public void AddProvider(ILoggerProvider provider)
         {
+            CheckDisposed();
         }
 
         public void Dispose()
         {
+            _disposed = true;
         }
 
         protected class ListLogger : ILogger

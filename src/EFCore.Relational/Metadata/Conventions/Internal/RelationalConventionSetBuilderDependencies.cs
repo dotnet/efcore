@@ -69,7 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             TypeMappingSource = typeMappingSource;
             Logger = logger
-                     ?? new DiagnosticsLogger<DbLoggerCategory.Model>(new LoggerFactory(), new LoggingOptions(), new DiagnosticListener(""));
+                     ?? new DiagnosticsLogger<DbLoggerCategory.Model>(
+                         new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
+                         new LoggingOptions(),
+                         new DiagnosticListener(""));
             Context = currentContext;
             SetFinder = setFinder;
         }
