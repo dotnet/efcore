@@ -991,14 +991,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Detects_ToView_on_derived_query_types()
+        public virtual void Detects_ToTable_on_derived_entity_types()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Query<Animal>().ToView("Animal");
-            modelBuilder.Query<Cat>().ToView("Cat");
+            modelBuilder.Entity<Animal>().ToTable("Animal");
+            modelBuilder.Entity<Cat>().ToTable("Cat");
 
             VerifyError(
-                RelationalStrings.DerivedQueryTypeView(nameof(Cat), nameof(Animal)),
+                RelationalStrings.DerivedTypeTable(nameof(Cat), nameof(Animal)),
                 modelBuilder.Model);
         }
 

@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public class IQueryTypeConfigurationTest
         {
             [Fact]
@@ -134,5 +135,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

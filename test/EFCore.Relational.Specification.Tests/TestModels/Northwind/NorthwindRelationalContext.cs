@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
 
-            modelBuilder.Query<CustomerView>().ToView("Customers");
+#pragma warning disable CS0618 // Type or member is obsolete
+            modelBuilder.Query<CustomerView>().HasNoKey().ToView("Customers");
 
             modelBuilder
                 .Query<OrderQuery>()
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             }));
 
             modelBuilder.Query<ProductQuery>().ToView("Alphabetical list of products");
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

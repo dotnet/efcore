@@ -2450,11 +2450,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             public override IQueryable<TEntity> Set<TEntity>(DbContext context)
             {
-                var entityOrQueryType = context.Model.FindEntityType(typeof(TEntity));
-
-                return entityOrQueryType.IsQueryType
-                    ? (IQueryable<TEntity>)context.Query<TEntity>()
-                    : context.Set<TEntity>();
+                return context.Set<TEntity>();
             }
         }
     }

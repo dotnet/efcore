@@ -40,20 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = context.Query<ProductQuery>().ToArray();
+                var results = context.Set<ProductQuery>().ToArray();
 
                 Assert.Equal(69, results.Length);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Query_throws_for_non_query()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidSetTypeEntity(nameof(Product)),
-                    Assert.Throws<InvalidOperationException>(() => context.Query<Product>().ToArray()).Message);
             }
         }
 
@@ -74,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var results
-                    = context.Query<CustomerQuery>()
+                    = context.Set<CustomerQuery>()
                         .Where(cq => cq.OrderCount > 0)
                         .ToArray();
 

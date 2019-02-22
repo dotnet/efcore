@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class InternalDbSet<TEntity> :
-        DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+#pragma warning disable CS0618 // Type or member is obsolete
+        DbQuery<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+#pragma warning restore CS0618 // Type or member is obsolete
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -73,13 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidSetTypeOwned(typeof(TEntity).ShortDisplayName()));
                 }
 
-                if (_entityType.IsQueryType)
-                {
-                    _entityType = null;
-
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeQuery(typeof(TEntity).ShortDisplayName()));
-                }
-
                 return _entityType;
             }
         }
@@ -88,6 +83,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             // ReSharper disable once AssignmentIsFullyDiscarded
             _ = EntityType;
+        }
+
+        private void CheckKey()
+        {
+            if (EntityType.FindPrimaryKey() == null)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(typeof(TEntity).ShortDisplayName()));
+            }
         }
 
         private EntityQueryable<TEntity> EntityQueryable
@@ -114,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get
             {
-                CheckState();
+                CheckKey();
 
                 return _localView ?? (_localView = new LocalView<TEntity>(this));
             }

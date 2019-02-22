@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var animalQueries = context.Query<AnimalQuery>().OrderBy(av => av.CountryId).ToList();
+                var animalQueries = context.Set<AnimalQuery>().OrderBy(av => av.CountryId).ToList();
 
                 Assert.Equal(2, animalQueries.Count);
                 Assert.IsType<KiwiQuery>(animalQueries[0]);

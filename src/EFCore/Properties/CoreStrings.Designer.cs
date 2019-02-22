@@ -2398,60 +2398,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogDetachedLazyLoading")));
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.
+        ///     Unable to create a foreign key with the keyless type '{entityType}' as the principal type. Only entity types with keys are allowed as foreign key principal types.
         /// </summary>
-        public static string InvalidSetTypeQuery([CanBeNull] object typeName)
+        public static string KeylessTypeCannotBePrincipal([CanBeNull] object entityType)
             => string.Format(
-                GetString("InvalidSetTypeQuery", nameof(typeName)),
-                typeName);
-
-        /// <summary>
-        ///     Cannot create a DbQuery for '{typeName}' because it is not a query type. Use the DbContext.Set method to create a DbSet instead.
-        /// </summary>
-        public static string InvalidSetTypeEntity([CanBeNull] object typeName)
-            => string.Format(
-                GetString("InvalidSetTypeEntity", nameof(typeName)),
-                typeName);
-
-        /// <summary>
-        ///     Unable to create a foreign key with the query type '{queryType}' as the principal type. Only entity types are allowed as foreign key principal types.
-        /// </summary>
-        public static string QueryTypeCannotBePrincipal([CanBeNull] object queryType)
-            => string.Format(
-                GetString("QueryTypeCannotBePrincipal", nameof(queryType)),
-                queryType);
-
-        /// <summary>
-        ///     Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.
-        /// </summary>
-        public static string QueryTypeNotValid([CanBeNull] object type)
-            => string.Format(
-                GetString("QueryTypeNotValid", nameof(type)),
-                type);
-
-        /// <summary>
-        ///     Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.
-        /// </summary>
-        public static string MixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
-            => string.Format(
-                GetString("MixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
-                baseType, derivedType);
-
-        /// <summary>
-        ///     The query type '{queryType}' cannot be added to the model because an entity type with the same name already exists.
-        /// </summary>
-        public static string CannotAccessEntityAsQuery([CanBeNull] object queryType)
-            => string.Format(
-                GetString("CannotAccessEntityAsQuery", nameof(queryType)),
-                queryType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.
-        /// </summary>
-        public static string CannotAccessQueryAsEntity([CanBeNull] object entityType)
-            => string.Format(
-                GetString("CannotAccessQueryAsEntity", nameof(entityType)),
+                GetString("KeylessTypeCannotBePrincipal", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Unable to track an instance of type '{type}' because it does not have a primary key. Only entity types with primary keys may be tracked.
+        /// </summary>
+        public static string KeylessTypeTracked([CanBeNull] object type)
+            => string.Format(
+                GetString("KeylessTypeTracked", nameof(type)),
+                type);
 
         /// <summary>
         ///     The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.
@@ -2693,12 +2653,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ErrorInvalidQueryable");
 
         /// <summary>
-        ///     The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.
+        ///     The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base keyless entity types can have a defining query.
         /// </summary>
-        public static string DerivedQueryTypeDefiningQuery([CanBeNull] object queryType, [CanBeNull] object baseType)
+        public static string DerivedTypeDefiningQuery([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
-                GetString("DerivedQueryTypeDefiningQuery", nameof(queryType), nameof(baseType)),
-                queryType, baseType);
+                GetString("DerivedTypeDefiningQuery", nameof(entityType), nameof(baseType)),
+                entityType, baseType);
 
         /// <summary>
         ///     The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.
@@ -2707,14 +2667,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("OwnerlessOwnedType", nameof(ownedType)),
                 ownedType);
-
-        /// <summary>
-        ///     The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.
-        /// </summary>
-        public static string DuplicateQueryType([CanBeNull] object queryType)
-            => string.Format(
-                GetString("DuplicateQueryType", nameof(queryType)),
-                queryType);
 
         /// <summary>
         ///     {error}
@@ -2762,20 +2714,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 failedBinds, parameters);
 
         /// <summary>
-        ///     The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.
+        ///     The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.
         /// </summary>
-        public static string NavigationToQueryType([CanBeNull] object navigation, [CanBeNull] object queryType)
+        public static string NavigationToKeylessType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
-                GetString("NavigationToQueryType", nameof(navigation), nameof(queryType)),
-                navigation, queryType);
+                GetString("NavigationToKeylessType", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
 
         /// <summary>
-        ///     The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.
+        ///     The entity type '{entityType}' cannot be marked as keyless because it contains a key.
         /// </summary>
-        public static string QueryTypeWithKey([CanBeNull] object key, [CanBeNull] object queryType)
+        public static string KeylessTypeExistingKey([CanBeNull] object entityType)
             => string.Format(
-                GetString("QueryTypeWithKey", nameof(key), nameof(queryType)),
-                key, queryType);
+                GetString("KeylessTypeExistingKey", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The key {key} cannot be added to keyless type '{entityType}'.
+        /// </summary>
+        public static string KeylessTypeWithKey([CanBeNull] object key, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("KeylessTypeWithKey", nameof(key), nameof(entityType)),
+                key, entityType);
 
         /// <summary>
         ///     The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.
@@ -2813,6 +2773,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("InvalidSetTypeOwned", nameof(typeName)),
                 typeName);
+
+        /// <summary>
+        ///     The invoked method is cannot be used for the entity type '{entityType}' because it does not have a primary key.
+        /// </summary>
+        public static string InvalidSetKeylessOperation([CanBeNull] object entityType)
+            => string.Format(
+                GetString("InvalidSetKeylessOperation", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot have a defining query because it has a primary key. Only keyless entity types can have a defining query.
+        /// </summary>
+        public static string NonKeylessEntityTypeDefiningQuery([CanBeNull] object entityType)
+            => string.Format(
+                GetString("NonKeylessEntityTypeDefiningQuery", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     A '{derivedType}' cannot be configured as keyless because it is a derived type. The root type '{rootType}' must be configured as keyless. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.
+        /// </summary>
+        public static string DerivedEntityTypeHasNoKey([CanBeNull] object derivedType, [CanBeNull] object rootType)
+            => string.Format(
+                GetString("DerivedEntityTypeHasNoKey", nameof(derivedType), nameof(rootType)),
+                derivedType, rootType);
+
+        /// <summary>
+        ///     Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.
+        /// </summary>
+        public static string DerivedEntityCannotBeKeyless([CanBeNull] object entityType)
+            => string.Format(
+                GetString("DerivedEntityCannotBeKeyless", nameof(entityType)),
+                entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

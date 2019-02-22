@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact(Skip = "See issue#13857")]
-        public override void Query_with_query_type()
+        public override void Query_with_keyless_type()
         {
-            base.Query_with_query_type();
+            base.Query_with_keyless_type();
         }
 
         public override void Query_and_update_using_constructors_with_property_parameters()
@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
 
                 modelBuilder
-                    .Query<BlogQuery>()
+                    .Entity<BlogQuery>()
+                    .HasNoKey()
                     .ToQuery(() => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
             }
         }

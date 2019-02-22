@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var candidateTargetEntityType = candidateTargetEntityTypeBuilder.Metadata;
-                if (candidateTargetEntityType.IsQueryType)
+                if (candidateTargetEntityType.IsKeyless)
                 {
                     continue;
                 }
@@ -168,39 +168,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     navigationPropertyInfo
                 };
-                var inverseCandidates = GetNavigationCandidates(candidateTargetEntityType);
                 var inverseNavigationCandidates = new List<PropertyInfo>();
 
-                foreach (var inverseCandidateTuple in inverseCandidates)
+                if (!entityType.IsKeyless)
                 {
-                    var inversePropertyInfo = inverseCandidateTuple.Key;
-                    var inverseTargetType = inverseCandidateTuple.Value;
-
-                    if ((inverseTargetType != entityType.ClrType
-                         && (!inverseTargetType.IsAssignableFrom(entityType.ClrType)
-                             || (!model.ShouldBeOwnedType(targetClrType)
-                                 && !candidateTargetEntityType.IsInOwnershipPath(entityType))))
-                        || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
-                        || entityType.IsQueryType
-                        || (ownership != null
-                            && !candidateTargetEntityType.IsInOwnershipPath(entityType)
-                            && (candidateTargetEntityType.IsOwned()
-                                || !model.ShouldBeOwnedType(targetClrType))
-                            && (ownership.PrincipalEntityType != candidateTargetEntityType
-                                || ownership.PrincipalToDependent.Name != inversePropertyInfo.GetSimpleMemberName()))
-                        || (entityType.HasDefiningNavigation()
-                            && !candidateTargetEntityType.IsInDefinitionPath(entityType.ClrType)
-                            && (entityType.DefiningEntityType != candidateTargetEntityType
-                                || entityType.DefiningNavigationName != inversePropertyInfo.GetSimpleMemberName()))
-                        || !IsCandidateNavigationProperty(
-                            candidateTargetEntityTypeBuilder, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo))
+                    var inverseCandidates = GetNavigationCandidates(candidateTargetEntityType);
+                    foreach (var inverseCandidateTuple in inverseCandidates)
                     {
-                        continue;
-                    }
+                        var inversePropertyInfo = inverseCandidateTuple.Key;
+                        var inverseTargetType = inverseCandidateTuple.Value;
 
-                    if (!inverseNavigationCandidates.Contains(inversePropertyInfo))
-                    {
-                        inverseNavigationCandidates.Add(inversePropertyInfo);
+                        if ((inverseTargetType != entityType.ClrType
+                             && (!inverseTargetType.IsAssignableFrom(entityType.ClrType)
+                                 || (!model.ShouldBeOwnedType(targetClrType)
+                                     && !candidateTargetEntityType.IsInOwnershipPath(entityType))))
+                            || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
+                            || (ownership != null
+                                && !candidateTargetEntityType.IsInOwnershipPath(entityType)
+                                && (candidateTargetEntityType.IsOwned()
+                                    || !model.ShouldBeOwnedType(targetClrType))
+                                && (ownership.PrincipalEntityType != candidateTargetEntityType
+                                    || ownership.PrincipalToDependent.Name != inversePropertyInfo.GetSimpleMemberName()))
+                            || (entityType.HasDefiningNavigation()
+                                && !candidateTargetEntityType.IsInDefinitionPath(entityType.ClrType)
+                                && (entityType.DefiningEntityType != candidateTargetEntityType
+                                    || entityType.DefiningNavigationName != inversePropertyInfo.GetSimpleMemberName()))
+                            || !IsCandidateNavigationProperty(
+                                candidateTargetEntityTypeBuilder, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo))
+                        {
+                            continue;
+                        }
+
+                        if (!inverseNavigationCandidates.Contains(inversePropertyInfo))
+                        {
+                            inverseNavigationCandidates.Add(inversePropertyInfo);
+                        }
                     }
                 }
 
@@ -943,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
                && sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) == null
                && (!(memberInfo is PropertyInfo propertyInfo) || propertyInfo.GetIndexParameters().Length == 0)
-               && (!sourceEntityTypeBuilder.Metadata.IsQueryType
+               && (!sourceEntityTypeBuilder.Metadata.IsKeyless
                    || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
         /// <summary>

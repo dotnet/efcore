@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
-        public void Model_differ_does_not_detect_query_types()
+        public void Model_differ_does_not_detect_keyless_types()
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Query<TestQueryType>(),
+                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey(),
                 result => Assert.Equal(0, result.Count));
         }
 

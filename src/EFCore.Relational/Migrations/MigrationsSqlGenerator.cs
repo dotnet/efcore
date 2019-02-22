@@ -1648,7 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => t.Relational().TableName == tableName && t.Relational().Schema == schema && !t.IsQueryType);
+                t => t.Relational().TableName == tableName && t.Relational().Schema == schema && t.FindPrimaryKey() != null);
 
         /// <summary>
         ///     <para>

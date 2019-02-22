@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Dictionary<string, Index> Indexes)>();
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                if (entityType.IsQueryType)
+                if (entityType.IsKeyless)
                 {
                     continue;
                 }

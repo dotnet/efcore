@@ -6692,8 +6692,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Deposit>();
                 modelBuilder.Entity<SimpleProduct>();
 
-                modelBuilder.Query<OptionalChildView>();
-                modelBuilder.Query<RequiredChildView>();
+                modelBuilder.Entity<OptionalChildView>().HasNoKey();
+                modelBuilder.Entity<RequiredChildView>().HasNoKey();
             }
 
             protected override void Seed(PoolableDbContext context)

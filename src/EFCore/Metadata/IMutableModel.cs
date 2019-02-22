@@ -117,12 +117,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> All entity types defined in the model. </returns>
         new IEnumerable<IMutableEntityType> GetEntityTypes();
-
-        /// <summary>
-        ///     Adds a query type to the model.
-        /// </summary>
-        /// <param name="type">The CLR class that is used to represent instances of the query type.</param>
-        /// <returns>The query type.</returns>
-        IMutableEntityType AddQueryType([NotNull] Type type);
     }
 }

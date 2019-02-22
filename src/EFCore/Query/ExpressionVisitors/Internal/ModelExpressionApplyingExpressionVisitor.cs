@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsViewTypeQuery { get; private set; }
+        public virtual bool IsKeylessQuery { get; private set; }
 
         private static readonly MethodInfo _whereMethod
             = typeof(Queryable)
@@ -108,9 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Expression newExpression = constantExpression;
 
-                    if (entityType.IsQueryType)
+                    if (entityType.FindPrimaryKey() == null)
                     {
-                        IsViewTypeQuery = true;
+                        IsKeylessQuery = true;
 
                         var query = entityType.DefiningQuery;
 

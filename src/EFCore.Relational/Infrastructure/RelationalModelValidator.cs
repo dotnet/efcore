@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateSharedTableCompatibility([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
                 var annotations = entityType.Relational();
                 var tableName = Format(annotations.Schema, annotations.TableName);
@@ -472,11 +472,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
-                    && entityType.IsQueryType
-                    && entityType[RelationalAnnotationNames.TableName] != null)
+                    && entityType[RelationalAnnotationNames.TableName] != null
+                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName).GetConfigurationSource()
+                        == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(
-                        RelationalStrings.DerivedQueryTypeView(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                        RelationalStrings.DerivedTypeTable(entityType.DisplayName(), entityType.BaseType.DisplayName()));
                 }
             }
         }

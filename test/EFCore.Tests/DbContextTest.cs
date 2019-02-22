@@ -855,7 +855,6 @@ namespace Microsoft.EntityFrameworkCore
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Query<object>());
             Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
             Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));

@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual void Adding_entity_to_state_manager_of_different_type_than_local_query_type_has_no_effect_on_local_view(
+        public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_view(
             bool toObservableCollection)
         {
             using (var context = CreateF1Context())
@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Adding_entity_to_state_manager_of_different_type_than_local_query_type_has_no_effect_on_local_binding_list()
+        public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_binding_list()
         {
             using (var context = CreateF1Context())
             {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -109,6 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
+        ///     Configures the entity type to have no keys. It will only be usable for queries.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> HasNoKey()
+            => (EntityTypeBuilder<TEntity>)base.HasNoKey();
+
+        /// <summary>
         ///     Returns an object that can be used to configure a property of the entity type.
         ///     If the specified property is not already part of the model, it will be added.
         /// </summary>
@@ -150,6 +158,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] Expression<Func<TEntity, bool>> filter)
             => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
+
+        /// <summary>
+        ///     Configures a query used to provide data for a keyless entity type.
+        /// </summary>
+        /// <param name="query"> The query that will provider the underlying data for the query type. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual EntityTypeBuilder<TEntity> ToQuery([NotNull] Expression<Func<IQueryable<TEntity>>> query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            Builder.HasDefiningQuery(query);
+
+            return this;
+        }
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given

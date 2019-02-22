@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Query<BlogQuery>().ToView("Blog");
+                modelBuilder.Entity<BlogQuery>().HasNoKey().ToTable("Blog");
             }
         }
     }

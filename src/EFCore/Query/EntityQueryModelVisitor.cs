@@ -686,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OfType<TrackingResultOperator>()
                     .LastOrDefault();
 
-            return !_modelExpressionApplyingExpressionVisitor.IsViewTypeQuery
+            return !_modelExpressionApplyingExpressionVisitor.IsKeylessQuery
                    && !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
                    && (QueryCompilationContext.TrackQueryResults || lastTrackingModifier != null)
                    && (lastTrackingModifier?.IsTracking != false);

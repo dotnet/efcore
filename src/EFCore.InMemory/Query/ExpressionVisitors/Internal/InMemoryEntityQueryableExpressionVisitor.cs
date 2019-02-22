@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.ExpressionVisitors.Intern
                     materializer,
                     Expression.Constant(
                         QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                        && !entityType.IsQueryType));
+                        && entityType.FindPrimaryKey() != null));
             }
 
             return Expression.Call(

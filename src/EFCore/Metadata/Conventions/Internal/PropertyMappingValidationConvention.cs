@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         // ReSharper disable CheckForReferenceEqualityInstead.1
                         // ReSharper disable CheckForReferenceEqualityInstead.3
-                        if ((!entityType.IsQueryType
+                        if ((!entityType.IsKeyless
                              || targetSequenceType == null)
                             && entityType.GetDerivedTypes().All(
                                 dt => dt.FindDeclaredNavigation(actualProperty.GetSimpleMemberName()) == null)

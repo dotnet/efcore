@@ -1648,8 +1648,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_set_index_name_generic()
         {
-            // this is EFCore.Relational test, however accessing `IndexBuilder<T>` currently goes through SQL server
-
             var modelBuilder = CreateConventionModelBuilder();
 
             var returnedBuilder = modelBuilder
@@ -1667,8 +1665,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_write_index_builder_extension_with_where_clauses_generic()
         {
-            // this is EFCore.Relational test, however accessing `IndexBuilder<T>` currently goes through SQL server
-
             var modelBuilder = CreateConventionModelBuilder();
 
             var returnedBuilder = modelBuilder

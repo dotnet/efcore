@@ -902,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
 
-            Assert.Equal(
+Assert.Equal(
                 CoreStrings.DerivedEntityTypeKey(typeof(SpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () =>
@@ -1060,6 +1060,84 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, entityBuilder.Metadata.GetProperties().Count(p => p.Name == shadowProperty.Metadata.Name));
             Assert.Empty(
                 entityBuilder.Metadata.GetKeys().Where(foreignKey => foreignKey.Properties.SequenceEqual(key.Metadata.Properties)));
+        }
+
+        [Fact]
+        public void HasNoKey_can_override_lower_or_equal_source_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var entityType = entityBuilder.Metadata;
+
+            Assert.False(entityType.IsKeyless);
+
+            Assert.NotNull(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
+            Assert.False(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.Convention, entityType.GetIsKeylessConfigurationSource());
+
+            Assert.NotNull(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation));
+            Assert.False(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.DataAnnotation, entityType.GetIsKeylessConfigurationSource());
+
+            Assert.True(entityBuilder.HasNoKey(ConfigurationSource.DataAnnotation));
+            Assert.True(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.DataAnnotation, entityType.GetIsKeylessConfigurationSource());
+            Assert.Empty(entityType.GetKeys());
+
+            Assert.Null(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
+            Assert.Empty(entityType.GetKeys());
+
+            Assert.NotNull(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit));
+            Assert.NotEmpty(entityType.GetKeys());
+
+            Assert.False(entityBuilder.HasNoKey(ConfigurationSource.DataAnnotation));
+            Assert.False(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.Explicit, entityType.GetIsKeylessConfigurationSource());
+            Assert.NotEmpty(entityType.GetKeys());
+
+            Assert.Equal(CoreStrings.KeylessTypeExistingKey(nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
+            Assert.NotEmpty(entityType.GetKeys());
+        }
+
+        [Fact]
+        public void HasKey_can_override_lower_or_equal_source_HasNoKey()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var entityType = entityBuilder.Metadata;
+
+            Assert.True(entityBuilder.HasNoKey(ConfigurationSource.Convention));
+            Assert.True(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.Convention, entityType.GetIsKeylessConfigurationSource());
+
+            Assert.True(entityBuilder.HasNoKey(ConfigurationSource.DataAnnotation));
+            Assert.True(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.DataAnnotation, entityType.GetIsKeylessConfigurationSource());
+
+            Assert.NotNull(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation));
+            Assert.False(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.DataAnnotation, entityType.GetIsKeylessConfigurationSource());
+            Assert.NotEmpty(entityType.GetKeys());
+
+            var shadowProperty = entityBuilder.Property("Shadow", typeof(Guid), ConfigurationSource.Convention);
+            Assert.NotNull(entityBuilder.HasKey(new[] { shadowProperty.Metadata.Name }, ConfigurationSource.Convention));
+
+            Assert.False(entityBuilder.HasNoKey(ConfigurationSource.Convention));
+            Assert.Equal(2, entityType.GetKeys().Count());
+
+            Assert.True(entityBuilder.HasNoKey(ConfigurationSource.Explicit));
+            Assert.Empty(entityType.GetKeys());
+
+            Assert.Null(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation));
+            Assert.True(entityType.IsKeyless);
+            Assert.Equal(ConfigurationSource.Explicit, entityType.GetIsKeylessConfigurationSource());
+            Assert.Empty(entityType.GetKeys());
+
+            Assert.Equal(CoreStrings.KeylessTypeWithKey("{'CustomerId'}", nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
         }
 
         [Fact]

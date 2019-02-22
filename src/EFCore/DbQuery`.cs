@@ -2,12 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -33,55 +27,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <typeparam name="TQuery"> The type of view being operated on by this view. </typeparam>
-    public abstract class DbQuery<TQuery>
-        : IQueryable<TQuery>, IAsyncEnumerableAccessor<TQuery>, IInfrastructure<IServiceProvider>
+    [Obsolete("Use DbSet<T> instead")]
+    public abstract class DbQuery<TQuery> : DbSet<TQuery>
         where TQuery : class
     {
-        /// <summary>
-        ///     Returns an <see cref="IEnumerator{T}" /> which when enumerated will execute a query against the database
-        ///     to load all views from the database.
-        /// </summary>
-        /// <returns> The query results. </returns>
-        IEnumerator<TQuery> IEnumerable<TQuery>.GetEnumerator() => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Returns an <see cref="IEnumerator" /> which when enumerated will execute a query against the database
-        ///     to load all views from the database.
-        /// </summary>
-        /// <returns> The query results. </returns>
-        IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Returns an <see cref="IAsyncEnumerable{T}" /> which when enumerated will asynchronously execute the query against
-        ///     the database.
-        /// </summary>
-        /// <returns> The query results. </returns>
-        IAsyncEnumerable<TQuery> IAsyncEnumerableAccessor<TQuery>.AsyncEnumerable => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Gets the IQueryable element type.
-        /// </summary>
-        Type IQueryable.ElementType => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Gets the IQueryable LINQ Expression.
-        /// </summary>
-        Expression IQueryable.Expression => throw new NotImplementedException();
-
-        /// <summary>
-        ///     Gets the IQueryable provider.
-        /// </summary>
-        IQueryProvider IQueryable.Provider => throw new NotImplementedException();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
-        ///     </para>
-        ///     <para>
-        ///         This property is intended for use by extension methods that need to make use of services
-        ///         not directly exposed in the public API surface.
-        ///     </para>
-        /// </summary>
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => throw new NotImplementedException();
     }
 }

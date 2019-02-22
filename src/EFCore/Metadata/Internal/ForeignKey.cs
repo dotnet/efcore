@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            if (principalEntityType.IsQueryType)
+            if (principalEntityType.IsKeyless)
             {
-                throw new InvalidOperationException(CoreStrings.QueryTypeCannotBePrincipal(principalEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.KeylessTypeCannotBePrincipal(principalEntityType.DisplayName()));
             }
 
             Properties = dependentProperties;
@@ -273,17 +273,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var name = propertyIdentity?.Name;
             if (pointsToPrincipal
-                && PrincipalEntityType.IsQueryType)
+                && PrincipalEntityType.IsKeyless)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationToQueryType(name, PrincipalEntityType.DisplayName()));
+                    CoreStrings.NavigationToKeylessType(name, PrincipalEntityType.DisplayName()));
             }
 
             if (!pointsToPrincipal
-                && DeclaringEntityType.IsQueryType)
+                && DeclaringEntityType.IsKeyless)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationToQueryType(name, DeclaringEntityType.DisplayName()));
+                    CoreStrings.NavigationToKeylessType(name, DeclaringEntityType.DisplayName()));
             }
 
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;

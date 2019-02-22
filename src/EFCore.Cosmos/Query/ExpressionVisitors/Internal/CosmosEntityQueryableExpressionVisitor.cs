@@ -57,9 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
                 new EntityShaper(
                     entityType,
                     trackingQuery: QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                                   && !entityType.IsQueryType,
+                                   && entityType.FindPrimaryKey() != null,
                     useQueryBuffer: QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
-                                    && !entityType.IsQueryType,
+                                    && entityType.FindPrimaryKey() != null,
                     _entityMaterializerSource));
         }
     }

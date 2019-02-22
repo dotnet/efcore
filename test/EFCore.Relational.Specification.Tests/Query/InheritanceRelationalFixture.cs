@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
-            modelBuilder.Query<AnimalQuery>().ToView("Animal");
-            modelBuilder.Query<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
-            modelBuilder.Query<EagleQuery>().HasDiscriminator().HasValue("Eagle");
+            modelBuilder.Entity<AnimalQuery>().HasNoKey().ToTable("Animal");
+            modelBuilder.Entity<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
+            modelBuilder.Entity<EagleQuery>().HasDiscriminator().HasValue("Eagle");
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

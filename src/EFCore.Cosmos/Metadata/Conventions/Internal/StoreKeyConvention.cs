@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && entityType.IsDocumentRoot()
-                && !entityType.IsQueryType)
+                && !entityType.IsKeyless)
             {
                 var idProperty = entityTypeBuilder.Property(IdPropertyName, typeof(string), ConfigurationSource.Convention);
                 idProperty.HasValueGenerator((_, __) => new IdValueGenerator(), ConfigurationSource.Convention);

@@ -52,17 +52,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public virtual void Detects_navigations_to_query_types()
+        public virtual void Detects_navigations_to_keyless_types()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(B));
             var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);
-            var queryType = model.AddQueryType(typeof(A));
-            var fkProperty = queryType.AddProperty("p", typeof(int));
-            var fk = queryType.AddForeignKey(fkProperty, key, entityType);
+            var keylessType = model.AddEntityType(typeof(A));
+            keylessType.HasNoKey(true);
+            var fkProperty = keylessType.AddProperty("p", typeof(int));
+            var fk = keylessType.AddForeignKey(fkProperty, key, entityType);
             Assert.Equal(
-                CoreStrings.NavigationToQueryType(nameof(B.ManyAs), nameof(A)),
+                CoreStrings.NavigationToKeylessType(nameof(B.ManyAs), nameof(A)),
                 Assert.Throws<InvalidOperationException>(() => fk.HasPrincipalToDependent(nameof(B.ManyAs))).Message);
         }
 
