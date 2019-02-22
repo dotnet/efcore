@@ -176,23 +176,35 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(ServiceLifetime.Scoped)]
-        [InlineData(ServiceLifetime.Singleton)]
-        public void Logger_factory_registered_on_application_service_provider_is_not_disposed(ServiceLifetime optionsLifetime)
+        [InlineData(ServiceLifetime.Scoped, false)]
+        [InlineData(ServiceLifetime.Singleton, false)]
+        [InlineData(ServiceLifetime.Singleton, true)]
+        public void Logger_factory_registered_on_application_service_provider_is_not_disposed(ServiceLifetime optionsLifetime, bool pool)
         {
             for (var i = 0; i < 2; i++)
             {
                 ILoggerFactory loggerFactory;
 
-                using (var appServiceProvider
-                    = new ServiceCollection()
-                        .AddScoped<Random>()
-                        .AddDbContext<ConstructorTestContext1A>(
-                            b => b.UseInMemoryDatabase("Scratch"), optionsLifetime: optionsLifetime)
-                        .BuildServiceProvider())
+                var serviceCollection = new ServiceCollection().AddScoped<Random>();
+
+                if (pool)
+                {
+                    serviceCollection.AddDbContextPool<ConstructorTestContext1A>(
+                        b => b.UseInMemoryDatabase("Scratch"));
+                }
+                else
+                {
+                    serviceCollection.AddDbContext<ConstructorTestContext1A>(
+                        b => b.UseInMemoryDatabase("Scratch"), optionsLifetime: optionsLifetime);
+                }
+
+                var appServiceProvider = serviceCollection.BuildServiceProvider();
+
+                using (appServiceProvider)
                 {
                     loggerFactory = appServiceProvider.GetService<ILoggerFactory>();
                     Random scopedExternalService;
+                    Random scopedExternalServiceFromContext;
 
                     using (var scope = appServiceProvider.CreateScope())
                     {
@@ -205,6 +217,9 @@ namespace Microsoft.EntityFrameworkCore
 
                         scopedExternalService = scope.ServiceProvider.GetService<Random>();
                         Assert.NotNull(scopedExternalService);
+
+                        scopedExternalServiceFromContext = context.GetService<Random>();
+                        Assert.NotNull(scopedExternalService);
                     }
 
                     using (var scope = appServiceProvider.CreateScope())
@@ -215,8 +230,18 @@ namespace Microsoft.EntityFrameworkCore
                         var _ = context.Model;
 
                         Assert.Same(loggerFactory, scope.ServiceProvider.GetService<ILoggerFactory>());
-
                         Assert.NotSame(scopedExternalService, scope.ServiceProvider.GetService<Random>());
+
+                        if (optionsLifetime == ServiceLifetime.Scoped)
+                        {
+                            Assert.NotSame(scopedExternalServiceFromContext, context.GetService<Random>());
+                        }
+                        else
+                        {
+                            // For singleton options or pool, scoped services cannot be obtained through the context
+                            // service provider.
+                            Assert.Same(scopedExternalServiceFromContext, context.GetService<Random>());
+                        }
                     }
 
                     // Should not throw
