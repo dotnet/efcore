@@ -7,7 +7,6 @@ variables:
 trigger:
   - master
   - release/*
-  - internal/release/*
 
 pr: ['*']
 
