@@ -29,9 +29,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>748155b796cb10505366cb1fcae54e6ba3ee9567</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27421-10">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27422-5">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>2f91bd28d0c77eb72275f46ddd7cfc9f10196ba7</Sha>
+      <Sha>b344ca9aafbc18e3a75cd5237ff9c1b30aa15987</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview4.19122.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -67,9 +67,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>660f6cd006b276edb3764f4d7d726cedf6c29d8e</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27421-10">
+    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27422-5">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>2f91bd28d0c77eb72275f46ddd7cfc9f10196ba7</Sha>
+      <Sha>b344ca9aafbc18e3a75cd5237ff9c1b30aa15987</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
