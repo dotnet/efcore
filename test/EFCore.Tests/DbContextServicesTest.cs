@@ -2599,8 +2599,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
         {
-            public CustomInMemoryValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
-                : base(dependencies)
+            public CustomInMemoryValueGeneratorSelector(
+                ValueGeneratorSelectorDependencies dependencies,
+                IInMemoryDatabase inMemoryDatabase)
+                : base(dependencies, inMemoryDatabase)
             {
             }
         }

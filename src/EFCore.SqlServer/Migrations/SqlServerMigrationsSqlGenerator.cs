@@ -90,18 +90,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var dropDatabaseOperation = operation as SqlServerDropDatabaseOperation;
-            if (operation is SqlServerCreateDatabaseOperation createDatabaseOperation)
+            switch (operation)
             {
-                Generate(createDatabaseOperation, model, builder);
-            }
-            else if (dropDatabaseOperation != null)
-            {
-                Generate(dropDatabaseOperation, model, builder);
-            }
-            else
-            {
-                base.Generate(operation, model, builder);
+                case SqlServerCreateDatabaseOperation createDatabaseOperation:
+                    Generate(createDatabaseOperation, model, builder);
+                    break;
+                case SqlServerDropDatabaseOperation dropDatabaseOperation:
+                    Generate(dropDatabaseOperation, model, builder);
+                    break;
+                default:
+                    base.Generate(operation, model, builder);
+                    break;
             }
         }
 
