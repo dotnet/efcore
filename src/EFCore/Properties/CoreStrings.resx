@@ -454,7 +454,7 @@
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
   </data>
   <data name="NavigationArray" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.</value>

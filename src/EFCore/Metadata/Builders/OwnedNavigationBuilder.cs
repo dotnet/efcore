@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -540,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string navigationName)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -554,6 +556,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType.Builder.Navigation(
                     relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: DependentEntityType == relatedEntityType));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where this entity type has a reference that points
+        ///         to a single instance of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         Note that calling this method with no parameters will explicitly configure this side
+        ///         of the relationship to use no navigation property, even if such a property exists on the
+        ///         entity type. If the navigation property is to be used, then it must be specified.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
+        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
+        ///         the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual ReferenceNavigationBuilder HasOne(
+            [NotNull] string navigationName)
+        {
+            Check.NotEmpty(navigationName, nameof(navigationName));
+
+            return OwnedEntityType.ClrType == null
+                ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
+                : HasOne(OwnedEntityType.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
         }
 
         /// <summary>

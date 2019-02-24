@@ -91,15 +91,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
-                => new NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.HasOne(
-                        typeof(TRelatedEntity).FullName, navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+            {
+                var navigationName = navigationExpression?.GetPropertyAccess().GetSimpleMemberName();
+
+                return new NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+                    navigationName == null
+                        ? EntityTypeBuilder.HasOne(typeof(TRelatedEntity).FullName, navigationName)
+                        : EntityTypeBuilder.HasOne(navigationName));
+            }
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
-                => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
-                    EntityTypeBuilder.HasMany(
-                        typeof(TRelatedEntity).FullName, navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+            {
+                var navigationName = navigationExpression?.GetPropertyAccess().GetSimpleMemberName();
+
+                return new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
+                    navigationName == null
+                    ? EntityTypeBuilder.HasMany(typeof(TRelatedEntity).FullName, navigationName)
+                    : EntityTypeBuilder.HasMany(navigationName));
+            }
         }
 
         private class NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : NonGenericTestReferenceNavigationBuilder<
@@ -171,9 +181,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceNavigationBuilder<TDependentEntity, TNewDependentEntity> HasOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression = null)
-                => new NonGenericStringTestReferenceNavigationBuilder<TDependentEntity, TNewDependentEntity>(
-                    OwnedNavigationBuilder.HasOne(
-                        typeof(TNewDependentEntity).FullName, navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+            {
+                var navigationName = navigationExpression?.GetPropertyAccess().GetSimpleMemberName();
+
+                return new NonGenericStringTestReferenceNavigationBuilder<TDependentEntity, TNewDependentEntity>(
+                    navigationName == null
+                    ? OwnedNavigationBuilder.HasOne(typeof(TNewDependentEntity).FullName, navigationName)
+                    : OwnedNavigationBuilder.HasOne(navigationName));
+            }
         }
     }
 }
