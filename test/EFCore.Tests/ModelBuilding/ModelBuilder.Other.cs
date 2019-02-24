@@ -16,6 +16,81 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderOtherTest
     {
+        [Fact]
+        public virtual void HasOne_with_just_string_navigation_for_non_CLR_property_throws()
+        {
+            using (var context = new CustomModelBuildingContext(
+                Configure(),
+                b =>
+                {
+                    b.Entity<Dr>().HasOne("Snoop");
+                }))
+            {
+                Assert.Equal(
+                    CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void HasMany_with_just_string_navigation_for_non_CLR_property_throws()
+        {
+            using (var context = new CustomModelBuildingContext(
+                Configure(),
+                b =>
+                {
+                    b.Entity<Dr>().HasMany("Snoop");
+                }))
+            {
+                Assert.Equal(
+                    CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void HasMany_with_a_non_collection_just_string_navigation_CLR_property_throws()
+        {
+            using (var context = new CustomModelBuildingContext(
+                Configure(),
+                b =>
+                {
+                    b.Entity<Dr>().HasMany("Dre");
+                }))
+            {
+                Assert.Equal(
+                    CoreStrings.NavigationCollectionWrongClrType("Dre", nameof(Dr), nameof(Dre), "T"),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void OwnsOne_HasOne_with_just_string_navigation_for_non_CLR_property_throws()
+        {
+            using (var context = new CustomModelBuildingContext(
+                Configure(),
+                b =>
+                {
+                    b.Entity<Dr>().OwnsOne(e =>e.Dre).HasOne("Snoop");
+                }))
+            {
+                Assert.Equal(
+                    CoreStrings.NoClrNavigation("Snoop", nameof(Dre)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        protected class Dr
+        {
+            public int Id { get; set; }
+
+            public Dre Dre { get; set; }
+        }
+
+        protected class Dre
+        {
+        }
+
         [Fact] //Issue#13108
         public virtual void HasForeignKey_infers_type_for_shadow_property_when_not_specified()
         {

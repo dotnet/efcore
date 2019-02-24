@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType, foundType, targetType);
 
         /// <summary>
-        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
+        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.
         /// </summary>
         public static string NavigationArray([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
             => string.Format(
