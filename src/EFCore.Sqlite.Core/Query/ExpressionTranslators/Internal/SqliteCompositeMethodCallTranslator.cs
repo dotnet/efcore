@@ -24,9 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Inter
         {
             new SqliteContainsOptimizedTranslator(),
             new SqliteDateTimeAddTranslator(),
-            new SqliteEndsWithOptimizedTranslator(),
             new SqliteMathTranslator(),
-            new SqliteStartsWithOptimizedTranslator(),
+            new SqliteStartsEndsWithTranslator(),
             new SqliteStringIsNullOrWhiteSpaceTranslator(),
             new SqliteStringToLowerTranslator(),
             new SqliteStringToUpperTranslator(),

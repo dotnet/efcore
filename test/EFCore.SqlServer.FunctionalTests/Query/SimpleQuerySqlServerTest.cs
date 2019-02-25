@@ -756,7 +756,7 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
@@ -1249,7 +1249,7 @@ END");
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE [c].[ContactName] LIKE N'A' + N'%' AND (LEFT([c].[ContactName], LEN(N'A')) = N'A'))
+        WHERE [c].[ContactName] LIKE N'A%')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -1264,7 +1264,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A'))");
+    WHERE [o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Any_nested_negated2(bool isAsync)
@@ -1277,7 +1277,7 @@ FROM [Customers] AS [c]
 WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A'))");
+    WHERE [o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Any_nested_negated3(bool isAsync)
@@ -1290,7 +1290,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')) AND (([c].[City] <> N'London') OR [c].[City] IS NULL)");
+    WHERE [o].[CustomerID] LIKE N'A%') AND (([c].[City] <> N'London') OR [c].[City] IS NULL)");
         }
 
         public override async Task Any_nested(bool isAsync)
@@ -1303,7 +1303,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A'))");
+    WHERE [o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Any_nested2(bool isAsync)
@@ -1316,7 +1316,7 @@ FROM [Customers] AS [c]
 WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A'))");
+    WHERE [o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Any_nested3(bool isAsync)
@@ -1329,7 +1329,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')) AND (([c].[City] <> N'London') OR [c].[City] IS NULL)");
+    WHERE [o].[CustomerID] LIKE N'A%') AND (([c].[City] <> N'London') OR [c].[City] IS NULL)");
         }
 
         public override void Any_with_multiple_conditions_still_uses_exists()
@@ -1354,7 +1354,7 @@ WHERE ([c].[City] = N'London') AND EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT ([c].[ContactName] LIKE N'A' + N'%') OR (LEFT([c].[ContactName], LEN(N'A')) <> N'A'))
+        WHERE NOT ([c].[ContactName] LIKE N'A%'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -2004,7 +2004,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
-        WHERE NOT ([t].[CustomerID] LIKE N'B' + N'%') OR (LEFT([t].[CustomerID], LEN(N'B')) <> N'B'))
+        WHERE NOT ([t].[CustomerID] LIKE N'B%'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -2025,7 +2025,7 @@ SELECT CASE
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
-        WHERE NOT ([t].[CustomerID] LIKE N'A' + N'%') OR (LEFT([t].[CustomerID], LEN(N'A')) <> N'A'))
+        WHERE NOT ([t].[CustomerID] LIKE N'A%'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -2048,7 +2048,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
-        WHERE [t].[CustomerID] LIKE N'C' + N'%' AND (LEFT([t].[CustomerID], LEN(N'C')) = N'C'))
+        WHERE [t].[CustomerID] LIKE N'C%')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -2069,7 +2069,7 @@ SELECT CASE
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
-        WHERE [t].[CustomerID] LIKE N'B' + N'%' AND (LEFT([t].[CustomerID], LEN(N'B')) = N'B'))
+        WHERE [t].[CustomerID] LIKE N'B%')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -2236,7 +2236,7 @@ END");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY (
     SELECT CASE
         WHEN EXISTS (
@@ -2356,7 +2356,7 @@ WHERE [o].[OrderID] < 10300");
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [Count]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(bool isAsync)
@@ -2386,7 +2386,7 @@ CROSS JOIN (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Select_correlated_subquery_projection(bool isAsync)
@@ -2426,7 +2426,7 @@ WHERE [o].[CustomerID] = @_outer_CustomerID");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
@@ -3774,7 +3774,7 @@ FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[CustomerID] LIKE N'A' + N'%' AND (LEFT([t].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [t].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Anonymous_complex_distinct_where(bool isAsync)
@@ -3813,7 +3813,7 @@ FROM (
     SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [A]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[A] LIKE N'A' + N'%' AND (LEFT([t].[A], LEN(N'A')) = N'A')");
+WHERE [t].[A] LIKE N'A%'");
         }
 
         public override async Task Anonymous_complex_orderby(bool isAsync)
@@ -3887,7 +3887,7 @@ FROM (
     SELECT DISTINCT [c].[CustomerID] AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[Property] LIKE N'A' + N'%' AND (LEFT([t].[Property], LEN(N'A')) = N'A')");
+WHERE [t].[Property] LIKE N'A%'");
         }
 
         public override async Task DTO_complex_distinct_where(bool isAsync)
@@ -3926,7 +3926,7 @@ FROM (
     SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [Property]
     FROM [Customers] AS [c]
 ) AS [t]
-WHERE [t].[Property] LIKE N'A' + N'%' AND (LEFT([t].[Property], LEN(N'A')) = N'A')");
+WHERE [t].[Property] LIKE N'A%'");
         }
 
         public override async Task DTO_complex_orderby(bool isAsync)
@@ -4371,7 +4371,7 @@ WHERE ([c].[CustomerID] LIKE @__prefix_0 + N'%' AND (LEFT([c].[CustomerID], LEN(
                 @"SELECT [c1].[CustomerID] AS [Id1], [c2].[CustomerID] AS [Id2]
 FROM [Customers] AS [c1]
 CROSS JOIN [Customers] AS [c2]
-WHERE ([c1].[CustomerID] LIKE N'ALFKI' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'ALFKI')) = N'ALFKI')) AND ([c1].[CustomerID] = [c2].[CustomerID])
+WHERE [c1].[CustomerID] LIKE N'ALFKI%' AND ([c1].[CustomerID] = [c2].[CustomerID])
 ORDER BY [Id1]");
         }
 
@@ -4393,7 +4393,7 @@ WHERE 0 = 1");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')) AND [c].[CustomerID] IS NOT NULL
+WHERE [c].[CustomerID] LIKE N'A%' AND [c].[CustomerID] IS NOT NULL
 ORDER BY [c].[CustomerID]");
         }
 
@@ -4405,7 +4405,7 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT [o1].[OrderID] AS [Id1], [o2].[OrderID] AS [Id2]
 FROM [Orders] AS [o1]
 CROSS JOIN [Orders] AS [o2]
-WHERE ([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+WHERE [o1].[CustomerID] LIKE N'A%' AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
 ORDER BY [Id1], [Id2]");
         }
 
@@ -4417,7 +4417,7 @@ ORDER BY [Id1], [Id2]");
                 @"SELECT [o1].[OrderID] AS [Id1], [o2].[OrderID] AS [Id2]
 FROM [Orders] AS [o1]
 CROSS JOIN [Orders] AS [o2]
-WHERE ([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+WHERE [o1].[CustomerID] LIKE N'A%' AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
 ORDER BY [Id1], [Id2]");
         }
 
@@ -4472,7 +4472,7 @@ ORDER BY [od].[OrderID], [od].[ProductID]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')) AND ([c].[CustomerID] = [c].[CustomerID])");
+WHERE [c].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c].[CustomerID])");
         }
 
         public override async Task Compare_two_collection_navigations_with_different_query_sources(bool isAsync)
@@ -4516,7 +4516,7 @@ ORDER BY [Id1], [Id2]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]");
         }
 
@@ -4527,7 +4527,7 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID] DESC");
         }
 
@@ -4690,7 +4690,7 @@ WHERE EXISTS (
     ORDER BY [e0].[OrderDate]
 ) AS [OrderDate]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [c].[CustomerID] LIKE N'A%'",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
 
@@ -4733,7 +4733,7 @@ ORDER BY [e].[OrderDate]");
     ORDER BY [e2].[OrderDate]
 )
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [c].[CustomerID] LIKE N'A%'",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
 
@@ -4841,7 +4841,7 @@ WHERE (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')) AND ((
+WHERE [c].[CustomerID] LIKE N'A%' AND ((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
