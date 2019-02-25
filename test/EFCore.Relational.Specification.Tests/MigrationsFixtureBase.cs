@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore
                         name: "Table1",
                         columns: x => new
                         {
-                            Id = x.Column<int>()
+                            Id = x.Column<int>(),
+                            Foo = x.Column<int>()
                         })
                     .PrimaryKey(
                         name: "PK_Table1",
@@ -71,14 +72,16 @@ namespace Microsoft.EntityFrameworkCore
         private class Migration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
-                => migrationBuilder.RenameTable(
-                    name: "Table1",
-                    newName: "Table2");
+                => migrationBuilder.RenameColumn(
+                    name: "Foo",
+                    table: "Table1",
+                    newName: "Bar");
 
             protected override void Down(MigrationBuilder migrationBuilder)
-                => migrationBuilder.RenameTable(
-                    name: "Table2",
-                    newName: "Table1");
+                => migrationBuilder.RenameColumn(
+                    name: "Bar",
+                    table: "Table1",
+                    newName: "Foo");
         }
 
         [DbContext(typeof(MigrationsContext))]
