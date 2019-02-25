@@ -55,6 +55,23 @@ SELECT @@ROWCOUNT;"
                 Assert.Equal(
                     "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
                     entityType.GetIndexes().Single().Relational().Name);
+
+                var entityType2 = context.Model.FindEntityType(
+                    typeof(
+                        LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
+                    ));
+
+                Assert.Equal(
+                    "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkin~1",
+                    entityType2.Relational().TableName);
+
+                Assert.Equal(
+                    "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
+                    entityType2.GetProperties().ElementAt(1).Relational().ColumnName);
+
+                Assert.Equal(
+                    "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
+                    entityType2.GetProperties().ElementAt(2).Relational().ColumnName);
             }
         }
     }
