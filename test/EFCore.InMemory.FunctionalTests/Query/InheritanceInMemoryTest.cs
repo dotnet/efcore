@@ -37,5 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Can_query_all_animal_views();
         }
+
+        protected override bool EnforcesFkConstraints => false;
     }
 }

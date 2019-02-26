@@ -647,22 +647,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
-            => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntry(foreignKey, dependentEntry);
+        public virtual InternalEntityEntry GetPrincipal(
+            InternalEntityEntry dependentEntry,
+            IForeignKey foreignKey)
+            => FilterIncompatiblePrincipal(
+                foreignKey,
+                FindIdentityMap(foreignKey.PrincipalKey)
+                    ?.TryGetEntry(foreignKey, dependentEntry));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
-            => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntryUsingPreStoreGeneratedValues(foreignKey, dependentEntry);
+        public virtual InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(
+            InternalEntityEntry dependentEntry, IForeignKey foreignKey)
+            => FilterIncompatiblePrincipal(
+                foreignKey,
+                FindIdentityMap(foreignKey.PrincipalKey)
+                    ?.TryGetEntryUsingPreStoreGeneratedValues(foreignKey, dependentEntry));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
-            => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry);
+        public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(
+            InternalEntityEntry dependentEntry, IForeignKey foreignKey)
+            => FilterIncompatiblePrincipal(
+                foreignKey,
+                FindIdentityMap(foreignKey.PrincipalKey)
+                    ?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry));
+        
+        private static InternalEntityEntry FilterIncompatiblePrincipal(IForeignKey foreignKey,
+            InternalEntityEntry principalEntry)
+            => principalEntry != null
+               && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
+                ? principalEntry
+                : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

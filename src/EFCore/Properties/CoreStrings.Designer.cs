@@ -2615,22 +2615,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstType, secondType, secondKeyValue);
 
         /// <summary>
-        ///     The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
-        /// </summary>
-        public static string IncompatiblePrincipalEntry([CanBeNull] object foreignKey, [CanBeNull] object dependentEntityType, [CanBeNull] object foundPrincipalEntityType, [CanBeNull] object principalEntityType)
-            => string.Format(
-                GetString("IncompatiblePrincipalEntry", nameof(foreignKey), nameof(dependentEntityType), nameof(foundPrincipalEntityType), nameof(principalEntityType)),
-                foreignKey, dependentEntityType, foundPrincipalEntityType, principalEntityType);
-
-        /// <summary>
-        ///     The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.
-        /// </summary>
-        public static string IncompatiblePrincipalEntrySensitive([CanBeNull] object foreignKeyValues, [CanBeNull] object dependentEntityType, [CanBeNull] object keyValue, [CanBeNull] object foundPrincipalEntityType, [CanBeNull] object principalEntityType)
-            => string.Format(
-                GetString("IncompatiblePrincipalEntrySensitive", nameof(foreignKeyValues), nameof(dependentEntityType), nameof(keyValue), nameof(foundPrincipalEntityType), nameof(principalEntityType)),
-                foreignKeyValues, dependentEntityType, keyValue, foundPrincipalEntityType, principalEntityType);
-
-        /// <summary>
         ///     The entity type '{entityType}' is part of a relationship cycle involving its primary key.
         /// </summary>
         public static string IdentifyingRelationshipCycle([CanBeNull] object entityType)
