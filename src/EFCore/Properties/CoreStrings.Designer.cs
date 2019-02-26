@@ -2207,14 +2207,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 typeOneIn, typeOneOut, typeTwoIn, typeTwoOut);
 
         /// <summary>
-        ///     The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.
-        /// </summary>
-        public static string ConverterCloneNotImplemented([CanBeNull] object mapping)
-            => string.Format(
-                GetString("ConverterCloneNotImplemented", nameof(mapping)),
-                mapping);
-
-        /// <summary>
         ///     The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.
         /// </summary>
         public static string ConverterBadType([CanBeNull] object converter, [CanBeNull] object type, [CanBeNull] object allowed)
