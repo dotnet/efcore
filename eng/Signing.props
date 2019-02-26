@@ -1,6 +1,0 @@
-<Project>
-  <ItemGroup>
-    <!-- Third-party assemblies should be signed with the 3rd party certificate -->
-    <FileSignInfo Include="Newtonsoft.Json.dll" CertificateName="3PartySHA2" />
-  </ItemGroup>
-</Project>

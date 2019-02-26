@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -100,8 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 using (var scope = serviceProvider.CreateScope())
                 {
-                    var logger =
-                        scope.ServiceProvider.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                    var scopedProvider = scope.ServiceProvider;
+
+                    // Because IDbContextOptions cannot yet be resolved from the internal provider
+                    var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
+                        ScopedLoggerFactory.Create(scopedProvider, options),
+                        scopedProvider.GetService<ILoggingOptions>(),
+                        scopedProvider.GetService<DiagnosticSource>());
 
                     if (_configurations.Count == 0)
                     {

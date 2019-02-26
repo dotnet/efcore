@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new LoggerFactory(),
+                new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                 new LoggingOptions(),
                 new DiagnosticListener(""));
 

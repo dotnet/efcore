@@ -670,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder
                 .Append(indent)
-                .Append(!entityType.IsQueryType ? "EntityType: " : "QueryType: ")
+                .Append("EntityType: ")
                 .Append(entityType.DisplayName());
 
             if (entityType.BaseType != null)
@@ -681,6 +681,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (entityType.IsAbstract())
             {
                 builder.Append(" Abstract");
+            }
+
+            if (entityType.FindPrimaryKey() == null)
+            {
+                builder.Append(" Keyless");
             }
 
             if (entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)

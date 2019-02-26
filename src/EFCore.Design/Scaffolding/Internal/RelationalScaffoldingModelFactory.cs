@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (property != null)
                 {
                     var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new LoggerFactory(),
+                        new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                         new LoggingOptions(),
                         new DiagnosticListener(""));
 

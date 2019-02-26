@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static readonly Type[] _fluentApiTypes =
         {
-            typeof(RelationalQueryTypeBuilderExtensions),
             typeof(RelationalReferenceReferenceBuilderExtensions),
             typeof(RelationalReferenceCollectionBuilderExtensions),
             typeof(RelationalOwnershipBuilderExtensions),

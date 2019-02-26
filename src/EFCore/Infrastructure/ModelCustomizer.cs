@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
             {
-                if (setInfo.IsQueryType)
+                if (setInfo.IsKeyless)
                 {
-                    modelBuilder.Query(setInfo.ClrType);
+                    modelBuilder.Entity(setInfo.ClrType).HasNoKey();
                 }
                 else
                 {

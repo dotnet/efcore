@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -28,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly bool _sensitiveLoggingEnabled;
         private readonly Dictionary<TKey, object[]> _rows;
 
+        private Dictionary<int, IInMemoryIntegerValueGenerator> _integerGenerators;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -37,6 +40,32 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             _keyValueFactory = keyValueFactory;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _rows = new Dictionary<TKey, object[]>(keyValueFactory.EqualityComparer);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property)
+        {
+            if (_integerGenerators == null)
+            {
+                _integerGenerators = new Dictionary<int, IInMemoryIntegerValueGenerator>();
+            }
+
+            var propertyIndex = property.GetIndex();
+            if (!_integerGenerators.TryGetValue(propertyIndex, out var generator))
+            {
+                generator = new InMemoryIntegerValueGenerator<TProperty>(propertyIndex);
+                _integerGenerators[propertyIndex] = generator;
+
+                foreach (var row in _rows.Values)
+                {
+                    generator.Bump(row);
+                }
+            }
+
+            return (InMemoryIntegerValueGenerator<TProperty>)generator;
         }
 
         /// <summary>
@@ -57,9 +86,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Create(IUpdateEntry entry)
-            => _rows.Add(
-                CreateKey(entry),
-                entry.EntityType.GetProperties().Select(p => SnapshotValue(p, GetStructuralComparer(p), entry)).ToArray());
+        {
+            var row = entry.EntityType.GetProperties()
+                .Select(p => SnapshotValue(p, GetStructuralComparer(p), entry))
+                .ToArray();
+
+            _rows.Add(CreateKey(entry), row);
+
+            BumpValueGenerators(row);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -144,10 +179,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 }
 
                 _rows[key] = valueBuffer;
+
+                BumpValueGenerators(valueBuffer);
             }
             else
             {
                 throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
+            }
+        }
+
+        private void BumpValueGenerators(object[] row)
+        {
+            if (_integerGenerators != null)
+            {
+                foreach (var generator in _integerGenerators.Values)
+                {
+                    generator.Bump(row);
+                }
             }
         }
 

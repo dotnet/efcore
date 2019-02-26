@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         where TNumber : struct
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints _defaultHints = CreateDefaultHints();
+        private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
 
         private static ConverterMappingHints? CreateDefaultHints()
         {
@@ -43,9 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 ToNumber(),
                 ToEnum(),
 #nullable enable
-                _defaultHints == null
-                    ? mappingHints
-                    : _defaultHints.With(mappingHints))
+                _defaultHints?.With(mappingHints) ?? mappingHints)
         {
         }
 

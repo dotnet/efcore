@@ -5,7 +5,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <VersionPrefix>3.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>preview3</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>preview4</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
@@ -19,7 +19,6 @@
     <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
     <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
-    <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
     <SQLitePCLRawBundleESqlite3PackageVersion>1.1.12</SQLitePCLRawBundleESqlite3PackageVersion>
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>
@@ -28,26 +27,26 @@
     <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview3.19113.6</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview4.19125.6</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-preview.19107.12</MicrosoftCSharpPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview.19107.12</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-preview.19107.12</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview.19107.12</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.7.0-preview.19107.12</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview.19107.12</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-preview4.19126.1</MicrosoftCSharpPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview4.19126.1</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-preview4.19126.1</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview4.19126.1</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.7.0-preview4.19126.1</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview4.19126.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview3-27415-4</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview3-27415-4</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview4-27425-7</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview4-27425-7</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <DotNetRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
@@ -57,6 +56,7 @@
     <RestoreSources>
       $(RestoreSources);
       https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
+      https://dotnetfeed.blob.core.windows.net/aspnet-extensions/index.json;
       https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json
     </RestoreSources>
   </PropertyGroup>

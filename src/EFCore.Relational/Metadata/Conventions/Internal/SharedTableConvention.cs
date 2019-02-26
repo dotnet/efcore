@@ -107,36 +107,114 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
-            var tables = new Dictionary<(string, string),
-                (Dictionary<string, Property> Columns,
-                Dictionary<string, Key> Keys,
-                Dictionary<string, ForeignKey> ForeignKeys,
-                Dictionary<string, Index> Indexes)>();
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            var tables = new Dictionary<(string, string), List<EntityType>>();
+
+            TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
+
+            var columns = new Dictionary<string, Property>(StringComparer.Ordinal);
+            var keys = new Dictionary<string, Key>(StringComparer.Ordinal);
+            var foreignKeys = new Dictionary<string, ForeignKey>(StringComparer.Ordinal);
+            var indexes = new Dictionary<string, Index>(StringComparer.Ordinal);
+            foreach (var entityTypes in tables.Values)
             {
-                if (entityType.IsQueryType)
+                columns.Clear();
+                keys.Clear();
+                foreignKeys.Clear();
+                indexes.Clear();
+
+                foreach (var entityType in entityTypes)
+                {
+                    TryUniquifyColumnNames(entityType, columns, maxLength);
+                    TryUniquifyKeyNames(entityType, keys, maxLength);
+                    TryUniquifyForeignKeyNames(entityType, foreignKeys, maxLength);
+                    TryUniquifyIndexNames(entityType, indexes, maxLength);
+                }
+            }
+
+            return modelBuilder;
+        }
+
+        private static void TryUniquifyTableNames(
+            Model model, Dictionary<(string, string), List<EntityType>> tables, int maxLength)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.FindPrimaryKey() == null)
                 {
                     continue;
                 }
 
                 var annotations = entityType.Relational();
                 var tableName = (annotations.Schema, annotations.TableName);
-                if (!tables.TryGetValue(tableName, out var tableObjects))
+                if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
-                    tableObjects = (new Dictionary<string, Property>(StringComparer.Ordinal),
-                        new Dictionary<string, Key>(StringComparer.Ordinal),
-                        new Dictionary<string, ForeignKey>(StringComparer.Ordinal),
-                        new Dictionary<string, Index>(StringComparer.Ordinal));
-                    tables[tableName] = tableObjects;
+                    entityTypes = new List<EntityType>();
+                    tables[tableName] = entityTypes;
                 }
 
-                TryUniquifyColumnNames(entityType, tableObjects.Columns, maxLength);
-                TryUniquifyKeyNames(entityType, tableObjects.Keys, maxLength);
-                TryUniquifyForeignKeyNames(entityType, tableObjects.ForeignKeys, maxLength);
-                TryUniquifyIndexNames(entityType, tableObjects.Indexes, maxLength);
+                if (entityTypes.Count > 0)
+                {
+                    var shouldUniquifyTable = ShouldUniquify(entityType, entityTypes);
+
+                    if (shouldUniquifyTable)
+                    {
+                        if (entityType[RelationalAnnotationNames.TableName] == null)
+                        {
+                            var uniqueName = ConstraintNamer.Uniquify(
+                                tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
+                            if (entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(uniqueName))
+                            {
+                                tables[(tableName.Schema, uniqueName)] = new List<EntityType> { entityType };
+                                continue;
+                            }
+                        }
+
+                        if (entityTypes.Count == 1)
+                        {
+                            var otherEntityType = entityTypes.First();
+                            if (otherEntityType[RelationalAnnotationNames.TableName] == null)
+                            {
+                                var uniqueName = ConstraintNamer.Uniquify(
+                                    tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
+                                if (otherEntityType.Builder.Relational(ConfigurationSource.Convention).ToTable(uniqueName))
+                                {
+                                    entityTypes.Remove(otherEntityType);
+                                    tables[(tableName.Schema, uniqueName)] = new List<EntityType> { otherEntityType };
+                                }
+                            }
+                        }
+                    }
+                }
+
+                entityTypes.Add(entityType);
+            }
+        }
+
+        private static bool ShouldUniquify(EntityType entityType, ICollection<EntityType> entityTypes)
+        {
+            var rootType = entityType.RootType();
+            var pkProperty = entityType.FindPrimaryKey().Properties[0];
+            var rootSharedTableType = pkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+
+            foreach (var otherEntityType in entityTypes)
+            {
+                if (rootSharedTableType == otherEntityType
+                    || rootType == otherEntityType.RootType())
+                {
+                    return false;
+                }
+
+                var otherPkProperty = otherEntityType.FindPrimaryKey().Properties[0];
+                var otherRootSharedTableType = otherPkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+                if (otherRootSharedTableType == entityType
+                    || (otherRootSharedTableType == rootSharedTableType
+                        && otherRootSharedTableType != null))
+                {
+                    return false;
+                }
             }
 
-            return modelBuilder;
+            return true;
         }
 
         private static void TryUniquifyColumnNames(EntityType entityType, Dictionary<string, Property> properties, int maxLength)
@@ -150,30 +228,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
+                var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
+                    || property.IsPrimaryKey()
+                    || otherProperty.IsPrimaryKey();
                 if (!property.IsPrimaryKey())
                 {
-                    var relationalPropertyBuilder = property.Builder.Relational(ConfigurationSource.Convention);
-                    if (relationalPropertyBuilder.CanSetColumnName(null))
+                    var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
+                    if (newColumnName != null)
                     {
-                        columnName = Uniquify(columnName, property.DeclaringEntityType.ShortName(), properties, maxLength);
-                        relationalPropertyBuilder.ColumnName = columnName;
-                        properties[columnName] = property;
+                        properties[newColumnName] = property;
                         continue;
                     }
                 }
 
                 if (!otherProperty.IsPrimaryKey())
                 {
-                    var otherRelationalPropertyBuilder = otherProperty.Builder.Relational(ConfigurationSource.Convention);
-                    if (otherRelationalPropertyBuilder.CanSetColumnName(null))
+                    var newColumnName = TryUniquify(otherProperty, columnName, properties, usePrefix, maxLength);
+                    if (newColumnName != null)
                     {
                         properties[columnName] = property;
-                        columnName = Uniquify(columnName, otherProperty.DeclaringEntityType.ShortName(), properties, maxLength);
-                        otherRelationalPropertyBuilder.ColumnName = columnName;
-                        properties[columnName] = otherProperty;
+                        properties[newColumnName] = otherProperty;
                     }
                 }
             }
+        }
+
+        private static string TryUniquify(
+            Property property, string columnName, Dictionary<string, Property> properties, bool usePrefix, int maxLength)
+        {
+            var relationalPropertyBuilder = property.Builder.Relational(ConfigurationSource.Convention);
+            if (relationalPropertyBuilder.CanSetColumnName(null))
+            {
+                if (usePrefix)
+                {
+                    var prefix = property.DeclaringEntityType.ShortName();
+                    if (!columnName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        columnName = prefix + "_" + columnName;
+                    }
+                }
+
+                columnName = ConstraintNamer.Uniquify(columnName, properties, maxLength);
+                relationalPropertyBuilder.ColumnName = columnName;
+                properties[columnName] = property;
+                return columnName;
+            }
+
+            return null;
         }
 
         private static void TryUniquifyKeyNames(EntityType entityType, Dictionary<string, Key> keys, int maxLength)
@@ -189,28 +290,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if (!key.IsPrimaryKey())
                 {
-                    var relationalKeyBuilder = key.Builder.Relational(ConfigurationSource.Convention);
-                    if (relationalKeyBuilder.CanSetName(null))
+                    var newKeyName = TryUniquify(key, keyName, keys, maxLength);
+                    if (newKeyName != null)
                     {
-                        keyName = Uniquify(keyName, null, keys, maxLength);
-                        relationalKeyBuilder.Name = keyName;
-                        keys[keyName] = key;
+                        keys[newKeyName] = key;
                         continue;
                     }
                 }
 
                 if (!otherKey.IsPrimaryKey())
                 {
-                    var otherRelationalKeyBuilder = otherKey.Builder.Relational(ConfigurationSource.Convention);
-                    if (otherRelationalKeyBuilder.CanSetName(null))
+                    var newKeyName = TryUniquify(otherKey, keyName, keys, maxLength);
+                    if (newKeyName != null)
                     {
                         keys[keyName] = key;
-                        keyName = Uniquify(keyName, null, keys, maxLength);
-                        otherRelationalKeyBuilder.Name = keyName;
-                        keys[keyName] = otherKey;
+                        keys[newKeyName] = otherKey;
                     }
                 }
             }
+        }
+
+        private static string TryUniquify<T>(
+           Key key, string keyName, Dictionary<string, T> keys, int maxLength)
+        {
+            var relationalKeyBuilder = key.Builder.Relational(ConfigurationSource.Convention);
+            if (relationalKeyBuilder.CanSetName(null))
+            {
+                keyName = ConstraintNamer.Uniquify(keyName, keys, maxLength);
+                relationalKeyBuilder.Name = keyName;
+                return keyName;
+            }
+
+            return null;
         }
 
         private static void TryUniquifyIndexNames(EntityType entityType, Dictionary<string, Index> indexes, int maxLength)
@@ -243,20 +354,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
                     }
 
-                    indexName = Uniquify(indexName, null, indexes, maxLength);
-                    relationalIndexBuilder.Name = indexName;
-                    indexes[indexName] = index;
+                    var newIndexName = TryUniquify(index, indexName, indexes, maxLength);
+                    indexes[newIndexName] = index;
                     continue;
                 }
 
-                if (otherRelationalIndexBuilder.CanSetName(null))
+                var newOtherIndexName = TryUniquify(otherIndex, indexName, indexes, maxLength);
+                if (newOtherIndexName != null)
                 {
                     indexes[indexName] = index;
-                    indexName = Uniquify(indexName, null, indexes, maxLength);
-                    otherRelationalIndexBuilder.Name = indexName;
-                    indexes[indexName] = otherIndex;
+                    indexes[newOtherIndexName] = otherIndex;
                 }
             }
+        }
+
+        private static string TryUniquify<T>(
+           Index index, string indexName, Dictionary<string, T> indexes, int maxLength)
+        {
+            var relationalIndexBuilder = index.Builder.Relational(ConfigurationSource.Convention);
+            if (relationalIndexBuilder.CanSetName(null))
+            {
+                indexName = ConstraintNamer.Uniquify(indexName, indexes, maxLength);
+                relationalIndexBuilder.Name = indexName;
+                return indexName;
+            }
+
+            return null;
         }
 
         private static void TryUniquifyForeignKeyNames(EntityType entityType, Dictionary<string, ForeignKey> foreignKeys, int maxLength)
@@ -294,38 +417,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         continue;
                     }
 
-                    foreignKeyName = Uniquify(foreignKeyName, null, foreignKeys, maxLength);
-                    relationalKeyBuilder.Name = foreignKeyName;
-                    foreignKeys[foreignKeyName] = foreignKey;
+                    var newForeignKeyName = TryUniquify(foreignKey, foreignKeyName, foreignKeys, maxLength);
+                    foreignKeys[newForeignKeyName] = foreignKey;
                     continue;
                 }
 
-                if (otherRelationalKeyBuilder.CanSetName(null))
+                var newOtherForeignKeyName = TryUniquify(otherForeignKey, foreignKeyName, foreignKeys, maxLength);
+                if (newOtherForeignKeyName != null)
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
-                    foreignKeyName = Uniquify(foreignKeyName, null, foreignKeys, maxLength);
-                    otherRelationalKeyBuilder.Name = foreignKeyName;
-                    foreignKeys[foreignKeyName] = otherForeignKey;
+                    foreignKeys[newOtherForeignKeyName] = otherForeignKey;
                 }
             }
         }
 
-        private static string Uniquify<T>(string baseIdentifier, string prefix, Dictionary<string, T> existingIdentifiers, int maxLength)
+        private static string TryUniquify<T>(
+           ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
         {
-            if (!string.IsNullOrEmpty(prefix)
-                && !baseIdentifier.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
+            if (relationalKeyBuilder.CanSetName(null))
             {
-                baseIdentifier = prefix + "_" + baseIdentifier;
+                foreignKeyName = ConstraintNamer.Uniquify(foreignKeyName, foreignKeys, maxLength);
+                relationalKeyBuilder.Name = foreignKeyName;
+                return foreignKeyName;
             }
 
-            var finalIdentifier = ConstraintNamer.Truncate(baseIdentifier, null, maxLength);
-            var suffix = 1;
-            while (existingIdentifiers.ContainsKey(finalIdentifier))
-            {
-                finalIdentifier = ConstraintNamer.Truncate(baseIdentifier, suffix++, maxLength);
-            }
-
-            return finalIdentifier;
+            return null;
         }
     }
 }

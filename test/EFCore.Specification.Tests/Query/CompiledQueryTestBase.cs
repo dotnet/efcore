@@ -52,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void DbQuery_query()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var query = EF.CompileQuery((NorthwindContext context) => context.CustomerQueries);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var context = CreateContext())
             {
@@ -325,7 +327,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task DbQuery_query_async()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.CustomerQueries);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var context = CreateContext())
             {

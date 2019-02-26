@@ -81,16 +81,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
 
-            public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
-                => new NonGenericTestQueryTypeBuilder<TQuery>(ModelBuilder.Query(typeof(TQuery)));
-
-            public override TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
-            {
-                ModelBuilder.Query(
-                    typeof(TQuery), queryTypeBuilder => buildAction(new NonGenericTestQueryTypeBuilder<TQuery>(queryTypeBuilder)));
-                return this;
-            }
-
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore(typeof(TEntity));
@@ -135,6 +125,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestKeyBuilder HasAlternateKey(params string[] propertyNames)
                 => new TestKeyBuilder(EntityTypeBuilder.HasAlternateKey(propertyNames));
+
+            public override TestEntityTypeBuilder<TEntity> HasNoKey()
+                => Wrap(EntityTypeBuilder.HasNoKey());
 
             public override TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             {
@@ -245,60 +238,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected OwnedEntityTypeBuilder OwnedEntityTypeBuilder { get; }
 
             public OwnedEntityTypeBuilder Instance => OwnedEntityTypeBuilder;
-        }
-
-        protected class NonGenericTestQueryTypeBuilder<TQuery> : TestQueryTypeBuilder<TQuery>, IInfrastructure<QueryTypeBuilder>
-            where TQuery : class
-        {
-            public NonGenericTestQueryTypeBuilder(QueryTypeBuilder queryTypeBuilder)
-            {
-                QueryTypeBuilder = queryTypeBuilder;
-            }
-
-            protected QueryTypeBuilder QueryTypeBuilder { get; }
-
-            public override IMutableEntityType Metadata => QueryTypeBuilder.Metadata;
-
-            protected virtual NonGenericTestQueryTypeBuilder<TQuery> Wrap(QueryTypeBuilder queryTypeBuilder)
-                => new NonGenericTestQueryTypeBuilder<TQuery>(queryTypeBuilder);
-
-            public override TestQueryTypeBuilder<TQuery> HasAnnotation(string annotation, object value)
-                => Wrap(QueryTypeBuilder.HasAnnotation(annotation, value));
-
-            public override TestQueryTypeBuilder<TQuery> HasBaseType<TBaseEntity>()
-                => Wrap(QueryTypeBuilder.HasBaseType(typeof(TBaseEntity)));
-
-            public override TestQueryTypeBuilder<TQuery> HasBaseType(string baseEntityTypeName)
-                => Wrap(QueryTypeBuilder.HasBaseType(baseEntityTypeName));
-
-            public override TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TQuery, TProperty>> propertyExpression)
-            {
-                var propertyInfo = propertyExpression.GetPropertyAccess();
-                return new NonGenericTestPropertyBuilder<TProperty>(
-                    QueryTypeBuilder.Property(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
-            }
-
-            public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-                => new NonGenericTestPropertyBuilder<TProperty>(QueryTypeBuilder.Property<TProperty>(propertyName));
-
-            public override TestQueryTypeBuilder<TQuery> Ignore(Expression<Func<TQuery, object>> propertyExpression)
-                => Wrap(QueryTypeBuilder.Ignore(propertyExpression.GetPropertyAccess().GetSimpleMemberName()));
-
-            public override TestQueryTypeBuilder<TQuery> Ignore(string propertyName)
-                => Wrap(QueryTypeBuilder.Ignore(propertyName));
-
-            public override TestReferenceNavigationBuilder<TQuery, TRelatedEntity> HasOne<TRelatedEntity>(
-                Expression<Func<TQuery, TRelatedEntity>> navigationExpression = null)
-                => new NonGenericTestReferenceNavigationBuilder<TQuery, TRelatedEntity>(
-                    QueryTypeBuilder.HasOne(typeof(TRelatedEntity), navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
-
-            public override TestQueryTypeBuilder<TQuery> HasQueryFilter(Expression<Func<TQuery, bool>> filter)
-                => Wrap(QueryTypeBuilder.HasQueryFilter(filter));
-
-            public override TestQueryTypeBuilder<TQuery> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-                => Wrap(QueryTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
-
-            public QueryTypeBuilder Instance => QueryTypeBuilder;
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>

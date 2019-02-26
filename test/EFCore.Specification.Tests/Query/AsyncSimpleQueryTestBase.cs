@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var results = await context.Query<ProductQuery>().ToArrayAsync();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.Equal(69, results.Length);
             }

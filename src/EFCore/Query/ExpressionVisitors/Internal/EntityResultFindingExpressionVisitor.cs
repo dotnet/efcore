@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                           : null)
                       ?? _model.FindEntityType(expression.Type));
 
-            if (entityType?.IsQueryType == false)
+            if (entityType?.FindPrimaryKey() != null)
             {
                 _entityTrackingInfos.Add(
                     _entityTrackingInfoFactory

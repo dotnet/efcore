@@ -998,12 +998,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
 
         /// <summary>
-        ///     The query type '{queryType}' cannot be mapped to a view because it is derived from '{baseType}'. Only base query types can be mapped to a view.
+        ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
         /// </summary>
-        public static string DerivedQueryTypeView([CanBeNull] object queryType, [CanBeNull] object baseType)
+        public static string DerivedTypeTable([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
-                GetString("DerivedQueryTypeView", nameof(queryType), nameof(baseType)),
-                queryType, baseType);
+                GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
+                entityType, baseType);
 
         /// <summary>
         ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.

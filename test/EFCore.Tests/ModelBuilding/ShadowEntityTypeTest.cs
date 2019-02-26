@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
-    public class ShadowEntityTypeTest : ModelBuilderTest
+    public class ShadowEntityTypeTest
     {
         [Fact]
         public virtual void Can_create_two_shadow_weak_owned_types()
@@ -124,5 +125,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected virtual ModelBuilder CreateModelBuilder()
             => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        protected class Order
+        {
+            public int OrderId { get; set; }
+
+            public int? CustomerId { get; set; }
+            public Guid AnotherCustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
+
+        protected class Customer
+        {
+            public int Id { get; set; }
+            public Guid AlternateKey { get; set; }
+            public string Name { get; set; }
+
+            public IEnumerable<Order> Orders { get; set; }
+        }
     }
 }

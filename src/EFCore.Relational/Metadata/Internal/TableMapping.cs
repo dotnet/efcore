@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
                 var relationalExtentions = entityType.Relational();
                 var fullName = (relationalExtentions.Schema, relationalExtentions.TableName);
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static TableMapping GetTableMapping([NotNull] IModel model, [NotNull] string table, [CanBeNull] string schema)
         {
             var mappedEntities = new List<IEntityType>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
                 var relationalExtentions = entityType.Relational();
                 if (table == relationalExtentions.TableName

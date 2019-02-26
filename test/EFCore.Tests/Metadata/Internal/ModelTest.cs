@@ -227,18 +227,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_duplicate_query_type_throws()
-        {
-            var model = new Model();
-
-            model.AddQueryType(typeof(Customer));
-
-            Assert.Equal(
-                CoreStrings.DuplicateQueryType(nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => model.AddQueryType(typeof(Customer))).Message);
-        }
-
-        [Fact]
         public void Can_get_entity_by_type()
         {
             var model = new Model();

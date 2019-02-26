@@ -555,6 +555,8 @@ namespace MyNamespace
                 new ValueConverter<RawEnum, string>(
                     v => v.ToString(), v => (RawEnum)Enum.Parse(typeof(RawEnum), v), new ConverterMappingHints(size: 10)));
 
+            entityType.SetPrimaryKey(property2);
+
             modelBuilder.FinalizeModel();
 
             var modelSnapshotCode = generator.GenerateSnapshot(
@@ -585,11 +587,12 @@ namespace MyNamespace
             modelBuilder.Entity(""Cheese"", b =>
                 {
                     b.Property<string>(""Ham"")
-                        .IsRequired()
                         .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
 
                     b.Property<string>(""Pickle"")
                         .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
+
+                    b.HasKey(""Ham"");
 
                     b.ToTable(""Cheese"");
                 });
@@ -664,6 +667,8 @@ namespace MyNamespace
                     eb.Property(e => e.NullableUInt16).HasDefaultValue(ushort.MaxValue);
                     eb.Property(e => e.NullableUInt32).HasDefaultValue(uint.MaxValue);
                     eb.Property(e => e.NullableUInt64).HasDefaultValue(ulong.MaxValue);
+
+                    eb.HasKey(e => e.Boolean);
                 });
 
             var modelSnapshotCode = generator.GenerateSnapshot(

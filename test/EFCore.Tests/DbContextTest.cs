@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -855,7 +856,6 @@ namespace Microsoft.EntityFrameworkCore
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
-            Assert.Throws<ObjectDisposedException>(() => context.Query<object>());
             Assert.Throws<ObjectDisposedException>(() => context.Find(typeof(Random), 77));
             Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
@@ -1026,6 +1026,7 @@ namespace Microsoft.EntityFrameworkCore
         private class TestAssembly
         {
             [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public string Name { get; set; }
 
             public ICollection<TestClass> Classes { get; } = new List<TestClass>();

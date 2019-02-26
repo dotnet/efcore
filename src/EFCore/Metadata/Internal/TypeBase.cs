@@ -120,9 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                // _runtimeProperties should not be mutated after it has been assigned
-                Thread.MemoryBarrier();
-                _runtimeProperties = runtimeProperties;
+                Interlocked.CompareExchange(ref _runtimeProperties, runtimeProperties, null);
             }
 
             return _runtimeProperties;
@@ -151,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                // _runtimeFields should not be mutated after it has been assigned
-                Thread.MemoryBarrier();
-                _runtimeFields = runtimeFields;
+                Interlocked.CompareExchange(ref _runtimeFields, runtimeFields, null);
             }
 
             return _runtimeFields;
@@ -167,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             _runtimeProperties = null;
             _runtimeFields = null;
+            Thread.MemoryBarrier();
         }
 
         /// <summary>

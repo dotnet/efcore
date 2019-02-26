@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var entityQueryable = (IQueryable)constantExpression.Value;
                     var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
-                    if (entityType?.IsQueryType == false
+                    if (entityType?.FindPrimaryKey() != null
                         && (_referencedEntityTypes > 0
                             || entityType.GetDerivedTypesInclusive().Any(et => et.ShadowPropertyCount() > 0)))
                     {

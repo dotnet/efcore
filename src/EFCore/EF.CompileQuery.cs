@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
+        [Obsolete("Use DbSet instead")]
         public static Func<TContext, IEnumerable<TResult>> CompileQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, DbQuery<TResult>>> queryExpression)
             where TContext : DbContext

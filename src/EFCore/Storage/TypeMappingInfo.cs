@@ -32,7 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
-        public TypeMappingInfo(IReadOnlyList<IProperty> principals)
+        /// <param name="fallbackUnicode"> Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackSize"> Specifies a fallback size for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackPrecision"> Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackScale"> Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        public TypeMappingInfo(
+            IReadOnlyList<IProperty> principals,
+            bool? fallbackUnicode = null,
+            int? fallbackSize = null,
+            int? fallbackPrecision = null,
+            int? fallbackScale = null)
         {
             Check.NotNull(principals, nameof(principals));
 
@@ -74,39 +83,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var property = principals[0];
 
             IsKeyOrIndex = property.IsKeyOrForeignKey() || property.IsIndex();
-            Size = size ?? mappingHints?.Size;
-            IsUnicode = isUnicode ?? mappingHints?.IsUnicode;
+            Size = size ?? mappingHints?.Size ?? fallbackSize;
+            IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-            Scale = mappingHints?.Scale;
-            Precision = mappingHints?.Precision;
-        }
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="TypeMappingInfo" />.
-        /// </summary>
-        /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            ClrType = type.UnwrapNullableType();
-
-            IsKeyOrIndex = false;
-            Size = null;
-            IsUnicode = null;
-            IsRowVersion = null;
-            Precision = null;
-            Scale = null;
+            Scale = mappingHints?.Scale ?? fallbackScale;
+            Precision = mappingHints?.Precision ?? fallbackPrecision;
         }
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="member"> The property or field for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] MemberInfo member)
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
+        public TypeMappingInfo(
+            [NotNull] MemberInfo member,
+            bool? unicode = null,
+            int? size = null,
+            int? precision = null,
+            int? scale = null)
             : this(Check.NotNull(member, nameof(member)).GetMemberType())
         {
+            IsUnicode = unicode;
+            Size = size;
+            Precision = precision;
+            Scale = scale;
         }
 
         /// <summary>
@@ -120,17 +124,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
         public TypeMappingInfo(
-            [NotNull] Type type,
-            bool keyOrIndex,
+            [CanBeNull] Type? type = null,
+            bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
             bool? rowVersion = null,
             int? precision = null,
             int? scale = null)
         {
-            Check.NotNull(type, nameof(type));
-
-            ClrType = type.UnwrapNullableType();
+            ClrType = type?.UnwrapNullableType();
 
             IsKeyOrIndex = keyOrIndex;
             Size = size;
@@ -211,9 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public int? Scale { get; }
 
         /// <summary>
-        ///     The CLR type in the model.
+        ///     The CLR type in the model. May be null if type information is conveyed via other means
+        ///     (e.g. the store name in a relational type mapping info)
         /// </summary>
-        public Type ClrType { get; }
+        public Type? ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.

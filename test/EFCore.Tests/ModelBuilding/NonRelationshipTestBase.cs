@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -11,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -216,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var nameProperty = entity.FindPrimaryKey().Properties.Single();
                 Assert.Equal(Customer.NameProperty.Name, nameProperty.Name);
-                Assert.True(nameProperty.RequiresValueGenerator());
-                Assert.Equal(ValueGenerated.OnAdd, nameProperty.ValueGenerated);
+                Assert.False(nameProperty.RequiresValueGenerator());
+                Assert.Equal(ValueGenerated.Never, nameProperty.ValueGenerated);
 
                 var idProperty = (IProperty)entity.FindProperty(Customer.IdProperty);
                 Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
@@ -810,13 +810,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<JsonProperty>(
-                    b => b.Property(e => e.JObject).HasConversion(v => v.ToString(), v => new JObject(v)));
+                modelBuilder.Entity<DynamicProperty>(
+                    b => b.Property(e => e.ExpandoObject).HasConversion(v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v)));
 
                 modelBuilder.Validate();
 
                 var entityType = (IEntityType)model.GetEntityTypes().Single();
-                Assert.NotNull(entityType.FindProperty(nameof(JsonProperty.JObject)).GetValueConverter());
+                Assert.NotNull(entityType.FindProperty(nameof(DynamicProperty.ExpandoObject)).GetValueConverter());
+            }
+                
+            private static ExpandoObject DeserializeExpandoObject(string value)
+            {
+                dynamic obj = new ExpandoObject();
+                obj.Value = value;
+
+                return obj;
             }
 
             [Fact]

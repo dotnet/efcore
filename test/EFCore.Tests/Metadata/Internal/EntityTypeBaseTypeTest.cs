@@ -460,20 +460,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Setting_base_type_throws_when_mixing_views_and_entities()
+        public void Setting_base_type_throws_on_keyless_type()
         {
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            var b = model.AddQueryType(typeof(B));
+            var b = model.AddEntityType(typeof(B));
+            b.HasNoKey(true);
 
             Assert.Equal(
-                CoreStrings.MixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
+                CoreStrings.DerivedEntityCannotBeKeyless(typeof(B).Name),
                 Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
+        }
+
+        [Fact]
+        public void HasNoKey_on_derived_type_throws()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddEntityType(typeof(B));
+            b.HasBaseType(a);
 
             Assert.Equal(
-                CoreStrings.MixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(b)).Message);
+                CoreStrings.DerivedEntityTypeHasNoKey(typeof(B).Name, typeof(A).Name),
+                Assert.Throws<InvalidOperationException>(() => b.HasNoKey(true)).Message);
         }
 
         [Fact]

@@ -59,16 +59,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 => new GenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned<TEntity>());
 
-            public override TestQueryTypeBuilder<TQuery> Query<TQuery>()
-                => new GenericStringTestQueryTypeBuilder<TQuery>(ModelBuilder.Query<TQuery>());
-
-            public override TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
-            {
-                ModelBuilder.Query<TQuery>(
-                    queryTypeBuilder => buildAction(new GenericStringTestQueryTypeBuilder<TQuery>(queryTypeBuilder)));
-                return this;
-            }
-
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore<TEntity>();
@@ -124,22 +114,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
                 => new GenericStringTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.HasMany<TRelatedEntity>(navigationExpression?.GetPropertyAccess()?.GetSimpleMemberName()));
-        }
-
-        private class GenericStringTestQueryTypeBuilder<TQuery> : GenericTestQueryTypeBuilder<TQuery>
-            where TQuery : class
-        {
-            public GenericStringTestQueryTypeBuilder(QueryTypeBuilder<TQuery> queryTypeBuilder)
-                : base(queryTypeBuilder)
-            {
-            }
-
-            protected override TestQueryTypeBuilder<TQuery> Wrap(QueryTypeBuilder<TQuery> queryTypeBuilder)
-                => new GenericStringTestQueryTypeBuilder<TQuery>(queryTypeBuilder);
-
-            public override TestReferenceNavigationBuilder<TQuery, TRelatedEntity> HasOne<TRelatedEntity>(
-                Expression<Func<TQuery, TRelatedEntity>> navigationExpression = null)
-                => new GenericStringTestReferenceNavigationBuilder<TQuery, TRelatedEntity>(QueryTypeBuilder.HasOne(navigationExpression));
         }
 
         private class GenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity> :

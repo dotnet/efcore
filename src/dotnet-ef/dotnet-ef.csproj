@@ -58,10 +58,6 @@ dotnet ef database update
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Properties\Resources.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

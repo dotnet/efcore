@@ -96,11 +96,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Query_with_query_type()
+        public virtual void Query_with_keyless_type()
         {
             using (var context = CreateContext())
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var blogs = context.Query<BlogQuery>().ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.Equal(1, blogs.Count);
                 Assert.Equal("Puppies", blogs[0].Title);
@@ -1621,7 +1623,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Title);
                     });
 
-                modelBuilder.Query<BlogQuery>(b => b.Property(e => e.Title));
+                modelBuilder.Entity<BlogQuery>(b =>
+                {
+                    b.HasNoKey();
+                    b.Property(e => e.Title);
+                });
 
                 modelBuilder.Entity<Post>(
                     b =>

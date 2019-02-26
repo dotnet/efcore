@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateChangeTrackingStrategy(model, loggers);
             ValidateForeignKeys(model, loggers);
             ValidateFieldMapping(model, loggers);
-            ValidateQueryTypes(model, loggers);
+            ValidateKeylessTypes(model, loggers);
             ValidateQueryFilters(model, loggers);
             ValidateData(model, loggers);
             LogShadowProperties(model, loggers);
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var entityTypeWithNullPk
                 = model.GetEntityTypes()
-                    .FirstOrDefault(et => !et.IsQueryType && et.BaseType == null && et.FindPrimaryKey() == null);
+                    .FirstOrDefault(et => !((EntityType)et).IsKeyless && et.BaseType == null && et.FindPrimaryKey() == null);
 
             if (entityTypeWithNullPk != null)
             {
@@ -516,26 +516,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void ValidateQueryTypes([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateKeylessTypes([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.IsQueryType)
+                if (entityType.DefiningQuery != null)
                 {
-                    if (entityType.BaseType != null
-                        && entityType.DefiningQuery != null)
+                    if (entityType.BaseType != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.DerivedQueryTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                            CoreStrings.DerivedTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
                     }
 
-                    var key = entityType.GetKeys().FirstOrDefault();
-                    if (key != null)
+                    if (entityType.FindPrimaryKey() != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.QueryTypeWithKey(Property.Format(key.Properties), entityType.DisplayName()));
+                            CoreStrings.NonKeylessEntityTypeDefiningQuery(entityType.DisplayName()));
                     }
                 }
             }
@@ -573,9 +571,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var identityMaps = new Dictionary<IKey, IIdentityMap>();
             var sensitiveDataLogged = loggers.GetLogger<DbLoggerCategory.Model.Validation>().ShouldLogSensitiveData();
 
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType))
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var key = entityType.FindPrimaryKey();
+                if (key == null)
+                {
+                    continue;
+                }
+
                 IIdentityMap identityMap = null;
                 foreach (var seedDatum in entityType.GetData())
                 {

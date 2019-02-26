@@ -169,6 +169,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
+                if (Metadata.IsKeyless
+                    && !configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()))
+                {
+                    return null;
+                }
+
+                if (Metadata.GetIsKeylessConfigurationSource() != ConfigurationSource.Explicit)
+                {
+                    Metadata.HasNoKey(false, configurationSource.Value);
+                }
+
                 var containingForeignKeys = actualProperties
                     .SelectMany(p => p.GetContainingForeignKeys().Where(k => k.DeclaringEntityType != Metadata))
                     .ToList();
@@ -210,6 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else if (configurationSource.HasValue)
             {
                 key.UpdateConfigurationSource(configurationSource.Value);
+                Metadata.HasNoKey(false, configurationSource.Value);
             }
 
             return key?.Builder;
@@ -296,6 +308,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return (keyBuilder, primaryKeyConfigurationSource);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasNoKey(ConfigurationSource configurationSource)
+        {
+            if (Metadata.IsKeyless)
+            {
+                Metadata.HasNoKey(true, configurationSource);
+                return true;
+            }
+
+            if (!configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())
+                || Metadata.GetReferencingForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource()))
+                || Metadata.GetForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetPrincipalToDependentConfigurationSource())))
+            {
+                return false;
+            }
+
+            using (Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                foreach (var foreignKey in Metadata.GetReferencingForeignKeys().ToList())
+                {
+                    foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                }
+
+                foreach (var foreignKey in Metadata.GetForeignKeys())
+                {
+                    foreignKey.HasPrincipalToDependent((string)null, configurationSource);
+                }
+
+                foreach (var key in Metadata.GetKeys().ToList())
+                {
+                    if (key.GetConfigurationSource() != ConfigurationSource.Explicit)
+                    {
+                        RemoveKey(key, configurationSource);
+                    }
+                }
+
+                Metadata.HasNoKey(true, configurationSource);
+                return true;
+            }
         }
 
         /// <summary>
@@ -925,7 +981,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
                 if (baseEntityType != null)
                 {
-                    if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())))
+                    if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource()))
+                        || Metadata.IsKeyless && !configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()))
                     {
                         return null;
                     }
@@ -1013,6 +1070,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
+                    Metadata.HasNoKey(false, configurationSource);
                     baseEntityType.UpdateConfigurationSource(configurationSource);
                 }
 
