@@ -1055,12 +1055,6 @@
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
     <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.</value>
   </data>
-  <data name="IncompatiblePrincipalEntry" xml:space="preserve">
-    <value>The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
-  </data>
-  <data name="IncompatiblePrincipalEntrySensitive" xml:space="preserve">
-    <value>The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.</value>
-  </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key.</value>
   </data>
