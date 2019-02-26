@@ -634,6 +634,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             public override Expression GenerateCodeLiteral(object value)
                 => _literalExpressionFunc((T)value);
+
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => throw new NotSupportedException();
         }
 
         private class SimpleTestNonImplementedTypeMapping : RelationalTypeMapping
@@ -642,6 +645,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 : base("storeType", typeof(SimpleTestType))
             {
             }
+
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => throw new NotSupportedException();
         }
     }
 

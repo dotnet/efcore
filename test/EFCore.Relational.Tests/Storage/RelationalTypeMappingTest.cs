@@ -243,6 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     unicode: unicide,
                     fixedLength: fixedLength);
             }
+
+            protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+                => new FakeTypeMapping(parameters);
         }
 
         [Fact]
