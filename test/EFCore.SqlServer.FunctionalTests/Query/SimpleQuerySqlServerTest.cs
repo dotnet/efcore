@@ -2809,6 +2809,15 @@ FROM [Orders] AS [o]");
 FROM [Orders] AS [o]");
         }
 
+        public override void String_concat_with_null_produces_string()
+        {
+            base.String_concat_with_null_produces_string();
+
+            AssertSql(
+                @"SELECT [c].[City], [c].[Region], ([c].[City] + N' ') + [c].[Region] AS [Concat]
+FROM [Customers] AS [c]");
+        }
+
         public override async Task Environment_newline_is_funcletized(bool isAsync)
         {
             await base.Environment_newline_is_funcletized(isAsync);

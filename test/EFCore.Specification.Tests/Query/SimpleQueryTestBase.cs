@@ -3743,6 +3743,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID.Contains(Environment.NewLine)));
         }
 
+        [ConditionalFact]
+        public virtual void String_concat_with_null_produces_string()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Select(c => new { c.City, c.Region, Concat = c.City + " " + c.Region }).ToList();
+
+                //Assert.All(query, t => Assert.Equal(t.City + " " + t.Region, t.Concat));
+            }
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_concat_with_navigation1(bool isAsync)

@@ -291,6 +291,15 @@ FROM ""Customers"" AS ""c""
 WHERE instr(""c"".""ContactName"", 'M') > 0");
         }
 
+        public override void String_concat_with_null_produces_string()
+        {
+            base.String_concat_with_null_produces_string();
+
+            AssertSql(
+                @"SELECT ""c"".""City"", ""c"".""Region"", (""c"".""City"" || ' ') || ""c"".""Region"" AS ""Concat""
+FROM ""Customers"" AS ""c""");
+        }
+
         public override async Task IsNullOrWhiteSpace_in_predicate(bool isAsync)
         {
             await base.IsNullOrWhiteSpace_in_predicate(isAsync);
