@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -227,24 +228,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static readonly MethodInfo _getFieldValueMethod
-            = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
+            = GetDataReaderMethod(nameof(DbDataReader.GetFieldValue));
 
         private static readonly IDictionary<Type, MethodInfo> _getXMethods
             = new Dictionary<Type, MethodInfo>
             {
-                { typeof(bool), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetBoolean)) },
-                { typeof(byte), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetByte)) },
-                { typeof(char), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetChar)) },
-                { typeof(DateTime), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDateTime)) },
-                { typeof(decimal), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDecimal)) },
-                { typeof(double), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDouble)) },
-                { typeof(float), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFloat)) },
-                { typeof(Guid), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetGuid)) },
-                { typeof(short), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt16)) },
-                { typeof(int), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt32)) },
-                { typeof(long), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt64)) },
-                { typeof(string), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetString)) }
+                { typeof(bool), GetDataReaderMethod(nameof(DbDataReader.GetBoolean)) },
+                { typeof(byte), GetDataReaderMethod(nameof(DbDataReader.GetByte)) },
+                { typeof(char), GetDataReaderMethod(nameof(DbDataReader.GetChar)) },
+                { typeof(DateTime), GetDataReaderMethod(nameof(DbDataReader.GetDateTime)) },
+                { typeof(decimal), GetDataReaderMethod(nameof(DbDataReader.GetDecimal)) },
+                { typeof(double), GetDataReaderMethod(nameof(DbDataReader.GetDouble)) },
+                { typeof(float), GetDataReaderMethod(nameof(DbDataReader.GetFloat)) },
+                { typeof(Guid), GetDataReaderMethod(nameof(DbDataReader.GetGuid)) },
+                { typeof(short), GetDataReaderMethod(nameof(DbDataReader.GetInt16)) },
+                { typeof(int), GetDataReaderMethod(nameof(DbDataReader.GetInt32)) },
+                { typeof(long), GetDataReaderMethod(nameof(DbDataReader.GetInt64)) },
+                { typeof(string), GetDataReaderMethod(nameof(DbDataReader.GetString)) }
             };
+
+        private static MethodInfo GetDataReaderMethod(string name) =>
+            typeof(DbDataReader)
+                .GetRuntimeMethods()
+                .Single(m => m.GetParameters().Length == 1
+                             && m.GetParameters()[0].ParameterType == typeof(int)
+                             && m.Name.Equals(name, StringComparison.Ordinal));
 
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
