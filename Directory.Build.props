@@ -11,6 +11,11 @@
     Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
     Condition=" '$(CI)' != 'true' AND '$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
 
+  <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
+    <Copyright>$(CopyrightMicrosoft)</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
@@ -18,7 +23,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>8.0</LangVersion>
     <DebugType>portable</DebugType>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseUrl Condition="'$(PackageLicenseExpression)' == ''">https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>

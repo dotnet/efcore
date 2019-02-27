@@ -135,8 +135,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return (propertyType.IsInteger()
                     && propertyType != typeof(byte))
                    || propertyType == typeof(Guid)
-                   || propertyType == typeof(string)
-                   || propertyType == typeof(byte[])
                 ? true
                 : false;
         }

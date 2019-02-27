@@ -216,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var nameProperty = entity.FindPrimaryKey().Properties.Single();
                 Assert.Equal(Customer.NameProperty.Name, nameProperty.Name);
-                Assert.True(nameProperty.RequiresValueGenerator());
-                Assert.Equal(ValueGenerated.OnAdd, nameProperty.ValueGenerated);
+                Assert.False(nameProperty.RequiresValueGenerator());
+                Assert.Equal(ValueGenerated.Never, nameProperty.ValueGenerated);
 
                 var idProperty = (IProperty)entity.FindProperty(Customer.IdProperty);
                 Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
