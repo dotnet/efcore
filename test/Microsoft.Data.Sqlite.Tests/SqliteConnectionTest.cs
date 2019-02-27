@@ -316,15 +316,16 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void Open_works_when_foreign_keys()
+        [Theory]
+        [InlineData("True", 1L)]
+        [InlineData("False", 0L)]
+        public void Open_works_when_foreign_keys(string foreignKeys, long expected)
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True"))
+            using (var connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=" + foreignKeys))
             {
                 connection.Open();
 
-                // NB: Always passes when compile-time option SQLITE_DEFAULT_FOREIGN_KEYS=1
-                Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA foreign_keys;"));
+                Assert.Equal(expected, connection.ExecuteScalar<long>("PRAGMA foreign_keys;"));
             }
         }
 

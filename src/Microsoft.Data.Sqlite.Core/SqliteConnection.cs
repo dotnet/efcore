@@ -255,9 +255,10 @@ namespace Microsoft.Data.Sqlite
                     this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
                 }
 
-                if (ConnectionStringBuilder.ForeignKeys)
+                if (ConnectionStringBuilder.ForeignKeys.HasValue)
                 {
-                    this.ExecuteNonQuery("PRAGMA foreign_keys = 1;");
+                    this.ExecuteNonQuery(
+                        "PRAGMA foreign_keys = " + (ConnectionStringBuilder.ForeignKeys.Value ? "1" : "0") + ";");
                 }
 
                 if (ConnectionStringBuilder.RecursiveTriggers)
