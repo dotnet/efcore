@@ -49,15 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
         private static readonly MethodInfo _getFieldValueMethod
-            = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
+            = GetDataReaderMethod(nameof(DbDataReader.GetFieldValue));
 
         private static readonly MethodInfo _isDbNullMethod
-            = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.IsDBNull));
+            = GetDataReaderMethod(nameof(DbDataReader.IsDBNull));
 
         private static readonly MethodInfo _throwReadValueExceptionMethod
             = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ThrowReadValueException));
 
+        private static MethodInfo GetDataReaderMethod(string name) =>
+            typeof(DbDataReader)
+                .GetRuntimeMethods()
+                .Single(m => m.GetParameters().Length == 1
+                             && m.GetParameters()[0].ParameterType == typeof(int)
+                             && m.Name.Equals(name, StringComparison.Ordinal));
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
         /// </summary>

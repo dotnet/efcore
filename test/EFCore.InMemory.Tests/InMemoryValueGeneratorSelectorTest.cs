@@ -47,6 +47,40 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Can_create_factories_for_all_integer_types()
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(AnEntity));
+
+            Assert.Equal(1, CreateAndUseFactory(entityType.FindProperty("Id")));
+            Assert.Equal(1L, CreateAndUseFactory(entityType.FindProperty("Long")));
+            Assert.Equal((short)1, CreateAndUseFactory(entityType.FindProperty("Short")));
+            Assert.Equal((byte)1, CreateAndUseFactory(entityType.FindProperty("Byte")));
+            Assert.Equal((int?)1, CreateAndUseFactory(entityType.FindProperty("NullableInt")));
+            Assert.Equal((long?)1, CreateAndUseFactory(entityType.FindProperty("NullableLong")));
+            Assert.Equal((short?)1, CreateAndUseFactory(entityType.FindProperty("NullableShort")));
+            Assert.Equal((byte?)1, CreateAndUseFactory(entityType.FindProperty("NullableByte")));
+            Assert.Equal((uint)1, CreateAndUseFactory(entityType.FindProperty("UInt")));
+            Assert.Equal((ulong)1, CreateAndUseFactory(entityType.FindProperty("ULong")));
+            Assert.Equal((ushort)1, CreateAndUseFactory(entityType.FindProperty("UShort")));
+            Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.FindProperty("SByte")));
+            Assert.Equal((uint?)1, CreateAndUseFactory(entityType.FindProperty("NullableUInt")));
+            Assert.Equal((ulong?)1, CreateAndUseFactory(entityType.FindProperty("NullableULong")));
+            Assert.Equal((ushort?)1, CreateAndUseFactory(entityType.FindProperty("NullableUShort")));
+            Assert.Equal((sbyte?)1, CreateAndUseFactory(entityType.FindProperty("NullableSByte")));
+        }
+
+        private static object CreateAndUseFactory(IProperty property)
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(AnEntity));
+
+            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
+
+            return selector.Select(property, property.DeclaringEntityType).Next(null);
+        }
+
+        [Fact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();

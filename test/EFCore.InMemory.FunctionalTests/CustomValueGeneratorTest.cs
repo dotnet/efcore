@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -217,8 +218,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly ValueGeneratorFactory _factory = new CustomValueGeneratorFactory();
 
-            public CustomInMemoryValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
-                : base(dependencies)
+            public CustomInMemoryValueGeneratorSelector(
+                ValueGeneratorSelectorDependencies dependencies,
+                IInMemoryDatabase inMemoryDatabase)
+                : base(dependencies, inMemoryDatabase)
             {
             }
 

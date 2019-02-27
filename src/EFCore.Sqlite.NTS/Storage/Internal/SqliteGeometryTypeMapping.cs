@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using GeoAPI;
@@ -23,8 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         where TGeometry : IGeometry
     {
         private static readonly MethodInfo _getBytes
-            = typeof(DbDataReader).GetTypeInfo()
-                .GetDeclaredMethod(nameof(DbDataReader.GetFieldValue))
+            = typeof(DbDataReader)
+                .GetRuntimeMethods()
+                .Single(m => m.GetParameters().Length == 1
+                             && m.GetParameters()[0].ParameterType == typeof(int)
+                             && m.Name.Equals(nameof(DbDataReader.GetFieldValue), StringComparison.Ordinal))
                 .MakeGenericMethod(typeof(byte[]));
 
         /// <summary>
