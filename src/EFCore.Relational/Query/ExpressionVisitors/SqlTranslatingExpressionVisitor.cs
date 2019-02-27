@@ -203,8 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         ? Expression.AndAlso(left, right)
                         : null;
 
-                case ExpressionType.OrElse:
                 case ExpressionType.Add:
+                    return ProcessAddExpression(expression);
+
+                case ExpressionType.OrElse:
                 case ExpressionType.Subtract:
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
@@ -573,6 +575,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return leftExpression.Type == rightExpression.Type
                 ? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression)
                 : null;
+        }
+
+        private Expression ProcessAddExpression(BinaryExpression addExpression)
+        {
+            var leftExpression = Visit(addExpression.Left);
+            var rightExpression = Visit(addExpression.Right);
+
+            if (leftExpression != null && rightExpression != null)
+            {
+                if (leftExpression.Type == typeof(string)
+                    && leftExpression.RemoveConvert() is ColumnExpression leftColumnExpression
+                    && leftColumnExpression.Property.IsNullable)
+                {
+                    leftExpression = Expression.Coalesce(leftExpression, Expression.Constant(string.Empty));
+                }
+
+                if (rightExpression.Type == typeof(string)
+                    && rightExpression.RemoveConvert() is ColumnExpression rightColumnExpression
+                    && rightColumnExpression.Property.IsNullable)
+                {
+                    rightExpression = Expression.Coalesce(rightExpression, Expression.Constant(string.Empty));
+                }
+
+                return Expression.MakeBinary(
+                    addExpression.NodeType,
+                    leftExpression,
+                    rightExpression,
+                    addExpression.IsLiftedToNull,
+                    addExpression.Method);
+            }
+
+            return null;
         }
 
         private static Expression TransformNullComparison(

@@ -3750,7 +3750,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = context.Customers.Select(c => new { c.City, c.Region, Concat = c.City + " " + c.Region }).ToList();
 
-                //Assert.All(query, t => Assert.Equal(t.City + " " + t.Region, t.Concat));
+                Assert.All(query, t => Assert.Equal(t.City + " " + t.Region, t.Concat));
             }
         }
 

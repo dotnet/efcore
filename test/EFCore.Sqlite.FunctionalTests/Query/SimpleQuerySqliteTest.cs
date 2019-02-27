@@ -296,7 +296,7 @@ WHERE instr(""c"".""ContactName"", 'M') > 0");
             base.String_concat_with_null_produces_string();
 
             AssertSql(
-                @"SELECT ""c"".""City"", ""c"".""Region"", (""c"".""City"" || ' ') || ""c"".""Region"" AS ""Concat""
+                @"SELECT ""c"".""City"", ""c"".""Region"", (COALESCE(""c"".""City"", '') || ' ') || COALESCE(""c"".""Region"", '') AS ""Concat""
 FROM ""Customers"" AS ""c""");
         }
 

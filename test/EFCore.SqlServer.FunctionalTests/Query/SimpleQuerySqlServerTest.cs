@@ -2814,7 +2814,7 @@ FROM [Orders] AS [o]");
             base.String_concat_with_null_produces_string();
 
             AssertSql(
-                @"SELECT [c].[City], [c].[Region], ([c].[City] + N' ') + [c].[Region] AS [Concat]
+                @"SELECT [c].[City], [c].[Region], (COALESCE([c].[City], N'') + N' ') + COALESCE([c].[Region], N'') AS [Concat]
 FROM [Customers] AS [c]");
         }
 
