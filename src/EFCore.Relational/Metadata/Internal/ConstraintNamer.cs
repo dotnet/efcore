@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -134,6 +136,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return Truncate(baseName, null, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string Uniquify<T>(
+            [NotNull] string currentIdentifier, [NotNull] IReadOnlyDictionary<string, T> otherIdentifiers, int maxLength)
+        {
+            var finalIdentifier = Truncate(currentIdentifier, null, maxLength);
+            var suffix = 1;
+            while (otherIdentifiers.ContainsKey(finalIdentifier))
+            {
+                finalIdentifier = Truncate(currentIdentifier, suffix++, maxLength);
+            }
+
+            return finalIdentifier;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string Uniquify<TKey, TValue>(
+            [NotNull] string currentIdentifier,
+            [NotNull] IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
+            Func<string, TKey> keySelector,
+            int maxLength)
+        {
+            var finalIdentifier = Truncate(currentIdentifier, null, maxLength);
+            var suffix = 1;
+            while (otherIdentifiers.ContainsKey(keySelector(finalIdentifier)))
+            {
+                finalIdentifier = Truncate(currentIdentifier, suffix++, maxLength);
+            }
+
+            return finalIdentifier;
         }
 
         /// <summary>

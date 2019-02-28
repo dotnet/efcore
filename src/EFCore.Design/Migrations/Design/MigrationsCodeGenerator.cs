@@ -18,16 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to generate code for migrations.
     /// </summary>
-#pragma warning disable CA1012 // Abstract types should not have constructors
-    // Already shipped
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
-#pragma warning restore CA1012 // Abstract types should not have constructors
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
+        protected MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

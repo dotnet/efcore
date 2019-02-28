@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -101,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var entry = _dependencies.StateManager.TryGetEntry(entity);
 
-            if (entry != null)
+            if (entry != null
+                && entry.EntityState != EntityState.Detached)
             {
                 return entry[property];
             }
@@ -189,14 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (untypedEnumerator == null)
                 {
-                    if (tracking)
-                    {
-                        var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
-
-                        Debug.Assert(internalEntityEntry != null);
-
-                        internalEntityEntry.SetIsLoaded(navigation);
-                    }
+                    SetLoaded(tracking, entity, navigation);
 
                     return;
                 }
@@ -215,15 +212,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 bool shouldInclude;
 
+                var current = enumerator.Current;
+
                 if (joinPredicate == null)
                 {
-                    if (_valueBuffers.TryGetValue(enumerator.Current, out var relatedValueBuffer))
+                    if (_valueBuffers.TryGetValue(current, out var relatedValueBuffer))
                     {
                         shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
                     }
                     else
                     {
-                        var entry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
+                        var entry = _dependencies.StateManager.TryGetEntry(current);
 
                         Debug.Assert(entry != null);
 
@@ -232,34 +231,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    shouldInclude = joinPredicate(entity, enumerator.Current);
+                    shouldInclude = joinPredicate(entity, current);
                 }
 
                 if (shouldInclude)
                 {
                     if (tracking)
                     {
-                        StartTracking(enumerator.Current, targetEntityType);
+                        StartTracking(current, targetEntityType);
                     }
-                    else if (!collection.Contains(enumerator.Current))
+                    else if (!collection.Contains(current))
                     {
-                        collection.Add(enumerator.Current);
+                        collection.Add(current);
                     }
 
                     if (inverseNavigation != null)
                     {
                         Debug.Assert(inverseClrPropertySetter != null);
 
-                        inverseClrPropertySetter.SetClrValue(enumerator.Current, entity);
+                        inverseClrPropertySetter.SetClrValue(current, entity);
 
-                        if (tracking)
-                        {
-                            var internalEntityEntry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
-
-                            Debug.Assert(internalEntityEntry != null);
-
-                            internalEntityEntry.SetRelationshipSnapshotValue(inverseNavigation, entity);
-                        }
+                        SetLoaded(tracking, entity, current, inverseNavigation);
                     }
 
                     if (!enumerator.MoveNext())
@@ -282,14 +274,70 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
-
-                Debug.Assert(internalEntityEntry != null);
+                var internalEntityEntry
+                    = _dependencies
+                        .StateManager
+                        .TryGetEntry(entity, navigation.DeclaringEntityType);
 
                 internalEntityEntry.AddRangeToCollectionSnapshot(navigation, (IEnumerable<object>)collection);
                 internalEntityEntry.SetIsLoaded(navigation);
             }
+            else
+            {
+                SetIsLoadedNoTracking(entity, navigation);
+            }
         }
+
+        private void SetLoaded(bool tracking, object entity, object related, INavigation inverseNavigation)
+        {
+            var inverseIsCollection = inverseNavigation.IsCollection();
+
+            if (tracking)
+            {
+                var inverseEntry
+                    = _dependencies
+                        .StateManager
+                        .TryGetEntry(related, inverseNavigation.DeclaringEntityType);
+
+                inverseEntry.SetRelationshipSnapshotValue(inverseNavigation, entity);
+
+                if (!inverseIsCollection)
+                {
+                    inverseEntry.SetIsLoaded(inverseNavigation);
+                }
+            }
+            else if (!inverseIsCollection)
+            {
+                SetIsLoadedNoTracking(related, inverseNavigation);
+            }
+        }
+
+        private void SetLoaded(bool tracking, object entity, INavigation navigation)
+        {
+            if (tracking)
+            {
+                _dependencies
+                    .StateManager
+                    .TryGetEntry(entity, navigation.DeclaringEntityType)
+                    .SetIsLoaded(navigation);
+            }
+            else
+            {
+                SetIsLoadedNoTracking(entity, navigation);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void SetIsLoadedNoTracking([NotNull] object entity, [NotNull] INavigation navigation)
+            => ((ILazyLoader)((PropertyBase)navigation
+                        .DeclaringEntityType
+                        .GetServiceProperties()
+                        .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
+                    ?.Getter.GetClrValue(entity))
+                ?.SetLoaded(entity, navigation.Name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -335,14 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (untypedAsyncEnumerator == null)
                 {
-                    if (tracking)
-                    {
-                        var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
-
-                        Debug.Assert(internalEntityEntry != null);
-
-                        internalEntityEntry.SetIsLoaded(navigation);
-                    }
+                    SetLoaded(tracking, entity, navigation);
 
                     return;
                 }
@@ -361,15 +402,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 bool shouldInclude;
 
+                var current = asyncEnumerator.Current;
+
                 if (joinPredicate == null)
                 {
-                    if (_valueBuffers.TryGetValue(asyncEnumerator.Current, out var relatedValueBuffer))
+                    if (_valueBuffers.TryGetValue(current, out var relatedValueBuffer))
                     {
                         shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
                     }
                     else
                     {
-                        var entry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
+                        var entry = _dependencies.StateManager.TryGetEntry(current);
 
                         Debug.Assert(entry != null);
 
@@ -378,34 +421,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    shouldInclude = joinPredicate(entity, asyncEnumerator.Current);
+                    shouldInclude = joinPredicate(entity, current);
                 }
 
                 if (shouldInclude)
                 {
                     if (tracking)
                     {
-                        StartTracking(asyncEnumerator.Current, targetEntityType);
+                        StartTracking(current, targetEntityType);
                     }
-                    else if (!collection.Contains(asyncEnumerator.Current))
+                    else if (!collection.Contains(current))
                     {
-                        collection.Add(asyncEnumerator.Current);
+                        collection.Add(current);
                     }
 
                     if (inverseNavigation != null)
                     {
                         Debug.Assert(inverseClrPropertySetter != null);
 
-                        inverseClrPropertySetter.SetClrValue(asyncEnumerator.Current, entity);
+                        inverseClrPropertySetter.SetClrValue(current, entity);
 
-                        if (tracking)
-                        {
-                            var internalEntityEntry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
-
-                            Debug.Assert(internalEntityEntry != null);
-
-                            internalEntityEntry.SetRelationshipSnapshotValue(inverseNavigation, entity);
-                        }
+                        SetLoaded(tracking, entity, current, inverseNavigation);
                     }
 
                     if (!await asyncEnumerator.MoveNext(cancellationToken))
@@ -425,12 +461,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
-
-                Debug.Assert(internalEntityEntry != null);
+                var internalEntityEntry
+                    = _dependencies
+                        .StateManager
+                        .TryGetEntry(entity, navigation.DeclaringEntityType);
 
                 internalEntityEntry.AddRangeToCollectionSnapshot(navigation, (IEnumerable<object>)collection);
                 internalEntityEntry.SetIsLoaded(navigation);
+            }
+            else
+            {
+                SetIsLoadedNoTracking(entity, navigation);
             }
         }
 

@@ -3,8 +3,6 @@
 
 using System.Data.Common;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -49,6 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (optionsExtension != null)
             {
                 _loadSpatialite = optionsExtension.LoadSpatialite;
+                if (_loadSpatialite)
+                {
+                    var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
+                    if (relationalOptions.Connection != null)
+                    {
+                        // TODO: Provide a better hook to do this for both external connections and ones created by EF
+                        SpatialiteLoader.Load((SqliteConnection)relationalOptions.Connection);
+                    }
+                }
             }
         }
 
@@ -56,58 +63,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override DbConnection CreateDbConnection() => new SqliteConnection(ConnectionString);
+        protected override DbConnection CreateDbConnection()
+        {
+            var connection = new SqliteConnection(ConnectionString);
+
+            if (_loadSpatialite)
+            {
+                SpatialiteLoader.Load(connection);
+            }
+
+            return connection;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool IsMultipleActiveResultSetsEnabled => true;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override bool Open(bool errorsExpected = false)
-        {
-            if (base.Open(errorsExpected))
-            {
-                LoadSpatialite();
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
-        {
-            if (await base.OpenAsync(cancellationToken, errorsExpected))
-            {
-                LoadSpatialite();
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private void LoadSpatialite()
-        {
-            if (!_loadSpatialite)
-            {
-                return;
-            }
-
-            var connection = (SqliteConnection)DbConnection;
-            connection.EnableExtensions();
-            SpatialiteLoader.Load(DbConnection);
-            connection.EnableExtensions(false);
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

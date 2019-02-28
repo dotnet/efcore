@@ -187,8 +187,9 @@ namespace Microsoft.Data.Sqlite
         [InlineData("True", true)]
         [InlineData(0, false)]
         [InlineData("False", false)]
-        [InlineData(null, false)]
-        public void Item_converts_to_bool_on_set(object value, bool expected)
+        [InlineData(null, null)]
+        [InlineData("", null)]
+        public void Item_converts_to_bool_on_set(object value, bool? expected)
         {
             var builder = new SqliteConnectionStringBuilder();
 
@@ -204,7 +205,6 @@ namespace Microsoft.Data.Sqlite
         [InlineData("0")]
         [InlineData("No")]
         [InlineData("Off")]
-        [InlineData("")]
         public void Item_throws_when_cannot_convert_to_bool_on_set(object value)
         {
             var builder = new SqliteConnectionStringBuilder();
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(SqliteOpenMode.ReadWriteCreate, builder.Mode);
             Assert.Equal(SqliteCacheMode.Default, builder.Cache);
             Assert.Empty(builder.Password);
-            Assert.False(builder.ForeignKeys);
+            Assert.Null(builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
         }
 

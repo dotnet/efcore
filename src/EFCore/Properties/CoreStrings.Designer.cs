@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType, foundType, targetType);
 
         /// <summary>
-        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
+        ///     The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.
         /// </summary>
         public static string NavigationArray([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
             => string.Format(
@@ -2207,14 +2207,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 typeOneIn, typeOneOut, typeTwoIn, typeTwoOut);
 
         /// <summary>
-        ///     The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.
-        /// </summary>
-        public static string ConverterCloneNotImplemented([CanBeNull] object mapping)
-            => string.Format(
-                GetString("ConverterCloneNotImplemented", nameof(mapping)),
-                mapping);
-
-        /// <summary>
         ///     The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.
         /// </summary>
         public static string ConverterBadType([CanBeNull] object converter, [CanBeNull] object type, [CanBeNull] object allowed)
@@ -2712,6 +2704,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ConstructorBindingFailed", nameof(failedBinds), nameof(parameters)),
                 failedBinds, parameters);
+
+        /// <summary>
+        ///     Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.
+        /// </summary>
+        public static string ConflictingBackingFields([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object field1, [CanBeNull] object field2)
+            => string.Format(
+                GetString("ConflictingBackingFields", nameof(property), nameof(entityType), nameof(field1), nameof(field2)),
+                property, entityType, field1, field2);
 
         /// <summary>
         ///     The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.

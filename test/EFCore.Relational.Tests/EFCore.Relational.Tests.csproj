@@ -26,13 +26,4 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-
 </Project>

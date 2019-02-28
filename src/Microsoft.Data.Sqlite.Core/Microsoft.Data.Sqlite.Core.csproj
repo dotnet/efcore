@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
@@ -52,9 +52,6 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.Designer.tt</DependentUpon>
     </Compile>
-    <Compile Update="SqliteCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Update="SqliteConnection.CreateAggregate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -64,9 +61,6 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
-    </Compile>
-    <Compile Update="SqliteConnection.cs">
-      <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
 
