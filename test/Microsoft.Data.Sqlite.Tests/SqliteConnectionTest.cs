@@ -1110,6 +1110,46 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void LoadExtension_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.EnableExtensions(false);
+                connection.Open();
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
+                var extensionsDisabledError = ex.Message;
+
+                ex = Assert.Throws<SqliteException>(() => connection.LoadExtension("unknown"));
+
+                Assert.NotEqual(extensionsDisabledError, ex.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadExtension_works_when_closed()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.EnableExtensions(false);
+                connection.Open();
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
+                var extensionsDisabledError = ex.Message;
+
+                connection.Close();
+
+                connection.LoadExtension("unknown");
+
+                ex = Assert.Throws<SqliteException>(() => connection.Open());
+
+                Assert.NotEqual(extensionsDisabledError, ex.Message);
+            }
+        }
+
+        [Fact]
         public void DbProviderFactory_works()
         {
             var connection = new SqliteConnection();
