@@ -86,7 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     _foreignKeyProperties,
                     _principalKeyProperties,
                     foreignKey.IsUnique,
-                    _required,
                     shouldThrow: true);
             }
         }

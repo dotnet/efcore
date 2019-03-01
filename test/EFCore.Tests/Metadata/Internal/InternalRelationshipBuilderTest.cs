@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void ForeignKey_overrides_incompatible_lower_or_equal_source_required()
+        public void ForeignKey_can_be_set_independently_from_requiredness()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -188,14 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { nullableId.Metadata.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
 
-            Assert.Null(relationshipBuilder.HasForeignKey(new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
+            relationshipBuilder = relationshipBuilder.HasForeignKey(new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
             Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
-            Assert.Equal(
-                new[] { nullableId.Metadata.Name },
-                relationshipBuilder.Metadata.Properties.Select(p => p.Name));
-
-            relationshipBuilder = relationshipBuilder.HasForeignKey(new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation);
-            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.Equal(
                 new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
@@ -454,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_override_existing_Required_value_explicitly()
+        public void Can_set_Required_independently_from_nullability()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -472,16 +466,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, fk.GetIsRequiredConfigurationSource());
 
             var relationshipBuilder = orderEntityBuilder.HasForeignKey(customerEntityBuilder, fk.Properties, ConfigurationSource.Explicit);
-            Assert.Null(relationshipBuilder.IsRequired(false, ConfigurationSource.Convention));
-            Assert.True(fk.IsRequired);
+            relationshipBuilder = relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
+            Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.False(customerIdProperty.IsNullable);
-            Assert.False(customerUniqueProperty.IsNullable);
+            Assert.True(customerUniqueProperty.IsNullable);
 
             relationshipBuilder = relationshipBuilder.IsRequired(true, ConfigurationSource.Convention);
-            Assert.NotNull(relationshipBuilder);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.False(customerIdProperty.IsNullable);
-            Assert.False(customerUniqueProperty.IsNullable);
+            Assert.True(customerUniqueProperty.IsNullable);
 
             relationshipBuilder = relationshipBuilder.IsRequired(false, ConfigurationSource.Explicit);
             Assert.NotNull(relationshipBuilder);
@@ -494,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Required_overrides_incompatible_lower_or_equal_source_properties()
+        public void Can_set_Required_false_on_non_nullable_properties()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -513,15 +506,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
 
-            Assert.Null(relationshipBuilder.IsRequired(false, ConfigurationSource.Convention));
-            Assert.True(relationshipBuilder.Metadata.IsRequired);
+            relationshipBuilder = relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
+            Assert.False(relationshipBuilder.Metadata.IsRequired);
             Assert.Equal(
                 new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
 
             relationshipBuilder = relationshipBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
             Assert.False(relationshipBuilder.Metadata.IsRequired);
-            Assert.NotEqual(
+            Assert.Equal(
                 new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
         }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class MetadataTracker : IReferenceRoot<ForeignKey>
     {
-        private Reference<ForeignKey> _trackedForeignKey;
+        private Dictionary<ForeignKey, Reference<ForeignKey>> _trackedForeignKeys = new Dictionary<ForeignKey, Reference<ForeignKey>>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -24,9 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Debug.Assert(oldForeignKey.Builder == null && newForeignKey.Builder != null);
 
-            if (_trackedForeignKey?.Object == oldForeignKey)
+            if (_trackedForeignKeys.TryGetValue(oldForeignKey, out var reference))
             {
-                _trackedForeignKey.Object = newForeignKey;
+                _trackedForeignKeys.Remove(oldForeignKey);
+                reference.Object = newForeignKey;
+                _trackedForeignKeys.Add(newForeignKey, reference);
             }
         }
 
@@ -36,12 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual Reference<ForeignKey> Track(ForeignKey foreignKey)
         {
-            var canTrack = _trackedForeignKey == null;
-            var reference = new Reference<ForeignKey>(foreignKey, canTrack ? this : null);
-            if (canTrack)
+            if (_trackedForeignKeys.TryGetValue(foreignKey, out var reference))
             {
-                _trackedForeignKey = reference;
+                reference.IncreaseReferenceCount();
+                return reference;
             }
+
+            reference = new Reference<ForeignKey>(foreignKey, this);
+            _trackedForeignKeys.Add(foreignKey, reference);
 
             return reference;
         }
@@ -52,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         void IReferenceRoot<ForeignKey>.Release(Reference<ForeignKey> foreignKeyReference)
         {
-            Debug.Assert(foreignKeyReference == _trackedForeignKey);
-            _trackedForeignKey = null;
+            _trackedForeignKeys.Remove(foreignKeyReference.Object);
         }
     }
 }

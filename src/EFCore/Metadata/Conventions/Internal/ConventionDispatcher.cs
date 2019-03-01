@@ -310,8 +310,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            private void Run()
+            public void Run()
             {
+                if (_runCount == null)
+                {
+                    return;
+                }
+
                 while (true)
                 {
                     if (_runCount++ == short.MaxValue)

@@ -913,14 +913,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                 }
 
-                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientSetNull
-                        && !foreignKey.IsOwnership)
+                if (!foreignKey.IsOwnership)
                 {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".OnDelete(")
-                        .Append(Code.Literal(foreignKey.DeleteBehavior))
-                        .Append(")");
+                    if (foreignKey.DeleteBehavior != DeleteBehavior.ClientSetNull)
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .Append(".OnDelete(")
+                            .Append(Code.Literal(foreignKey.DeleteBehavior))
+                            .Append(")");
+                    }
+
+                    if (foreignKey.IsRequired)
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .Append(".IsRequired()");
+                    }
                 }
             }
 

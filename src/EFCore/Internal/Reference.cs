@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class Reference<T> : IDisposable
     {
         private readonly IReferenceRoot<T> _root;
+        private int _referenceCount = 1;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -45,8 +46,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual void Dispose()
         {
-            _root?.Release(this);
-            Object = default;
+            if (_referenceCount-- == 1)
+            {
+                _root?.Release(this);
+                Object = default;
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void IncreaseReferenceCount()
+        {
+            _referenceCount++;
         }
     }
 }

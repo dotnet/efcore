@@ -2034,6 +2034,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     relationship = relationship
                         .RelatedEntityTypes(targetEntityTypeBuilder.Metadata, Metadata, configurationSource);
+
+                    if (required.HasValue)
+                    {
+                        relationship = relationship.IsRequired(required.Value, configurationSource);
+                    }
                 }
 
                 var inverseProperty = inverseNavigation?.Property;
@@ -2552,7 +2557,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (isRequired.HasValue
                     && foreignKey.IsRequired == isRequired.Value)
                 {
-                    foreignKey.SetIsRequired(isRequired.Value, configurationSource);
+                    foreignKey = foreignKey.SetIsRequired(isRequired.Value, configurationSource);
                 }
 
                 principalType.UpdateConfigurationSource(configurationSource);

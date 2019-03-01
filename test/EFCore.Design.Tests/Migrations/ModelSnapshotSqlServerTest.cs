@@ -696,7 +696,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                         .WithOne(""EntityWithTwoProperties"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {
@@ -2152,7 +2153,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .WithOne(""EntityWithTwoProperties"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o => Assert.Equal(
                     "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]));
@@ -2204,7 +2206,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", null)
                         .WithOne()
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Name"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable));
         }
@@ -2296,7 +2299,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
                         .WithMany()
                         .HasForeignKey(""Id"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o => Assert.Equal(
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
@@ -2342,7 +2346,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
                         .WithOne(""EntityWithOneProperty"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o => Assert.Equal(
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
@@ -2393,7 +2398,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", null)
                         .WithMany()
                         .HasForeignKey(""Property"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });", usingSystem: true),
                 model =>
                 {
@@ -2470,7 +2476,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .WithOne(""EntityWithTwoProperties"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
                         .HasConstraintName(""Constraint"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o => Assert.Equal(
                     "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
@@ -2525,7 +2532,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
                         .HasConstraintName(""Constraint"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {
@@ -2596,7 +2604,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [Fact]
-        public virtual void Relationship_principal_key_is_stored_in_snapshot()
+        public virtual void ForeignKey_principal_key_is_stored_in_snapshot()
         {
             Test(
                 builder =>
@@ -2637,7 +2645,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .WithOne(""EntityWithOneProperty"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
                         .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {
@@ -2647,7 +2656,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [Fact]
-        public virtual void Relationship_principal_key_with_non_default_name_is_stored_in_snapshot()
+        public virtual void ForeignKey_principal_key_with_non_default_name_is_stored_in_snapshot()
         {
             Test(
                 builder =>
@@ -2693,7 +2702,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .WithOne(""EntityWithOneProperty"")
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
                         .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {
