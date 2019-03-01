@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -60,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
         private readonly ITypeMappingApplyingExpressionVisitor _typeMappingApplyingExpressionVisitor;
         private readonly RelationalTypeMapping _intTypeMapping;
         private readonly RelationalTypeMapping _boolTypeMapping;
+
+        private const char LikeEscapeChar = '\\';
 
         public SqliteStringMethodTranslator(
             IRelationalTypeMappingSource typeMappingSource,
@@ -234,46 +238,77 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
             if (_startsWithMethodInfo.Equals(method))
             {
-                var pattern = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+                return TranslateStartsEndsWith(instance, arguments[0], true);
+            }
 
-                instance = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(instance, stringTypeMapping);
-                pattern = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(pattern, stringTypeMapping);
+            if (_endsWithMethodInfo.Equals(method))
+            {
+                return TranslateStartsEndsWith(instance, arguments[0], false);
+            }
 
+            return null;
+        }
+
+        SqlExpression TranslateStartsEndsWith(SqlExpression instance, SqlExpression pattern, bool startsWith)
+        {
+            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+
+            instance = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(instance, stringTypeMapping);
+            pattern = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(pattern, stringTypeMapping);
+
+            if (pattern is SqlConstantExpression constExpr)
+            {
+                // The pattern is constant. Aside from null or empty, we escape all special characters (%, _, \)
+                // in C# and send a simple LIKE
+                if (!(constExpr.Value is string constPattern))
+                {
+                    return new LikeExpression(instance, new SqlConstantExpression(Expression.Constant(null), stringTypeMapping), null, _boolTypeMapping);
+                }
+                if (constPattern.Length == 0)
+                {
+                    return new SqlConstantExpression(Expression.Constant(true), _boolTypeMapping);
+                }
+                return constPattern.Any(c => IsLikeWildChar(c))
+                    ? new LikeExpression(
+                        instance,
+                        new SqlConstantExpression(Expression.Constant(startsWith ? EscapeLikePattern(constPattern) + '%' : '%' + EscapeLikePattern(constPattern)), stringTypeMapping),
+                        new SqlConstantExpression(Expression.Constant(LikeEscapeChar.ToString()), stringTypeMapping),  // SQL Server has no char mapping, avoid value conversion warning
+                        _boolTypeMapping)
+                    : new LikeExpression(
+                        instance,
+                        new SqlConstantExpression(Expression.Constant(startsWith ? constPattern + '%' : '%' + constPattern), stringTypeMapping),
+                        null,
+                        _boolTypeMapping);
+            }
+
+            // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
+            // For StartsWith we also first run a LIKE to quickly filter out most non-matching results (sargable, but imprecise
+            // because of wildchars).
+            if (startsWith)
+            {
                 return new SqlBinaryExpression(
                     ExpressionType.OrElse,
                     new SqlBinaryExpression(
-                        ExpressionType.Equal,
-                        pattern,
-                        new SqlConstantExpression(Expression.Constant(string.Empty), stringTypeMapping),
-                        typeof(bool),
-                        _boolTypeMapping),
-                    new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         new LikeExpression(
+                            // ReSharper disable once AssignNullToNotNullAttribute
                             instance,
                             new SqlBinaryExpression(
                                 ExpressionType.Add,
-                                pattern,
+                                instance,
                                 new SqlConstantExpression(Expression.Constant("%"), stringTypeMapping),
                                 typeof(string),
                                 stringTypeMapping),
                             null,
-                            stringTypeMapping),
+                            _boolTypeMapping),
                         new SqlBinaryExpression(
                             ExpressionType.Equal,
                             new SqlFunctionExpression(
                                 "substr",
-                                new[]
-                                {
+                                new[] {
                                     instance,
                                     MakeSqlConstant(1),
-                                    new SqlFunctionExpression(
-                                        "length",
-                                        new [] { pattern },
-                                        typeof(int),
-                                        _intTypeMapping,
-                                        false)
+                                    new SqlFunctionExpression("length", new[] { pattern }, typeof(int), _intTypeMapping, false)
                                 },
                                 typeof(string),
                                 stringTypeMapping,
@@ -283,53 +318,62 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
                             _boolTypeMapping),
                         typeof(bool),
                         _boolTypeMapping),
-                    typeof(bool),
-                    _boolTypeMapping);
-            }
-
-            if (_endsWithMethodInfo.Equals(method))
-            {
-                var pattern = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
-
-                instance = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(instance, stringTypeMapping);
-                pattern = _typeMappingApplyingExpressionVisitor.ApplyTypeMapping(pattern, stringTypeMapping);
-
-                return new SqlBinaryExpression(
-                    ExpressionType.OrElse,
                     new SqlBinaryExpression(
                         ExpressionType.Equal,
                         pattern,
                         new SqlConstantExpression(Expression.Constant(string.Empty), stringTypeMapping),
                         typeof(bool),
-                        _boolTypeMapping),
-                    new SqlBinaryExpression(
-                        ExpressionType.Equal,
-                        new SqlFunctionExpression(
-                            "substr",
-                            new[]
-                            {
-                                instance,
-                                new SqlNegateExpression(
-                                    new SqlFunctionExpression(
-                                        "length",
-                                        new [] { pattern },
-                                        typeof(int),
-                                        _intTypeMapping,
-                                        false),
-                                    _intTypeMapping)
-                            },
-                            typeof(string),
-                            stringTypeMapping,
-                            false),
-                        pattern,
-                        typeof(bool),
-                        _boolTypeMapping),
+                        _boolTypeMapping
+                    ),
                     typeof(bool),
                     _boolTypeMapping);
             }
 
-            return null;
+            return new SqlBinaryExpression(
+                ExpressionType.OrElse,
+                new SqlBinaryExpression(
+                    ExpressionType.Equal,
+                    new SqlFunctionExpression(
+                            "substr",
+                            new[] {
+                                instance,
+                                new SqlNegateExpression(
+                                    new SqlFunctionExpression("length", new[] { pattern }, typeof(int), _intTypeMapping, false),
+                                    _intTypeMapping
+                                )
+                            },
+                            typeof(string),
+                            stringTypeMapping,
+                            false),
+                    pattern,
+                    typeof(bool),
+                    _boolTypeMapping),
+                new SqlBinaryExpression(
+                    ExpressionType.Equal,
+                    pattern,
+                    new SqlConstantExpression(Expression.Constant(string.Empty), stringTypeMapping),
+                    typeof(bool),
+                    _boolTypeMapping),
+                typeof(bool),
+                _boolTypeMapping);
+        }
+
+        // See https://www.sqlite.org/lang_expr.html
+        private bool IsLikeWildChar(char c) => c == '%' || c == '_';
+
+        private string EscapeLikePattern(string pattern)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < pattern.Length; i++)
+            {
+                var c = pattern[i];
+                if (IsLikeWildChar(c) || c == LikeEscapeChar)
+                {
+                    builder.Append(LikeEscapeChar);
+                }
+                builder.Append(c);
+            }
+            return builder.ToString();
         }
 
         private SqlExpression MakeSqlConstant(int value)

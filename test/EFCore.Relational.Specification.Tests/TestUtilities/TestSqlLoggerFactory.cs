@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 //File.AppendAllText(logFile, contents);
 
-                //throw;
+                throw;
             }
         }
 

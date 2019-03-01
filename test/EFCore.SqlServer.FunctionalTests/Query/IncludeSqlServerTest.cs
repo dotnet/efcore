@@ -337,7 +337,7 @@ ORDER BY [t].[OrderID]");
             AssertSql(
                 @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
+WHERE [c].[CustomerID] LIKE N'W%'
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -355,7 +355,7 @@ INNER JOIN (
         ORDER BY [oo1].[OrderDate] DESC
     ) AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'W')) = N'W')
+    WHERE [c0].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [oo0].[OrderDate]
         FROM [Orders] AS [oo0]
@@ -1347,7 +1347,7 @@ ORDER BY [t].[ContactName], [t].[CustomerID]");
             AssertSql(
                 @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c].[CustomerID], LEN(N'W')) = N'W')
+WHERE [c].[CustomerID] LIKE N'W%'
 ORDER BY (
     SELECT TOP(1) [oo].[OrderDate]
     FROM [Orders] AS [oo]
@@ -1365,7 +1365,7 @@ INNER JOIN (
         ORDER BY [oo1].[OrderDate] DESC
     ) AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'W')) = N'W')
+    WHERE [c0].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [oo0].[OrderDate]
         FROM [Orders] AS [oo0]
@@ -1388,7 +1388,7 @@ INNER JOIN (
             ORDER BY [oo3].[OrderDate] DESC
         ) AS [c]
         FROM [Customers] AS [c1]
-        WHERE [c1].[CustomerID] LIKE N'W' + N'%' AND (LEFT([c1].[CustomerID], LEN(N'W')) = N'W')
+        WHERE [c1].[CustomerID] LIKE N'W%'
         ORDER BY (
             SELECT TOP(1) [oo2].[OrderDate]
             FROM [Orders] AS [oo2]
@@ -1408,7 +1408,7 @@ ORDER BY [t1].[c] DESC, [t1].[CustomerID], [t1].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN [c].[CustomerID] LIKE N'S' + N'%' AND (LEFT([c].[CustomerID], LEN(N'S')) = N'S')
+    WHEN [c].[CustomerID] LIKE N'S%'
     THEN 1 ELSE 2
 END, [c].[CustomerID]",
                 //
@@ -1416,7 +1416,7 @@ END, [c].[CustomerID]",
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID], CASE
-        WHEN [c0].[CustomerID] LIKE N'S' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'S')) = N'S')
+        WHEN [c0].[CustomerID] LIKE N'S%'
         THEN 1 ELSE 2
     END AS [c]
     FROM [Customers] AS [c0]
@@ -1442,7 +1442,7 @@ WHERE [o].[OrderID] < 10250");
             AssertSql(
                 @"SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]",
                 //
                 @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
@@ -1450,7 +1450,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT DISTINCT [c0].[CustomerID]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[CustomerID]");
         }
@@ -1484,7 +1484,7 @@ ORDER BY [t].[OrderID]");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY (SELECT 1), [c].[CustomerID]
 OFFSET @__p_1 ROWS",
                 //
@@ -1495,7 +1495,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID], CAST(0 AS bit) AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
     ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
@@ -1511,7 +1511,7 @@ ORDER BY [t].[c], [t].[CustomerID]");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY (SELECT 1), [c].[CustomerID]
 OFFSET @__p_1 ROWS",
                 //
@@ -1522,7 +1522,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID], CAST(1 AS bit) AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
     ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
@@ -1538,7 +1538,7 @@ ORDER BY [t].[c], [t].[CustomerID]");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN [c].[CustomerID] IN (N'ALFKI')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -1555,7 +1555,7 @@ INNER JOIN (
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
     ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
@@ -1571,7 +1571,7 @@ ORDER BY [t].[c], [t].[CustomerID]");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN [c].[CustomerID] NOT IN (N'ALFKI')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -1588,7 +1588,7 @@ INNER JOIN (
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END AS [c]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    WHERE [c0].[CustomerID] LIKE N'A%'
     ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]

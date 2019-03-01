@@ -389,7 +389,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
                 //
                 @"SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'",
                 //
                 @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 @p0='Aquila chrysaetos canadensis' (Size = 100)
@@ -401,7 +401,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'",
                 //
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
@@ -412,7 +412,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT COUNT(*)
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')");
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'");
         }
 
         public override void Byte_enum_value_constant_used_in_projection()

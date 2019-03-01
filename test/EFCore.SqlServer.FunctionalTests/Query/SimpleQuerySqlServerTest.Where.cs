@@ -1317,7 +1317,7 @@ WHERE [p].[UnitsInStock] > CAST(10 AS smallint)");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE RIGHT([c].[CustomerID], LEN(N'KI')) = N'KI'");
+WHERE [c].[CustomerID] LIKE N'%KI'");
         }
 
         public override async Task Where_true(bool isAsync)
