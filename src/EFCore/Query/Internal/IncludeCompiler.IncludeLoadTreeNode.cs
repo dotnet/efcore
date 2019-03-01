@@ -369,20 +369,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             relatedArrayAccessExpression,
                             Expression.Constant(Navigation.GetTargetType())));
 
+                    var navigationExpression = Expression.Constant(Navigation);
+
                     blockExpressions.Add(
                         Expression.Call(
                             _setRelationshipSnapshotValueMethodInfo,
                             stateManagerProperty,
-                            Expression.Constant(Navigation),
+                            navigationExpression,
                             targetEntityExpression,
                             relatedArrayAccessExpression));
+
+                    blockExpressions.Add(
+                        Expression.Call(
+                            _setRelationshipIsLoadedMethodInfo,
+                            stateManagerProperty,
+                            navigationExpression,
+                            targetEntityExpression));
 
                     isNullBlockExpressions.Add(
                         Expression.Call(
                             _setRelationshipIsLoadedMethodInfo,
                             stateManagerProperty,
-                            Expression.Constant(Navigation),
+                            navigationExpression,
                             targetEntityExpression));
+
                 }
                 else
                 {
@@ -390,6 +400,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         targetEntityExpression
                             .MakeMemberAccess(Navigation.GetMemberInfo(false, true))
                             .CreateAssignExpression(relatedEntityExpression));
+
+                    var navigationExpression = Expression.Constant(Navigation);
+
+                    blockExpressions.Add(
+                        Expression.Call(
+                            _setRelationshipIsLoadedNoTrackingMethodInfo,
+                            navigationExpression,
+                            targetEntityExpression));
+
+                    isNullBlockExpressions.Add(
+                        Expression.Call(
+                            _setRelationshipIsLoadedNoTrackingMethodInfo,
+                            navigationExpression,
+                            targetEntityExpression));
                 }
 
                 var inverseNavigation = Navigation.FindInverse();
@@ -397,6 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (inverseNavigation != null)
                 {
                     var collection = inverseNavigation.IsCollection();
+
+                    var inverseNavigationExpression = Expression.Constant(inverseNavigation);
 
                     if (trackingQuery)
                     {
@@ -406,22 +432,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     ? _addToCollectionSnapshotMethodInfo
                                     : _setRelationshipSnapshotValueMethodInfo,
                                 stateManagerProperty,
-                                Expression.Constant(inverseNavigation),
+                                inverseNavigationExpression,
                                 relatedArrayAccessExpression,
                                 targetEntityExpression));
+
+                        if (!collection)
+                        {
+                            blockExpressions.Add(
+                                Expression.Call(
+                                    _setRelationshipIsLoadedMethodInfo,
+                                    stateManagerProperty,
+                                    inverseNavigationExpression,
+                                    relatedArrayAccessExpression));
+                        }
                     }
                     else
                     {
-                        blockExpressions.Add(
-                            collection
-                                ? Expression.Call(
+                        if (collection)
+                        {
+                            blockExpressions.Add(
+                                Expression.Call(
                                     Expression.Constant(inverseNavigation.GetCollectionAccessor()),
                                     _collectionAccessorAddMethodInfo,
                                     relatedArrayAccessExpression,
-                                    targetEntityExpression)
-                                : relatedEntityExpression.MakeMemberAccess(
+                                    targetEntityExpression));
+                        }
+                        else
+                        {
+                            blockExpressions.Add(
+                                relatedEntityExpression.MakeMemberAccess(
                                         inverseNavigation.GetMemberInfo(forConstruction: false, forSet: true))
                                     .CreateAssignExpression(targetEntityExpression));
+
+                            blockExpressions.Add(
+                                Expression.Call(
+                                    _setRelationshipIsLoadedNoTrackingMethodInfo,
+                                    inverseNavigationExpression,
+                                    relatedArrayAccessExpression));
+                        }
                     }
                 }
 
@@ -490,13 +538,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IStateManager stateManager,
                 IPropertyBase navigation,
                 object entity)
-            {
-                var internalEntityEntry = stateManager.TryGetEntry(entity);
+                => stateManager
+                    .TryGetEntry(entity, (IEntityType)navigation.DeclaringType)
+                    .SetIsLoaded((INavigation)navigation);
 
-                Debug.Assert(internalEntityEntry != null);
+            private static readonly MethodInfo _setRelationshipIsLoadedNoTrackingMethodInfo
+                = typeof(IncludeLoadTreeNode).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(SetRelationshipIsLoadedNoTracking));
 
-                internalEntityEntry.SetIsLoaded((INavigation)navigation);
-            }
+            private static void SetRelationshipIsLoadedNoTracking(
+                IPropertyBase navigation,
+                object entity)
+                => QueryBuffer.SetIsLoadedNoTracking(entity, (INavigation)navigation);
 
             private static readonly MethodInfo _addToCollectionSnapshotMethodInfo
                 = typeof(IncludeLoadTreeNode).GetTypeInfo()

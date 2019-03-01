@@ -454,7 +454,7 @@
     <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
   </data>
   <data name="NavigationArray" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type. Collection navigation properties cannot be arrays.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter and no writable backing field was found or specified. Read-only collection navigation properties must be initialized before use.</value>
@@ -920,9 +920,6 @@
   <data name="ConvertersCannotBeComposed" xml:space="preserve">
     <value>Cannot compose converter from '{typeOneIn}' to '{typeOneOut}' with converter from '{typeTwoIn}' to '{typeTwoOut}' because the output type of the first converter is different from the input type of the second converter.</value>
   </data>
-  <data name="ConverterCloneNotImplemented" xml:space="preserve">
-    <value>The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.</value>
-  </data>
   <data name="ConverterBadType" xml:space="preserve">
     <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
   </data>
@@ -1058,12 +1055,6 @@
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
     <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.</value>
   </data>
-  <data name="IncompatiblePrincipalEntry" xml:space="preserve">
-    <value>The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
-  </data>
-  <data name="IncompatiblePrincipalEntrySensitive" xml:space="preserve">
-    <value>The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.</value>
-  </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key.</value>
   </data>
@@ -1097,6 +1088,9 @@
   </data>
   <data name="NavigationToKeylessType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
+  </data>
+  <data name="ConflictingBackingFields" xml:space="preserve">
+    <value>Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.</value>
   </data>
   <data name="KeylessTypeExistingKey" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be marked as keyless because it contains a key.</value>

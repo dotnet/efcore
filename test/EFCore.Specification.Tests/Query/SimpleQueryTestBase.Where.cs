@@ -658,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Take(5).OrderBy(c1 => c1.CustomerID).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                cs => cs.OrderBy(c1 => c1.CustomerID).Take(5).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
                 entryCount: 1);
         }
 

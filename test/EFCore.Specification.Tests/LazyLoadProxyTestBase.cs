@@ -1707,13 +1707,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 ((ICollection<Child>)parent.Children).Clear();
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "ParentProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Children).Message);
+                Assert.Empty(parent.Children);
             }
         }
 
@@ -1724,17 +1718,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var child = context.Set<Child>().Include(e => e.Parent).AsNoTracking().Single(e => e.Id == 12);
 
-                Assert.Same(child, child.Parent.Children.First());
+                Assert.NotNull(child.Parent);
 
                 child.Parent = null;
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "ChildProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => child.Parent).Message);
+                Assert.Null(child.Parent);
             }
         }
 
@@ -1749,13 +1737,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 parent.Single = null;
 
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "ParentProxy"),
-                        "CoreEventId.DetachedLazyLoadingWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Single).Message);
+                Assert.Null(parent.Single);
             }
         }
 

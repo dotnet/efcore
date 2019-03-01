@@ -7,11 +7,13 @@ namespace Microsoft.Data.Sqlite
     {
         public static int ExecuteNonQuery(
             this SqliteConnection connection,
-            string commandText)
+            string commandText,
+            params SqliteParameter[] parameters)
         {
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = commandText;
+                command.Parameters.AddRange(parameters);
 
                 return command.ExecuteNonQuery();
             }

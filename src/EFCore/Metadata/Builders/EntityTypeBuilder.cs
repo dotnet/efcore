@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -538,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string navigationName)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -599,13 +600,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     <para>
-        ///         Configures a relationship where this entity type has a collection that contains
-        ///         instances of the other type in the relationship.
+        ///         Configures a relationship where this entity type has a reference that points
+        ///         to a single instance of the other type in the relationship.
         ///     </para>
         ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
+        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
+        ///         the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents
+        ///     the relationship. The navigation must be a CLR property on the entity type.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual ReferenceNavigationBuilder HasOne(
+            [NotNull] string navigationName)
+        {
+            Check.NotEmpty(navigationName, nameof(navigationName));
+
+            return Metadata.ClrType == null
+                ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
+                : HasOne(Metadata.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where this entity type has a collection that contains
+        ///         instances of the other type in the relationship.
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
@@ -623,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
-            [CanBeNull] string navigationName = null)
+            [CanBeNull] string navigationName)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
@@ -646,6 +670,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relatedEntityType,
                 navigationName,
                 relationship);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where this entity type has a collection that contains
+        ///         instances of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="CollectionNavigationBuilder.WithOne" />
+        ///         to fully configure the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the collection navigation property on this entity type that represents the relationship.
+        ///     The navigation must be a CLR property on the entity type.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual CollectionNavigationBuilder HasMany(
+            [NotNull] string navigationName)
+        {
+            Check.NotEmpty(navigationName, nameof(navigationName));
+
+            if (Metadata.ClrType == null)
+            {
+                return HasMany(navigationName, null);
+            }
+
+            var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
+            var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
+
+            if (elementType == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NavigationCollectionWrongClrType(
+                        navigationName,
+                        Metadata.DisplayName(),
+                        memberType.ShortDisplayName(),
+                        "T"));
+            }
+
+            return HasMany(elementType, navigationName);
         }
 
         /// <summary>

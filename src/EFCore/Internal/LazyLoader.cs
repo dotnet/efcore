@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,15 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         directly from your code. This API may change or be removed in future releases.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Transient"/>. This means that each
+    ///         entity instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class LazyLoader : ILazyLoader, IDisposable
+    public class LazyLoader : ILazyLoader
     {
         private bool _disposed;
+        private IDictionary<string, bool>? _loadedStates;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -46,6 +48,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Context = currentContext.Context;
             Logger = logger;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetLoaded(
+            object entity,
+            [CallerMemberName] string navigationName = "",
+            bool loaded = true)
+        {
+            if (_loadedStates == null)
+            {
+                _loadedStates = new Dictionary<string, bool>();
+            }
+
+            _loadedStates[navigationName] = loaded;
         }
 
         /// <summary>
@@ -94,8 +113,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, [NotNullWhenTrue] out NavigationEntry? navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName,
+            [NotNullWhenTrue] out NavigationEntry? navigationEntry)
         {
+            if (_loadedStates != null
+                && _loadedStates.TryGetValue(navigationName, out var loaded)
+                && loaded)
+            {
+                navigationEntry = null;
+                return false;
+            }
+
             if (_disposed)
             {
                 Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
@@ -107,13 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (entityEntry.State == EntityState.Detached)
                 {
-                    var value = tempNavigationEntry.CurrentValue;
-                    if (value == null
-                        || (tempNavigationEntry.Metadata.IsCollection()
-                            && !((IEnumerable)value).Any()))
-                    {
-                        Logger.DetachedLazyLoadingWarning(Context, entity, navigationName);
-                    }
+                    Logger.DetachedLazyLoadingWarning(Context, entity, navigationName);
                 }
                 else if (!tempNavigationEntry.IsLoaded)
                 {

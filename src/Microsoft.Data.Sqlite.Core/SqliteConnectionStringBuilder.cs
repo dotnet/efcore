@@ -45,7 +45,7 @@ namespace Microsoft.Data.Sqlite
         private SqliteOpenMode _mode = SqliteOpenMode.ReadWriteCreate;
         private SqliteCacheMode _cache = SqliteCacheMode.Default;
         private string _password = string.Empty;
-        private bool _foreignKeys;
+        private bool? _foreignKeys;
         private bool _recursiveTriggers;
 
         static SqliteConnectionStringBuilder()
@@ -159,12 +159,12 @@ namespace Microsoft.Data.Sqlite
 
         /// <summary>
         ///     Gets or sets a value indicating whether to enable foreign key constraints. When true,
-        ///     <c>PRAGMA foreign_keys</c> is sent immediately after opening the connection. When false, no pragma is
-        ///     sent. There is no need to specify this if, like in e_sqlite3, SQLITE_DEFAULT_FOREIGN_KEYS was used to
-        ///     compile the native library.
+        ///     <c>PRAGMA foreign_keys = 1</c> is sent immediately after opening the connection. When false,
+        ///     <c>PRAGMA foreign_keys = 0</c> is sent. When null, no pragma is sent. There is no need enable foreign
+        ///     keys if, like in e_sqlite3, SQLITE_DEFAULT_FOREIGN_KEYS was used to compile the native library.
         /// </summary>
         /// <value>A value indicating whether to enable foreign key constraints.</value>
-        public bool ForeignKeys
+        public bool? ForeignKeys
         {
             get => _foreignKeys;
             set => base[ForeignKeysKeyword] = _foreignKeys = value;
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Sqlite
                         return;
 
                     case Keywords.ForeignKeys:
-                        ForeignKeys = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        ForeignKeys = ConvertToNullableBoolean(value);
                         return;
 
                     case Keywords.RecursiveTriggers:
@@ -262,6 +262,17 @@ namespace Microsoft.Data.Sqlite
             }
 
             return enumValue;
+        }
+
+        private static bool? ConvertToNullableBoolean(object value)
+        {
+            if (value == null
+                || (value is string stringValue && stringValue.Length == 0))
+            {
+                return null;
+            }
+
+            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -385,7 +396,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 case Keywords.ForeignKeys:
-                    _foreignKeys = false;
+                    _foreignKeys = null;
                     return;
 
                 case Keywords.RecursiveTriggers:
