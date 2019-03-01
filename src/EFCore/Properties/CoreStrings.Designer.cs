@@ -1366,14 +1366,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.
-        /// </summary>
-        public static string ForeignKeyCannotBeOptional([CanBeNull] object foreignKey, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("ForeignKeyCannotBeOptional", nameof(foreignKey), nameof(entityType)),
-                foreignKey, entityType);
-
-        /// <summary>
         ///     Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.
         /// </summary>
         public static string ShadowEntity([CanBeNull] object entityType)
@@ -2690,20 +2682,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 failedBinds, parameters);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.
-        /// </summary>
-        public static string ConflictingBackingFields([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object field1, [CanBeNull] object field2)
-            => string.Format(
-                GetString("ConflictingBackingFields", nameof(property), nameof(entityType), nameof(field1), nameof(field2)),
-                property, entityType, field1, field2);
-
-        /// <summary>
         ///     The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.
         /// </summary>
         public static string NavigationToKeylessType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
                 GetString("NavigationToKeylessType", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
+
+        /// <summary>
+        ///     Property '{property}' on entity type '{entityType}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with '.HasField()' in 'OnModelCreating()'.
+        /// </summary>
+        public static string ConflictingBackingFields([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object field1, [CanBeNull] object field2)
+            => string.Format(
+                GetString("ConflictingBackingFields", nameof(property), nameof(entityType), nameof(field1), nameof(field2)),
+                property, entityType, field1, field2);
 
         /// <summary>
         ///     The entity type '{entityType}' cannot be marked as keyless because it contains a key.

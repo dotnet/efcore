@@ -149,24 +149,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
         {
+            var isChanging = (nullable ?? DefaultIsNullable) != IsNullable;
             if (nullable == null)
             {
                 _isNullable = null;
                 _isNullableConfigurationSource = null;
-            }
-            else
-            {
-                SetIsNullable(nullable.Value, configurationSource);
-            }
-        }
+                if (isChanging)
+                {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
+                }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void SetIsNullable(bool nullable, ConfigurationSource configurationSource)
-        {
-            if (nullable)
+                return;
+            }
+
+            if (nullable.Value)
             {
                 if (!ClrType.IsNullableType())
                 {
@@ -180,36 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             UpdateIsNullableConfigurationSource(configurationSource);
-
-            if (IsNullable == nullable)
-            {
-                return;
-            }
-
-            var affectedForeignKeys = GetContainingForeignKeys().Where(fk => fk.IsRequired == nullable).ToList();
-
             _isNullable = nullable;
 
-            var dispatcher = DeclaringEntityType.Model.ConventionDispatcher;
-            foreach (var affectedForeignKey in affectedForeignKeys)
+            if (isChanging)
             {
-                if (!nullable
-                    && affectedForeignKey.Properties.Any(p => p.IsNullable))
-                {
-                    continue;
-                }
-
-                if (affectedForeignKey.IsRequired == !nullable)
-                {
-                    dispatcher.OnForeignKeyRequirednessChanged(affectedForeignKey.Builder);
-                }
-                else
-                {
-                    affectedForeignKey.SetIsRequired(!nullable, configurationSource);
-                }
+                DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
             }
-
-            dispatcher.OnPropertyNullableChanged(Builder);
         }
 
         private bool DefaultIsNullable => ClrType.IsNullableType();

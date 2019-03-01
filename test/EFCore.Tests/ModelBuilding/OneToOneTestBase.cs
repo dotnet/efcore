@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 fkBuilder.HasForeignKey<OrderDetails>("fk");
 
                 fk = dependentType.GetForeignKeys().Single();
-                Assert.False(fk.IsRequired);
+                Assert.True(fk.IsRequired);
             }
 
             [Fact]
@@ -3492,13 +3492,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Nullable_FK_can_be_made_required()
             {
                 var modelBuilder = HobNobBuilder();
-                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-                var expectedPrincipalProperties = principalType.GetProperties().ToList();
-                var expectedDependentProperties = dependentType.GetProperties().ToList();
 
                 modelBuilder
-                    .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
+                    .Entity<Nob>()
+                    .Ignore(e => e.Hobs);
+
+                modelBuilder
+                    .Entity<Hob>()
+                    .Ignore(e => e.Nobs)
+                    .HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .IsRequired()
                     .HasForeignKey<Nob>(
                         e => new
@@ -3507,51 +3509,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.HobId2
                         });
 
-                Assert.False(
-                    dependentType.FindProperty(nameof(Nob.HobId1)).IsNullable
-                    && dependentType.FindProperty(nameof(Nob.HobId2)).IsNullable);
-                Assert.True(dependentType.GetForeignKeys().Single().IsRequired);
+                modelBuilder.Validate();
 
-                AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
+                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var expectedPrincipalProperties = principalType.GetProperties().ToList();
+                var expectedDependentProperties = dependentType.GetProperties().ToList();
+                var fkProperty1 = dependentType.FindProperty(nameof(Nob.HobId1));
+                var fkProperty2 = dependentType.FindProperty(nameof(Nob.HobId2));
+                var fk = dependentType.GetForeignKeys().Single();
+
+                Assert.True(fk.IsRequired);
+                Assert.False(fkProperty1.IsNullable);
+                Assert.False(fkProperty2.IsNullable);
+                AssertEqual(new[] { fkProperty1, fkProperty2 }, fk.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
 
             [Fact]
-            public virtual void Non_nullable_FK_cannot_be_made_optional()
-            {
-                var modelBuilder = HobNobBuilder();
-
-                Assert.Equal(
-                    CoreStrings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder
-                            .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
-                            .HasForeignKey<Hob>(
-                                e => new
-                                {
-                                    e.NobId1,
-                                    e.NobId2
-                                })
-                            .IsRequired(false)).Message);
-            }
-
-            [Fact]
-            public virtual void Non_nullable_FK_can_be_made_optional_separetely()
+            public virtual void Non_nullable_FK_can_be_made_optional()
             {
                 var modelBuilder = HobNobBuilder();
 
                 modelBuilder
-                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .Entity<Hob>()
+                    .Ignore(e => e.Nobs);
+
+                modelBuilder
+                    .Entity<Nob>()
+                    .Ignore(e => e.Hobs)
+                    .HasOne(e => e.Hob).WithOne(e => e.Nob)
                     .HasForeignKey<Hob>(
                         e => new
                         {
                             e.NobId1,
                             e.NobId2
-                        });
-
-                modelBuilder
-                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                        })
                     .IsRequired(false);
+
+                modelBuilder.Validate();
 
                 var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
@@ -3561,40 +3557,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(fk.IsRequired);
                 Assert.False(fkProperty1.IsNullable);
                 Assert.False(fkProperty2.IsNullable);
-                Assert.DoesNotContain(fkProperty1, fk.Properties);
-                Assert.DoesNotContain(fkProperty2, fk.Properties);
+                Assert.Contains(fkProperty1, fk.Properties);
+                Assert.Contains(fkProperty2, fk.Properties);
             }
 
             [Fact]
-            public virtual void Optional_FK_cannot_be_made_non_nullable()
-            {
-                var modelBuilder = HobNobBuilder();
-
-                Assert.Equal(
-                    CoreStrings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder
-                            .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
-                            .IsRequired(false)
-                            .HasForeignKey<Hob>(
-                                e => new
-                                {
-                                    e.NobId1,
-                                    e.NobId2
-                                })).Message);
-            }
-
-            [Fact]
-            public virtual void Optional_FK_can_be_made_non_nullable_separetely()
+            public virtual void Non_nullable_FK_can_be_made_optional_separetely()
             {
                 var modelBuilder = HobNobBuilder();
 
                 modelBuilder
-                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
-                    .IsRequired(false);
+                    .Entity<Hob>()
+                    .Ignore(e => e.Nobs);
 
                 modelBuilder
-                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .Entity<Nob>()
+                    .Ignore(e => e.Hobs)
+                    .HasOne(e => e.Hob).WithOne(e => e.Nob)
                     .HasForeignKey<Hob>(
                         e => new
                         {
@@ -3602,15 +3581,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.NobId2
                         });
 
+                modelBuilder
+                    .Entity<Nob>()
+                    .HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .IsRequired(false);
+
+                modelBuilder.Validate();
+
                 var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
                 var fkProperty2 = dependentType.FindProperty(nameof(Hob.NobId2));
                 var fk = dependentType.GetForeignKeys().Single();
 
-                Assert.True(fk.IsRequired);
+                Assert.False(fk.IsRequired);
                 Assert.False(fkProperty1.IsNullable);
                 Assert.False(fkProperty2.IsNullable);
-                AssertEqual(new[] { fkProperty1, fkProperty2 }, fk.Properties);
+                Assert.Contains(fkProperty1, fk.Properties);
+                Assert.Contains(fkProperty2, fk.Properties);
             }
 
             [Fact]
@@ -3688,6 +3675,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.True(fk.IsRequired);
+                Assert.True(fk.Properties.All(p => !p.IsNullable));
 
                 AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
                 expectedDependentProperties.AddRange(fk.Properties);
@@ -3883,7 +3871,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks)).GetForeignKeys().Single().Properties.Single();
                 Assert.Equal("ForUp", fkProperty.Name);
-                Assert.Equal(typeof(int), fkProperty.ClrType);
+                Assert.Equal(typeof(int?), fkProperty.ClrType);
                 Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
             }
 

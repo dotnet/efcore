@@ -2221,18 +2221,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = HobNobBuilder();
 
-                Assert.Equal(
-                    CoreStrings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", typeof(Hob).Name),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder
-                            .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
-                            .HasForeignKey(
-                                e => new
-                                {
-                                    e.NobId1,
-                                    e.NobId2
-                                })
-                            .IsRequired(false)).Message);
+                modelBuilder
+                    .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.NobId1,
+                            e.NobId2
+                        })
+                    .IsRequired(false);
+
+                modelBuilder.Validate();
+
+                var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var fk = entityType.GetForeignKeys().Single();
+                Assert.False(fk.IsRequired);
+                var fkProperty1 = entityType.FindProperty(nameof(Hob.NobId1));
+                var fkProperty2 = entityType.FindProperty(nameof(Hob.NobId2));
+                Assert.False(fkProperty1.IsNullable);
+                Assert.False(fkProperty2.IsNullable);
+                Assert.Contains(fkProperty1, fk.Properties);
+                Assert.Contains(fkProperty2, fk.Properties);
             }
 
             [Fact]
@@ -2262,8 +2271,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty2 = entityType.FindProperty(nameof(Hob.NobId2));
                 Assert.False(fkProperty1.IsNullable);
                 Assert.False(fkProperty2.IsNullable);
-                Assert.DoesNotContain(fkProperty1, fk.Properties);
-                Assert.DoesNotContain(fkProperty2, fk.Properties);
+                Assert.Contains(fkProperty1, fk.Properties);
+                Assert.Contains(fkProperty2, fk.Properties);
             }
 
             [Fact]

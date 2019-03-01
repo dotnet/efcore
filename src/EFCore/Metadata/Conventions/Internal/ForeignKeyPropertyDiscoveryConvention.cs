@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         INavigationAddedConvention,
         IPropertyAddedConvention,
         IEntityTypeMemberIgnoredConvention,
-        IPrincipalEndChangedConvention,
+        IPropertyNullabilityChangedConvention,
         IPropertyFieldChangedConvention,
+        IPrincipalEndChangedConvention,
         IForeignKeyUniquenessChangedConvention,
         IForeignKeyRequirednessChangedConvention,
         IKeyAddedConvention,
@@ -51,6 +52,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
+            var shouldBeRequired = true;
+            foreach (var property in relationshipBuilder.Metadata.Properties)
+            {
+                if (property.IsNullable)
+                {
+                    shouldBeRequired = false;
+                    relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
+                    break;
+                }
+            }
+
+            if (shouldBeRequired)
+            {
+                relationshipBuilder.IsRequired(true, ConfigurationSource.Convention);
+            }
+
             var newRelationshipBuilder = DiscoverProperties(relationshipBuilder);
 
             // If new properties were used for this relationship we have to examine the other foreign keys
@@ -75,22 +92,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
             {
-                foreach (var fkProperty in foreignKey.Properties)
+                using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
                 {
-                    if (fkProperty.GetTypeConfigurationSource() == null
-                        && (fkProperty.IsShadowProperty
-                            || (fkProperty.PropertyInfo == null && fkProperty.GetFieldInfoConfigurationSource() == ConfigurationSource.Convention))
-                        && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired)
+                    using (var foreignKeyReference = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.Tracker.Track(foreignKey))
                     {
-                        fkProperty.DeclaringEntityType.Builder.Property(
-                            fkProperty.Name,
-                            fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
-                            fkProperty.GetConfigurationSource(),
-                            ConfigurationSource.Convention);
+                        foreach (var fkProperty in foreignKey.Properties)
+                        {
+                            if (fkProperty.GetTypeConfigurationSource() == null
+                                && fkProperty.IsShadowProperty
+                                && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired)
+                            {
+                                fkProperty.DeclaringEntityType.Builder.Property(
+                                    fkProperty.Name,
+                                    fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
+                                    fkProperty.GetConfigurationSource(),
+                                    ConfigurationSource.Convention);
+                            }
+                        }
+
+                        batch.Run();
+                        return foreignKeyReference.Object?.Builder;
                     }
                 }
-
-                return relationshipBuilder;
             }
 
             var invertable = true;
@@ -535,19 +558,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return true;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        bool IPropertyNullabilityChangedConvention.Apply(InternalPropertyBuilder propertyBuilder)
+        {
+            var nullable = propertyBuilder.Metadata.IsNullable;
+            foreach (var containingForeignKey in propertyBuilder.Metadata.GetContainingForeignKeys())
+            {
+                if (containingForeignKey.IsRequired != nullable
+                    || (!nullable
+                        && containingForeignKey.Properties.Any(p => p.IsNullable)))
+                {
+                    continue;
+                }
+
+                containingForeignKey.Builder.IsRequired(!nullable, ConfigurationSource.Convention);
+            }
+
+            return true;
+        }
+
         InternalRelationshipBuilder IForeignKeyUniquenessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
             => DiscoverProperties(relationshipBuilder);
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         InternalRelationshipBuilder IForeignKeyRequirednessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
-            => DiscoverProperties(relationshipBuilder);
+        {
+            var isRequired = relationshipBuilder.Metadata.IsRequired;
+            var model = relationshipBuilder.ModelBuilder.Metadata;
+            using (var batch = model.ConventionDispatcher.StartBatch())
+            {
+                foreach (var property in relationshipBuilder.Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
+                {
+                    var requiredSet = property.Builder.IsRequired(isRequired, ConfigurationSource.Convention);
+                    if (requiredSet
+                        && (isRequired != true))
+                    {
+                        break;
+                    }
+                }
+
+                return DiscoverProperties(relationshipBuilder);
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

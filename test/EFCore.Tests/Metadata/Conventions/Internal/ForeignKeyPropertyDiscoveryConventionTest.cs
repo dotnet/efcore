@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
             Assert.True(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fkProperty2, fk.Properties[1]);
             Assert.Same(PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
             Assert.True(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
         }

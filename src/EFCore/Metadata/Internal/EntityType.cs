@@ -900,7 +900,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentProperties: properties,
                 principalProperties: principalKey.Properties,
                 unique: null,
-                required: null,
                 shouldThrow: true);
 
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();

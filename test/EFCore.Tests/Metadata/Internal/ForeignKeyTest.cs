@@ -148,35 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void IsRequired_true_when_dependent_property_not_nullable()
-        {
-            var entityType = new Model().AddEntityType("E");
-            var property = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(property);
-            var dependentProp = entityType.AddProperty("P", typeof(int));
-            dependentProp.IsNullable = false;
-
-            var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.True(foreignKey.IsRequired);
-        }
-
-        [Fact]
-        public void IsRequired_false_when_dependent_property_nullable()
-        {
-            var entityType = new Model().AddEntityType("E");
-            var property = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(property);
-            var dependentProp = entityType.AddProperty("P", typeof(int?));
-            dependentProp.IsNullable = true;
-
-            var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.False(foreignKey.IsRequired);
-        }
-
-        [Fact]
-        public void IsRequired_and_IsUnique_null_when_dependent_property_not_nullable_by_default()
+        public void IsRequired_and_IsUnique_false_when_dependent_property_not_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id", typeof(int));
@@ -185,12 +157,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
 
+            Assert.False(dependentProp.IsNullable);
             Assert.True(foreignKey.IsRequired);
             Assert.False(foreignKey.IsUnique);
         }
 
         [Fact]
-        public void IsRequired_and_IsUnique_null_when_dependent_property_nullable_by_default()
+        public void IsRequired_and_IsUnique_false_when_dependent_property_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id", typeof(int));
@@ -199,12 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
 
+            Assert.True(dependentProp.IsNullable);
             Assert.False(foreignKey.IsRequired);
             Assert.False(foreignKey.IsUnique);
         }
 
         [Fact]
-        public void IsRequired_false_for_composite_FK_by_default()
+        public void IsRequired_false_when_no_part_of_composite_FK_is_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
@@ -219,29 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
-
-            var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.False(foreignKey.IsRequired);
-        }
-
-        [Fact]
-        public void IsRequired_false_when_any_part_of_composite_FK_is_nullable()
-        {
-            var entityType = new Model().AddEntityType("E");
-            var property = entityType.AddProperty("Id1", typeof(int));
-            var property1 = entityType.AddProperty("Id2", typeof(string));
-            property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(
-                new[]
-                {
-                    property,
-                    property1
-                });
-
-            var dependentProp1 = entityType.AddProperty("P1", typeof(int));
-            var dependentProp2 = entityType.AddProperty("P2", typeof(string));
-            dependentProp2.IsNullable = true;
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
 
@@ -249,11 +200,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             dependentProp2.IsNullable = false;
 
-            Assert.True(foreignKey.IsRequired);
+            Assert.False(foreignKey.IsRequired);
         }
 
         [Fact]
-        public void Setting_IsRequired_to_true_will_set_all_FK_properties_as_non_nullable()
+        public void Setting_IsRequired_to_true_does_not_configure_FK_properties_as_non_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
@@ -274,11 +225,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(foreignKey.IsRequired);
             Assert.False(dependentProp1.IsNullable);
-            Assert.False(dependentProp2.IsNullable);
+            Assert.True(dependentProp2.IsNullable);
         }
 
         [Fact]
-        public void Setting_IsRequired_to_false_will_set_all_FK_properties_as_nullable()
+        public void Setting_IsRequired_to_false_will_not_configure_FK_properties_as_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
@@ -292,14 +243,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int?));
+            dependentProp1.IsNullable = false;
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
+            dependentProp2.IsNullable = false;
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
             foreignKey.IsRequired = false;
 
             Assert.False(foreignKey.IsRequired);
-            Assert.True(dependentProp1.IsNullable);
-            Assert.True(dependentProp2.IsNullable);
+            Assert.False(dependentProp1.IsNullable);
+            Assert.False(dependentProp2.IsNullable);
         }
 
         private ForeignKey CreateOneToManyFK()

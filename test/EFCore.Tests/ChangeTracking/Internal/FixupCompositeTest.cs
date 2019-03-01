@@ -4644,7 +4644,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 {
                                     e.CategoryId1,
                                     e.CategoryId2
-                                });
+                                })
+                            .IsRequired(false);
                     });
 
                 modelBuilder.Entity<ProductDN>(
@@ -4674,7 +4675,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 {
                                     e.CategoryId1,
                                     e.CategoryId2
-                                });
+                                })
+                            .IsRequired(false);
                     });
 
                 modelBuilder.Entity<ProductPN>(
@@ -4704,7 +4706,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 {
                                     e.CategoryId1,
                                     e.CategoryId2
-                                });
+                                })
+                            .IsRequired(false);
                     });
 
                 modelBuilder.Entity<ProductNN>(
@@ -4734,7 +4737,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 {
                                     e.CategoryId1,
                                     e.CategoryId2
-                                });
+                                })
+                            .IsRequired(false);
                     });
 
                 modelBuilder.Entity<Product>(
