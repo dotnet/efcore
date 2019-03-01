@@ -849,12 +849,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     if (operand != null)
                     {
+                        var operandWithoutConvert
+                            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14604", out var isEnabled) && isEnabled
+                            ? operand
+                            : operand.RemoveConvert();
+
                         return _isTopLevelProjection
-                               && operand.Type.IsValueType
+                               && operandWithoutConvert.Type.IsValueType
                                && expression.Type.IsValueType
-                               && expression.Type.UnwrapNullableType() != operand.Type.UnwrapNullableType()
-                               && expression.Type.UnwrapEnumType() != operand.Type.UnwrapEnumType()
-                            ? (Expression)new ExplicitCastExpression(operand, expression.Type)
+                               && expression.Type.UnwrapNullableType() != operandWithoutConvert.Type.UnwrapNullableType()
+                               && expression.Type.UnwrapEnumType() != operandWithoutConvert.Type.UnwrapEnumType()
+                            ? (Expression)new ExplicitCastExpression(operandWithoutConvert, expression.Type)
                             : Expression.Convert(operand, expression.Type);
                     }
 

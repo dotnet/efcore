@@ -1247,5 +1247,18 @@ WHERE ([c].[City] = N'México D.F.') AND [c].[CustomerID] NOT IN (N'ABCDE', N'AL
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]");
         }
+
+        public override async Task Cast_before_aggregate_is_preserved(bool isAsync)
+        {
+            await base.Cast_before_aggregate_is_preserved(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT AVG(CAST([o].[OrderID] AS float))
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]");
+        }
     }
 }
