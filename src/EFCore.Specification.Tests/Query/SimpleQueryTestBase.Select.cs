@@ -1139,5 +1139,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from o in grouping.DefaultIfEmpty()
                             select o != null ? o.OrderDate.Value : new DateTime(1753, 1, 1));
         }
+
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_on_top_level_projection_brings_explicit_Cast(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => (double?)o.OrderID));
+        }
     }
 }

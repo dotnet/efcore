@@ -971,5 +971,14 @@ FROM [Orders] AS [o]");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
+
+        public override async Task Cast_on_top_level_projection_brings_explicit_Cast(bool isAsync)
+        {
+            await base.Cast_on_top_level_projection_brings_explicit_Cast(isAsync);
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS float)
+FROM [Orders] AS [o]");
+        }
     }
 }

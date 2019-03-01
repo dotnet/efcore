@@ -1852,5 +1852,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Cast<Customer>());
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_before_aggregate_is_preserved(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Average()));
+        }
     }
 }
