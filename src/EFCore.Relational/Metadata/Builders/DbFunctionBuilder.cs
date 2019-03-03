@@ -4,11 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -99,6 +103,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                || _function.Schema == schema;
 
         /// <summary>
+        ///     Sets the store type of the database function.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function in the database. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string storeType)
+        {
+            _function.StoreType = storeType;
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetStoreType(storeType, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetStoreType(storeType, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetStoreTypeConfigurationSource())
+               || _function.StoreType == storeType;
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTypeMapping(
+            RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetTypeMapping(returnTypeMapping, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetTypeMapping(returnTypeMapping, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetTypeMappingConfigurationSource())
+               || _function.TypeMapping == returnTypeMapping;
+
+        /// <summary>
         ///     <para>
         ///         Sets a callback that will be invoked to perform custom translation of this
         ///         function. The callback takes a collection of expressions corresponding to
@@ -134,6 +185,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return null;
+        }
+
+        public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
+        {
+            return new DbFunctionParameterBuilder((DbFunctionParameter)FindParameter(name));
+        }
+
+        private IDbFunctionParameter FindParameter(string name)
+        {
+            var parameter = Metadata.Parameters.SingleOrDefault(
+                funcParam => string.Compare(funcParam.Name, name, StringComparison.OrdinalIgnoreCase) == 0);
+
+            if (parameter == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.DbFunctionInvalidParameterName(name, Metadata.MethodInfo.DisplayName()));
+            }
+
+            return parameter;
         }
 
         /// <inheritdoc />

@@ -80,26 +80,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
                 }
 
-                if (dbFunction.Translation == null)
+                if (dbFunction.TypeMapping == null)
                 {
-                    if (RelationalDependencies.TypeMappingSource.FindMapping(methodInfo.ReturnType) == null)
+                    throw new InvalidOperationException(
+                        RelationalStrings.DbFunctionInvalidReturnType(
+                            methodInfo.DisplayName(),
+                            methodInfo.ReturnType.ShortDisplayName()));
+                }
+
+                foreach (var parameter in dbFunction.Parameters)
+                {
+                    if(parameter.TypeMapping == null)
                     {
                         throw new InvalidOperationException(
-                            RelationalStrings.DbFunctionInvalidReturnType(
+                            RelationalStrings.DbFunctionInvalidParameterType(
+                                parameter.Name,
                                 methodInfo.DisplayName(),
-                                methodInfo.ReturnType.ShortDisplayName()));
-                    }
-
-                    foreach (var parameter in methodInfo.GetParameters())
-                    {
-                        if (RelationalDependencies.TypeMappingSource.FindMapping(parameter.ParameterType) == null)
-                        {
-                            throw new InvalidOperationException(
-                                RelationalStrings.DbFunctionInvalidParameterType(
-                                    parameter.Name,
-                                    methodInfo.DisplayName(),
-                                    parameter.ParameterType.ShortDisplayName()));
-                        }
+                                parameter.ClrType.ShortDisplayName()));
                     }
                 }
             }

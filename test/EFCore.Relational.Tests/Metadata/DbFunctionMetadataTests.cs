@@ -168,6 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
             nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
 
+        public static MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
+            nameof(TestMethods.MethodI), new Type[] { });
+
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
         public class TestMethods
@@ -200,6 +203,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             public static int MethodH<T>(T a, string b)
+            {
+                throw new Exception();
+            }
+
+            public static int MethodI()
             {
                 throw new Exception();
             }
@@ -425,6 +433,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Adding_method_with_store_type()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi).HasStoreType("int(8)");
+
+            Assert.Equal("int(8)", dbFuncBuilder.Metadata.StoreType);
+        }
+
+        [ConditionalFact]
         public void Adding_method_with_relational_schema_fluent_overrides()
         {
             var modelBuilder = GetModelBuilder();
@@ -485,15 +503,134 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
         }
 
+        [ConditionalFact]
+        public void DbParameters_load_no_parameters()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodImi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(0, dbFunc.Parameters.Count);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_invalid_parameter_name_throws()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+
+            Assert.Equal(
+                RelationalStrings.DbFunctionInvalidParameterName("q", dbFuncBuilder.Metadata.MethodInfo.DisplayName()),
+                Assert.Throws<ArgumentException>(() => dbFuncBuilder.HasParameter("q")).Message);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_load_with_parameters()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_dbfunctionType()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c");
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_name()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c");
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_NullabilityPropagation()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c").HasNullabilityPropagation(true);
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+            Assert.Equal(true, dbFunc.Parameters[0].SupportsNullPropagation);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [ConditionalFact]
+        public void DbParameters_StoreType()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c").HasStoreType("varchar(max)");
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+            Assert.Equal("varchar(max)", dbFunc.Parameters[0].StoreType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
         private ModelBuilder GetModelBuilder(DbContext dbContext = null)
         {
             var conventionSet = new ConventionSet();
 
-            var dbFunctionAttributeConvention =new RelationalDbFunctionAttributeConvention(
-                CreateDependencies().With(new CurrentDbContext (dbContext ?? new DbContext(new DbContextOptions<DbContext>()))),
-                CreateRelationalDependencies());
+            var dependencies = CreateDependencies().With(new CurrentDbContext(dbContext ?? new DbContext(new DbContextOptions<DbContext>())));
+            var relationalDependencies = CreateRelationalDependencies();
+            var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelFinalizedConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

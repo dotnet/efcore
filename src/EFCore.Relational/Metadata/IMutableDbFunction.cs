@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -17,12 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        new string FunctionName { get; [param: NotNull] set; }
+        new string FunctionName { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The schema of the function in the database.
         /// </summary>
         new string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The store type of the function in the database.
+        /// </summary>
+        new string StoreType { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The type mapping of the function in the database.
+        /// </summary>
+        new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="IMutableModel" /> in which this function is defined.

@@ -1079,43 +1079,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [ConditionalFact]
-        public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(
-                        nameof(DbFunctionMetadataTests.TestMethods.MethodF),
-                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(methodInfo);
-
-            dbFuncBuilder.HasTranslation(parameters => null);
-
-            Validate(modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(
-                        nameof(DbFunctionMetadataTests.TestMethods.MethodF),
-                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
-
-            modelBuilder.HasDbFunction(methodInfo);
-
-            VerifyError(
-                RelationalStrings.DbFunctionInvalidParameterType(
-                    "context", methodInfo.DisplayName(), typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
-                modelBuilder.Model);
-        }
-
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
                 = new TestRelationalTypeMappingSource(

@@ -410,6 +410,9 @@
   <data name="DbFunctionInvalidParameterType" xml:space="preserve">
     <value>The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.</value>
   </data>
+  <data name="DbFunctionInvalidParameterName" xml:space="preserve">
+    <value>The DbFunction '{function}' does not have a parameter named '{parameter}'.</value>
+  </data>
   <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
     <value>The DbFunction '{function}' is generic. Generic methods are not supported.</value>
   </data>
