@@ -89,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelBuiltConventions.Add(storeGenerationConvention);
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 
+            var dbFunctionTypeMappingConvention = new DbFunctionTypeMappingConvention(RelationalDependencies.TypeMappingSource);
+            conventionSet.ModelBuiltConventions.Add(dbFunctionTypeMappingConvention);
+
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));
 
             return conventionSet;

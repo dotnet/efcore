@@ -3,51 +3,45 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using JetBrains.Annotations;
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+=======
 using Microsoft.EntityFrameworkCore.Storage;
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IModel" />.
+    ///     Represents a relational database function in an <see cref="IMutableModel" /> in
+    ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IDbFunction
+    public interface IMutableDbFunction : IDbFunction
     {
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        string FunctionName { get; }
+        new string FunctionName { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The schema of the function in the database.
         /// </summary>
-        string Schema { get; }
+        new string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The <see cref="IModel" /> in which this function is defined.
+<<<<<<< HEAD
+        ///     The <see cref="IMutableModel" /> in which this function is defined.
         /// </summary>
-        IModel Model { get; }
-
-        /// <summary>
-        ///     The CLR method which maps to the function in the database.
+        new IMutableModel Model { get; }
+=======
+        ///     The schema of the function in the database.
         /// </summary>
-        MethodInfo MethodInfo { get; }
-
-
-        /// <summary>
-        ///     The type relation type mapping for the functions return type 
-        /// </summary>
-        RelationalTypeMapping ReturnTypeMapping { get; }
-
-        /// <summary>
-        ///     The parameters for this function
-        /// </summary>
-        IReadOnlyList<IDbFunctionParameter> Parameters { get; }
+        new RelationalTypeMapping ReturnTypeMapping { get; set; }
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 
         /// <summary>
         ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
+        new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }
     }
 }

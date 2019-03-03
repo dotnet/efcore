@@ -9,9 +9,14 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+=======
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Storage;
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -33,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _functionNameConfigurationSource;
         private ConfigurationSource? _translationConfigurationSource;
         private Func<IReadOnlyCollection<SqlExpression>, SqlExpression> _translation;
-        private readonly List<DbFunctionParameter> _parameters;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +45,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+<<<<<<< HEAD
         public DbFunction(
+=======
+        public static DbFunction FindDbFunction(
+            [NotNull] IModel model,
+            [NotNull] string annotationPrefix,
+            [NotNull] MethodInfo methodInfo)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
+            Check.NotNull(methodInfo, nameof(methodInfo));
+
+            return model[BuildAnnotationName(annotationPrefix, methodInfo)] as DbFunction;
+        }
+
+        private readonly IMutableModel _model;
+        private string _schema;
+        private string _functionName;
+
+        private ConfigurationSource? _schemaConfigurationSource;
+        private ConfigurationSource? _nameConfigurationSource;
+
+        private readonly List<DbFunctionParameter> _parameters;
+
+        private DbFunction(
+>>>>>>> Add DbFunctionParameter support for DbFunctions
             [NotNull] MethodInfo methodInfo,
             [NotNull] IMutableModel model,
             ConfigurationSource configurationSource)
@@ -74,11 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MethodInfo = methodInfo;
 
             _model = model;
-
-            _parameters = methodInfo.GetParameters()
-                .Select((pi, i) => new DbFunctionParameter(this, pi.Name, pi.ParameterType))
-                .ToList();
-
+<<<<<<< HEAD
             _annotationName = BuildAnnotationName(methodInfo);
             if (configurationSource == ConfigurationSource.Explicit)
             {
@@ -91,6 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     this,
                     configurationSource == ConfigurationSource.DataAnnotation);
             }
+=======
+
+            _parameters = methodInfo.GetParameters()
+                            .Select((pi, i) => new DbFunctionParameter(this, pi.Name, pi.ParameterType))
+                            .ToList();
+
+            _model[BuildAnnotationName(annotationPrefix, methodInfo)] = this;
+>>>>>>> Add DbFunctionParameter support for DbFunctions
         }
 
         /// <summary>
@@ -114,9 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Cast<IDbFunction>();
         }
 
+<<<<<<< HEAD
         private static string BuildAnnotationName(MethodBase methodBase)
             =>
-                // ReSharper disable once AssignNullToNotNullAttribute
                 $"{RelationalAnnotationNames.DbFunction}{methodBase.DeclaringType.ShortDisplayName()}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.Name))})";
 
         /// <summary>
@@ -136,6 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => ((Model)_model).FindAnnotation(_annotationName).UpdateConfigurationSource(configurationSource);
+=======
+        private static string BuildAnnotationName(string annotationPrefix, MethodBase methodBase)
+            => $"{annotationPrefix}{methodBase.DeclaringType?.ShortDisplayName()}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.Name))})";
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -254,6 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             UpdateTranslationConfigurationSource(configurationSource);
         }
 
+<<<<<<< HEAD
         private void UpdateTranslationConfigurationSource(ConfigurationSource configurationSource)
             => _translationConfigurationSource = configurationSource.Max(_translationConfigurationSource);
 
@@ -302,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         void IConventionDbFunction.SetTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
             => SetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
+=======
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -315,5 +353,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalTypeMapping ReturnTypeMapping { get; set; }
+>>>>>>> Add DbFunctionParameter support for DbFunctions
     }
 }

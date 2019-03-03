@@ -4,7 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+<<<<<<< HEAD
+=======
 using System.Linq;
+using System.Linq.Expressions;
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -119,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+<<<<<<< HEAD
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
         {
@@ -131,6 +136,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        bool IConventionDbFunctionBuilder.CanSetTranslation(
+            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())
+               || _function.Translation == translation;
+
+        private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
+            => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                .Overrides(configurationSource);
+=======
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -143,25 +157,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private IDbFunctionParameter FindParameter(string name)
         {
-            var parameter = Metadata.Parameters.SingleOrDefault(funcParam => string.Compare(funcParam.Name, name, StringComparison.OrdinalIgnoreCase) == 0);
+            var parameter = _builder.Metadata.Parameters.SingleOrDefault(funcParam => string.Compare(funcParam.Name, name, StringComparison.OrdinalIgnoreCase) == 0);
 
             if (parameter == null)
             { 
                 throw new ArgumentException(
-                    RelationalStrings.DbFunctionInvalidParameterName(name, Metadata.MethodInfo.DisplayName()));
+                    RelationalStrings.DbFunctionInvalidParameterName(name, _builder.Metadata.MethodInfo.DisplayName()));
             }
 
             return parameter;
         }
-
-        bool IConventionDbFunctionBuilder.CanSetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())
-               || _function.Translation == translation;
-
-        private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
-            => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                .Overrides(configurationSource);
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 
         #region Hidden System.Object members
 

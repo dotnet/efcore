@@ -1115,7 +1115,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Model);
         }
 
-        [Fact]
+        /*[Fact]
         public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1131,7 +1131,7 @@ namespace Microsoft.EntityFrameworkCore
             dbFuncBuilder.HasTranslation(parameters => null);
 
             Validate(modelBuilder.Model);
-        }
+        }*/
 
         [Fact]
         public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
@@ -1145,6 +1145,25 @@ namespace Microsoft.EntityFrameworkCore
                         new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
 
             modelBuilder.HasDbFunction(methodInfo);
+
+            VerifyError(
+                RelationalStrings.DbFunctionInvalidParameterType(
+                    "context", methodInfo.DisplayName(), typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_function_with_invalid_parameter_type_mapping_but_no_translate_callback_throws()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var methodInfo
+                = typeof(DbFunctionMetadataTests.TestMethods)
+                    .GetRuntimeMethod(
+                        nameof(DbFunctionMetadataTests.TestMethods.MethodF),
+                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
+
+            modelBuilder.HasDbFunction(methodInfo).HasParameter("context");
 
             VerifyError(
                 RelationalStrings.DbFunctionInvalidParameterType(

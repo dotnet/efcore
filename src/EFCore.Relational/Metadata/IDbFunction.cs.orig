@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+=======
 using Microsoft.EntityFrameworkCore.Storage;
+>>>>>>> Add DbFunctionParameter support for DbFunctions
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -34,6 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         MethodInfo MethodInfo { get; }
 
+        /// <summary>
+        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
+        /// </summary>
+<<<<<<< HEAD
+        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
+=======
+        Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
 
         /// <summary>
         ///     The type relation type mapping for the functions return type 
@@ -44,10 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The parameters for this function
         /// </summary>
         IReadOnlyList<IDbFunctionParameter> Parameters { get; }
-
-        /// <summary>
-        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
-        /// </summary>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
+>>>>>>> Add DbFunctionParameter support for DbFunctions
     }
 }

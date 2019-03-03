@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Description>Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.
 
-Commonly Used Types:
-Microsoft.EntityFrameworkCore.DbContext
-Microsoft.EntityFrameworkCore.DbSet
+      Commonly Used Types:
+      Microsoft.EntityFrameworkCore.DbContext
+      Microsoft.EntityFrameworkCore.DbSet
     </Description>
     <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
@@ -46,21 +46,11 @@ Microsoft.EntityFrameworkCore.DbSet
   <ItemGroup>
     <None Update="Properties\CoreStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\CoreStrings.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CoreStrings.Designer.tt</DependentUpon>
-      <SubType>Designer</SubType>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>

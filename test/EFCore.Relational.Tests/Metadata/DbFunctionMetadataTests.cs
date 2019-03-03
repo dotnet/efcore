@@ -166,6 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
             nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
 
+        public static MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
+            nameof(TestMethods.MethodI), new Type[] { });
+
         public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
         public class TestMethods
@@ -198,6 +201,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             public static int MethodH<T>(T a, string b)
+            {
+                throw new Exception();
+            }
+
+            public static int MethodI()
             {
                 throw new Exception();
             }
@@ -484,6 +492,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal(
                 expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
+        }
+
+        [Fact]
+        public void DbParameters_load_no_parameters()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodImi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(0, dbFunc.Parameters.Count);
+        }
+
+        [Fact]
+        public void DbParameters_invalid_parameter_name_throws()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+
+            Assert.Equal(
+                RelationalStrings.DbFunctionInvalidParameterName("q", dbFuncBuilder.Metadata.MethodInfo.DisplayName()),
+                Assert.Throws<ArgumentException>(() => dbFuncBuilder.HasParameter("q")).Message);
+        }
+
+        [Fact]
+        public void DbParameters_load_with_parameters()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [Fact]
+        public void DbParameters_dbfunctionType()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c");
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [Fact]
+        public void DbParameters_name()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c");
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [Fact]
+        public void DbParameters_NullabilityPropagation()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            dbFuncBuilder.HasParameter("c").HasNullabilityPropagation(true);
+
+            Assert.Equal(2, dbFunc.Parameters.Count);
+
+            Assert.Equal("c", dbFunc.Parameters[0].Name);
+            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
+            Assert.Equal(true, dbFunc.Parameters[0].SupportsNullabilityPropagation);
+
+            Assert.Equal("d", dbFunc.Parameters[1].Name);
+            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
         }
 
         private ModelBuilder GetModelBuilder()

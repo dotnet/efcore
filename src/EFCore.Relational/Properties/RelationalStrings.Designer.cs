@@ -504,13 +504,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter, function, type);
 
         /// <summary>
+        ///     The DbFunction '{function}' does not have a parameter named '{parameter}'.
+        /// </summary>
+        public static string DbFunctionInvalidParameterName([CanBeNull] object parameter, [CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterName", nameof(parameter), nameof(function)),
+                parameter, function);
+
+        /// <summary>
         ///     The DbFunction '{function}' is generic. Generic methods are not supported.
         /// </summary>
         public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
             => string.Format(
                 GetString("DbFunctionGenericMethodNotSupported", nameof(function)),
                 function);
-
+        
         /// <summary>
         ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
         /// </summary>
