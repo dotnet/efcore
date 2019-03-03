@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -300,21 +301,21 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns all <see cref="IDbFunction" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
-        public static IReadOnlyList<IDbFunction> GetDbFunctions([NotNull] this IModel model)
-            => DbFunction.GetDbFunctions(model).ToList();
+        public static IEnumerable<IDbFunction> GetDbFunctions([NotNull] this IModel model)
+            => DbFunction.GetDbFunctions(model.AsModel());
 
         /// <summary>
         ///     Returns all <see cref="IMutableDbFunction" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
-        public static IReadOnlyList<IMutableDbFunction> GetDbFunctions([NotNull] this IMutableModel model)
-            => (IReadOnlyList<IMutableDbFunction>)((IModel)model).GetDbFunctions();
+        public static IEnumerable<IMutableDbFunction> GetDbFunctions([NotNull] this IMutableModel model)
+            => DbFunction.GetDbFunctions((Model)model);
 
         /// <summary>
         ///     Returns all <see cref="IConventionDbFunction" />s contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
-        public static IReadOnlyList<IConventionDbFunction> GetDbFunctions([NotNull] this IConventionModel model)
-            => (IReadOnlyList<IConventionDbFunction>)((IModel)model).GetDbFunctions();
+        public static IEnumerable<IConventionDbFunction> GetDbFunctions([NotNull] this IConventionModel model)
+            => DbFunction.GetDbFunctions((Model)model);
     }
 }

@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
             var sharedTableConvention = new SharedTableConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(
@@ -95,7 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
                 sharedTableConvention,
                 typeof(ValidatingConvention));
 
-            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies),
+                typeof(ValidatingConvention));
 
             return conventionSet;
         }
