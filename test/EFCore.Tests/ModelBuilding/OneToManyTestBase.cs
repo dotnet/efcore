@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Same(fk, dependentType.GetForeignKeys().Single());
                 Assert.Equal(navToPrincipal.Name, dependentType.GetNavigations().Single().Name);
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var newFk = principalType.GetNavigations().Single().ForeignKey;
                 AssertEqual(fk.Properties, newFk.Properties);
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Same(fk, dependentType.GetForeignKeys().Single());
                 Assert.Equal("Customer", dependentType.GetNavigations().Single().Name);
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                     .HasForeignKey(e => e.CustomerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Same(fk, dependentType.GetForeignKeys().Single());
                 Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne()
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = principalType.GetNavigations().Single().ForeignKey;
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany<Pickle>().WithOne(e => e.BigMak)
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 Assert.Same(dependentType.FindProperty(nameof(Pickle.BurgerId)), fk.Properties.Single());
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany<Pickle>().WithOne()
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
                 Assert.Same(fkProperty, newFk.Properties.Single());
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 var fkProperty = (IProperty)fk.Properties.Single();
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasMany(e => e.Pickles).WithOne();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = principalType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasMany<Pickle>().WithOne(e => e.BigMak);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasMany<Pickle>().WithOne();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
                 var fkProperty = (IProperty)fk.Properties.Single();
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(1, dependentType.GetForeignKeys().Count());
                 Assert.False(fk.IsUnique);
@@ -862,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Friendship>().HasOne(e => e.ApplicationUser).WithMany(e => e.Friendships)
                     .HasForeignKey(e => e.ApplicationUserId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(2, model.FindEntityType(typeof(Friendship)).GetNavigations().Count());
             }
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                     .HasPrincipalKey(e => e.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -938,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                     .HasPrincipalKey(e => e.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("AlternateKey", fk.PrincipalKey.Properties.Single().Name);
@@ -992,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey(e => e.CustomerId)
                     .HasPrincipalKey(e => e.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1043,7 +1043,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasPrincipalKey(e => e.Id)
                     .HasForeignKey(e => e.CustomerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1091,7 +1091,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey(e => e.AnotherCustomerId)
                     .HasPrincipalKey(e => e.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("AnotherCustomerId", fk.Properties.Single().Name);
@@ -1144,7 +1144,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasPrincipalKey(e => e.AlternateKey)
                     .HasForeignKey(e => e.AnotherCustomerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("AnotherCustomerId", fk.Properties.Single().Name);
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Customer>()
                     .HasKey(o => o.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("AlternateKey", fk.PrincipalKey.Properties.Single().Name);
@@ -1248,7 +1248,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey(e => e.BurgerId)
                     .HasPrincipalKey(e => e.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1302,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasPrincipalKey(e => e.AlternateKey)
                     .HasForeignKey(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1353,7 +1353,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<BigMak>().HasKey(e => e.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 var principalProperty = principalType.FindProperty("AlternateKey");
@@ -1529,7 +1529,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal(nameof(Tomato.Whoopper), dependentType.GetNavigations().Single().Name);
@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -1650,7 +1650,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.AlternateKey2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -1726,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -1798,7 +1798,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = principalType.GetNavigations().Single().ForeignKey;
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -1846,7 +1846,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 Assert.Same(dependentType.FindProperty(nameof(Tomato.BurgerId1)), fk.Properties[0]);
@@ -1900,7 +1900,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
                 Assert.Same(fkProperty1, newFk.Properties[0]);
@@ -1992,7 +1992,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
                         existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -2198,7 +2198,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.HobId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2225,7 +2225,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.NobId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2253,7 +2253,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         })
                     .IsRequired();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2281,7 +2281,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         })
                     .IsRequired(false);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2312,7 +2312,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
                     .IsRequired(false);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2400,7 +2400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasForeignKey("ShadowId");
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     "ShadowId",
@@ -2420,7 +2420,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 entityB.HasOne(e => e.FirstNav).WithMany().HasForeignKey("ShadowId");
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     "ShadowId",
@@ -2434,7 +2434,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Delta>();
                 modelBuilder.Entity<Epsilon>().HasOne<Alpha>().WithMany(b => b.Epsilons);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
@@ -2452,7 +2452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         typeof(Customer).Name + "." + nameof(Customer.Orders),
                         "{'AnotherCustomerId' : Guid}",
                         "{'Id' : int}"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -2462,7 +2462,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Delta>();
                 modelBuilder.Entity<Epsilon>().HasOne<Alpha>().WithMany(b => b.Epsilons);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
 
@@ -2494,7 +2494,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Delta>();
                 modelBuilder.Entity<Eta>().HasOne<Alpha>().WithMany(b => b.Etas);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
 
@@ -2518,7 +2518,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Iota>();
                 modelBuilder.Entity<Theta>().HasOne(e => e.Alpha).WithMany();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
 
@@ -2555,7 +2555,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))
                     .FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
@@ -2582,7 +2582,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))
                     .FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
@@ -2610,7 +2610,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))
                     .FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
@@ -2633,7 +2633,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))
                     .FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
@@ -2686,7 +2686,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Kappa>().Ignore(e => e.Omegas);
                 modelBuilder.Entity<Omega>().HasOne(e => e.Kappa).WithMany();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     "KappaId",
@@ -2717,7 +2717,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     "PrincipalShadowFkId",

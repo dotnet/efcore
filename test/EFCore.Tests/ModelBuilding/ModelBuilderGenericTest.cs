@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<DoubleProperty>().Property(e => ((IReplacable)e).Property);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(DoubleProperty)).GetProperty("Property");
                 Assert.True(

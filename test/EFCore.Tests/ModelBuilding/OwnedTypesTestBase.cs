@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         db.HasIndex(d => d.CustomerId);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 Assert.Equal(typeof(Customer).FullName, owner.Name);
@@ -77,8 +77,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
 
-                modelBuilder.Validate();
-
                 var owner = model.FindEntityType(typeof(Customer));
                 var ownee = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
                 Assert.Equal(nameof(CustomerDetails.CustomerId), ownee.FindPrimaryKey().Properties.Single().Name);
@@ -86,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
                     .HasOne(d => d.Customer);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = owner.FindNavigation(nameof(Customer.Details)).ForeignKey;
                 Assert.True(ownership.IsOwnership);
@@ -108,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(d => d.Id)
                     .Property<int>("foo");
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
@@ -127,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
                     .HasKey(c => c.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
@@ -148,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOwner(d => d.Customer)
                     .HasForeignKey(c => c.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 Assert.Equal(nameof(CustomerDetails.Id), ownership.Properties.Single().Name);
@@ -166,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details);
                 modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership1 = model.FindEntityType(typeof(OtherCustomer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 var ownership2 = model.FindEntityType(typeof(SpecialCustomer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
@@ -195,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(OtherCustomer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
@@ -228,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 entityBuilder.HasKey(o => o.OrderId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.True(ownership.IsOwnership);
                 Assert.True(ownership.IsUnique);
@@ -266,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityBuilder.WithOwner(o => o.Customer)
                     .HasPrincipalKey(c => c.AlternateKey);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
@@ -316,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasForeignKey("DifferentCustomerId");
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -354,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<SpecialCustomer>().OwnsMany(c => c.Orders)
                     .HasKey(o => o.OrderId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Null(model.FindEntityType(typeof(Order)));
                 var ownership1 = model.FindEntityType(typeof(OtherCustomer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
@@ -403,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 });
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -443,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasKey(p => p.Id);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -480,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r.OwnsMany(o => o.Products);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -524,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .Ignore(p => p.Id);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -563,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.AmbiguousOwnedNavigation(nameof(Moostard), nameof(Whoopper)),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -585,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             so.OwnsOne(o => o.BackOrder);
                         }).Metadata;
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = (Model)modelBuilder.Model;
                 var customer = model.FindEntityType(typeof(Customer));
@@ -633,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .OwnsMany(c => c.Orders)
                     .HasKey(o => o.OrderId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = (Model)modelBuilder.Model;
                 var customer = model.FindEntityType(typeof(Customer));
@@ -667,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SpecialOrder>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(SpecialOrder));
                 var ownership = owner.FindNavigation(nameof(SpecialOrder.ShippingAddress)).ForeignKey;
@@ -710,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).Ignore(l => l.Book);
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).Ignore(l => l.Book);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -723,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Ignore<SpecialBookLabel>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.NotNull(model.FindEntityType(typeof(BookDetailsBase)));
                 var owner = model.FindEntityType(typeof(Customer));
@@ -744,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
                 modelBuilder.Ignore<SpecialBookLabel>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.NotNull(model.FindEntityType(typeof(BookDetailsBase)));
                 var owner = model.FindEntityType(typeof(Customer));
@@ -781,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().Ignore(c => c.Details);
                 modelBuilder.Entity<Order>().Ignore(c => c.Details);
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -808,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().Ignore(c => c.Details);
                 modelBuilder.Entity<Order>().Ignore(c => c.Details);
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -852,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             });
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 VerifyOwnedBookLabelModel(modelBuilder.Model);
             }
@@ -908,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             });
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 VerifyOwnedBookLabelModel(modelBuilder.Model);
             }
@@ -958,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 VerifyOwnedBookLabelModel(modelBuilder.Model);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -1005,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 VerifyOwnedBookLabelModel(modelBuilder.Model);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             protected virtual void VerifyOwnedBookLabelModel(IMutableModel model)
@@ -1082,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -1136,7 +1134,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     e => e.Bill2,
                     o => o.HasOne<Country>().WithMany().HasPrincipalKey(c => c.Name).HasForeignKey(d => d.Country));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -1146,7 +1144,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<BaseOwner>();
                 modelBuilder.Entity<DerivedOwner>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(4, modelBuilder.Model.GetEntityTypes().Count());
             }
