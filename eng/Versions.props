@@ -45,8 +45,8 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview4.19153.2</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview4-27502-8</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview4-27502-8</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview4-27503-9</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview4-27503-9</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <DotNetRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
