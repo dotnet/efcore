@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder Validate()
+            public virtual TestModelBuilder FinalizeModel()
             {
                 ModelBuilder.FinalizeModel();
 

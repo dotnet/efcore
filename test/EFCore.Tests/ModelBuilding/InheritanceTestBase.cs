@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SpecialBookLabel>().Property(b => b.BookId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
                 Assert.Equal(0, model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties().Count());
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<ExtraSpecialBookLabel>();
                 modelBuilder.Entity<SpecialBookLabel>().Ignore(b => b.BookLabel);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
                 var moreDerived = model.FindEntityType(typeof(ExtraSpecialBookLabel));
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
                 modelBuilder.Entity<SelfRefManyToOne>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
                 Assert.Equal(0, model.FindEntityType(typeof(SelfRefManyToOneDerived)).GetDeclaredProperties().Count());
@@ -524,14 +524,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
-                modelBuilder.Validate();
-
-                var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
-                Assert.Equal(LogLevel.Debug, Level);
-                Assert.Equal(
-                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
-                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
-
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(
                         c => new
@@ -543,6 +535,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         {
                             o.CustomerId
                         });
+
+                modelBuilder.FinalizeModel();
+
+                var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
+                Assert.Equal(LogLevel.Debug, Level);
+                Assert.Equal(
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
+                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
 
                 fk = dependentEntityType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
                 Assert.Equal(2, dependentEntityType.GetIndexes().Count());
@@ -584,8 +584,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             o.CustomerId
                         });
 
-                modelBuilder.Validate();
-
                 var dependentEntityType = dependentEntityBuilder.Metadata;
                 var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
                 var index = dependentEntityType.FindIndex(dependentEntityType.GetForeignKeys().Single().Properties);
@@ -609,7 +607,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 derivedDependentEntityBuilder.HasBaseType<Order>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
+
+                var indexRemoveMessage =
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
+                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
+                Assert.Equal(1, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
 
                 var baseFK = dependentEntityType.GetForeignKeys().Single();
                 var baseIndex = dependentEntityType.FindIndex(baseFK.Properties);
@@ -618,26 +621,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(false));
                 AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
-
-                var indexRemoveMessage =
-                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage(
-                        "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
-                Assert.Equal(2, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
-
-                dependentEntityBuilder.HasIndex(
-                        o => new
-                        {
-                            o.CustomerId,
-                            o.AnotherCustomerId
-                        })
-                    .IsUnique(false);
-
-                Assert.True(dependentEntityType.GetIndexes().All(i => !i.IsUnique));
-                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
             }
 
             [Fact]
@@ -762,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
 
                 modelBuilder.Entity<CityViewModel>();
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]

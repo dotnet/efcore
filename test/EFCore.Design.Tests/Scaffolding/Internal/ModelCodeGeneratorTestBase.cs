@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = new ModelBuilder(BuildNonValidatingConventionSet());
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
             buildModel(modelBuilder);
+            var _ = modelBuilder.Model.Scaffolding().EntityTypeErrors;
 
             var model = modelBuilder.FinalizeModel();
 

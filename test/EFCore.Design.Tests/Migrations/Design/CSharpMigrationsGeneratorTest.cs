@@ -345,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
             property.SetMaxLength(1000);
+            property.SetValueConverter(valueConverter);
 
             modelBuilder.FinalizeModel();
 
@@ -355,8 +356,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var generator = new TestCSharpSnapshotGenerator(
                 new CSharpSnapshotGeneratorDependencies(codeHelper));
-
-            property.SetValueConverter(valueConverter);
 
             var sb = new IndentedStringBuilder();
 

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<QueryType>().HasNoKey();
                 modelBuilder.Entity<Customer>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer))?.FindProperty("TempId"));
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(QueryType)).FindPrimaryKey());
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasNoKey();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(Customer)).GetNavigations());
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey());
