@@ -99,6 +99,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        IEnumerable<InternalEntityEntry> GetEntriesForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        int GetCountForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        int Count { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()
+            where TEntity : class;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         int ChangedCount { get; set; }
 
         /// <summary>
@@ -106,6 +139,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -135,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void StopTracking([NotNull] InternalEntityEntry entry);
+        void StopTracking([NotNull] InternalEntityEntry entry, EntityState oldState);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

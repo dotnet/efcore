@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -667,9 +666,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             };
 
             var entry = stateManager.GetOrCreateEntry(category);
-            stateManager.StartTracking(entry);
-            stateManager.StopTracking(entry);
-            stateManager.StartTracking(entry);
+            entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Detached);
+            entry.SetEntityState(EntityState.Added);
 
             var entry2 = stateManager.GetOrCreateEntry(category);
             Assert.Same(entry, entry2);
@@ -686,13 +685,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             };
 
             var entry = stateManager.GetOrCreateEntry(category);
-            stateManager.StartTracking(entry);
-            stateManager.StopTracking(entry);
+            entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Detached);
 
             var entry2 = stateManager.GetOrCreateEntry(category);
             Assert.NotSame(entry, entry2);
 
-            stateManager.StartTracking(entry2);
+            entry2.SetEntityState(EntityState.Added);
         }
 
         [Fact]
@@ -706,11 +705,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             };
 
             var entry = stateManager.GetOrCreateEntry(category);
-            stateManager.StartTracking(entry);
-            stateManager.StopTracking(entry);
+            entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Detached);
 
             var entry2 = stateManager.GetOrCreateEntry(category);
-            stateManager.StartTracking(entry2);
+            entry2.SetEntityState(EntityState.Added);
 
             Assert.NotSame(entry, entry2);
             Assert.Equal(EntityState.Detached, entry.EntityState);

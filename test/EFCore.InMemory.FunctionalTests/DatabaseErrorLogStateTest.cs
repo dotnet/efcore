@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
                 context.SaveChanges();
                 var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
-                context.GetService<IStateManager>().StopTracking(entry);
+                context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);
 
                 var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
                 while (ex.InnerException != null)

@@ -4,30 +4,12 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalShadowEntityEntryTest : InternalEntityEntryTestBase
     {
-        [Fact]
-        public void Entity_is_null()
-        {
-            var model = BuildModel();
-            var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(
-                configuration,
-                model.FindEntityType(typeof(SomeEntity).FullName),
-                null,
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            Assert.Null(entry.Entity);
-        }
-
         protected override Model BuildModel()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

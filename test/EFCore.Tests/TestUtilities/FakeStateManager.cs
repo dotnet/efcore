@@ -49,7 +49,27 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return Task.FromResult(1);
         }
 
-        public IEnumerable<InternalEntityEntry> Entries => Entries ?? Enumerable.Empty<InternalEntityEntry>();
+        public IEnumerable<InternalEntityEntry> Entries => InternalEntries ?? Enumerable.Empty<InternalEntityEntry>();
+
+        public IEnumerable<InternalEntityEntry> GetEntriesForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false)
+            => throw new NotImplementedException();
+
+        public int GetCountForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false)
+            => throw new NotImplementedException();
+
+        public int Count => throw new NotImplementedException();
+
+        public IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()
+            where TEntity : class
+            => throw new NotImplementedException();
 
         public int ChangedCount { get; set; }
 
@@ -87,10 +107,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true) => throw new NotImplementedException();
         public InternalEntityEntry TryGetEntry(object entity, IEntityType type) => throw new NotImplementedException();
         public IInternalEntityEntryNotifier InternalEntityEntryNotifier => throw new NotImplementedException();
+        public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
         public IValueGenerationManager ValueGenerationManager => throw new NotImplementedException();
         public IEntityMaterializerSource EntityMaterializerSource { get; }
         public InternalEntityEntry StartTracking(InternalEntityEntry entry) => throw new NotImplementedException();
-        public void StopTracking(InternalEntityEntry entry) => throw new NotImplementedException();
+        public void StopTracking(InternalEntityEntry entry, EntityState oldState) => throw new NotImplementedException();
 
         public void RecordReferencedUntrackedEntity(
             object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry) =>

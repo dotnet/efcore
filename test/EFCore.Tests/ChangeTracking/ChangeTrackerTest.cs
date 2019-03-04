@@ -866,8 +866,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(2, tracked.Count);
                 Assert.Equal(3, changed.Count);
 
-                AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changed[1]);
-                AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changed[2]);
+                AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changed[2]);
+                AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changed[1]);
 
                 context.Database.EnsureDeleted();
             }

@@ -127,12 +127,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _logger.DetectChangesStarting(stateManager.Context);
 
-            foreach (var entry in stateManager.Entries.Where(
-                e => e.EntityState != EntityState.Detached
-                     && e.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot).ToList())
+            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+
             {
-                // State might change while detecting changes on other entries
-                if (entry.EntityState != EntityState.Detached)
+                if (entry.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot
+                    && entry.EntityState != EntityState.Detached)
                 {
                     LocalDetectChanges(entry);
                 }
