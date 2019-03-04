@@ -59,13 +59,14 @@ namespace Microsoft.EntityFrameworkCore
 );
 
 CREATE TABLE ""Table1"" (
-    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY
+    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY,
+    ""Foo"" INTEGER NOT NULL
 );
 
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
 
-ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
 
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
@@ -83,7 +84,7 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+                @"ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
 
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
@@ -98,7 +99,7 @@ VALUES ('00000000000002_Migration2', '7.0.0-test');
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+                @"ALTER TABLE ""Table1"" RENAME COLUMN ""Foo"" TO ""Bar"";
 
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
@@ -118,7 +119,7 @@ VALUES ('00000000000002_Migration2', '7.0.0-test');
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+                @"ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
 
 DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';
@@ -138,7 +139,7 @@ WHERE ""MigrationId"" = '00000000000001_Migration1';
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+                @"ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
 
 DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';
@@ -153,7 +154,7 @@ WHERE ""MigrationId"" = '00000000000002_Migration2';
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+                @"ALTER TABLE ""Table1"" RENAME COLUMN ""Bar"" TO ""Foo"";
 
 DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';

@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     using (var connection = new SqliteConnection("Data Source=:memory:"))
                     {
-                        connection.Open();
-                        connection.EnableExtensions();
-
                         return SpatialiteLoader.TryLoad(connection);
                     }
                 });

@@ -41,7 +41,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
 
-            Connection = new SqliteConnection(ConnectionString);
+            var connection = new SqliteConnection(ConnectionString);
+            SpatialiteLoader.TryLoad(connection);
+            Connection = connection;
         }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
@@ -74,14 +76,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override void Clean(DbContext context)
             => context.Database.EnsureClean();
-
-        public override void OpenConnection()
-        {
-            Connection.Open();
-
-            ((SqliteConnection)Connection).EnableExtensions();
-            SpatialiteLoader.TryLoad(Connection);
-        }
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
         {

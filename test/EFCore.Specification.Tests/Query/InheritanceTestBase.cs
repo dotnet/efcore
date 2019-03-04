@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -554,16 +552,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     EagleId = kiwi.Species
                 };
 
-                Assert.Equal(
-                    CoreStrings.IncompatiblePrincipalEntrySensitive(
-                        "{EagleId: Apteryx haastii}",
-                        nameof(Eagle),
-                        "{Species: Haliaeetus leucocephalus}",
-                        nameof(Kiwi),
-                        nameof(Eagle)),
-                    Assert.Throws<InvalidOperationException>(() => context.Add(eagle)).Message);
+                context.Add(eagle);
+
+                // No fixup, because no principal with this key of the correct type is loaded.
+                Assert.Empty(eagle.Prey);
+
+                if (EnforcesFkConstraints)
+                {
+                    // Relational database throws due to constraint violation
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                }
             }
         }
+
+        protected virtual bool EnforcesFkConstraints => true;
 
         [Fact]
         public virtual void Byte_enum_value_constant_used_in_projection()

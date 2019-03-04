@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1045,10 +1046,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (propertyBase is INavigation navigation)
                     {
-                        if (!navigation.IsCollection()
-                            && value == null)
+                        if (!navigation.IsCollection())
                         {
-                            SetIsLoaded(navigation, loaded: false);
+                            SetIsLoaded(navigation, value != null);
                         }
                     }
 
@@ -1473,6 +1473,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);
+
+            var lazyLoaderProperty = EntityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == typeof(ILazyLoader));
+            if (lazyLoaderProperty != null)
+            {
+                ((ILazyLoader)this[lazyLoaderProperty])?.SetLoaded(Entity, navigation.Name, loaded);
+            }
         }
 
         /// <summary>
@@ -1480,10 +1486,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsLoaded([NotNull] INavigation navigation)
-            => (!navigation.IsCollection()
-                && EntityState != EntityState.Detached
-                && this[navigation] != null)
-               || _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
+            => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
 

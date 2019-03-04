@@ -821,14 +821,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder
                     .Append(builderName)
                     .Append(".HasOne(")
-                    .Append(Code.Literal(foreignKey.PrincipalEntityType.Name));
-
-                if (foreignKey.DependentToPrincipal != null)
-                {
-                    stringBuilder
-                        .Append(", ")
-                        .Append(Code.Literal(foreignKey.DependentToPrincipal.Name));
-                }
+                    .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
+                    .Append(", ")
+                    .Append(
+                        foreignKey.DependentToPrincipal == null
+                            ? Code.UnknownLiteral(null)
+                            : Code.Literal(foreignKey.DependentToPrincipal.Name));
             }
             else
             {

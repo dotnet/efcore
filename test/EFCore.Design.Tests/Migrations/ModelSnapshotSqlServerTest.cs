@@ -947,8 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
@@ -2176,8 +2175,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     GetHeading() + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
@@ -2203,7 +2201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
-                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", null)
                         .WithOne()
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Name"")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -2226,8 +2224,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     GetHeading() + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
-                    b.Property<string>(""Id"")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>(""Id"");
 
                     b.HasKey(""Id"");
 
@@ -2251,7 +2248,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
-                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", null)
                         .WithMany(""Properties"")
                         .HasForeignKey(""Name"");
                 });"),
@@ -2393,7 +2390,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
                 {
-                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"")
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", null)
                         .WithMany()
                         .HasForeignKey(""Property"")
                         .OnDelete(DeleteBehavior.Cascade);

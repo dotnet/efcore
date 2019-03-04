@@ -13,9 +13,42 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>
+    public interface IInMemoryIntegerValueGenerator
     {
+        void Bump(object[] row);
+    }
+
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IInMemoryIntegerValueGenerator
+    {
+        private readonly int _propertyIndex;
         private long _current;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public InMemoryIntegerValueGenerator(int propertyIndex)
+        {
+            _propertyIndex = propertyIndex;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Bump(object[] row)
+        {
+            var newValue = (long)Convert.ChangeType(row[_propertyIndex], typeof(long));
+
+            if (_current < newValue)
+            {
+                Interlocked.Exchange(ref _current, newValue);
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

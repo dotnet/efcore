@@ -84,6 +84,7 @@ GO
 
 CREATE TABLE [Table1] (
     [Id] int NOT NULL,
+    [Foo] int NOT NULL,
     CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
 );
 
@@ -94,7 +95,7 @@ VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 GO
 
-EXEC sp_rename N'[Table1]', N'Table2';
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
 
 GO
 
@@ -126,7 +127,7 @@ GO
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-                @"EXEC sp_rename N'[Table1]', N'Table2';
+                @"EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
 
 GO
 
@@ -145,7 +146,7 @@ GO
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-                @"EXEC sp_rename N'[Table1]', N'Table2';
+                @"EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
 
 GO
 
@@ -179,6 +180,7 @@ IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'0000
 BEGIN
     CREATE TABLE [Table1] (
         [Id] int NOT NULL,
+        [Foo] int NOT NULL,
         CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
     );
 END;
@@ -195,7 +197,7 @@ GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
-    EXEC sp_rename N'[Table1]', N'Table2';
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
 END;
 
 GO
@@ -240,7 +242,7 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"EXEC sp_rename N'[Table2]', N'Table1';
+                @"EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
 
 GO
 
@@ -270,7 +272,7 @@ GO
             Assert.Equal(
                 @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
-    EXEC sp_rename N'[Table2]', N'Table1';
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
 END;
 
 GO
@@ -308,7 +310,7 @@ GO
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-                @"EXEC sp_rename N'[Table2]', N'Table1';
+                @"EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
 
 GO
 
@@ -327,7 +329,7 @@ GO
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-                @"EXEC sp_rename N'[Table2]', N'Table1';
+                @"EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
 
 GO
 

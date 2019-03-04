@@ -47,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             connection.Open();
 
-            ((SqliteConnection)connection.DbConnection).EnableExtensions();
-            SpatialiteLoader.TryLoad(connection.DbConnection);
+            SpatialiteLoader.TryLoad((SqliteConnection)connection.DbConnection);
         }
     }
 }

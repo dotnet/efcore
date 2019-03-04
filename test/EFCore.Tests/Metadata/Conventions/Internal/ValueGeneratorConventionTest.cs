@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Identity_set_when_primary_key_property_is_string()
+        public void Identity_not_set_when_primary_key_property_is_string()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -333,12 +333,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.True(property.RequiresValueGenerator());
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+            Assert.False(property.RequiresValueGenerator());
         }
 
         [Fact]
-        public void Identity_set_when_primary_key_property_is_byte_array()
+        public void Identity_not_set_when_primary_key_property_is_byte_array()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -348,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.True(property.RequiresValueGenerator());
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+            Assert.False(property.RequiresValueGenerator());
         }
 
         [Fact]
