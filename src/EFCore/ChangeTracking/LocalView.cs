@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private ObservableBackedBindingList<TEntity> _bindingList;
         private ObservableCollection<TEntity> _observable;
         private readonly DbContext _context;
-        private int _count;
+        private int _countChanges;
+        private int? _count;
         private bool _triggeringStateManagerChange;
         private bool _triggeringObservableChange;
         private bool _triggeringLocalViewChange;
@@ -66,12 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             _context = set.GetService<ICurrentDbContext>().Context;
 
-            var stateManager = _context.GetDependencies().StateManager;
-
             set.GetService<ILocalViewListener>().RegisterView(StateManagerChangedHandler);
-
-            _count = stateManager.Entries
-                .Count(e => e.Entity is TEntity && e.EntityState != EntityState.Deleted);
         }
 
         /// <summary>
@@ -169,10 +165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> An enumerator for the collection. </returns>
         public virtual IEnumerator<TEntity> GetEnumerator()
-            => _context.GetDependencies().StateManager.Entries.Where(e => e.EntityState != EntityState.Deleted)
-                .Select(e => e.Entity)
-                .OfType<TEntity>()
-                .GetEnumerator();
+            => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
         /// <summary>
         ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
@@ -210,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     entry.SetEntityState(EntityState.Added);
 
-                    _count++;
+                    _countChanges++;
 
                     OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
 
@@ -237,11 +230,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void Clear()
         {
-            foreach (var entry in _context.GetDependencies().StateManager.Entries
-                .Where(e => e.Entity is TEntity && e.EntityState != EntityState.Deleted)
-                .ToList())
+            foreach (var entity in _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().ToList())
             {
-                Remove((TEntity)entry.Entity);
+                Remove(entity);
             }
         }
 
@@ -266,15 +257,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="arrayIndex"> The index into the array to start copying. </param>
         public virtual void CopyTo(TEntity[] array, int arrayIndex)
         {
-            foreach (var entry in _context.GetDependencies().StateManager.Entries)
+            foreach (var entity in _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>())
             {
-                if (entry.EntityState != EntityState.Deleted)
-                {
-                    if (entry.Entity is TEntity entity)
-                    {
-                        array[arrayIndex++] = entity;
-                    }
-                }
+                array[arrayIndex++] = entity;
             }
         }
 
@@ -308,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             ? EntityState.Detached
                             : EntityState.Deleted);
 
-                    _count--;
+                    _countChanges--;
 
                     OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
 
@@ -346,13 +331,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     if (isIn)
                     {
-                        _count++;
+                        _countChanges++;
 
                         OnCollectionChanged(NotifyCollectionChangedAction.Add, entity);
                     }
                     else
                     {
-                        _count--;
+                        _countChanges--;
 
                         OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity);
                     }
@@ -366,7 +351,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The number of entities of type TEntity that are being tracked and are not marked
         ///     as Deleted.
         /// </summary>
-        public virtual int Count => _count;
+        public virtual int Count
+        {
+            get
+            {
+                if (!_count.HasValue)
+                {
+                    var stateManager = _context.GetDependencies().StateManager;
+
+                    var count = 0;
+                    foreach (var _ in stateManager.GetNonDeletedEntities<TEntity>())
+                    {
+                        count++;
+                    }
+
+                    _count = count;
+                    _countChanges = 0;
+                }
+
+                return _count.Value + _countChanges;
+            }
+        }
 
         /// <summary>
         ///     False, since the collection is not read-only.

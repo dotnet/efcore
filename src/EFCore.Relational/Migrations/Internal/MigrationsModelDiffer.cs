@@ -1725,12 +1725,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             if (_sourceStateManager != null)
             {
-                foreach (var sourceEntry in _sourceStateManager.Entries.ToList())
+                foreach (var sourceEntry in _sourceStateManager.ToListForState(added: true))
                 {
-                    if (sourceEntry.EntityState == EntityState.Added)
-                    {
-                        sourceEntry.SetEntityState(EntityState.Detached);
-                    }
+                    sourceEntry.SetEntityState(EntityState.Detached);
                 }
             }
 

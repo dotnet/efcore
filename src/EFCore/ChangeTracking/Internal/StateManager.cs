@@ -32,11 +32,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class StateManager : IStateManager
     {
-        private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
-            = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-
-        private readonly Dictionary<IEntityType, Dictionary<object, InternalEntityEntry>> _dependentTypeReferenceMap
-            = new Dictionary<IEntityType, Dictionary<object, InternalEntityEntry>>();
+        private readonly EntityReferenceMap _entityReferenceMap
+            = new EntityReferenceMap(hasSubMap: true);
 
         private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
             = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
@@ -133,6 +130,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
+        {
+            InternalEntityEntryNotifier.StateChanging(entry, newState);
+
+            UpdateReferenceMaps(entry, newState, entry.EntityState);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IValueGenerationManager ValueGenerationManager { get; }
 
         /// <summary>
@@ -185,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
-                _entityReferenceMap[entity] = entry;
+                UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
 
             return entry;
@@ -204,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
-                AddToReferenceMap(entry);
+                UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
 
             return entry;
@@ -236,15 +244,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
 
-            AddToReferenceMap(entry);
+            UpdateReferenceMaps(entry, EntityState.Detached, null);
 
             return entry;
         }
 
-        private void AddToReferenceMap(InternalEntityEntry entry)
+        private void UpdateReferenceMaps(
+            InternalEntityEntry entry,
+            EntityState state,
+            EntityState? oldState)
         {
-            var mapKey = entry.Entity ?? entry;
             var entityType = entry.EntityType;
+            var mapKey = entry.Entity ?? entry;
             if (entityType.HasDefiningNavigation())
             {
                 foreach (var otherType in _model.GetEntityTypes(entityType.Name)
@@ -252,19 +263,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     UpdateLogger.DuplicateDependentEntityTypeInstanceWarning(entityType, otherType);
                 }
-
-                if (!_dependentTypeReferenceMap.TryGetValue(entityType, out var entries))
-                {
-                    entries = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _dependentTypeReferenceMap[entityType] = entries;
-                }
-
-                entries[mapKey] = entry;
             }
-            else
-            {
-                _entityReferenceMap[mapKey] = entry;
-            }
+
+            _entityReferenceMap.Update(entry, state, oldState);
         }
 
         /// <summary>
@@ -314,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
             }
 
-            AddToReferenceMap(newEntry);
+            UpdateReferenceMaps(newEntry, EntityState.Unchanged, null);
 
             newEntry.MarkUnchangedFromQuery(handledForeignKeys);
 
@@ -345,52 +346,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true)
-        {
-            if (_entityReferenceMap.TryGetValue(entity, out var entry))
-            {
-                return entry;
-            }
-
-            var type = entity.GetType();
-            var found = false;
-            foreach (var keyValue in _dependentTypeReferenceMap)
-            {
-                // ReSharper disable once CheckForReferenceEqualityInstead.2
-                if (keyValue.Key.ClrType.IsAssignableFrom(type)
-                    && keyValue.Value.TryGetValue(entity, out var foundEntry))
-                {
-                    if (found)
-                    {
-                        if (!throwOnNonUniqueness)
-                        {
-                            return null;
-                        }
-
-                        throw new InvalidOperationException(
-                            CoreStrings.AmbiguousDependentEntity(
-                                entity.GetType().ShortDisplayName(),
-                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
-                    }
-
-                    entry = foundEntry;
-                    found = true;
-                }
-            }
-
-            return entry;
-        }
+            => _entityReferenceMap.TryGet(entity, null, out var entry, throwOnNonUniqueness)
+                ? entry
+                : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType)
-            => _entityReferenceMap.TryGetValue(entity, out var entry)
+            => _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false)
                 ? entry
-                : _dependentTypeReferenceMap.TryGetValue(entityType, out var entries)
-                  && entries.TryGetValue(entity, out entry)
-                    ? entry
-                    : null;
+                : null;
 
         private IIdentityMap GetOrCreateIdentityMap(IKey key)
         {
@@ -463,11 +430,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values
-            .Concat(_dependentTypeReferenceMap.Values.SelectMany(e => e.Values))
-            .Where(
-                e => e.EntityState != EntityState.Detached
-                     && (e.SharedIdentityEntry == null || e.EntityState != EntityState.Deleted));
+        public virtual int GetCountForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false)
+            => _entityReferenceMap.GetCountForState(added, modified, deleted, unchanged);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual int Count
+            => GetCountForState(added: true, modified: true, deleted: true, unchanged: true);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<InternalEntityEntry> GetEntriesForState(
+            bool added = false,
+            bool modified = false,
+            bool deleted = false,
+            bool unchanged = false)
+            => _entityReferenceMap.GetEntriesForState(added, modified, deleted, unchanged);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<InternalEntityEntry> Entries
+            => GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()
+            where TEntity : class
+            => _entityReferenceMap.GetNonDeletedEntities<TEntity>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -485,11 +486,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var mapKey = entry.Entity ?? entry;
             var existingEntry = TryGetEntry(mapKey, entityType);
 
-            if (existingEntry == null)
-            {
-                AddToReferenceMap(entry);
-            }
-            else if (existingEntry != entry)
+            if (existingEntry != null
+                && existingEntry != entry)
             {
                 throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.DisplayName()));
             }
@@ -511,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void StopTracking(InternalEntityEntry entry)
+        public virtual void StopTracking(InternalEntityEntry entry, EntityState oldState)
         {
             if (_needsUnsubscribe)
             {
@@ -519,21 +517,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var entityType = entry.EntityType;
-            var mapKey = entry.Entity ?? entry;
-
-            if (entityType.HasDefiningNavigation())
-            {
-                var entries = _dependentTypeReferenceMap[entityType];
-                entries.Remove(mapKey);
-                if (entries.Count == 0)
-                {
-                    _dependentTypeReferenceMap.Remove(entityType);
-                }
-            }
-            else
-            {
-                _entityReferenceMap.Remove(mapKey);
-            }
 
             foreach (var key in entityType.GetKeys())
             {
@@ -587,7 +570,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Unsubscribe();
             ChangedCount = 0;
             _entityReferenceMap.Clear();
-            _dependentTypeReferenceMap.Clear();
 
             if (_referencedUntrackedEntities.HasValue)
             {
@@ -844,13 +826,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             CascadeChanges(force: false);
 
-            return Entries
-                .Where(
-                    e => e.EntityState == EntityState.Added
-                         || e.EntityState == EntityState.Modified
-                         || e.EntityState == EntityState.Deleted)
-                .Select(e => e.PrepareToSave())
-                .ToList();
+            var toSave = new List<InternalEntityEntry>(GetCountForState(added: true, modified: true, deleted: true));
+
+            // Perf sensitive
+
+            foreach (var entry in GetEntriesForState(added: true, modified: true, deleted: true))
+            {
+                toSave.Add(entry.PrepareToSave());
+            }
+
+            return toSave;
         }
 
         /// <summary>
@@ -859,15 +844,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void CascadeChanges(bool force)
         {
-            foreach (var entry in Entries.Where(
-                e => (e.EntityState == EntityState.Modified
-                      || e.EntityState == EntityState.Added)
-                     && e.HasConceptualNull).ToList())
+            // Perf sensitive
+
+            var toHandle = new List<InternalEntityEntry>();
+
+            foreach (var entry in GetEntriesForState(modified: true, added: true))
+            {
+                if (entry.HasConceptualNull)
+                {
+                    toHandle.Add(entry);
+                }
+            }
+
+            foreach (var entry in toHandle)
             {
                 entry.HandleConceptualNulls(SensitiveLoggingEnabled, force, isCascadeDelete: false);
             }
 
-            foreach (var entry in Entries.Where(e => e.EntityState == EntityState.Deleted).ToList())
+            foreach (var entry in this.ToListForState(deleted: true))
             {
                 CascadeDelete(entry, force);
             }
@@ -1026,16 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AcceptAllChanges()
-        {
-            var changedEntries = Entries
-                .Where(
-                    e => e.EntityState == EntityState.Added
-                         || e.EntityState == EntityState.Modified
-                         || e.EntityState == EntityState.Deleted)
-                .ToList();
-
-            AcceptAllChanges(changedEntries);
-        }
+            => AcceptAllChanges(this.ToListForState(added: true, modified: true, deleted: true));
 
         private static void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
         {

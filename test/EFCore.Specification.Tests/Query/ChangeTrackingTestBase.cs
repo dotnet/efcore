@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("98052", context.Customers.First().PostalCode);
                 Assert.Equal("'Murica", context.Customers.First().Region);
 
-                foreach (var entityEntry in context.ChangeTracker.Entries())
+                foreach (var entityEntry in context.ChangeTracker.Entries().ToList())
                 {
                     entityEntry.State = EntityState.Unchanged;
                 }

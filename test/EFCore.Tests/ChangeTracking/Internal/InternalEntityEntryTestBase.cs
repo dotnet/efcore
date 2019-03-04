@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -486,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var keyProperty = entityType.FindProperty("Id");
+            var nameProperty = entityType.FindProperty("Name");
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
@@ -499,9 +500,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
-            entry[keyProperty] = 77;
+            entry[nameProperty] = "Mule";
 
-            Assert.Equal(77, entry[keyProperty]);
+            Assert.Equal("Mule", entry[nameProperty]);
         }
 
         [Fact]
@@ -1381,24 +1382,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public CompositeFirstDependent First { get; set; }
         }
 
-        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
-        {
-            var entry = new InternalEntityEntryFactory()
-                .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity);
-
-            contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(entry);
-            return entry;
-        }
+        protected virtual InternalEntityEntry CreateInternalEntry(
+            IServiceProvider contextServices, IEntityType entityType, object entity)
+            => contextServices
+                .GetRequiredService<IStateManager>()
+                .GetOrCreateEntry(entity, entityType);
 
         protected virtual InternalEntityEntry CreateInternalEntry(
             IServiceProvider contextServices, IEntityType entityType, object entity, in ValueBuffer valueBuffer)
-        {
-            var entry = new InternalEntityEntryFactory()
-                .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer);
-
-            contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(entry);
-            return entry;
-        }
+            => contextServices
+                .GetRequiredService<IStateManager>()
+                .StartTrackingFromQuery(entityType, entity, valueBuffer, new HashSet<IForeignKey>());
 
         protected virtual Model BuildModel()
         {

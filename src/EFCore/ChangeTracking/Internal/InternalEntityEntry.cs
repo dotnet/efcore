@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _stateData.EntityState = oldState;
             }
 
-            StateManager.InternalEntityEntryNotifier.StateChanging(this, newState);
+            StateManager.StateChanging(this, newState);
 
             if (newState == EntityState.Unchanged
                 && oldState == EntityState.Modified)
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (newState == EntityState.Detached)
             {
-                StateManager.StopTracking(this);
+                StateManager.StopTracking(this, oldState);
             }
 
             if ((newState == EntityState.Deleted
@@ -435,11 +435,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (changeState)
                 {
-                    StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Modified);
+                    StateManager.StateChanging(this, EntityState.Modified);
 
                     SetServiceProperties(currentState, EntityState.Modified);
 
                     _stateData.EntityState = EntityState.Modified;
+
+                    if (currentState == EntityState.Detached)
+                    {
+                        StateManager.StartTracking(this);
+                    }
                 }
 
                 StateManager.EndSingleQueryMode();
@@ -455,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified))
             {
-                StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
+                StateManager.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
                 StateManager.ChangedCount--;
                 FireStateChanged(currentState);

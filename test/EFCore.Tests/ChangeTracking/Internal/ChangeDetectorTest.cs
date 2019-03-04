@@ -2355,12 +2355,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return builder.Model;
         }
 
-        private static InternalClrEntityEntry CreateInternalEntry<TEntity>(IServiceProvider contextServices, TEntity entity = null)
+        private static InternalEntityEntry CreateInternalEntry<TEntity>(IServiceProvider contextServices,
+            TEntity entity = null)
             where TEntity : class, new()
-            => new InternalClrEntityEntry(
-                contextServices.GetRequiredService<IStateManager>(),
-                contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)),
-                entity ?? new TEntity());
+            => contextServices.GetRequiredService<IStateManager>()
+                .GetOrCreateEntry(
+                    entity ?? new TEntity(),
+                    contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)));
 
         private static IServiceProvider CreateContextServices(IModel model = null)
         {
