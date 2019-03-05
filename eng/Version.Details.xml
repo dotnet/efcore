@@ -5,6 +5,10 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27504-10">
+      <Uri>https://github.com/dotnet/core-setup</Uri>
+      <Sha>ed6636c463f0ac5fe4183348b6b18e57c8345cb5</Sha>
+    </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview4.19154.3">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>e6584024809324fae194c6e6dc0ab321e15ab808</Sha>
