@@ -1948,10 +1948,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (setTargetAsPrincipal)
                     {
-                        existingRelationship.Metadata.UpdatePrincipalEndConfigurationSource(configurationSource);
+                        existingRelationship = existingRelationship.RelatedEntityTypes(
+                            existingRelationship.Metadata.PrincipalEntityType,
+                            existingRelationship.Metadata.DeclaringEntityType,
+                            configurationSource);
                         if (required.HasValue)
                         {
-                            existingRelationship.IsRequired(required.Value, configurationSource);
+                            existingRelationship = existingRelationship.IsRequired(required.Value, configurationSource);
                         }
                     }
 
