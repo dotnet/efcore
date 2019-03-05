@@ -717,6 +717,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
+                modelBuilder.Ignore<BookLabel>();
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Ignore<SpecialBookLabel>();
@@ -738,6 +739,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
+                modelBuilder.Ignore<BookLabel>();
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
                 modelBuilder.Ignore<SpecialBookLabel>();
@@ -807,6 +809,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>().Ignore(c => c.Details);
                 modelBuilder.Entity<Order>().Ignore(c => c.Details);
                 modelBuilder.FinalizeModel();
+            }
+
+            [Fact]
+            public virtual void Throws_on_FK_matching_two_relationships()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<SpecialBookLabel>();
+                modelBuilder.Entity<Book>();
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousForeignKeyPropertyCandidates(
+                        nameof(BookLabel) +"." + nameof(BookLabel.Book),
+                        nameof(Book) + "." + nameof(Book.Label),
+                        nameof(BookLabel),
+                        nameof(Book) + "." + nameof(Book.AlternateLabel),
+                        "{'" + nameof(BookLabel.BookId) + "'}"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
