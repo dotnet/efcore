@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview4.19154.9">
+    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
     <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27506-1">
       <Uri>https://github.com/dotnet/core-setup</Uri>
@@ -45,25 +45,25 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>11727dbc8c6800a6a81434da7a3d355b0f45098f</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.Platforms" Version="3.0.0-preview4.19154.9">
+    <Dependency Name="Microsoft.NETCore.Platforms" Version="3.0.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview4.19154.9">
+    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview4.19154.9">
+    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
-    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview4.19154.9">
+    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview4.19154.9">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview4.19156.1">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>8a730a6ecd96fef04d74e1807c8b1d193e0a5f16</Sha>
+      <Sha>7e3d30144cdb7d9ec16fcd8b73d02edd23e1bced</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
