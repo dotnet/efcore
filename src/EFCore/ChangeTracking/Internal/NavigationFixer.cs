@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                                     if (ReferenceEquals(victimDependentEntry[navigation], newTargetEntry.Entity)
                                         && victimDependentEntry.StateManager
-                                            .TryGetEntry(victimDependentEntry.Entity, targetEntityType) != null)
+                                            .TryGetEntry(victimDependentEntry.Entity, navigation.DeclaringEntityType) != null)
                                     {
                                         SetNavigation(victimDependentEntry, navigation, null);
                                     }
@@ -185,9 +185,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                 entry.SetRelationshipSnapshotValue(navigation, newValue);
 
-                newTargetEntry = targetEntityType.HasDefiningNavigation()
-                    ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
-                    : stateManager.GetOrCreateEntry(newValue);
+                newTargetEntry = stateManager.GetOrCreateEntry(newValue, targetEntityType);
 
                 _attacher.AttachGraph(
                     newTargetEntry,
@@ -250,9 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var newValue in added)
             {
-                var newTargetEntry = targetEntityType.HasDefiningNavigation()
-                    ? stateManager.GetOrCreateEntry(newValue, targetEntityType)
-                    : stateManager.GetOrCreateEntry(newValue);
+                var newTargetEntry = stateManager.GetOrCreateEntry(newValue, targetEntityType);
 
                 if (newTargetEntry.EntityState != EntityState.Detached)
                 {
@@ -364,7 +360,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     ConditionallyNullForeignKeyProperties(targetDependentEntry, newPrincipalEntry, foreignKey);
 
                                     if (ReferenceEquals(targetDependentEntry[dependentToPrincipal], newPrincipalEntry.Entity)
-                                        && targetDependentEntry.StateManager.TryGetEntry(targetDependentEntry.Entity, foreignKey.DeclaringEntityType) != null)
+                                        && targetDependentEntry.StateManager.TryGetEntry(
+                                            targetDependentEntry.Entity, foreignKey.DeclaringEntityType) != null)
                                     {
                                         SetNavigation(targetDependentEntry, dependentToPrincipal, null);
                                     }

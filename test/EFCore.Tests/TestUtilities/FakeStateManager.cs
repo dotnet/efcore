@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -105,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             throw new NotImplementedException();
 
         public InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true) => throw new NotImplementedException();
-        public InternalEntityEntry TryGetEntry(object entity, IEntityType type) => throw new NotImplementedException();
+        public InternalEntityEntry TryGetEntry(object entity, IEntityType type, bool throwOnTypeMismatch = true)
+            => throw new NotImplementedException();
         public IInternalEntityEntryNotifier InternalEntityEntryNotifier => throw new NotImplementedException();
         public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
         public IValueGenerationManager ValueGenerationManager => throw new NotImplementedException();
@@ -141,6 +143,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public bool SensitiveLoggingEnabled { get; }
         public void CascadeChanges(bool force) => throw new NotImplementedException();
         public void CascadeDelete(InternalEntityEntry entry, bool force) => throw new NotImplementedException();
+
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
     }
 }

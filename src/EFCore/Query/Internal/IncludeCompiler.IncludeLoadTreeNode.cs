@@ -539,8 +539,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IPropertyBase navigation,
                 object entity)
                 => stateManager
-                    .TryGetEntry(entity, (IEntityType)navigation.DeclaringType)
-                    .SetIsLoaded((INavigation)navigation);
+                    .TryGetEntry(entity, (IEntityType)navigation.DeclaringType, throwOnTypeMismatch: false)
+                    ?.SetIsLoaded((INavigation)navigation);
 
             private static readonly MethodInfo _setRelationshipIsLoadedNoTrackingMethodInfo
                 = typeof(IncludeLoadTreeNode).GetTypeInfo()

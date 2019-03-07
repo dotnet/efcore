@@ -2782,6 +2782,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("DerivedEntityCannotBeKeyless", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because they are not in the same hierarchy.
+        /// </summary>
+        public static string TrackingTypeMismatch([CanBeNull] object runtimeEntityType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("TrackingTypeMismatch", nameof(runtimeEntityType), nameof(entityType)),
+                runtimeEntityType, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -42,11 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
         protected override Expression VisitEntityQueryable([NotNull] Type elementType)
         {
             var entityType = _model.FindEntityType(elementType);
-            if (!entityType.IsDocumentRoot())
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.QueryRootNestedEntityType(entityType.DisplayName(), entityType.FindOwnership().PrincipalEntityType.DisplayName()));
-            }
+            Debug.Assert(entityType.IsDocumentRoot());
 
             return new QueryShaperExpression(
                 QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
