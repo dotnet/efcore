@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'oin Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) join Customer o.Customer in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) on Property([o], \"CustomerID\") equals Property([o.Customer], \"CustomerID\") into IEnumerable`1 o.Customer_group from Customer o.Customer in {[o.Customer_group] => DefaultIfEmpty()} select ClientProjection([o], [o.Customer])} on [c].CustomerID equals [o]?.CustomerID'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_projected_in_subquery_when_client_eval(bool isAsync)
         {
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) join Customer o.Customer in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) on Property([o], \"CustomerID\") equals Property([o.Customer], \"CustomerID\") into IEnumerable`1 o.Customer_group from Customer o.Customer in {[o.Customer_group] => DefaultIfEmpty()} select ClientProjection([o], [o.Customer])} on [c].CustomerID equals [o]?.CustomerID'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_projected_in_subquery_when_client_eval(bool isAsync)
         {
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientPredicate([o], [o.Customer])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync)
         {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientPredicate([o], [o.Customer])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync)
         {
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby ClientOrderBy([o], [o.Customer]) asc'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync)
         {
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby ClientOrderBy([o], [o.Customer]) asc'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync)
         {
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.CustomerID + " " + e.C2);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (?[o.Customer] | (?[o.Customer] | ([o.Customer]?.IsLondon == True)? == True)? == True)'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Client(bool isAsync)
         {
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.All);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All(([o].ShipCity == \"London\"))'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_all_client(bool isAsync)
         {
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where  ?= (Property([c], \"CustomerID\") == Property([o], \"CustomerID\")) =? select [o] => All(([o].ShipCity == \"London\"))}'")]
         public virtual void Collection_where_nav_prop_all_client()
         {
             using (var context = CreateContext())
@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'SingleOrDefault()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_single_or_default_then_nav_prop_nested(bool isAsync)
         {
@@ -1090,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby ClientMethod([o].OrderID) desc'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_navigation_client_eval(bool isAsync)
         {
@@ -1146,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o.Customer]?.City, [o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_on_nav_prop(bool isAsync)
         {
@@ -1161,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval ''")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_nav_prop_group_by(bool isAsync)
         {
@@ -1181,7 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 12);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([od.Order].CustomerID, [od])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Let_group_by_nav_prop(bool isAsync)
         {
@@ -1346,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_groupjoin_with_orderby_key_descending(bool isAsync)
         {
@@ -1486,7 +1486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_join_doesnt_get_bound_directly_to_group_join_qsre(bool isAsync)
         {

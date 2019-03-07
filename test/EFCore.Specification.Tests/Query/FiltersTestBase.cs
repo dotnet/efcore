@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(_context.Find<Customer>("ALFKI"));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")]
         public virtual void Client_eval()
         {
             Assert.Equal(69, _context.Products.ToList().Count);
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")]
         public virtual void Included_one_to_many_query_with_client_eval()
         {
             var results = _context.Products.Include(p => p.OrderDetails).ToList();

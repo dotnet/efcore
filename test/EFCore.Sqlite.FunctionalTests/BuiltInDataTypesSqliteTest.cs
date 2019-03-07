@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual void Can_query_Min_of_converted_types()
         {
             using (var context = CreateContext())
@@ -980,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Max()'")]
         public virtual void Can_query_Max_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1037,7 +1037,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Average()'")]
         public virtual void Can_query_Average_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         public virtual void Can_query_Sum_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1607,8 +1607,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
-                    c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                        .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+                    c => c.Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
             public override bool SupportsBinaryKeys => true;
 

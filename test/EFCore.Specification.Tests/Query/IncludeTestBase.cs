@@ -980,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_group_join_clause_with_filter(bool useString)
@@ -1025,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Customer o.Customer in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) on Property([o], \"CustomerID\") equals Property([o.Customer], \"CustomerID\")'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_inner_group_join_clause_with_filter(bool useString)
@@ -1073,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, _Include(queryContext, [c], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_when_groupby(bool useString)
@@ -1107,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, _Include(queryContext, [c], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_when_groupby_subquery(bool useString)
@@ -1988,7 +1988,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where [c].IsLondon'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_client_filter(bool useString)
@@ -3273,7 +3273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_GroupBy_Select(bool useString)
@@ -3308,7 +3308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_GroupBy_Select(bool useString)
@@ -3343,7 +3343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_Join_GroupBy_Select(bool useString)
@@ -3388,7 +3388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_Join_GroupBy_Select(bool useString)
@@ -3433,7 +3433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_collection_GroupBy_Select(bool useString)
@@ -3476,7 +3476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_reference_GroupBy_Select(bool useString)
@@ -3517,7 +3517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_GroupJoin_GroupBy_Select(bool useString)
@@ -3562,7 +3562,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_GroupJoin_GroupBy_Select(bool useString)
@@ -3607,7 +3607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby [o1].OrderID asc'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void GroupJoin_Include_collection_GroupBy_Select(bool useString)
@@ -3650,7 +3650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby [o1].OrderID asc'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void GroupJoin_Include_reference_GroupBy_Select(bool useString)
@@ -3693,7 +3693,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_SelectMany_GroupBy_Select(bool useString)
@@ -3728,7 +3728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_SelectMany_GroupBy_Select(bool useString)
@@ -3763,7 +3763,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_collection_GroupBy_Select(bool useString)
@@ -3798,7 +3798,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, _Include(queryContext, [o], new [] {[o.Customer]}, (queryContext, entity, included) => { ... }))'")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_reference_GroupBy_Select(bool useString)
@@ -4148,7 +4148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType22`2(OrderID = [e].OrderID, OrderDate = [e].OrderDate), [e])'")]
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917
@@ -4175,7 +4175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType22`2(OrderID = [e].OrderID, OrderDate = [e].OrderDate), [e])'")]
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917

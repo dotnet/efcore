@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([s], Result(_IncludeAsync(queryContext, [s], new [] {}, (queryContext, entity, included, ct) => { ... }, ct)))'")]
         public virtual async Task Include_with_group_by_on_entity_qsre()
         {
             using (var ctx = CreateContext())
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([g], Result(_IncludeAsync(queryContext, [g], new [] {}, (queryContext, entity, included, ct) => { ... }, ct)))'")]
         public virtual async Task Include_with_group_by_on_entity_qsre_with_composite_key()
         {
             using (var ctx = CreateContext())
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([l.Commander.DefeatedBy], Result(_IncludeAsync(queryContext, [<generated>_1], new [] {}, (queryContext, entity, included, ct) => { ... }, ct)))'")]
         public virtual async Task Include_with_group_by_on_entity_navigation()
         {
             using (var ctx = CreateContext())
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy(1, Result(_IncludeAsync(queryContext, [s], new [] {}, (queryContext, entity, included, ct) => { ... }, ct)))'")]
         public virtual async Task Include_groupby_constant()
         {
             using (var ctx = CreateContext())

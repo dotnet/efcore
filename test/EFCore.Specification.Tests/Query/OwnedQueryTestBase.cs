@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where ([a.LeafAAddress] == [b.LeafBAddress])'")]
         public virtual void Query_with_owned_entity_equality_operator()
         {
             using (var context = CreateContext())
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'GroupBy([op].Id, _Include(queryContext, [op], new [] {[op.PersonAddress], [op.PersonAddress.Country], [op.BranchAddress], [op.BranchAddress.Country], [op.LeafAAddress], [op.LeafAAddress.Country], [op.LeafBAddress], [op.LeafBAddress.Country]}, (queryContext, entity, included) => { ... }))'")]
         public virtual void Query_when_group_by()
         {
             using (var context = CreateContext())

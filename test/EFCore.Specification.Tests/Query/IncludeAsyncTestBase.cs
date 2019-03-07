@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
         public virtual async Task Include_collection_on_group_join_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, Result(_IncludeAsync(queryContext, [c], new [] {}, (queryContext, entity, included, ct) => { ... }, ct))))'")]
         public virtual async Task Include_collection_when_groupby()
         {
             using (var context = CreateContext())
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [c].IsLondon'")]
         public virtual async Task Include_collection_with_client_filter()
         {
             using (var context = CreateContext())

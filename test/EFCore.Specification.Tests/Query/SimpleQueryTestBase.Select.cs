@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.f);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby Convert(__p_0.f, Nullable`1) asc'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'SingleOrDefault()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
         {

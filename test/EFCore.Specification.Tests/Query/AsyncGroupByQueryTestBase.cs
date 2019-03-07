@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByAggregateComposition
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
         public virtual async Task GroupBy_Select_sum_over_unmapped_property()
         {
             using (var context = CreateContext())
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
         public virtual async Task Select_nested_collection_with_groupby()
         {
             using (var context = CreateContext())
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
         public virtual async Task Select_GroupBy_All()
         {
             using (var context = CreateContext())
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByWithoutAggregate
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType19`2(CustomerID = [o].CustomerID, OrderDate = [o].OrderDate), [o])'")]
         public virtual async Task GroupBy_anonymous_key_without_aggregate()
         {
             using (var context = CreateContext())
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByEntityType
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
         public virtual async Task Select_GroupBy()
         {
             using (var context = CreateContext())
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
         public virtual async Task Select_GroupBy_SelectMany()
         {
             using (var context = CreateContext())
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([c], [o])'")]
         public virtual async Task Join_GroupBy_entity_ToList()
         {
             using (var context = CreateContext())

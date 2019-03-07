@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Concat({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_concat_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Except({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_except_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Intersect({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_intersect_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Union({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_union_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())

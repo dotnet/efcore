@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddOptions(builder).ConfigureWarnings(
                 w =>
                 {
-                    w.Log(RelationalEventId.QueryClientEvaluationWarning);
                     w.Log(SqlServerEventId.ByteIdentityColumnWarning);
                 });
     }

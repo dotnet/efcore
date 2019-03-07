@@ -48,7 +48,11 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                
+                // Issue #14935. Cannot eval 'Last()'
+                // Added AsEnumerable()
+                context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
@@ -81,7 +85,10 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+                
+                // Issue #14935. Cannot eval 'Last()'
+                // Added AsEnumerable()
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
 
                 await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
@@ -114,7 +121,10 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+                
+                // Issue #14935. Cannot eval 'Last()'
+                // Added AsEnumerable()
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
             }
@@ -135,7 +145,10 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+                
+                // Issue #14935. Cannot eval 'Last()'
+                // Added AsEnumerable()
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
 
                 try
                 {
@@ -174,7 +187,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -221,7 +237,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     context.Database.AutoTransactionsEnabled = true;
                 }
@@ -272,7 +291,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -329,7 +351,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -387,7 +412,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -429,7 +457,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
@@ -464,7 +495,10 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 77,
                             Name = "Bobble"
                         });
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
                 }
 
                 using (var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10)))
@@ -670,7 +704,10 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                     firstEntry.State = EntityState.Deleted;
-                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().AsEnumerable().OrderBy(c => c.Id).Last());
                     lastEntry.State = EntityState.Added;
 
                     try
@@ -703,7 +740,10 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                     firstEntry.State = EntityState.Deleted;
-                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
+
+                    // Issue #14935. Cannot eval 'Last()'
+                    // Use AsEnumerable().
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last());
                     lastEntry.State = EntityState.Added;
 
                     try
