@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         }
 
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<Operator> Operators { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

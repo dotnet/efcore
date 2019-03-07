@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         // [Fact]
         public virtual void Can_update_dependents()
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore())
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -58,16 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [Fact]
         public virtual void Can_update_owner_with_dependents()
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore())
             {
                 Operator firstOperator;
-                Engine firstEngine;
                 using (var context = CreateContext())
                 {
                     firstOperator = context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator;
                     firstOperator.Name += "1";
-                    firstEngine = context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine;
-                    firstEngine.Description += "1";
 
                     context.SaveChanges();
                 }
@@ -77,9 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Equal(
                         firstOperator.Name,
                         context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
-                    Assert.Equal(
-                        firstEngine.Description,
-                        context.Set<PoweredVehicle>().OrderBy(o => o.Engine.VehicleName).First().Engine.Description);
                 }
             }
         }
@@ -87,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [Fact]
         public virtual void Can_add_collection_dependent_to_owner()
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore())
             {
                 Address existingAddress1Person2;
                 Address existingAddress1Person3;
@@ -182,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         //[Fact]
         public virtual void Can_update_just_dependents()
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore())
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -205,119 +199,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [Fact]
-        public virtual void Quering_nested_entity_directly_throws()
-        {
-            using (CreateTestStore(OnModelCreating))
-            {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(
-                        CosmosStrings.QueryRootNestedEntityType(nameof(Operator), nameof(Vehicle)),
-                        Assert.Throws<InvalidOperationException>(() => context.Set<Operator>().ToList()).Message);
-                }
-            }
-        }
-
-        // #13559
-        //[Fact]
-        public virtual void Can_query_nested_derived_hierarchy()
-        {
-            using (CreateTestStore(OnModelCreating))
-            {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
-                }
-            }
-        }
-
-        // #13559
-        //[Fact]
-        public virtual void Can_query_nested_derived_nonhierarchy()
-        {
-            using (CreateTestStore(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Ignore<SolidFuelTank>();
-                }))
-            {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Can_roundtrip()
-        {
-            Test_roundtrip(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Vehicle));
-                });
-        }
-
-        [Fact]
-        public virtual void Can_roundtrip_with_redundant_relationships()
-        {
-            Test_roundtrip(OnModelCreating);
-        }
-
-        [Fact]
-        public virtual void Can_roundtrip_with_fanned_relationships()
-        {
-            Test_roundtrip(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<SolidFuelTank>(eb => eb.Ignore(e => e.Rocket));
-                    modelBuilder.Entity<SolidRocket>(eb => eb.Ignore(e => e.SolidFuelTank));
-                });
-        }
-
-        protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
-        {
-            using (CreateTestStore(onModelCreating))
-            {
-                using (var context = CreateContext())
-                {
-                    context.AssertSeeded();
-                }
-            }
-        }
-
-        [Fact]
         public virtual void Inserting_dependent_without_principal_throws()
         {
-            using (CreateTestStore(OnModelCreating))
+            using (CreateTestStore())
             {
                 using (var context = CreateContext())
                 {
                     context.Add(
-                        new PoweredVehicle
+                        new LicensedOperator
                         {
-                            Name = "Fuel transport",
-                            SeatingCapacity = 1,
-                            Operator = new LicensedOperator
-                            {
-                                Name = "Jack Jackson",
-                                LicenseType = "Class A CDC"
-                            }
-                        });
-                    context.Add(
-                        new FuelTank
-                        {
-                            Capacity = "10000 l",
-                            FuelType = "Gas",
+                            Name = "Jack Jackson",
+                            LicenseType = "Class A CDC",
                             VehicleName = "Fuel transport"
                         });
 
                     Assert.Equal(
                         CosmosStrings.OrphanedNestedDocumentSensitive(
-                            nameof(FuelTank), nameof(CombustionEngine), "{VehicleName: Fuel transport}"),
+                            nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -326,23 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [Fact]
         public virtual void Can_change_nested_instance_non_derived()
         {
-            using (CreateTestStore(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToContainer("TransportationContext");
-                    modelBuilder.Entity<FuelTank>(
-                        eb =>
-                        {
-                            eb.ToContainer("TransportationContext");
-                            eb.HasOne(e => e.Engine)
-                                .WithOne(e => e.FuelTank)
-                                .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                .OnDelete(DeleteBehavior.Restrict);
-                        });
-                    modelBuilder.Ignore<SolidFuelTank>();
-                    modelBuilder.Ignore<SolidRocket>();
-                }))
+            using (CreateTestStore())
             {
                 using (var context = CreateContext())
                 {
@@ -357,8 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                     bike.Operator = new LicensedOperator
                     {
-                        Name = "repairman",
-                        LicenseType = "Repair"
+                        Name = "repairman"
                     };
 
                     TestSqlLoggerFactory.Clear();
@@ -369,8 +250,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
                     Assert.Equal("repairman", bike.Operator.Name);
-
-                    Assert.Equal("Repair", ((LicensedOperator)bike.Operator).LicenseType);
                 }
             }
         }
@@ -378,23 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [Fact]
         public virtual void Can_change_principal_instance_non_derived()
         {
-            using (CreateTestStore(
-                modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToContainer("TransportationContext");
-                    modelBuilder.Entity<FuelTank>(
-                        eb =>
-                        {
-                            eb.ToContainer("TransportationContext");
-                            eb.HasOne(e => e.Engine)
-                                .WithOne(e => e.FuelTank)
-                                .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                .OnDelete(DeleteBehavior.Restrict);
-                        });
-                    modelBuilder.Ignore<SolidFuelTank>();
-                    modelBuilder.Ignore<SolidRocket>();
-                }))
+            using (CreateTestStore())
             {
                 using (var context = CreateContext())
                 {
@@ -436,31 +299,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         protected void AssertContainsSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Vehicle>(
-                eb => eb.OwnsOne(v => v.Operator));
-
-            modelBuilder.Entity<CombustionEngine>(
-                eb => eb.OwnsOne(v => v.FuelTank));
-
-            modelBuilder.Entity<PoweredVehicle>(
-                eb => eb.OwnsOne(v => v.Engine));
-
-            modelBuilder.Entity<Person>(
-                eb => eb.OwnsMany(v => v.Addresses, b =>
-                {
-                    b.ToProperty("Stored Addresses");
-                    b.HasKey(v => new { v.Street, v.City });
-                }));
-        }
-
-        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating = null)
         {
             TestStore = TestStoreFactory.Create(DatabaseName);
 
             ServiceProvider = TestStoreFactory.AddProviderServices(new ServiceCollection())
-                .AddSingleton(TestModelSource.GetFactory(onModelCreating))
+                .AddSingleton(TestModelSource.GetFactory(onModelCreating ?? (_ => { })))
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
@@ -479,11 +323,60 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
                         .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
-        protected virtual TransportationContext CreateContext()
+        protected virtual NestedTransportationContext CreateContext()
         {
             var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
                 .UseInternalServiceProvider(ServiceProvider).Options;
-            return new TransportationContext(options);
+            return new NestedTransportationContext(options);
+        }
+
+        protected class NestedTransportationContext : TransportationContext
+        {
+            public NestedTransportationContext(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Vehicle>(
+                    eb =>
+                    {
+                        eb.HasKey(e => e.Name);
+                        eb.OwnsOne(v => v.Operator);
+                    });
+
+                modelBuilder.Entity<Engine>(
+                    eb =>
+                    {
+                        eb.HasKey(e => e.VehicleName);
+                        eb.HasOne(e => e.Vehicle)
+                            .WithOne(e => e.Engine)
+                            .HasForeignKey<Engine>(e => e.VehicleName);
+                    });
+
+                modelBuilder.Entity<FuelTank>(
+                    eb =>
+                    {
+                        eb.HasKey(e => e.VehicleName);
+                        eb.HasOne(e => e.Engine)
+                            .WithOne(e => e.FuelTank)
+                            .HasForeignKey<FuelTank>(e => e.VehicleName)
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
+
+                modelBuilder.Entity<ContinuousCombustionEngine>();
+                modelBuilder.Entity<IntermittentCombustionEngine>();
+
+                modelBuilder.Ignore<SolidFuelTank>();
+                modelBuilder.Ignore<SolidRocket>();
+
+                modelBuilder.Entity<Person>(
+                    eb => eb.OwnsMany(v => v.Addresses, b =>
+                    {
+                        b.ToProperty("Stored Addresses");
+                        b.HasKey(v => new { v.Street, v.City });
+                    }));
+            }
         }
 
         private class Person

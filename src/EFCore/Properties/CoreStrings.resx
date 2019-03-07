@@ -1120,4 +1120,7 @@
   <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.</value>
   </data>
+  <data name="TrackingTypeMismatch" xml:space="preserve">
+    <value>The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because they are not in the same hierarchy.</value>
+  </data>
 </root>

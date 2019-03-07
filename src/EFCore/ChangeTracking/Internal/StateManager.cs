@@ -210,6 +210,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _trackingQueryMode = TrackingQueryMode.Multiple;
 
+                var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
+                if (runtimeEntityType != null)
+                {
+                    if (!entityType.IsAssignableFrom(runtimeEntityType))
+                    {
+                        throw new InvalidOperationException(CoreStrings.TrackingTypeMismatch(
+                            runtimeEntityType.DisplayName(), entityType.DisplayName()));
+                    }
+                    entityType = runtimeEntityType;
+                }
+
+                if (entityType.FindPrimaryKey() == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
+                }
+
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
@@ -354,10 +370,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType)
-            => _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false)
-                ? entry
-                : null;
+        public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType, bool throwOnTypeMismatch = true)
+        {
+            var found = _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false);
+            if (found
+                && !entityType.IsAssignableFrom(entry.EntityType))
+            {
+                if (throwOnTypeMismatch)
+                {
+                    throw new InvalidOperationException(CoreStrings.TrackingTypeMismatch(
+                        entry.EntityType.DisplayName(), entityType.DisplayName()));
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return found ? entry : null;
+        }
 
         private IIdentityMap GetOrCreateIdentityMap(IKey key)
         {
@@ -749,14 +780,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (foreignKey.IsUnique)
             {
-                var dependentEntry = TryGetEntry(navigationValue);
+                var dependentEntry = TryGetEntry(navigationValue, foreignKey.DeclaringEntityType);
 
                 return dependentEntry != null
                     ? new[] { dependentEntry }
                     : Enumerable.Empty<InternalEntityEntry>();
             }
 
-            return ((IEnumerable<object>)navigationValue).Select(v => TryGetEntry(v)).Where(e => e != null);
+            return ((IEnumerable<object>)navigationValue)
+                .Select(v => TryGetEntry(v, foreignKey.DeclaringEntityType)).Where(e => e != null);
         }
 
         /// <summary>

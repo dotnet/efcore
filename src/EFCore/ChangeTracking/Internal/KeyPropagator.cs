@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         InternalEntityEntry principalEntry = null;
                         if (principal != null)
                         {
-                            principalEntry = stateManager.GetOrCreateEntry(principal);
+                            principalEntry = stateManager.GetOrCreateEntry(principal, foreignKey.PrincipalEntityType);
                         }
                         else if (foreignKey.PrincipalToDependent != null)
                         {
