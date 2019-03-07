@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ([c].CustomerID == __args[0])'")]
         public virtual void Query_with_array_parameter()
         {
             var query = EF.CompileQuery(
@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ([c].CustomerID == __args[0])'")]
         public virtual async Task Query_with_array_parameter_async()
         {
             var query = EF.CompileAsyncQuery(

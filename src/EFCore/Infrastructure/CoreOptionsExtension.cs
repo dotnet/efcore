@@ -47,7 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             = new WarningsConfiguration()
                 .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
-                .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw);
+                .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
+                // This is relational client eval warning. Yes, this is ugly and error-prone, but it will be removed before 3.0 ships
+                .TryWithExplicit(CoreEventId.RelationalBaseId + 500, WarningBehavior.Throw);
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.

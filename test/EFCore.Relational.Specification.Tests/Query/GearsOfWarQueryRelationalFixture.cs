@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                 c => c
-                    .Log(RelationalEventId.QueryClientEvaluationWarning)
                     .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
         protected override bool ShouldLogCategory(string logCategory)

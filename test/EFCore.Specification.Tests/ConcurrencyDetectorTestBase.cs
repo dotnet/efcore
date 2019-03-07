@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyDetectorTest(c => c.Products.FirstAsync());
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Last()'")]
         public virtual Task Last_logs_concurrent_access_nonasync()
         {
             return ConcurrencyDetectorTest(

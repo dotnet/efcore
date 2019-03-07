@@ -516,7 +516,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
         #region Bug7293
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where (new ProjectView() {Permissions = {from ProjectUser u in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+ProjectUser]) join User u.User in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+User]) on Property([u], \"UserId\") equals Property([u.User], \"Id\") where  ?= (Property([p], \"Id\") == Property([u], \"ProjectId\")) =? select new PermissionView() {UserName = [u.User].Name}}}.Id == __target_ProjectId_0)'")]
         public void GroupJoin_expansion_when_optional_nav_in_projection()
         {
             using (CreateDatabase7293())
@@ -3078,7 +3078,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #region Bug9892
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'join <>f__AnonymousType12`2 c in {from Child9892 x in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+Child9892]) join OtherParent9892 x.OtherParent in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+OtherParent9892]) on Property([x], \"OtherParentId\") equals Property([x.OtherParent], \"Id\") select new <>f__AnonymousType12`2(ParentId = [x].ParentId, OtherParent = [x.OtherParent].Name)} on [p].Id equals [c].ParentId'")]
         public virtual void GroupJoin_to_parent_with_no_child_works_9892()
         {
             using (CreateDatabase9892())
@@ -4112,7 +4112,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
 
         public static bool ClientMethod11923(int id) => true;
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'First()'")]
         public virtual void Collection_without_setter_materialized_correctly()
         {
             using (CreateDatabase11923())
@@ -4483,7 +4483,7 @@ FROM [Prices] AS [e]");
 
         #region Bug12582
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'OfType<Microsoft.EntityFrameworkCore.Query.QueryBugsTest+IEmployee12582>()'")]
         public virtual void Include_collection_with_OfType_base()
         {
             using (CreateDatabase12582())

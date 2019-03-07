@@ -167,7 +167,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -190,7 +190,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -388,7 +388,7 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {

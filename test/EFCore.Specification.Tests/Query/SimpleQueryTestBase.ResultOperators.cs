@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Union({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where [c].CompanyName.StartsWith(\"B\") select [c]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_with_custom_projection(bool isAsync)
         {
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override int GetHashCode() => Order.GetHashCode();
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
         public virtual void GroupBy_tracking_after_dispose()
         {
             List<IGrouping<string, Order>> groups;
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_over_subquery_is_client_eval(bool isAsync)
         {
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_over_nested_subquery_is_client_eval(bool isAsync)
         {
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Min()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_over_min_subquery_is_client_eval(bool isAsync)
         {
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Average()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_over_subquery_is_client_eval(bool isAsync)
         {
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Average()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_over_nested_subquery_is_client_eval(bool isAsync)
         {
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Max()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_over_max_subquery_is_client_eval(bool isAsync)
         {
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: od => od.Discount);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Average()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_on_float_column_in_subquery(bool isAsync)
         {
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Min()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_over_subquery_is_client_eval(bool isAsync)
         {
@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Min()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_over_nested_subquery_is_client_eval(bool isAsync)
         {
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Max()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_over_max_subquery_is_client_eval(bool isAsync)
         {
@@ -545,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Max()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_over_subquery_is_client_eval(bool isAsync)
         {
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Max()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_over_nested_subquery_is_client_eval(bool isAsync)
         {
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Max()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_over_sum_subquery_is_client_eval(bool isAsync)
         {
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: o => o.CustomerID != "ALFKI");
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_OrderBy_Count_client_eval(bool isAsync)
         {
@@ -659,7 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Where_Count_client_eval(bool isAsync)
         {
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Where_Count_client_eval_mixed(bool isAsync)
         {
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Count_with_predicate_client_eval(bool isAsync)
         {
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: o => ClientEvalPredicate(o));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Count_with_predicate_client_eval_mixed(bool isAsync)
         {
@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: o => ClientEvalPredicate(o));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Where_Count_with_predicate_client_eval(bool isAsync)
         {
@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: o => ClientEvalPredicate(o));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ClientEvalPredicate([o])'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Where_Count_with_predicate_client_eval_mixed(bool isAsync)
         {
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task First_inside_subquery_gets_client_evaluated(bool isAsync)
         {
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Last()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Last_when_no_order_by(bool isAsync)
         {
@@ -1339,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 asyncQuery: cs => cs.Select(c => c.CustomerID).ContainsAsync("ALFKI"));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where {__ids_0 => Contains(new Tuple`2(Item1 = [o].OrderID, Item2 = [o].ProductID))}'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Contains_with_local_tuple_array_closure(bool isAsync)
         {
@@ -1356,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 od => od.Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where {__ids_0 => Contains(new <>f__AnonymousType0`2(Id1 = [o].OrderID, Id2 = [o].ProductID))}'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Contains_with_local_anonymous_type_array_closure(bool isAsync)
         {
@@ -1436,7 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer])})'")]
         public virtual void Concat_dbset()
         {
             using (var context = CreateContext())
@@ -1450,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s]})'")]
         public virtual void Concat_simple()
         {
             using (var context = CreateContext())
@@ -1466,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Concat({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].City == \"Berlin\") select [s]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Concat_nested(bool isAsync)
         {
@@ -1478,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 12);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s].CustomerID})'")]
         public virtual void Concat_non_entity()
         {
             using (var context = CreateContext())
@@ -1496,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Except({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer])})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Except_dbset(bool isAsync)
         {
@@ -1505,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Except({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Except_simple(bool isAsync)
         {
@@ -1526,7 +1526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Except(cs).Select(e => 1));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Except({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].City == \"México D.F.\") select [s]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Except_nested(bool isAsync)
         {
@@ -1538,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Except({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
         public virtual void Except_non_entity()
         {
             using (var context = CreateContext())
@@ -1556,7 +1556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Intersect({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer])})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersect_dbset(bool isAsync)
         {
@@ -1566,7 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Intersect({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersect_simple(bool isAsync)
         {
@@ -1577,7 +1577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Intersect({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Intersect_nested(bool isAsync)
         {
@@ -1589,7 +1589,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Intersect({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s].CustomerID})'")]
         public virtual void Intersect_non_entity()
         {
             using (var context = CreateContext())
@@ -1607,7 +1607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Union({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer])})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_dbset(bool isAsync)
         {
@@ -1617,7 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Union({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_simple(bool isAsync)
         {
@@ -1628,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Union({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].City == \"México D.F.\") select [s]})'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_nested(bool isAsync)
         {
@@ -1640,7 +1640,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Union({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
         public virtual void Union_non_entity()
         {
             using (var context = CreateContext())
@@ -1726,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Contains(__p_0)'")]
         public virtual void Contains_over_entityType_should_materialize_when_composite()
         {
             using (var context = CreateContext())
@@ -1739,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'FirstOrDefault()'")]
         public virtual void Paging_operation_on_string_doesnt_issue_warning()
         {
             using (var context = CreateContext())
@@ -1749,7 +1749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_constant_Sum(bool isAsync)
         {

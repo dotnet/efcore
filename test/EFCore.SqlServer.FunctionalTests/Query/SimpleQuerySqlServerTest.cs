@@ -357,7 +357,7 @@ WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
 
         public override async Task Where_query_composition_is_not_null(bool isAsync)
         {
-            await base.Where_query_composition_is_null(isAsync);
+            await base.Where_query_composition_is_not_null(isAsync);
 
             AssertSql(
                 @"@__p_0='3'
