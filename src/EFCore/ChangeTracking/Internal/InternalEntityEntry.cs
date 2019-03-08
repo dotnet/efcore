@@ -1212,8 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (StateManager.SensitiveLoggingEnabled)
                 {
                     StateManager.UpdateLogger.CascadeDeleteOrphanSensitive(
-                        this, cascadeFk.PrincipalEntityType,
-                        cascadeState);
+                        this, cascadeFk.PrincipalEntityType, cascadeState);
                 }
                 else
                 {
@@ -1492,6 +1491,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool IsLoaded([NotNull] INavigation navigation)
             => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
+
+        public override string ToString()
+            => $"{this.BuildCurrentValuesString(EntityType.FindPrimaryKey().Properties)} {EntityState} {EntityType}";
 
         IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
 
