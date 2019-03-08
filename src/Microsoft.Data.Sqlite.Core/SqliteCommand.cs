@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.Data.Sqlite
         private readonly Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
             () => new SqliteParameterCollection());
 
-        private readonly ICollection<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
+        private readonly List<sqlite3_stmt> _preparedStatements = new List<sqlite3_stmt>();
         private SqliteConnection _connection;
         private string _commandText;
 
@@ -271,24 +273,11 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Executes the <see cref="CommandText" /> against the database and returns a data reader.
         /// </summary>
-        /// <param name="behavior">
-        ///     A description of the results of the query and its effect on the database.
-        ///     <para>
-        ///         Only <see cref="CommandBehavior.Default" />, <see cref="CommandBehavior.SequentialAccess" />,
-        ///         <see cref="CommandBehavior.SingleResult" />, <see cref="CommandBehavior.SingleRow" />, and
-        ///         <see cref="CommandBehavior.CloseConnection" /> are supported.
-        ///     </para>
-        /// </param>
+        /// <param name="behavior">A description of the results of the query and its effect on the database.</param>
         /// <returns>The data reader.</returns>
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult
-                              | CommandBehavior.SingleRow | CommandBehavior.CloseConnection)) != 0)
-            {
-                throw new ArgumentException(Resources.InvalidCommandBehavior(behavior));
-            }
-
             if (DataReader != null)
             {
                 throw new InvalidOperationException(Resources.DataReaderOpen);
@@ -337,13 +326,13 @@ namespace Microsoft.Data.Sqlite
                         boundParams = _parameters.Value.Bind(stmt);
                     }
 
-                    var expectedParams = raw.sqlite3_bind_parameter_count(stmt);
+                    var expectedParams = sqlite3_bind_parameter_count(stmt);
                     if (expectedParams != boundParams)
                     {
                         var unboundParams = new List<string>();
                         for (var i = 1; i <= expectedParams; i++)
                         {
-                            var name = raw.sqlite3_bind_parameter_name(stmt, i);
+                            var name = sqlite3_bind_parameter_name(stmt, i);
 
                             if (_parameters.IsValueCreated
                                 && !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
@@ -355,14 +344,14 @@ namespace Microsoft.Data.Sqlite
                         throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
                     }
 
-                    while (IsBusy(rc = raw.sqlite3_step(stmt)))
+                    while (IsBusy(rc = sqlite3_step(stmt)))
                     {
-                        if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
+                        if (timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
                         {
                             break;
                         }
 
-                        raw.sqlite3_reset(stmt);
+                        sqlite3_reset(stmt);
 
                         // TODO: Consider having an async path that uses Task.Delay()
                         Thread.Sleep(150);
@@ -370,18 +359,22 @@ namespace Microsoft.Data.Sqlite
 
                     SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
-                    if (rc == raw.SQLITE_ROW
-                        // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements.
-                        //     It will result in false positives, but it's the best we can do without re-parsing SQL
-                        || raw.sqlite3_stmt_readonly(stmt) != 0)
+                    // It's a SELECT statement
+                    if (sqlite3_column_count(stmt) != 0)
                     {
-                        stmts.Enqueue((stmt, rc != raw.SQLITE_DONE));
+                        stmts.Enqueue((stmt, rc != SQLITE_DONE));
                     }
                     else
                     {
-                        raw.sqlite3_reset(stmt);
+                        while (rc != SQLITE_DONE)
+                        {
+                            rc = sqlite3_step(stmt);
+                            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+                        }
+
+                        sqlite3_reset(stmt);
                         hasChanges = true;
-                        changes += raw.sqlite3_changes(_connection.Handle);
+                        changes += sqlite3_changes(_connection.Handle);
                     }
                 }
             }
@@ -392,7 +385,7 @@ namespace Microsoft.Data.Sqlite
                 throw;
             }
 
-            var closeConnection = (behavior & CommandBehavior.CloseConnection) != 0;
+            var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
             return DataReader = new SqliteDataReader(this, stmts, hasChanges ? changes : -1, closeConnection);
         }
@@ -482,7 +475,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
             }
 
-            if (_commandText == null)
+            if (string.IsNullOrEmpty(_commandText))
             {
                 throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteNonQuery)));
             }
@@ -505,7 +498,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteScalar)));
             }
 
-            if (_commandText == null)
+            if (string.IsNullOrEmpty(_commandText))
             {
                 throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteScalar)));
             }
@@ -533,9 +526,9 @@ namespace Microsoft.Data.Sqlite
             do
             {
                 string nextTail;
-                while (IsBusy(rc = raw.sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out nextTail)))
+                while (IsBusy(rc = sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out nextTail)))
                 {
-                    if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
+                    if (timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
                     {
                         break;
                     }
@@ -586,8 +579,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static bool IsBusy(int rc)
-            => rc == raw.SQLITE_LOCKED
-               || rc == raw.SQLITE_BUSY
-               || rc == raw.SQLITE_LOCKED_SHAREDCACHE;
+            => rc == SQLITE_LOCKED
+               || rc == SQLITE_BUSY
+               || rc == SQLITE_LOCKED_SHAREDCACHE;
     }
 }

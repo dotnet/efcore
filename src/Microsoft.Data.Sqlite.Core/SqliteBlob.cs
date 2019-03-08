@@ -7,6 +7,8 @@ using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
@@ -70,7 +72,7 @@ namespace Microsoft.Data.Sqlite
 
             _db = connection.Handle;
             CanWrite = !readOnly;
-            var rc = raw.sqlite3_blob_open(
+            var rc = sqlite3_blob_open(
                 _db,
                 databaseName,
                 tableName,
@@ -79,7 +81,7 @@ namespace Microsoft.Data.Sqlite
                 readOnly ? 0 : 1,
                 out _blob);
             SqliteException.ThrowExceptionForRC(rc, _db);
-            Length = raw.sqlite3_blob_bytes(_blob);
+            Length = sqlite3_blob_bytes(_blob);
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace Microsoft.Data.Sqlite
                     throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
                 }
 
-                _position = (int)value;
+                _position = value;
             }
         }
 
@@ -177,7 +179,7 @@ namespace Microsoft.Data.Sqlite
                 count = (int)(Length - position);
             }
 
-            var rc = raw.sqlite3_blob_read(_blob, buffer, offset, count, (int)position);
+            var rc = sqlite3_blob_read(_blob, buffer, offset, count, (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
             return count;
@@ -234,7 +236,7 @@ namespace Microsoft.Data.Sqlite
                 throw new NotSupportedException(Resources.ResizeNotSupported);
             }
 
-            var rc = raw.sqlite3_blob_write(_blob, buffer, offset, count, (int)position);
+            var rc = sqlite3_blob_write(_blob, buffer, offset, count, (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
         }

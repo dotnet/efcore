@@ -4,8 +4,9 @@
 using System;
 using System.Data;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
+
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -107,8 +108,8 @@ namespace Microsoft.Data.Sqlite
                             }
                         });
 
-                    Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
-                    Assert.Equal(raw.SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
+                    Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                    Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
                 }
             }
         }

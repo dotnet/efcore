@@ -3,12 +3,14 @@
 
 using System.Reflection;
 
+using static SQLitePCL.raw;
+
 namespace SQLitePCL
 {
     internal static class SQLitePCLExtensions
     {
         public static void Dispose2(this sqlite3 db)
-            => raw.sqlite3_close_v2(db);
+            => sqlite3_close_v2(db);
 
         public static string GetProviderName()
         {

@@ -129,12 +129,6 @@
   <data name="DataReaderClosed" xml:space="preserve">
     <value>Invalid attempt to call {operation} when reader is closed.</value>
   </data>
-  <data name="InvalidCacheMode" xml:space="preserve">
-    <value>The cache mode '{mode}' is invalid.</value>
-  </data>
-  <data name="InvalidCommandBehavior" xml:space="preserve">
-    <value>The CommandBehavior '{behavior}' is invalid.</value>
-  </data>
   <data name="InvalidCommandType" xml:space="preserve">
     <value>The CommandType '{commandType}' is invalid.</value>
   </data>
@@ -185,9 +179,6 @@
   </data>
   <data name="AmbiguousParameterName" xml:space="preserve">
     <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
-  </data>
-  <data name="AlreadyLoaded" xml:space="preserve">
-    <value>The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The {enumType} enumeration value, {value}, is invalid.</value>

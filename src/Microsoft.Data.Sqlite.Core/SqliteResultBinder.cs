@@ -3,6 +3,8 @@
 
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
     internal class SqliteResultBinder : SqliteValueBinder
@@ -16,18 +18,18 @@ namespace Microsoft.Data.Sqlite
         }
 
         protected override void BindBlob(byte[] value)
-            => raw.sqlite3_result_blob(_ctx, value);
+            => sqlite3_result_blob(_ctx, value);
 
         protected override void BindDoubleCore(double value)
-            => raw.sqlite3_result_double(_ctx, value);
+            => sqlite3_result_double(_ctx, value);
 
         protected override void BindInt64(long value)
-            => raw.sqlite3_result_int64(_ctx, value);
+            => sqlite3_result_int64(_ctx, value);
 
         protected override void BindNull()
-            => raw.sqlite3_result_null(_ctx);
+            => sqlite3_result_null(_ctx);
 
         protected override void BindText(string value)
-            => raw.sqlite3_result_text(_ctx, value);
+            => sqlite3_result_text(_ctx, value);
     }
 }

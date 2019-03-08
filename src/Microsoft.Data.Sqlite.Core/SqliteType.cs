@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using SQLitePCL;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -14,21 +14,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     A signed integer.
         /// </summary>
-        Integer = raw.SQLITE_INTEGER,
+        Integer = SQLITE_INTEGER,
 
         /// <summary>
         ///     A floating point value.
         /// </summary>
-        Real = raw.SQLITE_FLOAT,
+        Real = SQLITE_FLOAT,
 
         /// <summary>
         ///     A text string.
         /// </summary>
-        Text = raw.SQLITE_TEXT,
+        Text = SQLITE_TEXT,
 
         /// <summary>
         ///     A blob of data.
         /// </summary>
-        Blob = raw.SQLITE_BLOB
+        Blob = SQLITE_BLOB
     }
 }
