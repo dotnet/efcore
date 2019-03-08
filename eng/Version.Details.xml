@@ -5,9 +5,9 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>b66846b62fd39973eb54204087fe311941c87235</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27507-1">
+    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27508-04">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>09c11ac2aa310035805d671fb83a391e2fc004ba</Sha>
+      <Sha>df98d5ca0ac0d3c9db6af6c0cfc3586bf656f9b5</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview4.19156.3">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -33,9 +33,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>99e30293012f44af02d49b959f19db04dd7504ec</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27507-1">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27508-04">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>09c11ac2aa310035805d671fb83a391e2fc004ba</Sha>
+      <Sha>df98d5ca0ac0d3c9db6af6c0cfc3586bf656f9b5</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview4.19156.3">
       <Uri>https://github.com/aspnet/Extensions</Uri>
