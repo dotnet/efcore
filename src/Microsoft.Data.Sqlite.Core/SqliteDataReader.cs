@@ -6,8 +6,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
@@ -22,25 +24,21 @@ namespace Microsoft.Data.Sqlite
     {
         private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
-        private readonly Queue<(sqlite3_stmt stmt, bool)> _stmtQueue;
+        private readonly Stopwatch _timer;
+        private IEnumerator<sqlite3_stmt> _stmtEnumerator;
         private SqliteDataRecord _record;
         private bool _closed;
+        private int _recordsAffected = -1;
 
         internal SqliteDataReader(
             SqliteCommand command,
-            Queue<(sqlite3_stmt, bool)> stmtQueue,
-            int recordsAffected,
+            Stopwatch timer,
+            IEnumerable<sqlite3_stmt> stmts,
             bool closeConnection)
         {
-            if (stmtQueue.Count != 0)
-            {
-                (var stmt, var hasRows) = stmtQueue.Dequeue();
-                _record = new SqliteDataRecord(stmt, hasRows, command.Connection);
-            }
-
             _command = command;
-            _stmtQueue = stmtQueue;
-            RecordsAffected = recordsAffected;
+            _timer = timer;
+            _stmtEnumerator = stmts.GetEnumerator();
             _closeConnection = closeConnection;
         }
 
@@ -86,7 +84,8 @@ namespace Microsoft.Data.Sqlite
         ///     Gets the number of rows inserted, updated, or deleted. -1 for SELECT statements.
         /// </summary>
         /// <value>The number of rows inserted, updated, or deleted.</value>
-        public override int RecordsAffected { get; }
+        public override int RecordsAffected
+            => _recordsAffected;
 
         /// <summary>
         ///     Gets the value of the specified column.
@@ -126,18 +125,91 @@ namespace Microsoft.Data.Sqlite
         /// <returns>true if there are more result sets; otherwise, false.</returns>
         public override bool NextResult()
         {
-            if (_stmtQueue.Count == 0)
+            if (_closed)
             {
-                return false;
+                throw new InvalidOperationException(Resources.DataReaderClosed(nameof(NextResult)));
             }
 
-            _record.Dispose();
+            if (_record != null)
+            {
+                _record.Dispose();
+                _record = null;
+            }
 
-            (var stmt, var hasRows) = _stmtQueue.Dequeue();
-            _record = new SqliteDataRecord(stmt, hasRows, _command.Connection);
+            sqlite3_stmt stmt;
+            int rc;
 
-            return true;
+            while (_stmtEnumerator.MoveNext())
+            {
+                try
+                {
+                    stmt = _stmtEnumerator.Current;
+
+                    _timer.Start();
+
+                    while (IsBusy(rc = sqlite3_step(stmt)))
+                    {
+                        if (_timer.ElapsedMilliseconds >= _command.CommandTimeout * 1000L)
+                        {
+                            break;
+                        }
+
+                        sqlite3_reset(stmt);
+
+                        // TODO: Consider having an async path that uses Task.Delay()
+                        Thread.Sleep(150);
+                    }
+
+                    _timer.Stop();
+
+                    SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+
+                    // It's a SELECT statement
+                    if (sqlite3_column_count(stmt) != 0)
+                    {
+                        _record = new SqliteDataRecord(stmt, rc != SQLITE_DONE, _command.Connection);
+
+                        return true;
+                    }
+                    else
+                    {
+                        while (rc != SQLITE_DONE)
+                        {
+                            rc = sqlite3_step(stmt);
+                            SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+                        }
+
+                        sqlite3_reset(stmt);
+
+                        var changes = sqlite3_changes(_command.Connection.Handle);
+                        if (_recordsAffected == -1)
+                        {
+                            _recordsAffected = changes;
+                        }
+                        else
+                        {
+                            _recordsAffected += changes;
+                        }
+                    }
+                }
+                catch
+                {
+                    sqlite3_reset(_stmtEnumerator.Current);
+                    _stmtEnumerator.Dispose();
+                    _stmtEnumerator = null;
+                    Dispose();
+
+                    throw;
+                }
+            }
+
+            return false;
         }
+
+        private static bool IsBusy(int rc)
+            => rc == SQLITE_LOCKED
+               || rc == SQLITE_BUSY
+               || rc == SQLITE_LOCKED_SHAREDCACHE;
 
         /// <summary>
         ///     Closes the data reader.
@@ -160,16 +232,23 @@ namespace Microsoft.Data.Sqlite
 
             _command.DataReader = null;
 
-            if (_record != null)
+            _record?.Dispose();
+
+            if (_stmtEnumerator != null)
             {
-                _record.Dispose();
-                _record = null;
+                try
+                {
+                    while (NextResult())
+                    {
+                        _record.Dispose();
+                    }
+                }
+                catch
+                {
+                }
             }
 
-            while (_stmtQueue.Count != 0)
-            {
-                sqlite3_reset(_stmtQueue.Dequeue().stmt);
-            }
+            _stmtEnumerator?.Dispose();
 
             _closed = true;
 

@@ -1247,6 +1247,36 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void NextResult_throws_on_error()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
+
+                var sql = @"
+                    SELECT 1;
+                    SELECT throw('An error');
+                    INSERT INTO Test VALUES (1);";
+                using (var reader = connection.ExecuteReader(sql))
+                {
+                    var ex = Assert.Throws<SqliteException>(() => reader.NextResult());
+                    Assert.Contains("An error", ex.Message);
+                }
+
+                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count() FROM Test;"));
+            }
+        }
+
+        [Fact]
+        public void NextResult_throws_when_closed()
+        {
+            X_throws_when_closed(r => r.NextResult(), nameof(SqliteDataReader.NextResult));
+        }
+
+        [Fact]
         public void Read_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1299,6 +1329,30 @@ namespace Microsoft.Data.Sqlite
                 ((IDisposable)reader).Dispose();
 
                 Assert.Equal(-1, reader.RecordsAffected);
+            }
+        }
+
+        [Fact]
+        public void RecordsAffected_works_during_enumeration()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+
+                var reader = connection.ExecuteReader(@"
+                    SELECT 1;
+                    INSERT INTO Test VALUES(1);
+                    SELECT 1;
+                    INSERT INTO Test VALUES(2);");
+                using (reader)
+                {
+                    Assert.Equal(-1, reader.RecordsAffected);
+                    reader.NextResult();
+                    Assert.Equal(1, reader.RecordsAffected);
+                }
+
+                Assert.Equal(2, reader.RecordsAffected);
             }
         }
 
@@ -1449,6 +1503,45 @@ namespace Microsoft.Data.Sqlite
         public void GetSchemaTable_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetSchemaTable(), nameof(SqliteDataReader.GetSchemaTable));
+        }
+
+        [Fact]
+        public void Dispose_executes_remaining_statements()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
+
+                var reader = connection.ExecuteReader(@"
+                    SELECT 1;
+                    INSERT INTO Test VALUES (1);");
+                ((IDisposable)reader).Dispose();
+
+                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count() FROM Test;"));
+            }
+        }
+
+        [Fact]
+        public void Dispose_doesnt_throw_but_stops_on_error()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
+
+                var reader = connection.ExecuteReader(@"
+                    SELECT 1;
+                    SELECT throw('An error');
+                    INSERT INTO Test VALUES (1);");
+                ((IDisposable)reader).Dispose();
+
+                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count() FROM Test;"));
+            }
         }
 
         private static void GetX_works<T>(string sql, Func<DbDataReader, T> action, T expected)
