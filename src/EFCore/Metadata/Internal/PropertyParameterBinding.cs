@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return Expression.Call(
                 EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(property.ClrType),
                 Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod),
-                Expression.Constant(bindingInfo.GetValueBufferIndex(property)),
-                Expression.Constant(property, typeof(IPropertyBase)));
+                Expression.Constant(bindingInfo.GetValueBufferIndex(property)));
         }
     }
 }
