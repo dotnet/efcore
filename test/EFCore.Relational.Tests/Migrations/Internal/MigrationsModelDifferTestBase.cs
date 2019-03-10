@@ -163,6 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                new RelationalAnnotationProvider(
+                    new RelationalAnnotationProviderDependencies()),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),

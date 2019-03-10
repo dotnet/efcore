@@ -63,9 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     { typeof(DropCheckConstraintOperation), (g, o, m, b) => g.Generate((DropCheckConstraintOperation)o, m, b) },
                     { typeof(EnsureSchemaOperation), (g, o, m, b) => g.Generate((EnsureSchemaOperation)o, m, b) },
                     { typeof(RenameColumnOperation), (g, o, m, b) => g.Generate((RenameColumnOperation)o, m, b) },
+                    { typeof(RenameForeignKeyOperation), (g, o, m, b) => g.Generate((RenameForeignKeyOperation)o, m, b) },
                     { typeof(RenameIndexOperation), (g, o, m, b) => g.Generate((RenameIndexOperation)o, m, b) },
+                    { typeof(RenamePrimaryKeyOperation), (g, o, m, b) => g.Generate((RenamePrimaryKeyOperation)o, m, b) },
                     { typeof(RenameSequenceOperation), (g, o, m, b) => g.Generate((RenameSequenceOperation)o, m, b) },
                     { typeof(RenameTableOperation), (g, o, m, b) => g.Generate((RenameTableOperation)o, m, b) },
+                    { typeof(RenameUniqueConstraintOperation), (g, o, m, b) => g.Generate((RenameUniqueConstraintOperation)o, m, b) },
                     { typeof(RestartSequenceOperation), (g, o, m, b) => g.Generate((RestartSequenceOperation)o, m, b) },
                     { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) },
                     { typeof(InsertDataOperation), (g, o, m, b) => g.Generate((InsertDataOperation)o, m, b) },
@@ -95,6 +98,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
 
         private bool SensitiveLoggingEnabled { get; }
+
+        /// <summary>
+        ///     The <see cref="IRelationalAnnotationProvider" />.
+        /// </summary>
+        protected virtual IMigrationsAnnotationProvider MigrationsAnnotations
+            => Dependencies.MigrationsAnnotations;
+
+        /// <summary>
+        ///     The <see cref="IRelationalAnnotationProvider" />.
+        /// </summary>
+        protected virtual IRelationalAnnotationProvider RelationalAnnotations
+            => Dependencies.RelationalAnnotations;
 
         /// <summary>
         ///     The <see cref="IUpdateSqlGenerator" />.
@@ -343,6 +358,65 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     <para>
+        ///         Can be overridden by database providers to build commands for the given <see cref="RenameForeignKeyOperation" />
+        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         must override if they are to support this kind of operation.
+        ///     </para>
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] RenameForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            var foreignKey = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).ForeignKeyConstraints
+                .FirstOrDefault(f => f.Name == operation.Name);
+
+            if (foreignKey == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.ForeignKeyNotFound(operation.Name), nameof(operation));
+            }
+
+            var dropOperation = new DropForeignKeyOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
+            dropOperation.AddAnnotations(MigrationsAnnotations.ForRemove(foreignKey));
+
+            var addOperation = new AddForeignKeyOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.NewName,
+                Columns = foreignKey.Columns.Select(c => c.Name).ToArray(),
+                PrincipalSchema = foreignKey.PrincipalTable.Schema,
+                PrincipalTable = foreignKey.PrincipalTable.Name,
+                PrincipalColumns = foreignKey.PrincipalColumns.Select(c => c.Name).ToArray(),
+                OnDelete = foreignKey.OnDeleteAction,
+                // Todo: Have a look at his and possibly fix it after https://github.com/dotnet/efcore/issues/4073 has been closed.
+                //OnUpdate = Whatever it was, we've reset it to default now
+            };
+            addOperation.AddAnnotations(RelationalAnnotations.For(foreignKey));
+
+            Generate(dropOperation, model, builder, terminate: false);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            Generate(addOperation, model, builder);
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Can be overridden by database providers to build commands for the given <see cref="RenameIndexOperation" />
         ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
         ///     </para>
@@ -360,6 +434,111 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] MigrationCommandListBuilder builder)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Can be overridden by database providers to build commands for the given <see cref="RenamePrimaryKeyOperation" />
+        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         must override if they are to support this kind of operation.
+        ///     </para>
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] RenamePrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            var primaryKey = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).PrimaryKey;
+
+            if (primaryKey == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.PrimaryKeyNotFound(operation.Name), nameof(operation));
+            }
+
+            var dropOperation = new DropPrimaryKeyOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
+            dropOperation.AddAnnotations(MigrationsAnnotations.ForRemove(primaryKey));
+
+            var addOperation = new AddPrimaryKeyOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.NewName,
+                Columns = primaryKey.Columns.Select(c => c.Name).ToArray()
+            };
+            addOperation.AddAnnotations(RelationalAnnotations.For(primaryKey));
+
+            Generate(dropOperation, model, builder, terminate: false);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            Generate(addOperation, model, builder);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Can be overridden by database providers to build commands for the given <see cref="RenameUniqueConstraintOperation" />
+        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the default implementation of this method throws <see cref="NotImplementedException" />. Providers
+        ///         must override if they are to support this kind of operation.
+        ///     </para>
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected virtual void Generate(
+            [NotNull] RenameUniqueConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            var uniqueConstraint = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).UniqueConstraints
+                .FirstOrDefault(u => u.Name == operation.Name);
+
+            if (uniqueConstraint == null)
+            {
+                throw new ArgumentException(
+                    RelationalStrings.UniqueConstraintNotFound(operation.Name), nameof(operation));
+            }
+
+            var dropOperation = new DropUniqueConstraintOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
+            dropOperation.AddAnnotations(MigrationsAnnotations.ForRemove(uniqueConstraint));
+
+            var addOperation = new AddUniqueConstraintOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.NewName,
+                Columns = uniqueConstraint.Columns.Select(c => c.Name).ToArray()
+            };
+            addOperation.AddAnnotations(RelationalAnnotations.For(uniqueConstraint));
+
+            Generate(dropOperation, model, builder, terminate: false);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            Generate(addOperation, model, builder);
         }
 
         /// <summary>
@@ -773,6 +952,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] DropUniqueConstraintOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="DropUniqueConstraintOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected virtual void Generate(
+            [NotNull] DropUniqueConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -781,10 +975,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name));
 
-            EndStatement(builder);
+            if (terminate)
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
+            }
         }
 
         /// <summary>

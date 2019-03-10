@@ -519,6 +519,20 @@ DROP DATABASE [Northwind];
         }
 
         [ConditionalFact]
+        public virtual void RenameForeignKeyOperation_uses_default_schema_when_no_schema()
+        {
+            Generate(new RenameForeignKeyOperation{
+                Table = "People",
+                Name = "FK_People_Name_Names_Name",
+                NewName = "FK_People_FullName_Names_Name"
+            });
+
+            Assert.Equal(
+                "EXEC sp_rename N'[FK_People_Name_Names_Name]', N'FK_People_FullName_Names_Name';" + EOL,
+                Sql);
+        }
+
+        [ConditionalFact]
         public virtual void RenameIndexOperations_throws_when_no_table()
         {
             var migrationBuilder = new MigrationBuilder("SqlServer");
@@ -531,6 +545,20 @@ DROP DATABASE [Northwind];
                 () => Generate(migrationBuilder.Operations.ToArray()));
 
             Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
+        }
+
+        [ConditionalFact]
+        public virtual void RenamePrimaryKeyOperation_uses_default_schema_when_no_schema()
+        {
+            Generate(new RenamePrimaryKeyOperation{
+                Table = "People",
+                Name = "PK_People_Name",
+                NewName = "PK_People_FullName"
+            });
+
+            Assert.Equal(
+                "EXEC sp_rename N'[PK_People_Name]', N'PK_People_FullName';" + EOL,
+                Sql);
         }
 
         [ConditionalFact]
@@ -566,6 +594,20 @@ DROP DATABASE [Northwind];
             AssertSql(
                 @"EXEC sp_rename N'[dbo].[People]', N'Person';
 ");
+        }
+
+        [ConditionalFact]
+        public virtual void RenameUniqueConstraintOperation_uses_default_schema_when_no_schema()
+        {
+            Generate(new RenameUniqueConstraintOperation{
+                Table = "People",
+                Name = "UN_People_Name",
+                NewName = "UN_People_FullName"
+            });
+
+            Assert.Equal(
+                "EXEC sp_rename N'[UN_People_Name]', N'UN_People_FullName';" + EOL,
+                Sql);
         }
 
         [ConditionalFact]

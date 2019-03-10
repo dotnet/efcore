@@ -93,8 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new MigrationsAnnotationProvider(
-                        new MigrationsAnnotationProviderDependencies()),
+                        new RelationalAnnotationProvider(
+                            new RelationalAnnotationProviderDependencies()),
+                        new MigrationsAnnotationProvider(
+                            new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),

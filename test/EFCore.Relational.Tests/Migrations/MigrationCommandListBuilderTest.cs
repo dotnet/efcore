@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -125,6 +126,8 @@ Statement3
 
             var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
             var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
+            var migrationsAnnotations = new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());
+            var relationalAnnotations = new RelationalAnnotationProvider(new RelationalAnnotationProviderDependencies());
 
             return new MigrationCommandListBuilder(
                 new MigrationsSqlGeneratorDependencies(
@@ -139,7 +142,9 @@ Statement3
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
                     new LoggingOptions(),
-                    logger));
+                    logger,
+                    migrationsAnnotations,
+                    relationalAnnotations));
         }
 
         private class FakeDbContext : DbContext

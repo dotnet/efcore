@@ -808,6 +808,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("DbFunctionAggregateCustomTranslation", nameof(function)),
                 function);
 
+        /// <summary>
+        ///     The foreign key '{foreignKeyName}' was not found.
+        /// </summary>
+        public static string ForeignKeyNotFound([CanBeNull] object foreignKeyName)
+            => string.Format(
+                GetString("ForeignKeyNotFound", nameof(foreignKeyName)),
+                foreignKeyName);
+
+        /// <summary>
+        ///     The primary key '{primaryKeyName}' was not found.
+        /// </summary>
+        public static string PrimaryKeyNotFound([CanBeNull] object primaryKeyName)
+            => string.Format(
+                GetString("PrimaryKeyNotFound", nameof(primaryKeyName)),
+                primaryKeyName);
+
+        /// <summary>
+        ///     The unique constraint '{uniqueConstraintName}' was not found.
+        /// </summary>
+        public static string UniqueConstraintNotFound([CanBeNull] object uniqueConstraintName)
+            => string.Format(
+                GetString("UniqueConstraintNotFound", nameof(uniqueConstraintName)),
+                uniqueConstraintName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

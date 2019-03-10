@@ -65,6 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
 
+        /// <summary>
+        ///     The index '{indexName}' was not found.
+        /// </summary>
+        public static string IndexNotFound([CanBeNull] object indexName)
+            => string.Format(
+                GetString("IndexNotFound", nameof(indexName)),
+                indexName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

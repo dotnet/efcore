@@ -179,11 +179,9 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
             await base.Rename_table_with_primary_key();
 
             AssertSql(
-                @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];",
-                //
                 @"EXEC sp_rename N'[People]', N'people';",
                 //
-                @"ALTER TABLE [people] ADD CONSTRAINT [PK_people] PRIMARY KEY ([Id]);");
+                @"EXEC sp_rename N'[PK_People]', N'PK_people';");
         }
 
         public override async Task Move_table()
@@ -1509,6 +1507,14 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
                 @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];");
         }
 
+        public override async Task Rename_primary_key()
+        {
+            await base.Rename_primary_key();
+
+            AssertSql(
+                @"EXEC sp_rename N'[PK_People]', N'MyShinyNewPrimaryKeyName';");
+        }
+
         public override async Task Add_foreign_key()
         {
             await base.Add_foreign_key();
@@ -1533,6 +1539,14 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
                 @"ALTER TABLE [Orders] DROP CONSTRAINT [FK_Orders_Customers_CustomerId];");
         }
 
+        public override async Task Rename_foreign_key()
+        {
+            await base.Rename_foreign_key();
+
+            AssertSql(
+                @"EXEC sp_rename N'[FK_Orders_Customers_CustomerId]', N'MyShinyNewForeignKeyConstraintName';");
+        }
+
         public override async Task Add_unique_constraint()
         {
             await base.Add_unique_constraint();
@@ -1555,6 +1569,14 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
 
             AssertSql(
                 @"ALTER TABLE [People] DROP CONSTRAINT [AK_People_AlternateKeyColumn];");
+        }
+
+        public override async Task Rename_unique_constraint()
+        {
+            await base.Rename_unique_constraint();
+
+            AssertSql(
+                @"EXEC sp_rename N'[AK_People_AlternateKeyColumn]', N'MyShinyNewUniqueConstraintName';");
         }
 
         public override async Task Add_check_constraint_with_name()

@@ -952,6 +952,28 @@ namespace Microsoft.EntityFrameworkCore
                 model => Assert.Null(Assert.Single(model.Tables).PrimaryKey));
 
         [ConditionalFact]
+        public virtual Task Rename_primary_key()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("FirstName");
+                        e.HasKey("Id");
+                    }),
+                builder => { },
+                builder => builder.Entity("People").HasKey("Id").HasName("MyShinyNewPrimaryKeyName"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var primaryKey = table.PrimaryKey;
+                    Assert.NotNull(primaryKey);
+                    Assert.Same(table, primaryKey!.Table);
+                    Assert.Same(table.Columns.Single(c=> c.Name == "Id"), Assert.Single(primaryKey.Columns));
+                    Assert.Equal("MyShinyNewPrimaryKeyName", primaryKey.Name);
+                });
+
+        [ConditionalFact]
         public virtual Task Add_foreign_key()
             => Test(
                 builder =>
@@ -1039,6 +1061,36 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [ConditionalFact]
+        public virtual Task Rename_foreign_key()
+            => Test(
+                builder =>
+                {
+                    builder.Entity(
+                        "Customers", e =>
+                        {
+                            e.Property<int>("Id");
+                            e.HasKey("Id");
+                        });
+                    builder.Entity(
+                        "Orders", e =>
+                        {
+                            e.Property<int>("Id");
+                            e.Property<int>("CustomerId");
+                        });
+                    builder.Entity("Orders").HasOne("Customers").WithMany()
+                        .HasForeignKey("CustomerId");
+                },
+                builder => { },
+                builder => builder.Entity("Orders").HasOne("Customers").WithMany()
+                    .HasForeignKey("CustomerId").HasConstraintName("MyShinyNewForeignKeyConstraintName"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables, t => t.Name == "Orders");
+                    var foreignKey = table.ForeignKeys.Single();
+                    Assert.Equal("MyShinyNewForeignKeyConstraintName", foreignKey.Name);
+                });
+
+        [ConditionalFact]
         public virtual Task Add_unique_constraint()
             => Test(
                 builder => builder.Entity(
@@ -1096,6 +1148,30 @@ namespace Microsoft.EntityFrameworkCore
                 model =>
                 {
                     Assert.Empty(Assert.Single(model.Tables).UniqueConstraints);
+                });
+
+        [ConditionalFact]
+        public virtual Task Rename_unique_constraint()
+            => Test(
+                builder =>
+                {
+                    builder.Entity(
+                        "People", e =>
+                        {
+                            e.Property<int>("Id");
+                            e.Property<int>("AlternateKeyColumn");
+                        });
+                    builder.Entity("People").HasAlternateKey("AlternateKeyColumn");
+                },
+                builder => { },
+                builder => builder.Entity("People").HasAlternateKey("AlternateKeyColumn").HasName("MyShinyNewUniqueConstraintName"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var uniqueConstraint = table.UniqueConstraints.Single();
+                    Assert.Same(table, uniqueConstraint.Table);
+                    Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn"), Assert.Single(uniqueConstraint.Columns));
+                    Assert.Equal("MyShinyNewUniqueConstraintName", uniqueConstraint.Name);
                 });
 
         [ConditionalFact]

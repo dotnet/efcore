@@ -54,7 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static readonly Type[] _renameOperationTypes =
         {
-            typeof(RenameColumnOperation), typeof(RenameIndexOperation), typeof(RenameSequenceOperation)
+            typeof(RenameColumnOperation),
+            typeof(RenameForeignKeyOperation),
+            typeof(RenameIndexOperation),
+            typeof(RenamePrimaryKeyOperation),
+            typeof(RenameSequenceOperation),
+            typeof(RenameUniqueConstraintOperation)
         };
 
         private static readonly Type[] _columnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
@@ -73,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public MigrationsModelDiffer(
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotations,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IChangeDetector changeDetector,
             [NotNull] IUpdateAdapterFactory updateAdapterFactory,
@@ -85,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
 
             TypeMappingSource = typeMappingSource;
+            RelationalAnnotations = relationalAnnotations;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
             UpdateAdapterFactory = updateAdapterFactory;
@@ -98,6 +105,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IRelationalTypeMappingSource TypeMappingSource { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual IRelationalAnnotationProvider RelationalAnnotations { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1136,8 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, c) => s.Name == t.Name
-                    && s.Columns.Select(p => p.Name).SequenceEqual(
+                (s, t, c) => s.Columns.Select(p => p.Name).SequenceEqual(
                         t.Columns.Select(p => c.FindSource(p)?.Name))
                     && s.IsPrimaryKey == t.IsPrimaryKey
                     && !HasDifferences(s.GetAnnotations(), t.GetAnnotations()));
@@ -1152,7 +1166,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IUniqueConstraint source,
             [NotNull] IUniqueConstraint target,
             [NotNull] DiffContext diffContext)
-            => Enumerable.Empty<MigrationOperation>();
+        {
+            if (source.Name != target.Name)
+            {
+                yield return target.IsPrimaryKey
+                    ? new RenamePrimaryKeyOperation
+                    {
+                        Schema = target.Table.Schema,
+                        Table = target.Table.Name,
+                        Name = source.Name,
+                        NewName = target.Name
+                    }
+                    : (MigrationOperation)new RenameUniqueConstraintOperation
+                    {
+                        Schema = target.Table.Schema,
+                        Table = target.Table.Name,
+                        Name = source.Name,
+                        NewName = target.Name
+                    };
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1250,8 +1283,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, context) => s.Name == t.Name
-                    && s.Columns.Select(c => c.Name).SequenceEqual(
+                (s, t, context) => s.Columns.Select(c => c.Name).SequenceEqual(
                         t.Columns.Select(c => context.FindSource(c)?.Name))
                     && s.PrincipalTable == context.FindSource(t.PrincipalTable)
                     && s.PrincipalColumns.Select(c => c.Name).SequenceEqual(
@@ -1267,7 +1299,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IForeignKeyConstraint source, [NotNull] IForeignKeyConstraint target, [NotNull] DiffContext diffContext)
-            => Enumerable.Empty<MigrationOperation>();
+        {
+            if (source.Name != target.Name)
+            {
+                yield return new RenameForeignKeyOperation
+                {
+                    Schema = target.Table.Schema,
+                    Table =  target.Table.Name,
+                    Name = source.Name,
+                    NewName = target.Name
+                };
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

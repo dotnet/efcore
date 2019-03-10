@@ -187,4 +187,7 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
   </data>
+  <data name="IndexNotFound" xml:space="preserve">
+    <value>The index '{indexName}' was not found.</value>
+  </data>
 </root>

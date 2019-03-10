@@ -2437,18 +2437,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, operations.Count);
 
-                    var dropOperation = Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
-                    Assert.Equal("dbo", dropOperation.Schema);
-                    Assert.Equal("Pelican", dropOperation.Table);
-                    Assert.Equal("AK_Pelican_AlternateId", dropOperation.Name);
-
-                    var addOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
-                    Assert.Equal("dbo", addOperation.Schema);
-                    Assert.Equal("Pelican", addOperation.Table);
-                    Assert.Equal("AK_dbo.Pelican_AlternateId", addOperation.Name);
-                    Assert.Equal(new[] { "AlternateId" }, addOperation.Columns);
+                    var renameOperation = Assert.IsType<RenameUniqueConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", renameOperation.Schema);
+                    Assert.Equal("Pelican", renameOperation.Table);
+                    Assert.Equal("AK_Pelican_AlternateId", renameOperation.Name);
+                    Assert.Equal("AK_dbo.Pelican_AlternateId", renameOperation.NewName);
                 });
         }
 
@@ -2680,18 +2675,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, operations.Count);
 
-                    var dropOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
-                    Assert.Equal("dbo", dropOperation.Schema);
-                    Assert.Equal("Puffin", dropOperation.Table);
-                    Assert.Equal("PK_Puffin", dropOperation.Name);
-
-                    var addOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
-                    Assert.Equal("dbo", addOperation.Schema);
-                    Assert.Equal("Puffin", addOperation.Table);
-                    Assert.Equal("PK_dbo.Puffin", addOperation.Name);
-                    Assert.Equal(new[] { "Id" }, addOperation.Columns);
+                    var operation = Assert.IsType<RenamePrimaryKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Puffin", operation.Table);
+                    Assert.Equal("PK_Puffin", operation.Name);
+                    Assert.Equal("PK_dbo.Puffin", operation.NewName);
                 });
         }
 
@@ -3138,21 +3128,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, operations.Count);
 
-                    var dropOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
-                    Assert.Equal("dbo", dropOperation.Schema);
-                    Assert.Equal("Nematode", dropOperation.Table);
-                    Assert.Equal("FK_Nematode_Nematode_ParentId", dropOperation.Name);
-
-                    var addOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
-                    Assert.Equal("dbo", addOperation.Schema);
-                    Assert.Equal("Nematode", addOperation.Table);
-                    Assert.Equal("FK_Nematode_NematodeParent", addOperation.Name);
-                    Assert.Equal(new[] { "ParentId" }, addOperation.Columns);
-                    Assert.Equal("dbo", addOperation.PrincipalSchema);
-                    Assert.Equal("Nematode", addOperation.PrincipalTable);
-                    Assert.Equal(new[] { "Id" }, addOperation.PrincipalColumns);
+                    var renameOperation = Assert.IsType<RenameForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", renameOperation.Schema);
+                    Assert.Equal("Nematode", renameOperation.Table);
+                    Assert.Equal("FK_Nematode_Nematode_ParentId", renameOperation.Name);
+                    Assert.Equal("FK_Nematode_NematodeParent", renameOperation.NewName);
                 });
         }
 
@@ -4267,11 +4249,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(3, operations.Count);
+                    Assert.Equal(2, operations.Count);
 
-                    Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
-                    Assert.IsType<RenameColumnOperation>(operations[1]);
-                    Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.IsType<RenameUniqueConstraintOperation>(operations[1]);
                 });
         }
 
@@ -4444,12 +4425,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(4, operations.Count);
+                    Assert.Equal(3, operations.Count);
 
-                    Assert.IsType<DropForeignKeyOperation>(operations[0]);
-                    Assert.IsType<RenameColumnOperation>(operations[1]);
-                    Assert.IsType<RenameIndexOperation>(operations[2]);
-                    Assert.IsType<AddForeignKeyOperation>(operations[3]);
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.IsType<RenameIndexOperation>(operations[1]);
+                    Assert.IsType<RenameForeignKeyOperation>(operations[2]);
                 });
         }
 
@@ -5770,21 +5750,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 target => target.Entity("Table").ToTable("RenamedTable", "new").Property<int>("Id"),
                 operations =>
                 {
-                    Assert.Equal(4, operations.Count);
+                    Assert.Equal(3, operations.Count);
 
-                    var dropPrimaryKeyOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
-                    Assert.Equal("old", dropPrimaryKeyOperation.Schema);
-                    Assert.Equal("Table", dropPrimaryKeyOperation.Table);
-                    Assert.Equal("PK_Table", dropPrimaryKeyOperation.Name);
+                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
 
-                    Assert.IsType<EnsureSchemaOperation>(operations[1]);
+                    Assert.IsType<RenameTableOperation>(operations[1]);
 
-                    Assert.IsType<RenameTableOperation>(operations[2]);
-
-                    var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[3]);
-                    Assert.Equal("new", addPrimaryKeyOperation.Schema);
-                    Assert.Equal("RenamedTable", addPrimaryKeyOperation.Table);
-                    Assert.Equal("PK_RenamedTable", addPrimaryKeyOperation.Name);
+                    var renamePrimaryKeyOperation = Assert.IsType<RenamePrimaryKeyOperation>(operations[2]);
+                    Assert.Equal("PK_Table", renamePrimaryKeyOperation.Name);
+                    Assert.Equal("PK_RenamedTable", renamePrimaryKeyOperation.NewName);
+                    Assert.Equal("RenamedTable", renamePrimaryKeyOperation.Table);
+                    Assert.Equal("new", renamePrimaryKeyOperation.Schema);
                 });
         }
 
@@ -5802,15 +5778,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 operations =>
                 {
-                    Assert.Equal(3, operations.Count);
+                    Assert.Equal(2, operations.Count);
 
-                    Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
 
-                    Assert.IsType<RenameColumnOperation>(operations[1]);
-
-                    var addPrimaryKeyOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
-                    Assert.Equal(new[] { "RenamedId" }, addPrimaryKeyOperation.Columns);
-                    Assert.Equal("PK_Table_Renamed", addPrimaryKeyOperation.Name);
+                    var renamePrimaryKeyOperation = Assert.IsType<RenamePrimaryKeyOperation>(operations[1]);
+                    Assert.Equal("PK_Table", renamePrimaryKeyOperation.Name);
+                    Assert.Equal("PK_Table_Renamed", renamePrimaryKeyOperation.NewName);
+                    Assert.Equal("Table", renamePrimaryKeyOperation.Table);
+                    Assert.Null(renamePrimaryKeyOperation.Schema);
                 });
         }
 

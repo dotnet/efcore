@@ -204,7 +204,7 @@ be found in the docs.";
 
         public override Task Rename_table_with_primary_key()
             => AssertNotSupportedAsync(
-                base.Rename_table_with_primary_key, SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"));
+                base.Rename_table_with_primary_key, SqliteStrings.InvalidMigrationOperation("RenamePrimaryKeyOperation"));
 
         // SQLite does not support schemas.
         public override Task Move_table()
@@ -430,6 +430,9 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
         public override Task Drop_primary_key()
             => AssertNotSupportedAsync(base.Drop_primary_key, SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"));
 
+        public override Task Rename_primary_key()
+            => AssertNotSupportedAsync(base.Rename_primary_key, SqliteStrings.InvalidMigrationOperation("RenamePrimaryKeyOperation"));
+
         public override Task Add_foreign_key()
             => AssertNotSupportedAsync(base.Add_foreign_key, SqliteStrings.InvalidMigrationOperation("AddForeignKeyOperation"));
 
@@ -438,6 +441,9 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
 
         public override Task Drop_foreign_key()
             => AssertNotSupportedAsync(base.Drop_foreign_key, SqliteStrings.InvalidMigrationOperation("DropForeignKeyOperation"));
+
+        public override Task Rename_foreign_key()
+            => AssertNotSupportedAsync(base.Rename_foreign_key, SqliteStrings.InvalidMigrationOperation("RenameForeignKeyOperation"));
 
         public override Task Add_unique_constraint()
             => AssertNotSupportedAsync(base.Add_unique_constraint, SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"));
@@ -449,6 +455,10 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
         public override Task Drop_unique_constraint()
             => AssertNotSupportedAsync(
                 base.Drop_unique_constraint, SqliteStrings.InvalidMigrationOperation("DropUniqueConstraintOperation"));
+
+        public override Task Rename_unique_constraint()
+            => AssertNotSupportedAsync(
+                base.Rename_unique_constraint, SqliteStrings.InvalidMigrationOperation("RenameUniqueConstraintOperation"));
 
         public override Task Add_check_constraint_with_name()
             => AssertNotSupportedAsync(

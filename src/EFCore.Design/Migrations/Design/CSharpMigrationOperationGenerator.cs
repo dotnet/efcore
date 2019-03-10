@@ -1706,6 +1706,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
+        ///     Generates code for a <see cref="RenameForeignKeyOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="builder"> The builder code is added to. </param>
+        protected virtual void Generate([NotNull] RenameForeignKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenameForeignKey(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(Code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(Code.Literal(operation.Schema));
+                }
+
+                if (operation.Table != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("table: ")
+                        .Append(Code.Literal(operation.Table));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("newName: ")
+                    .Append(Code.Literal(operation.NewName))
+                    .Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        /// <summary>
         ///     Generates code for a <see cref="RenameIndexOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -1735,6 +1779,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(",")
                     .Append("table: ")
                     .Append(Code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("newName: ")
+                    .Append(Code.Literal(operation.NewName))
+                    .Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for a <see cref="RenamePrimaryKeyOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="builder"> The builder code is added to. </param>
+        protected virtual void Generate([NotNull] RenamePrimaryKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenamePrimaryKey(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(Code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(Code.Literal(operation.Schema));
+                }
+
+                if (operation.Table != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("table: ")
+                        .Append(Code.Literal(operation.Table));
+                }
+
+                builder
                     .AppendLine(",")
                     .Append("newName: ")
                     .Append(Code.Literal(operation.NewName))
@@ -1835,6 +1923,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 builder.Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for a <see cref="RenameUniqueConstraintOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="builder"> The builder code is added to. </param>
+        protected virtual void Generate([NotNull] RenameUniqueConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenameUniqueConstraint(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(Code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(Code.Literal(operation.Schema));
+                }
+
+                if (operation.Table != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("table: ")
+                        .Append(Code.Literal(operation.Table));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("newName: ")
+                    .Append(Code.Literal(operation.NewName))
+                    .Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
             }

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public SqliteMigrationsSqlGenerator(
             [NotNull] MigrationsSqlGeneratorDependencies dependencies,
             [NotNull] IRelationalAnnotationProvider migrationsAnnotations)
-            : base(dependencies)
+            : base(dependencies.With(migrationsAnnotations))
         {
         }
 
@@ -587,6 +587,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
+        ///     are not yet supported.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(RenameForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
+        ///     are not yet supported.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(RenamePrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
+        ///     are not yet supported.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(RenameUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 

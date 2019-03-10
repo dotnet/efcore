@@ -2350,6 +2350,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void RenameForeignKeyOperation_required_args()
+        {
+            Test(
+                new RenameForeignKeyOperation
+                {
+                    Name = "FK_Post_Title_Titles_Name",
+                    NewName = "FK_Post_PostTitle_Titles_Name"
+                },
+                "mb.RenameForeignKey(" + _eol +
+                "    name: \"FK_Post_Title_Titles_Name\"," + _eol +
+                "    newName: \"FK_Post_PostTitle_Titles_Name\");",
+                o =>
+                {
+                    Assert.Equal("FK_Post_Title_Titles_Name", o.Name);
+                    Assert.Equal("FK_Post_PostTitle_Titles_Name", o.NewName);
+                    Assert.Null(o.Table);
+                    Assert.Null(o.Schema);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenameForeignKeyOperation_all_args()
+        {
+            Test(
+                new RenameForeignKeyOperation
+                {
+                    Name = "FK_Post_Title_Titles_Name",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "FK_Post_PostTitle_Titles_Name"
+                },
+                "mb.RenameForeignKey(" + _eol +
+                "    name: \"FK_Post_Title_Titles_Name\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    newName: \"FK_Post_PostTitle_Titles_Name\");",
+                o =>
+                {
+                    Assert.Equal("FK_Post_Title_Titles_Name", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("FK_Post_PostTitle_Titles_Name", o.NewName);
+                });
+        }
+
+        [ConditionalFact]
         public void RenameIndexOperation_required_args()
         {
             Test(
@@ -2400,6 +2446,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("IX_dbo.Post_PostTitle", o.NewName);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenamePrimaryKeyOperation_required_args()
+        {
+            Test(
+                new RenamePrimaryKeyOperation
+                {
+                    Name = "PK_Post_Title",
+                    NewName = "PK_Post_PostTitle"
+                },
+                "mb.RenamePrimaryKey(" + _eol +
+                "    name: \"PK_Post_Title\"," + _eol +
+                "    newName: \"PK_Post_PostTitle\");",
+                o =>
+                {
+                    Assert.Equal("PK_Post_Title", o.Name);
+                    Assert.Equal("PK_Post_PostTitle", o.NewName);
+                    Assert.Null(o.Table);
+                    Assert.Null(o.Schema);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenamePrimaryKeyOperation_all_args()
+        {
+            Test(
+                new RenamePrimaryKeyOperation
+                {
+                    Name = "PK_dbo.Post_Title",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "PK_dbo.Post_PostTitle"
+                },
+                "mb.RenamePrimaryKey(" + _eol +
+                "    name: \"PK_dbo.Post_Title\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    newName: \"PK_dbo.Post_PostTitle\");",
+                o =>
+                {
+                    Assert.Equal("PK_dbo.Post_Title", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("PK_dbo.Post_PostTitle", o.NewName);
                 });
         }
 
@@ -2476,6 +2568,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Posts", o.NewName);
                     Assert.Equal("my", o.NewSchema);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenameUniqueConstraintOperation_required_args()
+        {
+            Test(
+                new RenameUniqueConstraintOperation
+                {
+                    Name = "UN_Post_Title",
+                    NewName = "UN_Post_PostTitle"
+                },
+                "mb.RenameUniqueConstraint(" + _eol +
+                "    name: \"UN_Post_Title\"," + _eol +
+                "    newName: \"UN_Post_PostTitle\");",
+                o =>
+                {
+                    Assert.Equal("UN_Post_Title", o.Name);
+                    Assert.Equal("UN_Post_PostTitle", o.NewName);
+                    Assert.Null(o.Table);
+                    Assert.Null(o.Schema);
+                });
+        }
+
+        [ConditionalFact]
+        public void RenameUniqueConstraintOperation_all_args()
+        {
+            Test(
+                new RenameUniqueConstraintOperation
+                {
+                    Name = "UN_dbo.Post_Title",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "UN_dbo.Post_PostTitle"
+                },
+                "mb.RenameUniqueConstraint(" + _eol +
+                "    name: \"UN_dbo.Post_Title\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    table: \"Post\"," + _eol +
+                "    newName: \"UN_dbo.Post_PostTitle\");",
+                o =>
+                {
+                    Assert.Equal("UN_dbo.Post_Title", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("UN_dbo.Post_PostTitle", o.NewName);
                 });
         }
 

@@ -584,4 +584,13 @@
   <data name="DbFunctionAggregateCustomTranslation" xml:space="preserve">
     <value>Cannot set custom translation on the DbFunction '{function}' since it is an aggregate function.</value>
   </data>
+  <data name="ForeignKeyNotFound" xml:space="preserve">
+    <value>The foreign key '{foreignKeyName}' was not found.</value>
+  </data>
+  <data name="PrimaryKeyNotFound" xml:space="preserve">
+    <value>The primary key '{primaryKeyName}' was not found.</value>
+  </data>
+  <data name="UniqueConstraintNotFound" xml:space="preserve">
+    <value>The unique constraint '{uniqueConstraintName}' was not found.</value>
+  </data>
 </root>

@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -63,7 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotations)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
@@ -72,6 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(loggingOptions, nameof(loggingOptions));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
+            Check.NotNull(relationalAnnotations, nameof(relationalAnnotations));
 
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
@@ -80,6 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             CurrentContext = currentContext;
             LoggingOptions = loggingOptions;
             Logger = logger;
+            MigrationsAnnotations = migrationsAnnotations;
+            RelationalAnnotations = relationalAnnotations;
         }
 
         /// <summary>
@@ -118,6 +125,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
+        ///     The migrations annotations to use.
+        /// </summary>
+        public IMigrationsAnnotationProvider MigrationsAnnotations { get; }
+
+        /// <summary>
+        ///     The relational annotations to use.
+        /// </summary>
+        public IRelationalAnnotationProvider RelationalAnnotations { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
@@ -130,7 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -145,7 +164,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -160,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -175,7 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 typeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -190,7 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 currentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -205,7 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 loggingOptions,
-                Logger);
+                Logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -220,6 +249,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                logger);
+                logger,
+                MigrationsAnnotations,
+                RelationalAnnotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationsAnnotations"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                CurrentContext,
+                LoggingOptions,
+                Logger,
+                migrationsAnnotations,
+                RelationalAnnotations);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalAnnotations"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalAnnotationProvider relationalAnnotations)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                CurrentContext,
+                LoggingOptions,
+                Logger,
+                MigrationsAnnotations,
+                relationalAnnotations);
     }
 }
