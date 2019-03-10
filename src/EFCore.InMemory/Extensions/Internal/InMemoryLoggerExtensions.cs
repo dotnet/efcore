@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionIgnoredWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
         {
-            var definition = InMemoryStrings.LogTransactionsNotSupported;
+            var definition = InMemoryStrings.LogTransactionsNotSupported(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
         {
-            var definition = InMemoryStrings.LogSavedChanges;
+            var definition = InMemoryStrings.LogSavedChanges(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

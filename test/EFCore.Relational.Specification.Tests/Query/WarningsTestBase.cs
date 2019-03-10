@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon"),
+                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()"),
+                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Last()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()"),
+                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Last()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()"),
+                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("LastOrDefault()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);

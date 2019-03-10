@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            var definition = CoreStrings.LogRedundantIndexRemoved;
+            var definition = CoreStrings.LogRedundantIndexRemoved(Logger);
             if (definition.GetLogBehavior(Logger) == WarningBehavior.Ignore
                 && !Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {

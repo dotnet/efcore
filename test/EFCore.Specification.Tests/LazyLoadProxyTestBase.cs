@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Children", "ParentProxy"),
+                            CoreStrings.LogLazyLoadOnDisposedContext(new TestLogger<LoggingDefinitions>()).GenerateMessage("Children", "ParentProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -133,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "ChildProxy"),
+                            CoreStrings.LogLazyLoadOnDisposedContext(new TestLogger<LoggingDefinitions>()).GenerateMessage("Parent", "ChildProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
@@ -209,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "SingleProxy"),
+                            CoreStrings.LogLazyLoadOnDisposedContext(new TestLogger<LoggingDefinitions>()).GenerateMessage("Parent", "SingleProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
@@ -285,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Single", "ParentProxy"),
+                            CoreStrings.LogLazyLoadOnDisposedContext(new TestLogger<LoggingDefinitions>()).GenerateMessage("Single", "ParentProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
@@ -1655,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "ParentProxy"),
+                        CoreStrings.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "ParentProxy"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
@@ -1672,7 +1673,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "ChildProxy"),
+                        CoreStrings.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "ChildProxy"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
@@ -1689,7 +1690,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "ParentProxy"),
+                        CoreStrings.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "ParentProxy"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);

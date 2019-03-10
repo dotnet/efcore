@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = SqlServerStrings.LogDefaultDecimalTypeColumn;
+            var definition = SqlServerStrings.LogDefaultDecimalTypeColumn(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = SqlServerStrings.LogByteIdentityColumn;
+            var definition = SqlServerStrings.LogByteIdentityColumn(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string defaultValue,
             [CanBeNull] string computedValue)
         {
-            var definition = SqlServerStrings.LogFoundColumn;
+            var definition = SqlServerStrings.LogFoundColumn(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string principalTableName,
             [NotNull] string onDeleteAction)
         {
-            var definition = SqlServerStrings.LogFoundForeignKey;
+            var definition = SqlServerStrings.LogFoundForeignKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string schemaName)
         {
-            var definition = SqlServerStrings.LogFoundDefaultSchema;
+            var definition = SqlServerStrings.LogFoundDefaultSchema(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string typeAliasName,
             [NotNull] string systemTypeName)
         {
-            var definition = SqlServerStrings.LogFoundTypeAlias;
+            var definition = SqlServerStrings.LogFoundTypeAlias(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string primaryKeyName,
             [NotNull] string tableName)
         {
-            var definition = SqlServerStrings.LogFoundPrimaryKey;
+            var definition = SqlServerStrings.LogFoundPrimaryKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string uniqueConstraintName,
             [NotNull] string tableName)
         {
-            var definition = SqlServerStrings.LogFoundUniqueConstraint;
+            var definition = SqlServerStrings.LogFoundUniqueConstraint(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string tableName,
             bool unique)
         {
-            var definition = SqlServerStrings.LogFoundIndex;
+            var definition = SqlServerStrings.LogFoundIndex(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string principalTableName)
         {
-            var definition = SqlServerStrings.LogPrincipalTableNotInSelectionSet;
+            var definition = SqlServerStrings.LogPrincipalTableNotInSelectionSet(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string principalColumnName,
             [NotNull] string principalTableName)
         {
-            var definition = SqlServerStrings.LogPrincipalColumnNotFound;
+            var definition = SqlServerStrings.LogPrincipalColumnNotFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
         {
-            var definition = SqlServerStrings.LogMissingSchema;
+            var definition = SqlServerStrings.LogMissingSchema(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var definition = SqlServerStrings.LogMissingTable;
+            var definition = SqlServerStrings.LogMissingTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             long max)
         {
             // No DiagnosticsSource events because these are purely design-time messages
-            var definition = SqlServerStrings.LogFoundSequence;
+            var definition = SqlServerStrings.LogFoundSequence(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string tableName)
         {
-            var definition = SqlServerStrings.LogFoundTable;
+            var definition = SqlServerStrings.LogFoundTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string foreignKeyName,
             [NotNull] string tableName)
         {
-            var definition = SqlServerStrings.LogReflexiveConstraintIgnored;
+            var definition = SqlServerStrings.LogReflexiveConstraintIgnored(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

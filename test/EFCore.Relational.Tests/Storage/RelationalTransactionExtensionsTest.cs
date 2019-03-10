@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     loggerFactory,
                     new LoggingOptions(),
-                    new DiagnosticListener("Fake")),
+                    new DiagnosticListener("Fake"),
+                    new RelationalLoggingDefinitions()),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());

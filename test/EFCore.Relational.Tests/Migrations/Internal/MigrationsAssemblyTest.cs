@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [Fact]
         public void Migrations_ignores_the_unattributed()
         {
-            var logger = new TestLogger<DbLoggerCategory.Migrations>
+            var logger = new TestLogger<DbLoggerCategory.Migrations, RelationalLoggingDefinitions>
             {
                 EnabledFor = LogLevel.Warning
             };
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(2, result.Count);
             Assert.DoesNotContain(result, t => t.GetType() == typeof(MigrationWithoutAttribute));
             Assert.Equal(
-                RelationalStrings.LogMigrationAttributeMissingWarning.GenerateMessage(nameof(MigrationWithoutAttribute)),
+                RelationalStrings.LogMigrationAttributeMissingWarning(logger).GenerateMessage(nameof(MigrationWithoutAttribute)),
                 logger.Message);
         }
 

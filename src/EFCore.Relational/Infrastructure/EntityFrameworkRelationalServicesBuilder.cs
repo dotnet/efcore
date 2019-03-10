@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -124,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> This builder, such that further calls can be chained. </returns>
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
+            TryAdd<LoggingDefinitions, RelationalLoggingDefinitions>();
             TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
             TryAdd<IComparer<ModificationCommand>, ModificationCommandComparer>();
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();

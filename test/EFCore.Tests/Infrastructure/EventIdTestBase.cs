@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void TestEventLogging(
             Type eventIdType,
             Type loggerExtensionsType,
+            Type loggerDefinitionsType,
             IDictionary<Type, Func<object>> fakeFactories)
         {
             var eventIdFields = eventIdType.GetTypeInfo()
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var categoryName = Activator.CreateInstance(category).ToString();
                 Assert.Equal(categoryName + "." + eventName, eventId.Name);
 
-                var testLogger = (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<>).MakeGenericType(category));
+                var testLogger = (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<,>).MakeGenericType(category, loggerDefinitionsType));
                 var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
 
                 var args = new object[loggerParameters.Length];

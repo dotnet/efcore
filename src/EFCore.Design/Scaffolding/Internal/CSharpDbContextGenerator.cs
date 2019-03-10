@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -641,7 +642,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                 new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                 new LoggingOptions(),
-                new DiagnosticListener(""));
+                new DiagnosticListener(""),
+                new LoggingDefinitions());
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;

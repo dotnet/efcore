@@ -107,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
                         ScopedLoggerFactory.Create(scopedProvider, options),
                         scopedProvider.GetService<ILoggingOptions>(),
-                        scopedProvider.GetService<DiagnosticSource>());
+                        scopedProvider.GetService<DiagnosticSource>(),
+                        scopedProvider.GetService<LoggingDefinitions>());
 
                     if (_configurations.Count == 0)
                     {

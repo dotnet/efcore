@@ -3,7 +3,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -608,7 +611,7 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
+                RelationalStrings.LogPossibleUnintendedUseOfEquals(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     $"e.EmployeeID.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -638,11 +641,11 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
+                RelationalStrings.LogPossibleUnintendedUseOfEquals(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     $"__longPrm_0.Equals(Convert(e.ReportsTo{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
             Assert.Contains(
-                RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
+                RelationalStrings.LogPossibleUnintendedUseOfEquals(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     $"e.ReportsTo.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -660,12 +663,12 @@ FROM [Employees] AS [e]
 WHERE 0 = 1");
 
             Assert.Contains(
-                RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
+                RelationalStrings.LogPossibleUnintendedUseOfEquals(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     $"__nullableLongPrm_0.Equals(Convert(e.ReportsTo{ConvertParams}))"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
             Assert.Contains(
-                RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
+                RelationalStrings.LogPossibleUnintendedUseOfEquals(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     $"e.ReportsTo.Equals(Convert(__nullableLongPrm_0{ConvertParams}))"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }

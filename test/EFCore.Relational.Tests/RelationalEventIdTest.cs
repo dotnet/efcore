@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 },
                 { typeof(IRelationalConnection), () => new FakeRelationalConnection() },
+                { typeof(LoggingDefinitions), () => new RelationalLoggingDefinitions() },
                 { typeof(DbCommand), () => new FakeDbCommand() },
                 { typeof(DbTransaction), () => new FakeDbTransaction() },
                 { typeof(DbDataReader), () => new FakeDbDataReader() },
@@ -87,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(RelationalEventId),
                 typeof(RelationalLoggerExtensions),
+                typeof(RelationalLoggingDefinitions),
                 fakeFactories);
         }
 

@@ -9,6 +9,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -489,7 +490,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                         new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                         new LoggingOptions(),
-                        new DiagnosticListener(""));
+                        new DiagnosticListener(""),
+                        new LoggingDefinitions());
 
                     var conventionalValueGenerated = new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated(property);
                     if (conventionalValueGenerated == ValueGenerated.OnAdd)

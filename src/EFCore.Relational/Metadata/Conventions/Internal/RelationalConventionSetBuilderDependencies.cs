@@ -72,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                      ?? new DiagnosticsLogger<DbLoggerCategory.Model>(
                          new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                          new LoggingOptions(),
-                         new DiagnosticListener(""));
+                         new DiagnosticListener(""),
+                         new LoggingDefinitions());
             Context = currentContext;
             SetFinder = setFinder;
         }

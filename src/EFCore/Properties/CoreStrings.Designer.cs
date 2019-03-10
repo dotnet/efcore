@@ -3,6 +3,7 @@
 using System;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -381,54 +382,98 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An 'IServiceProvider' was created for internal use by Entity Framework.
         /// </summary>
-        public static readonly EventDefinition LogServiceProviderCreated
-            = new EventDefinition(
-                CoreEventId.ServiceProviderCreated,
-                LogLevel.Debug,
-                "CoreEventId.ServiceProviderCreated",
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    CoreEventId.ServiceProviderCreated,
-                    _resourceManager.GetString("LogServiceProviderCreated")));
+        public static EventDefinition LogServiceProviderCreated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogServiceProviderCreated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogServiceProviderCreated,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.ServiceProviderCreated,
+                        LogLevel.Debug,
+                        "CoreEventId.ServiceProviderCreated",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.ServiceProviderCreated,
+                            _resourceManager.GetString("LogServiceProviderCreated"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. This is commonly caused by injection of a new singleton service instance into every DbContext instance. For example, calling UseLoggerFactory passing in a new instance each time--see https://go.microsoft.com/fwlink/?linkid=869049 for more details. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.
         /// </summary>
-        public static readonly EventDefinition LogManyServiceProvidersCreated
-            = new EventDefinition(
-                CoreEventId.ManyServiceProvidersCreatedWarning,
-                LogLevel.Warning,
-                "CoreEventId.ManyServiceProvidersCreatedWarning",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    CoreEventId.ManyServiceProvidersCreatedWarning,
-                    _resourceManager.GetString("LogManyServiceProvidersCreated")));
+        public static EventDefinition LogManyServiceProvidersCreated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogManyServiceProvidersCreated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogManyServiceProvidersCreated,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.ManyServiceProvidersCreatedWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ManyServiceProvidersCreatedWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.ManyServiceProvidersCreatedWarning,
+                            _resourceManager.GetString("LogManyServiceProvidersCreated"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An additional 'IServiceProvider' was created for internal use by Entity Framework. An existing service provider was not used due to the following configuration changes: {debugInfo}.
         /// </summary>
-        public static readonly EventDefinition<string> LogServiceProviderDebugInfo
-            = new EventDefinition<string>(
-                CoreEventId.ServiceProviderDebugInfo,
-                LogLevel.Debug,
-                "CoreEventId.ServiceProviderDebugInfo",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.ServiceProviderDebugInfo,
-                    _resourceManager.GetString("LogServiceProviderDebugInfo")));
+        public static EventDefinition<string> LogServiceProviderDebugInfo([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogServiceProviderDebugInfo;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogServiceProviderDebugInfo,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.ServiceProviderDebugInfo,
+                        LogLevel.Debug,
+                        "CoreEventId.ServiceProviderDebugInfo",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.ServiceProviderDebugInfo,
+                            _resourceManager.GetString("LogServiceProviderDebugInfo"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogContextInitialized
-            = new EventDefinition<string, string, string, string>(
-                CoreEventId.ContextInitialized,
-                LogLevel.Information,
-                "CoreEventId.ContextInitialized",
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Information,
-                    CoreEventId.ContextInitialized,
-                    _resourceManager.GetString("LogContextInitialized")));
+        public static EventDefinition<string, string, string, string> LogContextInitialized([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogContextInitialized;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogContextInitialized,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.ContextInitialized,
+                        LogLevel.Information,
+                        "CoreEventId.ContextInitialized",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.ContextInitialized,
+                            _resourceManager.GetString("LogContextInitialized"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     configuration changed for '{key}'
@@ -527,353 +572,650 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}
         /// </summary>
-        public static readonly EventDefinition<Type, string, Exception> LogExceptionDuringQueryIteration
-            = new EventDefinition<Type, string, Exception>(
-                CoreEventId.QueryIterationFailed,
-                LogLevel.Error,
-                "CoreEventId.QueryIterationFailed",
-                LoggerMessage.Define<Type, string, Exception>(
-                    LogLevel.Error,
-                    CoreEventId.QueryIterationFailed,
-                    _resourceManager.GetString("LogExceptionDuringQueryIteration")));
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringQueryIteration([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogExceptionDuringQueryIteration;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogExceptionDuringQueryIteration,
+                    () => new EventDefinition<Type, string, Exception>(
+                        logger.Options,
+                        CoreEventId.QueryIterationFailed,
+                        LogLevel.Error,
+                        "CoreEventId.QueryIterationFailed",
+                        level => LoggerMessage.Define<Type, string, Exception>(
+                            level,
+                            CoreEventId.QueryIterationFailed,
+                            _resourceManager.GetString("LogExceptionDuringQueryIteration"))));
+            }
+
+            return (EventDefinition<Type, string, Exception>)definition;
+        }
 
         /// <summary>
         ///     An exception occurred in the database while saving changes for context type '{contextType}'.{newline}{error}
         /// </summary>
-        public static readonly EventDefinition<Type, string, Exception> LogExceptionDuringSaveChanges
-            = new EventDefinition<Type, string, Exception>(
-                CoreEventId.SaveChangesFailed,
-                LogLevel.Error,
-                "CoreEventId.SaveChangesFailed",
-                LoggerMessage.Define<Type, string, Exception>(
-                    LogLevel.Error,
-                    CoreEventId.SaveChangesFailed,
-                    _resourceManager.GetString("LogExceptionDuringSaveChanges")));
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringSaveChanges([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogExceptionDuringSaveChanges;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogExceptionDuringSaveChanges,
+                    () => new EventDefinition<Type, string, Exception>(
+                        logger.Options,
+                        CoreEventId.SaveChangesFailed,
+                        LogLevel.Error,
+                        "CoreEventId.SaveChangesFailed",
+                        level => LoggerMessage.Define<Type, string, Exception>(
+                            level,
+                            CoreEventId.SaveChangesFailed,
+                            _resourceManager.GetString("LogExceptionDuringSaveChanges"))));
+            }
+
+            return (EventDefinition<Type, string, Exception>)definition;
+        }
 
         /// <summary>
         ///     DetectChanges starting for '{contextType}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogDetectChangesStarting
-            = new EventDefinition<string>(
-                CoreEventId.DetectChangesStarting,
-                LogLevel.Debug,
-                "CoreEventId.DetectChangesStarting",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.DetectChangesStarting,
-                    _resourceManager.GetString("LogDetectChangesStarting")));
+        public static EventDefinition<string> LogDetectChangesStarting([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDetectChangesStarting;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDetectChangesStarting,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.DetectChangesStarting,
+                        LogLevel.Debug,
+                        "CoreEventId.DetectChangesStarting",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.DetectChangesStarting,
+                            _resourceManager.GetString("LogDetectChangesStarting"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     DetectChanges completed for '{contextType}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogDetectChangesCompleted
-            = new EventDefinition<string>(
-                CoreEventId.DetectChangesCompleted,
-                LogLevel.Debug,
-                "CoreEventId.DetectChangesCompleted",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.DetectChangesCompleted,
-                    _resourceManager.GetString("LogDetectChangesCompleted")));
+        public static EventDefinition<string> LogDetectChangesCompleted([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDetectChangesCompleted;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDetectChangesCompleted,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.DetectChangesCompleted,
+                        LogLevel.Debug,
+                        "CoreEventId.DetectChangesCompleted",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.DetectChangesCompleted,
+                            _resourceManager.GetString("LogDetectChangesCompleted"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Unchanged '{entityType}.{property}' detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogPropertyChangeDetected
-            = new EventDefinition<string, string>(
-                CoreEventId.PropertyChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.PropertyChangeDetected",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.PropertyChangeDetected,
-                    _resourceManager.GetString("LogPropertyChangeDetected")));
+        public static EventDefinition<string, string> LogPropertyChangeDetected([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetected;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetected,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.PropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.PropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.PropertyChangeDetected,
+                            _resourceManager.GetString("LogPropertyChangeDetected"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Unchanged '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, object, object, string> LogPropertyChangeDetectedSensitive
-            = new EventDefinition<string, string, object, object, string>(
-                CoreEventId.PropertyChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.PropertyChangeDetected",
-                LoggerMessage.Define<string, string, object, object, string>(
-                    LogLevel.Debug,
-                    CoreEventId.PropertyChangeDetected,
-                    _resourceManager.GetString("LogPropertyChangeDetectedSensitive")));
+        public static EventDefinition<string, string, object, object, string> LogPropertyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetectedSensitive,
+                    () => new EventDefinition<string, string, object, object, string>(
+                        logger.Options,
+                        CoreEventId.PropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.PropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string, object, object, string>(
+                            level,
+                            CoreEventId.PropertyChangeDetected,
+                            _resourceManager.GetString("LogPropertyChangeDetectedSensitive"))));
+            }
+
+            return (EventDefinition<string, string, object, object, string>)definition;
+        }
 
         /// <summary>
         ///     Foreign key property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogForeignKeyChangeDetected
-            = new EventDefinition<string, string>(
-                CoreEventId.ForeignKeyChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.ForeignKeyChangeDetected",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ForeignKeyChangeDetected,
-                    _resourceManager.GetString("LogForeignKeyChangeDetected")));
+        public static EventDefinition<string, string> LogForeignKeyChangeDetected([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetected;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetected,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ForeignKeyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ForeignKeyChangeDetected",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ForeignKeyChangeDetected,
+                            _resourceManager.GetString("LogForeignKeyChangeDetected"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Foreign key property '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' for entity with key '{keyValues}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, object, object, string> LogForeignKeyChangeDetectedSensitive
-            = new EventDefinition<string, string, object, object, string>(
-                CoreEventId.ForeignKeyChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.ForeignKeyChangeDetected",
-                LoggerMessage.Define<string, string, object, object, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ForeignKeyChangeDetected,
-                    _resourceManager.GetString("LogForeignKeyChangeDetectedSensitive")));
+        public static EventDefinition<string, string, object, object, string> LogForeignKeyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetectedSensitive,
+                    () => new EventDefinition<string, string, object, object, string>(
+                        logger.Options,
+                        CoreEventId.ForeignKeyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ForeignKeyChangeDetected",
+                        level => LoggerMessage.Define<string, string, object, object, string>(
+                            level,
+                            CoreEventId.ForeignKeyChangeDetected,
+                            _resourceManager.GetString("LogForeignKeyChangeDetectedSensitive"))));
+            }
+
+            return (EventDefinition<string, string, object, object, string>)definition;
+        }
 
         /// <summary>
         ///     Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<int, int, string, string> LogCollectionChangeDetected
-            = new EventDefinition<int, int, string, string>(
-                CoreEventId.CollectionChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.CollectionChangeDetected",
-                LoggerMessage.Define<int, int, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CollectionChangeDetected,
-                    _resourceManager.GetString("LogCollectionChangeDetected")));
+        public static EventDefinition<int, int, string, string> LogCollectionChangeDetected([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCollectionChangeDetected;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCollectionChangeDetected,
+                    () => new EventDefinition<int, int, string, string>(
+                        logger.Options,
+                        CoreEventId.CollectionChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.CollectionChangeDetected",
+                        level => LoggerMessage.Define<int, int, string, string>(
+                            level,
+                            CoreEventId.CollectionChangeDetected,
+                            _resourceManager.GetString("LogCollectionChangeDetected"))));
+            }
+
+            return (EventDefinition<int, int, string, string>)definition;
+        }
 
         /// <summary>
         ///     Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}' on entity with key '{keyValues}'.
         /// </summary>
-        public static readonly EventDefinition<int, int, string, string, string> LogCollectionChangeDetectedSensitive
-            = new EventDefinition<int, int, string, string, string>(
-                CoreEventId.CollectionChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.CollectionChangeDetected",
-                LoggerMessage.Define<int, int, string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CollectionChangeDetected,
-                    _resourceManager.GetString("LogCollectionChangeDetectedSensitive")));
+        public static EventDefinition<int, int, string, string, string> LogCollectionChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCollectionChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCollectionChangeDetectedSensitive,
+                    () => new EventDefinition<int, int, string, string, string>(
+                        logger.Options,
+                        CoreEventId.CollectionChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.CollectionChangeDetected",
+                        level => LoggerMessage.Define<int, int, string, string, string>(
+                            level,
+                            CoreEventId.CollectionChangeDetected,
+                            _resourceManager.GetString("LogCollectionChangeDetectedSensitive"))));
+            }
+
+            return (EventDefinition<int, int, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     Navigation property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogReferenceChangeDetected
-            = new EventDefinition<string, string>(
-                CoreEventId.ReferenceChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.ReferenceChangeDetected",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ReferenceChangeDetected,
-                    _resourceManager.GetString("LogReferenceChangeDetected")));
+        public static EventDefinition<string, string> LogReferenceChangeDetected([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogReferenceChangeDetected;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogReferenceChangeDetected,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ReferenceChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ReferenceChangeDetected",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ReferenceChangeDetected,
+                            _resourceManager.GetString("LogReferenceChangeDetected"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Navigation property '{entityType}.{property}' for entity with key '{keyValues}' detected as changed.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogReferenceChangeDetectedSensitive
-            = new EventDefinition<string, string, string>(
-                CoreEventId.ReferenceChangeDetected,
-                LogLevel.Debug,
-                "CoreEventId.ReferenceChangeDetected",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ReferenceChangeDetected,
-                    _resourceManager.GetString("LogReferenceChangeDetectedSensitive")));
+        public static EventDefinition<string, string, string> LogReferenceChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogReferenceChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogReferenceChangeDetectedSensitive,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.ReferenceChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ReferenceChangeDetected",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.ReferenceChangeDetected,
+                            _resourceManager.GetString("LogReferenceChangeDetectedSensitive"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     Cascade state change of '{entityType}' entity to '{state}' due to deletion of parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, EntityState, string> LogCascadeDelete
-            = new EventDefinition<string, EntityState, string>(
-                CoreEventId.CascadeDelete,
-                LogLevel.Debug,
-                "CoreEventId.CascadeDelete",
-                LoggerMessage.Define<string, EntityState, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CascadeDelete,
-                    _resourceManager.GetString("LogCascadeDelete")));
+        public static EventDefinition<string, EntityState, string> LogCascadeDelete([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCascadeDelete;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCascadeDelete,
+                    () => new EventDefinition<string, EntityState, string>(
+                        logger.Options,
+                        CoreEventId.CascadeDelete,
+                        LogLevel.Debug,
+                        "CoreEventId.CascadeDelete",
+                        level => LoggerMessage.Define<string, EntityState, string>(
+                            level,
+                            CoreEventId.CascadeDelete,
+                            _resourceManager.GetString("LogCascadeDelete"))));
+            }
+
+            return (EventDefinition<string, EntityState, string>)definition;
+        }
 
         /// <summary>
         ///     Cascade state change of '{entityType}' entity with key '{keyValues}' to '{state}' due to deletion of parent '{parentType}' entity with key '{parentKeyValues}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, EntityState, string, string> LogCascadeDeleteSensitive
-            = new EventDefinition<string, string, EntityState, string, string>(
-                CoreEventId.CascadeDelete,
-                LogLevel.Debug,
-                "CoreEventId.CascadeDelete",
-                LoggerMessage.Define<string, string, EntityState, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CascadeDelete,
-                    _resourceManager.GetString("LogCascadeDeleteSensitive")));
+        public static EventDefinition<string, string, EntityState, string, string> LogCascadeDeleteSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteSensitive,
+                    () => new EventDefinition<string, string, EntityState, string, string>(
+                        logger.Options,
+                        CoreEventId.CascadeDelete,
+                        LogLevel.Debug,
+                        "CoreEventId.CascadeDelete",
+                        level => LoggerMessage.Define<string, string, EntityState, string, string>(
+                            level,
+                            CoreEventId.CascadeDelete,
+                            _resourceManager.GetString("LogCascadeDeleteSensitive"))));
+            }
+
+            return (EventDefinition<string, string, EntityState, string, string>)definition;
+        }
 
         /// <summary>
         ///     '{entityType}' entity changed to '{state}' state due to severed required relationship to parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, EntityState, string> LogCascadeDeleteOrphan
-            = new EventDefinition<string, EntityState, string>(
-                CoreEventId.CascadeDeleteOrphan,
-                LogLevel.Debug,
-                "CoreEventId.CascadeDeleteOrphan",
-                LoggerMessage.Define<string, EntityState, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CascadeDeleteOrphan,
-                    _resourceManager.GetString("LogCascadeDeleteOrphan")));
+        public static EventDefinition<string, EntityState, string> LogCascadeDeleteOrphan([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteOrphan;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteOrphan,
+                    () => new EventDefinition<string, EntityState, string>(
+                        logger.Options,
+                        CoreEventId.CascadeDeleteOrphan,
+                        LogLevel.Debug,
+                        "CoreEventId.CascadeDeleteOrphan",
+                        level => LoggerMessage.Define<string, EntityState, string>(
+                            level,
+                            CoreEventId.CascadeDeleteOrphan,
+                            _resourceManager.GetString("LogCascadeDeleteOrphan"))));
+            }
+
+            return (EventDefinition<string, EntityState, string>)definition;
+        }
 
         /// <summary>
         ///     '{entityType}' entity with key '{keyValues}' changed to '{state}' state due to severed required relationship to parent '{parentType}' entity.
         /// </summary>
-        public static readonly EventDefinition<string, string, EntityState, string> LogCascadeDeleteOrphanSensitive
-            = new EventDefinition<string, string, EntityState, string>(
-                CoreEventId.CascadeDeleteOrphan,
-                LogLevel.Debug,
-                "CoreEventId.CascadeDeleteOrphan",
-                LoggerMessage.Define<string, string, EntityState, string>(
-                    LogLevel.Debug,
-                    CoreEventId.CascadeDeleteOrphan,
-                    _resourceManager.GetString("LogCascadeDeleteOrphanSensitive")));
+        public static EventDefinition<string, string, EntityState, string> LogCascadeDeleteOrphanSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteOrphanSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCascadeDeleteOrphanSensitive,
+                    () => new EventDefinition<string, string, EntityState, string>(
+                        logger.Options,
+                        CoreEventId.CascadeDeleteOrphan,
+                        LogLevel.Debug,
+                        "CoreEventId.CascadeDeleteOrphan",
+                        level => LoggerMessage.Define<string, string, EntityState, string>(
+                            level,
+                            CoreEventId.CascadeDeleteOrphan,
+                            _resourceManager.GetString("LogCascadeDeleteOrphanSensitive"))));
+            }
+
+            return (EventDefinition<string, string, EntityState, string>)definition;
+        }
 
         /// <summary>
         ///     Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogStartedTracking
-            = new EventDefinition<string, string>(
-                CoreEventId.StartedTracking,
-                LogLevel.Debug,
-                "CoreEventId.StartedTracking",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.StartedTracking,
-                    _resourceManager.GetString("LogStartedTracking")));
+        public static EventDefinition<string, string> LogStartedTracking([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStartedTracking;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStartedTracking,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.StartedTracking,
+                        LogLevel.Debug,
+                        "CoreEventId.StartedTracking",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.StartedTracking,
+                            _resourceManager.GetString("LogStartedTracking"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Context '{contextType}' started tracking '{entityType}' entity with key '{keyValues}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogStartedTrackingSensitive
-            = new EventDefinition<string, string, string>(
-                CoreEventId.StartedTracking,
-                LogLevel.Debug,
-                "CoreEventId.StartedTracking",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.StartedTracking,
-                    _resourceManager.GetString("LogStartedTrackingSensitive")));
+        public static EventDefinition<string, string, string> LogStartedTrackingSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStartedTrackingSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStartedTrackingSensitive,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.StartedTracking,
+                        LogLevel.Debug,
+                        "CoreEventId.StartedTracking",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.StartedTracking,
+                            _resourceManager.GetString("LogStartedTrackingSensitive"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     An '{entityType}' entity tracked by '{contextType}' changed from '{oldState}' to '{newState}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, string, EntityState, EntityState> LogStateChanged
-            = new EventDefinition<string, string, EntityState, EntityState>(
-                CoreEventId.StateChanged,
-                LogLevel.Debug,
-                "CoreEventId.StateChanged",
-                LoggerMessage.Define<string, string, EntityState, EntityState>(
-                    LogLevel.Debug,
-                    CoreEventId.StateChanged,
-                    _resourceManager.GetString("LogStateChanged")));
+        public static EventDefinition<string, string, EntityState, EntityState> LogStateChanged([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStateChanged;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStateChanged,
+                    () => new EventDefinition<string, string, EntityState, EntityState>(
+                        logger.Options,
+                        CoreEventId.StateChanged,
+                        LogLevel.Debug,
+                        "CoreEventId.StateChanged",
+                        level => LoggerMessage.Define<string, string, EntityState, EntityState>(
+                            level,
+                            CoreEventId.StateChanged,
+                            _resourceManager.GetString("LogStateChanged"))));
+            }
+
+            return (EventDefinition<string, string, EntityState, EntityState>)definition;
+        }
 
         /// <summary>
         ///     The '{entityType}' entity with key '{keyValues}' tracked by '{contextType}' changed from '{oldState}' to '{newState}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, EntityState, EntityState> LogStateChangedSensitive
-            = new EventDefinition<string, string, string, EntityState, EntityState>(
-                CoreEventId.StateChanged,
-                LogLevel.Debug,
-                "CoreEventId.StateChanged",
-                LoggerMessage.Define<string, string, string, EntityState, EntityState>(
-                    LogLevel.Debug,
-                    CoreEventId.StateChanged,
-                    _resourceManager.GetString("LogStateChangedSensitive")));
+        public static EventDefinition<string, string, string, EntityState, EntityState> LogStateChangedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStateChangedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStateChangedSensitive,
+                    () => new EventDefinition<string, string, string, EntityState, EntityState>(
+                        logger.Options,
+                        CoreEventId.StateChanged,
+                        LogLevel.Debug,
+                        "CoreEventId.StateChanged",
+                        level => LoggerMessage.Define<string, string, string, EntityState, EntityState>(
+                            level,
+                            CoreEventId.StateChanged,
+                            _resourceManager.GetString("LogStateChangedSensitive"))));
+            }
+
+            return (EventDefinition<string, string, string, EntityState, EntityState>)definition;
+        }
 
         /// <summary>
         ///     '{contextType}' generated a value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogValueGenerated
-            = new EventDefinition<string, string, string>(
-                CoreEventId.ValueGenerated,
-                LogLevel.Debug,
-                "CoreEventId.ValueGenerated",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ValueGenerated,
-                    _resourceManager.GetString("LogValueGenerated")));
+        public static EventDefinition<string, string, string> LogValueGenerated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogValueGenerated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogValueGenerated,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.ValueGenerated,
+                        LogLevel.Debug,
+                        "CoreEventId.ValueGenerated",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.ValueGenerated,
+                            _resourceManager.GetString("LogValueGenerated"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     '{contextType}' generated value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
         /// </summary>
-        public static readonly EventDefinition<string, object, string, string> LogValueGeneratedSensitive
-            = new EventDefinition<string, object, string, string>(
-                CoreEventId.ValueGenerated,
-                LogLevel.Debug,
-                "CoreEventId.ValueGenerated",
-                LoggerMessage.Define<string, object, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ValueGenerated,
-                    _resourceManager.GetString("LogValueGeneratedSensitive")));
+        public static EventDefinition<string, object, string, string> LogValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogValueGeneratedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogValueGeneratedSensitive,
+                    () => new EventDefinition<string, object, string, string>(
+                        logger.Options,
+                        CoreEventId.ValueGenerated,
+                        LogLevel.Debug,
+                        "CoreEventId.ValueGenerated",
+                        level => LoggerMessage.Define<string, object, string, string>(
+                            level,
+                            CoreEventId.ValueGenerated,
+                            _resourceManager.GetString("LogValueGeneratedSensitive"))));
+            }
+
+            return (EventDefinition<string, object, string, string>)definition;
+        }
 
         /// <summary>
         ///     '{contextType}' generated a temporary value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogTempValueGenerated
-            = new EventDefinition<string, string, string>(
-                CoreEventId.ValueGenerated,
-                LogLevel.Debug,
-                "CoreEventId.ValueGenerated",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ValueGenerated,
-                    _resourceManager.GetString("LogTempValueGenerated")));
+        public static EventDefinition<string, string, string> LogTempValueGenerated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogTempValueGenerated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogTempValueGenerated,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.ValueGenerated,
+                        LogLevel.Debug,
+                        "CoreEventId.ValueGenerated",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.ValueGenerated,
+                            _resourceManager.GetString("LogTempValueGenerated"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     '{contextType}' generated temporary value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
         /// </summary>
-        public static readonly EventDefinition<string, object, string, string> LogTempValueGeneratedSensitive
-            = new EventDefinition<string, object, string, string>(
-                CoreEventId.ValueGenerated,
-                LogLevel.Debug,
-                "CoreEventId.ValueGenerated",
-                LoggerMessage.Define<string, object, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ValueGenerated,
-                    _resourceManager.GetString("LogTempValueGeneratedSensitive")));
+        public static EventDefinition<string, object, string, string> LogTempValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogTempValueGeneratedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogTempValueGeneratedSensitive,
+                    () => new EventDefinition<string, object, string, string>(
+                        logger.Options,
+                        CoreEventId.ValueGenerated,
+                        LogLevel.Debug,
+                        "CoreEventId.ValueGenerated",
+                        level => LoggerMessage.Define<string, object, string, string>(
+                            level,
+                            CoreEventId.ValueGenerated,
+                            _resourceManager.GetString("LogTempValueGeneratedSensitive"))));
+            }
+
+            return (EventDefinition<string, object, string, string>)definition;
+        }
 
         /// <summary>
         ///     SaveChanges starting for '{contextType}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogSaveChangesStarting
-            = new EventDefinition<string>(
-                CoreEventId.SaveChangesStarting,
-                LogLevel.Debug,
-                "CoreEventId.SaveChangesStarting",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.SaveChangesStarting,
-                    _resourceManager.GetString("LogSaveChangesStarting")));
+        public static EventDefinition<string> LogSaveChangesStarting([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangesStarting;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSaveChangesStarting,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.SaveChangesStarting,
+                        LogLevel.Debug,
+                        "CoreEventId.SaveChangesStarting",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.SaveChangesStarting,
+                            _resourceManager.GetString("LogSaveChangesStarting"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.
         /// </summary>
-        public static readonly EventDefinition<string, int> LogSaveChangesCompleted
-            = new EventDefinition<string, int>(
-                CoreEventId.SaveChangesCompleted,
-                LogLevel.Debug,
-                "CoreEventId.SaveChangesCompleted",
-                LoggerMessage.Define<string, int>(
-                    LogLevel.Debug,
-                    CoreEventId.SaveChangesCompleted,
-                    _resourceManager.GetString("LogSaveChangesCompleted")));
+        public static EventDefinition<string, int> LogSaveChangesCompleted([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangesCompleted;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSaveChangesCompleted,
+                    () => new EventDefinition<string, int>(
+                        logger.Options,
+                        CoreEventId.SaveChangesCompleted,
+                        LogLevel.Debug,
+                        "CoreEventId.SaveChangesCompleted",
+                        level => LoggerMessage.Define<string, int>(
+                            level,
+                            CoreEventId.SaveChangesCompleted,
+                            _resourceManager.GetString("LogSaveChangesCompleted"))));
+            }
+
+            return (EventDefinition<string, int>)definition;
+        }
 
         /// <summary>
         ///     '{contextType}' disposed.
         /// </summary>
-        public static readonly EventDefinition<string> LogContextDisposed
-            = new EventDefinition<string>(
-                CoreEventId.ContextDisposed,
-                LogLevel.Debug,
-                "CoreEventId.ContextDisposed",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.ContextDisposed,
-                    _resourceManager.GetString("LogContextDisposed")));
+        public static EventDefinition<string> LogContextDisposed([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogContextDisposed;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogContextDisposed,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.ContextDisposed,
+                        LogLevel.Debug,
+                        "CoreEventId.ContextDisposed",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.ContextDisposed,
+                            _resourceManager.GetString("LogContextDisposed"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
@@ -1116,54 +1458,98 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Compiling query model: {newline}'{queryModel}'
         /// </summary>
-        public static readonly EventDefinition<string, string> LogCompilingQueryModel
-            = new EventDefinition<string, string>(
-                CoreEventId.QueryModelCompiling,
-                LogLevel.Debug,
-                "CoreEventId.QueryModelCompiling",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.QueryModelCompiling,
-                    _resourceManager.GetString("LogCompilingQueryModel")));
+        public static EventDefinition<string, string> LogCompilingQueryModel([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.QueryModelCompiling,
+                        LogLevel.Debug,
+                        "CoreEventId.QueryModelCompiling",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.QueryModelCompiling,
+                            _resourceManager.GetString("LogCompilingQueryModel"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Optimized query model: {newline}'{queryModel}'
         /// </summary>
-        public static readonly EventDefinition<string, string> LogOptimizedQueryModel
-            = new EventDefinition<string, string>(
-                CoreEventId.QueryModelOptimized,
-                LogLevel.Debug,
-                "CoreEventId.QueryModelOptimized",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.QueryModelOptimized,
-                    _resourceManager.GetString("LogOptimizedQueryModel")));
+        public static EventDefinition<string, string> LogOptimizedQueryModel([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.QueryModelOptimized,
+                        LogLevel.Debug,
+                        "CoreEventId.QueryModelOptimized",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.QueryModelOptimized,
+                            _resourceManager.GetString("LogOptimizedQueryModel"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Including navigation: '{navigation}'
         /// </summary>
-        public static readonly EventDefinition<string> LogIncludingNavigation
-            = new EventDefinition<string>(
-                CoreEventId.NavigationIncluded,
-                LogLevel.Debug,
-                "CoreEventId.NavigationIncluded",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.NavigationIncluded,
-                    _resourceManager.GetString("LogIncludingNavigation")));
+        public static EventDefinition<string> LogIncludingNavigation([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NavigationIncluded,
+                        LogLevel.Debug,
+                        "CoreEventId.NavigationIncluded",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NavigationIncluded,
+                            _resourceManager.GetString("LogIncludingNavigation"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     {plan}
         /// </summary>
-        public static readonly EventDefinition<string> LogQueryExecutionPlanned
-            = new EventDefinition<string>(
-                CoreEventId.QueryExecutionPlanned,
-                LogLevel.Debug,
-                "CoreEventId.QueryExecutionPlanned",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    CoreEventId.QueryExecutionPlanned,
-                    _resourceManager.GetString("LogQueryExecutionPlanned")));
+        public static EventDefinition<string> LogQueryExecutionPlanned([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogQueryExecutionPlanned;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogQueryExecutionPlanned,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.QueryExecutionPlanned,
+                        LogLevel.Debug,
+                        "CoreEventId.QueryExecutionPlanned",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.QueryExecutionPlanned,
+                            _resourceManager.GetString("LogQueryExecutionPlanned"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
@@ -1626,15 +2012,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.
         /// </summary>
-        public static readonly EventDefinition LogSensitiveDataLoggingEnabled
-            = new EventDefinition(
-                CoreEventId.SensitiveDataLoggingEnabledWarning,
-                LogLevel.Warning,
-                "CoreEventId.SensitiveDataLoggingEnabledWarning",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    CoreEventId.SensitiveDataLoggingEnabledWarning,
-                    _resourceManager.GetString("LogSensitiveDataLoggingEnabled")));
+        public static EventDefinition LogSensitiveDataLoggingEnabled([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSensitiveDataLoggingEnabled;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSensitiveDataLoggingEnabled,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.SensitiveDataLoggingEnabledWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.SensitiveDataLoggingEnabledWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.SensitiveDataLoggingEnabledWarning,
+                            _resourceManager.GetString("LogSensitiveDataLoggingEnabled"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
@@ -1789,15 +2186,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.
         /// </summary>
-        public static readonly EventDefinition<string> LogIgnoredInclude
-            = new EventDefinition<string>(
-                CoreEventId.IncludeIgnoredWarning,
-                LogLevel.Warning,
-                "CoreEventId.IncludeIgnoredWarning",
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    CoreEventId.IncludeIgnoredWarning,
-                    _resourceManager.GetString("LogIgnoredInclude")));
+        public static EventDefinition<string> LogIgnoredInclude([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.IncludeIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.IncludeIgnoredWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.IncludeIgnoredWarning,
+                            _resourceManager.GetString("LogIgnoredInclude"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
@@ -1910,15 +2318,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
         /// </summary>
-        public static readonly EventDefinition<string> LogRowLimitingOperationWithoutOrderBy
-            = new EventDefinition<string>(
-                CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                LogLevel.Warning,
-                "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                    _resourceManager.GetString("LogRowLimitingOperationWithoutOrderBy")));
+        public static EventDefinition<string> LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.RowLimitingOperationWithoutOrderByWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.RowLimitingOperationWithoutOrderByWarning,
+                            _resourceManager.GetString("LogRowLimitingOperationWithoutOrderBy"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.
@@ -1939,15 +2358,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.
         /// </summary>
-        public static readonly EventDefinition<string> LogFirstWithoutOrderByAndFilter
-            = new EventDefinition<string>(
-                CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                LogLevel.Warning,
-                "CoreEventId.FirstWithoutOrderByAndFilterWarning",
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                    _resourceManager.GetString("LogFirstWithoutOrderByAndFilter")));
+        public static EventDefinition<string> LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.FirstWithoutOrderByAndFilterWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.FirstWithoutOrderByAndFilterWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.FirstWithoutOrderByAndFilterWarning,
+                            _resourceManager.GetString("LogFirstWithoutOrderByAndFilter"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The specified poolSize must be greater than 0.
@@ -2138,41 +2568,74 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Collection navigations are only considered null if their parent entity is null. Use '.Any()' to check whether collection navigation '{navigationPath}' is empty.
         /// </summary>
-        public static readonly EventDefinition<string> LogPossibleUnintendedCollectionNavigationNullComparison
-            = new EventDefinition<string>(
-                CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
-                LogLevel.Warning,
-                "CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning",
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
-                    _resourceManager.GetString("LogPossibleUnintendedCollectionNavigationNullComparison")));
+        public static EventDefinition<string> LogPossibleUnintendedCollectionNavigationNullComparison([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPossibleUnintendedCollectionNavigationNullComparison;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPossibleUnintendedCollectionNavigationNullComparison,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
+                            _resourceManager.GetString("LogPossibleUnintendedCollectionNavigationNullComparison"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Possible unintended reference comparison between '{left}' and '{right}'.
         /// </summary>
-        public static readonly EventDefinition<object, object> LogPossibleUnintendedReferenceComparison
-            = new EventDefinition<object, object>(
-                CoreEventId.PossibleUnintendedReferenceComparisonWarning,
-                LogLevel.Warning,
-                "CoreEventId.PossibleUnintendedReferenceComparisonWarning",
-                LoggerMessage.Define<object, object>(
-                    LogLevel.Warning,
-                    CoreEventId.PossibleUnintendedReferenceComparisonWarning,
-                    _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
+        public static EventDefinition<object, object> LogPossibleUnintendedReferenceComparison([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPossibleUnintendedReferenceComparison;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPossibleUnintendedReferenceComparison,
+                    () => new EventDefinition<object, object>(
+                        logger.Options,
+                        CoreEventId.PossibleUnintendedReferenceComparisonWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.PossibleUnintendedReferenceComparisonWarning",
+                        level => LoggerMessage.Define<object, object>(
+                            level,
+                            CoreEventId.PossibleUnintendedReferenceComparisonWarning,
+                            _resourceManager.GetString("LogPossibleUnintendedReferenceComparison"))));
+            }
+
+            return (EventDefinition<object, object>)definition;
+        }
 
         /// <summary>
         ///     The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance
-            = new EventDefinition<string, string>(
-                CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
-                LogLevel.Warning,
-                "CoreEventId.DuplicateDependentEntityTypeInstanceWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
-                    _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
+        public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDuplicateDependentEntityTypeInstance;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDuplicateDependentEntityTypeInstance,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DuplicateDependentEntityTypeInstanceWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
+                            _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
@@ -2319,67 +2782,122 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogShadowPropertyCreated
-            = new EventDefinition<string, string>(
-                CoreEventId.ShadowPropertyCreated,
-                LogLevel.Debug,
-                "CoreEventId.ShadowPropertyCreated",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.ShadowPropertyCreated,
-                    _resourceManager.GetString("LogShadowPropertyCreated")));
+        public static EventDefinition<string, string> LogShadowPropertyCreated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogShadowPropertyCreated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogShadowPropertyCreated,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ShadowPropertyCreated,
+                        LogLevel.Debug,
+                        "CoreEventId.ShadowPropertyCreated",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ShadowPropertyCreated,
+                            _resourceManager.GetString("LogShadowPropertyCreated"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}
         /// </summary>
-        public static readonly EventDefinition<int, string, Exception> LogExecutionStrategyRetrying
-            = new EventDefinition<int, string, Exception>(
-                CoreEventId.ExecutionStrategyRetrying,
-                LogLevel.Information,
-                "CoreEventId.ExecutionStrategyRetrying",
-                LoggerMessage.Define<int, string, Exception>(
-                    LogLevel.Information,
-                    CoreEventId.ExecutionStrategyRetrying,
-                    _resourceManager.GetString("LogExecutionStrategyRetrying")));
+        public static EventDefinition<int, string, Exception> LogExecutionStrategyRetrying([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogExecutionStrategyRetrying;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogExecutionStrategyRetrying,
+                    () => new EventDefinition<int, string, Exception>(
+                        logger.Options,
+                        CoreEventId.ExecutionStrategyRetrying,
+                        LogLevel.Information,
+                        "CoreEventId.ExecutionStrategyRetrying",
+                        level => LoggerMessage.Define<int, string, Exception>(
+                            level,
+                            CoreEventId.ExecutionStrategyRetrying,
+                            _resourceManager.GetString("LogExecutionStrategyRetrying"))));
+            }
+
+            return (EventDefinition<int, string, Exception>)definition;
+        }
 
         /// <summary>
         ///     Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogNavigationLazyLoading
-            = new EventDefinition<string, string>(
-                CoreEventId.NavigationLazyLoading,
-                LogLevel.Debug,
-                "CoreEventId.NavigationLazyLoading",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.NavigationLazyLoading,
-                    _resourceManager.GetString("LogNavigationLazyLoading")));
+        public static EventDefinition<string, string> LogNavigationLazyLoading([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationLazyLoading;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationLazyLoading,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.NavigationLazyLoading,
+                        LogLevel.Debug,
+                        "CoreEventId.NavigationLazyLoading",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.NavigationLazyLoading,
+                            _resourceManager.GetString("LogNavigationLazyLoading"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContext
-            = new EventDefinition<string, string>(
-                CoreEventId.LazyLoadOnDisposedContextWarning,
-                LogLevel.Warning,
-                "CoreEventId.LazyLoadOnDisposedContextWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.LazyLoadOnDisposedContextWarning,
-                    _resourceManager.GetString("LogLazyLoadOnDisposedContext")));
+        public static EventDefinition<string, string> LogLazyLoadOnDisposedContext([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogLazyLoadOnDisposedContext;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogLazyLoadOnDisposedContext,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.LazyLoadOnDisposedContextWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.LazyLoadOnDisposedContextWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.LazyLoadOnDisposedContextWarning,
+                            _resourceManager.GetString("LogLazyLoadOnDisposedContext"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogDetachedLazyLoading
-            = new EventDefinition<string, string>(
-                CoreEventId.DetachedLazyLoadingWarning,
-                LogLevel.Warning,
-                "CoreEventId.DetachedLazyLoadingWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.DetachedLazyLoadingWarning,
-                    _resourceManager.GetString("LogDetachedLazyLoading")));
+        public static EventDefinition<string, string> LogDetachedLazyLoading([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDetachedLazyLoading;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDetachedLazyLoading,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.DetachedLazyLoadingWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DetachedLazyLoadingWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.DetachedLazyLoadingWarning,
+                            _resourceManager.GetString("LogDetachedLazyLoading"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Unable to create a foreign key with the keyless type '{entityType}' as the principal type. Only entity types with keys are allowed as foreign key principal types.
@@ -2400,145 +2918,266 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogRedundantIndexRemoved
-            = new EventDefinition<string, string, string>(
-                CoreEventId.RedundantIndexRemoved,
-                LogLevel.Debug,
-                "CoreEventId.RedundantIndexRemoved",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.RedundantIndexRemoved,
-                    _resourceManager.GetString("LogRedundantIndexRemoved")));
+        public static EventDefinition<string, string, string> LogRedundantIndexRemoved([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRedundantIndexRemoved;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRedundantIndexRemoved,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.RedundantIndexRemoved,
+                        LogLevel.Debug,
+                        "CoreEventId.RedundantIndexRemoved",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.RedundantIndexRemoved,
+                            _resourceManager.GetString("LogRedundantIndexRemoved"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties
-            = new EventDefinition<string, string>(
-                CoreEventId.IncompatibleMatchingForeignKeyProperties,
-                LogLevel.Debug,
-                "CoreEventId.IncompatibleMatchingForeignKeyProperties",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.IncompatibleMatchingForeignKeyProperties,
-                    _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties")));
+        public static EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogIncompatibleMatchingForeignKeyProperties,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.IncompatibleMatchingForeignKeyProperties,
+                        LogLevel.Debug,
+                        "CoreEventId.IncompatibleMatchingForeignKeyProperties",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.IncompatibleMatchingForeignKeyProperties,
+                            _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRequiredAttributeOnDependent
-            = new EventDefinition<string, string>(
-                CoreEventId.RequiredAttributeOnDependent,
-                LogLevel.Debug,
-                "CoreEventId.RequiredAttributeOnDependent",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.RequiredAttributeOnDependent,
-                    _resourceManager.GetString("LogRequiredAttributeOnDependent")));
+        public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.RequiredAttributeOnDependent,
+                        LogLevel.Debug,
+                        "CoreEventId.RequiredAttributeOnDependent",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.RequiredAttributeOnDependent,
+                            _resourceManager.GetString("LogRequiredAttributeOnDependent"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations
-            = new EventDefinition<string, string, string, string>(
-                CoreEventId.RequiredAttributeOnBothNavigations,
-                LogLevel.Debug,
-                "CoreEventId.RequiredAttributeOnBothNavigations",
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.RequiredAttributeOnBothNavigations,
-                    _resourceManager.GetString("LogRequiredAttributeOnBothNavigations")));
+        public static EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnBothNavigations;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnBothNavigations,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.RequiredAttributeOnBothNavigations,
+                        LogLevel.Debug,
+                        "CoreEventId.RequiredAttributeOnBothNavigations",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.RequiredAttributeOnBothNavigations,
+                            _resourceManager.GetString("LogRequiredAttributeOnBothNavigations"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations
-            = new EventDefinition<string, string, string, string>(
-                CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
-                LogLevel.Warning,
-                "CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning",
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
-                    _resourceManager.GetString("LogForeignKeyAttributesOnBothNavigations")));
+        public static EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothNavigations;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothNavigations,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning,
+                            _resourceManager.GetString("LogForeignKeyAttributesOnBothNavigations"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties
-            = new EventDefinition<string, string, string, string, string, string>(
-                CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
-                LogLevel.Warning,
-                "CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning",
-                LoggerMessage.Define<string, string, string, string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
-                    _resourceManager.GetString("LogForeignKeyAttributesOnBothProperties")));
+        public static EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothProperties;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothProperties,
+                    () => new EventDefinition<string, string, string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning",
+                        level => LoggerMessage.Define<string, string, string, string, string, string>(
+                            level,
+                            CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
+                            _resourceManager.GetString("LogForeignKeyAttributesOnBothProperties"))));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     The relationship was separated into two relationships because ForeignKeyAttribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the ForeignKeyAttribute specified on the property '{propertyEntityType}.{property}'.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty
-            = new EventDefinition<string, string, string, string>(
-                CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
-                LogLevel.Warning,
-                "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning",
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
-                    _resourceManager.GetString("LogConflictingForeignKeyAttributesOnNavigationAndProperty")));
+        public static EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogConflictingForeignKeyAttributesOnNavigationAndProperty;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogConflictingForeignKeyAttributesOnNavigationAndProperty,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
+                            _resourceManager.GetString("LogConflictingForeignKeyAttributesOnNavigationAndProperty"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     There are multiple navigations ({navigations}) configured with InversePropertyAttribute that point to the same inverse navigation '{inverseNavigation}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogMultipleInversePropertiesSameTarget
-            = new EventDefinition<string, string>(
-                CoreEventId.MultipleInversePropertiesSameTargetWarning,
-                LogLevel.Warning,
-                "CoreEventId.MultipleInversePropertiesSameTargetWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.MultipleInversePropertiesSameTargetWarning,
-                    _resourceManager.GetString("LogMultipleInversePropertiesSameTarget")));
+        public static EventDefinition<string, string> LogMultipleInversePropertiesSameTarget([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMultipleInversePropertiesSameTarget;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMultipleInversePropertiesSameTarget,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MultipleInversePropertiesSameTargetWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                            _resourceManager.GetString("LogMultipleInversePropertiesSameTarget"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeys
-            = new EventDefinition<string, string, string>(
-                CoreEventId.ConflictingShadowForeignKeysWarning,
-                LogLevel.Warning,
-                "CoreEventId.ConflictingShadowForeignKeysWarning",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.ConflictingShadowForeignKeysWarning,
-                    _resourceManager.GetString("LogConflictingShadowForeignKeys")));
+        public static EventDefinition<string, string, string> LogConflictingShadowForeignKeys([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogConflictingShadowForeignKeys;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogConflictingShadowForeignKeys,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.ConflictingShadowForeignKeysWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ConflictingShadowForeignKeysWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.ConflictingShadowForeignKeysWarning,
+                            _resourceManager.GetString("LogConflictingShadowForeignKeys"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     No relationship from '{firstEntityType}' to '{secondEntityType}' has been configured by convention because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string> LogMultipleNavigationProperties
-            = new EventDefinition<string, string, string, string>(
-                CoreEventId.MultipleNavigationProperties,
-                LogLevel.Debug,
-                "CoreEventId.MultipleNavigationProperties",
-                LoggerMessage.Define<string, string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.MultipleNavigationProperties,
-                    _resourceManager.GetString("LogMultipleNavigationProperties")));
+        public static EventDefinition<string, string, string, string> LogMultipleNavigationProperties([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMultipleNavigationProperties;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMultipleNavigationProperties,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.MultipleNavigationProperties,
+                        LogLevel.Debug,
+                        "CoreEventId.MultipleNavigationProperties",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.MultipleNavigationProperties,
+                            _resourceManager.GetString("LogMultipleNavigationProperties"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     Primary key hasn't been configured by convention as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'. This message can be disregarded if explicit configuration has been specified.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogMultiplePrimaryKeyCandidates
-            = new EventDefinition<string, string, string>(
-                CoreEventId.MultiplePrimaryKeyCandidates,
-                LogLevel.Debug,
-                "CoreEventId.MultiplePrimaryKeyCandidates",
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
-                    CoreEventId.MultiplePrimaryKeyCandidates,
-                    _resourceManager.GetString("LogMultiplePrimaryKeyCandidates")));
+        public static EventDefinition<string, string, string> LogMultiplePrimaryKeyCandidates([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMultiplePrimaryKeyCandidates;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMultiplePrimaryKeyCandidates,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.MultiplePrimaryKeyCandidates,
+                        LogLevel.Debug,
+                        "CoreEventId.MultiplePrimaryKeyCandidates",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.MultiplePrimaryKeyCandidates,
+                            _resourceManager.GetString("LogMultiplePrimaryKeyCandidates"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
 
         /// <summary>
         ///     The owned entity type '{entityType}' cannot have a base type.
@@ -2559,28 +3198,50 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation
-            = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonDefiningInverseNavigationWarning,
-                LogLevel.Warning,
-                "CoreEventId.NonDefiningInverseNavigationWarning",
-                LoggerMessage.Define<string, string, string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.NonDefiningInverseNavigationWarning,
-                    _resourceManager.GetString("LogNonDefiningInverseNavigation")));
+        public static EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonDefiningInverseNavigation;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonDefiningInverseNavigation,
+                    () => new EventDefinition<string, string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.NonDefiningInverseNavigationWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.NonDefiningInverseNavigationWarning",
+                        level => LoggerMessage.Define<string, string, string, string, string>(
+                            level,
+                            CoreEventId.NonDefiningInverseNavigationWarning,
+                            _resourceManager.GetString("LogNonDefiningInverseNavigation"))));
+            }
+
+            return (EventDefinition<string, string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation
-            = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonOwnershipInverseNavigationWarning,
-                LogLevel.Warning,
-                "CoreEventId.NonOwnershipInverseNavigationWarning",
-                LoggerMessage.Define<string, string, string, string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.NonOwnershipInverseNavigationWarning,
-                    _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
+        public static EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonOwnershipInverseNavigation;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonOwnershipInverseNavigation,
+                    () => new EventDefinition<string, string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.NonOwnershipInverseNavigationWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.NonOwnershipInverseNavigationWarning",
+                        level => LoggerMessage.Define<string, string, string, string, string>(
+                            level,
+                            CoreEventId.NonOwnershipInverseNavigationWarning,
+                            _resourceManager.GetString("LogNonOwnershipInverseNavigation"))));
+            }
+
+            return (EventDefinition<string, string, string, string, string>)definition;
+        }
 
         /// <summary>
         ///     The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.
@@ -2639,15 +3300,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     {error}
         /// </summary>
-        public static readonly EventDefinition<Exception> LogOptimisticConcurrencyException
-            = new EventDefinition<Exception>(
-                CoreEventId.OptimisticConcurrencyException,
-                LogLevel.Debug,
-                "CoreEventId.OptimisticConcurrencyException",
-                LoggerMessage.Define<Exception>(
-                    LogLevel.Debug,
-                    CoreEventId.OptimisticConcurrencyException,
-                    _resourceManager.GetString("LogOptimisticConcurrencyException")));
+        public static EventDefinition<Exception> LogOptimisticConcurrencyException([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogOptimisticConcurrencyException;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogOptimisticConcurrencyException,
+                    () => new EventDefinition<Exception>(
+                        logger.Options,
+                        CoreEventId.OptimisticConcurrencyException,
+                        LogLevel.Debug,
+                        "CoreEventId.OptimisticConcurrencyException",
+                        level => LoggerMessage.Define<Exception>(
+                            level,
+                            CoreEventId.OptimisticConcurrencyException,
+                            _resourceManager.GetString("LogOptimisticConcurrencyException"))));
+            }
+
+            return (EventDefinition<Exception>)definition;
+        }
 
         /// <summary>
         ///     Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
@@ -2716,15 +3388,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRedundantForeignKey
-            = new EventDefinition<string, string>(
-                CoreEventId.RedundantForeignKeyWarning,
-                LogLevel.Warning,
-                "CoreEventId.RedundantForeignKeyWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    CoreEventId.RedundantForeignKeyWarning,
-                    _resourceManager.GetString("LogRedundantForeignKey")));
+        public static EventDefinition<string, string> LogRedundantForeignKey([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRedundantForeignKey;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRedundantForeignKey,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.RedundantForeignKeyWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.RedundantForeignKeyWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.RedundantForeignKeyWarning,
+                            _resourceManager.GetString("LogRedundantForeignKey"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.

@@ -252,6 +252,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual IModelValidator CreateModelValidator()
             => new ModelValidator(new ModelValidatorDependencies());
 
+        public virtual LoggingDefinitions LoggingDefinitions { get; } = new LoggingDefinitions();
+
         public InternalEntityEntry CreateInternalEntry<TEntity>(
             IModel model, EntityState entityState = EntityState.Detached, TEntity entity = null)
             where TEntity : class, new()

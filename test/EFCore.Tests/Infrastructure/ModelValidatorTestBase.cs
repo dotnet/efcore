@@ -194,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 LoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                TestHelpers.LoggingDefinitions);
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
@@ -204,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return new DiagnosticsLogger<DbLoggerCategory.Model>(
                 LoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                TestHelpers.LoggingDefinitions);
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)

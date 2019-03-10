@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType entityType,
             [NotNull] string schema)
         {
-            var definition = SqliteStrings.LogSchemaConfigured;
+            var definition = SqliteStrings.LogSchemaConfigured(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] ISequence sequence)
         {
-            var definition = SqliteStrings.LogSequenceConfigured;
+            var definition = SqliteStrings.LogSequenceConfigured(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool notNull,
             [CanBeNull] string defaultValue)
         {
-            var definition = SqliteStrings.LogFoundColumn;
+            var definition = SqliteStrings.LogFoundColumn(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
         {
-            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning;
+            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
         {
-            var definition = SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
+            var definition = SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundTable;
+            var definition = SqliteStrings.LogFoundTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogMissingTable;
+            var definition = SqliteStrings.LogMissingTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalColumnName,
             [CanBeNull] string principalTableName)
         {
-            var definition = SqliteStrings.LogPrincipalColumnNotFound;
+            var definition = SqliteStrings.LogPrincipalColumnNotFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             bool? unique)
         {
-            var definition = SqliteStrings.LogFoundIndex;
+            var definition = SqliteStrings.LogFoundIndex(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalTableName,
             [CanBeNull] string deleteAction)
         {
-            var definition = SqliteStrings.LogFoundForeignKey;
+            var definition = SqliteStrings.LogFoundForeignKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string primaryKeyName,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundPrimaryKey;
+            var definition = SqliteStrings.LogFoundPrimaryKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string uniqueConstraintName,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundUniqueConstraint;
+            var definition = SqliteStrings.LogFoundUniqueConstraint(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

@@ -3,6 +3,7 @@
 using System;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -83,15 +84,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The 'bool' property '{property}' on entity type '{entityType}' is configured with a database-generated default. This default will always be used for inserts when the property has the value 'false', since this is the CLR default for the 'bool' type. Consider using the nullable 'bool?' type instead so that the default will only be used for inserts when the property value is 'null'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogBoolWithDefaultWarning
-            = new EventDefinition<string, string>(
-                RelationalEventId.BoolWithDefaultWarning,
-                LogLevel.Warning,
-                "RelationalEventId.BoolWithDefaultWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.BoolWithDefaultWarning,
-                    _resourceManager.GetString("LogBoolWithDefaultWarning")));
+        public static EventDefinition<string, string> LogBoolWithDefaultWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.BoolWithDefaultWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.BoolWithDefaultWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.BoolWithDefaultWarning,
+                            _resourceManager.GetString("LogBoolWithDefaultWarning"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     An error occurred while updating the entries. See the inner exception for details.
@@ -114,158 +126,290 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Opening connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerOpeningConnection
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionOpening,
-                LogLevel.Debug,
-                "RelationalEventId.ConnectionOpening",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ConnectionOpening,
-                    _resourceManager.GetString("LogRelationalLoggerOpeningConnection")));
+        public static EventDefinition<string, string> LogRelationalLoggerOpeningConnection([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpeningConnection;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpeningConnection,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionOpening,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionOpening",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionOpening,
+                            _resourceManager.GetString("LogRelationalLoggerOpeningConnection"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Opened connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerOpenedConnection
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionOpened,
-                LogLevel.Debug,
-                "RelationalEventId.ConnectionOpened",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ConnectionOpened,
-                    _resourceManager.GetString("LogRelationalLoggerOpenedConnection")));
+        public static EventDefinition<string, string> LogRelationalLoggerOpenedConnection([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpenedConnection;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpenedConnection,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionOpened,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionOpened",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionOpened,
+                            _resourceManager.GetString("LogRelationalLoggerOpenedConnection"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Closing connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerClosingConnection
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionClosing,
-                LogLevel.Debug,
-                "RelationalEventId.ConnectionClosing",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ConnectionClosing,
-                    _resourceManager.GetString("LogRelationalLoggerClosingConnection")));
+        public static EventDefinition<string, string> LogRelationalLoggerClosingConnection([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosingConnection;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosingConnection,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionClosing,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionClosing",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionClosing,
+                            _resourceManager.GetString("LogRelationalLoggerClosingConnection"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Closed connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerClosedConnection
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionClosed,
-                LogLevel.Debug,
-                "RelationalEventId.ConnectionClosed",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ConnectionClosed,
-                    _resourceManager.GetString("LogRelationalLoggerClosedConnection")));
+        public static EventDefinition<string, string> LogRelationalLoggerClosedConnection([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosedConnection;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosedConnection,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionClosed,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionClosed",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionClosed,
+                            _resourceManager.GetString("LogRelationalLoggerClosedConnection"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerConnectionError
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionError,
-                LogLevel.Error,
-                "RelationalEventId.ConnectionError",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Error,
-                    RelationalEventId.ConnectionError,
-                    _resourceManager.GetString("LogRelationalLoggerConnectionError")));
+        public static EventDefinition<string, string> LogRelationalLoggerConnectionError([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionError;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionError,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionError,
+                        LogLevel.Error,
+                        "RelationalEventId.ConnectionError",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionError,
+                            _resourceManager.GetString("LogRelationalLoggerConnectionError"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Beginning transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogRelationalLoggerBeginningTransaction
-            = new EventDefinition<string>(
-                RelationalEventId.TransactionStarted,
-                LogLevel.Debug,
-                "RelationalEventId.TransactionStarted",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.TransactionStarted,
-                    _resourceManager.GetString("LogRelationalLoggerBeginningTransaction")));
+        public static EventDefinition<string> LogRelationalLoggerBeginningTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerBeginningTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerBeginningTransaction,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.TransactionStarted,
+                        LogLevel.Debug,
+                        "RelationalEventId.TransactionStarted",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.TransactionStarted,
+                            _resourceManager.GetString("LogRelationalLoggerBeginningTransaction"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Using an existing transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogRelationalLoggerUsingTransaction
-            = new EventDefinition<string>(
-                RelationalEventId.TransactionUsed,
-                LogLevel.Debug,
-                "RelationalEventId.TransactionUsed",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.TransactionUsed,
-                    _resourceManager.GetString("LogRelationalLoggerUsingTransaction")));
+        public static EventDefinition<string> LogRelationalLoggerUsingTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerUsingTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerUsingTransaction,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.TransactionUsed,
+                        LogLevel.Debug,
+                        "RelationalEventId.TransactionUsed",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.TransactionUsed,
+                            _resourceManager.GetString("LogRelationalLoggerUsingTransaction"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Committing transaction.
         /// </summary>
-        public static readonly EventDefinition LogRelationalLoggerCommittingTransaction
-            = new EventDefinition(
-                RelationalEventId.TransactionCommitted,
-                LogLevel.Debug,
-                "RelationalEventId.TransactionCommitted",
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    RelationalEventId.TransactionCommitted,
-                    _resourceManager.GetString("LogRelationalLoggerCommittingTransaction")));
+        public static EventDefinition LogRelationalLoggerCommittingTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommittingTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommittingTransaction,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.TransactionCommitted,
+                        LogLevel.Debug,
+                        "RelationalEventId.TransactionCommitted",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.TransactionCommitted,
+                            _resourceManager.GetString("LogRelationalLoggerCommittingTransaction"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     Rolling back transaction.
         /// </summary>
-        public static readonly EventDefinition LogRelationalLoggerRollingbackTransaction
-            = new EventDefinition(
-                RelationalEventId.TransactionRolledBack,
-                LogLevel.Debug,
-                "RelationalEventId.TransactionRolledBack",
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    RelationalEventId.TransactionRolledBack,
-                    _resourceManager.GetString("LogRelationalLoggerRollingbackTransaction")));
+        public static EventDefinition LogRelationalLoggerRollingbackTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerRollingbackTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerRollingbackTransaction,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.TransactionRolledBack,
+                        LogLevel.Debug,
+                        "RelationalEventId.TransactionRolledBack",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.TransactionRolledBack,
+                            _resourceManager.GetString("LogRelationalLoggerRollingbackTransaction"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     Disposing transaction.
         /// </summary>
-        public static readonly EventDefinition LogRelationalLoggerDisposingTransaction
-            = new EventDefinition(
-                RelationalEventId.TransactionDisposed,
-                LogLevel.Debug,
-                "RelationalEventId.TransactionDisposed",
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    RelationalEventId.TransactionDisposed,
-                    _resourceManager.GetString("LogRelationalLoggerDisposingTransaction")));
+        public static EventDefinition LogRelationalLoggerDisposingTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerDisposingTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerDisposingTransaction,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.TransactionDisposed,
+                        LogLevel.Debug,
+                        "RelationalEventId.TransactionDisposed",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.TransactionDisposed,
+                            _resourceManager.GetString("LogRelationalLoggerDisposingTransaction"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An error occurred using a transaction.
         /// </summary>
-        public static readonly EventDefinition LogRelationalLoggerTransactionError
-            = new EventDefinition(
-                RelationalEventId.TransactionError,
-                LogLevel.Error,
-                "RelationalEventId.TransactionError",
-                LoggerMessage.Define(
-                    LogLevel.Error,
-                    RelationalEventId.TransactionError,
-                    _resourceManager.GetString("LogRelationalLoggerTransactionError")));
+        public static EventDefinition LogRelationalLoggerTransactionError([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerTransactionError;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerTransactionError,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.TransactionError,
+                        LogLevel.Error,
+                        "RelationalEventId.TransactionError",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.TransactionError,
+                            _resourceManager.GetString("LogRelationalLoggerTransactionError"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     A data reader was disposed.
         /// </summary>
-        public static readonly EventDefinition LogDisposingDataReader
-            = new EventDefinition(
-                RelationalEventId.DataReaderDisposing,
-                LogLevel.Debug,
-                "RelationalEventId.DataReaderDisposing",
-                LoggerMessage.Define(
-                    LogLevel.Debug,
-                    RelationalEventId.DataReaderDisposing,
-                    _resourceManager.GetString("LogDisposingDataReader")));
+        public static EventDefinition LogDisposingDataReader([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.DataReaderDisposing,
+                        LogLevel.Debug,
+                        "RelationalEventId.DataReaderDisposing",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.DataReaderDisposing,
+                            _resourceManager.GetString("LogDisposingDataReader"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.
@@ -334,41 +478,74 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142
         /// </summary>
-        public static readonly EventDefinition LogAmbientTransaction
-            = new EventDefinition(
-                RelationalEventId.AmbientTransactionWarning,
-                LogLevel.Warning,
-                "RelationalEventId.AmbientTransactionWarning",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    RelationalEventId.AmbientTransactionWarning,
-                    _resourceManager.GetString("LogAmbientTransaction")));
+        public static EventDefinition LogAmbientTransaction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransaction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransaction,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.AmbientTransactionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.AmbientTransactionWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.AmbientTransactionWarning,
+                            _resourceManager.GetString("LogAmbientTransaction"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.
         /// </summary>
-        public static readonly EventDefinition<object> LogPossibleUnintendedUseOfEquals
-            = new EventDefinition<object>(
-                RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
-                LogLevel.Warning,
-                "RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning",
-                LoggerMessage.Define<object>(
-                    LogLevel.Warning,
-                    RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
-                    _resourceManager.GetString("LogPossibleUnintendedUseOfEquals")));
+        public static EventDefinition<object> LogPossibleUnintendedUseOfEquals([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals,
+                    () => new EventDefinition<object>(
+                        logger.Options,
+                        RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning",
+                        level => LoggerMessage.Define<object>(
+                            level,
+                            RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
+                            _resourceManager.GetString("LogPossibleUnintendedUseOfEquals"))));
+            }
+
+            return (EventDefinition<object>)definition;
+        }
 
         /// <summary>
         ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.
         /// </summary>
-        public static readonly EventDefinition LogQueryPossibleExceptionWithAggregateOperator
-            = new EventDefinition(
-                RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
-                LogLevel.Warning,
-                "RelationalEventId.QueryPossibleExceptionWithAggregateOperator",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
-                    _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperator")));
+        public static EventDefinition LogQueryPossibleExceptionWithAggregateOperator([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperator;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperator,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                        LogLevel.Warning,
+                        "RelationalEventId.QueryPossibleExceptionWithAggregateOperator",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                            _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperator"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
@@ -379,93 +556,170 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Generating down script for migration '{migration}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogGeneratingDown
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationGeneratingDownScript,
-                LogLevel.Debug,
-                "RelationalEventId.MigrationGeneratingDownScript",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.MigrationGeneratingDownScript,
-                    _resourceManager.GetString("LogGeneratingDown")));
+        public static EventDefinition<string> LogGeneratingDown([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingDown;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingDown,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationGeneratingDownScript,
+                        LogLevel.Debug,
+                        "RelationalEventId.MigrationGeneratingDownScript",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationGeneratingDownScript,
+                            _resourceManager.GetString("LogGeneratingDown"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Generating up script for migration '{migration}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogGeneratingUp
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationGeneratingUpScript,
-                LogLevel.Debug,
-                "RelationalEventId.MigrationGeneratingUpScript",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.MigrationGeneratingUpScript,
-                    _resourceManager.GetString("LogGeneratingUp")));
+        public static EventDefinition<string> LogGeneratingUp([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingUp;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingUp,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationGeneratingUpScript,
+                        LogLevel.Debug,
+                        "RelationalEventId.MigrationGeneratingUpScript",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationGeneratingUpScript,
+                            _resourceManager.GetString("LogGeneratingUp"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Applying migration '{migration}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogApplyingMigration
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationApplying,
-                LogLevel.Information,
-                "RelationalEventId.MigrationApplying",
-                LoggerMessage.Define<string>(
-                    LogLevel.Information,
-                    RelationalEventId.MigrationApplying,
-                    _resourceManager.GetString("LogApplyingMigration")));
+        public static EventDefinition<string> LogApplyingMigration([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogApplyingMigration;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogApplyingMigration,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationApplying,
+                        LogLevel.Information,
+                        "RelationalEventId.MigrationApplying",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationApplying,
+                            _resourceManager.GetString("LogApplyingMigration"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Reverting migration '{migration}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogRevertingMigration
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationReverting,
-                LogLevel.Information,
-                "RelationalEventId.MigrationReverting",
-                LoggerMessage.Define<string>(
-                    LogLevel.Information,
-                    RelationalEventId.MigrationReverting,
-                    _resourceManager.GetString("LogRevertingMigration")));
+        public static EventDefinition<string> LogRevertingMigration([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRevertingMigration;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRevertingMigration,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationReverting,
+                        LogLevel.Information,
+                        "RelationalEventId.MigrationReverting",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationReverting,
+                            _resourceManager.GetString("LogRevertingMigration"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Migrating using database '{database}' on server '{dataSource}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogMigrating
-            = new EventDefinition<string, string>(
-                RelationalEventId.MigrateUsingConnection,
-                LogLevel.Debug,
-                "RelationalEventId.MigrateUsingConnection",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.MigrateUsingConnection,
-                    _resourceManager.GetString("LogMigrating")));
+        public static EventDefinition<string, string> LogMigrating([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrating;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrating,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.MigrateUsingConnection,
+                        LogLevel.Debug,
+                        "RelationalEventId.MigrateUsingConnection",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.MigrateUsingConnection,
+                            _resourceManager.GetString("LogMigrating"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     No migrations were applied. The database is already up to date.
         /// </summary>
-        public static readonly EventDefinition LogNoMigrationsApplied
-            = new EventDefinition(
-                RelationalEventId.MigrationsNotApplied,
-                LogLevel.Information,
-                "RelationalEventId.MigrationsNotApplied",
-                LoggerMessage.Define(
-                    LogLevel.Information,
-                    RelationalEventId.MigrationsNotApplied,
-                    _resourceManager.GetString("LogNoMigrationsApplied")));
+        public static EventDefinition LogNoMigrationsApplied([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsApplied;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsApplied,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.MigrationsNotApplied,
+                        LogLevel.Information,
+                        "RelationalEventId.MigrationsNotApplied",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.MigrationsNotApplied,
+                            _resourceManager.GetString("LogNoMigrationsApplied"))));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     No migrations were found in assembly '{migrationsAssembly}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogNoMigrationsFound
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationsNotFound,
-                LogLevel.Debug,
-                "RelationalEventId.MigrationsNotFound",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.MigrationsNotFound,
-                    _resourceManager.GetString("LogNoMigrationsFound")));
+        public static EventDefinition<string> LogNoMigrationsFound([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsFound;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsFound,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationsNotFound,
+                        LogLevel.Debug,
+                        "RelationalEventId.MigrationsNotFound",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationsNotFound,
+                            _resourceManager.GetString("LogNoMigrationsFound"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
@@ -494,15 +748,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogKeyHasDefaultValue
-            = new EventDefinition<string, string>(
-                RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                LogLevel.Warning,
-                "RelationalEventId.ModelValidationKeyDefaultValueWarning",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    _resourceManager.GetString("LogKeyHasDefaultValue")));
+        public static EventDefinition<string, string> LogKeyHasDefaultValue([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogKeyHasDefaultValue;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogKeyHasDefaultValue,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ModelValidationKeyDefaultValueWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.ModelValidationKeyDefaultValueWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ModelValidationKeyDefaultValueWarning,
+                            _resourceManager.GetString("LogKeyHasDefaultValue"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
@@ -547,15 +812,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The LINQ expression '{expression}' could not be translated and will be evaluated locally.
         /// </summary>
-        public static readonly EventDefinition<object> LogClientEvalWarning
-            = new EventDefinition<object>(
-                RelationalEventId.QueryClientEvaluationWarning,
-                LogLevel.Warning,
-                "RelationalEventId.QueryClientEvaluationWarning",
-                LoggerMessage.Define<object>(
-                    LogLevel.Warning,
-                    RelationalEventId.QueryClientEvaluationWarning,
-                    _resourceManager.GetString("LogClientEvalWarning")));
+        public static EventDefinition<object> LogClientEvalWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClientEvalWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogClientEvalWarning,
+                    () => new EventDefinition<object>(
+                        logger.Options,
+                        RelationalEventId.QueryClientEvaluationWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.QueryClientEvaluationWarning",
+                        level => LoggerMessage.Define<object>(
+                            level,
+                            RelationalEventId.QueryClientEvaluationWarning,
+                            _resourceManager.GetString("LogClientEvalWarning"))));
+            }
+
+            return (EventDefinition<object>)definition;
+        }
 
         /// <summary>
         ///     No value provided for required parameter '{parameter}'.
@@ -576,41 +852,74 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static readonly EventDefinition<string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutingCommand
-            = new EventDefinition<string, System.Data.CommandType, int, string, string>(
-                RelationalEventId.CommandExecuting,
-                LogLevel.Debug,
-                "RelationalEventId.CommandExecuting",
-                LoggerMessage.Define<string, System.Data.CommandType, int, string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.CommandExecuting,
-                    _resourceManager.GetString("LogRelationalLoggerExecutingCommand")));
+        public static EventDefinition<string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutingCommand([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutingCommand;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutingCommand,
+                    () => new EventDefinition<string, System.Data.CommandType, int, string, string>(
+                        logger.Options,
+                        RelationalEventId.CommandExecuting,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandExecuting",
+                        level => LoggerMessage.Define<string, System.Data.CommandType, int, string, string>(
+                            level,
+                            RelationalEventId.CommandExecuting,
+                            _resourceManager.GetString("LogRelationalLoggerExecutingCommand"))));
+            }
+
+            return (EventDefinition<string, System.Data.CommandType, int, string, string>)definition;
+        }
 
         /// <summary>
         ///     Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static readonly EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutedCommand
-            = new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
-                RelationalEventId.CommandExecuted,
-                LogLevel.Debug,
-                "RelationalEventId.CommandExecuted",
-                LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.CommandExecuted,
-                    _resourceManager.GetString("LogRelationalLoggerExecutedCommand")));
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutedCommand([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutedCommand;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutedCommand,
+                    () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                        logger.Options,
+                        RelationalEventId.CommandExecuted,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandExecuted",
+                        level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
+                            level,
+                            RelationalEventId.CommandExecuted,
+                            _resourceManager.GetString("LogRelationalLoggerExecutedCommand"))));
+            }
+
+            return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
+        }
 
         /// <summary>
         ///     Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static readonly EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerCommandFailed
-            = new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
-                RelationalEventId.CommandError,
-                LogLevel.Error,
-                "RelationalEventId.CommandError",
-                LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
-                    LogLevel.Error,
-                    RelationalEventId.CommandError,
-                    _resourceManager.GetString("LogRelationalLoggerCommandFailed")));
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerCommandFailed([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommandFailed;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommandFailed,
+                    () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                        logger.Options,
+                        RelationalEventId.CommandError,
+                        LogLevel.Error,
+                        "RelationalEventId.CommandError",
+                        level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
+                            level,
+                            RelationalEventId.CommandError,
+                            _resourceManager.GetString("LogRelationalLoggerCommandFailed"))));
+            }
+
+            return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
+        }
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').
@@ -819,15 +1128,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogRelationalLoggerConnectionErrorAsDebug
-            = new EventDefinition<string, string>(
-                RelationalEventId.ConnectionError,
-                LogLevel.Debug,
-                "RelationalEventId.ConnectionError",
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ConnectionError,
-                    _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug")));
+        public static EventDefinition<string, string> LogRelationalLoggerConnectionErrorAsDebug([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionErrorAsDebug;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionErrorAsDebug,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionError,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionError",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionError,
+                            _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
 
         /// <summary>
         ///     Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.
@@ -922,80 +1242,146 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Enlisted in an ambient transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogAmbientTransactionEnlisted
-            = new EventDefinition<string>(
-                RelationalEventId.AmbientTransactionEnlisted,
-                LogLevel.Debug,
-                "RelationalEventId.AmbientTransactionEnlisted",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.AmbientTransactionEnlisted,
-                    _resourceManager.GetString("LogAmbientTransactionEnlisted")));
+        public static EventDefinition<string> LogAmbientTransactionEnlisted([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransactionEnlisted;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransactionEnlisted,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.AmbientTransactionEnlisted,
+                        LogLevel.Debug,
+                        "RelationalEventId.AmbientTransactionEnlisted",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.AmbientTransactionEnlisted,
+                            _resourceManager.GetString("LogAmbientTransactionEnlisted"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Enlisted in an explicit transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static readonly EventDefinition<string> LogExplicitTransactionEnlisted
-            = new EventDefinition<string>(
-                RelationalEventId.ExplicitTransactionEnlisted,
-                LogLevel.Debug,
-                "RelationalEventId.ExplicitTransactionEnlisted",
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    RelationalEventId.ExplicitTransactionEnlisted,
-                    _resourceManager.GetString("LogExplicitTransactionEnlisted")));
+        public static EventDefinition<string> LogExplicitTransactionEnlisted([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExplicitTransactionEnlisted;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExplicitTransactionEnlisted,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.ExplicitTransactionEnlisted,
+                        LogLevel.Debug,
+                        "RelationalEventId.ExplicitTransactionEnlisted",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.ExplicitTransactionEnlisted,
+                            _resourceManager.GetString("LogExplicitTransactionEnlisted"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     Executing update commands individually as the number of batchable commands ({batchableCommandsCount}) is smaller than the minimum batch size ({minBatchSize}).
         /// </summary>
-        public static readonly EventDefinition<int, int> LogBatchSmallerThanMinBatchSize
-            = new EventDefinition<int, int>(
-                RelationalEventId.BatchSmallerThanMinBatchSize,
-                LogLevel.Debug,
-                "RelationalEventId.BatchSmallerThanMinBatchSize",
-                LoggerMessage.Define<int, int>(
-                    LogLevel.Debug,
-                    RelationalEventId.BatchSmallerThanMinBatchSize,
-                    _resourceManager.GetString("LogBatchSmallerThanMinBatchSize")));
+        public static EventDefinition<int, int> LogBatchSmallerThanMinBatchSize([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchSmallerThanMinBatchSize;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchSmallerThanMinBatchSize,
+                    () => new EventDefinition<int, int>(
+                        logger.Options,
+                        RelationalEventId.BatchSmallerThanMinBatchSize,
+                        LogLevel.Debug,
+                        "RelationalEventId.BatchSmallerThanMinBatchSize",
+                        level => LoggerMessage.Define<int, int>(
+                            level,
+                            RelationalEventId.BatchSmallerThanMinBatchSize,
+                            _resourceManager.GetString("LogBatchSmallerThanMinBatchSize"))));
+            }
+
+            return (EventDefinition<int, int>)definition;
+        }
 
         /// <summary>
         ///     Executing {batchCommandsCount} update commands as a batch.
         /// </summary>
-        public static readonly EventDefinition<int> LogBatchReadyForExecution
-            = new EventDefinition<int>(
-                RelationalEventId.BatchReadyForExecution,
-                LogLevel.Debug,
-                "RelationalEventId.BatchReadyForExecution",
-                LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    RelationalEventId.BatchReadyForExecution,
-                    _resourceManager.GetString("LogBatchReadyForExecution")));
+        public static EventDefinition<int> LogBatchReadyForExecution([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchReadyForExecution;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchReadyForExecution,
+                    () => new EventDefinition<int>(
+                        logger.Options,
+                        RelationalEventId.BatchReadyForExecution,
+                        LogLevel.Debug,
+                        "RelationalEventId.BatchReadyForExecution",
+                        level => LoggerMessage.Define<int>(
+                            level,
+                            RelationalEventId.BatchReadyForExecution,
+                            _resourceManager.GetString("LogBatchReadyForExecution"))));
+            }
+
+            return (EventDefinition<int>)definition;
+        }
 
         /// <summary>
         ///     A MigrationAttribute isn't specified on the '{class}' class.
         /// </summary>
-        public static readonly EventDefinition<string> LogMigrationAttributeMissingWarning
-            = new EventDefinition<string>(
-                RelationalEventId.MigrationAttributeMissingWarning,
-                LogLevel.Warning,
-                "RelationalEventId.MigrationAttributeMissingWarning",
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    RelationalEventId.MigrationAttributeMissingWarning,
-                    _resourceManager.GetString("LogMigrationAttributeMissingWarning")));
+        public static EventDefinition<string> LogMigrationAttributeMissingWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationAttributeMissingWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationAttributeMissingWarning,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.MigrationAttributeMissingWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.MigrationAttributeMissingWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.MigrationAttributeMissingWarning,
+                            _resourceManager.GetString("LogMigrationAttributeMissingWarning"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
 
         /// <summary>
         ///     A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.
         /// </summary>
-        public static readonly EventDefinition<object, object> LogValueConversionSqlLiteralWarning
-            = new EventDefinition<object, object>(
-                RelationalEventId.ValueConversionSqlLiteralWarning,
-                LogLevel.Warning,
-                "RelationalEventId.ValueConversionSqlLiteralWarning",
-                LoggerMessage.Define<object, object>(
-                    LogLevel.Warning,
-                    RelationalEventId.ValueConversionSqlLiteralWarning,
-                    _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
+        public static EventDefinition<object, object> LogValueConversionSqlLiteralWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogValueConversionSqlLiteralWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogValueConversionSqlLiteralWarning,
+                    () => new EventDefinition<object, object>(
+                        logger.Options,
+                        RelationalEventId.ValueConversionSqlLiteralWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.ValueConversionSqlLiteralWarning",
+                        level => LoggerMessage.Define<object, object>(
+                            level,
+                            RelationalEventId.ValueConversionSqlLiteralWarning,
+                            _resourceManager.GetString("LogValueConversionSqlLiteralWarning"))));
+            }
+
+            return (EventDefinition<object, object>)definition;
+        }
 
         /// <summary>
         ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.

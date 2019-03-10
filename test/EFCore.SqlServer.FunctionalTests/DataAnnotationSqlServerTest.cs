@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalStrings.LogKeyHasDefaultValue.GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    RelationalStrings.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                     "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 

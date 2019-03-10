@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable UnusedParameter.Local
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
-                        CoreStrings.LogDuplicateDependentEntityTypeInstance.GenerateMessage(
+                        CoreStrings.LogDuplicateDependentEntityTypeInstance(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName()),
                         "CoreEventId.DuplicateDependentEntityTypeInstanceWarning"),

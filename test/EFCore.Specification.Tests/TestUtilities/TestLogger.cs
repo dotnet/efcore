@@ -3,21 +3,16 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestLogger<TCategory> : TestLoggerBase, IDiagnosticsLogger<TCategory>, ILogger
-        where TCategory : LoggerCategory<TCategory>, new()
+    public class TestLogger<TDefinitions> : TestLoggerBase, IDiagnosticsLogger, ILogger
+        where TDefinitions : LoggingDefinitions, new()
     {
-        public ILoggingOptions Options => null;
-
-        public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel)
-        {
-            LoggedEvent = eventId;
-            return EnabledFor == logLevel ? WarningBehavior.Log : WarningBehavior.Ignore;
-        }
+        public ILoggingOptions Options => new LoggingOptions();
 
         public bool IsEnabled(LogLevel logLevel) => EnabledFor == logLevel;
 
@@ -26,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void Log<TState>(
             LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            LoggedEvent = eventId;
             LoggedAt = logLevel;
             Assert.Equal(LoggedEvent, eventId);
             Message = formatter(state, exception);
@@ -34,5 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public bool ShouldLogSensitiveData() => false;
 
         public ILogger Logger => this;
+
+        public virtual LoggingDefinitions Definitions { get; } = new TDefinitions();
     }
 }

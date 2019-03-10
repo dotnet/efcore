@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
 
-            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilder);
 
             Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
-            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilder);
 
             Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
         }

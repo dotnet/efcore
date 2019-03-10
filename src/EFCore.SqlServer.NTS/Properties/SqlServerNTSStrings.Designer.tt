@@ -1,4 +1,5 @@
 <#
     Session["ResourceFile"] = "SqlServerNTSStrings.resx";
+    Session["LoggingDefinitionsClass"] = "SqlServerNtsLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

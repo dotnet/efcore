@@ -3,6 +3,8 @@
 
 using System.Data.SqlClient;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -84,11 +86,13 @@ namespace Microsoft.EntityFrameworkCore
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     new LoggerFactory(),
                     new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener")),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new SqlServerLoggingDefinitions()),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener")),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new SqlServerLoggingDefinitions()),
                 new NamedConnectionStringResolver(options),
                 new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()));
         }

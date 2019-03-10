@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
 
-            VerifyWarning(SqliteStrings.LogSchemaConfigured.GenerateMessage("Animal", "pet"), modelBuilder.Model);
+            VerifyWarning(SqliteStrings.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"), modelBuilder.Model);
         }
 
         [Fact]
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasSequence("Fibonacci");
 
-            VerifyWarning(SqliteStrings.LogSequenceConfigured.GenerateMessage("Fibonacci"), modelBuilder.Model);
+            VerifyWarning(SqliteStrings.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"), modelBuilder.Model);
         }
 
         private static void GenerateMapping(IMutableProperty property)

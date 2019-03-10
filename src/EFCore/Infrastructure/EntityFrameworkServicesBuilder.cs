@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static readonly IDictionary<Type, ServiceCharacteristics> CoreServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
+                { typeof(LoggingDefinitions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDatabaseProvider), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IDbSetFinder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDbSetInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -206,6 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAddCoreServices()
         {
+            TryAdd<LoggingDefinitions, LoggingDefinitions>();
             TryAdd<IDbSetFinder, DbSetFinder>();
             TryAdd<IDbSetInitializer, DbSetInitializer>();
             TryAdd<IDbSetSource, DbSetSource>();
