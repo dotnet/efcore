@@ -2101,7 +2101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     Debug.Assert(projectionIndex > -1);
 
-                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex, property);
+                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
                 },
                 bindSubQueries: true);
         }
@@ -2129,7 +2129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                            Debug.Assert(projectionIndex > -1);
 
-                           return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex, property);
+                           return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
                        },
                        bindSubQueries: true)
                    ?? ParentQueryModelVisitor?

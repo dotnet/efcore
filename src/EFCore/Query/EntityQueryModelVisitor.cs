@@ -1498,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMethodCallExpression(
                 methodCallExpression,
                 (property, _)
-                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex(), property));
+                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex()));
         }
 
         /// <summary>
@@ -1520,7 +1520,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 memberExpression,
                 null,
                 (property, _)
-                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex(), property));
+                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
         }
 
         /// <summary>
@@ -1529,21 +1529,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="memberType"> Type of the member. </param>
         /// <param name="expression"> The target expression. </param>
         /// <param name="index"> A value buffer index. </param>
-        /// <param name="property">The property being bound.</param>
         /// <returns>
         ///     A value buffer read expression.
         /// </returns>
         public virtual Expression BindReadValueMethod(
             [NotNull] Type memberType,
             [NotNull] Expression expression,
-            int index,
-            [CanBeNull] IProperty property = null)
+            int index)
         {
             Check.NotNull(memberType, nameof(memberType));
             Check.NotNull(expression, nameof(expression));
 
             return _entityMaterializerSource
-                .CreateReadValueExpression(expression, memberType, index, property);
+                .CreateReadValueExpression(expression, memberType, index);
         }
 
         /// <summary>

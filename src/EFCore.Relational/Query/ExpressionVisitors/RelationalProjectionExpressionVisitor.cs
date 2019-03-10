@@ -302,8 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .CreateReadValueExpression(
                             targetExpression,
                             expression.Type.MakeNullable(),
-                            index,
-                            sqlExpression.FindProperty(expression.Type));
+                            index);
 
                 var outputDataInfo
                     = (expression as SubQueryExpression)?.QueryModel

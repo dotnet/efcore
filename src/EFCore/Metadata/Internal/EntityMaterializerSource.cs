@@ -37,13 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Expression CreateReadValueExpression(
             Expression valueBuffer,
             Type type,
-            int index,
-            IPropertyBase property)
+            int index)
             => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
-                Expression.Constant(index),
-                Expression.Constant(property, typeof(IPropertyBase)));
+                Expression.Constant(index));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -55,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
-            in ValueBuffer valueBuffer, int index, IPropertyBase property)
+            in ValueBuffer valueBuffer, int index)
             => (TValue)valueBuffer[index];
 
         /// <summary>
@@ -150,8 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         : CreateReadValueExpression(
                             valueBufferExpression,
                             memberInfo.GetMemberType(),
-                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
-                            property);
+                            indexMap?[property.GetIndex()] ?? property.GetIndex());
 
                 blockExpressions.Add(
                     property.IsIndexedProperty
