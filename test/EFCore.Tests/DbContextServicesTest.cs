@@ -185,7 +185,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 ILoggerFactory loggerFactory;
 
-                var serviceCollection = new ServiceCollection().AddScoped<Random>();
+                var serviceCollection
+                    = new ServiceCollection()
+                        .AddScoped<Random>()
+                        .AddLogging();
 
                 if (pool)
                 {

@@ -506,10 +506,6 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime optionsLifetime)
             where TContextImplementation : DbContext
         {
-            serviceCollection	
-                .AddMemoryCache()	
-                .AddLogging();
-
             serviceCollection.TryAdd(
                 new ServiceDescriptor(
                     typeof(DbContextOptions<TContextImplementation>),

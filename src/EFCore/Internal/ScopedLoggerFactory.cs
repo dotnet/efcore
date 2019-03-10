@@ -50,7 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (applicationServiceProvider != null
                     && applicationServiceProvider != internalServiceProvider)
                 {
-                    return new ScopedLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>(), dispose: false);
+                    var loggerFactory = applicationServiceProvider.GetService<ILoggerFactory>();
+                    if (loggerFactory != null)
+                    {
+                        return new ScopedLoggerFactory(loggerFactory, dispose: false);
+                    }
                 }
             }
 
