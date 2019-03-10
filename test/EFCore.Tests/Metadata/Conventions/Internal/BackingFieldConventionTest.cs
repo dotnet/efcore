@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
             var property = entityType.AddProperty("SpeakToMe", typeof(int));
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Null(property.GetFieldName());
         }
@@ -121,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkerSideOfTheMoon));
             var property = entityType.AddProperty("SpeakToMe", typeof(int));
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Null(property.GetFieldName());
         }
@@ -131,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(TEntity));
             var property = entityType.AddProperty(propertyName, typeof(int));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Equal(fieldName, property.GetFieldName());
         }
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.AddProperty(OfTheMoon.TheGreatGigInTheSkyProperty);
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Equal("_theGreatGigInTheSky", property.GetFieldName());
         }
@@ -153,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.AddProperty(TheDarkSide.OnBaseProperty);
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Equal("_onBase", property.GetFieldName());
         }
@@ -164,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
             var property = entityType.AddProperty("OnTheRun", typeof(int));
 
-            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>());
+            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>());
 
             Assert.Equal(
                 CoreStrings.ConflictingBackingFields(
@@ -179,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(HesNotTheMessiah));
             var property = entityType.AddProperty("OnTheRun", typeof(int));
 
-            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>());
+            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>());
 
             Assert.Equal(
                 CoreStrings.ConflictingBackingFields(
@@ -194,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = new Model().AddEntityType(typeof(HesAVeryNaughtyBoy));
             var property = entityType.AddProperty("OnTheRun", typeof(object));
 
-            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>());
+            var convention = new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>());
 
             Assert.Equal(
                 CoreStrings.ConflictingBackingFields(
@@ -210,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var property = entityType.AddProperty("OnTheRun", typeof(int));
             property.SetField("m_onTheRun");
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }
@@ -222,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var property = entityType.AddProperty("OnTheRun", typeof(int));
             property.SetField("m_onTheRun", ConfigurationSource.DataAnnotation);
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(property.Builder);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(property.Builder);
 
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }

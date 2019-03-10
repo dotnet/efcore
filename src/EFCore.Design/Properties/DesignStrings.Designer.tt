@@ -1,4 +1,5 @@
 <#
     Session["ResourceFile"] = "DesignStrings.resx";
+    Session["LoggingDefinitionsClass"] = "DesignLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

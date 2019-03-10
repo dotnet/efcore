@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValue = true;
             property.ValueGenerated = ValueGenerated.OnAdd;
 
-            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValueSql = "TRUE";
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             SetPrimaryKey(entityA);
             entityA.FindProperty("Id").Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue.GenerateMessage("Id", "A"), model);
+            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
         [Fact]
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             entityA.AddKey(new[] { property });
             property.Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue.GenerateMessage("P0", "A"), model);
+            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
         }
 
         [Fact]

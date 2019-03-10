@@ -919,7 +919,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
                     logFactory,
                     new FakeLoggingOptions(false),
-                    new DiagnosticListener("Fake")),
+                    new DiagnosticListener("Fake"),
+                    new RelationalLoggingDefinitions()),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -973,7 +974,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
                     logFactory,
                     new FakeLoggingOptions(true),
-                    new DiagnosticListener("Fake")),
+                    new DiagnosticListener("Fake"),
+                    new RelationalLoggingDefinitions()),
                 commandText: "Logged Command",
                 parameters: new[]
                 {
@@ -996,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(3, logFactory.Log.Count);
             Assert.Equal(LogLevel.Warning, logFactory.Log[0].Level);
-            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled.GenerateMessage(), logFactory.Log[0].Message);
+            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
 
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
@@ -1027,7 +1029,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
                     new ListLoggerFactory(),
                     new FakeLoggingOptions(false),
-                    new ListDiagnosticSource(diagnostic)),
+                    new ListDiagnosticSource(diagnostic),
+                    new RelationalLoggingDefinitions()),
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
@@ -1095,7 +1098,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
                     new ListLoggerFactory(),
                     new FakeLoggingOptions(false),
-                    new ListDiagnosticSource(diagnostic)),
+                    new ListDiagnosticSource(diagnostic),
+                    new RelationalLoggingDefinitions()),
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)

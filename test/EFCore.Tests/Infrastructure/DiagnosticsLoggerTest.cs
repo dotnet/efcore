@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -45,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var loggerFactory = new ListLoggerFactory(filter);
 
             var dbLogger = new DiagnosticsLogger<DbLoggerCategory.Database>(
-                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"), new LoggingDefinitions());
             var sqlLogger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
-                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"), new LoggingDefinitions());
             var queryLogger = new DiagnosticsLogger<DbLoggerCategory.Query>(
-                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
+                loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"), new LoggingDefinitions());
             var randomLogger = loggerFactory.CreateLogger("Random");
 
             dbLogger.Logger.LogInformation(1, "DB1");

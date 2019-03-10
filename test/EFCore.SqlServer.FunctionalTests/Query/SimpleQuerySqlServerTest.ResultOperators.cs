@@ -3,7 +3,10 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -280,7 +283,7 @@ FROM [Order Details] AS [od0]
 WHERE @_outer_OrderID = [od0].[OrderID]");
 
             Assert.Contains(
-                RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator.GenerateMessage(),
+                RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -1166,7 +1169,7 @@ WHERE [o].[ProductID] = 42");
             base.Paging_operation_on_string_doesnt_issue_warning();
 
             Assert.DoesNotContain(
-                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                CoreStrings.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -2142,8 +2143,8 @@ CREATE TABLE Blank (
 
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogMissingSchema.EventId, Id);
-                    Assert.Equal(SqlServerStrings.LogMissingSchema.GenerateMessage("MySchema"), Message);
+                    Assert.Equal(SqlServerStrings.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqlServerStrings.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MySchema"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -2164,8 +2165,8 @@ CREATE TABLE Blank (
 
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogMissingTable.EventId, Id);
-                    Assert.Equal(SqlServerStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
+                    Assert.Equal(SqlServerStrings.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqlServerStrings.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -2190,9 +2191,9 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, Id);
+                    Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
                     Assert.Equal(
-                        SqlServerStrings.LogPrincipalTableNotInSelectionSet.GenerateMessage(
+                        SqlServerStrings.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                             "MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), Message);
                 },
                 @"
@@ -2216,7 +2217,7 @@ CREATE TABLE PrincipalTable (
                     var (level, _, message, _, _) = Assert.Single(
                         Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.ReflexiveConstraintIgnored);
                     Assert.Equal(LogLevel.Debug, level);
-                    Assert.Equal(SqlServerStrings.LogReflexiveConstraintIgnored.GenerateMessage("MYFK", "dbo.PrincipalTable"), message);
+                    Assert.Equal(SqlServerStrings.LogReflexiveConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MYFK", "dbo.PrincipalTable"), message);
 
                     var table = Assert.Single(dbModel.Tables);
                     Assert.Empty(table.ForeignKeys);
@@ -2238,7 +2239,8 @@ DROP TABLE PrincipalTable;");
                     new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                         Fixture.ListLoggerFactory,
                         new LoggingOptions(),
-                        new DiagnosticListener("Fake")));
+                        new DiagnosticListener("Fake"),
+                        new SqlServerLoggingDefinitions()));
 
                 var databaseModel = databaseModelFactory.Create(Fixture.TestStore.ConnectionString, tables, schemas);
                 Assert.NotNull(databaseModel);

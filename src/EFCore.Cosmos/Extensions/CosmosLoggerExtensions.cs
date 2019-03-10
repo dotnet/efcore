@@ -22,10 +22,12 @@ namespace Microsoft.EntityFrameworkCore
             CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = new EventDefinition<string, string, string>(
+                diagnosticsLogger.Options,
                 CoreEventId.ProviderBaseId,
                 LogLevel.Debug,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Debug,
+                "CoreEventId.ProviderBaseId",
+                level => LoggerMessage.Define<string, string, string>(
+                    level,
                     CoreEventId.ProviderBaseId,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
 

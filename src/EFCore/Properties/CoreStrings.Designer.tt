@@ -1,4 +1,5 @@
 <#
     Session["ResourceFile"] = "CoreStrings.resx";
+    Session["LoggingDefinitionsClass"] = "LoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

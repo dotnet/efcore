@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,18 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public interface IDiagnosticsLogger
     {
         /// <summary>
-        ///     Checks if the given <paramref name="logLevel" /> is enabled or the given event, and,
-        ///     if so, whether the event should be logged or thrown.
-        /// </summary>
-        /// <param name="eventId"> The event ID that will be logged, if enabled. </param>
-        /// <param name="logLevel"> The logging level to which the event will be logged.</param>
-        /// <returns> One of Log, Throw, or Ignore. </returns>
-        WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel);
-
-        /// <summary>
         ///     Entity Framework logging options.
         /// </summary>
         ILoggingOptions Options { get; }
+
+        /// <summary>
+        ///     Caching for logging definitions.
+        /// </summary>
+        LoggingDefinitions Definitions { get; }
 
         /// <summary>
         ///     Gets a value indicating whether sensitive information should be written

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>()).Apply(entityBuilder);
 
             Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>()).Apply(entityBuilder);
 
             Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Schema);
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new TestLogger<DbLoggerCategory.Model>()));
+                    new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

@@ -85,9 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             ContextOptions = relationalDependencies.ContextOptions;
             ParentQueryModelVisitor = parentQueryModelVisitor;
 
+            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+
             _storeMaterializerExpression
-                = CoreStrings.LogQueryExecutionPlanned.GetLogBehavior(
-                      QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()) != WarningBehavior.Ignore;
+                = CoreStrings.LogQueryExecutionPlanned(logger).GetLogBehavior(logger) != WarningBehavior.Ignore;
         }
 
         /// <summary>

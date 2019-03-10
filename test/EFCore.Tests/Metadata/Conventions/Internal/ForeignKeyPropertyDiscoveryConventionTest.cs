@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -436,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogIncompatibleMatchingForeignKeyProperties.GenerateMessage(
+                CoreStrings.LogIncompatibleMatchingForeignKeyProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     "{'PrincipalEntityPeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
@@ -753,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
+                CoreStrings.LogConflictingShadowForeignKeys(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), logEntry.Message);
         }
 
@@ -1037,7 +1038,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new DiagnosticsLogger<DbLoggerCategory.Model>(
                     ListLoggerFactory,
                     options,
-                    new DiagnosticListener("Fake")));
+                    new DiagnosticListener("Fake"),
+                    new LoggingDefinitions()));
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }

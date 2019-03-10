@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
-            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(principalEntityTypeBuilder);
 
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
-            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(principalEntityTypeBuilder);
 
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogRequiredAttributeOnDependent.GenerateMessage(
+                CoreStrings.LogRequiredAttributeOnDependent(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
         }
 
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogRequiredAttributeOnBothNavigations.GenerateMessage(
+                CoreStrings.LogRequiredAttributeOnBothNavigations(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
         }
 
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogMultipleInversePropertiesSameTarget.GenerateMessage(
+                CoreStrings.LogMultipleInversePropertiesSameTarget(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     "AmbiguousDependent.AmbiguousPrincipal, AmbiguousDependent.AnotherAmbiguousPrincipal",
                     nameof(AmbiguousPrincipal.Dependent)), logEntry.Message);
         }
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogNonDefiningInverseNavigation.GenerateMessage(
+                CoreStrings.LogNonDefiningInverseNavigation(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Principal), nameof(Principal.Dependent), "Principal.Dependents#Dependent", nameof(Dependent.Principal),
                     nameof(Principal.Dependents)), logEntry.Message);
         }
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogNonOwnershipInverseNavigation.GenerateMessage(
+                CoreStrings.LogNonOwnershipInverseNavigation(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Principal), nameof(Principal.Dependent), nameof(Dependent), nameof(Dependent.Principal),
                     nameof(Principal.Dependents)), logEntry.Message);
         }
@@ -832,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(
                     CreateTypeMapper(),
-                    new TestLogger<DbLoggerCategory.Model>()));
+                    new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()));
 
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateLogger()));
 
@@ -869,7 +869,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                 ListLoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                new LoggingDefinitions());
             return modelLogger;
         }
 

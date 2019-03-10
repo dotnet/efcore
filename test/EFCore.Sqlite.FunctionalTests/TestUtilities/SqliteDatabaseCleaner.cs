@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddSingleton<ValueConverterSelectorDependencies>()
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
+                .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                 .AddLogging();

@@ -1768,7 +1768,7 @@ Assert.Equal(
                 ConfigureOrdersHierarchy(modelBuilder);
             }
 
-            var logger = new TestLogger<DbLoggerCategory.Model>();
+            var logger = new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>();
             var validationConvention = new IgnoredMembersValidationConvention(logger);
             if (exceptionExpected)
             {
@@ -1788,7 +1788,7 @@ Assert.Equal(
                 modelBuilder.Metadata,
                 new DiagnosticsLoggers(
                     logger,
-                    new TestLogger<DbLoggerCategory.Model.Validation>()));
+                    new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>()));
 
             Assert.Equal(
                 expectedIgnored,

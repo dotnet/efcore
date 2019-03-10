@@ -21,34 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
-        /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="logAction"> A cached delegate for logging the event. </param>
-        public EventDefinition(
-            EventId eventId,
-            LogLevel level,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, Exception?> logAction)
-            : this(eventId, level, null, logAction)
-        {
-        }
-
-        /// <summary>
-        ///     Creates an event definition instance.
-        /// </summary>
+        /// <param name="loggingOptions"> Logging options. </param>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
-        /// <param name="logAction"> A cached delegate for logging the event. </param>
+        /// <param name="logActionFunc"> Function to create a cached delegate for logging the event. </param>
         public EventDefinition(
+            [NotNull] ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [CanBeNull] string? eventIdCode,
-            [NotNull] Action<ILogger, TParam1, TParam2, TParam3, Exception?> logAction)
-            : base(eventId, level, eventIdCode)
+            [NotNull] string eventIdCode,
+            [NotNull] Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, Exception?>> logActionFunc)
+            : base(loggingOptions, eventId, level, eventIdCode)
         {
-            Check.NotNull(logAction, nameof(logAction));
+            Check.NotNull(logActionFunc, nameof(logActionFunc));
 
-            _logAction = logAction;
+            _logAction = logActionFunc(Level);
         }
 
         /// <summary>

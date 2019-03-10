@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -490,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionset = new ConventionSet();
 
             conventionset.ModelAnnotationChangedConventions.Add(
-                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model>()));
+                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>()));
 
             return new ModelBuilder(conventionset);
         }

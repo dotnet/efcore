@@ -73,7 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() }
             };
 
-            TestEventLogging(typeof(CoreEventId), typeof(CoreLoggerExtensions), fakeFactories);
+            TestEventLogging(
+                typeof(CoreEventId),
+                typeof(CoreLoggerExtensions),
+                typeof(LoggingDefinitions),
+                fakeFactories);
         }
 
         private class FakeServiceProvider : IServiceProvider

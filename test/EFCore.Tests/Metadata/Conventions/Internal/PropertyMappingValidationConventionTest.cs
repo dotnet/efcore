@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -189,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 typeMappingSource,
                 TestServiceFactory.Instance.Create<IMemberClassifier>(
                     (typeof(ITypeMappingSource), typeMappingSource)),
-                new TestLogger<DbLoggerCategory.Model>());
+                new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>());
         }
 
         protected class NonPrimitiveNonNavigationAsPropertyEntity

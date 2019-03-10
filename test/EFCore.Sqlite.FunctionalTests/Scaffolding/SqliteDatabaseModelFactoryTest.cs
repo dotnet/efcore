@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton<ValueConverterSelectorDependencies>()
                     .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                     .AddSingleton<ILoggingOptions, LoggingOptions>()
+                    .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                     .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
@@ -859,8 +861,8 @@ DROP TABLE PrincipalTable;");
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
+                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage(), Message);
                 },
                 "DROP TABLE Everest;");
         }
@@ -878,8 +880,8 @@ DROP TABLE PrincipalTable;");
 
                     var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
+                    Assert.Equal(SqliteStrings.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteStrings.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -904,8 +906,8 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
+                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("0"), Message);
                 },
                 @"
 DROP TABLE DependentTable;
@@ -932,9 +934,9 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
+                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                     Assert.Equal(
-                        SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"),
+                        SqliteStrings.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"),
                         Message);
                 },
                 @"
