@@ -33,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeResultOperator(
-            [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource, bool implicitLoad = false)
+            [NotNull] INavigation[] navigationPath,
+            [NotNull] Expression pathFromQuerySource,
+            bool implicitLoad = false)
         {
             _navigationPaths = new List<INavigation[]>
             {

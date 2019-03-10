@@ -690,6 +690,103 @@ namespace Microsoft.EntityFrameworkCore
 
         #endregion
 
+        #region TakeAfterMatch
+
+        internal static readonly MethodInfo TakeAfterMatchMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(TakeAfterMatch));
+
+        /// <summary>
+        ///     Returns a new query where the results will the next <paramref name="count"/>
+        ///     elements after the first element that matches <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TSource">
+        ///     The type of the elements of <paramref name="source"/>.
+        /// </typeparam>
+        /// <param name="source">
+        ///     An <see cref="IQueryable{T}" /> to return results from.
+        /// </param>
+        /// <param name="predicate">
+        ///     An function to test an element for the first match.
+        /// </param>
+        /// <param name="count">
+        ///     The number of elements to return.
+        /// </param>
+        /// <returns>
+        ///     A new query where the result set will be the next <paramref name="count"/>
+        ///     elements after the first element that matches <paramref name="predicate"/>.
+        /// </returns>
+        public static IQueryable<TSource> TakeAfterMatch<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
+            [NotNull] int count)
+            where TSource : class
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+            Check.NotNull(count, nameof(count));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TSource>(
+                        Expression.Call(
+                            instance: null,
+                            method: TakeAfterMatchMethodInfo.MakeGenericMethod(typeof(TSource)),
+                            arguments: new[] { source.Expression, predicate, Expression.Constant(count, typeof(int)) }))
+                    : source;
+        }
+
+        #endregion
+
+        #region TakeBeforeMatch
+
+        internal static readonly MethodInfo TakeBeforeMatchMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(TakeBeforeMatch));
+
+        /// <summary>
+        ///     Returns a new query where the results will the previous <paramref name="count"/>
+        ///     elements before the first element that matches <paramref name="predicate"/>.
+        /// </summary>
+        /// <typeparam name="TSource">
+        ///     The type of the elements of <paramref name="source"/>.
+        /// </typeparam>
+        /// <param name="source">
+        ///     An <see cref="IQueryable{T}" /> to return results from.
+        /// </param>
+        /// <param name="predicate">
+        ///     An function to test an element for the first match.
+        /// </param>
+        /// <param name="count">
+        ///     The number of elements to return.
+        /// </param>
+        /// <returns>
+        ///     A new query where the result set will be the previous <paramref name="count"/>
+        ///     elements before the first element that matches <paramref name="predicate"/>.
+        /// </returns>
+        public static IQueryable<TSource> TakeBeforeMatch<TSource>(
+            [NotNull] this IQueryable<TSource> source,
+            [NotNull] Expression<Func<TSource, bool>> predicate,
+            [NotNull] int count)
+            where TSource : class
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
+            Check.NotNull(count, nameof(count));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TSource>(
+                        Expression.Call(
+                            instance: null,
+                            method: TakeBeforeMatchMethodInfo.MakeGenericMethod(typeof(TSource)),
+                            arguments: new[] { source.Expression, predicate, Expression.Constant(count, typeof(int)) }))
+                    : source;
+        }
+
+        #endregion
+
+
         #region Min
 
         private static readonly MethodInfo _min = GetMethod(nameof(Queryable.Min), predicate: mi => mi.IsGenericMethod);

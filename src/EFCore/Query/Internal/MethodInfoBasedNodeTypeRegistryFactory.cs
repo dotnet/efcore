@@ -58,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .Register(StringIncludeExpressionNode.SupportedMethods, typeof(StringIncludeExpressionNode));
             _methodInfoBasedNodeTypeRegistry
                 .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(TakeBesideMatchExpressionNode.SupportedMethods, typeof(TakeBesideMatchExpressionNode));
 
             _nodeTypeProviders = new INodeTypeProvider[] { _methodInfoBasedNodeTypeRegistry, _methodNameBasedNodeTypeRegistry };
         }
