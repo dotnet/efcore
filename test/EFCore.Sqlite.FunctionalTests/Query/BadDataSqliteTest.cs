@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -15,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -149,48 +147,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                IRelationalTypeMappingSource typeMappingSource)
-                : base(typeMappingSource)
+                RelationalCommandBuilderDependencies dependencies)
+                : base(dependencies)
             {
             }
 
             public object[] Values { private get; set; }
 
-            protected override IRelationalCommandBuilder CreateCore(
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                IRelationalTypeMappingSource relationalTypeMappingSource)
-                => new BadDataRelationalCommandBuilder(
-                    logger, relationalTypeMappingSource, Values);
+            public override IRelationalCommandBuilder Create()
+                => new BadDataRelationalCommandBuilder(Dependencies, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                    IRelationalTypeMappingSource typeMappingSource,
+                    RelationalCommandBuilderDependencies dependencies,
                     object[] values)
-                    : base(logger, typeMappingSource)
+                    : base(dependencies)
                 {
                     _values = values;
                 }
 
-                protected override IRelationalCommand BuildCore(
-                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                    string commandText,
-                    IReadOnlyList<IRelationalParameter> parameters)
-                    => new BadDataRelationalCommand(logger, commandText, parameters, _values);
+                public override IRelationalCommand Build()
+                    => new BadDataRelationalCommand(Dependencies, ToString(), Parameters, _values);
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
                     private readonly object[] _values;
 
                     public BadDataRelationalCommand(
-                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+                        RelationalCommandBuilderDependencies dependencies,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,
                         object[] values)
-                        : base(logger, commandText, parameters)
+                        : base(dependencies, commandText, parameters)
                     {
                         _values = values;
                     }
@@ -416,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection)
-                    .AddSingleton<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>();
+                    .AddScoped<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>();
         }
     }
 }

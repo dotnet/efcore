@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 && key.GetConfigurationSource() == ConfigurationSource.Explicit)
                             {
                                 throw new InvalidOperationException(
-                                    CoreStrings.KeyPropertyCannotBeNullable(Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), Property.Format(key.Properties)));
+                                    CoreStrings.KeyPropertyCannotBeNullable(Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), key.Properties.Format()));
                             }
 
                             var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
@@ -105,14 +106,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool HasMaxLength(int maxLength, ConfigurationSource configurationSource)
-            => HasAnnotation(CoreAnnotationNames.MaxLengthAnnotation, maxLength, configurationSource);
+            => HasAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsUnicode(bool unicode, ConfigurationSource configurationSource)
-            => HasAnnotation(CoreAnnotationNames.UnicodeAnnotation, unicode, configurationSource);
+            => HasAnnotation(CoreAnnotationNames.Unicode, unicode, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool HasValueGenerator(
             [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory,
             ConfigurationSource configurationSource)
-            => HasAnnotation(CoreAnnotationNames.ValueGeneratorFactoryAnnotation, factory, configurationSource);
+            => HasAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -211,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool UsePropertyAccessMode(PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource)
-            => HasAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, propertyAccessMode, configurationSource);
+            => HasAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

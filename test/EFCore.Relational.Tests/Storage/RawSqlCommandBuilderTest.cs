@@ -13,13 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void Builds_RelationalCommand_without_optional_parameters()
         {
-            var builder = new RawSqlCommandBuilder(
-                new RelationalCommandBuilderFactory(new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
-                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+            var builder = CreateBuilder();
 
             var command = builder.Build("SQL COMMAND TEXT");
 
@@ -27,16 +21,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, command.Parameters.Count);
         }
 
+        private static RawSqlCommandBuilder CreateBuilder()
+        {
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
+            return new RawSqlCommandBuilder(
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                        logger)),
+                new RelationalSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new ParameterNameGeneratorFactory(
+                    new ParameterNameGeneratorDependencies()),
+                logger);
+        }
+
         [Fact]
         public virtual void Builds_RelationalCommand_with_empty_parameter_list()
         {
-            var builder = new RawSqlCommandBuilder(
-                new RelationalCommandBuilderFactory(new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
-                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+            var builder = CreateBuilder();
 
             var rawSqlCommand = builder.Build("SQL COMMAND TEXT", Array.Empty<object>());
 
@@ -48,13 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void Builds_RelationalCommand_with_parameters()
         {
-            var builder = new RawSqlCommandBuilder(
-                new RelationalCommandBuilderFactory(new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
-                new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+            var builder = CreateBuilder();
 
             var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", new object[] { 1, 2L, "three" });
 

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Action<IModel> assertModel)
         {
             var modelBuilder = new ModelBuilder(BuildNonValidatingConventionSet());
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
             var _ = modelBuilder.Model.Scaffolding().EntityTypeErrors;
 

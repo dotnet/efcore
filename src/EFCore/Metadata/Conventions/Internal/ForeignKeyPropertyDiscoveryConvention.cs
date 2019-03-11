@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                     (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
                                     foreignKey.PrincipalEntityType.DisplayName() +
                                     (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name),
-                                    Property.Format(foreignKeyProperties)));
+                                    foreignKeyProperties.Format()));
                         }
                     }
 

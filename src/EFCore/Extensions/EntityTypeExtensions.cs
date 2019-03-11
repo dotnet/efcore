@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,6 +20,150 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class EntityTypeExtensions
     {
+        /// <summary>
+        ///     Returns all derived types of the given <see cref="IEntityType" />, including the type itself.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Derived types. </returns>
+        public static IEnumerable<IEntityType> GetDerivedTypesInclusive([NotNull] this IEntityType entityType)
+            => new[] { entityType }.Concat(entityType.GetDerivedTypes());
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
+            => new List<IEntityType>(entityType.GetAllBaseTypes())
+            {
+                entityType
+            };
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return foreign keys declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="IEntityType.GetForeignKeys" /> to also return foreign keys declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared foreign keys. </returns>
+        public static IEnumerable<IForeignKey> GetDeclaredForeignKeys([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredForeignKeys();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all navigation properties declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return navigation properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
+        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared navigation properties. </returns>
+        public static IEnumerable<INavigation> GetDeclaredNavigations([NotNull] this IEntityType entityType)
+            => entityType.GetDeclaredForeignKeys()
+                .Concat(entityType.GetDeclaredReferencingForeignKeys())
+                .SelectMany(foreignKey => foreignKey.FindNavigationsFrom(entityType))
+                .Distinct()
+                .OrderBy(m => m.Name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all non-navigation properties declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IEntityType.GetProperties" /> to also return properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared non-navigation properties. </returns>
+        public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all service properties declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IEntityType.GetServiceProperties" /> to also return properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared service properties. </returns>
+        public static IEnumerable<IServiceProperty> GetDeclaredServiceProperties([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredServiceProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all indexes declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return indexes declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
+        ///         Use <see cref="IEntityType.GetForeignKeys" /> to also return indexes declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared indexes. </returns>
+        public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
+            => entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
+
+        private static string DisplayNameDefault(this ITypeBase type)
+            => type.ClrType != null
+                ? type.ClrType.ShortDisplayName()
+                : type.Name;
+
+        /// <summary>
+        ///     Gets the friendly display name for the given <see cref="ITypeBase" />.
+        /// </summary>
+        /// <param name="type"> The entity type. </param>
+        /// <returns> The display name. </returns>
+        [DebuggerStepThrough]
+        public static string DisplayName([NotNull] this ITypeBase type)
+        {
+            if (!(type is IEntityType entityType)
+                || !entityType.HasDefiningNavigation())
+            {
+                return type.DisplayNameDefault();
+            }
+
+            var builder = new StringBuilder();
+            var path = new Stack<string>();
+            var root = entityType;
+            while (true)
+            {
+                var definingNavigationName = root.DefiningNavigationName;
+                if (definingNavigationName == null)
+                {
+                    break;
+                }
+
+                root = root.DefiningEntityType;
+                path.Push("#");
+                path.Push(definingNavigationName);
+                path.Push(".");
+                path.Push(root.DisplayNameDefault());
+            }
+
+            if (root != entityType)
+            {
+                builder.AppendJoin(path, "");
+            }
+
+            builder.Append(type.DisplayNameDefault());
+            return builder.ToString();
+        }
+
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>

@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
-using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {

@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -67,19 +67,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         {
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-            return new IndentedStringBuilder()
+            var builder = new StringBuilder()
                 .Append("IF OBJECT_ID(")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema)))
                 .AppendLine(") IS NULL")
-                .AppendLine("BEGIN")
-                .IncrementIndent()
-                .AppendLines(GetCreateScript())
-                .DecrementIndent()
+                .AppendLine("BEGIN");
+
+            using (var reader = new StringReader(GetCreateScript()))
+            {
+                var first = true;
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        builder.AppendLine();
+                    }
+
+                    if (line.Length != 0)
+                    {
+                        builder
+                            .Append("    ")
+                            .Append(line);
+                    }
+                }
+            }
+
+            builder
+                .AppendLine()
                 .Append("END")
-                .AppendLine(SqlGenerationHelper.StatementTerminator)
-                .ToString();
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
+
+            return builder.ToString();
         }
 
         /// <summary>

@@ -4,7 +4,7 @@
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;

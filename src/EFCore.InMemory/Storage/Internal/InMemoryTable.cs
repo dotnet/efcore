@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             throw new DbUpdateConcurrencyException(
                 InMemoryStrings.UpdateConcurrencyTokenException(
                     entry.EntityType.DisplayName(),
-                    Property.Format(concurrencyConflicts.Keys)),
+                    concurrencyConflicts.Keys.Format()),
                 new[] { entry });
         }
     }

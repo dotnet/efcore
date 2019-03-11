@@ -226,12 +226,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
                 CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessModeAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
-                CoreAnnotationNames.PropertyAccessModeAnnotation,
+                CoreAnnotationNames.NavigationAccessMode,
+                CoreAnnotationNames.OwnedTypes,
+                CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ProviderClrType,
                 CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.ValueGeneratorFactoryAnnotation
+                CoreAnnotationNames.ValueGeneratorFactory
             };
 
             var ignoredAnnotationTypes = new List<string>

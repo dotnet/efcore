@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
 
             Model = dependencies.Model;
-            Loggers = new DiagnosticsLoggers(dependencies.Logger, dependencies.CommandLogger);
+            Loggers = new DiagnosticsLoggers(dependencies.Logger);
 
             _entityQueryModelVisitorFactory = dependencies.EntityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = dependencies.RequiresMaterializationExpressionVisitorFactory;

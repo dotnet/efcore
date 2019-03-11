@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -25,29 +28,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
-        {
-            if (property.DeclaringEntityType.BaseType != null
-                || property.IsNullable)
-            {
-                return true;
-            }
-
-            return property.IsPrimaryKey()
-                ? false
-                : IsOwnedByDerivedType(property.DeclaringEntityType);
-        }
+            => property.DeclaringEntityType.BaseType != null
+               || property.IsNullable ||
+               !property.IsPrimaryKey()
+               && IsOwnedByDerivedType(property.DeclaringEntityType);
 
         private static bool IsOwnedByDerivedType(IEntityType entityType)
         {
             var ownerEntityType = entityType.FindPrimaryKey()?.Properties.First()
                 ?.FindSharedTableLink()?.PrincipalEntityType;
 
-            if (ownerEntityType?.BaseType != null)
+            return ownerEntityType?.BaseType != null ||
+                   ownerEntityType != null
+                   && IsOwnedByDerivedType(ownerEntityType);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the <see cref="IProperty"/> that represents the same primary key property
+        ///         as the given property, but potentially in a shared root table.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        public static IProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var principalProperty = property;
+            HashSet<IEntityType> visitedTypes = null;
+            while (true)
             {
-                return true;
+                var linkingRelationship = principalProperty.FindSharedTableLink();
+                if (linkingRelationship == null)
+                {
+                    break;
+                }
+
+                if (visitedTypes == null)
+                {
+                    visitedTypes = new HashSet<IEntityType>
+                    {
+                        linkingRelationship.DeclaringEntityType
+                    };
+                }
+
+                if (!visitedTypes.Add(linkingRelationship.PrincipalEntityType))
+                {
+                    return null;
+                }
+
+                principalProperty = linkingRelationship.PrincipalKey.Properties[linkingRelationship.Properties.IndexOf(principalProperty)];
             }
 
-            return ownerEntityType != null && IsOwnedByDerivedType(ownerEntityType);
+            return principalProperty == property ? null : principalProperty;
         }
+
     }
 }

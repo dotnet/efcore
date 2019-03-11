@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(model, nameof(model));
 
-            model[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
+            model[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
         }
 
         /// <summary>

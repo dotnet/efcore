@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    Property.Format(redundantIndex), redundantIndex.First().DeclaringType.DisplayName(), Property.Format(otherIndex));
+                    redundantIndex.Format(), redundantIndex.First().DeclaringType.DisplayName(), otherIndex.Format());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -974,9 +974,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string, string>)definition;
             var p = (TwoPropertyBaseCollectionsEventData)payload;
             return d.GenerateMessage(
-                Property.Format(p.FirstPropertyCollection),
+                p.FirstPropertyCollection.Format(),
                 p.FirstPropertyCollection.First().DeclaringType.DisplayName(),
-                Property.Format(p.SecondPropertyCollection));
+                p.SecondPropertyCollection.Format());
         }
 
         /// <summary>
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    Property.Format(redundantForeignKey.Properties), redundantForeignKey.DeclaringEntityType.DisplayName());
+                    redundantForeignKey.Properties.Format(), redundantForeignKey.DeclaringEntityType.DisplayName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -1014,7 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (ForeignKeyEventData)payload;
             return d.GenerateMessage(
-                Property.Format(p.ForeignKey.Properties),
+                p.ForeignKey.Properties.Format(),
                 p.ForeignKey.DeclaringEntityType.DisplayName());
         }
 
@@ -1035,8 +1035,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    Property.Format(foreignKeyProperties, includeTypes: true),
-                    Property.Format(principalKeyProperties, includeTypes: true));
+                    foreignKeyProperties.Format(includeTypes: true),
+                    principalKeyProperties.Format(includeTypes: true));
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -1056,8 +1056,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (TwoPropertyBaseCollectionsEventData)payload;
             return d.GenerateMessage(
-                Property.Format(p.FirstPropertyCollection, includeTypes: true),
-                Property.Format(p.SecondPropertyCollection, includeTypes: true));
+                p.FirstPropertyCollection.Format(includeTypes: true),
+                p.SecondPropertyCollection.Format(includeTypes: true));
         }
 
         /// <summary>

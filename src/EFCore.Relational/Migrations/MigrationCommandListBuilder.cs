@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(dependencies, nameof(dependencies));
 
             _dependencies = dependencies;
-            _commandBuilder = dependencies.CommandBuilderFactory.Create(dependencies.Logger);
+            _commandBuilder = dependencies.CommandBuilderFactory.Create();
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> This builder so that additional calls can be chained. </returns>
         public virtual MigrationCommandListBuilder EndCommand(bool suppressTransaction = false)
         {
-            if (_commandBuilder.GetLength() != 0)
+            if (_commandBuilder.CommandTextLength != 0)
             {
                 _commands.Add(new MigrationCommand(_commandBuilder.Build(), suppressTransaction));
-                _commandBuilder = _dependencies.CommandBuilderFactory.Create(_dependencies.Logger);
+                _commandBuilder = _dependencies.CommandBuilderFactory.Create();
             }
 
             return this;

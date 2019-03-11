@@ -6,9 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -94,10 +94,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private void SetUdtTypeName(DbParameter parameter)
         {
-            NonCapturingLazyInitializer.EnsureInitialized(
+            LazyInitializer.EnsureInitialized(
                 ref _udtTypeNameSetter,
-                parameter.GetType(),
-                CreateUdtTypeNameAccessor);
+                () => CreateUdtTypeNameAccessor(parameter.GetType()));
 
             if (parameter.Value != null
                 && parameter.Value != DBNull.Value)

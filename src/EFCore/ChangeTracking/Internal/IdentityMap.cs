@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(
                     CoreStrings.IdentityConflictOwned(
                         entry.EntityType.DisplayName(),
-                        Property.Format(Key.Properties)));
+                        Key.Properties.Format()));
             }
 
             if (_sensitiveLoggingEnabled)
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             throw new InvalidOperationException(
                 CoreStrings.IdentityConflict(
                     entry.EntityType.DisplayName(),
-                    Property.Format(Key.Properties)));
+                    Key.Properties.Format()));
         }
 
         private void Add(TKey key, InternalEntityEntry entry, bool updateDuplicate)

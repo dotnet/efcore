@@ -566,27 +566,36 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             public ModificationCommandBatchFake(
                 IUpdateSqlGenerator sqlGenerator = null)
-                : base(
-                    new ModificationCommandBatchFactoryDependencies(
-                        new RelationalCommandBuilderFactory(
-                            new TestRelationalTypeMappingSource(
-                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
-                        new RelationalSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()),
-                        sqlGenerator ?? new FakeSqlGenerator(
-                            RelationalTestHelpers.Instance.CreateContextServices()
-                                .GetRequiredService<UpdateSqlGeneratorDependencies>()),
-                        new TypedRelationalValueBufferFactoryFactory(
-                            new RelationalValueBufferFactoryDependencies(
-                                new TestRelationalTypeMappingSource(
-                                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                                new CoreSingletonOptions())),
-                        new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()))
+                : base(CreateDependencies(sqlGenerator))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
+            }
+
+            private static ModificationCommandBatchFactoryDependencies CreateDependencies(
+                IUpdateSqlGenerator sqlGenerator)
+            {
+                var typeMappingSource = new TestRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+                var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
+                return new ModificationCommandBatchFactoryDependencies(
+                    new RelationalCommandBuilderFactory(
+                        new RelationalCommandBuilderDependencies(
+                            typeMappingSource,
+                            logger)),
+                    new RelationalSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()),
+                    sqlGenerator ?? new FakeSqlGenerator(
+                        RelationalTestHelpers.Instance.CreateContextServices()
+                            .GetRequiredService<UpdateSqlGeneratorDependencies>()),
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            typeMappingSource,
+                            new CoreSingletonOptions())),
+                    logger);
             }
 
             public string CommandText => GetCommandText();

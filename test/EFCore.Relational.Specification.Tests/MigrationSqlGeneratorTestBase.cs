@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -392,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void RenameTableOperation()
             => Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameTableOperation
                 {
                     Name = "People",
@@ -725,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder();
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildAction(modelBuilder);
 
             var batch = TestHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()

@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual RawSqlCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
-                .Create(Logger)
+                .Create()
                 .Append(GetCommandText());
 
             var parameterValues = new Dictionary<string, object>(GetParameterCount());

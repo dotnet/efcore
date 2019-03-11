@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Annotations_are_added_when_conventional_model_builder_is_used()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder().Model;
-            model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
             var annotations = model.GetAnnotations().OrderBy(a => a.Name).ToList();
             Assert.Equal(2, annotations.Count);
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .ForSqlServerUseSequenceHiLo()
                 .Model;
 
-            model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
             var annotations = model.GetAnnotations().OrderBy(a => a.Name).ToList();
             Assert.Equal(4, annotations.Count);

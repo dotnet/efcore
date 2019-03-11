@@ -116,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     (referencingFk.PrincipalToDependent == null
                                         ? ""
                                         : "." + referencingFk.PrincipalToDependent.Name),
-                                    Property.Format(referencingFk.Properties, includeTypes: true),
-                                    Property.Format(entityType.FindPrimaryKey().Properties, includeTypes: true)));
+                                    referencingFk.Properties.Format(includeTypes: true),
+                                    entityType.FindPrimaryKey().Properties.Format(includeTypes: true)));
                         }
                     }
                 }
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             CoreStrings.ForeignKeyPropertyInKey(
                                 generatedProperty.Name,
                                 entityType.DisplayName(),
-                                Property.Format(inheritedKey.Properties),
+                                inheritedKey.Properties.Format(),
                                 inheritedKey.DeclaringEntityType.DisplayName()));
                     }
                 }
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
                                         navigation.Name,
                                         navigation.GetTargetType().DisplayName(),
-                                        Property.Format(navigation.ForeignKey.Properties)));
+                                        navigation.ForeignKey.Properties.Format()));
                             }
 
                             throw new InvalidOperationException(
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     entityType.DisplayName(),
                                     navigation.Name,
                                     navigation.GetTargetType().DisplayName(),
-                                    Property.Format(navigation.ForeignKey.Properties)));
+                                    navigation.ForeignKey.Properties.Format()));
                         }
                     }
 
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         throw new InvalidOperationException(
                             CoreStrings.SeedDatumDuplicate(
-                                entityType.DisplayName(), Property.Format(key.Properties)));
+                                entityType.DisplayName(), key.Properties.Format()));
                     }
 
                     entry = new InternalShadowEntityEntry(null, entityType);

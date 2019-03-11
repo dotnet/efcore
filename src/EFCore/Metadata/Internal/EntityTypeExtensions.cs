@@ -12,6 +12,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -70,57 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static string DisplayName([NotNull] this IEntityType type)
-        {
-            if (!type.HasDefiningNavigation())
-            {
-                return ((ITypeBase)type).DisplayName();
-            }
-
-            var builder = new StringBuilder();
-            var path = new Stack<string>();
-            var root = type;
-            while (true)
-            {
-                var definingNavigationName = root.DefiningNavigationName;
-                if (definingNavigationName == null)
-                {
-                    break;
-                }
-
-                root = root.DefiningEntityType;
-                path.Push("#");
-                path.Push(definingNavigationName);
-                path.Push(".");
-                path.Push(((ITypeBase)root).DisplayName());
-            }
-
-            if (root != type)
-            {
-                builder.AppendJoin(path, "");
-            }
-
-            builder.Append(((ITypeBase)type).DisplayName());
-            return builder.ToString();
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
-            => new List<IEntityType>(GetAllBaseTypes(entityType))
-            {
-                entityType
-            };
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
         {
             var baseTypes = new List<IEntityType>();
@@ -151,13 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static IEnumerable<IEntityType> GetDerivedTypesInclusive([NotNull] this IEntityType entityType)
-            => new[] { entityType }.Concat(entityType.GetDerivedTypes());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -530,24 +473,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IEnumerable<IForeignKey> GetDeclaredForeignKeys([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDeclaredForeignKeys();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static IEnumerable<INavigation> GetDeclaredNavigations([NotNull] this IEntityType entityType)
-            => entityType.GetDeclaredForeignKeys()
-                .Concat(entityType.GetDeclaredReferencingForeignKeys())
-                .SelectMany(foreignKey => foreignKey.FindNavigationsFrom(entityType))
-                .Distinct()
-                .OrderBy(m => m.Name);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IEntityType entityType)
             => entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
                 .Where(fk => fk.PrincipalEntityType == entityType);
@@ -579,21 +504,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDeclaredProperties();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static IEnumerable<IServiceProperty> GetDeclaredServiceProperties([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDeclaredServiceProperties();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static IEnumerable<IProperty> FindDerivedProperties(
             [NotNull] this IEntityType entityType, [NotNull] string propertyName)
             => entityType.GetDerivedTypes().SelectMany(
@@ -606,14 +516,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
             [NotNull] this IEntityType entityType)
             => entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
-            => entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

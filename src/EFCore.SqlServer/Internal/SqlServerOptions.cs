@@ -3,10 +3,11 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
     /// <summary>
     ///     <para>

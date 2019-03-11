@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
@@ -302,7 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new RelationalCommandBuilderDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 commandText,
                 parameters ?? Array.Empty<IRelationalParameter>());
     }

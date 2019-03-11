@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames;
 
 namespace Microsoft.EntityFrameworkCore
 {

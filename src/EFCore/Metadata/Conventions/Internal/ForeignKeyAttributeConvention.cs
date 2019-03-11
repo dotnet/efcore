@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         throw new InvalidOperationException(
                             CoreStrings.ConflictingForeignKeyAttributes(
-                                Property.Format(existingProperties),
+                                existingProperties.Format(),
                                 foreignKey.DeclaringEntityType.DisplayName()));
                     }
                 }

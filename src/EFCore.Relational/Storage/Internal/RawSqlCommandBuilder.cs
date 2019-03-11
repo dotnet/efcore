@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual IRelationalCommand Build(string sql)
             => _relationalCommandBuilderFactory
-                .Create(Logger)
+                .Create()
                 .Append(Check.NotEmpty(sql, nameof(sql)))
                 .Build();
 
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual RawSqlCommand Build(string sql, IEnumerable<object> parameters)
         {
-            var relationalCommandBuilder = _relationalCommandBuilderFactory.Create(Logger);
+            var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
             var substitutions = new List<string>();
 
