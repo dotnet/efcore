@@ -124,7 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             return Expression.Lambda<Func<byte[], TNumber>>(
                 Expression.Condition(
                     Expression.ReferenceEqual(param, Expression.Constant(null)),
+#nullable disable // https://github.com/dotnet/roslyn/issues/30953
                     Expression.Constant(default(TNumber), typeof(TNumber)),
+#nullable enable
                     output),
                 param);
         }

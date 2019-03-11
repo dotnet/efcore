@@ -72,7 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                         typeof(TNumber).IsNullableType()
                             ? (Expression)Expression.Convert(parsedVariable, typeof(TNumber))
                             : parsedVariable,
+#nullable disable // https://github.com/dotnet/roslyn/issues/30953
                         Expression.Constant(default(TNumber), typeof(TNumber)))),
+#nullable enable
                 param);
         }
 
