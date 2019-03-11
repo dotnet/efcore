@@ -647,7 +647,7 @@ FROM [Customers]"))
                             @"SELECT *
 FROM [Products]
 WHERE [Discontinued] <> " + boolMapping.GenerateSqlLiteral(true) + @"
-AND ((]UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
+AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .Select(p => p.ProductName)
                     .ToArray();
 
