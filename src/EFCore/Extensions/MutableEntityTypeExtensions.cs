@@ -19,6 +19,90 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableEntityTypeExtensions
     {
         /// <summary>
+        ///     Returns all derived types of the given <see cref="IMutableEntityType" />, including the type itself.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Derived types. </returns>
+        public static IEnumerable<IMutableEntityType> GetDerivedTypesInclusive([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return foreign keys declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return foreign keys declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared foreign keys. </returns>
+        public static IEnumerable<IMutableForeignKey> GetDeclaredForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDeclaredForeignKeys().Cast<IMutableForeignKey>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all non-navigation properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IMutableEntityType.GetProperties" /> to also return properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared non-navigation properties. </returns>
+        public static IEnumerable<IMutableProperty> GetDeclaredProperties([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDeclaredProperties().Cast<IMutableProperty>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all navigation properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return navigation properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
+        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared navigation properties. </returns>
+        public static IEnumerable<IMutableNavigation> GetDeclaredNavigations([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDeclaredNavigations().Cast<IMutableNavigation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all service properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IMutableEntityType.GetServiceProperties" /> to also return properties declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared service properties. </returns>
+        public static IEnumerable<IMutableServiceProperty> GetDeclaredServiceProperties([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDeclaredServiceProperties().Cast<IMutableServiceProperty>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all indexes declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return indexes declared on derived types.
+        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
+        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return indexes declared on derived types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared indexes. </returns>
+        public static IEnumerable<IMutableIndex> GetDeclaredIndexes([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetDeclaredIndexes().Cast<IMutableIndex>();
+
+
+        /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
         /// <param name="entityType"> The base type to find types that derive from. </param>
@@ -405,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
+            entityType[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
         }
 
         /// <summary>
@@ -424,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType[CoreAnnotationNames.NavigationAccessModeAnnotation] = propertyAccessMode;
+            entityType[CoreAnnotationNames.NavigationAccessMode] = propertyAccessMode;
         }
 
         /// <summary>

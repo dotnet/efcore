@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
-                        Property.Format(principalKey.Properties),
+                        principalKey.Properties.Format(),
                         principalEntityType.DisplayName()));
             }
 
@@ -731,9 +731,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyCountMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 
@@ -746,9 +746,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 

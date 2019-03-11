@@ -356,8 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationForWrongForeignKey(
                     nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    Property.Format(foreignKey2.Properties),
-                    Property.Format(foreignKey1.Properties)),
+                    foreignKey2.Properties.Format(),
+                    foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
@@ -379,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationForWrongForeignKey(
                     nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    Property.Format(foreignKey2.Properties),
-                    Property.Format(foreignKey1.Properties)),
+                    foreignKey2.Properties.Format(),
+                    foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
@@ -721,23 +721,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
 
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
 

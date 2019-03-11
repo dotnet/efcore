@@ -33,21 +33,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public QueryCompilationContextDependencies(
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(commandLogger, nameof(commandLogger));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(currentContext, nameof(currentContext));
 
             Model = model;
             Logger = logger;
-            CommandLogger = commandLogger;
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             RequiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
             CurrentContext = currentContext;
@@ -64,12 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -97,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new QueryCompilationContextDependencies(
                 model,
                 Logger,
-                CommandLogger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 CurrentContext);
@@ -110,20 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new QueryCompilationContextDependencies(
                 Model,
                 logger,
-                CommandLogger,
-                EntityQueryModelVisitorFactory,
-                RequiresMaterializationExpressionVisitorFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public QueryCompilationContextDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
-            => new QueryCompilationContextDependencies(
-                Model,
-                Logger,
-                commandLogger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 CurrentContext);
@@ -136,7 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new QueryCompilationContextDependencies(
                 Model,
                 Logger,
-                CommandLogger,
                 entityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 CurrentContext);
@@ -150,7 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new QueryCompilationContextDependencies(
                 Model,
                 Logger,
-                CommandLogger,
                 EntityQueryModelVisitorFactory,
                 requiresMaterializationExpressionVisitorFactory,
                 CurrentContext);
@@ -163,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new QueryCompilationContextDependencies(
                 Model,
                 Logger,
-                CommandLogger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 currentContext);

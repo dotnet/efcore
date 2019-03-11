@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -21,6 +21,15 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class MutablePropertyExtensions
     {
+        /// <summary>
+        ///     Finds the principal property by the given property is constrained assuming that
+        ///     the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The associated principal property, or null if none exists. </returns>
+        public static IMutableProperty FindPrincipal([NotNull] this IMutableProperty property)
+            => (IMutableProperty)((IProperty)property).FindPrincipal();
+
         /// <summary>
         ///     <para>
         ///         Sets the factory to use for generating values for this property, or null to clear any previously set factory.
@@ -42,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(property, nameof(property));
             Check.NotNull(valueGeneratorFactory, nameof(valueGeneratorFactory));
 
-            property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation] = valueGeneratorFactory;
+            property[CoreAnnotationNames.ValueGeneratorFactory] = valueGeneratorFactory;
         }
 
         /// <summary>
@@ -61,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
-            property[CoreAnnotationNames.MaxLengthAnnotation] = maxLength;
+            property[CoreAnnotationNames.MaxLength] = maxLength;
         }
 
         /// <summary>
@@ -73,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            property[CoreAnnotationNames.UnicodeAnnotation] = unicode;
+            property[CoreAnnotationNames.Unicode] = unicode;
         }
 
         /// <summary>

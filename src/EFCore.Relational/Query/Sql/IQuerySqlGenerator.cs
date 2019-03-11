@@ -16,11 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Generates SQL for the given parameter values.
         /// </summary>
+        /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="parameterValues"> The parameter values. </param>
         /// <returns>
         ///     The SQL.
         /// </returns>
-        IRelationalCommand GenerateSql([NotNull] IReadOnlyDictionary<string, object> parameterValues);
+        IRelationalCommand GenerateSql(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IReadOnlyDictionary<string, object> parameterValues);
 
         /// <summary>
         ///     Gets a value indicating whether the generated SQL is cacheable.

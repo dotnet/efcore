@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
                         entityType.DisplayName(),
-                        Property.Format(foreignKey.Properties),
+                        foreignKey.Properties.Format(),
                         foreignKey.PrincipalEntityType.DisplayName(),
                         foreignKey.DeclaringEntityType.DisplayName()));
             }
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                        entityType.DisplayName(), Property.Format(foreignKey.Properties),
+                        entityType.DisplayName(), foreignKey.Properties.Format(),
                         foreignKey.PrincipalEntityType.DisplayName(),
                         foreignKey.DeclaringEntityType.DisplayName()));
             }
@@ -275,11 +275,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             builder
                 .Append(foreignKey.DeclaringEntityType.DisplayName())
                 .Append(" ")
-                .Append(Property.Format(foreignKey.Properties))
+                .Append(foreignKey.Properties.Format())
                 .Append(" -> ")
                 .Append(foreignKey.PrincipalEntityType.DisplayName())
                 .Append(" ")
-                .Append(Property.Format(foreignKey.PrincipalKey.Properties));
+                .Append(foreignKey.PrincipalKey.Properties.Format());
 
             if (foreignKey.IsUnique)
             {

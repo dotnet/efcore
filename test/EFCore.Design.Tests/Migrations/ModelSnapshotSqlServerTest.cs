@@ -1304,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""EntityWithOneProperty"");
                 });"),
-                o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactoryAnnotation])
+                o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactory])
             );
         }
 
@@ -3245,7 +3245,7 @@ namespace RootNamespace
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
 
             var model = modelBuilder.FinalizeModel();
@@ -3296,7 +3296,7 @@ namespace RootNamespace
                 null);
 
             var builder = new ModelBuilder(new ConventionSet());
-            builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
             buildModelMethod.Invoke(
                 Activator.CreateInstance(factoryType),

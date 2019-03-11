@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         [DebuggerStepThrough]
         public static PropertyAccessMode? GetPropertyAccessMode([NotNull] this IModel model)
-            => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+            => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessMode]
                ?? PropertyAccessMode.PreferField;
     }
 }

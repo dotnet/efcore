@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateIndexColumnMismatch(
-                            Property.Format(index.Properties),
+                            index.Properties.Format(),
                             index.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateIndex.Properties),
+                            duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             Format(index.DeclaringEntityType.Relational()),
                             index.Relational().Name,
@@ -46,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateIndexUniquenessMismatch(
-                            Property.Format(index.Properties),
+                            index.Properties.Format(),
                             index.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateIndex.Properties),
+                            duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             Format(index.DeclaringEntityType.Relational()),
                             index.Relational().Name));

@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            property[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
+            property[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
         }
     }
 }

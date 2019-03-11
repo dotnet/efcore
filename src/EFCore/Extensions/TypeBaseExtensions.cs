@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetPropertyAccessMode(
             [NotNull] this ITypeBase typeBase)
-            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessMode]
                ?? typeBase.Model.GetPropertyAccessMode();
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode? GetNavigationAccessMode(
             [NotNull] this ITypeBase typeBase)
-            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessModeAnnotation]
+            => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessMode]
                ?? typeBase.GetPropertyAccessMode()
                ?? typeBase.Model.GetPropertyAccessMode();
     }

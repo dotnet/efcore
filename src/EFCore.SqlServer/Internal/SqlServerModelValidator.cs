@@ -10,11 +10,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
     /// <summary>
     ///     <para>
@@ -271,9 +270,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.DuplicateKeyMismatchedClustering(
-                            Property.Format(key.Properties),
+                            key.Properties.Format(),
                             key.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateKey.Properties),
+                            duplicateKey.Properties.Format(),
                             duplicateKey.DeclaringEntityType.DisplayName(),
                             tableName,
                             keyName));

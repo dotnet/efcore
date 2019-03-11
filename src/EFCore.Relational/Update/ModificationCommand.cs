@@ -328,8 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.ConflictingRowValues(
                         firstEntry.EntityType.DisplayName(),
                         lastEntry.EntityType.DisplayName(),
-                        Property.Format(firstProperties),
-                        Property.Format(lastProperties),
+                        firstProperties.Format(),
+                        lastProperties.Format(),
                         firstProperties.FormatColumns()));
             }
 
@@ -358,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.ConflictingOriginalRowValues(
                         firstEntry.EntityType.DisplayName(),
                         lastEntry.EntityType.DisplayName(),
-                        Property.Format(firstProperties),
-                        Property.Format(lastProperties),
+                        firstProperties.Format(),
+                        lastProperties.Format(),
                         firstProperties.FormatColumns()));
             }
 

@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 entityType.DisplayName(),
                                 nextEntityType.DisplayName(),
                                 key.Relational().Name,
-                                Property.Format(key.Properties),
+                                key.Properties.Format(),
                                 otherKey.Relational().Name,
-                                Property.Format(otherKey.Properties)));
+                                otherKey.Properties.Format()));
                     }
 
                     typesToValidate.Enqueue(nextEntityType);
@@ -446,9 +446,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateKeyColumnMismatch(
-                            Property.Format(key.Properties),
+                            key.Properties.Format(),
                             key.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateKey.Properties),
+                            duplicateKey.Properties.Format(),
                             duplicateKey.DeclaringEntityType.DisplayName(),
                             tableName,
                             keyName,

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Dictionary<string, IProperty> GetPropertyMap()
         {
             var dictionary = new Dictionary<string, IProperty>(StringComparer.Ordinal);
-            foreach (var property in EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+            foreach (var property in EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredProperties))
             {
                 var columnName = property.Relational().ColumnName;
                 if (!dictionary.ContainsKey(columnName))
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<IIndex> GetIndexes()
-            => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredIndexes)
+            => EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredIndexes)
                 .Distinct((x, y) => x.Relational().Name == y.Relational().Name);
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<IForeignKey> GetForeignKeys()
-            => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
+            => EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredForeignKeys)
                 .Distinct((x, y) => x.Relational().Name == y.Relational().Name)
                 .Where(
                     fk => !(EntityTypes.Contains(fk.PrincipalEntityType)

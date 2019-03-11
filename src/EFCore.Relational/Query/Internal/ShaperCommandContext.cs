@@ -86,10 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public ShaperCommandContext(
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] Func<IQuerySqlGenerator> querySqlGeneratorFactory)
         {
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+            CommandBuilderFactory = commandBuilderFactory;
         }
 
         /// <summary>
@@ -103,6 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -126,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var generator = QuerySqlGeneratorFactory();
 
-            relationalCommand = generator.GenerateSql(parameters);
+            relationalCommand = generator.GenerateSql(CommandBuilderFactory, parameters);
 
             if (generator.IsCacheable)
             {

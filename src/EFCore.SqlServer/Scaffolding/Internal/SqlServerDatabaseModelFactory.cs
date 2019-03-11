@@ -13,12 +13,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -630,7 +628,8 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
 
                             if (storeType == "rowversion")
                             {
-                                column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+                                // Note: annotation name must match `ScaffoldingAnnotationNames.ConcurrencyToken`
+                                column["ConcurrencyToken"] = true;
                             }
 
                             table.Columns.Add(column);

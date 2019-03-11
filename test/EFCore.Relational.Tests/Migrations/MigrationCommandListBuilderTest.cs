@@ -128,7 +128,10 @@ Statement3
 
             return new MigrationCommandListBuilder(
                 new MigrationsSqlGeneratorDependencies(
-                    new RelationalCommandBuilderFactory(typeMappingSource),
+                    new RelationalCommandBuilderFactory(
+                        new RelationalCommandBuilderDependencies(
+                            typeMappingSource,
+                            logger)),
                     new FakeSqlGenerator(
                         new UpdateSqlGeneratorDependencies(
                             generationHelper,

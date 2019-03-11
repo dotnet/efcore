@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,6 +22,49 @@ namespace Microsoft.EntityFrameworkCore
     public static class PropertyExtensions
     {
         /// <summary>
+        ///     Finds the principal property by the given property is constrained assuming that
+        ///     the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The associated principal property, or null if none exists. </returns>
+        public static IProperty FindPrincipal([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var concreteProperty = property.AsProperty();
+            if (concreteProperty.ForeignKeys != null)
+            {
+                foreach (var foreignKey in concreteProperty.ForeignKeys)
+                {
+                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                    {
+                        if (property == foreignKey.Properties[propertyIndex])
+                        {
+                            return foreignKey.PrincipalKey.Properties[propertyIndex];
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Creates a formatted string representation of the given properties such as is useful
+        ///     when throwing exceptions about keys, indexes, etc. that use the properties.
+        /// </summary>
+        /// <param name="properties"> The properties to format. </param>
+        /// <param name="includeTypes"> If true, then type names are included in the string. The default is false. </param>
+        /// <returns> The string representation. </returns>
+        public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
+            => "{"
+               + string.Join(
+                   ", ",
+                   properties.Select(
+                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+               + "}";
+
+        /// <summary>
         ///     Gets the factory that has been set to generate values for this property, if any.
         /// </summary>
         /// <param name="property"> The property to get the value generator factory for. </param>
@@ -29,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactoryAnnotation];
+            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactory];
         }
 
         /// <summary>
@@ -42,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (int?)property[CoreAnnotationNames.MaxLengthAnnotation];
+            return (int?)property[CoreAnnotationNames.MaxLength];
         }
 
         /// <summary>
@@ -54,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            return (bool?)property[CoreAnnotationNames.UnicodeAnnotation];
+            return (bool?)property[CoreAnnotationNames.Unicode];
         }
 
         /// <summary>

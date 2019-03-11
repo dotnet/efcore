@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => this.ToDebugString();
 
         [UsedImplicitly]
-        private string DebuggerDisplay => Property.Format(Properties);
+        private string DebuggerDisplay => Properties.Format();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

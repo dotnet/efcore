@@ -10,10 +10,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
@@ -127,16 +129,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Generates SQL for the given parameter values.
         /// </summary>
+        /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="parameterValues"> The parameter values. </param>
         /// <returns>
         ///     A relational command.
         /// </returns>
-        public virtual IRelationalCommand GenerateSql(IReadOnlyDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(
+            IRelationalCommandBuilderFactory commandBuilderFactory,
+            IReadOnlyDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _relationalCommandBuilder = Dependencies.CommandBuilderFactory.Create(
-                Loggers.GetLogger<DbLoggerCategory.Database.Command>());
+            _relationalCommandBuilder = commandBuilderFactory.Create();
 
             _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
 
@@ -768,38 +772,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         substitutions = new string[argumentValuesFromParameter.Length];
 
+                        var subParameters = new List<IRelationalParameter>(argumentValuesFromParameter.Length);
+                        for (var i = 0; i < argumentValuesFromParameter.Length; i++)
+                        {
+                            var parameterName = _parameterNameGenerator.GenerateNext();
+
+                            if (argumentValuesFromParameter[i] is DbParameter dbParameter)
+                            {
+                                if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                                {
+                                    dbParameter.ParameterName
+                                        = SqlGenerator.GenerateParameterName(parameterName);
+                                }
+                                else
+                                {
+                                    parameterName = dbParameter.ParameterName;
+                                }
+
+                                substitutions[i] = dbParameter.ParameterName;
+                            }
+                            else
+                            {
+                                substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                            }
+
+                            subParameters.Add(
+                                new DynamicRelationalParameter(
+                                    parameterName,
+                                    substitutions[i],
+                                    Dependencies.TypeMappingSource));
+                        }
+
                         _relationalCommandBuilder.AddCompositeParameter(
                             parameterExpression.Name,
-                            builder =>
-                            {
-                                for (var i = 0; i < argumentValuesFromParameter.Length; i++)
-                                {
-                                    var parameterName = _parameterNameGenerator.GenerateNext();
-
-                                    if (argumentValuesFromParameter[i] is DbParameter dbParameter)
-                                    {
-                                        if (string.IsNullOrEmpty(dbParameter.ParameterName))
-                                        {
-                                            dbParameter.ParameterName
-                                                = SqlGenerator.GenerateParameterName(parameterName);
-                                        }
-                                        else
-                                        {
-                                            parameterName = dbParameter.ParameterName;
-                                        }
-
-                                        substitutions[i] = dbParameter.ParameterName;
-                                    }
-                                    else
-                                    {
-                                        substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
-                                    }
-
-                                    builder.AddParameter(
-                                        parameterName,
-                                        substitutions[i]);
-                                }
-                            });
+                            subParameters);
                     }
 
                     break;
@@ -1608,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+            if (_relationalCommandBuilder.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
                 var parameterType = parameterExpression.Type.UnwrapNullableType();
@@ -1662,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 = SqlGenerator.GenerateParameterName(
                     propertyParameterExpression.PropertyParameterName);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+            if (_relationalCommandBuilder.Parameters
                 .All(p => p.InvariantName != propertyParameterExpression.PropertyParameterName))
             {
                 _relationalCommandBuilder.AddPropertyParameter(

@@ -12,11 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Builds_simple_command()
         {
-            var commandBuilder = new RelationalCommandBuilder(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+            var commandBuilder = CreateCommandBuilder();
 
             var command = commandBuilder.Build();
 
@@ -27,13 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Build_command_with_parameter()
         {
-            var commandBuilder = new RelationalCommandBuilder(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+            var commandBuilder = CreateCommandBuilder();
 
-            commandBuilder.ParameterBuilder.AddParameter(
+            commandBuilder.AddParameter(
                 "InvariantName",
                 "Name",
                 new StringTypeMapping("nvarchar(100)"),
@@ -44,6 +36,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("", command.CommandText);
             Assert.Equal(1, command.Parameters.Count);
             Assert.Equal("InvariantName", command.Parameters[0].InvariantName);
+        }
+
+        private static RelationalCommandBuilder CreateCommandBuilder()
+        {
+            var dependencies = new RelationalCommandBuilderDependencies(
+                new TestRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+
+            var commandBuilder = new RelationalCommandBuilder(dependencies);
+            return commandBuilder;
         }
     }
 }

@@ -49,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Checks whether or not the annotation with the given name can be set to the given value.
         /// </summary>
-        /// <param name="relationalAnnotationName"> The name of the annotation to set. </param>
+        /// <param name="annotationName"> The name of the annotation to set. </param>
         /// <param name="value"> The value to set. </param>
         /// <returns><c>True</c> if the annotation can be set; <c>false</c> otherwise. </returns>
         public virtual bool CanSetAnnotation(
-            [NotNull] string relationalAnnotationName,
+            [NotNull] string annotationName,
             [CanBeNull] object value)
             => true;
 

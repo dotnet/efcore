@@ -1185,7 +1185,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new RelationalCommandBuilderDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 commandText,
                 parameters ?? Array.Empty<IRelationalParameter>());
     }

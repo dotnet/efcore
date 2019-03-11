@@ -16,24 +16,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         directly from your code. This API may change or be removed in future releases.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public class ShaperCommandContextFactory : IShaperCommandContextFactory
     {
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ShaperCommandContextFactory([NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+        public ShaperCommandContextFactory(
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _commandBuilderFactory = commandBuilderFactory;
         }
 
         /// <summary>
@@ -43,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual ShaperCommandContext Create(Func<IQuerySqlGenerator> sqlGeneratorFunc)
             => new ShaperCommandContext(
                 _valueBufferFactoryFactory,
+                _commandBuilderFactory,
                 sqlGeneratorFunc);
     }
 }

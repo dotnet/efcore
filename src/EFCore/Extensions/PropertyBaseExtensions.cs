@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
         public static PropertyAccessMode GetPropertyAccessMode(
             [NotNull] this IPropertyBase propertyBase)
-            => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessModeAnnotation]
+            => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessMode]
                                     ?? (propertyBase is INavigation
                                         ? propertyBase.DeclaringType.GetNavigationAccessMode()
                                         : propertyBase.DeclaringType.GetPropertyAccessMode()));

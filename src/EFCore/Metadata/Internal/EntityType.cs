@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_isKeyless)
             {
-                throw new InvalidOperationException(CoreStrings.KeylessTypeWithKey(Property.Format(properties), this.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.KeylessTypeWithKey(properties.Format(), this.DisplayName()));
             }
 
             for (var i = 0; i < properties.Count; i++)
@@ -678,14 +678,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
                     }
                 }
 
                 if (FindProperty(property.Name) != property
                     || property.Builder == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
 
                 if (property.ValueGenerated != ValueGenerated.Never
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateKey(Property.Format(properties), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateKey(properties.Format(), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties, configurationSource);
@@ -833,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (foreignKey != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.KeyInUse(Property.Format(key.Properties), this.DisplayName(), foreignKey.DeclaringEntityType.DisplayName()));
+                    CoreStrings.KeyInUse(key.Properties.Format(), this.DisplayName(), foreignKey.DeclaringEntityType.DisplayName()));
             }
         }
 
@@ -880,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
                     }
                 }
 
@@ -888,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
                     || property.Builder == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
             }
 
@@ -907,10 +907,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.DuplicateForeignKey(
-                        Property.Format(properties),
+                        properties.Format(),
                         this.DisplayName(),
                         duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                        Property.Format(principalKey.Properties),
+                        principalKey.Properties.Format(),
                         principalEntityType.DisplayName()));
             }
 
@@ -1295,8 +1295,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.NavigationForWrongForeignKey(
                             duplicateNavigation.Name,
                             duplicateNavigation.DeclaringEntityType.DisplayName(),
-                            Property.Format(foreignKey.Properties),
-                            Property.Format(duplicateNavigation.ForeignKey.Properties)));
+                            foreignKey.Properties.Format(),
+                            duplicateNavigation.ForeignKey.Properties.Format()));
                 }
 
                 throw new InvalidOperationException(
@@ -1466,21 +1466,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (property == properties[j])
                     {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(Property.Format(properties), property.Name));
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
                     }
                 }
 
                 if (FindProperty(property.Name) != property
                     || property.Builder == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
             }
 
             var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
             if (duplicateIndex != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateIndex(Property.Format(properties), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties, this, configurationSource);
@@ -1860,7 +1860,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (containingKey != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.PropertyInUseKey(property.Name, this.DisplayName(), Property.Format(containingKey.Properties)));
+                    CoreStrings.PropertyInUseKey(property.Name, this.DisplayName(), containingKey.Properties.Format()));
             }
 
             var containingForeignKey = property.ForeignKeys?.FirstOrDefault();
@@ -1869,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.PropertyInUseForeignKey(
                         property.Name, this.DisplayName(),
-                        Property.Format(containingForeignKey.Properties), containingForeignKey.DeclaringEntityType.DisplayName()));
+                        containingForeignKey.Properties.Format(), containingForeignKey.DeclaringEntityType.DisplayName()));
             }
 
             var containingIndex = property.Indexes?.FirstOrDefault();
@@ -1878,7 +1878,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.PropertyInUseIndex(
                         property.Name, this.DisplayName(),
-                        Property.Format(containingIndex.Properties), containingIndex.DeclaringEntityType.DisplayName()));
+                        containingIndex.Properties.Format(), containingIndex.DeclaringEntityType.DisplayName()));
             }
         }
 

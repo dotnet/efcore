@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable PossibleNullReferenceException
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : x.Name == y.Name
-                  && (x.Name == CoreAnnotationNames.ValueGeneratorFactoryAnnotation
+                  && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
                       || x.Name == CoreAnnotationNames.TypeMapping
                       || Equals(x.Value, y.Value));
         }
