@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IncludeCompiler _includeCompiler;
 
             private static readonly MethodInfo _emptyMethodInfo
-                = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.Empty));
+                = typeof(Enumerable).GetRuntimeMethod(nameof(Enumerable.Empty), Type.EmptyTypes);
 
             public CollectionQueryModelRewritingExpressionVisitor(
                 QueryCompilationContext queryCompilationContext,

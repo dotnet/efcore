@@ -24,11 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         where TGeometry : IGeometry
     {
         private static readonly MethodInfo _getBytes
-            = typeof(DbDataReader)
-                .GetRuntimeMethods()
-                .Single(m => m.GetParameters().Length == 1
-                             && m.GetParameters()[0].ParameterType == typeof(int)
-                             && m.Name.Equals(nameof(DbDataReader.GetFieldValue), StringComparison.Ordinal))
+            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })
                 .MakeGenericMethod(typeof(byte[]));
 
         /// <summary>

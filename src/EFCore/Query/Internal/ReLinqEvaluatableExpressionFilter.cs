@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.UtcNow));
 
         private static readonly MethodInfo _guidNewGuid
-            = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid));
+            = typeof(Guid).GetRuntimeMethod(nameof(Guid.NewGuid), Type.EmptyTypes);
 
         private static readonly MethodInfo _randomNextNoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Type.EmptyTypes);
 
         private static readonly MethodInfo _randomNextOneArg
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });

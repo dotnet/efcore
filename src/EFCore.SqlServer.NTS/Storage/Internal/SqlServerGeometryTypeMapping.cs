@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         where TGeometry : IGeometry
     {
         private static readonly MethodInfo _getSqlBytes
-            = typeof(SqlDataReader).GetTypeInfo().GetDeclaredMethod(nameof(SqlDataReader.GetSqlBytes));
+            = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) });
 
         private readonly bool _isGeography;
 

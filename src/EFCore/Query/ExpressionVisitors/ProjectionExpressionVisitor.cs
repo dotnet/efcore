@@ -142,7 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private static readonly MethodInfo _toArrayAsync
             = typeof(AsyncEnumerable).GetTypeInfo()
                 .GetDeclaredMethods(nameof(AsyncEnumerable.ToArray))
-                .Single(mi => mi.GetParameters().Length == 2);
+                .Single(m => m.GetParameters().Length == 2
+                             && m.GetParameters()[0].ParameterType.IsGenericType
+                             && m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
+                             && m.GetParameters()[1].ParameterType == typeof(CancellationToken));
 
         private static readonly MethodInfo _materializeCollectionNavigationAsyncMethodInfo
             = typeof(ProjectionExpressionVisitor).GetTypeInfo()
