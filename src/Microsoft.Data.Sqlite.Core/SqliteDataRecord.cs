@@ -4,19 +4,23 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
+
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
-    internal class SqliteDataRecord : SqliteValueReader
+    internal class SqliteDataRecord : SqliteValueReader, IDisposable
     {
-        private readonly sqlite3_stmt _stmt;
         private readonly SqliteConnection _connection;
         private readonly byte[][] _blobCache;
+        private bool _stepped;
 
-        public SqliteDataRecord(sqlite3_stmt stmt, SqliteConnection connection)
+        public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection)
         {
-            _stmt = stmt;
+            Handle = stmt;
+            HasRows = hasRows;
             _connection = connection;
             _blobCache = new byte[FieldCount][];
         }
@@ -28,24 +32,38 @@ namespace Microsoft.Data.Sqlite
             => GetValue(ordinal);
 
         public override int FieldCount
-            => raw.sqlite3_column_count(_stmt);
+            => sqlite3_column_count(Handle);
+
+        public sqlite3_stmt Handle { get; }
+
+        public bool HasRows { get; }
+
+        public override bool IsDBNull(int ordinal)
+            => !_stepped || sqlite3_data_count(Handle) == 0
+                ? throw new InvalidOperationException(Resources.NoData)
+                : base.IsDBNull(ordinal);
+
+        public override object GetValue(int ordinal)
+            => !_stepped || sqlite3_data_count(Handle) == 0
+                ? throw new InvalidOperationException(Resources.NoData)
+                : base.GetValue(ordinal);
 
         protected override double GetDoubleCore(int ordinal)
-            => raw.sqlite3_column_double(_stmt, ordinal);
+            => sqlite3_column_double(Handle, ordinal);
 
         protected override long GetInt64Core(int ordinal)
-            => raw.sqlite3_column_int64(_stmt, ordinal);
+            => sqlite3_column_int64(Handle, ordinal);
 
         protected override string GetStringCore(int ordinal)
-            => raw.sqlite3_column_text(_stmt, ordinal);
+            => sqlite3_column_text(Handle, ordinal);
 
         protected override byte[] GetBlobCore(int ordinal)
-            => raw.sqlite3_column_blob(_stmt, ordinal);
+            => sqlite3_column_blob(Handle, ordinal);
 
         protected override int GetSqliteType(int ordinal)
         {
-            var type = raw.sqlite3_column_type(_stmt, ordinal);
-            if (type == raw.SQLITE_NULL
+            var type = sqlite3_column_type(Handle, ordinal);
+            if (type == SQLITE_NULL
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
                 // NB: Message is provided by the framework
@@ -62,7 +80,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetName(int ordinal)
         {
-            var name = raw.sqlite3_column_name(_stmt, ordinal);
+            var name = sqlite3_column_name(Handle, ordinal);
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -89,7 +107,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetDataTypeName(int ordinal)
         {
-            var typeName = raw.sqlite3_column_decltype(_stmt, ordinal);
+            var typeName = sqlite3_column_decltype(Handle, ordinal);
             if (typeName != null)
             {
                 var i = typeName.IndexOf('(');
@@ -102,19 +120,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return "INTEGER";
 
-                case raw.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return "REAL";
 
-                case raw.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return "TEXT";
 
-                case raw.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     return "BLOB";
 
-                case raw.SQLITE_NULL:
+                case SQLITE_NULL:
                     return "INTEGER";
 
                 default:
@@ -128,19 +146,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return typeof(long);
 
-                case raw.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return typeof(double);
 
-                case raw.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return typeof(string);
 
-                case raw.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     return typeof(byte[]);
 
-                case raw.SQLITE_NULL:
+                case SQLITE_NULL:
                     return typeof(int);
 
                 default:
@@ -206,8 +224,8 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
-            var blobDatabaseName = raw.sqlite3_column_database_name(_stmt, ordinal);
-            var blobTableName = raw.sqlite3_column_table_name(_stmt, ordinal);
+            var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal);
+            var blobTableName = sqlite3_column_table_name(Handle, ordinal);
 
             var rowidOrdinal = -1;
             for (var i = 0; i < FieldCount; i++)
@@ -217,28 +235,26 @@ namespace Microsoft.Data.Sqlite
                     continue;
                 }
 
-                var databaseName = raw.sqlite3_column_database_name(_stmt, i);
+                var databaseName = sqlite3_column_database_name(Handle, i);
                 if (databaseName != blobDatabaseName)
                 {
                     continue;
                 }
 
-                var tableName = raw.sqlite3_column_table_name(_stmt, i);
+                var tableName = sqlite3_column_table_name(Handle, i);
                 if (tableName != blobTableName)
                 {
                     continue;
                 }
 
-                var columnName = raw.sqlite3_column_origin_name(_stmt, i);
-                if ((columnName == "rowid")
-                    || (columnName == "_rowid_")
-                    || (columnName == "oid"))
+                var columnName = sqlite3_column_origin_name(Handle, i);
+                if (columnName == "rowid")
                 {
                     rowidOrdinal = i;
                     break;
                 }
 
-                var rc = raw.sqlite3_table_column_metadata(
+                var rc = sqlite3_table_column_metadata(
                     _connection.Handle,
                     databaseName,
                     tableName,
@@ -249,8 +265,8 @@ namespace Microsoft.Data.Sqlite
                     out var primaryKey,
                     out var autoInc);
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
-                if ((dataType == "INTEGER")
-                    && (primaryKey != 0))
+                if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
+                    && primaryKey != 0)
                 {
                     rowidOrdinal = i;
                     break;
@@ -262,19 +278,31 @@ namespace Microsoft.Data.Sqlite
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
-            var blobColumnName = raw.sqlite3_column_origin_name(_stmt, ordinal);
+            var blobColumnName = sqlite3_column_origin_name(Handle, ordinal);
             var rowid = GetInt32(rowidOrdinal);
 
             return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
         }
 
-        internal void Clear()
+        public bool Read()
         {
-            for (var i = 0; i < _blobCache.Length; i++)
+            if (!_stepped)
             {
-                _blobCache[i] = null;
+                _stepped = true;
+
+                return HasRows;
             }
+
+            var rc = sqlite3_step(Handle);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+
+            Array.Clear(_blobCache, 0, _blobCache.Length);
+
+            return rc != SQLITE_DONE;
         }
+
+        public void Dispose()
+            => sqlite3_reset(Handle);
 
         private byte[] GetCachedBlob(int ordinal)
         {

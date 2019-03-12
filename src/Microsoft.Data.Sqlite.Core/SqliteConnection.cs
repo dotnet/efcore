@@ -11,6 +11,8 @@ using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
@@ -22,15 +24,15 @@ namespace Microsoft.Data.Sqlite
 
         private const string DataDirectoryMacro = "|DataDirectory|";
 
-        private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
+        private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
-        private readonly IDictionary<string, (object state, delegate_collation collation)> _collations
+        private readonly Dictionary<string, (object state, delegate_collation collation)> _collations
             = new Dictionary<string, (object, delegate_collation)>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly IDictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
+        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
             = new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
 
-        private readonly IDictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)> _aggregates
+        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)> _aggregates
             = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(FunctionsKeyComparer.Instance);
 
         private readonly HashSet<(string file, string proc)> _extensions = new HashSet<(string, string)>();
@@ -82,11 +84,11 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _connectionString = value;
-                ConnectionStringBuilder = new SqliteConnectionStringBuilder(value);
+                ConnectionOptions = new SqliteConnectionStringBuilder(value);
             }
         }
 
-        internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
+        internal SqliteConnectionStringBuilder ConnectionOptions { get; set; }
 
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
@@ -106,10 +108,10 @@ namespace Microsoft.Data.Sqlite
                 string dataSource = null;
                 if (State == ConnectionState.Open)
                 {
-                    dataSource = raw.sqlite3_db_filename(_db, MainDatabaseName);
+                    dataSource = sqlite3_db_filename(_db, MainDatabaseName);
                 }
 
-                return dataSource ?? ConnectionStringBuilder.DataSource;
+                return dataSource ?? ConnectionOptions.DataSource;
             }
         }
 
@@ -126,7 +128,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The version of SQLite used by the connection.</value>
         public override string ServerVersion
-            => raw.sqlite3_libversion();
+            => sqlite3_libversion();
 
         /// <summary>
         ///     Gets the current state of the connection.
@@ -165,29 +167,29 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.OpenRequiresSetConnectionString);
             }
 
-            var filename = ConnectionStringBuilder.DataSource;
+            var filename = ConnectionOptions.DataSource;
             var flags = 0;
 
             if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
-                flags |= raw.SQLITE_OPEN_URI;
+                flags |= SQLITE_OPEN_URI;
             }
 
-            switch (ConnectionStringBuilder.Mode)
+            switch (ConnectionOptions.Mode)
             {
                 case SqliteOpenMode.ReadOnly:
-                    flags |= raw.SQLITE_OPEN_READONLY;
+                    flags |= SQLITE_OPEN_READONLY;
                     break;
 
                 case SqliteOpenMode.ReadWrite:
-                    flags |= raw.SQLITE_OPEN_READWRITE;
+                    flags |= SQLITE_OPEN_READWRITE;
                     break;
 
                 case SqliteOpenMode.Memory:
-                    flags |= raw.SQLITE_OPEN_READWRITE | raw.SQLITE_OPEN_CREATE | raw.SQLITE_OPEN_MEMORY;
-                    if ((flags & raw.SQLITE_OPEN_URI) == 0)
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_MEMORY;
+                    if ((flags & SQLITE_OPEN_URI) == 0)
                     {
-                        flags |= raw.SQLITE_OPEN_URI;
+                        flags |= SQLITE_OPEN_URI;
                         filename = "file:" + filename;
                     }
 
@@ -195,32 +197,32 @@ namespace Microsoft.Data.Sqlite
 
                 default:
                     Debug.Assert(
-                        ConnectionStringBuilder.Mode == SqliteOpenMode.ReadWriteCreate,
-                        "ConnectionStringBuilder.Mode is not ReadWriteCreate");
-                    flags |= raw.SQLITE_OPEN_READWRITE | raw.SQLITE_OPEN_CREATE;
+                        ConnectionOptions.Mode == SqliteOpenMode.ReadWriteCreate,
+                        "ConnectionOptions.Mode is not ReadWriteCreate");
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
                     break;
             }
 
-            switch (ConnectionStringBuilder.Cache)
+            switch (ConnectionOptions.Cache)
             {
                 case SqliteCacheMode.Shared:
-                    flags |= raw.SQLITE_OPEN_SHAREDCACHE;
+                    flags |= SQLITE_OPEN_SHAREDCACHE;
                     break;
 
                 case SqliteCacheMode.Private:
-                    flags |= raw.SQLITE_OPEN_PRIVATECACHE;
+                    flags |= SQLITE_OPEN_PRIVATECACHE;
                     break;
 
                 default:
                     Debug.Assert(
-                        ConnectionStringBuilder.Cache == SqliteCacheMode.Default,
-                        "ConnectionStringBuilder.Cache is not Default.");
+                        ConnectionOptions.Cache == SqliteCacheMode.Default,
+                        "ConnectionOptions.Cache is not Default.");
                     break;
             }
 
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
             if (!string.IsNullOrEmpty(dataDirectory)
-                && (flags & raw.SQLITE_OPEN_URI) == 0
+                && (flags & SQLITE_OPEN_URI) == 0
                 && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
             {
                 if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
@@ -233,13 +235,13 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            var rc = raw.sqlite3_open_v2(filename, out _db, flags, vfs: null);
+            var rc = sqlite3_open_v2(filename, out _db, flags, vfs: null);
             SqliteException.ThrowExceptionForRC(rc, _db);
 
             _state = ConnectionState.Open;
             try
             {
-                if (!string.IsNullOrEmpty(ConnectionStringBuilder.Password))
+                if (!string.IsNullOrEmpty(ConnectionOptions.Password))
                 {
                     if (SQLitePCLExtensions.EncryptionNotSupported())
                     {
@@ -250,46 +252,46 @@ namespace Microsoft.Data.Sqlite
                     //     quote function before concatenating.
                     var quotedPassword = this.ExecuteScalar<string>(
                         "SELECT quote($password);",
-                        new SqliteParameter("$password", ConnectionStringBuilder.Password));
+                        new SqliteParameter("$password", ConnectionOptions.Password));
                     this.ExecuteNonQuery("PRAGMA key = " + quotedPassword + ";");
 
                     // NB: Forces decryption. Throws when the key is incorrect.
                     this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
                 }
 
-                if (ConnectionStringBuilder.ForeignKeys.HasValue)
+                if (ConnectionOptions.ForeignKeys.HasValue)
                 {
                     this.ExecuteNonQuery(
-                        "PRAGMA foreign_keys = " + (ConnectionStringBuilder.ForeignKeys.Value ? "1" : "0") + ";");
+                        "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
                 }
 
-                if (ConnectionStringBuilder.RecursiveTriggers)
+                if (ConnectionOptions.RecursiveTriggers)
                 {
                     this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
                 }
 
                 foreach (var item in _collations)
                 {
-                    rc = raw.sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
+                    rc = sqlite3_create_collation(_db, item.Key, item.Value.state, item.Value.collation);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
 
                 foreach (var item in _functions)
                 {
-                    rc = raw.sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
+                    rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
 
                 foreach (var item in _aggregates)
                 {
-                    rc = raw.sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                    rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
 
                 var extensionsEnabledForLoad = false;
                 if (_extensions.Count != 0)
                 {
-                    rc = raw.sqlite3_enable_load_extension(_db, 1);
+                    rc = sqlite3_enable_load_extension(_db, 1);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                     extensionsEnabledForLoad = true;
 
@@ -301,7 +303,7 @@ namespace Microsoft.Data.Sqlite
 
                 if (_extensionsEnabled != extensionsEnabledForLoad)
                 {
-                    rc = raw.sqlite3_enable_load_extension(_db, _extensionsEnabled ? 1 : 0);
+                    rc = sqlite3_enable_load_extension(_db, _extensionsEnabled ? 1 : 0);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
             }
@@ -323,8 +325,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         public override void Close()
         {
-            if (_db == null
-                || _db.ptr == IntPtr.Zero)
+            if (State != ConnectionState.Open)
             {
                 return;
             }
@@ -430,7 +431,7 @@ namespace Microsoft.Data.Sqlite
 
             if (State == ConnectionState.Open)
             {
-                var rc = raw.sqlite3_create_collation(_db, name, state, collation);
+                var rc = sqlite3_create_collation(_db, name, state, collation);
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
@@ -489,7 +490,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (State == ConnectionState.Open)
             {
-                var rc = raw.sqlite3_enable_load_extension(_db, enable ? 1 : 0);
+                var rc = sqlite3_enable_load_extension(_db, enable ? 1 : 0);
                 SqliteException.ThrowExceptionForRC(rc, _db);
             }
 
@@ -510,7 +511,7 @@ namespace Microsoft.Data.Sqlite
                 var extensionsEnabledForLoad = false;
                 if (!_extensionsEnabled)
                 {
-                    rc = raw.sqlite3_enable_load_extension(_db, 1);
+                    rc = sqlite3_enable_load_extension(_db, 1);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                     extensionsEnabledForLoad = true;
                 }
@@ -519,7 +520,7 @@ namespace Microsoft.Data.Sqlite
 
                 if (extensionsEnabledForLoad)
                 {
-                    rc = raw.sqlite3_enable_load_extension(_db, 0);
+                    rc = sqlite3_enable_load_extension(_db, 0);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
             }
@@ -560,8 +561,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="sourceName">The name of the source database.</param>
         public virtual void BackupDatabase(SqliteConnection destination, string destinationName, string sourceName)
         {
-            if (_db == null
-                || _db.ptr == IntPtr.Zero)
+            if (State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BackupDatabase)));
             }
@@ -580,16 +580,16 @@ namespace Microsoft.Data.Sqlite
 
             try
             {
-                using (var backup = raw.sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
+                using (var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
                 {
                     int rc;
                     if (backup.ptr == IntPtr.Zero)
                     {
-                        rc = raw.sqlite3_errcode(destination._db);
+                        rc = sqlite3_errcode(destination._db);
                         SqliteException.ThrowExceptionForRC(rc, destination._db);
                     }
 
-                    rc = raw.sqlite3_backup_step(backup, -1);
+                    rc = sqlite3_backup_step(backup, -1);
                     SqliteException.ThrowExceptionForRC(rc, destination._db);
                 }
             }
@@ -631,22 +631,22 @@ namespace Microsoft.Data.Sqlite
                     }
                     catch (Exception ex)
                     {
-                        raw.sqlite3_result_error(ctx, ex.Message);
+                        sqlite3_result_error(ctx, ex.Message);
 
                         if (ex is SqliteException sqlEx)
                         {
                             // NB: This must be called after sqlite3_result_error()
-                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
                         }
                     }
                 };
             }
 
-            var flags = isDeterministic ? raw.SQLITE_DETERMINISTIC : 0;
+            var flags = isDeterministic ? SQLITE_DETERMINISTIC : 0;
 
             if (State == ConnectionState.Open)
             {
-                var rc = raw.sqlite3_create_function(
+                var rc = sqlite3_create_function(
                     _db,
                     name,
                     arity,
@@ -723,23 +723,23 @@ namespace Microsoft.Data.Sqlite
 
                     if (context.Exception != null)
                     {
-                        raw.sqlite3_result_error(ctx, context.Exception.Message);
+                        sqlite3_result_error(ctx, context.Exception.Message);
 
                         if (context.Exception is SqliteException sqlEx)
                         {
                             // NB: This must be called after sqlite3_result_error()
-                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
                         }
                     }
                 };
             }
 
-            var flags = isDeterministic ? raw.SQLITE_DETERMINISTIC : 0;
+            var flags = isDeterministic ? SQLITE_DETERMINISTIC : 0;
             var state = new AggregateContext<TAccumulate>(seed);
 
             if (State == ConnectionState.Open)
             {
-                var rc = raw.sqlite3_create_function(
+                var rc = sqlite3_create_function(
                     _db,
                     name,
                     arity,

@@ -240,7 +240,8 @@ namespace Microsoft.Data.Sqlite
                 return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
             }
 
-            if (value is TEnum enumValue)
+            TEnum enumValue;
+            if (value is TEnum)
             {
                 enumValue = (TEnum)value;
             }
