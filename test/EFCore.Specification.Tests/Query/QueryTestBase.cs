@@ -1297,12 +1297,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<double?>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(isAsync, query, query, assertOrder);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
             bool assertOrder = false,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<double?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<double?>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar<TItem1, double>(isAsync, actualQuery, expectedQuery, assertOrder);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
