@@ -29,27 +29,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public abstract class ValueComparer : IEqualityComparer
     {
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
-            = typeof(IEqualityComparer).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IEqualityComparer.GetHashCode));
+            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 
         internal static readonly MethodInfo EqualityComparerEqualsMethod
-            = typeof(IEqualityComparer).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IEqualityComparer.Equals));
+            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) });
 
-        internal static readonly MethodInfo ObjectEqualsMethod = typeof(object).GetTypeInfo().DeclaredMethods.Single(
-            m => m.IsStatic
-                 && m.ReturnType == typeof(bool)
-                 && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
-                 && m.IsPublic
-                 && m.GetParameters().Length == 2
-                 && m.GetParameters()[0].ParameterType == typeof(object)
-                 && m.GetParameters()[1].ParameterType == typeof(object));
+        internal static readonly MethodInfo ObjectEqualsMethod
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
-        internal static readonly MethodInfo ObjectGetHashCodeMethod = typeof(object).GetTypeInfo().DeclaredMethods.Single(
-            m => m.ReturnType == typeof(int)
-                 && nameof(GetHashCode).Equals(m.Name, StringComparison.Ordinal)
-                 && m.IsPublic
-                 && m.GetParameters().Length == 0);
+        internal static readonly MethodInfo ObjectGetHashCodeMethod
+            = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes);
 
         /// <summary>
         ///     Creates a new <see cref="ValueComparer" /> with the given comparison and

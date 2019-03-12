@@ -432,9 +432,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
 
         private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo)
-                .GetTypeInfo()
-                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);
+            = typeof(FieldInfo).GetRuntimeMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
     }
 }

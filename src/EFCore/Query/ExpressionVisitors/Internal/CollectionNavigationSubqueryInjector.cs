@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -36,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static readonly List<MethodInfo> _collectionMaterializingMethods
             = typeof(Enumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))
-                .Concat(typeof(AsyncEnumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))).ToList();
+                .Concat(typeof(AsyncEnumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name)))
+            .Where(m => m.GetParameters().Length == 1).ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

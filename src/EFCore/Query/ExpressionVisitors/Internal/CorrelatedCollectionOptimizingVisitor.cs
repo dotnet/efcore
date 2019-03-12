@@ -47,7 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             = typeof(IClrCollectionAccessor).GetRuntimeMethod(nameof(IClrCollectionAccessor.Create), Array.Empty<Type>());
 
         private static readonly MethodInfo _toListMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
+            = typeof(Enumerable)
+                .GetRuntimeMethods()
+                .Single(m => m.Name.Equals(nameof(Enumerable.ToList), StringComparison.Ordinal)
+                             && m.GetParameters().Length == 1
+                             && m.GetParameters()[0].ParameterType.IsGenericType
+                             && m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+                );
 
         private List<Ordering> _parentOrderings { get; } = new List<Ordering>();
 

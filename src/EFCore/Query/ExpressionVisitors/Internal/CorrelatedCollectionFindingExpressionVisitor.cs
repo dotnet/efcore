@@ -26,11 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
 
-        private static readonly MethodInfo _toListMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
+        private static readonly MethodInfo _toListMethodInfo = GetEnumerableMethod(nameof(Enumerable.ToList));
 
-        private static readonly MethodInfo _toArrayMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToArray));
+        private static readonly MethodInfo _toArrayMethodInfo = GetEnumerableMethod(nameof(Enumerable.ToArray));
+
+        static MethodInfo GetEnumerableMethod(string name) =>
+            typeof(Enumerable)
+                .GetRuntimeMethods()
+                .Single(m => m.Name.Equals(name, StringComparison.Ordinal)
+                             && m.GetParameters().Length == 1
+                             && m.GetParameters()[0].ParameterType.IsGenericType
+                             && m.GetParameters()[0].ParameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 
         private readonly bool _trackingQuery;
 
