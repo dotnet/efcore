@@ -860,10 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     if (operand != null)
                     {
-                        var operandWithoutConvert
-                            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue14604", out var isEnabled) && isEnabled
-                            ? operand
-                            : operand.RemoveConvert();
+                        var operandWithoutConvert = operand.RemoveConvert();
 
                         return _isTopLevelProjection
                                && operandWithoutConvert.Type.IsValueType
