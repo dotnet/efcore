@@ -52,5 +52,36 @@ namespace Microsoft.EntityFrameworkCore
 
             return optionsBuilder;
         }
+
+        public static DbContextOptionsBuilder UseCosmos(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [NotNull] string serviceEndPoint,
+            [NotNull] string authKeyOrResourceToken,
+            [NotNull] string databaseName,
+            [NotNull] string regionName,
+            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+            Check.NotNull(serviceEndPoint, nameof(serviceEndPoint));
+            Check.NotEmpty(authKeyOrResourceToken, nameof(authKeyOrResourceToken));
+            Check.NotEmpty(databaseName, nameof(databaseName));
+            Check.NotEmpty(regionName, nameof(regionName));
+
+            var extension = optionsBuilder.Options.FindExtension<CosmosDbOptionsExtension>()
+                            ?? new CosmosDbOptionsExtension();
+
+            extension = extension
+                .WithServiceEndPoint(serviceEndPoint)
+                .WithAuthKeyOrResourceToken(authKeyOrResourceToken)
+                .WithDatabaseName(databaseName)
+                .WithCurrentRegion(regionName)
+                ;
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
+        }
     }
 }

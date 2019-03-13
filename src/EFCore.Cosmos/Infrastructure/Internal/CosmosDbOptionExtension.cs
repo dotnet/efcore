@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
         private string _logFragment;
+        private string _currentRegion;
 
         public CosmosDbOptionsExtension()
         {
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _authKeyOrResourceToken = copyFrom._authKeyOrResourceToken;
             _databaseName = copyFrom._databaseName;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
+            _currentRegion = copyFrom._currentRegion;
         }
 
         public virtual string ServiceEndPoint => _serviceEndPoint;
@@ -60,6 +62,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._databaseName = database;
+
+            return clone;
+        }
+
+        public virtual string CurrentRegion => _currentRegion;
+
+        public virtual CosmosDbOptionsExtension WithCurrentRegion(string currentRegion)
+        {
+            var clone = Clone();
+
+            clone._currentRegion = currentRegion;
 
             return clone;
         }
@@ -120,6 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     builder.Append("ServiceEndPoint=").Append(_serviceEndPoint).Append(' ');
 
                     builder.Append("Database=").Append(_databaseName).Append(' ');
+
+                    if (_currentRegion != null)
+                    {
+                        builder.Append("CurrentRegion=").Append(_currentRegion).Append(' ');
+                    }
 
                     _logFragment = builder.ToString();
                 }
