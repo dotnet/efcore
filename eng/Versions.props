@@ -1,4 +1,3 @@
-
 <Project>
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -45,8 +44,8 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview3.19128.7</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview3-27503-5</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview3-27503-5</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview3-27512-07</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>3.0.0-preview3-27512-07</MicrosoftNETCoreAppPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <DotNetRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
