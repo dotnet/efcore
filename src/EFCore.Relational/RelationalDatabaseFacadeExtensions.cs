@@ -120,11 +120,19 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteSqlCommand("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
         /// <returns> The number of rows affected. </returns>
+        [Obsolete("For the execution of SQL queries using plain strings, use ExecuteRawSql instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSql instead.")]
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -145,10 +153,17 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteSqlCommand($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
         /// <returns> The number of rows affected. </returns>
+        [Obsolete("For the execution of SQL queries using plain strings, use ExecuteRawSql instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSql instead.")]
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql)
@@ -168,11 +183,18 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
         /// <returns> The number of rows affected. </returns>
+        [Obsolete("For the execution of SQL queries using plain strings, use ExecuteRawSql instead. For the execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSql instead.")]
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -212,6 +234,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteSqlCommandAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
@@ -219,6 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        [Obsolete("For the async execution of SQL queries using plain strings, use ExecuteRawSqlAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSqlAsync instead.")]
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql,
@@ -239,6 +268,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteSqlCommandAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
@@ -246,6 +281,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        [Obsolete("For the async execution of SQL queries using plain strings, use ExecuteRawSqlAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSqlAsync instead.")]
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -266,6 +302,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteSqlCommandAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
@@ -273,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        [Obsolete("For the async execution of SQL queries using plain strings, use ExecuteRawSqlAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSqlAsync instead.")]
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -293,6 +337,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
@@ -301,6 +351,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        [Obsolete("For the async execution of SQL queries using plain strings, use ExecuteRawSqlAsync instead. For the async execution of SQL queries using interpolated string syntax to create parameters, use ExecuteInterpolatedSqlAsync instead.")]
         public static async Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -318,6 +369,266 @@ namespace Microsoft.EntityFrameworkCore
                 var rawSqlCommand = databaseFacade
                     .GetRelationalService<IRawSqlCommandBuilder>()
                     .Build(sql.Format, parameters);
+
+                return await rawSqlCommand
+                    .RelationalCommand
+                    .ExecuteNonQueryAsync(
+                        databaseFacade.GetRelationalService<IRelationalConnection>(),
+                        rawSqlCommand.ParameterValues,
+                        cancellationToken);
+            }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteRawSql("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns> The number of rows affected. </returns>
+        public static int ExecuteRawSql(
+            [NotNull] this DatabaseFacade databaseFacade,
+            string sql,
+            [NotNull] params object[] parameters)
+            => ExecuteRawSql(databaseFacade, sql, (IEnumerable<object>)parameters);
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteInterpolatedSql($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
+        /// <returns> The number of rows affected. </returns>
+        public static int ExecuteInterpolatedSql(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] FormattableString sql)
+            => ExecuteRawSql(databaseFacade, sql.Format, sql.GetArguments());
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns> The number of rows affected. </returns>
+        public static int ExecuteRawSql(
+            [NotNull] this DatabaseFacade databaseFacade,
+            string sql,
+            [NotNull] IEnumerable<object> parameters)
+        {
+            Check.NotNull(databaseFacade, nameof(databaseFacade));
+            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
+
+            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+
+            using (concurrencyDetector.EnterCriticalSection())
+            {
+                var rawSqlCommand = databaseFacade
+                    .GetRelationalService<IRawSqlCommandBuilder>()
+                    .Build(sql, parameters);
+
+                return rawSqlCommand
+                    .RelationalCommand
+                    .ExecuteNonQuery(
+                        databaseFacade.GetRelationalService<IRelationalConnection>(),
+                        rawSqlCommand.ParameterValues);
+            }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteInterpolatedSqlAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
+        public static Task<int> ExecuteInterpolatedSqlAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] FormattableString sql,
+            CancellationToken cancellationToken = default)
+            => ExecuteRawSqlAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
+        public static Task<int> ExecuteRawSqlAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            string sql,
+            CancellationToken cancellationToken = default)
+            => ExecuteRawSqlAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
+        ///         <code>context.Database.ExecuteRawSqlAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
+        public static Task<int> ExecuteRawSqlAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            string sql,
+            [NotNull] params object[] parameters)
+            => ExecuteRawSqlAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+        ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+        ///         You can also consider using ExecuteInterpolatedSql to use interpolated string syntax to create parameters.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
+        public static async Task<int> ExecuteRawSqlAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            string sql,
+            [NotNull] IEnumerable<object> parameters,
+            CancellationToken cancellationToken = default)
+        {
+            Check.NotNull(databaseFacade, nameof(databaseFacade));
+            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
+
+            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+
+            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
+            {
+                var rawSqlCommand = databaseFacade
+                    .GetRelationalService<IRawSqlCommandBuilder>()
+                    .Build(sql, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand

@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .FromSql(NormalizeDelimeters("select * from [Customers]"))
+                            .FromRawSql(NormalizeDelimetersInRawString("select * from [Customers]"))
                             .Where(c => c.IsLondon)
                             .ToList()).Message);
             }
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = context.Customers
-                        .FromSql(NormalizeDelimeters("select * from [Customers]"))
+                        .FromRawSql(NormalizeDelimetersInRawString("select * from [Customers]"))
                         .ToList();
 
                 Assert.Equal(91, customers.Count);
@@ -297,11 +297,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private RawSqlString NormalizeDelimeters(RawSqlString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private string NormalizeDelimetersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
-        private FormattableString NormalizeDelimeters(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }

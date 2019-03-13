@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void Seed(PoolableDbContext context)
             {
                 context.Database.EnsureCreatedResiliently();
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteRawSql(
                     @"
 ALTER TABLE dbo.Owners
     ALTER COLUMN Name nvarchar(MAX);");

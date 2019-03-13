@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteRawSql(
                     @"
 CREATE TRIGGER TRG_InsertProduct
 ON Products
@@ -183,7 +183,7 @@ BEGIN
     SELECT * FROM INSERTED;
 END");
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteRawSql(
                     @"
 CREATE TRIGGER TRG_UpdateProduct
 ON Products
@@ -201,7 +201,7 @@ BEGIN
     WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteRawSql(
                     @"
 CREATE TRIGGER TRG_DeleteProduct
 ON Products

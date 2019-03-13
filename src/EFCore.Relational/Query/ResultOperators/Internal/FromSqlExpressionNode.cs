@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             [NotNull] Expression arguments)
             : base(parseInfo, null, null)
         {
-            _sql = ((RawSqlString)sql.Value).Format;
+            _sql = (string)sql.Value;
             _arguments = arguments;
         }
 

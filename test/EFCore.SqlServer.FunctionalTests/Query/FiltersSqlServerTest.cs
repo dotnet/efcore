@@ -228,7 +228,7 @@ WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c]
         {
             using (var context = CreateContext())
             {
-                var results = context.Customers.FromSql("select * from Customers").ToList();
+                var results = context.Customers.FromRawSql("select * from Customers").ToList();
 
                 Assert.Equal(7, results.Count);
             }

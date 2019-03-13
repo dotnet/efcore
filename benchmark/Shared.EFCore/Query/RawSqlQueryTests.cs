@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
                 {
                     if (!string.IsNullOrEmpty(StoredProcedureCreationScript))
                     {
-                        ctx.Database.ExecuteSqlCommand(StoredProcedureCreationScript);
+                        ctx.Database.ExecuteRawSql(StoredProcedureCreationScript);
                     }
                 });
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         public virtual async Task SelectAll()
         {
             var query = _context.Products
-                .FromSql(@"SELECT * FROM ""Products""")
+                .FromRawSql(@"SELECT * FROM ""Products""")
                 .ApplyTracking(Tracking);
 
             if (Async)
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         public virtual async Task SelectParameterized()
         {
             var query = _context.Products
-                .FromSql(@"SELECT * FROM ""Products"" WHERE ""CurrentPrice"" >= @p0 AND ""CurrentPrice"" <= @p1", 10, 14)
+                .FromRawSql(@"SELECT * FROM ""Products"" WHERE ""CurrentPrice"" >= @p0 AND ""CurrentPrice"" <= @p1", 10, 14)
                 .ApplyTracking(Tracking);
 
             if (Async)
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         public virtual async Task SelectComposed()
         {
             var query = _context.Products
-                .FromSql(@"SELECT * FROM ""Products""")
+                .FromRawSql(@"SELECT * FROM ""Products""")
                 .ApplyTracking(Tracking)
                 .Where(p => p.CurrentPrice >= 10 && p.CurrentPrice <= 14)
                 .OrderBy(p => p.Name);
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         public virtual async Task StoredProcedure()
         {
             var query = _context.Products
-                .FromSql(@"EXECUTE dbo.SearchProducts @p0, @p1", 10, 14)
+                .FromRawSql(@"EXECUTE dbo.SearchProducts @p0, @p1", 10, 14)
                 .ApplyTracking(Tracking);
 
             if (Async)

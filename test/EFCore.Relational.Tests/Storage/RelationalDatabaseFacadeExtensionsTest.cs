@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", cancellationToken);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>");
+                        await context.Database.ExecuteRawSqlAsync("<Some query>");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>");
+                    context.Database.ExecuteRawSql("<Some query>");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -62,16 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, 2);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", 1, 2);
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, 2);
+                    context.Database.ExecuteRawSql("<Some query>", 1, 2);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -95,11 +95,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (async)
                 {
-                    await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, 2);
+                    await context.Database.ExecuteRawSqlAsync("<Some query>", 1, 2);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, 2);
+                    context.Database.ExecuteRawSql("<Some query>", 1, 2);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -127,16 +127,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1, "Cheese");
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", 1, "Cheese");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1, "Cheese");
+                    context.Database.ExecuteRawSql("<Some query>", 1, "Cheese");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync(
+                        await context.Database.ExecuteRawSqlAsync(
                             "<Some query>", new List<object>
                             {
                                 1,
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync(
+                        await context.Database.ExecuteRawSqlAsync(
                             "<Some query>", new List<object>
                             {
                                 1,
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteRawSql(
                         "<Some query>", new List<object>
                         {
                             1,
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync(
+                        await context.Database.ExecuteRawSqlAsync(
                             "<Some query>", new List<object>
                             {
                                 1,
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync(
+                        await context.Database.ExecuteRawSqlAsync(
                             "<Some query>", new List<object>
                             {
                                 1,
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteRawSql(
                         "<Some query>", new List<object>
                         {
                             1,
@@ -268,16 +268,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new object[] { 1 }, cancellationToken);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", new object[] { 1 }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", 1);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", 1);
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", 1);
+                    context.Database.ExecuteRawSql("<Some query>", 1);
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
@@ -304,16 +304,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (cancellation)
                     {
                         var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", new[] { "Branston" }, cancellationToken);
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", new[] { "Branston" }, cancellationToken);
                     }
                     else
                     {
-                        await context.Database.ExecuteSqlCommandAsync("<Some query>", "Branston");
+                        await context.Database.ExecuteRawSqlAsync("<Some query>", "Branston");
                     }
                 }
                 else
                 {
-                    context.Database.ExecuteSqlCommand("<Some query>", "Branston");
+                    context.Database.ExecuteRawSql("<Some query>", "Branston");
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
