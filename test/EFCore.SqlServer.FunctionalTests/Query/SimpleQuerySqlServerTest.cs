@@ -766,7 +766,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = @_outer_CustomerID)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
@@ -776,7 +776,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = @_outer_CustomerID)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END",
                 //
                 @"@_outer_CustomerID='ANTON' (Size = 5)
@@ -786,7 +786,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = @_outer_CustomerID)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END",
                 //
                 @"@_outer_CustomerID='AROUT' (Size = 5)
@@ -796,7 +796,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o0]
         WHERE [o0].[CustomerID] = @_outer_CustomerID)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -819,7 +819,7 @@ ORDER BY [e].[EmployeeID] - [e].[EmployeeID]");
 FROM [Products] AS [p]
 ORDER BY CASE
     WHEN [p].[UnitsInStock] > CAST(0 AS smallint)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [p].[ProductID]");
         }
 
@@ -832,7 +832,7 @@ END, [p].[ProductID]");
 FROM [Products] AS [p]
 ORDER BY CASE
     WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [p].[ProductID]");
         }
 
@@ -849,7 +849,7 @@ ORDER BY (
             SELECT 1
             FROM [Orders] AS [o]
             WHERE ([o].[OrderID] > 11000) AND ([p].[CustomerID] = [o].[CustomerID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ), [p].[CustomerID]");
         }
@@ -1236,7 +1236,7 @@ FROM (
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1250,7 +1250,7 @@ END");
         SELECT 1
         FROM [Customers] AS [c]
         WHERE [c].[ContactName] LIKE N'A' + N'%' AND (LEFT([c].[ContactName], LEN(N'A')) = N'A'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1355,7 +1355,7 @@ WHERE ([c].[City] = N'London') AND EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
         WHERE NOT ([c].[ContactName] LIKE N'A' + N'%') OR (LEFT([c].[ContactName], LEN(N'A')) <> N'A'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1369,7 +1369,7 @@ END");
         SELECT 1
         FROM [Customers] AS [c]
         WHERE (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName])) AND (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1391,10 +1391,10 @@ END");
                         SELECT 1
                         FROM [Customers] AS [c3]
                         WHERE [c1].[CustomerID] = [c3].[CustomerID]))
-                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+                THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
             END
-        ) = 1))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        ) = CAST(1 AS bit)))
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1416,10 +1416,10 @@ END");
                         SELECT 1
                         FROM [Customers] AS [c3]
                         WHERE [c1].[CustomerID] = [c3].[CustomerID]))
-                THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+                THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
             END
-        ) = 1))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        ) = CAST(1 AS bit)))
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1633,7 +1633,7 @@ CROSS JOIN [Orders] AS [o]");
         SELECT 1
         FROM [Customers] AS [c]
         CROSS JOIN [Orders] AS [o])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1735,7 +1735,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         INNER JOIN [Orders] AS [or] ON [c].[CustomerID] = [or].[CustomerID]
         INNER JOIN [Order Details] AS [od] ON [or].[OrderID] = [od].[OrderID]
         WHERE [c].[City] = N'London')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1982,7 +1982,7 @@ SELECT CASE
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
         OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2005,7 +2005,7 @@ SELECT CASE
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
         WHERE NOT ([t].[CustomerID] LIKE N'B' + N'%') OR (LEFT([t].[CustomerID], LEN(N'B')) <> N'B'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2026,7 +2026,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
         ) AS [t]
         WHERE NOT ([t].[CustomerID] LIKE N'A' + N'%') OR (LEFT([t].[CustomerID], LEN(N'A')) <> N'A'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2049,7 +2049,7 @@ SELECT CASE
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
         WHERE [t].[CustomerID] LIKE N'C' + N'%' AND (LEFT([t].[CustomerID], LEN(N'C')) = N'C'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2070,7 +2070,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
         ) AS [t]
         WHERE [t].[CustomerID] LIKE N'B' + N'%' AND (LEFT([t].[CustomerID], LEN(N'B')) = N'B'))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2225,7 +2225,7 @@ ORDER BY [c].[Country], [c].[CustomerID]");
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2243,7 +2243,7 @@ ORDER BY (
             SELECT 1
             FROM [Customers] AS [c2]
             WHERE [c2].[CustomerID] = [c].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 )");
         }
@@ -2264,7 +2264,7 @@ WHERE ([o].[OrderID] <= 10250) AND ((
                 SELECT 1
                 FROM [Customers] AS [c2]
                 WHERE [c2].[CustomerID] = N'ALFKI')
-            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
         END
     )
 ) <> N'Nowhere')");
@@ -2567,7 +2567,7 @@ FROM (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN @__p_0 = 1
+    WHEN @__p_0 = CAST(1 AS bit)
     THEN N'ZZ' ELSE [c].[City]
 END");
         }
@@ -2581,7 +2581,7 @@ END");
 FROM [Customers] AS [c]
 ORDER BY CASE
     WHEN [c].[Region] = N'ASK'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2849,10 +2849,10 @@ LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custom
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END | CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -2865,13 +2865,13 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], (CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END | CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END) | CASE
     WHEN [c].[CustomerID] = N'ANTON'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -2884,10 +2884,10 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END & CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -2900,13 +2900,13 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], (CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END & CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END) | CASE
     WHEN [c].[CustomerID] = N'ANTON'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -2921,11 +2921,11 @@ ORDER BY [c].[CustomerID]");
 FROM [Customers] AS [c]
 WHERE ((CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END | CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END) = 1) OR ([c].[CustomerID] = N'ANTON')");
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)) OR ([c].[CustomerID] = N'ANTON')");
         }
 
         public override async Task Where_bitwise_and_with_logical_and(bool isAsync)
@@ -2937,11 +2937,11 @@ END) = 1) OR ([c].[CustomerID] = N'ANTON')");
 FROM [Customers] AS [c]
 WHERE ((CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END & CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END) = 1) AND ([c].[CustomerID] = N'ANTON')");
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)) AND ([c].[CustomerID] = N'ANTON')");
         }
 
         public override async Task Where_bitwise_or_with_logical_and(bool isAsync)
@@ -2953,11 +2953,11 @@ END) = 1) AND ([c].[CustomerID] = N'ANTON')");
 FROM [Customers] AS [c]
 WHERE ((CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END | CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END) = 1) AND ([c].[Country] = N'Germany')");
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)) AND ([c].[Country] = N'Germany')");
         }
 
         public override async Task Where_bitwise_and_with_logical_or(bool isAsync)
@@ -2969,11 +2969,11 @@ END) = 1) AND ([c].[Country] = N'Germany')");
 FROM [Customers] AS [c]
 WHERE ((CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END & CASE
     WHEN [c].[CustomerID] = N'ANATR'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END) = 1) OR ([c].[CustomerID] = N'ANTON')");
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)) OR ([c].[CustomerID] = N'ANTON')");
         }
 
         public override void Select_bitwise_or_with_logical_or()
@@ -2984,12 +2984,12 @@ END) = 1) OR ([c].[CustomerID] = N'ANTON')");
                 @"SELECT [c].[CustomerID], CASE
     WHEN ((CASE
         WHEN [c].[CustomerID] = N'ALFKI'
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END | CASE
         WHEN [c].[CustomerID] = N'ANATR'
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END) = 1) OR ([c].[CustomerID] = N'ANTON')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+    END) = CAST(1 AS bit)) OR ([c].[CustomerID] = N'ANTON')
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -3003,12 +3003,12 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT [c].[CustomerID], CASE
     WHEN ((CASE
         WHEN [c].[CustomerID] = N'ALFKI'
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END & CASE
         WHEN [c].[CustomerID] = N'ANATR'
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END) = 1) AND ([c].[CustomerID] = N'ANTON')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+    END) = CAST(1 AS bit)) AND ([c].[CustomerID] = N'ANTON')
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -3707,7 +3707,7 @@ WHERE [outer].[CustomerID] = N'ALFKI'",
         WHERE EXISTS (
             SELECT 1
             FROM [Customers] AS [cc1]))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -3734,7 +3734,7 @@ WHERE [outer].[CustomerID] = N'ALFKI'",
                     FROM [Customers] AS [inner1]
                     ORDER BY [inner1].[CustomerID]
                 ) AS [t1])))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 

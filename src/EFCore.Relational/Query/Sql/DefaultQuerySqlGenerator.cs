@@ -205,16 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         /// <summary>
-        ///     The default true literal SQL.
-        /// </summary>
-        protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
-
-        /// <summary>
-        ///     The default false literal SQL.
-        /// </summary>
-        protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
-
-        /// <summary>
         ///     The default alias separator.
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
@@ -572,15 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="projection"> The projection expression. </param>
         protected virtual void GenerateProjection([NotNull] Expression projection)
-            => Visit(
-                ApplyExplicitCastToBoolInProjectionOptimization(
-                    ApplyOptimizations(projection, searchCondition: false)));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Expression ApplyExplicitCastToBoolInProjectionOptimization(Expression expression) => expression;
+            => Visit(ApplyOptimizations(projection, searchCondition: false));
 
         /// <summary>
         ///     Visit the predicate in SQL WHERE clause
@@ -592,15 +574,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (optimizedPredicate is BinaryExpression binaryExpression)
             {
-                var leftBooleanConstant = GetBooleanConstantValue(binaryExpression.Left);
-                var rightBooleanConstant = GetBooleanConstantValue(binaryExpression.Right);
+                var leftInt = GetIntConstantValue(binaryExpression.Left);
+                var rightInt = GetIntConstantValue(binaryExpression.Right);
 
-                if ((binaryExpression.NodeType == ExpressionType.Equal
-                     && leftBooleanConstant == true
-                     && rightBooleanConstant == true)
-                    || (binaryExpression.NodeType == ExpressionType.NotEqual
-                        && leftBooleanConstant == false
-                        && rightBooleanConstant == false))
+                if (leftInt != null
+                    && rightInt != null
+                    && ((binaryExpression.NodeType == ExpressionType.Equal
+                            && leftInt == rightInt)
+                        || (binaryExpression.NodeType == ExpressionType.NotEqual
+                            && leftInt != rightInt)))
                 {
                     return;
                 }
@@ -626,10 +608,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Visit(optimizedPredicate);
         }
 
-        private static bool? GetBooleanConstantValue(Expression expression)
+        private static int? GetIntConstantValue(Expression expression)
             => expression is ConstantExpression constantExpression
-               && constantExpression.Type.UnwrapNullableType() == typeof(bool)
-                ? (bool?)constantExpression.Value
+               && constantExpression.Type.UnwrapNullableType() == typeof(int)
+                ? (int?)constantExpression.Value
                 : null;
 
         private bool IsOrderByExpressionConstant([NotNull] Expression processedExpression)
@@ -1209,8 +1191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     && constantIfTrue.Value != null
                     && constantIfTrue.Type.UnwrapNullableType() == typeof(bool))
                 {
-                    _relationalCommandBuilder
-                        .Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    Visit(Expression.Constant((bool)constantIfTrue.Value));
                 }
                 else
                 {
@@ -1223,8 +1204,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     && constantIfFalse.Value != null
                     && constantIfFalse.Type.UnwrapNullableType() == typeof(bool))
                 {
-                    _relationalCommandBuilder
-                        .Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    Visit(Expression.Constant((bool)constantIfFalse.Value));
                 }
                 else
                 {
@@ -2077,6 +2057,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var equalExpression = Expression.Equal(
                     expression,
                     Expression.Constant(compareTo, expression.Type));
+
+                // If bool value is being compared to other value then convert them to int comparison
+                if (expression.RemoveConvert() is ConstantExpression constant
+                    && expression.Type == typeof(bool))
+                {
+                    equalExpression = Expression.Equal(
+                        Expression.Constant((bool)constant.Value ? 1 : 0),
+                        Expression.Constant(compareTo ? 1 : 0));
+                }
 
                 // Compensate for type change since Expression.Equal always returns expression of boolean type
                 return expression.Type == typeof(bool)

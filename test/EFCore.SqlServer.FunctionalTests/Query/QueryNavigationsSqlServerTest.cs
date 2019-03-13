@@ -576,7 +576,7 @@ ORDER BY [t].[OrderID], [t].[ProductID], [t].[CustomerID]");
             SELECT 1
             FROM [Orders] AS [o]
             WHERE [c].[CustomerID] = [o].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ) AS [Any]
 FROM [Customers] AS [c]");
@@ -593,7 +593,7 @@ FROM [Customers] AS [c]");
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
     ) > 0
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Customers] AS [c]");
         }
@@ -635,7 +635,7 @@ WHERE EXISTS (
             SELECT 1
             FROM [Orders] AS [o]
             WHERE ([c].[CustomerID] = [o].[CustomerID]) AND (([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ) AS [All]
 FROM [Customers] AS [c]");
@@ -781,7 +781,7 @@ FROM [Customers] AS [c]");
             SELECT 1
             FROM [Order Details] AS [od]
             WHERE ([od].[UnitPrice] > 10.0) AND ([o].[OrderID] = [od].[OrderID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ) AS [any], CASE
     WHEN [o].[CustomerID] = N'ALFKI'
@@ -792,7 +792,7 @@ END AS [conditional], [o].[OrderID] AS [scalar2], (
             SELECT 1
             FROM [Order Details] AS [od0]
             WHERE ([o].[OrderID] = [od0].[OrderID]) AND ([od0].[OrderID] <> 42))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ) AS [all], (
     SELECT COUNT_BIG(*)

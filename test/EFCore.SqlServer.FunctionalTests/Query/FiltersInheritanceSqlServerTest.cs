@@ -52,7 +52,7 @@ WHERE ([a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[CountryId] = 1)) AND
             AssertSql(
                 @"SELECT CASE
     WHEN [a].[Discriminator] = N'Kiwi'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[CountryId] = 1)");

@@ -130,7 +130,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'K
             AssertSql(
                 @"SELECT CASE
     WHEN [a].[Discriminator] = N'Kiwi'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')");
@@ -421,7 +421,7 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [k].[IsFlightless] = 1
+    WHEN [k].[IsFlightless] = CAST(1 AS bit)
     THEN CAST(0 AS tinyint) ELSE CAST(1 AS tinyint)
 END
 FROM [Animal] AS [k]

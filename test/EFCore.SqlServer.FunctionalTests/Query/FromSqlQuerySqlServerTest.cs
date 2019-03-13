@@ -345,7 +345,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
 FROM (
     SELECT *
     FROM ""Products""
-    WHERE ""Discontinued"" <> 1
+    WHERE ""Discontinued"" <> CAST(1 AS bit)
     AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
 ) AS [p]");
         }

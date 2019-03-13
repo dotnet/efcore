@@ -37,7 +37,7 @@ WHERE [c2].[CompanyName] LIKE N'B' + N'%' AND (LEFT([c2].[CompanyName], LEN(N'B'
         SELECT 1
         FROM [Orders] AS [o]
         WHERE ([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1016,7 +1016,7 @@ SELECT CASE
         SELECT [c].[CustomerID]
         FROM [Customers] AS [c]
     )
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1146,7 +1146,7 @@ SELECT CASE
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'VINET'
     )
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 

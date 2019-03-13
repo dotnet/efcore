@@ -149,21 +149,21 @@ WHERE [e].[Tenant] = @__ef_filter__p_0");
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)",
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))",
                 //
                 @"@__ef_filter__Property_0='True'
 @__ef_filter__p_1='True'
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)",
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))",
                 //
                 @"@__ef_filter__Property_0='True'
 @__ef_filter__p_1='False'
 
 SELECT [x].[Id], [x].[IsEnabled]
 FROM [ComplexFilter] AS [x]
-WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)");
+WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))");
         }
 
         public override void DbContext_property_based_filter_does_not_short_circuit()
@@ -176,20 +176,20 @@ WHERE ([x].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = 1)")
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='False'
 @__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
+WHERE ([x].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='True'
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [ShortCircuitFilter] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND ((@__ef_filter__p_0 = 1) OR [x].[IsModerated] IS NULL)");
+WHERE ([x].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR [x].[IsModerated] IS NULL)");
         }
 
         public override void EntityTypeConfiguration_DbContext_field_is_parameterized()
@@ -385,7 +385,7 @@ WHERE [e].[UserId] <> 1");
             AssertSql(
                 @"SELECT [b].[Id], [b].[IsEnabled]
 FROM [StaticMemberFilter] AS [b]
-WHERE [b].[IsEnabled] = 1");
+WHERE [b].[IsEnabled] = CAST(1 AS bit)");
         }
 
         public override void Local_variable_from_OnModelCreating_is_inlined()
@@ -395,7 +395,7 @@ WHERE [b].[IsEnabled] = 1");
             AssertSql(
                 @"SELECT [e].[Id], [e].[IsEnabled]
 FROM [LocalVariableFilter] AS [e]
-WHERE [e].[IsEnabled] = 1");
+WHERE [e].[IsEnabled] = CAST(1 AS bit)");
         }
 
         public override void Method_parameter_is_inlined()

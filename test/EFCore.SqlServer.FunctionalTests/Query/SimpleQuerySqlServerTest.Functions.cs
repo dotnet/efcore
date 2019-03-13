@@ -1227,7 +1227,7 @@ WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
     WHEN [c].[Region] IS NULL OR ([c].[Region] = N'')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
         }
@@ -1239,7 +1239,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
     WHEN [c].[Region] IS NOT NULL AND ([c].[Region] <> N'')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
         }
