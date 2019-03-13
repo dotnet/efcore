@@ -129,28 +129,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override Expression ApplyExplicitCastToBoolInProjectionOptimization(Expression expression)
-        {
-            var aliasedProjection = expression as AliasExpression;
-            var expressionToProcess = aliasedProjection?.Expression ?? expression;
-
-            var updatedExpression = ExplicitCastToBool(expressionToProcess);
-
-            return aliasedProjection != null
-                ? new AliasExpression(aliasedProjection.Alias, updatedExpression)
-                : updatedExpression;
-        }
-
-        private static Expression ExplicitCastToBool(Expression expression)
-            => ((expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce || expression.NodeType == ExpressionType.Constant)
-               && expression.Type.UnwrapNullableType() == typeof(bool)
-                ? new ExplicitCastExpression(expression, expression.Type)
-                : expression;
-
         private class RowNumberPagingExpressionVisitor : ExpressionVisitorBase
         {
             private const string RowNumberColumnName = "__RowNumber__";

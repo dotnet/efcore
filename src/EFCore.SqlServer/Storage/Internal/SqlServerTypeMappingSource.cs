@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new IntTypeMapping("int", DbType.Int32);
 
         private readonly BoolTypeMapping _bool
-            = new BoolTypeMapping("bit");
+            = new SqlServerBoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
             = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);

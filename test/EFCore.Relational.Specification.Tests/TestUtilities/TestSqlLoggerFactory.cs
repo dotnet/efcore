@@ -66,7 +66,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var methodCallLine = Environment.StackTrace.Split(
                         new[] { _eol },
+#if NETCOREAPP3_0
+                        StringSplitOptions.RemoveEmptyEntries)[3]
+#else
                         StringSplitOptions.RemoveEmptyEntries)[4]
+#endif
                     .Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
@@ -78,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
                                   0,
-                                  currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
+                                  currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
                               + "QueryBaseline.cs";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;

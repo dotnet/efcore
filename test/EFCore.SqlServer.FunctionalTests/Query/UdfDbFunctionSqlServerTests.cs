@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE CASE
-    WHEN IsDate([c].[FirstName]) = 1
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END = 0");
+    WHEN IsDate([c].[FirstName]) = CAST(1 AS bit)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)");
         }
 
         [Fact]
@@ -124,7 +124,7 @@ WHERE [c].[Id] = @__customerId_0");
             AssertSql(
                 @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
 FROM [Customers] AS [c]
-WHERE [dbo].[IsTopCustomer]([c].[Id]) = 1");
+WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }
 
         [Fact]
@@ -402,9 +402,9 @@ WHERE [c].[Id] = 1");
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE CASE
-    WHEN IsDate([c].[FirstName]) = 1
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END = 0");
+    WHEN IsDate([c].[FirstName]) = CAST(1 AS bit)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)");
         }
 
         [Fact]
@@ -489,7 +489,7 @@ WHERE [c].[Id] = @__customerId_0");
             AssertSql(
                 @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
 FROM [Customers] AS [c]
-WHERE [dbo].[IsTopCustomer]([c].[Id]) = 1");
+WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }
 
         [Fact]

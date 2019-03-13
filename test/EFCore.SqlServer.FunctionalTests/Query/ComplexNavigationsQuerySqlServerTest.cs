@@ -998,7 +998,7 @@ WHERE ([e.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2].[Id] = [e
             AssertSql(
                 @"SELECT [e].[Id], [e].[Name], CASE
     WHEN [e.OneToOne_Optional_FK1].[Id] IS NOT NULL
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [e.OneToOne_Optional_FK1].[Id] AS [Id0], [e.OneToOne_Optional_FK1].[Name] AS [Name0]
 FROM [LevelOne] AS [e]
 LEFT JOIN [LevelTwo] AS [e.OneToOne_Optional_FK1] ON [e].[Id] = [e.OneToOne_Optional_FK1].[Level1_Optional_Id]");
@@ -3966,7 +3966,7 @@ ORDER BY [l1].[Id]",
                 //
                 @"SELECT [t].[Id], CASE
     WHEN [l2.OneToOne_Required_FK2].[Id] IS NULL
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [l2.OneToOne_Required_FK2].[Name], [l1.OneToMany_Optional1].[OneToMany_Optional_Inverse2Id]
 FROM [LevelTwo] AS [l1.OneToMany_Optional1]
 LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK2] ON [l1.OneToMany_Optional1].[Id] = [l2.OneToOne_Required_FK2].[Level2_Required_Id]
@@ -3988,7 +3988,7 @@ ORDER BY [l1].[Id]",
                 //
                 @"SELECT [t].[Id], CASE
     WHEN [l2.OneToOne_Required_FK2].[Id] IS NULL
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [l2.OneToOne_Required_FK2].[Name] AS [Value], [l1.OneToMany_Optional1].[OneToMany_Optional_Inverse2Id]
 FROM [LevelTwo] AS [l1.OneToMany_Optional1]
 LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK2] ON [l1.OneToMany_Optional1].[Id] = [l2.OneToOne_Required_FK2].[Level2_Required_Id]

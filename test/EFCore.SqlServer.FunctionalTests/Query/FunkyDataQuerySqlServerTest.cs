@@ -27,7 +27,7 @@ FROM [FunkyCustomers] AS [c]
 CROSS JOIN [FunkyCustomers] AS [c2]
 WHERE CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END = [c].[NullableBool]",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -43,7 +43,7 @@ FROM [FunkyCustomers] AS [c]
 CROSS JOIN [FunkyCustomers] AS [c2]
 WHERE (CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END <> [c].[NullableBool]) OR [c].[NullableBool] IS NULL",
                 Sql,
                 ignoreLineEndingDifferences: true);

@@ -1398,7 +1398,7 @@ ORDER BY [Key]");
             SELECT 1
             FROM [Orders] AS [o0]
             WHERE [c].[CustomerID] = [o0].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ), [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -1941,7 +1941,7 @@ FROM (
             GROUP BY [o].[CustomerID]
         ) AS [t]
         WHERE 0 = 1)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END",
                 //
                 @"SELECT CASE
@@ -1949,7 +1949,7 @@ END",
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 

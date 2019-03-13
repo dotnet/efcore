@@ -2981,7 +2981,7 @@ FROM [Customers] AS [b]
 LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
 ORDER BY CASE
     WHEN [b].[AddressId] > 0
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, CASE
     WHEN [b].[CustomerDetailsId] IS NOT NULL
     THEN [b.CustomerDetails].[Name] ELSE N''
@@ -2996,7 +2996,7 @@ INNER JOIN (
     FROM (
         SELECT TOP(@__p_0) [b0].[Id], CASE
             WHEN [b0].[AddressId] > 0
-            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
         END AS [c], CASE
             WHEN [b0].[CustomerDetailsId] IS NOT NULL
             THEN [b.CustomerDetails0].[Name] ELSE N''
@@ -3233,8 +3233,8 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
                         @"SELECT CASE
     WHEN [t].[ConfigurationId] IS NOT NULL
     THEN CASE
-        WHEN [t.Configuration].[Processed] = 0
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        WHEN [t.Configuration].[Processed] = CAST(0 AS bit)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END ELSE NULL
 END AS [Processing]
 FROM [Carts] AS [t]
@@ -3663,7 +3663,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
                     AssertSql(
                         @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
 FROM [Bases] AS [b]
-WHERE [b].[IsTwo] IN (1, 0)");
+WHERE [b].[IsTwo] IN (CAST(1 AS bit), CAST(0 AS bit))");
                 }
             }
         }
@@ -5080,7 +5080,7 @@ ORDER BY [x].[Id]",
                         //
                         @"SELECT [t].[Id], CASE
     WHEN [x.Addresses].[Id] IS NULL
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, [x.Addresses].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
 FROM [Address13157] AS [x.Addresses]
 INNER JOIN (

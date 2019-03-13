@@ -444,7 +444,7 @@ FROM [PointEntity] AS [e]");
 
 SELECT [e].[Id], CASE
     WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [IsWithinDistance]
 FROM [PointEntity] AS [e]");
         }

@@ -200,7 +200,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [p].[ProductID], CASE
     WHEN [p].[UnitsInStock] > CAST(0 AS smallint)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [IsAvailable]
 FROM [Products] AS [p]");
         }
@@ -591,7 +591,7 @@ ORDER BY [Order]");
             AssertSql(
                 @"SELECT CASE
     WHEN [o].[CustomerID] IS NULL OR ([o].[CustomerID] IS NOT NULL AND ([o].[OrderID] < 100))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'");
@@ -923,7 +923,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Customers] AS [c]");
         }
