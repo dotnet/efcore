@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Query_and_update_using_constructors_with_property_parameters()
         {
             TestHelpers.ExecuteWithStrategyInTransaction(

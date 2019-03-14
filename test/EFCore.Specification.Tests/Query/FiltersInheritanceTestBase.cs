@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_animal()
         {
             using (var context = CreateContext())
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_is_kiwi()
         {
             using (var context = CreateContext())
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_is_kiwi_with_other_predicate()
         {
             using (var context = CreateContext())
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_is_kiwi_in_projection()
         {
             using (var context = CreateContext())
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_bird()
         {
             using (var context = CreateContext())
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_bird_predicate()
         {
             using (var context = CreateContext())
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_bird_with_projection()
         {
             using (var context = CreateContext())
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_bird_first()
         {
             using (var context = CreateContext())
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_of_type_kiwi()
         {
             using (var context = CreateContext())
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_derived_set()
         {
             using (var context = CreateContext())
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15264")]
         public virtual void Can_use_IgnoreQueryFilters_and_GetDatabaseValues()
         {
             using (var context = CreateContext())

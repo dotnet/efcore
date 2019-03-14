@@ -954,6 +954,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()),
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => Maybe(
+                    Maybe(c.Orders.OrderBy(o => o.OrderID).FirstOrDefault(), () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails),
+                    () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => (int?)c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault().ProductID),
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => MaybeScalar<int>(
+                    Maybe(c.Orders.OrderBy(o => o.OrderID).FirstOrDefault(), () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails),
+                    () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault().ProductID)));
+        }
+
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task First_inside_subquery_gets_client_evaluated(bool isAsync)

@@ -247,6 +247,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 AppendLine();
                 base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
                 TransformingVisitor.StringBuilder.Append($" into {groupJoinClause.ItemName}");
+
+                if (TransformingVisitor.GenerateUniqueQsreIds)
+                {
+                    var i = TransformingVisitor.VisitedQuerySources.IndexOf(groupJoinClause);
+                    if (i == -1)
+                    {
+                        i = TransformingVisitor.VisitedQuerySources.Count;
+                        TransformingVisitor.VisitedQuerySources.Add(groupJoinClause);
+                    }
+
+                    TransformingVisitor.StringBuilder.Append($"{{{i}}}");
+                }
             }
 
             public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)

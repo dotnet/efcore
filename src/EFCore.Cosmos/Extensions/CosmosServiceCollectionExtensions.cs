@@ -41,7 +41,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryModelVisitorFactory, CosmosEntityQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, CosmosEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IMemberAccessBindingExpressionVisitorFactory, CosmosMemberAccessBindingExpressionVisitorFactory>()
-                .TryAdd<INavigationRewritingExpressionVisitorFactory, CosmosNavigationRewritingExpressionVisitorFactory>()
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b

@@ -950,13 +950,13 @@ END");
             base.Null_comparison_in_join_key_with_relational_nulls();
 
             AssertSql(
-                @"SELECT [e1].[Id], [e1].[BoolA], [e1].[BoolB], [e1].[BoolC], [e1].[IntA], [e1].[IntB], [e1].[IntC], [e1].[NullableBoolA], [e1].[NullableBoolB], [e1].[NullableBoolC], [e1].[NullableIntA], [e1].[NullableIntB], [e1].[NullableIntC], [e1].[NullableStringA], [e1].[NullableStringB], [e1].[NullableStringC], [e1].[StringA], [e1].[StringB], [e1].[StringC], [i].[Id], [i].[BoolA], [i].[BoolB], [i].[BoolC], [i].[IntA], [i].[IntB], [i].[IntC], [i].[NullableBoolA], [i].[NullableBoolB], [i].[NullableBoolC], [i].[NullableIntA], [i].[NullableIntB], [i].[NullableIntC], [i].[NullableStringA], [i].[NullableStringB], [i].[NullableStringC], [i].[StringA], [i].[StringB], [i].[StringC]
+                @"SELECT [e1].[Id], [e1].[BoolA], [e1].[BoolB], [e1].[BoolC], [e1].[IntA], [e1].[IntB], [e1].[IntC], [e1].[NullableBoolA], [e1].[NullableBoolB], [e1].[NullableBoolC], [e1].[NullableIntA], [e1].[NullableIntB], [e1].[NullableIntC], [e1].[NullableStringA], [e1].[NullableStringB], [e1].[NullableStringC], [e1].[StringA], [e1].[StringB], [e1].[StringC], [e2].[Id], [e2].[BoolA], [e2].[BoolB], [e2].[BoolC], [e2].[IntA], [e2].[IntB], [e2].[IntC], [e2].[NullableBoolA], [e2].[NullableBoolB], [e2].[NullableBoolC], [e2].[NullableIntA], [e2].[NullableIntB], [e2].[NullableIntC], [e2].[NullableStringA], [e2].[NullableStringB], [e2].[NullableStringC], [e2].[StringA], [e2].[StringB], [e2].[StringC]
 FROM [Entities1] AS [e1]
-INNER JOIN [Entities2] AS [i] ON CASE
+INNER JOIN [Entities2] AS [e2] ON CASE
     WHEN [e1].[NullableStringA] <> N'Foo'
     THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END = CASE
-    WHEN [i].[NullableBoolB] <> CAST(1 AS bit)
+    WHEN [e2].[NullableBoolB] <> CAST(1 AS bit)
     THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }

@@ -3262,7 +3262,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
                     AssertSql(
                         @"SELECT CASE
-    WHEN [t].[ConfigurationId] IS NOT NULL
+    WHEN [t.Configuration].[Id] IS NOT NULL
     THEN CASE
         WHEN [t.Configuration].[Processed] = CAST(0 AS bit)
         THEN CAST(1 AS bit) ELSE CAST(0 AS bit)

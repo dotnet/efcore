@@ -1500,6 +1500,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO(o.Customer.City))
+                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO(o.Customer.City))
+                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Id, actual[i].Id);
+                    Assert.Equal(expected[i].Count, actual[i].Count);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
         {
             using (var context = CreateContext())
@@ -1960,7 +1984,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([e1].FirstName == {from Employee e in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee]) orderby [e].EmployeeID asc select new <>f__AnonymousType334`1(Foo = [e]) => FirstOrDefault()}.Foo.FirstName)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition2_FirstOrDefault_with_anonymous(bool isAsync)
         {
@@ -4952,7 +4976,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15064")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {
@@ -5682,7 +5706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ({from Order e in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) orderby [e].OrderDate asc where  ?= (Property([c], \"CustomerID\") == Property([e], \"CustomerID\")) =? select [e] => FirstOrDefault()} != null)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Let_entity_equality_to_null(bool isAsync)
         {
@@ -5698,7 +5722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ({from Order e in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) orderby [e].OrderDate asc where  ?= (Property([c], \"CustomerID\") == Property([e], \"CustomerID\")) =? select [e] => FirstOrDefault()} != Order 0)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Let_entity_equality_to_other_entity(bool isAsync)
         {

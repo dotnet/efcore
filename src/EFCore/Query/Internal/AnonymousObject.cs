@@ -127,5 +127,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public object GetValue(int index) => _values[index];
+
+        // this is temporary, until relinq is removed
+        internal bool OnlyNullValues(out int count)
+        {
+            count = _values.Count();
+
+            return _values.All(v => v == null);
+        }
     }
 }

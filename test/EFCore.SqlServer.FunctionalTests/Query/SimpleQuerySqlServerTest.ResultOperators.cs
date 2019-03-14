@@ -678,8 +678,62 @@ FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] = N'ALFKI') AND ((
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = N'ALFKI') AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI')
 ) = N'ALFKI')");
+        }
+
+        public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool isAsync)
+        {
+            await base.Multiple_collection_navigation_with_FirstOrDefault_chained(isAsync);
+
+            AssertContainsSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[OrderID] = COALESCE((
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE @_outer_CustomerID = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+), 0)
+ORDER BY [od].[ProductID]",
+                //
+                @"@_outer_CustomerID='ANATR' (Size = 5)
+
+SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[OrderID] = COALESCE((
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE @_outer_CustomerID = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+), 0)
+ORDER BY [od].[ProductID]");
+        }
+
+        public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool isAsync)
+        {
+            await base.Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [od].[ProductID]
+    FROM [Order Details] AS [od]
+    WHERE [od].[OrderID] = COALESCE((
+        SELECT TOP(1) [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]
+    ), 0)
+    ORDER BY [od].[ProductID]
+)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task First_inside_subquery_gets_client_evaluated(bool isAsync)

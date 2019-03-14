@@ -69,54 +69,54 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
-        public virtual void Query_with_ignored_include_should_log_warning()
-        {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Customers
-                        .Include(c => c.Orders)
-                        .Select(c => c.CustomerID)
-                        .ToList();
+        //[Fact]
+        //public virtual void Query_with_ignored_include_should_log_warning()
+        //{
+        //    using (var context = CreateContext())
+        //    {
+        //        var customers
+        //            = context.Customers
+        //                .Include(c => c.Orders)
+        //                .Select(c => c.CustomerID)
+        //                .ToList();
 
-                Assert.NotNull(customers);
-                Assert.Contains(
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-            }
-        }
+        //        Assert.NotNull(customers);
+        //        Assert.Contains(
+        //            CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+        //    }
+        //}
 
-        [Fact]
-        public virtual void Include_navigation()
-        {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .ToList();
+        //[Fact]
+        //public virtual void Include_navigation()
+        //{
+        //    using (var context = CreateContext())
+        //    {
+        //        var customers
+        //            = context.Set<Customer>()
+        //                .Include(c => c.Orders)
+        //                .ToList();
 
-                Assert.NotNull(customers);
+        //        Assert.NotNull(customers);
 
-                Assert.Equal(
-                    "Compiling query model: " + _eol +
-                    "'(from Customer c in DbSet<Customer>" + _eol +
-                    @"select [c]).Include(""Orders"")'"
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[0].Message);
-                Assert.Equal(
-                    "Including navigation: '[c].Orders'"
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[1].Message);
-                Assert.StartsWith(
-                    "Optimized query model: " + _eol +
-                    "'from Customer c in DbSet<Customer>" + _eol +
-                    @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
-                    "select Customer _Include("
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[2].Message);
-            }
-        }
+        //        Assert.Equal(
+        //            "Compiling query model: " + _eol +
+        //            "'(from Customer c in DbSet<Customer>" + _eol +
+        //            @"select [c]).Include(""Orders"")'"
+        //            ,
+        //            Fixture.TestSqlLoggerFactory.Log[0].Message);
+        //        Assert.Equal(
+        //            "Including navigation: '[c].Orders'"
+        //            ,
+        //            Fixture.TestSqlLoggerFactory.Log[1].Message);
+        //        Assert.StartsWith(
+        //            "Optimized query model: " + _eol +
+        //            "'from Customer c in DbSet<Customer>" + _eol +
+        //            @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
+        //            "select Customer _Include("
+        //            ,
+        //            Fixture.TestSqlLoggerFactory.Log[2].Message);
+        //    }
+        //}
 
         [Fact(Skip = "Issue #14935. Cannot eval 'Concat({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
         public virtual void Concat_Include_collection_ignored()

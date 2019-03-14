@@ -57,10 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer" /> to be used when processing the query. </param>
-        /// <param name="navigationRewritingExpressionVisitorFactory">
-        ///     The <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when
-        ///     processing the query.
-        /// </param>
         /// <param name="querySourceTracingExpressionVisitorFactory">
         ///     The <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when
         ///     processing the query.
@@ -94,7 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public EntityQueryModelVisitorDependencies(
             [NotNull] IQueryOptimizer queryOptimizer,
-            [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
             [NotNull] IEagerLoadingExpressionVisitorFactory eagerLoadingExpressionVisitorFactory,
@@ -109,7 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IQueryModelGenerator queryModelGenerator)
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
             Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
             Check.NotNull(eagerLoadingExpressionVisitorFactory, nameof(eagerLoadingExpressionVisitorFactory));
@@ -124,7 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModelGenerator, nameof(queryModelGenerator));
 
             QueryOptimizer = queryOptimizer;
-            NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
             QuerySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
             EntityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
             EagerLoadingExpressionVisitorFactory = eagerLoadingExpressionVisitorFactory;
@@ -143,11 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the <see cref="IQueryOptimizer" /> to be used when processing a query.
         /// </summary>
         public IQueryOptimizer QueryOptimizer { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="INavigationRewritingExpressionVisitorFactory" /> to be used when processing a query.
-        /// </summary>
-        public INavigationRewritingExpressionVisitorFactory NavigationRewritingExpressionVisitorFactory { get; }
 
         /// <summary>
         ///     Gets the <see cref="IQuerySourceTracingExpressionVisitorFactory" /> to be used when processing a query.
@@ -217,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IResultOperatorHandler resultOperatorHandler)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -239,29 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IQueryOptimizer queryOptimizer)
             => new EntityQueryModelVisitorDependencies(
                 queryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
-                QuerySourceTracingExpressionVisitorFactory,
-                EntityResultFindingExpressionVisitorFactory,
-                EagerLoadingExpressionVisitorFactory,
-                TaskBlockingExpressionVisitor,
-                MemberAccessBindingExpressionVisitorFactory,
-                ProjectionExpressionVisitorFactory,
-                EntityQueryableExpressionVisitorFactory,
-                QueryAnnotationExtractor,
-                ResultOperatorHandler,
-                EntityMaterializerSource,
-                ExpressionPrinter,
-                QueryModelGenerator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="navigationRewritingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public EntityQueryModelVisitorDependencies With([NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory)
-            => new EntityQueryModelVisitorDependencies(
-                QueryOptimizer,
-                navigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -283,7 +247,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 querySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -305,7 +268,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 entityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -327,7 +289,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IEagerLoadingExpressionVisitorFactory eagerLoadingExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 eagerLoadingExpressionVisitorFactory,
@@ -349,7 +310,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -371,7 +331,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -393,7 +352,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -415,7 +373,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -437,7 +394,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IQueryAnnotationExtractor queryAnnotationExtractor)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -459,7 +415,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -481,7 +436,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IExpressionPrinter expressionPrinter)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,
@@ -503,7 +457,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EntityQueryModelVisitorDependencies With([NotNull] IQueryModelGenerator queryModelGenerator)
             => new EntityQueryModelVisitorDependencies(
                 QueryOptimizer,
-                NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
                 EagerLoadingExpressionVisitorFactory,

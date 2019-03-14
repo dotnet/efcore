@@ -1664,11 +1664,10 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c]
-    WHERE [o].[OrderID] IN (
-        SELECT [o0].[OrderID]
+    WHERE EXISTS (
+        SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ))");
+        WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] = [o].[OrderID])))");
         }
 
         public override async Task Where_subquery_FirstOrDefault_is_null(bool isAsync)

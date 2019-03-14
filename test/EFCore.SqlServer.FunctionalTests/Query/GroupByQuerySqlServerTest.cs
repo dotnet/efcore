@@ -34,6 +34,14 @@ GROUP BY [o].[CustomerID]");
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
+        public override async Task GroupBy_Property_Select_Average_with_navigation_expansion(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Average_with_navigation_expansion(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task GroupBy_Property_Select_Count(bool isAsync)
         {
             await base.GroupBy_Property_Select_Count(isAsync);

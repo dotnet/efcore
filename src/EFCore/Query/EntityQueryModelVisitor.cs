@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
         private readonly IQueryOptimizer _queryOptimizer;
-        private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
         private readonly IEntityResultFindingExpressionVisitorFactory _entityResultFindingExpressionVisitorFactory;
         private readonly IEagerLoadingExpressionVisitorFactory _eagerLoadingExpressionVisitorFactory;
@@ -87,7 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _queryOptimizer = dependencies.QueryOptimizer;
-            _navigationRewritingExpressionVisitorFactory = dependencies.NavigationRewritingExpressionVisitorFactory;
             _querySourceTracingExpressionVisitorFactory = dependencies.QuerySourceTracingExpressionVisitorFactory;
             _entityResultFindingExpressionVisitorFactory = dependencies.EntityResultFindingExpressionVisitorFactory;
             _eagerLoadingExpressionVisitorFactory = dependencies.EagerLoadingExpressionVisitorFactory;
@@ -248,14 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext.AddAnnotations(_queryAnnotationExtractor.ExtractQueryAnnotations(queryModel));
         }
 
-        /// <summary>
-        ///     Pre-processes query model before we rewrite its navigations.
-        /// </summary>
-        /// <param name="queryModel">Query model to process. </param>
-        protected virtual void OnBeforeNavigationRewrite([NotNull] QueryModel queryModel)
-        {
-        }
-
         private class DuplicateQueryModelIdentifyingExpressionVisitor : RelinqExpressionVisitor
         {
             private readonly QueryCompilationContext _queryCompilationContext;
@@ -310,45 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             eagerLoadingExpressionVisitor.VisitQueryModel(queryModel);
             new NondeterministicResultCheckingVisitor(logger, this).VisitQueryModel(queryModel);
 
-            OnBeforeNavigationRewrite(queryModel);
-
-            // Rewrite includes/navigations
-
-            var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
-            includeCompiler.CompileIncludes(queryModel, IsTrackingQuery(queryModel), asyncQuery, shouldThrow: false);
-
-            queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
-            queryModel.TransformExpressions(new CollectionNavigationSetOperatorSubqueryInjector(this).Visit);
-
-            var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
-            navigationRewritingExpressionVisitor.InjectSubqueryToCollectionsInProjection(queryModel);
-
-            var correlatedCollectionFinder = new CorrelatedCollectionFindingExpressionVisitor(this, IsTrackingQuery(queryModel));
-
-            if (!queryModel.ResultOperators.Any(r => r is GroupResultOperator))
-            {
-                queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
-            }
-
-            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
-
-            includeCompiler.CompileIncludes(queryModel, IsTrackingQuery(queryModel), asyncQuery, shouldThrow: true);
-
-            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
-
-            new EntityQsreToKeyAccessConvertingQueryModelVisitor(QueryCompilationContext).VisitQueryModel(queryModel);
-
-            includeCompiler.RewriteCollectionQueries();
-
-            includeCompiler.LogIgnoredIncludes();
-
-            _modelExpressionApplyingExpressionVisitor.ApplyModelExpressions(queryModel);
-
-            // Second pass of optimizations
-
             ExtractQueryAnnotations(queryModel);
-
-            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
@@ -422,125 +374,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 base.VisitResultOperators(resultOperators, queryModel);
-            }
-        }
-
-        private class EntityQsreToKeyAccessConvertingQueryModelVisitor : QueryModelVisitorBase
-        {
-            private readonly QueryCompilationContext _queryCompilationContext;
-
-            public EntityQsreToKeyAccessConvertingQueryModelVisitor(QueryCompilationContext queryCompilationContext)
-            {
-                _queryCompilationContext = queryCompilationContext;
-            }
-
-            public override void VisitQueryModel(QueryModel queryModel)
-            {
-                queryModel.TransformExpressions(
-                    new TransformingQueryModelExpressionVisitor<EntityQsreToKeyAccessConvertingQueryModelVisitor>(this).Visit);
-
-                base.VisitQueryModel(queryModel);
-            }
-
-            public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
-            {
-                var newOrderings = new List<Ordering>();
-
-                var changed = false;
-                foreach (var ordering in orderByClause.Orderings)
-                {
-                    if (ordering.Expression is QuerySourceReferenceExpression qsre
-                        && TryGetEntityPrimaryKeys(qsre.ReferencedQuerySource, out var keyProperties))
-                    {
-                        changed = true;
-                        foreach (var keyProperty in keyProperties)
-                        {
-                            newOrderings.Add(new Ordering(qsre.CreateEFPropertyExpression(keyProperty), ordering.OrderingDirection));
-                        }
-                    }
-                    else
-                    {
-                        newOrderings.Add(ordering);
-                    }
-                }
-
-                if (changed)
-                {
-                    orderByClause.Orderings.Clear();
-                    foreach (var newOrdering in newOrderings)
-                    {
-                        orderByClause.Orderings.Add(newOrdering);
-                    }
-                }
-
-                base.VisitOrderByClause(orderByClause, queryModel, index);
-            }
-
-            public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
-            {
-#pragma warning disable IDE0019 // Use pattern matching
-                var outerKeyQsre = joinClause.OuterKeySelector as QuerySourceReferenceExpression;
-#pragma warning restore IDE0019 // Use pattern matching
-
-                var innerKeyQsre = joinClause.InnerKeySelector as QuerySourceReferenceExpression;
-                var innerKeySubquery = joinClause.InnerKeySelector as SubQueryExpression;
-
-                // if inner key is a subquery (i.e. it contains a navigation) we can only perform the optimization if the key is not composite
-                // otherwise we would have to clone the entire subquery for each key property in order be able to fully translate the key selector
-                if (outerKeyQsre != null
-                    && TryGetEntityPrimaryKeys(outerKeyQsre.ReferencedQuerySource, out var keyProperties)
-                    && (innerKeyQsre != null || (keyProperties.Count == 1 && IsNavigationSubquery(innerKeySubquery))))
-                {
-                    joinClause.OuterKeySelector = outerKeyQsre.CreateKeyAccessExpression(keyProperties);
-
-                    if (innerKeyQsre != null)
-                    {
-                        joinClause.InnerKeySelector = innerKeyQsre.CreateKeyAccessExpression(keyProperties);
-                    }
-                    else
-                    {
-                        var innerSubquerySelectorQsre = (QuerySourceReferenceExpression)innerKeySubquery.QueryModel.SelectClause.Selector;
-                        innerKeySubquery.QueryModel.SelectClause.Selector = innerSubquerySelectorQsre.CreateKeyAccessExpression(keyProperties);
-                        joinClause.InnerKeySelector = new SubQueryExpression(innerKeySubquery.QueryModel);
-                    }
-                }
-
-                base.VisitJoinClause(joinClause, queryModel, index);
-            }
-
-            public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
-            {
-                VisitJoinClause(groupJoinClause.JoinClause, queryModel, index);
-
-                base.VisitGroupJoinClause(groupJoinClause, queryModel, index);
-            }
-
-            private static bool IsNavigationSubquery(SubQueryExpression subQueryExpression)
-                => subQueryExpression != null
-                    ? subQueryExpression.QueryModel.BodyClauses.OfType<WhereClause>().Where(c => c.Predicate is NullSafeEqualExpression).Any()
-                      && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression selectorQsre
-                      && subQueryExpression.QueryModel.ResultOperators.Count == 1
-                      && subQueryExpression.QueryModel.ResultOperators[0] is FirstResultOperator firstResultOperator
-                      && firstResultOperator.ReturnDefaultWhenEmpty
-                    : false;
-
-            private bool TryGetEntityPrimaryKeys(IQuerySource querySource, out IReadOnlyList<IProperty> keyProperties)
-            {
-                var entityType
-                    = _queryCompilationContext.FindEntityType(querySource)
-                      ?? _queryCompilationContext.Model
-                          .FindEntityType(querySource.ItemType);
-
-                if (entityType != null)
-                {
-                    keyProperties = entityType.FindPrimaryKey().Properties;
-
-                    return true;
-                }
-
-                keyProperties = new List<IProperty>();
-
-                return false;
             }
         }
 
@@ -1125,40 +958,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(ordering.OrderingDirection));
         }
 
-        private void TryOptimizeCorrelatedCollections([NotNull] QueryModel queryModel)
-        {
-            // TODO: disabled for cross joins - problem is outer query containing cross join can produce duplicate results
-            if (queryModel.BodyClauses.OfType<AdditionalFromClause>().Any(c => !IsPartOfLeftJoinPattern(c, queryModel)))
-            {
-                return;
-            }
-
-            var correlatedCollectionOptimizer = new CorrelatedCollectionOptimizingVisitor(
-                this,
-                queryModel);
-
-            var newSelector = correlatedCollectionOptimizer.Visit(queryModel.SelectClause.Selector);
-            if (newSelector != queryModel.SelectClause.Selector)
-            {
-                queryModel.SelectClause.Selector = newSelector;
-
-                if (correlatedCollectionOptimizer.ParentOrderings.Count > 0)
-                {
-                    RemoveOrderings(queryModel);
-
-                    var orderByClause = new OrderByClause();
-                    foreach (var ordering in correlatedCollectionOptimizer.ParentOrderings)
-                    {
-                        orderByClause.Orderings.Add(ordering);
-                    }
-
-                    queryModel.BodyClauses.Add(orderByClause);
-
-                    VisitOrderByClause(orderByClause, queryModel, queryModel.BodyClauses.IndexOf(orderByClause));
-                }
-            }
-        }
-
         /// <summary>
         ///     Removes orderings for a given query model.
         /// </summary>
@@ -1171,34 +970,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 queryModel.BodyClauses.Remove(existingOrderByClause);
             }
         }
-
-        private static bool IsPartOfLeftJoinPattern(AdditionalFromClause additionalFromClause, QueryModel queryModel)
-        {
-            var index = queryModel.BodyClauses.IndexOf(additionalFromClause);
-
-            var subQueryModel
-                = (additionalFromClause?.FromExpression as SubQueryExpression)
-                ?.QueryModel;
-
-            var referencedQuerySource
-                = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
-
-            return queryModel.BodyClauses.ElementAtOrDefault(index - 1) is GroupJoinClause groupJoinClause
-                   && groupJoinClause == referencedQuerySource
-                   && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
-                   && subQueryModel.BodyClauses.Count == 0
-                   && subQueryModel.ResultOperators.Count == 1
-                   && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator
-                ? true
-                : false;
-        }
-
-        /// <summary>
-        ///     Determines whether correlated collections (if any) can be optimized.
-        /// </summary>
-        /// <returns>True if optimization is allowed, false otherwise.</returns>
-        protected virtual bool CanOptimizeCorrelatedCollections()
-            => true;
 
         /// <summary>
         ///     Visits <see cref="SelectClause" /> nodes.
@@ -1216,11 +987,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectClause.Selector is QuerySourceReferenceExpression)
             {
                 return;
-            }
-
-            if (CanOptimizeCorrelatedCollections())
-            {
-                TryOptimizeCorrelatedCollections(queryModel);
             }
 
             var selector

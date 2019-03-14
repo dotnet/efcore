@@ -11,7 +11,8 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public class QueryFixupTest
+    //issue #15318
+    internal class QueryFixupTest
     {
         [Fact]
         public void Query_dependent_include_principal()

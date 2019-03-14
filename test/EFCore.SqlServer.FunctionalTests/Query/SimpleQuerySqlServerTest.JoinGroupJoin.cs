@@ -233,10 +233,10 @@ FROM [Customers] AS [c]");
             await base.Join_same_collection_multiple(isAsync);
 
             AssertSql(
-                @"SELECT [c3].[CustomerID], [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
+                @"SELECT [i0].[CustomerID], [i0].[Address], [i0].[City], [i0].[CompanyName], [i0].[ContactName], [i0].[ContactTitle], [i0].[Country], [i0].[Fax], [i0].[Phone], [i0].[PostalCode], [i0].[Region]
 FROM [Customers] AS [o]
-INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
-INNER JOIN [Customers] AS [c3] ON [o].[CustomerID] = [c3].[CustomerID]");
+INNER JOIN [Customers] AS [i] ON [o].[CustomerID] = [i].[CustomerID]
+INNER JOIN [Customers] AS [i0] ON [o].[CustomerID] = [i0].[CustomerID]");
         }
 
         public override async Task Join_same_collection_force_alias_uniquefication(bool isAsync)
@@ -244,9 +244,9 @@ INNER JOIN [Customers] AS [c3] ON [o].[CustomerID] = [c3].[CustomerID]");
             await base.Join_same_collection_force_alias_uniquefication(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [i].[OrderID], [i].[CustomerID], [i].[EmployeeID], [i].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]");
+INNER JOIN [Orders] AS [i] ON [o].[CustomerID] = [i].[CustomerID]");
         }
 
         public override async Task GroupJoin_customers_orders_count(bool isAsync)
@@ -311,6 +311,17 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         public override async Task GroupJoin_tracking_groups(bool isAsync)
         {
             await base.GroupJoin_tracking_groups(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task GroupJoin_tracking_groups2(bool isAsync)
+        {
+            await base.GroupJoin_tracking_groups2(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]

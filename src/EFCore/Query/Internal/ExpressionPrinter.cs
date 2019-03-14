@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Divide, " / " },
             { ExpressionType.Modulo, " % " },
             { ExpressionType.And, " & " },
-            { ExpressionType.Or, " | " }
+            { ExpressionType.Or, " | " },
+            { ExpressionType.ExclusiveOr, " ^ " }
         };
 
         private bool _highlightNonreducibleNodes;
@@ -299,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Modulo:
                 case ExpressionType.And:
                 case ExpressionType.Or:
+                case ExpressionType.ExclusiveOr:
                     VisitBinary((BinaryExpression)expression);
                     break;
 
@@ -354,6 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Throw:
                 case ExpressionType.Not:
                 case ExpressionType.TypeAs:
+                case ExpressionType.Quote:
                     VisitUnary((UnaryExpression)expression);
                     break;
 
@@ -793,7 +796,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _stringBuilder.IncrementIndent();
             }
 
-            VisitArguments(newExpression.Arguments, appendAction);
+            for (var i = 0; i < newExpression.Arguments.Count; i++)
+            {
+                if (newExpression.Members != null)
+                {
+                    Append(newExpression.Members[i].Name + " = ");
+                }
+
+                Visit(newExpression.Arguments[i]);
+                appendAction(i == newExpression.Arguments.Count - 1 ? "" : ", ");
+            }
 
             if (isComplex)
             {
@@ -864,7 +876,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (_parametersInScope.ContainsKey(parameterExpression))
             {
-                _stringBuilder.Append(_parametersInScope[parameterExpression]);
+                if (_parametersInScope[parameterExpression].Contains("."))
+                {
+                    _stringBuilder.Append("[" + _parametersInScope[parameterExpression] + "]");
+                }
+                else
+                {
+                    _stringBuilder.Append(_parametersInScope[parameterExpression]);
+                }
             }
             else
             {
@@ -916,6 +935,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _stringBuilder.Append("(");
                     Visit(unaryExpression.Operand);
                     _stringBuilder.Append(" as " + unaryExpression.Type.ShortDisplayName() + ")");
+                    break;
+
+                case ExpressionType.Quote:
+                    Visit(unaryExpression.Operand);
                     break;
 
                 default:
@@ -1023,7 +1046,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (GenerateUniqueQsreIds)
                         {
                             var index = VisitedQuerySources.IndexOf(qsre.ReferencedQuerySource);
-                            StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
+                            if (index == -1)
+                            {
+                                StringBuilder.Append("[" + HighlightLeft + qsre.ReferencedQuerySource.ItemName + "{" + index + "}" + HighlightRight + "]");
+                            }
+                            else
+                            {
+                                StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
+                            }
                         }
                         else
                         {

@@ -21,23 +21,23 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and left joins are not needed
             AssertSql(
-                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Description], [t].[Engine_Discriminator], [t0].[Name], [t0].[Capacity], [t0].[FuelTank_Discriminator], [t0].[FuelType], [t0].[GrainGeometry], [t1].[Name], [t1].[Operator_Discriminator], [t1].[Operator_Name], [t1].[LicenseType]
+                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t0].[Name], [t0].[Description], [t0].[Engine_Discriminator], [t1].[Name], [t1].[Capacity], [t1].[FuelTank_Discriminator], [t1].[FuelType], [t1].[GrainGeometry]
 FROM [Vehicles] AS [v]
-LEFT JOIN (
-    SELECT [v.Engine].*
-    FROM [Vehicles] AS [v.Engine]
-    WHERE ([v.Engine].[Discriminator] = N'PoweredVehicle') AND [v.Engine].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine', N'Engine')
-) AS [t] ON [v].[Name] = [t].[Name]
-LEFT JOIN (
-    SELECT [v.Engine.FuelTank].*
-    FROM [Vehicles] AS [v.Engine.FuelTank]
-    WHERE (([v.Engine.FuelTank].[Discriminator] = N'PoweredVehicle') AND [v.Engine.FuelTank].[FuelTank_Discriminator] IN (N'SolidFuelTank', N'FuelTank')) OR ((([v.Engine.FuelTank].[Discriminator] = N'PoweredVehicle') AND [v.Engine.FuelTank].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine')) AND [v.Engine.FuelTank].[FuelTank_Discriminator] IN (N'SolidFuelTank', N'FuelTank'))
-) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN (
     SELECT [v.Operator].*
     FROM [Vehicles] AS [v.Operator]
     WHERE [v.Operator].[Discriminator] IN (N'PoweredVehicle', N'Vehicle') AND [v.Operator].[Operator_Discriminator] IN (N'LicensedOperator', N'Operator')
-) AS [t1] ON [v].[Name] = [t1].[Name]
+) AS [t] ON [v].[Name] = [t].[Name]
+LEFT JOIN (
+    SELECT [v.Operator.Engine].*
+    FROM [Vehicles] AS [v.Operator.Engine]
+    WHERE ([v.Operator.Engine].[Discriminator] = N'PoweredVehicle') AND [v.Operator.Engine].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine', N'Engine')
+) AS [t0] ON [v].[Name] = [t0].[Name]
+LEFT JOIN (
+    SELECT [v.Operator.Engine.FuelTank].*
+    FROM [Vehicles] AS [v.Operator.Engine.FuelTank]
+    WHERE (([v.Operator.Engine.FuelTank].[Discriminator] = N'PoweredVehicle') AND [v.Operator.Engine.FuelTank].[FuelTank_Discriminator] IN (N'SolidFuelTank', N'FuelTank')) OR ((([v.Operator.Engine.FuelTank].[Discriminator] = N'PoweredVehicle') AND [v.Operator.Engine.FuelTank].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine')) AND [v.Operator.Engine.FuelTank].[FuelTank_Discriminator] IN (N'SolidFuelTank', N'FuelTank'))
+) AS [t1] ON [t0].[Name] = [t1].[Name]
 WHERE [v].[Discriminator] IN (N'PoweredVehicle', N'Vehicle')
 ORDER BY [v].[Name]");
         }

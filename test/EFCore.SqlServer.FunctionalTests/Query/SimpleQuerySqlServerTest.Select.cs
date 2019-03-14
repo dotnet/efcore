@@ -331,25 +331,25 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='ANTON' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='AROUT' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])");
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)");
         }
 
         public override void Select_nested_collection_multi_level2()
@@ -360,7 +360,7 @@ WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])");
                 @"SELECT (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ) AS [OrderDates]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
@@ -389,10 +389,10 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] > 10) AND ([o].[OrderID] = [od].[OrderID])
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] > 10)
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
@@ -407,14 +407,14 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] <> (
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> (
             SELECT COUNT(*)
             FROM [Orders] AS [o0]
             WHERE [c].[CustomerID] = [o0].[CustomerID]
-        )) AND ([o].[OrderID] = [od].[OrderID])
+        ))
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
@@ -429,10 +429,10 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)) AND ([o].[OrderID] = [od].[OrderID])
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int))
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
@@ -952,8 +952,9 @@ ORDER BY [B]");
             await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [B]
+                @"SELECT [o.Customer].[CustomerID] AS [A], [o].[CustomerID] AS [B]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [B]");
         }
 

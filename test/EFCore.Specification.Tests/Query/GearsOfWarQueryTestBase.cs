@@ -4878,6 +4878,106 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #15043")]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.HasSoulPatch descending, o.Tag.Note
+                    where o.Reports.Any()
+                    select o.FullName,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory(Skip = "Issue #15043")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.HasSoulPatch descending, o.Tag.Note
+                    where o.Reports.Any()
+                    select new
+                    {
+                        o.FullName,
+                        OuterCollection2 = (from www in o.Tag.Gear.Weapons
+                                            orderby www.IsAutomatic, www.Owner.Nickname descending
+                                            select www).ToList()
+                    },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+
+                    CollectionAsserter<dynamic>(
+                        ee => ee.Id,
+                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                });
+        }
+
+        [ConditionalTheory(Skip = "Issue #15043")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.HasSoulPatch descending, o.Tag.Note
+                    where o.Reports.Any()
+                    select new
+                    {
+                        o.FullName,
+                        OuterCollection2 = (from www in o.Tag.Gear.Weapons
+                                            orderby www.IsAutomatic, www.Owner.Nickname descending
+                                            orderby www.IsAutomatic, www.Owner.Nickname descending
+                                            select www).ToList()
+                    },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+
+                    CollectionAsserter<dynamic>(
+                        ee => ee.Id,
+                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                });
+        }
+
+
+        [ConditionalTheory(Skip = "Issue #15043")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.HasSoulPatch descending, o.Tag.Note
+                    where o.Reports.Any()
+                    select new
+                    {
+                        o.FullName,
+                        OuterCollection2 = (from www in o.Tag.Gear.Weapons
+                                            orderby www.Id descending, www.Owner.Weapons.Count
+                                            select www).ToList()
+                    },
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+
+                    CollectionAsserter<dynamic>(
+                        ee => ee.Id,
+                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                });
+        }
+
+        [ConditionalTheory(Skip = "Issue #15043")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_multiple_nested_complex_collections(bool isAsync)
         {
             return AssertQuery<Gear>(
@@ -5763,6 +5863,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_required_navigation_on_the_same_type_with_cast(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => gs.Select(g => ((Gear)g).CityOfBirth.Name),
+                gs => gs.Select(g => g.CityOfBirth.Name));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_required_navigation_on_derived_type(bool isAsync)
         {
             return AssertQuery<LocustLeader>(
@@ -6640,6 +6750,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_subquery_int_with_pushdown_and_coalesce2(bool isAsync)
+        {
+            return AssertQueryScalar<Gear>(
+                isAsync,
+                gs => gs.Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_boolean_empty(bool isAsync)
         {
             return AssertQueryScalar<Gear>(
@@ -7278,6 +7397,95 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => from t in ts
                       where t.Id == new Guid(guid)
                       select t);
+        }
+
+        [ConditionalFact]
+        public virtual void OfTypeNav1()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Where(g => g.Tag.Note != "Foo").OfType<Officer>().Where(o => o.Tag.Note != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void OfTypeNav2()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Where(g => g.Tag.Note != "Foo").OfType<Officer>().Where(o => o.AssignedCity.Location != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void OfTypeNav3()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Where(g => g.Tag.Note != "Foo").Join(ctx.Weapons, g => g.FullName, w => w.OwnerFullName, (o, i) => o).OfType<Officer>().Where(o => o.Tag.Note != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
+        public virtual void Nav_rewrite_Distinct_with_convert()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f).Distinct().Where(lh => lh.Commander.Name != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
+        public virtual void Nav_rewrite_Distinct_with_convert_anonymous()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f }).Distinct().Where(lh => lh.horde.Commander.Name != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Nav_rewrite_with_convert1()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => ((LocustHorde)f).Commander);
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Nav_rewrite_with_convert2()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f).Where(lh => lh.Commander.Name != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Nav_rewrite_with_convert3()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f }).Where(x => x.horde.Commander.Name != "Bar");
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_contains_on_navigation_with_composite_keys(bool isAsync)
+        {
+            return AssertQuery<Gear, City>(
+                isAsync,
+                (gs, cs) => gs.Where(g => cs.Any(c => c.BornGears.Contains(g))));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

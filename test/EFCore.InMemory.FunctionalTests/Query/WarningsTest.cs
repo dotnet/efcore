@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public void Logs_by_default_for_ignored_includes()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public void Ignored_includes_can_be_configured_to_throw()
         {
             var serviceProvider = new ServiceCollection()
