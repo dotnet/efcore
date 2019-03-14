@@ -533,6 +533,28 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [Fact]
+        public void Literal_with_static_field()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Field(null, typeof(SimpleTestType).GetField(nameof(SimpleTestType.SomeField))));
+
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeField",
+                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeField));
+        }
+
+        [Fact]
+        public void Literal_with_static_property()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Property(null, typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeProperty))));
+
+            Assert.Equal(
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeProperty",
+                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeProperty));
+        }
+
+        [Fact]
         public void Literal_with_unsupported_node_throws()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -653,6 +675,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     internal class SimpleTestType
     {
+        public static readonly SimpleTestType SomeField = new SimpleTestType();
+        public static SimpleTestType SomeProperty { get; } = new SimpleTestType();
+
         public SimpleTestType()
         {
         }
