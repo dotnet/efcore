@@ -792,6 +792,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                                 : UnknownLiteral(value));
                     return true;
                 }
+                case ExpressionType.MemberAccess:
+                {
+                    var memberExpression = (MemberExpression)expression;
+                    if (memberExpression.Expression == null)
+                    {
+                        builder
+                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true))
+                            .Append('.')
+                            .Append(memberExpression.Member.Name);
+
+                        return true;
+                    }
+
+                    return false;
+                }
             }
 
             return false;
