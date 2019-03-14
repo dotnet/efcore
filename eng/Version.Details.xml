@@ -5,9 +5,9 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>7c36280bd83b85bf5b3f229d3c1a293f00ef59dd</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27512-03" CoherentParentDependency="Microsoft.NETCore.App">
+    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27514-01" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>000b88cc3cb465b4206a9f1d8e6056f3f39c1033</Sha>
+      <Sha>f2dcd7d71339b54a8c8fcf98ad1b75519c588ea7</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview4.19162.2">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -33,9 +33,9 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>6eb68da9f775ae4643ea37cb00ee9c4fc4993eed</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27512-03">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27514-01">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>000b88cc3cb465b4206a9f1d8e6056f3f39c1033</Sha>
+      <Sha>f2dcd7d71339b54a8c8fcf98ad1b75519c588ea7</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview4.19162.2">
       <Uri>https://github.com/aspnet/Extensions</Uri>
@@ -49,9 +49,9 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>7c36280bd83b85bf5b3f229d3c1a293f00ef59dd</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27512-03">
+    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27514-01">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>000b88cc3cb465b4206a9f1d8e6056f3f39c1033</Sha>
+      <Sha>f2dcd7d71339b54a8c8fcf98ad1b75519c588ea7</Sha>
     </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview4.19162.2" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/corefx</Uri>
