@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -76,6 +77,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             EnsureInitialized();
 
             return (IQueryable<TProperty>)base.Query();
+        }
+
+        /// <summary>
+        ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.
+        /// </summary>
+        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <value> An entry for an entity that this navigation targets. </value>
+        public new virtual EntityEntry<TProperty> GetTargetEntry(object entity)
+        {
+            var entry = GetInternalTargetEntry(entity);
+            return entry == null
+                    ? null
+                    : new EntityEntry<TProperty>(entry);
         }
     }
 }

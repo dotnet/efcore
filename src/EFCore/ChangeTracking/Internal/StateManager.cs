@@ -181,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         throw new InvalidOperationException(
                             CoreStrings.UntrackedDependentEntity(
                                 entity.GetType().ShortDisplayName(),
-                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry),
+                                "." + nameof(EntityEntry.Collection) + "()." + nameof(CollectionEntry.GetTargetEntry) +
+                                "()"));
                     }
 
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));

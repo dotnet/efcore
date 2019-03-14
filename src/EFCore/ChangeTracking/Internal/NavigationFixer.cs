@@ -232,7 +232,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && oldTargetEntry.StateManager.TryGetEntry(oldTargetEntry.Entity, targetEntityType) != null)
+                            && (!foreignKey.IsOwnership
+                                || (oldTargetEntry.EntityState != EntityState.Deleted
+                                 && oldTargetEntry.EntityState != EntityState.Detached)))
                         {
                             SetNavigation(oldTargetEntry, inverse, null);
                         }
@@ -544,12 +546,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
                     }
 
-                    if (dependentToPrincipal != null)
+                    if (dependentToPrincipal != null
+                        && (!foreignKey.IsOwnership
+                         || (entry.EntityState != EntityState.Deleted
+                          && entry.EntityState != EntityState.Detached))
+                        && dependentEntry[dependentToPrincipal] == entry.Entity)
                     {
-                        if (dependentEntry[dependentToPrincipal] == entry.Entity)
-                        {
-                            SetNavigation(dependentEntry, dependentToPrincipal, null);
-                        }
+                        SetNavigation(dependentEntry, dependentToPrincipal, null);
                     }
                 }
             }
@@ -590,14 +593,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var dependentEntry = dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
-                            if (foreignKey.PrincipalToDependent != null
-                                && entry[foreignKey.PrincipalToDependent] != null
-                                && entry[foreignKey.PrincipalToDependent] != dependentEntry.Entity)
-                            {
-                                // Clear the dependent FK, since the navigation already points to a different dependent
-                                ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
-                            }
-                            else
+                            if (!foreignKey.IsOwnership
+                                || (dependentEntry.EntityState != EntityState.Deleted
+                                 && dependentEntry.EntityState != EntityState.Detached))
                             {
                                 // Set navigations to and from principal entity that is indicated by FK
                                 SetNavigation(entry, foreignKey.PrincipalToDependent, dependentEntry);
@@ -609,10 +607,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         foreach (var dependentEntry in dependents)
                         {
-                            // Add to collection on principal indicated by FK and set inverse navigation
-                            AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry);
-
-                            SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry);
+                            if (!foreignKey.IsOwnership
+                                || (dependentEntry.EntityState != EntityState.Deleted
+                                 && dependentEntry.EntityState != EntityState.Detached))
+                            {
+                                // Add to collection on principal indicated by FK and set inverse navigation
+                                AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry);
+                                SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry);
+                            }
                         }
                     }
                 }
@@ -840,8 +842,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object principalValue)
             => (principalProperty.GetKeyValueComparer()
                 ?? principalProperty.FindMapping()?.KeyComparer)
-               ?.Equals(dependentValue, principalValue)
-               ?? StructuralComparisons.StructuralEqualityComparer.Equals(
+                ?.Equals(dependentValue, principalValue)
+                ?? StructuralComparisons.StructuralEqualityComparer.Equals(
                    dependentValue,
                    principalValue);
 
@@ -953,14 +955,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _changeDetector.Suspend();
             try
             {
-                entry.RemoveFromCollection(navigation, value);
+                if (entry.RemoveFromCollection(navigation, value))
+                {
+                    entry.RemoveFromCollectionSnapshot(navigation, value.Entity);
+                }
             }
             finally
             {
                 _changeDetector.Resume();
             }
-
-            entry.RemoveFromCollectionSnapshot(navigation, value.Entity);
         }
 
         private void SetReferenceOrAddToCollection(

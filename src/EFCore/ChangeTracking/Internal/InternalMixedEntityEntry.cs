@@ -156,16 +156,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
-        {
-            if (navigation.IsShadowProperty)
-            {
-                GetOrCreateCollectionTyped(navigation).Remove(value.Entity);
-            }
-            else
-            {
-                base.RemoveFromCollection(navigation, value);
-            }
-        }
+        public override bool RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
+            => navigation.IsShadowProperty
+                ? GetOrCreateCollectionTyped(navigation).Remove(value.Entity)
+                : base.RemoveFromCollection(navigation, value);
     }
 }

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -43,14 +44,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             if (!Metadata.IsDependentToPrincipal())
             {
-                TargetEntry?.DetectChanges();
+                var target = GetTargetEntry();
+                if (target != null)
+                {
+                    var context = InternalEntry.StateManager.Context;
+                    if (context.ChangeTracker.AutoDetectChangesEnabled
+                        && context.Model[ChangeDetector.SkipDetectChangesAnnotation] == null)
+                    {
+                        context.GetDependencies().ChangeDetector.DetectChanges(target);
+                    }
+                }
             }
         }
 
         /// <summary>
         ///     The <see cref="EntityEntry" /> of the entity this navigation targets.
         /// </summary>
-        /// <value> An entry for the entity that owns this navigation targets. </value>
+        /// <value> An entry for the entity that this navigation targets. </value>
         public virtual EntityEntry TargetEntry
         {
             get

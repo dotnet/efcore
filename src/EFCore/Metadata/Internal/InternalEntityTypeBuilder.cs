@@ -2661,7 +2661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             ? keyPropertyName
                             : baseName + keyPropertyName;
                         string propertyName;
-                        var clrType = isRequired ? keyPropertyType : keyPropertyType.MakeNullable();
+                        var clrType = keyPropertyType.MakeNullable(!isRequired);
                         var index = -1;
                         while (true)
                         {

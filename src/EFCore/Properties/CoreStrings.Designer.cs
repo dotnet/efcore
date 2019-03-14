@@ -2518,12 +2518,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, targetEntryCall);
 
         /// <summary>
-        ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.
+        ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{referenceCall}' or '{collectionCall}' on the owner entry.
         /// </summary>
-        public static string UntrackedDependentEntity([CanBeNull] object entityType, [CanBeNull] object targetEntryCall)
+        public static string UntrackedDependentEntity([CanBeNull] object entityType, [CanBeNull] object referenceCall, [CanBeNull] object collectionCall)
             => string.Format(
-                GetString("UntrackedDependentEntity", nameof(entityType), nameof(targetEntryCall)),
-                entityType, targetEntryCall);
+                GetString("UntrackedDependentEntity", nameof(entityType), nameof(referenceCall), nameof(collectionCall)),
+                entityType, referenceCall, collectionCall);
 
         /// <summary>
         ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}', return bool, and may not contain references to navigation properties.

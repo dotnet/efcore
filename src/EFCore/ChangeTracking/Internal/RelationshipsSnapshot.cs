@@ -72,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void AddToCollection(IPropertyBase propertyBase, object addedEntity)
             {
                 var index = propertyBase.GetRelationshipIndex();
-
                 if (index != -1)
                 {
                     var snapshot = GetOrCreateCollection(index);
@@ -84,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void AddRangeToCollection(IPropertyBase propertyBase, IEnumerable<object> addedEntities)
             {
                 var index = propertyBase.GetRelationshipIndex();
-
                 if (index != -1)
                 {
                     var snapshot = GetOrCreateCollection(index);
