@@ -171,13 +171,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // from RelationalCommand.
 
                             await Assert.ThrowsAsync<InvalidOperationException>(
-                                () => context.Database.ExecuteSqlCommandAsync(
+                                () => context.Database.ExecuteRawSqlAsync(
                                     "[dbo].[CustOrderHist] @CustomerID = {0}",
                                     asyncEnumerator.Current.CustomerID));
                         }
                         else
                         {
-                            await context.Database.ExecuteSqlCommandAsync(
+                            await context.Database.ExecuteRawSqlAsync(
                                 "[dbo].[CustOrderHist] @CustomerID = {0}",
                                 asyncEnumerator.Current.CustomerID);
                         }

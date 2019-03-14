@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(-1, context.Database.ExecuteSqlCommand(TenMostExpensiveProductsSproc));
+                Assert.Equal(-1, context.Database.ExecuteRawSql(TenMostExpensiveProductsSproc));
             }
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var parameter = CreateDbParameter("@CustomerID", "ALFKI");
 
-                Assert.Equal(-1, context.Database.ExecuteSqlCommand(CustomerOrderHistorySproc, parameter));
+                Assert.Equal(-1, context.Database.ExecuteRawSql(CustomerOrderHistorySproc, parameter));
             }
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(-1, context.Database.ExecuteSqlCommand(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
+                Assert.Equal(-1, context.Database.ExecuteRawSql(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
             }
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     Assert.Throws<InvalidOperationException>(
-                                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                                        () => context.Database.ExecuteRawSql(@"SELECT * FROM ""Customers""")).Message);
                             });
 
                         throwingTask.Wait();
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}", city, contactTitle);
 
                 Assert.Equal(-1, actual);
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city", city);
 
                 Assert.Equal(-1, actual);
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0}", city);
 
                 Assert.Equal(-1, actual);
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0}", city);
 
                 Assert.Equal(-1, actual);
@@ -161,14 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @contactTitle", city,
                         contactTitleParameter);
 
                 Assert.Equal(-1, actual);
 
                 actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteRawSql(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}", cityParameter,
                         contactTitle);
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Database
-                    .ExecuteSqlCommand(
+                    .ExecuteInterpolatedSql(
                         $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
 
                 Assert.Equal(-1, actual);
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(TenMostExpensiveProductsSproc));
+                Assert.Equal(-1, await context.Database.ExecuteRawSqlAsync(TenMostExpensiveProductsSproc));
             }
         }
 
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var parameter = CreateDbParameter("@CustomerID", "ALFKI");
 
-                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistorySproc, parameter));
+                Assert.Equal(-1, await context.Database.ExecuteRawSqlAsync(CustomerOrderHistorySproc, parameter));
             }
         }
 
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
+                Assert.Equal(-1, await context.Database.ExecuteRawSqlAsync(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
             }
         }
 
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     (await Assert.ThrowsAsync<InvalidOperationException>(
-                                        () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                                        () => context.Database.ExecuteRawSqlAsync(@"SELECT * FROM ""Customers"""))).Message);
                             });
 
                         await throwingTask;
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Database
-                    .ExecuteSqlCommandAsync(
+                    .ExecuteRawSqlAsync(
                         @"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}", city, contactTitle);
 
                 Assert.Equal(-1, actual);
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Database
-                    .ExecuteSqlCommandAsync(
+                    .ExecuteInterpolatedSqlAsync(
                         $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
 
                 Assert.Equal(-1, actual);

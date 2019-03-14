@@ -1256,7 +1256,7 @@ LEFT JOIN [LevelThree] AS [l1.OneToMany_Optional1.OneToOne_Optional_FK2] ON [l1.
         {
             using (var context = CreateContext())
             {
-                var query = context.LevelOne.FromSql("SELECT * FROM [LevelOne]")
+                var query = context.LevelOne.FromRawSql("SELECT * FROM [LevelOne]")
                     .Include(e => e.OneToOne_Optional_FK1)
                     .ThenInclude(e => e.OneToMany_Optional2)
                     .Include(e => e.OneToMany_Optional1)

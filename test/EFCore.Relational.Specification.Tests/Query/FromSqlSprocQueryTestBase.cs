@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(mep => mep.TenMostExpensiveProducts)
                     .ToArray();
 
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(
                         mep =>
                             new MostExpensiveProduct
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromRawSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .ToArray();
 
                 Assert.Equal(11, actual.Length);
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
                     .OrderBy(mep => mep.UnitPrice)
                     .ToArray();
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromRawSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .Where(coh => coh.ProductName.Contains("C"))
                     .OrderBy(coh => coh.Total)
                     .ToArray();
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .OrderByDescending(mep => mep.UnitPrice)
                     .Take(2)
                     .ToArray();
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     45.60m,
                     context.Set<MostExpensiveProduct>()
-                        .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                        .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         .Min(mep => mep.UnitPrice));
             }
         }
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RelationalStrings.StoredProcedureIncludeNotSupported,
                     Assert.Throws<InvalidOperationException>(
                         () => context.Set<Product>()
-                            .FromSql("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
+                            .FromRawSql("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
                             .Include(p => p.OrderDetails)
                             .ToArray()
                     ).Message);
@@ -187,9 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from a in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from b in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                        select new
                        {
@@ -209,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from mep in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from p in context.Set<Product>()
-                           .FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
+                           .FromRawSql(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new
                        {
@@ -230,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from p in context.Set<Product>().FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
+                    = (from p in context.Set<Product>().FromRawSql(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
                        from mep in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromRawSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new
                        {
@@ -245,11 +245,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private RawSqlString NormalizeDelimeters(RawSqlString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private string NormalizeDelimetersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
-        private FormattableString NormalizeDelimeters(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
 
         protected NorthwindContext CreateContext()
         {
