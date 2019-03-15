@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _lastTimestamp = timestamp;
             }
 
-            return timestamp.ToString(Format) + "_" + name;
+            return timestamp.ToString(Format, CultureInfo.InvariantCulture) + "_" + name;
         }
     }
 }
