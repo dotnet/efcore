@@ -380,6 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void Char_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), 'A', "'A'");
+            Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), '\'', "''''");
         }
 
         [Fact]

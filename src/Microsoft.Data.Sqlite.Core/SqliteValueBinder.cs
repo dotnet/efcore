@@ -73,7 +73,7 @@ namespace Microsoft.Data.Sqlite
             else if (type == typeof(char))
             {
                 var chr = (char)_value;
-                if (_sqliteType == SqliteType.Text)
+                if (_sqliteType != SqliteType.Integer)
                 {
                     var value = new string(chr, 1);
                     BindText(value);
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(bool), SqliteType.Integer },
                 { typeof(byte), SqliteType.Integer },
                 { typeof(byte[]), SqliteType.Blob },
-                { typeof(char), SqliteType.Integer },
+                { typeof(char), SqliteType.Text },
                 { typeof(DateTime), SqliteType.Text },
                 { typeof(DateTimeOffset), SqliteType.Text },
                 { typeof(DBNull), SqliteType.Text },

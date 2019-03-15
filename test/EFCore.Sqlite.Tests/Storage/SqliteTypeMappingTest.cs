@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.String;
 
-        [InlineData(typeof(SqliteCharTypeMapping), typeof(char))]
         [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
@@ -59,11 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static RelationalTypeMapping GetMapping(
             Type type)
             => CreateTypeMapper().FindMapping(type);
-
-        public override void Char_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(new SqliteCharTypeMapping("TEXT"), 'A', "65");
-        }
 
         public override void DateTimeOffset_literal_generated_correctly()
         {
