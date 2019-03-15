@@ -9,7 +9,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
+    public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
     {
         [Fact]
         public void Does_simple_mapping_from_CLR_type()
@@ -134,35 +134,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Key_with_store_type_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var typeMappingSource = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "money",
-                GetMapping(mapper, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+                GetMapping(typeMappingSource, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "money",
-                GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+                GetMapping(typeMappingSource, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
         }
 
-        private static IRelationalTypeMappingSource CreateTestTypeMapper()
+        private static IRelationalTypeMappingSource CreateTestTypeMappingSource()
             => new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         public static RelationalTypeMapping GetMapping(
             Type type)
-            => CreateTestTypeMapper().FindMapping(type);
+            => CreateTestTypeMappingSource().FindMapping(type);
 
         public static RelationalTypeMapping GetMapping(
             IProperty property)
-            => CreateTestTypeMapper().FindMapping(property);
+            => CreateTestTypeMappingSource().FindMapping(property);
 
         [Fact]
         public void String_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "just_string(200)",
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Binary_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "just_binary(100)",
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_key_with_unicode_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "ansi_string(900)",
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Key_store_type_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "money",
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "just_string(200)",
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Binary_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "just_binary(100)",
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_FK_unicode_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = CreateTestTypeMapper();
+            var mapper = CreateTestTypeMappingSource();
 
             Assert.Equal(
                 "ansi_string(900)",

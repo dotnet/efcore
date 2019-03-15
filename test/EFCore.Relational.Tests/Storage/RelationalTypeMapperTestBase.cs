@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public abstract class RelationalTypeMapperTestBase
+    public abstract class RelationalTypeMappingSourceTestBase
     {
         protected EntityType CreateEntityType()
             => (EntityType)CreateModel().FindEntityType(typeof(MyType));

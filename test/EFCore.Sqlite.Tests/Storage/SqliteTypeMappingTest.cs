@@ -50,15 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("", typeof(string))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
-            Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
+            Assert.Equal(clrType, CreateTypeMappingSource().FindMapping(typeName).ClrType);
         }
 
-        private static IRelationalTypeMappingSource CreateTypeMapper()
+        private static IRelationalTypeMappingSource CreateTypeMappingSource()
             => TestServiceFactory.Instance.Create<SqliteTypeMappingSource>();
 
         public static RelationalTypeMapping GetMapping(
             Type type)
-            => CreateTypeMapper().FindMapping(type);
+            => CreateTypeMappingSource().FindMapping(type);
 
         public override void Char_literal_generated_correctly()
         {
