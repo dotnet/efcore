@@ -85,7 +85,7 @@ jobs:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
               continueOnError: true
-            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine --verbosity normal
               name: Build
 
         - job: Linux
