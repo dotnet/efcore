@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 null,
                 null);
 
-            var clone = mapping.Clone("<clone>", null);
+            var clone = mapping.Clone("<clone>");
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 null,
                 null);
 
-            var clone = mapping.Clone("<clone>", 66);
+            var clone = mapping.Clone("<clone>").Clone(66);
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 null,
                 null);
 
-            var clone = mapping.Clone("<clone>", 66);
+            var clone = mapping.Clone("<clone>").Clone(66);
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());

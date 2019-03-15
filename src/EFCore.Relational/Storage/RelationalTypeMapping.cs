@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -135,21 +136,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     mappingInfo.Scale ?? Scale);
 
             /// <summary>
-            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
-            ///     store type and size.
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given store type.
             /// </summary>
             /// <param name="storeType"> The new store type name. </param>
-            /// <param name="size"> The new size. </param>
-            /// <param name="storeTypePostfix"> The new postfix, or null to leave unchanged. </param>
             /// <returns> The new parameter object. </returns>
-            public RelationalTypeMappingParameters WithStoreTypeAndSize(
-                [NotNull] string storeType,
-                int? size,
-                StoreTypePostfix? storeTypePostfix = null)
+            public RelationalTypeMappingParameters WithStoreType(string storeType)
                 => new RelationalTypeMappingParameters(
                     CoreParameters,
                     storeType,
-                    storeTypePostfix ?? StoreTypePostfix,
+                    StoreTypePostfix,
+                    DbType,
+                    Unicode,
+                    Size,
+                    FixedLength,
+                    Precision,
+                    Scale);
+
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given size.
+            /// </summary>
+            /// <param name="size"> The new size. </param>
+            /// <returns> The new parameter object. </returns>
+            public RelationalTypeMappingParameters WithSize(
+                int size)
+                => new RelationalTypeMappingParameters(
+                    CoreParameters,
+                    StoreType,
+                    StoreTypePostfix,
                     DbType,
                     Unicode,
                     size,
@@ -248,46 +261,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
             : base(parameters.CoreParameters)
         {
             Parameters = parameters;
+            StoreType = parameters.StoreType;
 
-            var size = parameters.Size;
-            var storeType = parameters.StoreType;
-
-            if (storeType != null)
+            if (StoreTypePostfix == StoreTypePostfix.None)
             {
-                StoreTypeNameBase = GetBaseName(storeType);
-                if (size != null && parameters.StoreTypePostfix == StoreTypePostfix.Size)
-                {
-                    storeType = StoreTypeNameBase + "(" + size + ")";
-                }
-                else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                         || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
-                {
-                    var precision = parameters.Precision;
-                    if (precision != null)
-                    {
-                        var scale = parameters.Scale;
-                        storeType = StoreTypeNameBase
-                                    + "("
-                                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                                        ? precision.ToString()
-                                        : precision + "," + scale)
-                                    + ")";
-                    }
-                }
+                return;
             }
 
-            StoreType = storeType;
+            GenerateStoreType();
         }
 
-        private static string GetBaseName(string storeType)
+        protected virtual void GenerateStoreType()
         {
-            var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
+            Debug.Assert(StoreTypePostfix != StoreTypePostfix.None);
+
+            var baseName  = Parameters.StoreType;
+            var openParen = baseName.IndexOf("(", StringComparison.Ordinal);
             if (openParen >= 0)
             {
-                storeType = storeType.Substring(0, openParen);
+                baseName = baseName.Substring(0, openParen);
             }
 
-            return storeType;
+            switch (StoreTypePostfix)
+            {
+                case StoreTypePostfix.Size when Size != null:
+                    StoreType = $"{baseName}({Size})";
+                    return;
+                case StoreTypePostfix.PrecisionAndScale when Precision != null && Scale != null:
+                    StoreType = $"{baseName}({Precision},{Scale})";
+                    return;
+                case StoreTypePostfix.PrecisionAndScale when Precision != null:
+                case StoreTypePostfix.Precision when Precision != null:
+                    StoreType = $"{baseName}({Precision})";
+                    return;
+            }
         }
 
         /// <summary>
@@ -325,11 +332,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="storeType"> The new store type. </param>
+        /// <returns> The newly created mapping. </returns>
+        public virtual RelationalTypeMapping Clone(string storeType)
+            => Clone(Parameters.WithStoreType(storeType));
+
+        /// <summary>
+        ///     Creates a copy of this mapping.
+        /// </summary>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
-        public virtual RelationalTypeMapping Clone([NotNull] string storeType, int? size)
-            => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
+        public virtual RelationalTypeMapping Clone(int size)
+            => Clone(Parameters.WithSize(size));
 
         /// <summary>
         ///     Creates a copy of this mapping.
@@ -356,35 +370,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
         {
-            if ((mappingInfo.Scale != null
-                 && mappingInfo.Scale != Parameters.Scale
-                 && StoreTypePostfix == StoreTypePostfix.PrecisionAndScale)
-                || (mappingInfo.Precision != null
-                    && mappingInfo.Precision != Parameters.Precision
-                    && (StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                        || StoreTypePostfix == StoreTypePostfix.Precision)))
+            if (StoreTypePostfix == StoreTypePostfix.Size && mappingInfo.Size != null && mappingInfo.Size != Size)
             {
-                var storeTypeChanged = mappingInfo.StoreTypeNameBase != null
-                                        && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
-
-                return storeTypeChanged
-                    ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))
-                    : Clone(
-                        mappingInfo.Precision ?? Parameters.Precision,
-                        mappingInfo.Scale ?? Parameters.Scale);
+                return Clone(mappingInfo.Size.Value);
             }
 
-            var storeTypeOrSizeChanged = (mappingInfo.Size != null
-                                            && mappingInfo.Size != Size
-                                            && StoreTypePostfix == StoreTypePostfix.Size)
-                                            || (mappingInfo.StoreTypeName != null
-                                                && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.OrdinalIgnoreCase));
+            if ((StoreTypePostfix == StoreTypePostfix.PrecisionAndScale || StoreTypePostfix == StoreTypePostfix.Precision) &&
+                ((mappingInfo.Scale != null && mappingInfo.Scale != Parameters.Scale && StoreTypePostfix == StoreTypePostfix.PrecisionAndScale)
+                || (mappingInfo.Precision != null && mappingInfo.Precision != Parameters.Precision)))
+            {
+                return Clone(mappingInfo.Precision ?? Parameters.Precision, mappingInfo.Scale ?? Parameters.Scale);
+            }
 
-            return storeTypeOrSizeChanged
-                ? Clone(
-                    mappingInfo.StoreTypeName ?? StoreType,
-                    mappingInfo.Size ?? Size)
-                : this;
+            return this;
         }
 
         /// <summary>
@@ -395,12 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
-        public virtual string StoreType { get; }
-
-        /// <summary>
-        ///     Gets the base name of the database type.
-        /// </summary>
-        public virtual string StoreTypeNameBase { get; }
+        public virtual string StoreType { get; protected set; }
 
         /// <summary>
         ///     Gets the <see cref="System.Data.DbType" /> to be used.
@@ -416,6 +409,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the size of data the property is configured to store, or null if no size is configured.
         /// </summary>
         public virtual int? Size => Parameters.Size;
+
+        /// <summary>
+        ///     Gets the precision of data the property is configured to store, or null if no precision is configured.
+        /// </summary>
+        public virtual int? Precision => Parameters.Precision;
+
+        /// <summary>
+        ///     Gets the scale of data the property is configured to store, or null if no scale is configured.
+        /// </summary>
+        public virtual int? Scale => Parameters.Scale;
 
         /// <summary>
         ///     Gets a value indicating whether the type is constrained to fixed-length data.

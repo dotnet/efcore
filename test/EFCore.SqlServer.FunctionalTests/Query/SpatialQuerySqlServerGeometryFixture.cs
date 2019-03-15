@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
                 => mappingInfo.ClrType == typeof(GeoPoint)
                     ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
-                        .Clone(new GeoPointConverter())).Clone("geometry", null)
+                        .Clone(new GeoPointConverter())).Clone("geometry")
                     : base.FindMapping(mappingInfo);
         }
     }

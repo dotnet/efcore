@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             : this(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(string)),
-                    storeType ?? GetStoreName(unicode, fixedLength),
+                    storeType ?? GenerateDefaultStoreName(unicode, fixedLength),
                     storeTypePostfix ?? StoreTypePostfix.Size,
                     GetDbType(unicode, fixedLength),
                     unicode,
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
         }
 
-        private static string GetStoreName(bool unicode, bool fixedLength) => unicode
+        private static string GenerateDefaultStoreName(bool unicode, bool fixedLength) => unicode
             ? fixedLength ? "nchar" : "nvarchar"
             : fixedLength
                 ? "char"

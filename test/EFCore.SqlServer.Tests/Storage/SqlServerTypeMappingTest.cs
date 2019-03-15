@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 33,
                 true);
 
-            var clone = (SqlServerUdtTypeMapping)mapping.Clone("<clone>", 66);
+            var clone = (SqlServerUdtTypeMapping)mapping.Clone("<clone>").Clone(66);
 
             Assert.NotSame(mapping, clone);
             Assert.Same(mapping.GetType(), clone.GetType());

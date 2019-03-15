@@ -185,10 +185,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
                 {
-                    return storeTypeName != null
-                           && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
-                        ? mapping.Clone(storeTypeName, mapping.Size)
-                        : mapping;
+                    return mapping;
                 }
             }
 

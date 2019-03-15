@@ -175,10 +175,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         }
                     }
 
-                    if (mapping != null
-                        && converter != null)
+                    if (mapping != null)
                     {
-                        mapping = (RelationalTypeMapping)mapping.Clone(converter);
+                        if (info.StoreTypeName != null && info.StoreTypeName != mapping.StoreType)
+                        {
+                            mapping = mapping.Clone(info.StoreTypeName);
+                        }
+
+                        if (converter != null)
+                        {
+                            mapping = (RelationalTypeMapping)mapping.Clone(converter);
+                        }
                     }
 
                     return mapping;

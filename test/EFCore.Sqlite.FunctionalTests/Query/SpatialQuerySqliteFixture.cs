@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => mappingInfo.ClrType == typeof(GeoPoint)
                     ? ((RelationalTypeMapping)base.FindMapping(typeof(IPoint))
                         .Clone(new GeoPointConverter()))
-                    .Clone("geometry", null)
+                    .Clone("geometry")
                     : base.FindMapping(mappingInfo);
         }
     }
