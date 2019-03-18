@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 { typeof(byte[]), _blob },
                 { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
                 { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
-                { typeof(char), new SqliteCharTypeMapping(IntegerTypeName) },
+                { typeof(char), new CharTypeMapping(IntegerTypeName) },
                 { typeof(int), new IntTypeMapping(IntegerTypeName) },
                 { typeof(long), _integer },
                 { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
