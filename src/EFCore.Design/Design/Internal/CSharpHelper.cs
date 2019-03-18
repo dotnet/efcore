@@ -349,13 +349,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal(byte[] values) =>
-            "new byte[] { " + string.Join(", ", values) + " }";
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
         /// <summary>
@@ -517,52 +510,86 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal<T>(IReadOnlyList<T> values) =>
-            Array(values);
+        public virtual string Literal<T>(T[] values, bool vertical = false)
+            => Array(typeof(T), values, vertical);
 
-        private string Array(IEnumerable values) =>
-            "new[] { " + string.Join(", ", values.Cast<object>().Select(UnknownLiteral)) + " }";
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual string Literal(IReadOnlyList<object> values)
-            => Literal(values, vertical: false);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual string Literal(IReadOnlyList<object> values, bool vertical)
+        private string Array(Type type, IEnumerable values, bool vertical = false)
         {
-            if (!vertical)
-            {
-                return "new object[] { " + string.Join(", ", values.Select(UnknownLiteral)) + " }";
-            }
-
             var builder = new IndentedStringBuilder();
 
-            builder
-                .AppendLine("new object[]")
-                .AppendLine("{");
+            builder.Append("new");
 
-            using (builder.Indent())
+            var byteArray = type == typeof(byte);
+            if (byteArray)
             {
-                for (var i = 0; i < values.Count; i++)
-                {
-                    if (i != 0)
-                    {
-                        builder.AppendLine(",");
-                    }
-
-                    builder.Append(UnknownLiteral(values[i]));
-                }
+                builder.Append(" byte");
+            }
+            else if (type == typeof(object))
+            {
+                builder.Append(" object");
             }
 
-            builder
-                .AppendLine()
-                .Append("}");
+            builder.Append("[]");
+
+            if (vertical)
+            {
+                builder.AppendLine();
+            }
+            else
+            {
+                builder.Append(" ");
+            }
+
+            builder.Append("{");
+
+            if (vertical)
+            {
+                builder.AppendLine();
+                builder.IncrementIndent();
+            }
+            else
+            {
+                builder.Append(" ");
+            }
+
+            var first = true;
+            foreach (var value in values)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    builder.Append(",");
+
+                    if (vertical)
+                    {
+                        builder.AppendLine();
+                    }
+                    else
+                    {
+                        builder.Append(" ");
+                    }
+                }
+
+                builder.Append(
+                    byteArray
+                        ? Literal((int)(byte)value)
+                        : UnknownLiteral(value));
+            }
+
+            if (vertical)
+            {
+                builder.AppendLine();
+                builder.DecrementIndent();
+            }
+            else
+            {
+                builder.Append(" ");
+            }
+
+            builder.Append("}");
 
             return builder.ToString();
         }
@@ -704,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (value is Array array)
             {
-                return Array(array);
+                return Array(literalType.GetElementType(), array);
             }
 
             var mapping = _relationalTypeMappingSource.FindMapping(literalType);

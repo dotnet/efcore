@@ -671,36 +671,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="items">The list of items.</param>
         /// <param name="joinAction">An optional join action.</param>
-        protected virtual void GenerateList(
-            [NotNull] IReadOnlyList<Expression> items,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
-            => GenerateList(items, joinAction, typeMappings: null);
-
-        /// <summary>
-        ///     Performs generation over a list of items by visiting each item.
-        /// </summary>
-        /// <param name="items">The list of items.</param>
-        /// <param name="joinAction">An optional join action.</param>
         /// <param name="typeMappings">Option type mappings for each item.</param>
         protected virtual void GenerateList(
             [NotNull] IReadOnlyList<Expression> items,
             [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
             [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
             => GenerateList(items, e => Visit(e), joinAction, typeMappings);
-
-        /// <summary>
-        ///     Perform generation over a list of items using a provided generation action
-        ///     and optional join action.
-        /// </summary>
-        /// <typeparam name="T">The item type.</typeparam>
-        /// <param name="items">The list of items.</param>
-        /// <param name="generationAction">The generation action.</param>
-        /// <param name="joinAction">An optional join action.</param>
-        protected virtual void GenerateList<T>(
-            [NotNull] IReadOnlyList<T> items,
-            [NotNull] Action<T> generationAction,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
-            => GenerateList(items, generationAction, joinAction, typeMappings: null);
 
         /// <summary>
         ///     Perform generation over a list of items using a provided generation action
