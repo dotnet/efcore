@@ -866,5 +866,35 @@ namespace Microsoft.Data.Sqlite
                 Assert.NotNull(result);
             }
         }
+
+        [Fact]
+        public void ExecuteReader_works_when_subsequent_DML()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(@"
+                    CREATE TABLE Test(Value);
+                    INSERT INTO Test VALUES(1), (2);");
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT Value FROM Test;
+                    DELETE FROM Test";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    Assert.Equal(1L, reader.GetInt64(0));
+
+                    hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    Assert.Equal(2L, reader.GetInt64(0));
+                }
+            }
+        }
     }
 }
