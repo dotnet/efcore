@@ -444,7 +444,7 @@ namespace Microsoft.Data.Sqlite
         [InlineData("SELECT 3.14;", "REAL")]
         [InlineData("SELECT 'test';", "TEXT")]
         [InlineData("SELECT X'7E57';", "BLOB")]
-        [InlineData("SELECT NULL;", "INTEGER")]
+        [InlineData("SELECT NULL;", "BLOB")]
         public void GetDataTypeName_works(string sql, string expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -701,7 +701,7 @@ namespace Microsoft.Data.Sqlite
         [InlineData("SELECT 3.14;", typeof(double))]
         [InlineData("SELECT 'test';", typeof(string))]
         [InlineData("SELECT X'7E57';", typeof(byte[]))]
-        [InlineData("SELECT NULL;", typeof(int))]
+        [InlineData("SELECT NULL;", typeof(byte[]))]
         public void GetFieldType_works(string sql, Type expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1480,7 +1480,7 @@ namespace Microsoft.Data.Sqlite
         [InlineData("('Z'), (1), ('A')", typeof(string))]
         [InlineData("(0.1), (0.01), ('A')", typeof(double))]
         [InlineData("(X'7E57'), (X'577E'), ('A')", typeof(byte[]))]
-        [InlineData("(NULL), (NULL), (NULL)", typeof(int))]
+        [InlineData("(NULL), (NULL), (NULL)", typeof(byte[]))]
         [InlineData("(NULL), ('A'), ('B')", typeof(string))]
         public void GetSchemaTable_DataType_works(string values, Type expectedType)
         {

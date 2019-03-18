@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("TEXT", typeof(string))]
         [InlineData("Integer", typeof(long))]
         [InlineData("Blob", typeof(byte[]))]
-        [InlineData("numeric", typeof(string))]
+        [InlineData("numeric", typeof(byte[]))]
         [InlineData("real", typeof(double))]
         [InlineData("doub", typeof(double))]
         [InlineData("int", typeof(long))]
@@ -42,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("UNSIGNED BIG INT", typeof(long))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
-        [InlineData("datetime", typeof(string))]
-        [InlineData("decimal(10,4)", typeof(string))]
-        [InlineData("boolean", typeof(string))]
-        [InlineData("unknown_type", typeof(string))]
-        [InlineData("", typeof(string))]
+        [InlineData("datetime", typeof(byte[]))]
+        [InlineData("decimal(10,4)", typeof(byte[]))]
+        [InlineData("boolean", typeof(byte[]))]
+        [InlineData("unknown_type", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
             Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
