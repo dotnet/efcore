@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 ? mapping
                 : storeTypeName != null
                     ? storeTypeName.Length != 0
-                        ? _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null) ?? _text
-                        : _text // This may seem odd, but it's okay because we are matching SQLite's loose typing.
+                        ? _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null) ?? _blob
+                        : _blob // This may seem odd, but it's okay because we are matching SQLite's loose typing.
                     : null;
         }
 

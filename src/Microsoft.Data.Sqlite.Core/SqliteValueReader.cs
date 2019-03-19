@@ -258,15 +258,12 @@ namespace Microsoft.Data.Sqlite
                 case SQLITE_TEXT:
                     return GetString(ordinal);
 
-                case SQLITE_BLOB:
-                    return GetBlob(ordinal);
-
                 case SQLITE_NULL:
                     return GetNull<object>(ordinal);
 
                 default:
-                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
-                    return GetInt32(ordinal);
+                    Debug.Assert(sqliteType == SQLITE_BLOB, "Unexpected column type: " + sqliteType);
+                    return GetBlob(ordinal);
             }
         }
 
