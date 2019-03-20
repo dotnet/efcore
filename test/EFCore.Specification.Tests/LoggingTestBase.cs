@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual string ExpectedMessage(string optionsFragment)
-            => CoreStrings.LogContextInitialized(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+            => CoreResources.LogContextInitialized(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                 ProductInfo.GetVersion(),
                 nameof(LoggingContext),
                 ProviderName,

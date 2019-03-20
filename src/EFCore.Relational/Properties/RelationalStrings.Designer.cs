@@ -8,11 +8,16 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///		    String resources used in EF exceptions, etc.
+    ///     </para>
+    ///     <para>
+    ///		    These strings are exposed publicly for use by database providers and extensions.
+    ///         It is unusual for application code to need these strings.
+    ///     </para>
     /// </summary>
     public static class RelationalStrings
     {
@@ -82,6 +87,550 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("RelationalNotInUse");
 
         /// <summary>
+        ///     An error occurred while updating the entries. See the inner exception for details.
+        /// </summary>
+        public static string UpdateStoreException
+            => GetString("UpdateStoreException");
+
+        /// <summary>
+        ///     The connection is already in a transaction and cannot participate in another transaction.
+        /// </summary>
+        public static string TransactionAlreadyStarted
+            => GetString("TransactionAlreadyStarted");
+
+        /// <summary>
+        ///     The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.
+        /// </summary>
+        public static string TransactionAssociatedWithDifferentConnection
+            => GetString("TransactionAssociatedWithDifferentConnection");
+
+        /// <summary>
+        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.
+        /// </summary>
+        public static string BadSequenceType
+            => GetString("BadSequenceType");
+
+        /// <summary>
+        ///     Unable to deserialize sequence from model metadata. See inner exception for details.
+        /// </summary>
+        public static string BadSequenceString
+            => GetString("BadSequenceString");
+
+        /// <summary>
+        ///     The migration '{migrationName}' was not found.
+        /// </summary>
+        public static string MigrationNotFound([CanBeNull] object migrationName)
+            => string.Format(
+                GetString("MigrationNotFound", nameof(migrationName)),
+                migrationName);
+
+        /// <summary>
+        ///     The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
+        /// </summary>
+        public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
+            => string.Format(
+                GetString("UnknownOperation", nameof(sqlGeneratorType), nameof(operationType)),
+                sqlGeneratorType, operationType);
+
+        /// <summary>
+        ///     The specified CommandTimeout value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidCommandTimeout
+            => GetString("InvalidCommandTimeout");
+
+        /// <summary>
+        ///     The specified MaxBatchSize value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidMaxBatchSize
+            => GetString("InvalidMaxBatchSize");
+
+        /// <summary>
+        ///     Unable to materialize entity of type '{entityType}'. No discriminators were matched.
+        /// </summary>
+        public static string UnableToDiscriminate([CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToDiscriminate", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.
+        /// </summary>
+        public static string DiscriminatorPropertyMustBeOnRoot([CanBeNull] object entityType)
+            => string.Format(
+                GetString("DiscriminatorPropertyMustBeOnRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.
+        /// </summary>
+        public static string DiscriminatorPropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("DiscriminatorPropertyNotFound", nameof(property), nameof(entityType)),
+                property, entityType);
+
+        /// <summary>
+        ///     The Include operation is not supported when calling a stored procedure.
+        /// </summary>
+        public static string StoredProcedureIncludeNotSupported
+            => GetString("StoredProcedureIncludeNotSupported");
+
+        /// <summary>
+        ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
+        /// </summary>
+        public static string FromSqlMissingColumn([CanBeNull] object column)
+            => string.Format(
+                GetString("FromSqlMissingColumn", nameof(column)),
+                column);
+
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.
+        /// </summary>
+        public static string IncompatibleTableKeyNameMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object keyName, [CanBeNull] object primaryKey, [CanBeNull] object otherName, [CanBeNull] object otherPrimaryKey)
+            => string.Format(
+                GetString("IncompatibleTableKeyNameMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(keyName), nameof(primaryKey), nameof(otherName), nameof(otherPrimaryKey)),
+                table, entityType, otherEntityType, keyName, primaryKey, otherName, otherPrimaryKey);
+
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.
+        /// </summary>
+        public static string IncompatibleTableNoRelationship([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("IncompatibleTableNoRelationship", nameof(table), nameof(entityType), nameof(otherEntityType)),
+                table, entityType, otherEntityType);
+
+        /// <summary>
+        ///     Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
+        /// </summary>
+        public static string DiscriminatorEntityTypeNotDerived([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
+            => string.Format(
+                GetString("DiscriminatorEntityTypeNotDerived", nameof(entityType), nameof(rootEntityType)),
+                entityType, rootEntityType);
+
+        /// <summary>
+        ///     Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.
+        /// </summary>
+        public static string DiscriminatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
+            => string.Format(
+                GetString("DiscriminatorValueIncompatible", nameof(value), nameof(discriminator), nameof(discriminatorType)),
+                value, discriminator, discriminatorType);
+
+        /// <summary>
+        ///     Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.
+        /// </summary>
+        public static string NoDiscriminatorForValue([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
+            => string.Format(
+                GetString("NoDiscriminatorForValue", nameof(entityType), nameof(rootEntityType)),
+                entityType, rootEntityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.
+        /// </summary>
+        public static string NoDiscriminatorProperty([CanBeNull] object entityType)
+            => string.Format(
+                GetString("NoDiscriminatorProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.
+        /// </summary>
+        public static string NoDiscriminatorValue([CanBeNull] object entityType)
+            => string.Format(
+                GetString("NoDiscriminatorValue", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     No value provided for required parameter '{parameter}'.
+        /// </summary>
+        public static string MissingParameterValue([CanBeNull] object parameter)
+            => string.Format(
+                GetString("MissingParameterValue", nameof(parameter)),
+                parameter);
+
+        /// <summary>
+        ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
+        /// </summary>
+        public static string ParameterNotObjectArray([CanBeNull] object parameter)
+            => string.Format(
+                GetString("ParameterNotObjectArray", nameof(parameter)),
+                parameter);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').
+        /// </summary>
+        public static string DuplicateColumnNameDataTypeMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object dataType1, [CanBeNull] object dataType2)
+            => string.Format(
+                GetString("DuplicateColumnNameDataTypeMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(dataType1), nameof(dataType2)),
+                entityType1, property1, entityType2, property2, columnName, table, dataType1, dataType2);
+
+        /// <summary>
+        ///     The connection does not have any active transactions.
+        /// </summary>
+        public static string NoActiveTransaction
+            => GetString("NoActiveTransaction");
+
+        /// <summary>
+        ///     An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static string ConflictingRowUpdateTypes([CanBeNull] object firstEntityType, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondState)
+            => string.Format(
+                GetString("ConflictingRowUpdateTypes", nameof(firstEntityType), nameof(firstState), nameof(secondEntityType), nameof(secondState)),
+                firstEntityType, firstState, secondEntityType, secondState);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' with the key value '{firstKeyValue}' is marked as '{firstState}', but the instance of entity type '{secondEntityType}' with the key value '{secondKeyValue}' is marked as '{secondState}' and both are mapped to the same row.
+        /// </summary>
+        public static string ConflictingRowUpdateTypesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object firstKeyValue, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondKeyValue, [CanBeNull] object secondState)
+            => string.Format(
+                GetString("ConflictingRowUpdateTypesSensitive", nameof(firstEntityType), nameof(firstKeyValue), nameof(firstState), nameof(secondEntityType), nameof(secondKeyValue), nameof(secondState)),
+                firstEntityType, firstKeyValue, firstState, secondEntityType, secondKeyValue, secondState);
+
+        /// <summary>
+        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string ConflictingRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
+                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
+        /// </summary>
+        public static string ConflictingRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
+                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
+
+        /// <summary>
+        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string ConflictingOriginalRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingOriginalRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
+                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
+
+        /// <summary>
+        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
+        /// </summary>
+        public static string ConflictingOriginalRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
+            => string.Format(
+                GetString("ConflictingOriginalRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
+                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
+
+        /// <summary>
+        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value that has been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static string SharedRowEntryCountMismatch([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object state)
+            => string.Format(
+                GetString("SharedRowEntryCountMismatch", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(state)),
+                entityType, tableName, missingEntityType, state);
+
+        /// <summary>
+        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value '{keyValue}' that has been marked as '{state}'.
+        /// </summary>
+        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object keyValue, [CanBeNull] object state)
+            => string.Format(
+                GetString("SharedRowEntryCountMismatchSensitive", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(keyValue), nameof(state)),
+                entityType, tableName, missingEntityType, keyValue, state);
+
+        /// <summary>
+        ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
+        /// </summary>
+        public static string IncorrectDefaultValueType([CanBeNull] object value, [CanBeNull] object valueType, [CanBeNull] object property, [CanBeNull] object propertyType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("IncorrectDefaultValueType", nameof(value), nameof(valueType), nameof(property), nameof(propertyType), nameof(entityType)),
+                value, valueType, property, propertyType, entityType);
+
+        /// <summary>
+        ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
+        /// </summary>
+        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
+            => string.Format(
+                GetString("DuplicateDiscriminatorValue", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
+                entityType1, discriminatorValue, entityType2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different nullability.
+        /// </summary>
+        public static string DuplicateColumnNameNullabilityMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnNameNullabilityMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different computed values ('{value1}' and '{value2}').
+        /// </summary>
+        public static string DuplicateColumnNameComputedSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
+            => string.Format(
+                GetString("DuplicateColumnNameComputedSqlMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(value1), nameof(value2)),
+                entityType1, property1, entityType2, property2, columnName, table, value1, value2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').
+        /// </summary>
+        public static string DuplicateColumnNameDefaultSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
+            => string.Format(
+                GetString("DuplicateColumnNameDefaultSqlMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(value1), nameof(value2)),
+                entityType1, property1, entityType2, property2, columnName, table, value1, value2);
+
+        /// <summary>
+        ///     {conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.
+        /// </summary>
+        public static string ConflictingColumnServerGeneration([CanBeNull] object conflictingConfiguration, [CanBeNull] object property, [CanBeNull] object existingConfiguration)
+            => string.Format(
+                GetString("ConflictingColumnServerGeneration", nameof(conflictingConfiguration), nameof(property), nameof(existingConfiguration)),
+                conflictingConfiguration, property, existingConfiguration);
+
+        /// <summary>
+        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+            => string.Format(
+                GetString("DuplicateForeignKeyColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(columnNames1), nameof(columnNames2)),
+                index1, entityType1, index2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
+
+        /// <summary>
+        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
+        /// </summary>
+        public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
+            => string.Format(
+                GetString("DuplicateForeignKeyDeleteBehaviorMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(deleteBehavior1), nameof(deleteBehavior2)),
+                index1, entityType1, index2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
+
+        /// <summary>
+        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).
+        /// </summary>
+        public static string DuplicateForeignKeyPrincipalColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalColumnNames1, [CanBeNull] object principalColumnNames2)
+            => string.Format(
+                GetString("DuplicateForeignKeyPrincipalColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalColumnNames1), nameof(principalColumnNames2)),
+                index1, entityType1, index2, entityType2, table, foreignKeyName, principalColumnNames1, principalColumnNames2);
+
+        /// <summary>
+        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').
+        /// </summary>
+        public static string DuplicateForeignKeyPrincipalTableMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalTable1, [CanBeNull] object principalTable2)
+            => string.Format(
+                GetString("DuplicateForeignKeyPrincipalTableMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalTable1), nameof(principalTable2)),
+                index1, entityType1, index2, entityType2, table, foreignKeyName, principalTable1, principalTable2);
+
+        /// <summary>
+        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.
+        /// </summary>
+        public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
+            => string.Format(
+                GetString("DuplicateForeignKeyUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName)),
+                index1, entityType1, index2, entityType2, table, foreignKeyName);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateIndexColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+            => string.Format(
+                GetString("DuplicateIndexColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
+                index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.
+        /// </summary>
+        public static string DuplicateIndexUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+            => string.Format(
+                GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
+
+        /// <summary>
+        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different columns ({columnNames1} and {columnNames2}).
+        /// </summary>
+        public static string DuplicateKeyColumnMismatch([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+            => string.Format(
+                GetString("DuplicateKeyColumnMismatch", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName), nameof(columnNames1), nameof(columnNames2)),
+                key1, entityType1, key2, entityType2, table, keyName, columnNames1, columnNames2);
+
+        /// <summary>
+        ///     No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
+        /// </summary>
+        public static string UnsupportedPropertyType([CanBeNull] object entity, [CanBeNull] object property, [CanBeNull] object clrType)
+            => string.Format(
+                GetString("UnsupportedPropertyType", nameof(entity), nameof(property), nameof(clrType)),
+                entity, property, clrType);
+
+        /// <summary>
+        ///     Sequence contains no elements.
+        /// </summary>
+        public static string NoElements
+            => GetString("NoElements");
+
+        /// <summary>
+        ///     Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.
+        /// </summary>
+        public static string TimeoutTooSmall([CanBeNull] object seconds)
+            => string.Format(
+                GetString("TimeoutTooSmall", nameof(seconds)),
+                seconds);
+
+        /// <summary>
+        ///     Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {seconds} seconds.
+        /// </summary>
+        public static string TimeoutTooBig([CanBeNull] object seconds)
+            => string.Format(
+                GetString("TimeoutTooBig", nameof(seconds)),
+                seconds);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidReturnType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
+        /// </summary>
+        public static string DbFunctionNameEmpty([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionNameEmpty", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
+        /// </summary>
+        public static string DbFunctionInvalidParameterType([CanBeNull] object parameter, [CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidParameterType", nameof(parameter), nameof(function), nameof(type)),
+                parameter, function, type);
+
+        /// <summary>
+        ///     The DbFunction '{function}' is generic. Generic methods are not supported.
+        /// </summary>
+        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
+            => string.Format(
+                GetString("DbFunctionGenericMethodNotSupported", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
+        /// </summary>
+        public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
+            => string.Format(
+                GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///     The DbFunction '{function}' defined on type '{type}' must be either a static method or an instance method defined on a DbContext subclass. Instance methods on other types are not supported.
+        /// </summary>
+        public static string DbFunctionInvalidInstanceType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidInstanceType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
+        ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.
+        /// </summary>
+        public static string ConflictingAmbientTransaction
+            => GetString("ConflictingAmbientTransaction");
+
+        /// <summary>
+        ///     The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a transaction.
+        /// </summary>
+        public static string ConflictingEnlistedTransaction
+            => GetString("ConflictingEnlistedTransaction");
+
+        /// <summary>
+        ///     The specified MinBatchSize value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidMinBatchSize
+            => GetString("InvalidMinBatchSize");
+
+        /// <summary>
+        ///     Expected a non-null value for query parameter '{parameter}'.
+        /// </summary>
+        public static string ExpectedNonNullParameter([CanBeNull] object parameter)
+            => string.Format(
+                GetString("ExpectedNonNullParameter", nameof(parameter)),
+                parameter);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
+        /// </summary>
+        public static string DerivedTypeTable([CanBeNull] object entityType, [CanBeNull] object baseType)
+            => string.Format(
+                GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
+                entityType, baseType);
+
+        /// <summary>
+        ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.
+        /// </summary>
+        public static string RelationalCloneNotImplemented([CanBeNull] object mapping)
+            => string.Format(
+                GetString("RelationalCloneNotImplemented", nameof(mapping)),
+                mapping);
+
+        /// <summary>
+        ///     The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseElseResultTypeUnexpected([CanBeNull] object elseResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseElseResultTypeUnexpected", nameof(elseResultType), nameof(resultType)),
+                elseResultType, resultType);
+
+        /// <summary>
+        ///     The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseWhenClauseResultTypeUnexpected([CanBeNull] object whenResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseWhenClauseResultTypeUnexpected", nameof(whenResultType), nameof(resultType)),
+                whenResultType, resultType);
+
+        /// <summary>
+        ///     The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.
+        /// </summary>
+        public static string CaseWhenClauseTestTypeUnexpected([CanBeNull] object whenOperandType, [CanBeNull] object expectedWhenOperandType)
+            => string.Format(
+                GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
+                whenOperandType, expectedWhenOperandType);
+
+        /// <summary>
+        ///     The number of argument type mappings does not match the number of arguments.
+        /// </summary>
+        public static string SqlFunctionArgumentsAndMappingsMismatch
+            => GetString("SqlFunctionArgumentsAndMappingsMismatch");
+
+        /// <summary>
+        ///     One of the specified argument type mappings was null.
+        /// </summary>
+        public static string SqlFunctionNullArgumentMapping
+            => GetString("SqlFunctionNullArgumentMapping");
+
+        /// <summary>
+        ///     An instance type mapping was specified without an instance expression.
+        /// </summary>
+        public static string SqlFunctionUnexpectedInstanceMapping
+            => GetString("SqlFunctionUnexpectedInstanceMapping");
+
+        private static string GetString(string name, params string[] formatterNames)
+        {
+            var value = _resourceManager.GetString(name);
+            for (var i = 0; i < formatterNames.Length; i++)
+            {
+                value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
+            }
+
+            return value;
+        }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
+{
+    /// <summary>
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public static class RelationalResources
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalResources).GetTypeInfo().Assembly);
+
+        /// <summary>
         ///     The 'bool' property '{property}' on entity type '{entityType}' is configured with a database-generated default. This default will always be used for inserts when the property has the value 'false', since this is the CLR default for the 'bool' type. Consider using the nullable 'bool?' type instead so that the default will only be used for inserts when the property value is 'null'.
         /// </summary>
         public static EventDefinition<string, string> LogBoolWithDefaultWarning([NotNull] IDiagnosticsLogger logger)
@@ -104,24 +653,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return (EventDefinition<string, string>)definition;
         }
-
-        /// <summary>
-        ///     An error occurred while updating the entries. See the inner exception for details.
-        /// </summary>
-        public static string UpdateStoreException
-            => GetString("UpdateStoreException");
-
-        /// <summary>
-        ///     The connection is already in a transaction and cannot participate in another transaction.
-        /// </summary>
-        public static string TransactionAlreadyStarted
-            => GetString("TransactionAlreadyStarted");
-
-        /// <summary>
-        ///     The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.
-        /// </summary>
-        public static string TransactionAssociatedWithDifferentConnection
-            => GetString("TransactionAssociatedWithDifferentConnection");
 
         /// <summary>
         ///     Opening connection to database '{database}' on server '{server}'.
@@ -412,70 +943,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.
-        /// </summary>
-        public static string BadSequenceType
-            => GetString("BadSequenceType");
-
-        /// <summary>
-        ///     Unable to deserialize sequence from model metadata. See inner exception for details.
-        /// </summary>
-        public static string BadSequenceString
-            => GetString("BadSequenceString");
-
-        /// <summary>
-        ///     The migration '{migrationName}' was not found.
-        /// </summary>
-        public static string MigrationNotFound([CanBeNull] object migrationName)
-            => string.Format(
-                GetString("MigrationNotFound", nameof(migrationName)),
-                migrationName);
-
-        /// <summary>
-        ///     The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
-        /// </summary>
-        public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
-            => string.Format(
-                GetString("UnknownOperation", nameof(sqlGeneratorType), nameof(operationType)),
-                sqlGeneratorType, operationType);
-
-        /// <summary>
-        ///     The specified CommandTimeout value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidCommandTimeout
-            => GetString("InvalidCommandTimeout");
-
-        /// <summary>
-        ///     The specified MaxBatchSize value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidMaxBatchSize
-            => GetString("InvalidMaxBatchSize");
-
-        /// <summary>
-        ///     Unable to materialize entity of type '{entityType}'. No discriminators were matched.
-        /// </summary>
-        public static string UnableToDiscriminate([CanBeNull] object entityType)
-            => string.Format(
-                GetString("UnableToDiscriminate", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.
-        /// </summary>
-        public static string DiscriminatorPropertyMustBeOnRoot([CanBeNull] object entityType)
-            => string.Format(
-                GetString("DiscriminatorPropertyMustBeOnRoot", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.
-        /// </summary>
-        public static string DiscriminatorPropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("DiscriminatorPropertyNotFound", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142
         /// </summary>
         public static EventDefinition LogAmbientTransaction([NotNull] IDiagnosticsLogger logger)
@@ -546,12 +1013,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return (EventDefinition)definition;
         }
-
-        /// <summary>
-        ///     The Include operation is not supported when calling a stored procedure.
-        /// </summary>
-        public static string StoredProcedureIncludeNotSupported
-            => GetString("StoredProcedureIncludeNotSupported");
 
         /// <summary>
         ///     Generating down script for migration '{migration}'.
@@ -722,30 +1183,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
-        /// </summary>
-        public static string FromSqlMissingColumn([CanBeNull] object column)
-            => string.Format(
-                GetString("FromSqlMissingColumn", nameof(column)),
-                column);
-
-        /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.
-        /// </summary>
-        public static string IncompatibleTableKeyNameMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object keyName, [CanBeNull] object primaryKey, [CanBeNull] object otherName, [CanBeNull] object otherPrimaryKey)
-            => string.Format(
-                GetString("IncompatibleTableKeyNameMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(keyName), nameof(primaryKey), nameof(otherName), nameof(otherPrimaryKey)),
-                table, entityType, otherEntityType, keyName, primaryKey, otherName, otherPrimaryKey);
-
-        /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.
-        /// </summary>
-        public static string IncompatibleTableNoRelationship([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
-            => string.Format(
-                GetString("IncompatibleTableNoRelationship", nameof(table), nameof(entityType), nameof(otherEntityType)),
-                table, entityType, otherEntityType);
-
-        /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.
         /// </summary>
         public static EventDefinition<string, string> LogKeyHasDefaultValue([NotNull] IDiagnosticsLogger logger)
@@ -770,46 +1207,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
-        /// </summary>
-        public static string DiscriminatorEntityTypeNotDerived([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
-            => string.Format(
-                GetString("DiscriminatorEntityTypeNotDerived", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
-
-        /// <summary>
-        ///     Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.
-        /// </summary>
-        public static string DiscriminatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
-            => string.Format(
-                GetString("DiscriminatorValueIncompatible", nameof(value), nameof(discriminator), nameof(discriminatorType)),
-                value, discriminator, discriminatorType);
-
-        /// <summary>
-        ///     Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.
-        /// </summary>
-        public static string NoDiscriminatorForValue([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
-            => string.Format(
-                GetString("NoDiscriminatorForValue", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.
-        /// </summary>
-        public static string NoDiscriminatorProperty([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoDiscriminatorProperty", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.
-        /// </summary>
-        public static string NoDiscriminatorValue([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoDiscriminatorValue", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     The LINQ expression '{expression}' could not be translated and will be evaluated locally.
         /// </summary>
         public static EventDefinition<object> LogClientEvalWarning([NotNull] IDiagnosticsLogger logger)
@@ -832,22 +1229,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return (EventDefinition<object>)definition;
         }
-
-        /// <summary>
-        ///     No value provided for required parameter '{parameter}'.
-        /// </summary>
-        public static string MissingParameterValue([CanBeNull] object parameter)
-            => string.Format(
-                GetString("MissingParameterValue", nameof(parameter)),
-                parameter);
-
-        /// <summary>
-        ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
-        /// </summary>
-        public static string ParameterNotObjectArray([CanBeNull] object parameter)
-            => string.Format(
-                GetString("ParameterNotObjectArray", nameof(parameter)),
-                parameter);
 
         /// <summary>
         ///     Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
@@ -922,210 +1303,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').
-        /// </summary>
-        public static string DuplicateColumnNameDataTypeMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object dataType1, [CanBeNull] object dataType2)
-            => string.Format(
-                GetString("DuplicateColumnNameDataTypeMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(dataType1), nameof(dataType2)),
-                entityType1, property1, entityType2, property2, columnName, table, dataType1, dataType2);
-
-        /// <summary>
-        ///     The connection does not have any active transactions.
-        /// </summary>
-        public static string NoActiveTransaction
-            => GetString("NoActiveTransaction");
-
-        /// <summary>
-        ///     An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
-        /// </summary>
-        public static string ConflictingRowUpdateTypes([CanBeNull] object firstEntityType, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondState)
-            => string.Format(
-                GetString("ConflictingRowUpdateTypes", nameof(firstEntityType), nameof(firstState), nameof(secondEntityType), nameof(secondState)),
-                firstEntityType, firstState, secondEntityType, secondState);
-
-        /// <summary>
-        ///     The instance of entity type '{firstEntityType}' with the key value '{firstKeyValue}' is marked as '{firstState}', but the instance of entity type '{secondEntityType}' with the key value '{secondKeyValue}' is marked as '{secondState}' and both are mapped to the same row.
-        /// </summary>
-        public static string ConflictingRowUpdateTypesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object firstKeyValue, [CanBeNull] object firstState, [CanBeNull] object secondEntityType, [CanBeNull] object secondKeyValue, [CanBeNull] object secondState)
-            => string.Format(
-                GetString("ConflictingRowUpdateTypesSensitive", nameof(firstEntityType), nameof(firstKeyValue), nameof(firstState), nameof(secondEntityType), nameof(secondKeyValue), nameof(secondState)),
-                firstEntityType, firstKeyValue, firstState, secondEntityType, secondKeyValue, secondState);
-
-        /// <summary>
-        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
-        /// </summary>
-        public static string ConflictingRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
-            => string.Format(
-                GetString("ConflictingRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
-                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
-
-        /// <summary>
-        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
-        /// </summary>
-        public static string ConflictingRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
-            => string.Format(
-                GetString("ConflictingRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
-                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
-
-        /// <summary>
-        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperties} and {secondProperties} mapped to {columns}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
-        /// </summary>
-        public static string ConflictingOriginalRowValues([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object firstProperties, [CanBeNull] object secondProperties, [CanBeNull] object columns)
-            => string.Format(
-                GetString("ConflictingOriginalRowValues", nameof(firstEntityType), nameof(secondEntityType), nameof(firstProperties), nameof(secondProperties), nameof(columns)),
-                firstEntityType, secondEntityType, firstProperties, secondProperties, columns);
-
-        /// <summary>
-        ///     The instance of entity type '{firstEntityType}' and the instance of entity type '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values '{firstConflictingValues}' and '{secondConflictingValues}' mapped to {columns}.
-        /// </summary>
-        public static string ConflictingOriginalRowValuesSensitive([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType, [CanBeNull] object keyValue, [CanBeNull] object firstConflictingValues, [CanBeNull] object secondConflictingValues, [CanBeNull] object columns)
-            => string.Format(
-                GetString("ConflictingOriginalRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValues), nameof(secondConflictingValues), nameof(columns)),
-                firstEntityType, secondEntityType, keyValue, firstConflictingValues, secondConflictingValues, columns);
-
-        /// <summary>
-        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value that has been marked as '{state}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
-        /// </summary>
-        public static string SharedRowEntryCountMismatch([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object state)
-            => string.Format(
-                GetString("SharedRowEntryCountMismatch", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(state)),
-                entityType, tableName, missingEntityType, state);
-
-        /// <summary>
-        ///     The entity of type '{entityType}' is sharing the table '{tableName}' with entities of type '{missingEntityType}', but there is no entity of this type with the same key value '{keyValue}' that has been marked as '{state}'.
-        /// </summary>
-        public static string SharedRowEntryCountMismatchSensitive([CanBeNull] object entityType, [CanBeNull] object tableName, [CanBeNull] object missingEntityType, [CanBeNull] object keyValue, [CanBeNull] object state)
-            => string.Format(
-                GetString("SharedRowEntryCountMismatchSensitive", nameof(entityType), nameof(tableName), nameof(missingEntityType), nameof(keyValue), nameof(state)),
-                entityType, tableName, missingEntityType, keyValue, state);
-
-        /// <summary>
-        ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
-        /// </summary>
-        public static string IncorrectDefaultValueType([CanBeNull] object value, [CanBeNull] object valueType, [CanBeNull] object property, [CanBeNull] object propertyType, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("IncorrectDefaultValueType", nameof(value), nameof(valueType), nameof(property), nameof(propertyType), nameof(entityType)),
-                value, valueType, property, propertyType, entityType);
-
-        /// <summary>
-        ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
-        /// </summary>
-        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
-            => string.Format(
-                GetString("DuplicateDiscriminatorValue", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
-                entityType1, discriminatorValue, entityType2);
-
-        /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different nullability.
-        /// </summary>
-        public static string DuplicateColumnNameNullabilityMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
-            => string.Format(
-                GetString("DuplicateColumnNameNullabilityMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
-                entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different computed values ('{value1}' and '{value2}').
-        /// </summary>
-        public static string DuplicateColumnNameComputedSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
-            => string.Format(
-                GetString("DuplicateColumnNameComputedSqlMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(value1), nameof(value2)),
-                entityType1, property1, entityType2, property2, columnName, table, value1, value2);
-
-        /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').
-        /// </summary>
-        public static string DuplicateColumnNameDefaultSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
-            => string.Format(
-                GetString("DuplicateColumnNameDefaultSqlMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(value1), nameof(value2)),
-                entityType1, property1, entityType2, property2, columnName, table, value1, value2);
-
-        /// <summary>
-        ///     {conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.
-        /// </summary>
-        public static string ConflictingColumnServerGeneration([CanBeNull] object conflictingConfiguration, [CanBeNull] object property, [CanBeNull] object existingConfiguration)
-            => string.Format(
-                GetString("ConflictingColumnServerGeneration", nameof(conflictingConfiguration), nameof(property), nameof(existingConfiguration)),
-                conflictingConfiguration, property, existingConfiguration);
-
-        /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
-        /// </summary>
-        public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
-            => string.Format(
-                GetString("DuplicateForeignKeyColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(columnNames1), nameof(columnNames2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
-
-        /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
-        /// </summary>
-        public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
-            => string.Format(
-                GetString("DuplicateForeignKeyDeleteBehaviorMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(deleteBehavior1), nameof(deleteBehavior2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
-
-        /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).
-        /// </summary>
-        public static string DuplicateForeignKeyPrincipalColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalColumnNames1, [CanBeNull] object principalColumnNames2)
-            => string.Format(
-                GetString("DuplicateForeignKeyPrincipalColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalColumnNames1), nameof(principalColumnNames2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, principalColumnNames1, principalColumnNames2);
-
-        /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').
-        /// </summary>
-        public static string DuplicateForeignKeyPrincipalTableMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalTable1, [CanBeNull] object principalTable2)
-            => string.Format(
-                GetString("DuplicateForeignKeyPrincipalTableMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalTable1), nameof(principalTable2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, principalTable1, principalTable2);
-
-        /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.
-        /// </summary>
-        public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
-            => string.Format(
-                GetString("DuplicateForeignKeyUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName);
-
-        /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).
-        /// </summary>
-        public static string DuplicateIndexColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
-            => string.Format(
-                GetString("DuplicateIndexColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
-                index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
-
-        /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.
-        /// </summary>
-        public static string DuplicateIndexUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
-            => string.Format(
-                GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
-                index1, entityType1, index2, entityType2, table, indexName);
-
-        /// <summary>
-        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different columns ({columnNames1} and {columnNames2}).
-        /// </summary>
-        public static string DuplicateKeyColumnMismatch([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
-            => string.Format(
-                GetString("DuplicateKeyColumnMismatch", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName), nameof(columnNames1), nameof(columnNames2)),
-                key1, entityType1, key2, entityType2, table, keyName, columnNames1, columnNames2);
-
-        /// <summary>
-        ///     No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
-        /// </summary>
-        public static string UnsupportedPropertyType([CanBeNull] object entity, [CanBeNull] object property, [CanBeNull] object clrType)
-            => string.Format(
-                GetString("UnsupportedPropertyType", nameof(entity), nameof(property), nameof(clrType)),
-                entity, property, clrType);
-
-        /// <summary>
-        ///     Sequence contains no elements.
-        /// </summary>
-        public static string NoElements
-            => GetString("NoElements");
-
-        /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
         /// </summary>
         public static EventDefinition<string, string> LogRelationalLoggerConnectionErrorAsDebug([NotNull] IDiagnosticsLogger logger)
@@ -1148,96 +1325,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return (EventDefinition<string, string>)definition;
         }
-
-        /// <summary>
-        ///     Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.
-        /// </summary>
-        public static string TimeoutTooSmall([CanBeNull] object seconds)
-            => string.Format(
-                GetString("TimeoutTooSmall", nameof(seconds)),
-                seconds);
-
-        /// <summary>
-        ///     Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {seconds} seconds.
-        /// </summary>
-        public static string TimeoutTooBig([CanBeNull] object seconds)
-            => string.Format(
-                GetString("TimeoutTooBig", nameof(seconds)),
-                seconds);
-
-        /// <summary>
-        ///     The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.
-        /// </summary>
-        public static string DbFunctionInvalidReturnType([CanBeNull] object function, [CanBeNull] object type)
-            => string.Format(
-                GetString("DbFunctionInvalidReturnType", nameof(function), nameof(type)),
-                function, type);
-
-        /// <summary>
-        ///     The DbFunction '{function}' has no name set. Name is a required property of a DbFunction.
-        /// </summary>
-        public static string DbFunctionNameEmpty([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionNameEmpty", nameof(function)),
-                function);
-
-        /// <summary>
-        ///     The parameter '{parameter}' for the DbFunction '{function}' has an invalid type '{type}'. Ensure the parameter type can be mapped by the current provider.
-        /// </summary>
-        public static string DbFunctionInvalidParameterType([CanBeNull] object parameter, [CanBeNull] object function, [CanBeNull] object type)
-            => string.Format(
-                GetString("DbFunctionInvalidParameterType", nameof(parameter), nameof(function), nameof(type)),
-                parameter, function, type);
-
-        /// <summary>
-        ///     The DbFunction '{function}' is generic. Generic methods are not supported.
-        /// </summary>
-        public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionGenericMethodNotSupported", nameof(function)),
-                function);
-
-        /// <summary>
-        ///     The provided DbFunction expression '{expression}' is invalid. The expression should be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required. E.g. () =&gt; SomeClass.SomeMethod(null, 0)
-        /// </summary>
-        public static string DbFunctionExpressionIsNotMethodCall([CanBeNull] object expression)
-            => string.Format(
-                GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
-                expression);
-
-        /// <summary>
-        ///     The DbFunction '{function}' defined on type '{type}' must be either a static method or an instance method defined on a DbContext subclass. Instance methods on other types are not supported.
-        /// </summary>
-        public static string DbFunctionInvalidInstanceType([CanBeNull] object function, [CanBeNull] object type)
-            => string.Format(
-                GetString("DbFunctionInvalidInstanceType", nameof(function), nameof(type)),
-                function, type);
-
-        /// <summary>
-        ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.
-        /// </summary>
-        public static string ConflictingAmbientTransaction
-            => GetString("ConflictingAmbientTransaction");
-
-        /// <summary>
-        ///     The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a transaction.
-        /// </summary>
-        public static string ConflictingEnlistedTransaction
-            => GetString("ConflictingEnlistedTransaction");
-
-        /// <summary>
-        ///     The specified MinBatchSize value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidMinBatchSize
-            => GetString("InvalidMinBatchSize");
-
-        /// <summary>
-        ///     Expected a non-null value for query parameter '{parameter}'.
-        /// </summary>
-        public static string ExpectedNonNullParameter([CanBeNull] object parameter)
-            => string.Format(
-                GetString("ExpectedNonNullParameter", nameof(parameter)),
-                parameter);
 
         /// <summary>
         ///     Enlisted in an ambient transaction with isolation level '{isolationLevel}'.
@@ -1381,75 +1468,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             return (EventDefinition<object, object>)definition;
-        }
-
-        /// <summary>
-        ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
-        /// </summary>
-        public static string DerivedTypeTable([CanBeNull] object entityType, [CanBeNull] object baseType)
-            => string.Format(
-                GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
-                entityType, baseType);
-
-        /// <summary>
-        ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.
-        /// </summary>
-        public static string RelationalCloneNotImplemented([CanBeNull] object mapping)
-            => string.Format(
-                GetString("RelationalCloneNotImplemented", nameof(mapping)),
-                mapping);
-
-        /// <summary>
-        ///     The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.
-        /// </summary>
-        public static string CaseElseResultTypeUnexpected([CanBeNull] object elseResultType, [CanBeNull] object resultType)
-            => string.Format(
-                GetString("CaseElseResultTypeUnexpected", nameof(elseResultType), nameof(resultType)),
-                elseResultType, resultType);
-
-        /// <summary>
-        ///     The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.
-        /// </summary>
-        public static string CaseWhenClauseResultTypeUnexpected([CanBeNull] object whenResultType, [CanBeNull] object resultType)
-            => string.Format(
-                GetString("CaseWhenClauseResultTypeUnexpected", nameof(whenResultType), nameof(resultType)),
-                whenResultType, resultType);
-
-        /// <summary>
-        ///     The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.
-        /// </summary>
-        public static string CaseWhenClauseTestTypeUnexpected([CanBeNull] object whenOperandType, [CanBeNull] object expectedWhenOperandType)
-            => string.Format(
-                GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
-                whenOperandType, expectedWhenOperandType);
-
-        /// <summary>
-        ///     The number of argument type mappings does not match the number of arguments.
-        /// </summary>
-        public static string SqlFunctionArgumentsAndMappingsMismatch
-            => GetString("SqlFunctionArgumentsAndMappingsMismatch");
-
-        /// <summary>
-        ///     One of the specified argument type mappings was null.
-        /// </summary>
-        public static string SqlFunctionNullArgumentMapping
-            => GetString("SqlFunctionNullArgumentMapping");
-
-        /// <summary>
-        ///     An instance type mapping was specified without an instance expression.
-        /// </summary>
-        public static string SqlFunctionUnexpectedInstanceMapping
-            => GetString("SqlFunctionUnexpectedInstanceMapping");
-
-        private static string GetString(string name, params string[] formatterNames)
-        {
-            var value = _resourceManager.GetString(name);
-            for (var i = 0; i < formatterNames.Length; i++)
-            {
-                value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
-            }
-
-            return value;
         }
     }
 }

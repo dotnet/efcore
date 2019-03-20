@@ -9,6 +9,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
 
             _storeMaterializerExpression
-                = CoreStrings.LogQueryExecutionPlanned(logger).GetLogBehavior(logger) != WarningBehavior.Ignore;
+                = CoreResources.LogQueryExecutionPlanned(logger).GetLogBehavior(logger) != WarningBehavior.Ignore;
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 <#
     Session["ResourceFile"] = "InMemoryStrings.resx";
-    Session["LoggingDefinitionsClass"] = "Diagnostics.InMemory.Internal.InMemoryLoggingDefinitions";
+    Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.InMemoryLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -299,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            var definition = CoreStrings.LogRedundantIndexRemoved(Logger);
+            var definition = CoreResources.LogRedundantIndexRemoved(Logger);
             if (definition.GetLogBehavior(Logger) == WarningBehavior.Ignore
                 && !Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {

@@ -47,7 +47,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\RelationalStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 

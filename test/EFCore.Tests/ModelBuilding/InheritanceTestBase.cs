@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -541,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var (Level, _, Message, _, _) = modelBuilder.ModelLoggerFactory.Log.Single(e => e.Id == CoreEventId.RedundantIndexRemoved);
                 Assert.Equal(LogLevel.Debug, Level);
                 Assert.Equal(
-                    CoreStrings.LogRedundantIndexRemoved(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                    CoreResources.LogRedundantIndexRemoved(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                         "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}"), Message);
 
                 fk = dependentEntityType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var indexRemoveMessage =
-                    CoreStrings.LogRedundantIndexRemoved(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                    CoreResources.LogRedundantIndexRemoved(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                         "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
                 Assert.Equal(1, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
 

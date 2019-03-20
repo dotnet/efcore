@@ -4,9 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    CoreStrings.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    CoreStrings.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -131,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(orders);
                 Assert.Contains(
-                    CoreStrings.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(orders);
                 Assert.Contains(
-                    CoreStrings.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
@@ -167,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(orders);
                 Assert.Contains(
-                    CoreStrings.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                         "{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }

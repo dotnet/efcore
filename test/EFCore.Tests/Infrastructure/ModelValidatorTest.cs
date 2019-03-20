@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(CoreStrings.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
+            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int), ConfigurationSource.Convention);
             entityType.SetPrimaryKey(keyProperty);
 
-            VerifyWarning(CoreStrings.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
+            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<A>().HasOne<A>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
 
-            VerifyWarning(CoreStrings.LogRedundantForeignKey(new TestLogger<LoggingDefinitions>()).GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
+            VerifyWarning(CoreResources.LogRedundantForeignKey(new TestLogger<LoggingDefinitions>()).GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
         }
 
         [Fact]

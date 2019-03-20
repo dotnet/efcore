@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(2, result.Count);
             Assert.DoesNotContain(result, t => t.GetType() == typeof(MigrationWithoutAttribute));
             Assert.Equal(
-                RelationalStrings.LogMigrationAttributeMissingWarning(logger).GenerateMessage(nameof(MigrationWithoutAttribute)),
+                RelationalResources.LogMigrationAttributeMissingWarning(logger).GenerateMessage(nameof(MigrationWithoutAttribute)),
                 logger.Message);
         }
 

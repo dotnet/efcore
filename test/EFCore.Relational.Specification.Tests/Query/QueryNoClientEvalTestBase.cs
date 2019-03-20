@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                             () => context.Customers.Where(c => c.IsLondon).ToList())
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.OrderBy(c => c.IsLondon).ToList()).Message);
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc, ClientMethod([c]) asc"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc, ClientMethod([c]) asc"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
                             "where {from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("All([c].IsLondon)"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("All([c].IsLondon)"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.All(c => c.IsLondon)).Message);
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("from Int32 i in value(System.Int32[])"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("from Int32 i in value(System.Int32[])"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
                         ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(
                             "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
                         ),
                         "RelationalEventId.QueryClientEvaluationWarning"),
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("GroupBy([c].CustomerID, [c])"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("GroupBy([c].CustomerID, [c])"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.First(c => c.IsLondon)).Message);
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Single(c => c.IsLondon)).Message);
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.FirstOrDefault(c => c.IsLondon)).Message);
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message);

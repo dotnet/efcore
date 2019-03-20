@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace System.Reflection
 {
@@ -93,5 +92,18 @@ namespace System.Reflection
             public int GetHashCode(MemberInfo obj)
                 => obj.GetHashCode();
         }
+
+        private static int IndexOf<T>(this IEnumerable<T> source, T item, IEqualityComparer<T> comparer)
+            => source.Select(
+                    (x, index) =>
+                        comparer.Equals(item, x) ? index : -1)
+                .FirstOr(x => x != -1, -1);
+
+        private static T FirstOr<T>(this IEnumerable<T> source, T alternate)
+            => source.DefaultIfEmpty(alternate).First();
+
+        private static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicate, T alternate)
+            => source.Where(predicate).FirstOr(alternate);
+
     }
 }

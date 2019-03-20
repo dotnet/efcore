@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
@@ -2143,8 +2143,8 @@ CREATE TABLE Blank (
 
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
-                    Assert.Equal(SqlServerStrings.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MySchema"), Message);
+                    Assert.Equal(SqlServerResources.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqlServerResources.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MySchema"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -2165,8 +2165,8 @@ CREATE TABLE Blank (
 
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
-                    Assert.Equal(SqlServerStrings.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
+                    Assert.Equal(SqlServerResources.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqlServerResources.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -2191,9 +2191,9 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqlServerResources.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).EventId, Id);
                     Assert.Equal(
-                        SqlServerStrings.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
+                        SqlServerResources.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                             "MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), Message);
                 },
                 @"
@@ -2217,7 +2217,7 @@ CREATE TABLE PrincipalTable (
                     var (level, _, message, _, _) = Assert.Single(
                         Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.ReflexiveConstraintIgnored);
                     Assert.Equal(LogLevel.Debug, level);
-                    Assert.Equal(SqlServerStrings.LogReflexiveConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MYFK", "dbo.PrincipalTable"), message);
+                    Assert.Equal(SqlServerResources.LogReflexiveConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MYFK", "dbo.PrincipalTable"), message);
 
                     var table = Assert.Single(dbModel.Tables);
                     Assert.Empty(table.ForeignKeys);

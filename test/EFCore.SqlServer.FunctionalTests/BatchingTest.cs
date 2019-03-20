@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -173,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Contains(
                         minBatchSize == 3
-                            ? RelationalStrings.LogBatchReadyForExecution(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3)
-                            : RelationalStrings.LogBatchSmallerThanMinBatchSize(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3, 4),
+                            ? RelationalResources.LogBatchReadyForExecution(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3)
+                            : RelationalResources.LogBatchSmallerThanMinBatchSize(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(3, 4),
                         Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
                     Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);

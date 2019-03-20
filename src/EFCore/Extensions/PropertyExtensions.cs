@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -21,6 +22,15 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class PropertyExtensions
     {
+        /// <summary>
+        ///    Returns the <see cref="CoreTypeMapping"/> for the given property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping, or null if none was found. </returns>
+        public static CoreTypeMapping FindMapping(
+            [NotNull] this IProperty property)
+            => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
+
         /// <summary>
         ///     Finds the principal property by the given property is constrained assuming that
         ///     the given property is part of a foreign key.

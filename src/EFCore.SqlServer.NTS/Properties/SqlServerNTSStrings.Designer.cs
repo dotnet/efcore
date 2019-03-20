@@ -4,8 +4,6 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
@@ -36,3 +34,4 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
     }
 }
+
