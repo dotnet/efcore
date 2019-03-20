@@ -365,19 +365,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public void Can_create_options_with_specified_region()
+        public void Should_not_throw_if_specified_region_is_right()
         {
-            var regionName = CosmosRegions.EastAsia;
-            var options = new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                o => { o.Region(regionName); });
+            var regionName = CosmosRegions.AustraliaCentral;
 
-            var extension = options
-                .Options.FindExtension<CosmosDbOptionsExtension>();
+            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
 
-            Assert.Equal(regionName, extension.Region);
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new CustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Add(customer);
+
+                    context.SaveChanges();
+                }
+            }
         }
 
         [ConditionalFact]
