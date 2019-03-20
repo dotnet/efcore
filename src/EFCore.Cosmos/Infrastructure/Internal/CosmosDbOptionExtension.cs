@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _authKeyOrResourceToken = copyFrom._authKeyOrResourceToken;
             _databaseName = copyFrom._databaseName;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
+            _region = copyFrom._region;
         }
 
         public virtual string ServiceEndPoint => _serviceEndPoint;

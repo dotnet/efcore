@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -360,6 +362,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 modelBuilder.Entity<ConflictingIncompatibleId>();
             }
+        }
+
+        [ConditionalFact]
+        public void Can_create_options_with_specified_region()
+        {
+            var regionName = CosmosRegions.EastAsia;
+            var options = new DbContextOptionsBuilder().UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName",
+                o => { o.Region(regionName); });
+
+            var extension = options
+                .Options.FindExtension<CosmosDbOptionsExtension>();
+
+            Assert.Equal(regionName, extension.Region);
+        }
+
+        [ConditionalFact]
+        public void Should_throw_if_specified_region_is_wrong()
+        {
+            var regionName = "FakeRegion";
+
+            Action a = () =>
+            {
+                var options = new DbContextOptionsBuilder().UseCosmos(
+                    "serviceEndPoint",
+                    "authKeyOrResourceToken",
+                    "databaseName",
+                    o => { o.Region(regionName); });
+            };
+
+            var ex = Assert.Throws<ArgumentException>(a);
+            Assert.Equal("Current location is not a valid Azure region.", ex.Message);
         }
 
         [ConditionalFact]
