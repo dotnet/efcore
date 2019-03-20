@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToList();
+                = entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()).ToList();
 
             if (concreteEntityTypes.Count == 1)
             {

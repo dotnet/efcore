@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -180,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
-            VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]
@@ -189,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
-            VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]
@@ -199,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
 
-            VerifyWarning(SqlServerStrings.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]
@@ -209,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
 
-            VerifyWarning(SqlServerStrings.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]

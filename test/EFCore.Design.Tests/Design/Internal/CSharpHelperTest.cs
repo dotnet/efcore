@@ -5,6 +5,7 @@ using System;
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using System.Numerics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;

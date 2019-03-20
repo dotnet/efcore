@@ -26,14 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [DebuggerStepThrough]
-        public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static PropertyInfo EFIndexerProperty([NotNull] this ITypeBase type)
         {
             var runtimeProperties = type is TypeBase typeBase

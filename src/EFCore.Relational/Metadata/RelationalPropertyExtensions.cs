@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -15,6 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public static class RelationalPropertyExtensions
     {
+        /// <summary>
+        ///    Returns the <see cref="RelationalTypeMapping"/> for the given property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping, or null if none was found. </returns>
+        [DebuggerStepThrough]
+        public static RelationalTypeMapping FindRelationalMapping([NotNull] this IProperty property)
+            => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
+
         /// <summary>
         ///     <para>
         ///         Checks whether or not the column mapped to the given <see cref="IProperty" /> will be nullable

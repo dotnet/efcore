@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TransactionIgnoredWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
         {
-            var definition = InMemoryStrings.LogTransactionsNotSupported(diagnostics);
+            var definition = InMemoryResources.LogTransactionsNotSupported(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
         {
-            var definition = InMemoryStrings.LogSavedChanges(diagnostics);
+            var definition = InMemoryResources.LogSavedChanges(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

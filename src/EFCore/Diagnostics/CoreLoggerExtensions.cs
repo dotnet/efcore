@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,17 +9,17 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Remotion.Linq;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbContext context,
             [NotNull] Exception exception)
         {
-            var definition = CoreStrings.LogExceptionDuringSaveChanges(diagnostics);
+            var definition = CoreResources.LogExceptionDuringSaveChanges(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbContext context,
             [NotNull] Exception exception)
         {
-            var definition = CoreStrings.LogOptimisticConcurrencyException(diagnostics);
+            var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType dependent1,
             [NotNull] IEntityType dependent2)
         {
-            var definition = CoreStrings.LogDuplicateDependentEntityTypeInstance(diagnostics);
+            var definition = CoreResources.LogDuplicateDependentEntityTypeInstance(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Type contextType,
             [NotNull] Exception exception)
         {
-            var definition = CoreStrings.LogExceptionDuringQueryIteration(diagnostics);
+            var definition = CoreResources.LogExceptionDuringQueryIteration(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var definition = CoreStrings.LogCompilingQueryModel(diagnostics);
+            var definition = CoreResources.LogCompilingQueryModel(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var definition = CoreStrings.LogRowLimitingOperationWithoutOrderBy(diagnostics);
+            var definition = CoreResources.LogRowLimitingOperationWithoutOrderBy(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var definition = CoreStrings.LogFirstWithoutOrderByAndFilter(diagnostics);
+            var definition = CoreResources.LogFirstWithoutOrderByAndFilter(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel)
         {
-            var definition = CoreStrings.LogOptimizedQueryModel(diagnostics);
+            var definition = CoreResources.LogOptimizedQueryModel(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] IncludeResultOperator includeResultOperator)
         {
-            var definition = CoreStrings.LogIncludingNavigation(diagnostics);
+            var definition = CoreResources.LogIncludingNavigation(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] Expression queryExecutorExpression)
         {
-            var definition = CoreStrings.LogQueryExecutionPlanned(diagnostics);
+            var definition = CoreResources.LogQueryExecutionPlanned(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<TLoggerCategory> diagnostics)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            var definition = CoreStrings.LogSensitiveDataLoggingEnabled(diagnostics);
+            var definition = CoreResources.LogSensitiveDataLoggingEnabled(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] IncludeResultOperator includeResultOperator)
         {
-            var definition = CoreStrings.LogIgnoredInclude(diagnostics);
+            var definition = CoreResources.LogIgnoredInclude(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] IReadOnlyList<IPropertyBase> navigationPath)
         {
-            var definition = CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison(diagnostics);
+            var definition = CoreResources.LogPossibleUnintendedCollectionNavigationNullComparison(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Expression left,
             [NotNull] Expression right)
         {
-            var definition = CoreStrings.LogPossibleUnintendedReferenceComparison(diagnostics);
+            var definition = CoreResources.LogPossibleUnintendedReferenceComparison(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             [NotNull] IServiceProvider serviceProvider)
         {
-            var definition = CoreStrings.LogServiceProviderCreated(diagnostics);
+            var definition = CoreResources.LogServiceProviderCreated(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -585,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             [NotNull] ICollection<IServiceProvider> serviceProviders)
         {
-            var definition = CoreStrings.LogManyServiceProvidersCreated(diagnostics);
+            var definition = CoreResources.LogManyServiceProvidersCreated(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IDictionary<string, string> newDebugInfo,
             [NotNull] IList<IDictionary<string, string>> cachedDebugInfos)
         {
-            var definition = CoreStrings.LogServiceProviderDebugInfo(diagnostics);
+            var definition = CoreResources.LogServiceProviderDebugInfo(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbContext context,
             [NotNull] DbContextOptions contextOptions)
         {
-            var definition = CoreStrings.LogContextInitialized(diagnostics);
+            var definition = CoreResources.LogContextInitialized(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -743,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TimeSpan delay,
             bool async)
         {
-            var definition = CoreStrings.LogExecutionStrategyRetrying(diagnostics);
+            var definition = CoreResources.LogExecutionStrategyRetrying(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.LogLazyLoadOnDisposedContext(diagnostics);
+            var definition = CoreResources.LogLazyLoadOnDisposedContext(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.LogNavigationLazyLoading(diagnostics);
+            var definition = CoreResources.LogNavigationLazyLoading(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -869,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.LogDetachedLazyLoading(diagnostics);
+            var definition = CoreResources.LogDetachedLazyLoading(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = CoreStrings.LogShadowPropertyCreated(diagnostics);
+            var definition = CoreResources.LogShadowPropertyCreated(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IReadOnlyList<IPropertyBase> redundantIndex,
             [NotNull] IReadOnlyList<IPropertyBase> otherIndex)
         {
-            var definition = CoreStrings.LogRedundantIndexRemoved(diagnostics);
+            var definition = CoreResources.LogRedundantIndexRemoved(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -987,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IForeignKey redundantForeignKey)
         {
-            var definition = CoreStrings.LogRedundantForeignKey(diagnostics);
+            var definition = CoreResources.LogRedundantForeignKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1027,7 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IReadOnlyList<IPropertyBase> foreignKeyProperties,
             [NotNull] IReadOnlyList<IPropertyBase> principalKeyProperties)
         {
-            var definition = CoreStrings.LogIncompatibleMatchingForeignKeyProperties(diagnostics);
+            var definition = CoreResources.LogIncompatibleMatchingForeignKeyProperties(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation)
         {
-            var definition = CoreStrings.LogRequiredAttributeOnDependent(diagnostics);
+            var definition = CoreResources.LogRequiredAttributeOnDependent(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] INavigation firstNavigation,
             [NotNull] INavigation secondNavigation)
         {
-            var definition = CoreStrings.LogRequiredAttributeOnBothNavigations(diagnostics);
+            var definition = CoreResources.LogRequiredAttributeOnBothNavigations(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1153,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IForeignKey foreignKey)
         {
-            var definition = CoreStrings.LogConflictingShadowForeignKeys(diagnostics);
+            var definition = CoreResources.LogConflictingShadowForeignKeys(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1197,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IProperty firstProperty,
             [NotNull] IProperty secondProperty)
         {
-            var definition = CoreStrings.LogMultiplePrimaryKeyCandidates(diagnostics);
+            var definition = CoreResources.LogMultiplePrimaryKeyCandidates(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1243,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEnumerable<Tuple<MemberInfo, Type>> firstPropertyCollection,
             [NotNull] IEnumerable<Tuple<MemberInfo, Type>> secondPropertyCollection)
         {
-            var definition = CoreStrings.LogMultipleNavigationProperties(diagnostics);
+            var definition = CoreResources.LogMultipleNavigationProperties(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1290,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] Type targetType)
         {
-            var definition = CoreStrings.LogMultipleInversePropertiesSameTarget(diagnostics);
+            var definition = CoreResources.LogMultipleInversePropertiesSameTarget(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1336,7 +1336,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] MemberInfo definingNavigation)
         {
-            var definition = CoreStrings.LogNonDefiningInverseNavigation(diagnostics);
+            var definition = CoreResources.LogNonDefiningInverseNavigation(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] MemberInfo ownershipNavigation)
         {
-            var definition = CoreStrings.LogNonOwnershipInverseNavigation(diagnostics);
+            var definition = CoreResources.LogNonOwnershipInverseNavigation(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1443,7 +1443,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] MemberInfo firstProperty,
             [NotNull] MemberInfo secondProperty)
         {
-            var definition = CoreStrings.LogForeignKeyAttributesOnBothProperties(diagnostics);
+            var definition = CoreResources.LogForeignKeyAttributesOnBothProperties(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1497,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] INavigation firstNavigation,
             [NotNull] INavigation secondNavigation)
         {
-            var definition = CoreStrings.LogForeignKeyAttributesOnBothNavigations(diagnostics);
+            var definition = CoreResources.LogForeignKeyAttributesOnBothNavigations(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1545,7 +1545,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] INavigation navigation,
             [NotNull] MemberInfo property)
         {
-            var definition = CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty(diagnostics);
+            var definition = CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1592,7 +1592,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] DbContext context)
         {
-            var definition = CoreStrings.LogDetectChangesStarting(diagnostics);
+            var definition = CoreResources.LogDetectChangesStarting(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1629,7 +1629,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] DbContext context)
         {
-            var definition = CoreStrings.LogDetectChangesCompleted(diagnostics);
+            var definition = CoreResources.LogDetectChangesCompleted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1669,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogPropertyChangeDetected(diagnostics);
+            var definition = CoreResources.LogPropertyChangeDetected(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1715,7 +1715,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogPropertyChangeDetectedSensitive(diagnostics);
+            var definition = CoreResources.LogPropertyChangeDetectedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1767,7 +1767,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogForeignKeyChangeDetected(diagnostics);
+            var definition = CoreResources.LogForeignKeyChangeDetected(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1813,7 +1813,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogForeignKeyChangeDetectedSensitive(diagnostics);
+            var definition = CoreResources.LogForeignKeyChangeDetectedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1865,7 +1865,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ISet<object> added,
             [NotNull] ISet<object> removed)
         {
-            var definition = CoreStrings.LogCollectionChangeDetected(diagnostics);
+            var definition = CoreResources.LogCollectionChangeDetected(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1915,7 +1915,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ISet<object> added,
             [NotNull] ISet<object> removed)
         {
-            var definition = CoreStrings.LogCollectionChangeDetectedSensitive(diagnostics);
+            var definition = CoreResources.LogCollectionChangeDetectedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1967,7 +1967,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogReferenceChangeDetected(diagnostics);
+            var definition = CoreResources.LogReferenceChangeDetected(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2013,7 +2013,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue)
         {
-            var definition = CoreStrings.LogReferenceChangeDetectedSensitive(diagnostics);
+            var definition = CoreResources.LogReferenceChangeDetectedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2058,7 +2058,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry entry)
         {
-            var definition = CoreStrings.LogStartedTracking(diagnostics);
+            var definition = CoreResources.LogStartedTracking(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2098,7 +2098,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry entry)
         {
-            var definition = CoreStrings.LogStartedTrackingSensitive(diagnostics);
+            var definition = CoreResources.LogStartedTrackingSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2142,7 +2142,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EntityState oldState,
             EntityState newState)
         {
-            var definition = CoreStrings.LogStateChanged(diagnostics);
+            var definition = CoreResources.LogStateChanged(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2190,7 +2190,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EntityState oldState,
             EntityState newState)
         {
-            var definition = CoreStrings.LogStateChangedSensitive(diagnostics);
+            var definition = CoreResources.LogStateChangedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2242,8 +2242,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool temporary)
         {
             var definition = temporary
-                ? CoreStrings.LogTempValueGenerated(diagnostics)
-                : CoreStrings.LogValueGenerated(diagnostics);
+                ? CoreResources.LogTempValueGenerated(diagnostics)
+                : CoreResources.LogValueGenerated(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2291,8 +2291,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool temporary)
         {
             var definition = temporary
-                ? CoreStrings.LogTempValueGeneratedSensitive(diagnostics)
-                : CoreStrings.LogValueGeneratedSensitive(diagnostics);
+                ? CoreResources.LogTempValueGeneratedSensitive(diagnostics)
+                : CoreResources.LogValueGeneratedSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2340,7 +2340,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] InternalEntityEntry parentEntry,
             EntityState state)
         {
-            var definition = CoreStrings.LogCascadeDelete(diagnostics);
+            var definition = CoreResources.LogCascadeDelete(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2386,7 +2386,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] InternalEntityEntry parentEntry,
             EntityState state)
         {
-            var definition = CoreStrings.LogCascadeDeleteSensitive(diagnostics);
+            var definition = CoreResources.LogCascadeDeleteSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2436,7 +2436,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType parentEntityType,
             EntityState state)
         {
-            var definition = CoreStrings.LogCascadeDeleteOrphan(diagnostics);
+            var definition = CoreResources.LogCascadeDeleteOrphan(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2482,7 +2482,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType parentEntityType,
             EntityState state)
         {
-            var definition = CoreStrings.LogCascadeDeleteOrphanSensitive(diagnostics);
+            var definition = CoreResources.LogCascadeDeleteOrphanSensitive(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2528,7 +2528,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context)
         {
-            var definition = CoreStrings.LogSaveChangesStarting(diagnostics);
+            var definition = CoreResources.LogSaveChangesStarting(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2566,7 +2566,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] DbContext context,
             int entitiesSavedCount)
         {
-            var definition = CoreStrings.LogSaveChangesCompleted(diagnostics);
+            var definition = CoreResources.LogSaveChangesCompleted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -2607,7 +2607,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             [NotNull] DbContext context)
         {
-            var definition = CoreStrings.LogContextDisposed(diagnostics);
+            var definition = CoreResources.LogContextDisposed(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

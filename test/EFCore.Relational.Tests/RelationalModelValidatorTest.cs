@@ -6,10 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValue = true;
             property.ValueGenerated = ValueGenerated.OnAdd;
 
-            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValueSql = "TRUE";
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             SetPrimaryKey(entityA);
             entityA.FindProperty("Id").Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
+            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             entityA.AddKey(new[] { property });
             property.Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalStrings.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
+            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
         }
 
         [Fact]

@@ -21,6 +21,15 @@ namespace Microsoft.EntityFrameworkCore
     public static class EntityTypeExtensions
     {
         /// <summary>
+        ///    Checks if this entity type represents an abstract type.
+        /// </summary>
+        /// <param name="type"> The entity type. </param>
+        /// <returns> True if the type is abstract, false otherwise. </returns>
+        [DebuggerStepThrough]
+        public static bool IsAbstract([NotNull] this ITypeBase type)
+            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+
+        /// <summary>
         ///     Returns all derived types of the given <see cref="IEntityType" />, including the type itself.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>

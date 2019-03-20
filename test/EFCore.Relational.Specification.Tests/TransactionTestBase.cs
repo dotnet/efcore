@@ -9,8 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    RelationalStrings.LogExplicitTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                    RelationalResources.LogExplicitTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    RelationalStrings.LogAmbientTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                    RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 

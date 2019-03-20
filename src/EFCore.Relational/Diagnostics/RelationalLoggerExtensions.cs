@@ -10,10 +10,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Transactions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -22,7 +21,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
 using Remotion.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void CommandExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -44,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool async,
             DateTimeOffset startTime)
         {
-            var definition = RelationalStrings.LogRelationalLoggerExecutingCommand(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerExecutingCommand(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -98,7 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void CommandExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -110,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerExecutedCommand(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerExecutedCommand(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -162,7 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void CommandError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -174,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerCommandFailed(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerCommandFailed(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -232,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             bool async)
         {
-            var definition = RelationalStrings.LogRelationalLoggerOpeningConnection(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerOpeningConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -277,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TimeSpan duration,
             bool async)
         {
-            var definition = RelationalStrings.LogRelationalLoggerOpenedConnection(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerOpenedConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -321,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime)
         {
-            var definition = RelationalStrings.LogRelationalLoggerClosingConnection(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerClosingConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -365,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerClosedConnection(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerClosedConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -414,8 +410,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool logErrorAsDebug)
         {
             var definition = logErrorAsDebug
-                ? RelationalStrings.LogRelationalLoggerConnectionErrorAsDebug(diagnostics)
-                : RelationalStrings.LogRelationalLoggerConnectionError(diagnostics);
+                ? RelationalResources.LogRelationalLoggerConnectionErrorAsDebug(diagnostics)
+                : RelationalResources.LogRelationalLoggerConnectionError(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -455,7 +451,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void TransactionStarted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -463,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var definition = RelationalStrings.LogRelationalLoggerBeginningTransaction(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerBeginningTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -500,7 +495,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void TransactionUsed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -508,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var definition = RelationalStrings.LogRelationalLoggerUsingTransaction(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerUsingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -545,7 +539,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void TransactionCommitted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -554,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerCommittingTransaction(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerCommittingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -581,7 +574,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void TransactionRolledBack(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -590,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerRollingbackTransaction(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerRollingbackTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -624,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Guid transactionId,
             DateTimeOffset startDate)
         {
-            var definition = RelationalStrings.LogRelationalLoggerDisposingTransaction(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerDisposingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -650,7 +642,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
         public static void TransactionError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -661,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogRelationalLoggerTransactionError(diagnostics);
+            var definition = RelationalResources.LogRelationalLoggerTransactionError(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -695,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startDate)
         {
-            var definition = RelationalStrings.LogAmbientTransaction(diagnostics);
+            var definition = RelationalResources.LogAmbientTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -726,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] Transaction transaction)
         {
-            var definition = RelationalStrings.LogAmbientTransactionEnlisted(diagnostics);
+            var definition = RelationalResources.LogAmbientTransactionEnlisted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -766,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] Transaction transaction)
         {
-            var definition = RelationalStrings.LogExplicitTransactionEnlisted(diagnostics);
+            var definition = RelationalResources.LogExplicitTransactionEnlisted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -812,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalStrings.LogDisposingDataReader(diagnostics);
+            var definition = RelationalResources.LogDisposingDataReader(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -847,7 +838,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] IRelationalConnection connection)
         {
-            var definition = RelationalStrings.LogMigrating(diagnostics);
+            var definition = RelationalResources.LogMigrating(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -891,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
-            var definition = RelationalStrings.LogRevertingMigration(diagnostics);
+            var definition = RelationalResources.LogRevertingMigration(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -930,7 +921,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration)
         {
-            var definition = RelationalStrings.LogApplyingMigration(diagnostics);
+            var definition = RelationalResources.LogApplyingMigration(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -972,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string toMigration,
             bool idempotent)
         {
-            var definition = RelationalStrings.LogGeneratingDown(diagnostics);
+            var definition = RelationalResources.LogGeneratingDown(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1017,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string toMigration,
             bool idempotent)
         {
-            var definition = RelationalStrings.LogGeneratingUp(diagnostics);
+            var definition = RelationalResources.LogGeneratingUp(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1058,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator)
         {
-            var definition = RelationalStrings.LogNoMigrationsApplied(diagnostics);
+            var definition = RelationalResources.LogNoMigrationsApplied(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1086,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IMigrator migrator,
             [NotNull] IMigrationsAssembly migrationsAssembly)
         {
-            var definition = RelationalStrings.LogNoMigrationsFound(diagnostics);
+            var definition = RelationalResources.LogNoMigrationsFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1124,7 +1115,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] TypeInfo migrationType)
         {
-            var definition = RelationalStrings.LogMigrationAttributeMissingWarning(diagnostics);
+            var definition = RelationalResources.LogMigrationAttributeMissingWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1162,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] QueryModel queryModel,
             [NotNull] object queryModelElement)
         {
-            var definition = RelationalStrings.LogClientEvalWarning(diagnostics);
+            var definition = RelationalResources.LogClientEvalWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1200,7 +1191,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] MethodCallExpression methodCallExpression)
         {
-            var definition = RelationalStrings.LogPossibleUnintendedUseOfEquals(diagnostics);
+            var definition = RelationalResources.LogPossibleUnintendedUseOfEquals(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1236,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void QueryPossibleExceptionWithAggregateOperator(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
-            var definition = RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator(diagnostics);
+            var definition = RelationalResources.LogQueryPossibleExceptionWithAggregateOperator(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1263,7 +1254,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Type mappingClrType,
             [NotNull] ValueConverter valueConverter)
         {
-            var definition = RelationalStrings.LogValueConversionSqlLiteralWarning(diagnostics);
+            var definition = RelationalResources.LogValueConversionSqlLiteralWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1302,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = RelationalStrings.LogKeyHasDefaultValue(diagnostics);
+            var definition = RelationalResources.LogKeyHasDefaultValue(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1342,7 +1333,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
-            var definition = RelationalStrings.LogBoolWithDefaultWarning(diagnostics);
+            var definition = RelationalResources.LogBoolWithDefaultWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1381,7 +1372,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEnumerable<IUpdateEntry> entries,
             int commandCount)
         {
-            var definition = RelationalStrings.LogBatchReadyForExecution(diagnostics);
+            var definition = RelationalResources.LogBatchReadyForExecution(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1421,7 +1412,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             int commandCount,
             int minBatchSize)
         {
-            var definition = RelationalStrings.LogBatchSmallerThanMinBatchSize(diagnostics);
+            var definition = RelationalResources.LogBatchSmallerThanMinBatchSize(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

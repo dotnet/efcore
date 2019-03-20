@@ -9,8 +9,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1842,7 +1842,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogForeignKeyAttributesOnBothProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(PostDetails), nameof(PostDetails.Post),
                     nameof(Post), nameof(Post.PostDetails),
                     nameof(PostDetails.PostId),
@@ -1868,7 +1868,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogForeignKeyAttributesOnBothNavigations(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothNavigations(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), logEntry.Message);
         }
 
@@ -1898,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
                 logEntry.Message);
         }

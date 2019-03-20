@@ -3,10 +3,7 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -69,3 +66,4 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
+

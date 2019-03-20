@@ -3,9 +3,12 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         private readonly object _lock = new object();
 
-        private LazyRef<Dictionary<object, IInMemoryTable>> _tables = CreateTables();
+        private Dictionary<object, IInMemoryTable> _tables;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -74,11 +77,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             lock (_lock)
             {
-                var valuesSeeded = !_tables.HasValue;
+                var valuesSeeded = _tables == null;
                 if (valuesSeeded)
                 {
                     // ReSharper disable once AssignmentIsFullyDiscarded
-                    _ = _tables.Value;
+                    _tables = CreateTables();
 
                     var stateManager = new StateManager(stateManagerDependencies);
                     var entries = new List<IUpdateEntry>();
@@ -107,19 +110,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             lock (_lock)
             {
-                if (!_tables.HasValue)
+                if (_tables == null)
                 {
                     return false;
                 }
 
-                _tables = CreateTables();
+                _tables = null;
 
                 return true;
             }
         }
 
-        private static LazyRef<Dictionary<object, IInMemoryTable>> CreateTables()
-            => new LazyRef<Dictionary<object, IInMemoryTable>>(() => new Dictionary<object, IInMemoryTable>());
+        private static Dictionary<object, IInMemoryTable> CreateTables()
+            => new Dictionary<object, IInMemoryTable>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -130,12 +133,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             var data = new List<InMemoryTableSnapshot>();
             lock (_lock)
             {
-                if (_tables.HasValue)
+                if (_tables != null)
                 {
-                    foreach (var et in entityType.GetConcreteTypesInHierarchy())
+                    foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                     {
                         var key = _useNameMatching ? (object)et.Name : et;
-                        if (_tables.Value.TryGetValue(key, out var table))
+                        if (_tables.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
                         }
@@ -201,11 +204,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             return rowsAffected;
         }
 
+        // Must be called from inside the lock
         private IInMemoryTable EnsureTable(object key, IEntityType entityType)
         {
-            if (!_tables.Value.TryGetValue(key, out var table))
+            if (_tables == null)
             {
-                _tables.Value.Add(key, table = _tableFactory.Create(entityType));
+                _tables = CreateTables();
+            }
+
+            if (!_tables.TryGetValue(key, out var table))
+            {
+                _tables.Add(key, table = _tableFactory.Create(entityType));
             }
 
             return table;

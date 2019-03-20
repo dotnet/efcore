@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -71,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
 
-            VerifyWarning(SqliteStrings.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"), modelBuilder.Model);
+            VerifyWarning(SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"), modelBuilder.Model);
         }
 
         [Fact]
@@ -80,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasSequence("Fibonacci");
 
-            VerifyWarning(SqliteStrings.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"), modelBuilder.Model);
+            VerifyWarning(SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"), modelBuilder.Model);
         }
 
         private static void GenerateMapping(IMutableProperty property)

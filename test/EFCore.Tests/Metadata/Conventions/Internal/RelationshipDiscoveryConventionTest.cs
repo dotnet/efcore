@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -342,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log[0];
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(MultipleNavigationsSecond),
                     nameof(MultipleNavigationsFirst),
                     "{'MultipleNavigationsFirst'}",
@@ -906,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log[0];
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
                     nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), logEntry.Message);
         }
 
