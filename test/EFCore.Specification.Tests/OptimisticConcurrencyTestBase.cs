@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
                     c.EngineSuppliers.Single(s => s.Name == "Renault"),
                 (c, ex) =>
                 {
-                    var entry = ex.Entries.Single();
+                    var entry = ex.Entries.Single(e => e.Metadata.ClrType == typeof(Engine));
                     Assert.IsAssignableFrom<Engine>(entry.Entity);
                     entry.Reload();
                 },

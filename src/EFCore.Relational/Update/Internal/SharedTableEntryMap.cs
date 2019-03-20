@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual TValue GetOrAddValue([NotNull] IUpdateEntry entry)
         {
-            var mainEntry = GetMainEntry((InternalEntityEntry)entry);
+            var mainEntry = GetMainEntry(entry);
             if (_entryValueMap.TryGetValue(mainEntry, out var sharedCommand))
             {
                 return sharedCommand;
@@ -173,12 +173,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual IReadOnlyList<IEntityType> GetDependents([NotNull] IEntityType entityType) => _dependents[entityType];
 
-        private InternalEntityEntry GetMainEntry(InternalEntityEntry entry)
+        private InternalEntityEntry GetMainEntry(IUpdateEntry entry)
         {
             var entityType = entry.EntityType.RootType();
             if (_principals[entityType].Count == 0)
             {
-                return entry;
+                return (InternalEntityEntry)entry;
             }
 
             foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
@@ -186,15 +186,41 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 if (foreignKey.PrincipalKey.IsPrimaryKey()
                     && _principals.ContainsKey(foreignKey.PrincipalEntityType))
                 {
-                    var principal = _stateManager.GetPrincipal(entry, foreignKey);
-                    if (principal != null)
+                    var principalEntry = _stateManager.GetPrincipal((InternalEntityEntry)entry, foreignKey);
+                    if (principalEntry != null)
                     {
-                        return GetMainEntry(principal);
+                        return GetMainEntry(principalEntry);
                     }
                 }
             }
 
-            return entry;
+            return (InternalEntityEntry)entry;
+        }
+
+        public virtual IReadOnlyList<InternalEntityEntry> GetAllEntries([NotNull] IUpdateEntry entry)
+        {
+            var entries = new List<InternalEntityEntry>();
+            AddAllDependentsInclusive(GetMainEntry(entry), entries);
+
+            return entries;
+        }
+
+        private void AddAllDependentsInclusive(InternalEntityEntry entry, List<InternalEntityEntry> entries)
+        {
+            entries.Add(entry);
+            foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
+            {
+                if (foreignKey.PrincipalKey.IsPrimaryKey()
+                    && foreignKey.IsUnique
+                    && _dependents.ContainsKey(foreignKey.DeclaringEntityType))
+                {
+                    var dependentEntry = _stateManager.GetDependents(entry, foreignKey).SingleOrDefault();
+                    if (dependentEntry != null)
+                    {
+                        AddAllDependentsInclusive(dependentEntry, entries);
+                    }
+                }
+            }
         }
 
         private class EntryComparer : IComparer<IUpdateEntry>

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public IReadOnlyList<IUpdateEntry> GetEntriesToSave() => Enumerable.Empty<IUpdateEntry>().ToList();
+        public IList<IUpdateEntry> GetEntriesToSave() => Enumerable.Empty<IUpdateEntry>().ToList();
         public virtual void AcceptAllChanges() => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity) => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType) => throw new NotImplementedException();

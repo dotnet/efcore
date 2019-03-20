@@ -27,10 +27,12 @@ ORDER BY [e].[Id]",
 @p2='1'
 @p0='FO 108X' (Size = 4000)
 @p3='ChangedEngine' (Size = 4000)
+@p4='47.64491'
+@p5='-122.128101'
 
 SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p0
-WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3;
+WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3 AND [StorageLocation_Latitude] = @p4 AND [StorageLocation_Longitude] = @p5;
 SELECT @@ROWCOUNT;");
         }
 

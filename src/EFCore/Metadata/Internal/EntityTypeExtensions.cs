@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 owner = ownership.PrincipalEntityType;
-                if (owner.ClrType == targetType)
+                if (owner.ClrType.IsAssignableFrom(targetType))
                 {
                     return owner;
                 }
@@ -247,14 +247,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] Type targetType)
+        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
             => entityType.FindInOwnershipPath(targetType) != null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] EntityType targetType)
+        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
         {
             var owner = entityType;
             while (true)
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 owner = ownOwnership.PrincipalEntityType;
-                if (owner == targetType)
+                if (owner.IsAssignableFrom(targetType))
                 {
                     return true;
                 }

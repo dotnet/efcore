@@ -38,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore
                     firstEngine.Description += "1";
 
                     context.SaveChanges();
+
+                    Assert.Empty(context.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged));
                 }
 
                 using (var context = CreateContext())
@@ -205,13 +207,14 @@ namespace Microsoft.EntityFrameworkCore
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
+
+                    Assert.Empty(context.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged));
                 }
 
                 using (var context = CreateContext())
                 {
                     var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
                     Assert.Equal("repairman", bike.Operator.Name);
-
                     Assert.Equal("Repair", ((LicensedOperator)bike.Operator).LicenseType);
                 }
             }
@@ -254,6 +257,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
+
+                    Assert.Empty(context.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged));
                 }
 
                 using (var context = CreateContext())
@@ -262,6 +267,61 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(2, bike.SeatingCapacity);
                     Assert.NotNull(bike.Operator);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Can_change_principal_and_dependent_instance_non_derived()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Engine>().ToTable("Engines");
+                    modelBuilder.Entity<FuelTank>(
+                        eb =>
+                        {
+                            eb.ToTable("FuelTanks");
+                            eb.HasOne(e => e.Engine)
+                                .WithOne(e => e.FuelTank)
+                                .HasForeignKey<FuelTank>(e => e.VehicleName)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
+                    modelBuilder.Ignore<SolidFuelTank>();
+                    modelBuilder.Ignore<SolidRocket>();
+                }))
+            {
+                using (var context = CreateContext())
+                {
+                    var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
+
+                    var newBike = new Vehicle
+                    {
+                        Name = "Trek Pro Fit Madone 6 Series",
+                        Operator = new LicensedOperator
+                        {
+                            Name = "repairman",
+                            LicenseType = "Repair"
+                        },
+                        SeatingCapacity = 2
+                    };
+
+                    context.Remove(bike);
+                    context.Add(newBike);
+
+                    TestSqlLoggerFactory.Clear();
+                    context.SaveChanges();
+
+                    Assert.Empty(context.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged));
+                }
+
+                using (var context = CreateContext())
+                {
+                    var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
+                    Assert.Equal(2, bike.SeatingCapacity);
+                    Assert.Equal("repairman", bike.Operator.Name);
+                    Assert.Equal("Repair", ((LicensedOperator)bike.Operator).LicenseType);
                 }
             }
         }

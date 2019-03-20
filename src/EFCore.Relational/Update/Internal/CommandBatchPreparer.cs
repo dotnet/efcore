@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IList<IUpdateEntry> entries)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             var commands = CreateModificationCommands(entries, parameterNameGenerator.GenerateNext);
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
-            [NotNull] IReadOnlyList<IUpdateEntry> entries,
+            [NotNull] IList<IUpdateEntry> entries,
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
@@ -162,6 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 null;
             foreach (var entry in entries)
             {
+                if (entry.SharedIdentityEntry != null
+                    && entry.EntityState == EntityState.Deleted)
+                {
+                    continue;
+                }
+
                 var entityType = entry.EntityType;
                 var relationalExtensions = entityType.Relational();
                 var table = relationalExtensions.TableName;
@@ -200,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             if (sharedTablesCommandsMap != null)
             {
                 Validate(sharedTablesCommandsMap);
+                AddUnchangedSharingEntries(sharedTablesCommandsMap, entries);
             }
 
             return commands.Where(
@@ -312,6 +319,35 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     dependentEntityType.DisplayName(),
                                     command.EntityState));
                         }
+                    }
+                }
+            }
+        }
+
+        private void AddUnchangedSharingEntries(
+            Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap,
+            IList<IUpdateEntry> entries)
+        {
+            foreach (var modificationCommandIdentityMap in sharedTablesCommandsMap.Values)
+            {
+                foreach (var command in modificationCommandIdentityMap.Values)
+                {
+                    if (command.EntityState != EntityState.Modified)
+                    {
+                        continue;
+                    }
+
+                    foreach (var entry in modificationCommandIdentityMap.GetAllEntries(command.Entries[0]))
+                    {
+                        if (entry.EntityState != EntityState.Unchanged)
+                        {
+                            continue;
+                        }
+
+                        entry.SetEntityState(EntityState.Modified, modifyProperties: false);
+
+                        command.AddEntry(entry);
+                        entries.Add(entry);
                     }
                 }
             }

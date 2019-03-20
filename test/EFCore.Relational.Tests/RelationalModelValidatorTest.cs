@@ -900,6 +900,62 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Detects_missing_concurrency_token_on_the_base_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            VerifyError(
+                RelationalStrings.MissingConcurrencyColumn(nameof(Animal), "Version", nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_concurrency_token_on_the_sharing_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            VerifyError(
+                RelationalStrings.MissingConcurrencyColumn(nameof(Person), "Version", nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_table_sharing()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>()
+                .HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Animal>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_owned()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson,
+                    pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
         public virtual void Passes_for_non_hierarchical_model()
         {
             var model = CreateConventionlessModelBuilder().Model;

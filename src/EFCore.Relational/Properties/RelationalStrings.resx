@@ -501,4 +501,7 @@
   <data name="SqlFunctionUnexpectedInstanceMapping" xml:space="preserve">
     <value>An instance type mapping was specified without an instance expression.</value>
   </data>
+  <data name="MissingConcurrencyColumn" xml:space="preserve">
+    <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a compatible property, that can be in shadow state, to '{entityType}'.</value>
+  </data>
 </root>

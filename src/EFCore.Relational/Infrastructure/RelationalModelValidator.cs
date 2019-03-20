@@ -272,8 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
         {
             return dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                           && fk.PrincipalEntityType == principalEntityType);
         }
 
@@ -284,14 +283,54 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateSharedColumnsCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
-            var propertyMappings = new Dictionary<string, IProperty>();
-
-            foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
+            Dictionary<string, IProperty> storeConcurrencyTokens = null;
+            if (mappedTypes.Count > 1)
             {
-                var propertyAnnotations = property.Relational();
-                var columnName = propertyAnnotations.ColumnName;
-                if (propertyMappings.TryGetValue(columnName, out var duplicateProperty))
+                foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
                 {
+                    if (property.IsConcurrencyToken
+                        && (property.ValueGenerated & ValueGenerated.OnUpdate) != 0)
+                    {
+                        if (storeConcurrencyTokens == null)
+                        {
+                            storeConcurrencyTokens = new Dictionary<string, IProperty>();
+                        }
+
+                        storeConcurrencyTokens[property.Relational().ColumnName] = property;
+                    }
+                }
+            }
+
+            var propertyMappings = new Dictionary<string, IProperty>();
+            foreach (var entityType in mappedTypes)
+            {
+                HashSet<string> missingConcurrencyTokens = null;
+                if ((storeConcurrencyTokens?.Count ?? 0) != 0)
+                {
+                    missingConcurrencyTokens = new HashSet<string>();
+                    foreach (var tokenPair in storeConcurrencyTokens)
+                    {
+                        var declaringType = tokenPair.Value.DeclaringEntityType;
+                        if (!declaringType.IsAssignableFrom(entityType)
+                            && !declaringType.IsInOwnershipPath(entityType)
+                            && !entityType.IsInOwnershipPath(declaringType))
+                        {
+                            missingConcurrencyTokens.Add(tokenPair.Key);
+                        }
+                    }
+                }
+
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    var propertyAnnotations = property.Relational();
+                    var columnName = propertyAnnotations.ColumnName;
+                    missingConcurrencyTokens?.Remove(columnName);
+                    if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
+                    {
+                        propertyMappings[columnName] = property;
+                        continue;
+                    }
+
                     var previousAnnotations = duplicateProperty.Relational();
                     var currentTypeString = propertyAnnotations.ColumnType
                                             ?? property.FindRelationalMapping()?.StoreType;
@@ -371,9 +410,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 currentDefaultValueSql));
                     }
                 }
-                else
+
+                if ((missingConcurrencyTokens?.Count ?? 0) != 0)
                 {
-                    propertyMappings[columnName] = property;
+                    foreach (var missingColumn in missingConcurrencyTokens)
+                    {
+                        if (!entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties()).Any(p => p.Relational().ColumnName == missingColumn))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, tableName));
+                        }
+                    }
                 }
             }
         }

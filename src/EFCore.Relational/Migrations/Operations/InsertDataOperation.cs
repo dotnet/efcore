@@ -58,10 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
-                        isRead: false, isWrite: true, isKey: true, isCondition: false);
+                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, modifications);
+                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: true);
             }
         }
     }
