@@ -50,15 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public virtual DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
@@ -66,13 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public virtual DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
-            if (schemas.Any())
+            if (options.Schemas.Any())
             {
                 _logger.SchemasNotSupportedWarning();
             }
@@ -91,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 databaseModel.DatabaseName = GetDatabaseName(connection);
 
-                foreach (var table in GetTables(connection, tables))
+                foreach (var table in GetTables(connection, options.Tables))
                 {
                     table.Database = databaseModel;
                     databaseModel.Tables.Add(table);
