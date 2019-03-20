@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -15,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Scaffolds a model from a database schema.
         /// </summary>
         /// <param name="connectionString"> A connection string to the database. </param>
-        /// <param name="tables"> A list of tables to include. Empty to include all tables. </param>
-        /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
+        /// <param name="options"> The options specifying which metadata to read from the database. </param>
         /// <param name="rootNamespace"> The namespace of the project. </param>
         /// <param name="modelNamespace"> The namespace for model classes. </param>
         /// <param name="contextNamespace"> The namespace for context class. </param>
@@ -28,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <returns> The scaffolded model. </returns>
         ScaffoldedModel ScaffoldModel(
             [NotNull] string connectionString,
-            [NotNull] IEnumerable<string> tables,
-            [NotNull] IEnumerable<string> schemas,
+            [NotNull] DatabaseModelFactoryOptions options,
             [NotNull] string rootNamespace,
             [NotNull] string modelNamespace,
             [NotNull] string contextNamespace,

@@ -55,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .BuildServiceProvider()
                     .GetRequiredService<IDatabaseModelFactory>();
 
-                var databaseModel = databaseModelFactory.Create(Fixture.TestStore.ConnectionString, tables, schemas);
+                var databaseModel = databaseModelFactory.Create(
+                    Fixture.TestStore.ConnectionString,
+                    new DatabaseModelFactoryOptions(tables, schemas));
                 Assert.NotNull(databaseModel);
                 asserter(databaseModel);
             }
