@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         public static readonly JsonSerializer Serializer = new JsonSerializer();
+        private string _region;
 
         static CosmosClientWrapper()
         {
@@ -50,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _databaseId = options.DatabaseName;
             _endPoint = options.ServiceEndPoint;
             _authKey = options.AuthKeyOrResourceToken;
+            _region = options.Region;
             _executionStrategyFactory = executionStrategyFactory;
             _commandLogger = commandLogger;
         }
@@ -57,11 +59,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private CosmosClient Client =>
             _client
             ?? (_client = new CosmosClient(
-                new CosmosConfiguration(_endPoint, _authKey)
-                {
-                    UserAgentSuffix = _userAgent,
-                    ConnectionMode = ConnectionMode.Direct
-                }));
+                BuildCosmosConfiguration()));
+
+        private CosmosConfiguration BuildCosmosConfiguration()
+        {
+            var configuration = new CosmosConfiguration(_endPoint, _authKey)
+            {
+                UserAgentSuffix = _userAgent,
+                ConnectionMode = ConnectionMode.Direct
+            };
+
+            if (_region != null)
+            {
+                configuration = configuration.UseCurrentRegion(_region);
+            }
+
+            return configuration;
+        }
 
         public bool CreateDatabaseIfNotExists()
             => _executionStrategyFactory.Create().Execute(

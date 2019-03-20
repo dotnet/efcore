@@ -31,6 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
             => WithOption(e => e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
+        /// Configures the context to use the provided Region.
+        /// </summary>
+        /// <param name="region">CosmosDB region name</param>
+        public virtual CosmosDbContextOptionsBuilder Region(string region)
+            => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
+
+        /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
         ///     does not modify options that are already in use elsewhere.
         /// </summary>
