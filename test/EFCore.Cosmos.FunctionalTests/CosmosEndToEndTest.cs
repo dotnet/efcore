@@ -387,11 +387,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             Action a = () =>
             {
-                var options = new DbContextOptionsBuilder().UseCosmos(
-                    "serviceEndPoint",
-                    "authKeyOrResourceToken",
-                    "databaseName",
-                    o => { o.Region(regionName); });
+                using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+                {
+                    var options = Fixture.CreateOptions(testDatabase);
+
+                    var customer = new Customer {Id = 42, Name = "Theon"};
+
+                    using (var context = new CustomerContext(options))
+                    {
+                        context.Database.EnsureCreated();
+
+                        context.Add(customer);
+
+                        context.SaveChanges();
+                    }
+                }
             };
 
             var ex = Assert.Throws<ArgumentException>(a);
