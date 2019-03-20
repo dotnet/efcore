@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         /// Gets the list of tables to include. If empty, include all tables.
         /// </summary>
-        public IEnumerable<string> Tables { get; }
+        public virtual IEnumerable<string> Tables { get; }
 
         /// <summary>
         /// Gets the list of schemas to include. If empty, include all schemas.
         /// </summary>
-        public IEnumerable<string> Schemas { get; }
+        public virtual IEnumerable<string> Schemas { get; }
     }
 }
