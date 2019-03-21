@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         protected MemberEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IPropertyBase metadata)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalEntityEntry InternalEntry { get; }
 
         /// <summary>
@@ -87,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => InternalEntry;
 
         #region Hidden System.Object members

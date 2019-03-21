@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
+    [EntityFrameworkInternal]
     public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
@@ -31,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         public SqlServerConventionSetBuilder(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
@@ -44,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         public override ConventionSet CreateConventionSet()
         {
             var conventionSet = base.CreateConventionSet();
@@ -95,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         public static ConventionSet Build()
         {
             var serviceProvider = new ServiceCollection()

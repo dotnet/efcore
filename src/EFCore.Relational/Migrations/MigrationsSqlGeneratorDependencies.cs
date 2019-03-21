@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -57,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sqlGenerationHelper"> Helpers for SQL generation. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="logger"> A logger. </param>
+        [EntityFrameworkInternal]
         public MigrationsSqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,

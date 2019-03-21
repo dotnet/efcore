@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public QueryContextDependencies(
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] IConcurrencyDetector concurrencyDetector,

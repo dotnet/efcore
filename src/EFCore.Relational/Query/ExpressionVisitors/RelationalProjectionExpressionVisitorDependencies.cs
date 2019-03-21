@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -53,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </summary>
         /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
         /// <param name="entityMaterializerSource"> The entity materializer source. </param>
+        [EntityFrameworkInternal]
         public RelationalProjectionExpressionVisitorDependencies(
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] IEntityMaterializerSource entityMaterializerSource)
