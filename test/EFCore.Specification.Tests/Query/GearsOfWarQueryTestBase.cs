@@ -2517,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<CogTag>(
                 isAsync,
-                ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId));
+                ts => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId).Select(t => t));
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(Convert([t.Gear]?.SquadId, Int32), [t])'")]
@@ -3668,8 +3668,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<City>(
                 isAsync,
                 cs => from c in cs
-                      orderby (string)c[City.NationPropertyName]
-                      select c);
+                      orderby (string)c[City.NationPropertyName], c.Name
+                      select c,
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5948,7 +5949,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ThenByDescending(w => Maybe(w.Owner, () => w.Owner.Nickname))
                     .ThenByDescending(w => MaybeScalar<int>(w.Owner, () => w.Owner.SquadId))
                     .ThenBy(w => MaybeScalar<int>(w.SynergyWith, () => w.SynergyWith.Id))
-                    .ThenBy(w => w.Name));
+                    .ThenBy(w => w.Name),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6343,7 +6345,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertIncludeQuery<Squad>(
                 isAsync,
-                ss => ss.Include(s => s.Members).OrderBy(s => 42),
+                ss => ss.Include(s => s.Members).OrderBy(s => 42).Select(s => s),
                 expectedQuery: ss => ss,
                 new List<IExpectedInclude>
                 {
@@ -6508,7 +6510,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6519,11 +6522,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
-                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic).ThenBy(o => o.Nickname),
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6538,7 +6542,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6788,8 +6793,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Weapon>(
                 isAsync,
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic).OrderBy(w => w.IsAutomatic),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.IsAutomatic : false));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic).OrderBy(w => w.IsAutomatic).ThenBy(w => w.Id),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.IsAutomatic : false).ThenBy(w => w != null ? (int?)w.Id : null),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6799,8 +6805,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer"))
-                    .OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.EndsWith("Lancer") : false));
+                    .OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")).Select(w => w),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.EndsWith("Lancer") : false).Select(w => w));
         }
 
         [ConditionalTheory]
@@ -6809,8 +6815,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Weapon>(
                 isAsync,
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name == null).OrderBy(w => w.Name == null),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name == null : false));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name == null).OrderBy(w => w.Name == null).Select(w => w),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name == null : false).Select(w => w));
         }
 
         [ConditionalTheory]
@@ -6819,8 +6825,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Weapon>(
                 isAsync,
-                ws => ws.OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
-                ws => ws.OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
+                ws => ws.OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).ThenBy(w => w.Id),
+                ws => ws.OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false).ThenBy(w => w.Id),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6838,8 +6845,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Weapon>(
                 isAsync,
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).Select(c => c),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name.CompareTo("Marcus' Lancer") == 0 : false).Select(c => c));
         }
 
         [ConditionalTheory]
@@ -6848,8 +6855,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Weapon>(
                 isAsync,
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w.Name) == 0),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? "Marcus' Lancer".CompareTo(w.Name) == 0 : false));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w.Name) == 0).Select(w => w),
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? "Marcus' Lancer".CompareTo(w.Name) == 0 : false).Select(w => w));
         }
 
         [ConditionalTheory]
@@ -6859,7 +6866,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => w.Name + 5),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name + 5 : null));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name + 5 : null),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -6869,7 +6877,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWith).OrderBy(w => string.Concat(w.Name, "Marcus' Lancer")),
-                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null));
+                ws => ws.Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null),
+                assertOrder: true);
         }
 
         [ConditionalTheory(Skip = "issue #13104")]
@@ -7103,7 +7112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Gear>(
                 isAsync,
                 gs => gs.Select(g => g.LeaderNickname != null ? (bool?)(g.Nickname.Length == 5) : (bool?)null).OrderBy(e => e.HasValue)
-                    .ThenBy(e => e.HasValue));
+                    .ThenBy(e => e.HasValue).Select(e => e));
         }
 
         [ConditionalTheory]

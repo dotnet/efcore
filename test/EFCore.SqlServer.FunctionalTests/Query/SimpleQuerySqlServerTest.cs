@@ -2245,7 +2245,7 @@ ORDER BY (
             WHERE [c2].[CustomerID] = [c].[CustomerID])
         THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
-)");
+), [c].[CustomerID]");
         }
 
         public override async Task OrderBy_correlated_subquery2(bool isAsync)
@@ -2519,7 +2519,7 @@ CROSS JOIN [Customers] AS [c0]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY COALESCE([c].[Region], N'ZZ')");
+ORDER BY COALESCE([c].[Region], N'ZZ'), [c].[CustomerID]");
         }
 
         public override async Task Select_null_coalesce_operator(bool isAsync)
@@ -2529,7 +2529,7 @@ ORDER BY COALESCE([c].[Region], N'ZZ')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
 FROM [Customers] AS [c]
-ORDER BY [Region]");
+ORDER BY [Region], [c].[CustomerID]");
         }
 
         public override async Task OrderBy_conditional_operator(bool isAsync)
@@ -2542,7 +2542,7 @@ FROM [Customers] AS [c]
 ORDER BY CASE
     WHEN [c].[Region] IS NULL
     THEN N'ZZ' ELSE [c].[Region]
-END");
+END, [c].[CustomerID]");
         }
 
         public override async Task Null_Coalesce_Short_Circuit(bool isAsync)

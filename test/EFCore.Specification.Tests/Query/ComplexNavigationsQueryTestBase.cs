@@ -2250,7 +2250,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                      e.OneToOne_Required_FK1.OneToOne_Optional_PK2,
                                      () => e.OneToOne_Required_FK1.OneToOne_Optional_PK2.Name)) != "Foo")
                     .OrderBy(e => e.Id),
-                expectedIncludes);
+                expectedIncludes,
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5032,7 +5033,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5051,7 +5053,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5067,7 +5070,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5083,7 +5087,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5099,7 +5104,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalFact]
@@ -5344,7 +5350,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Optional_FK1")
-                });
+                },
+                assertOrder: true);
         }
 
         [ConditionalTheory]

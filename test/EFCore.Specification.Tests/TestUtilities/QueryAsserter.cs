@@ -305,6 +305,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertQuery
 
+        private void OrderingSettingsVerifier(bool assertOrder, Type type)
+            => OrderingSettingsVerifier(assertOrder, type, elementSorter: null);
+
+        private void OrderingSettingsVerifier(bool assertOrder, Type type, Func<dynamic, object> elementSorter)
+        {
+            if (!assertOrder
+                && type.IsGenericType
+                && (type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>)
+                    || type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>)))
+            {
+                throw new InvalidOperationException("Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
+            }
+
+            if (assertOrder && elementSorter != null)
+            {
+                throw new InvalidOperationException("You shouldn't apply element sorter when 'assertOrder' is set to 'true'.");
+            }
+        }
+
         public override async Task AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
@@ -317,17 +336,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context));
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
+
                 var actual = isAsync
-                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
-                    : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
 
@@ -369,21 +390,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
+
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArrayAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
@@ -427,24 +446,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(
+                    SetExtractor.Set<TItem1>(context),
+                    SetExtractor.Set<TItem2>(context),
+                    SetExtractor.Set<TItem3>(context));
+
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(
-                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context),
-                        SetExtractor.Set<TItem3>(context)).ToArrayAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context),
-                        SetExtractor.Set<TItem3>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
@@ -542,17 +558,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context));
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+
                 var actual = isAsync
-                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
-                    : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
 
@@ -595,21 +613,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(
+                    SetExtractor.Set<TItem1>(context),
+                    SetExtractor.Set<TItem2>(context));
+
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArrayAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
@@ -645,24 +662,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(
+                    SetExtractor.Set<TItem1>(context),
+                    SetExtractor.Set<TItem2>(context),
+                    SetExtractor.Set<TItem3>(context));
+
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(
-                        SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context), SetExtractor.Set<TItem3>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context),
-                        SetExtractor.Set<TItem3>(context)).ToArrayAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context),
-                        SetExtractor.Set<TItem3>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
@@ -711,17 +725,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context));
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+
                 var actual = isAsync
-                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).ToArrayAsync()
-                    : actualQuery(SetExtractor.Set<TItem1>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
 
                 TestHelpers.AssertResultsNullable(
@@ -764,21 +780,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(
+                    SetExtractor.Set<TItem1>(context),
+                    SetExtractor.Set<TItem2>(context));
+
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArrayAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToArray();
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
@@ -823,19 +840,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context));
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return default;
                 }
 
+                OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
+
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context)).ToListAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context)).ToList();
+                    ? await query.ToListAsync()
+                    : query.ToList();
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToList();
 
@@ -905,21 +922,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var context = _contextCreator())
             {
+                var query = actualQuery(
+                    SetExtractor.Set<TItem1>(context),
+                    SetExtractor.Set<TItem2>(context));
+
                 if (ProceduralQueryGeneration && !isAsync)
                 {
-                    var query = actualQuery(SetExtractor.Set<TItem1>(context), SetExtractor.Set<TItem2>(context));
                     new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
                     return default;
                 }
 
                 var actual = isAsync
-                    ? await actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToListAsync()
-                    : actualQuery(
-                        SetExtractor.Set<TItem1>(context),
-                        SetExtractor.Set<TItem2>(context)).ToList();
+                    ? await query.ToListAsync()
+                    : query.ToList();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),

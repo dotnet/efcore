@@ -750,7 +750,7 @@ ORDER BY (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-)");
+), [c].[CustomerID]");
         }
 
         public override async Task Collection_select_nav_prop_long_count(bool isAsync)

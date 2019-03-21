@@ -563,12 +563,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                            c.CustomerID,
                            c.Orders
                        }).OrderBy(e => e.CustomerID),
-                elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
                     CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
                 },
+                assertOrder: true,
                 entryCount: 30);
         }
 
@@ -798,11 +798,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      orderby c.Orders.Count()
+                      orderby c.Orders.Count(), c.CustomerID
                       select c,
                 cs => from c in cs
-                      orderby (c.Orders ?? new List<Order>()).Count()
+                      orderby (c.Orders ?? new List<Order>()).Count(), c.CustomerID
                       select c,
+                assertOrder: true,
                 entryCount: 91);
         }
 

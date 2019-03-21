@@ -1423,6 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID),
+                assertOrder: true,
                 entryCount: 91);
         }
 
@@ -1478,7 +1479,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
-                    .OrderBy(r => r.A));
+                    .OrderBy(r => r.A),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -1488,7 +1490,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
-                    .OrderByDescending(r => r.A));
+                    .OrderByDescending(r => r.A),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -1498,7 +1501,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderByDescending(r => r.A)
-                    .ThenBy(r => r.A));
+                    .ThenBy(r => r.A),
+                assertOrder: true);
         }
     }
 }

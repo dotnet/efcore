@@ -3846,7 +3846,7 @@ WHERE [c].[Nation] = N'Tyrus'");
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-ORDER BY [c].[Nation]");
+ORDER BY [c].[Nation], [c].[Name]");
         }
 
         public override async Task Can_group_by_indexed_property_on_query(bool isAsync)
@@ -7730,7 +7730,7 @@ ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
                 @"SELECT [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
-ORDER BY [w.SynergyWith].[IsAutomatic]");
+ORDER BY [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Id]");
         }
 
         public override async Task Double_order_by_on_Like(bool isAsync)
@@ -7771,7 +7771,7 @@ FROM [Weapons] AS [w]
 ORDER BY CASE
     WHEN [w].[Name] = N'Marcus'' Lancer'
     THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END");
+END, [w].[Id]");
         }
 
         public override async Task Double_order_by_binary_expression(bool isAsync)

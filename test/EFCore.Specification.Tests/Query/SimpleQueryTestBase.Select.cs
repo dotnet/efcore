@@ -153,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             await AssertQueryScalar<Customer>(
                 isAsync,
-                cs => cs.Select(c => boolean).OrderBy(e => (bool?)e));
+                cs => cs.Select(c => boolean).OrderBy(e => (bool?)e),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
