@@ -27,12 +27,10 @@ jobs:
           ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
             timeoutInMinutes: 0
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCorePublic-Int-Pool
-              queue: BuildPool.Windows.10.Amd64.VS2017.Open
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCoreInternal-Int-Pool
-              queue: BuildPool.Windows.10.Amd64.VS2017
+              name: dotnet-internal-temp
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: dotnet-external-temp
           variables:
             - _InternalBuildArgs: ''
             - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -79,10 +77,10 @@ jobs:
 
         - job: macOS
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Hosted macOS
             ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
               name: Hosted Mac Internal
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: Hosted macOS
           steps:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
