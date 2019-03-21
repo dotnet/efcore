@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
+    public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
 
@@ -87,15 +87,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             using (var connection = new SqlConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
@@ -103,11 +102,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             var databaseModel = new DatabaseModel();
 
@@ -124,9 +122,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 var typeAliases = GetTypeAliases(connection);
 
-                var schemaList = schemas.ToList();
+                var schemaList = options.Schemas.ToList();
                 var schemaFilter = GenerateSchemaFilter(schemaList);
-                var tableList = tables.ToList();
+                var tableList = options.Tables.ToList();
                 var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
                 if (Version.TryParse(connection.ServerVersion, out var serverVersion)

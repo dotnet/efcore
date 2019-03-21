@@ -89,8 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
-                tables,
-                schemas,
+                new DatabaseModelFactoryOptions(tables, schemas),
                 _rootNamespace,
                 modelNamespace,
                 contextNamespace,
