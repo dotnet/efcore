@@ -97,7 +97,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                    connection2.DefaultTimeout = 0;
+                    connection2.DefaultTimeout = 1;
 
                     var ex = Assert.Throws<SqliteException>(
                         () =>

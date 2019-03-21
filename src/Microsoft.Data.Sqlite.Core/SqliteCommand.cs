@@ -170,7 +170,8 @@ namespace Microsoft.Data.Sqlite
             => Parameters;
 
         /// <summary>
-        ///     Gets or sets the number of seconds to wait before terminating the attempt to execute the command. Defaults to 30.
+        ///     Gets or sets the number of seconds to wait before terminating the attempt to execute the command.
+        ///     Defaults to 30. A value of 0 means no timeout.
         /// </summary>
         /// <value>The number of seconds to wait before terminating the attempt to execute the command.</value>
         /// <remarks>
@@ -484,7 +485,8 @@ namespace Microsoft.Data.Sqlite
                 string nextTail;
                 while (IsBusy(rc = sqlite3_prepare_v2(_connection.Handle, tail, out stmt, out nextTail)))
                 {
-                    if (timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
+                    if (CommandTimeout != 0
+                        && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
                     {
                         break;
                     }
