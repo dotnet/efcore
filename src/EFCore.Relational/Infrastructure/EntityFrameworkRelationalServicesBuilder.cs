@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         It should not be used from application code.
         ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
@@ -109,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
             return RelationalServices.TryGetValue(serviceType, out var characteristics)

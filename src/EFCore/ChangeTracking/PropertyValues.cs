@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         protected PropertyValues([NotNull] InternalEntityEntry internalEntry)
         {
             InternalEntry = internalEntry;
@@ -38,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
         /// <summary>

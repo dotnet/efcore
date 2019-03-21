@@ -75,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        [EntityFrameworkInternal]
         public MigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         /// <param name="typeMappingSource"> The type mapping source. </param>
+        [EntityFrameworkInternal]
         public UpdateSqlGeneratorDependencies(
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMappingSource typeMappingSource)

@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="modelLogger"> The logger for model building events. </param>
         /// <param name="commandLogger"> The command logger. </param>
+        [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -160,6 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The model logger
         /// </summary>
+        [EntityFrameworkInternal]
         public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
 
         /// <summary>

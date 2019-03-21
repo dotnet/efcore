@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="databaseProvider"> The database provider. </param>
         /// <param name="snapshotModelProcessor"> The snapshot model processor. </param>
         /// <param name="migrator"> The migrator. </param>
+        [EntityFrameworkInternal]
         public MigrationsScaffolderDependencies(
             [NotNull] ICurrentDbContext currentDbContext,
             [NotNull] IModel model,
