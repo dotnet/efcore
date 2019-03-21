@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         It should not be used from application code.
         ///     </para>
         /// </summary>
+        //[EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> CoreServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
@@ -172,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual ServiceCharacteristics GetServiceCharacteristics([NotNull] Type serviceType)
         {
             if (!CoreServices.TryGetValue(serviceType, out var characteristics))
@@ -473,24 +475,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public readonly struct ServiceCharacteristics
         {
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             public ServiceLifetime Lifetime { get; }
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             public bool MultipleRegistrations { get; }
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             public ServiceCharacteristics(ServiceLifetime lifetime, bool multipleRegistrations = false)
             {
                 Lifetime = lifetime;

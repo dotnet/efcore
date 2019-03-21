@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
             InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
@@ -145,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [CanBeNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
@@ -157,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
@@ -251,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [CanBeNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
@@ -263,6 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
@@ -299,6 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual EntityType ResolveEntityType([NotNull] string entityTypeName)
         {
             if (DeclaringEntityType.Name == entityTypeName)
@@ -323,6 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual EntityType ResolveEntityType([NotNull] Type entityType)
         {
             if (DeclaringEntityType.ClrType == entityType)

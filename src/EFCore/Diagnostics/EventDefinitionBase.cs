@@ -109,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected sealed class MessageExtractingLogger : ILogger
         {
             private string? _message;
@@ -117,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             public string Message {
                 get => _message ?? throw new InvalidOperationException();
                 private set => _message = value;
@@ -126,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             void ILogger.Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
@@ -140,12 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             bool ILogger.IsEnabled(LogLevel logLevel) => true;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            //[EntityFrameworkInternal]
             IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state) => throw new NotImplementedException();
         }
     }

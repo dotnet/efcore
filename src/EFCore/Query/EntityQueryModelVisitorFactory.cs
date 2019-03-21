@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
+    //[EntityFrameworkInternal]
     public abstract class EntityQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
     {
         /// <summary>

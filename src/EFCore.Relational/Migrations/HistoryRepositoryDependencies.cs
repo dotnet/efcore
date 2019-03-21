@@ -73,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="conventionSetBuilders"> The convention sets to use when creating the model. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="modelLogger"> The logger for model building events. </param>
+        //[EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -170,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
 
         /// <summary>

@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
+        //[EntityFrameworkInternal]
         public ModelSourceDependencies(
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
             [NotNull] IModelCustomizer modelCustomizer,

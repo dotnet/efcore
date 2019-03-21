@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="methodCallTranslator"> The method call translator. </param>
         /// <param name="memberTranslator"> The member translator. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
+        //[EntityFrameworkInternal]
         public SqlTranslatingExpressionVisitorDependencies(
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] ICompositeMethodCallTranslator methodCallTranslator,

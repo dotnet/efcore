@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         application code; the type of object may change at any time.
         ///     </para>
         /// </summary>
+        //[EntityFrameworkInternal]
         public object Instance;
     }
 }

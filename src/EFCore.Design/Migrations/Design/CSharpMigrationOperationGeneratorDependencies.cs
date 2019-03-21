@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         /// <param name="csharpHelper"> The C# helper. </param>
+        //[EntityFrameworkInternal]
         public CSharpMigrationOperationGeneratorDependencies([NotNull] ICSharpHelper csharpHelper)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));

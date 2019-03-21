@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
+    //[EntityFrameworkInternal]
     public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public SqlServerConventionSetBuilder(
             [NotNull] RelationalConventionSetBuilderDependencies dependencies,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public override ConventionSet AddConventions(ConventionSet conventionSet)
         {
             Check.NotNull(conventionSet, nameof(conventionSet));
@@ -96,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public static ConventionSet Build()
         {
             var serviceProvider = new ServiceCollection()

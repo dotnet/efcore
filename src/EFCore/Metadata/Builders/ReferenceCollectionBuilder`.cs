@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public ReferenceCollectionBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
@@ -43,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
             InternalRelationshipBuilder builder,
             ReferenceCollectionBuilder oldBuilder,

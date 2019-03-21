@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         /// </summary>
+        //[EntityFrameworkInternal]
         public QueryContextDependencies(
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] IConcurrencyDetector concurrencyDetector)

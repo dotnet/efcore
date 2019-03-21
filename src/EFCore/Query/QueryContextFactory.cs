@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        //[EntityFrameworkInternal]
         protected QueryContextFactory([NotNull] QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

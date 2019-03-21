@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         /// <param name="typeMappingSource"> The type mapping source. </param>
+        //[EntityFrameworkInternal]
         public UpdateSqlGeneratorDependencies(
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMappingSource typeMappingSource)

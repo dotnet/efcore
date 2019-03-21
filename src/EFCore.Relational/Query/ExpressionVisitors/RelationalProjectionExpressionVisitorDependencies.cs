@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </summary>
         /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
         /// <param name="entityMaterializerSource"> The entity materializer source. </param>
+        //[EntityFrameworkInternal]
         public RelationalProjectionExpressionVisitorDependencies(
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] IEntityMaterializerSource entityMaterializerSource)

@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
         /// <param name="sqlGenerationHelper"> The <see cref="ISqlGenerationHelper" /> to be used. </param>
         /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
+        //[EntityFrameworkInternal]
         public RelationalDatabaseCreatorDependencies(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,

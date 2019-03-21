@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         /// <param name="csharpHelper"> The C# helper. </param>
+        //[EntityFrameworkInternal]
         public CSharpSnapshotGeneratorDependencies(
             [NotNull] ICSharpHelper csharpHelper)
         {

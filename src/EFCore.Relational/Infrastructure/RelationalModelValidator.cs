@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateDbFunctions([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var dbFunction in model.Relational().DbFunctions)
@@ -107,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateBoolsWithDefaults([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -133,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateDefaultValuesOnKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
@@ -149,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedTableCompatibility([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
@@ -182,6 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedTableCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -281,6 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedColumnsCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -382,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedForeignKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -404,6 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedIndexesCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -426,6 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateSharedKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -462,6 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var rootEntityType in model.GetRootEntityTypes())

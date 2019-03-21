@@ -1309,6 +1309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual Type CreateTransparentIdentifierType([NotNull] Type outerType, [NotNull] Type innerType)
             => typeof(TransparentIdentifier<,>).MakeGenericType(
                 Check.NotNull(outerType, nameof(outerType)),
@@ -1318,6 +1319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual Expression CallCreateTransparentIdentifier(
             [NotNull] Type transparentIdentifierType,
             [NotNull] Expression outerExpression,

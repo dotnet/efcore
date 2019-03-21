@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
+        //[EntityFrameworkInternal]
         public EntityEntryGraphNode(
             [NotNull] InternalEntityEntry entry,
             [CanBeNull] InternalEntityEntry sourceEntry,

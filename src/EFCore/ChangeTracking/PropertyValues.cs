@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected PropertyValues([NotNull] InternalEntityEntry internalEntry)
         {
             InternalEntry = internalEntry;
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
         /// <summary>

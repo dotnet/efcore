@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="databaseProvider"> The database provider. </param>
         /// <param name="snapshotModelProcessor"> The snapshot model processor. </param>
         /// <param name="migrator"> The migrator. </param>
+        //[EntityFrameworkInternal]
         public MigrationsScaffolderDependencies(
             [NotNull] ICurrentDbContext currentDbContext,
             [NotNull] IModel model,

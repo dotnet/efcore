@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         public QueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -122,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        //[EntityFrameworkInternal]
         internal virtual IDictionary<MainFromClause, CorrelatedSubqueryMetadata> CorrelatedSubqueryMetadataMap => _correlatedSubqueryMetadataMap;
 
         /// <summary>
