@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 { typeof(byte[]), _blob },
                 { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
                 { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
-                { typeof(char), new CharTypeMapping(IntegerTypeName) },
+                { typeof(char), new CharTypeMapping(TextTypeName) },
                 { typeof(int), new IntTypeMapping(IntegerTypeName) },
                 { typeof(long), _integer },
                 { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
                 { typeof(double), _real },
                 { typeof(float), new FloatTypeMapping(RealTypeName) },
-                { typeof(Guid), new SqliteGuidTypeMapping(BlobTypeName) }
+                { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) }
             };
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings
