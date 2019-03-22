@@ -5,9 +5,9 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>d6a30736858f91b297fdd3ed4e3d1dfde67bdbdb</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27521-01" CoherentParentDependency="Microsoft.NETCore.App">
+    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-preview4-27522-01" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>18780678da576d8c629066f50af30159a8859b2f</Sha>
+      <Sha>b58bfb6da1e5d538f8f2e8a80184943378a5dd9f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview4.19168.1">
       <Uri>
@@ -39,9 +39,9 @@
       </Uri>
       <Sha>4b314dd3ce296dc1f951b91623ed070bccdaa918</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27521-01">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview4-27522-01">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>18780678da576d8c629066f50af30159a8859b2f</Sha>
+      <Sha>b58bfb6da1e5d538f8f2e8a80184943378a5dd9f</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview4.19168.1">
       <Uri>
@@ -57,9 +57,9 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>d6a30736858f91b297fdd3ed4e3d1dfde67bdbdb</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27521-01">
+    <Dependency Name="Microsoft.NETCore.App" Version="3.0.0-preview4-27522-01">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>18780678da576d8c629066f50af30159a8859b2f</Sha>
+      <Sha>b58bfb6da1e5d538f8f2e8a80184943378a5dd9f</Sha>
     </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview4.19164.7" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/corefx</Uri>
