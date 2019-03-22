@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -71,19 +70,6 @@ namespace Microsoft.EntityFrameworkCore
                     ColumnType = "date",
                     IsNullable = true,
                     DefaultValueSql = "CURRENT_TIMESTAMP"
-                });
-
-        [Fact]
-        public virtual void AddColumnOperation_with_computed_column_SQL()
-            => Generate(
-                new AddColumnOperation
-                {
-                    Table = "People",
-                    Name = "Birthday",
-                    ClrType = typeof(DateTime),
-                    ColumnType = "date",
-                    IsNullable = true,
-                    ComputedColumnSql = "CURRENT_TIMESTAMP"
                 });
 
         [Fact]

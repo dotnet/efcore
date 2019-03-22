@@ -1253,16 +1253,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.ComputedColumnSql != null)
-            {
-                builder
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
-                    .Append(" AS ")
-                    .Append(operation.ComputedColumnSql);
-
-                return;
-            }
-
             base.ColumnDefinition(
                 schema,
                 table,
@@ -1278,6 +1268,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder.Append(" IDENTITY");
             }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for a computed column definition for the given column metadata.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="name"> The column name. </param>
+        /// <param name="operation"> The column metadata. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void ComputedColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            ColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                .Append(" AS ")
+                .Append(operation.ComputedColumnSql);
         }
 
         /// <summary>

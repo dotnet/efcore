@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -52,9 +51,19 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        public override void AddColumnOperation_with_computed_column_SQL()
+        [Fact]
+        public void AddColumnOperation_with_computed_column_SQL()
         {
-            base.AddColumnOperation_with_computed_column_SQL();
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Birthday",
+                    ClrType = typeof(DateTime),
+                    ColumnType = "date",
+                    IsNullable = true,
+                    ComputedColumnSql = "CURRENT_TIMESTAMP"
+                });
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;" + EOL,
@@ -266,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void AlterColumnOperation_computed()
+        public void AlterColumnOperation_computed()
         {
             Generate(
                 new AlterColumnOperation
