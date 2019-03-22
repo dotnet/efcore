@@ -39,6 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");
 
+        /// <summary>
+        ///     SQLite doesn't support computed columns. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        /// </summary>
+        public static string ComputedColumnsNotSupported
+            => GetString("ComputedColumnsNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
