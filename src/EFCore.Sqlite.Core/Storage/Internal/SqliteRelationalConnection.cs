@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     if (relationalOptions.Connection != null)
                     {
                         // TODO: Provide a better hook to do this for both external connections and ones created by EF
-                        SpatialiteLoader.Load((SqliteConnection)relationalOptions.Connection);
+                        SpatialiteLoader.Load(relationalOptions.Connection);
                     }
                 }
             }

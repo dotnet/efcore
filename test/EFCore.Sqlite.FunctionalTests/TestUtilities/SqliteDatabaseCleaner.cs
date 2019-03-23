@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             connection.Open();
 
-            SpatialiteLoader.TryLoad((SqliteConnection)connection.DbConnection);
+            SpatialiteLoader.TryLoad(connection.DbConnection);
         }
     }
 }

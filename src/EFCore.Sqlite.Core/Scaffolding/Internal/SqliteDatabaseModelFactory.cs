@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 connection.Open();
 
-                SpatialiteLoader.TryLoad((SqliteConnection)connection);
+                SpatialiteLoader.TryLoad(connection);
             }
 
             try
