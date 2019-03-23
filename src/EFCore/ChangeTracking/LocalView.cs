@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <exception cref="NotSupportedException"> Always thrown. </exception>
         /// <returns> Never returns, always throws an exception. </returns>
-        IList IListSource.GetList() => throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
+        IList IListSource.GetList() => throw new NotSupportedException(CoreStrings.DataBindingToLocalWithIListSource);
 
         /// <summary>
         ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
