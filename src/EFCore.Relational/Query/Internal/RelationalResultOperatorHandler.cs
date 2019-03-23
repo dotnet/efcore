@@ -933,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null)
             {
                 handlerContext.QueryModelVisitor.QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
-                    .QueryPossibleExceptionWithAggregateOperator();
+                    .QueryPossibleExceptionWithAggregateOperatorWarning();
             }
 
             if (handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null)

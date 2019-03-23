@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => base.AddOptions(builder).ConfigureWarnings(
                     c => c
                         .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
-                        .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator)
+                        .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning)
                         .Log(RelationalEventId.ValueConversionSqlLiteralWarning))
                 .EnableDetailedErrors();
 

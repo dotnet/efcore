@@ -993,22 +993,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.
         /// </summary>
-        public static EventDefinition LogQueryPossibleExceptionWithAggregateOperator([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogQueryPossibleExceptionWithAggregateOperatorWarning([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperator;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperator,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning,
                     () => new EventDefinition(
                         logger.Options,
-                        RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
+                        RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
                         LogLevel.Warning,
-                        "RelationalEventId.QueryPossibleExceptionWithAggregateOperator",
+                        "RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning",
                         level => LoggerMessage.Define(
                             level,
-                            RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
-                            _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperator"))));
+                            RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
+                            _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperatorWarning"))));
             }
 
             return (EventDefinition)definition;
