@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<IForeignKey> GetForeignKeys()
             => EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredForeignKeys)
-                .Distinct((x, y) => x.Relational().Name == y.Relational().Name)
+                .Distinct((x, y) => x.Relational().ConstraintName == y.Relational().ConstraintName)
                 .Where(
                     fk => !(EntityTypes.Contains(fk.PrincipalEntityType)
                             && fk.Properties.Select(p => p.Relational().ColumnName)

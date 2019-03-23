@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (!string.IsNullOrEmpty(foreignKey.Name)
                 && foreignKey.Name != ConstraintNamer.GetDefaultName(key))
             {
-                key.Relational().Name = foreignKey.Name;
+                key.Relational().ConstraintName = foreignKey.Name;
             }
 
             AssignOnDeleteAction(foreignKey, key);

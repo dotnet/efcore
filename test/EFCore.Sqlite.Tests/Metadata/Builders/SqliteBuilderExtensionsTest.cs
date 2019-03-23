@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .HasConstraintName("ChocolateLimes")
                 .Metadata;
 
-            Assert.Equal("ChocolateLimes", foreignKey.Relational().Name);
+            Assert.Equal("ChocolateLimes", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]

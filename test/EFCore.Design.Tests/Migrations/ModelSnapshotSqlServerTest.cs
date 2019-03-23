@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
                     Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
                     Assert.True(ownership1.IsRequired);
-                    Assert.Equal("FK_Custom", ownership1.Relational().Name);
+                    Assert.Equal("FK_Custom", ownership1.Relational().ConstraintName);
                     var ownedType1 = ownership1.DeclaringEntityType;
                     Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
                     Assert.Equal("PK_Custom", ownedType1.GetKeys().Single().Relational().Name);
@@ -2420,7 +2420,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         parent.FindPrimaryKey(),
                         parent);
 
-                    Assert.Equal(originalForeignKey.Relational().Name, foreignKey.Relational().Name);
+                    Assert.Equal(originalForeignKey.Relational().ConstraintName, foreignKey.Relational().ConstraintName);
 
                     var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
                     var index = child.FindIndex(child.FindProperty("Property"));

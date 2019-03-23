@@ -12,6 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The foreign key constraint name.
         /// </summary>
-        string Name { get; }
+        string ConstraintName { get; }
     }
 }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().Name,
+                            foreignKey.Relational().ConstraintName,
                             Format(principalAnnotations),
                             Format(duplicatePrincipalAnnotations)));
                 }
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().Name,
+                            foreignKey.Relational().ConstraintName,
                             foreignKey.Properties.FormatColumns(),
                             duplicateForeignKey.Properties.FormatColumns()));
                 }
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().Name,
+                            foreignKey.Relational().ConstraintName,
                             foreignKey.PrincipalKey.Properties.FormatColumns(),
                             duplicateForeignKey.PrincipalKey.Properties.FormatColumns()));
                 }
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().Name));
+                            foreignKey.Relational().ConstraintName));
                 }
 
                 return false;
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().Name,
+                            foreignKey.Relational().ConstraintName,
                             foreignKey.DeleteBehavior,
                             duplicateForeignKey.DeleteBehavior));
                 }

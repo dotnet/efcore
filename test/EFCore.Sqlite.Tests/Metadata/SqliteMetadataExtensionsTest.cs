@@ -186,23 +186,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().ConstraintName);
 
-            foreignKey.Relational().Name = "FK";
+            foreignKey.Relational().ConstraintName = "FK";
 
-            Assert.Equal("FK", foreignKey.Relational().Name);
-            Assert.Equal("FK", ((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("FK", foreignKey.Relational().ConstraintName);
+            Assert.Equal("FK", ((IForeignKey)foreignKey).Relational().ConstraintName);
 
-            foreignKey.Relational().Name = "KFC";
+            foreignKey.Relational().ConstraintName = "KFC";
 
-            Assert.Equal("KFC", foreignKey.Relational().Name);
-            Assert.Equal("KFC", ((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("KFC", foreignKey.Relational().ConstraintName);
+            Assert.Equal("KFC", ((IForeignKey)foreignKey).Relational().ConstraintName);
 
-            foreignKey.Relational().Name = null;
+            foreignKey.Relational().ConstraintName = null;
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().ConstraintName);
         }
 
         [Fact]

@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         var otherAssociatedForeignKey = otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
                         if (associatedForeignKey != null
                             && otherAssociatedForeignKey != null
-                            && associatedForeignKey.Relational().Name == otherAssociatedForeignKey.Relational().Name
+                            && associatedForeignKey.Relational().ConstraintName == otherAssociatedForeignKey.Relational().ConstraintName
                             && index.AreCompatible(otherIndex, shouldThrow: false))
                         {
                             continue;
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.Relational().Name;
+                var foreignKeyName = foreignKey.Relational().ConstraintName;
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
@@ -403,9 +403,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
                 var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
-                if (relationalKeyBuilder.CanSetName(null))
+                if (relationalKeyBuilder.CanSetConstraintName(null))
                 {
-                    if (otherRelationalKeyBuilder.CanSetName(null)
+                    if (otherRelationalKeyBuilder.CanSetConstraintName(null)
                         && (foreignKey.PrincipalToDependent != null
                             || foreignKey.DependentToPrincipal != null)
                         && (foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo()).IsSameAs(
@@ -435,10 +435,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
            ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
         {
             var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalKeyBuilder.CanSetName(null))
+            if (relationalKeyBuilder.CanSetConstraintName(null))
             {
                 foreignKeyName = ConstraintNamer.Uniquify(foreignKeyName, foreignKeys, maxLength);
-                relationalKeyBuilder.Name = foreignKeyName;
+                relationalKeyBuilder.ConstraintName = foreignKeyName;
                 return foreignKeyName;
             }
 

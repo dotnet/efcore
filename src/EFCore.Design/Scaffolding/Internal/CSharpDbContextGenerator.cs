@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}" +
-                    $"({_code.Literal(foreignKey.Relational().Name)})");
+                    $"({_code.Literal(foreignKey.Relational().ConstraintName)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
