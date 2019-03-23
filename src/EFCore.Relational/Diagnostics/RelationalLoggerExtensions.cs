@@ -1224,10 +1224,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void QueryPossibleExceptionWithAggregateOperator(
+        public static void QueryPossibleExceptionWithAggregateOperatorWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
-            var definition = RelationalResources.LogQueryPossibleExceptionWithAggregateOperator(diagnostics);
+            var definition = RelationalResources.LogQueryPossibleExceptionWithAggregateOperatorWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
