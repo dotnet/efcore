@@ -346,15 +346,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
 
-            foreignKey.Relational().Name = "FK";
+            foreignKey.Relational().ConstraintName = "FK";
 
-            Assert.Equal("FK", foreignKey.Relational().Name);
+            Assert.Equal("FK", foreignKey.Relational().ConstraintName);
 
-            foreignKey.Relational().Name = null;
+            foreignKey.Relational().ConstraintName = null;
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]

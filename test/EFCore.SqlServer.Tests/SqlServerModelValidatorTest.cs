@@ -122,8 +122,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
         }
 
         [Fact]

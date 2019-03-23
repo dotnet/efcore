@@ -329,12 +329,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
 
             modelBuilder
                 .Entity<Order>().Property(e => e.CustomerId).HasColumnName("CID");
 
-            Assert.Equal("FK_Order_Customer_CID", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CID", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -349,13 +349,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasConstraintName(null);
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -386,13 +386,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasConstraintName(null);
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -423,13 +423,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .HasConstraintName(null);
 
-            Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
+            Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+            Assert.Equal("LemonSupreme", foreignKey.Relational().ConstraintName);
         }
 
         [Fact]

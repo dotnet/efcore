@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var bookLabel2Ownership21 = bookLabel2Ownership2.DeclaringEntityType.FindNavigation(nameof(BookLabel.AnotherBookLabel))
                     .ForeignKey;
 
-                Assert.Equal("AlternateLabelFK", bookOwnership2.Relational().Name);
+                Assert.Equal("AlternateLabelFK", bookOwnership2.Relational().ConstraintName);
 
                 Assert.Equal("BS", book.SqlServer().Schema);
                 Assert.Equal("BT", book.SqlServer().TableName);
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 Assert.True(ownership.IsOwnership);
                 Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
-                Assert.Equal("FK_Order_Customer_CustomerId", ownership.Relational().Name);
+                Assert.Equal("FK_Order_Customer_CustomerId", ownership.Relational().ConstraintName);
 
                 Assert.Equal(1, owned.GetForeignKeys().Count());
                 Assert.Equal(1, owned.GetIndexes().Count());
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("bar", owned.SqlServer().TableName);
                 Assert.Equal("foo", owned.SqlServer().Schema);
-                Assert.Equal("Owned", ownership.Relational().Name);
+                Assert.Equal("Owned", ownership.Relational().ConstraintName);
 
                 modelBuilder.Entity<Customer>().OwnsMany(
                     c => c.Orders,

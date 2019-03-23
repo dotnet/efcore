@@ -45,20 +45,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The foreign key constraint name.
         /// </summary>
-        public virtual string Name
+        public virtual string ConstraintName
         {
             get => (string)Annotations.Metadata[RelationalAnnotationNames.Name]
                    ?? ConstraintNamer.GetDefaultName(ForeignKey);
 
-            [param: CanBeNull] set => SetName(value);
+            [param: CanBeNull] set => SetConstraintName(value);
         }
 
         /// <summary>
-        ///     Attempts to set the <see cref="Name" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.
+        ///     Attempts to set the <see cref="ConstraintName" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.
         /// </summary>
         /// <param name="value"> The value to set. </param>
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
-        protected virtual bool SetName([CanBeNull] string value)
+        protected virtual bool SetConstraintName([CanBeNull] string value)
             => Annotations.SetAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(value, nameof(value)));

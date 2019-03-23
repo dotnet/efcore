@@ -601,8 +601,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -622,8 +622,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -749,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
