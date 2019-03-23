@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         public override void Create()
         {
             Dependencies.Connection.Open();
+            _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';").ExecuteNonQuery(Dependencies.Connection);
             Dependencies.Connection.Close();
         }
 
