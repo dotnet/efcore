@@ -1025,6 +1025,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("DataBindingWithIListSource");
 
         /// <summary>
+        ///     Data binding directly to `DbSet.Local` is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.
+        /// </summary>
+        public static string DataBindingToLocalWithIListSource
+            => GetString("DataBindingToLocalWithIListSource");
+
+        /// <summary>
         ///     The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.
         /// </summary>
         public static string KeyAttributeOnDerivedEntity([CanBeNull] object derivedType, [CanBeNull] object property)
