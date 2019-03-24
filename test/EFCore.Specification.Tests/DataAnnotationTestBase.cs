@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -50,12 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
                 context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
 
-            var conventionSet = new CoreConventionSetBuilder(context.GetService<CoreConventionSetBuilderDependencies>())
-                .CreateConventionSet(loggers);
-
-            conventionSet = conventionSetBuilder == null
-                ? conventionSet
-                : conventionSetBuilder.AddConventions(conventionSet);
+            var conventionSet = conventionSetBuilder.CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
                 new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
@@ -64,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
-            => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList());
+            => context.GetService<IConventionSetBuilder>();
 
         protected virtual void Validate(ModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel();

@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(validator, nameof(validator));
             Check.NotNull(loggers, nameof(loggers));
 
-            var conventionSet = CreateConventionSet(conventionSetBuilder, loggers);
+            var conventionSet = conventionSetBuilder.CreateConventionSet();
             conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, loggers));
 
             var modelBuilder = new ModelBuilder(conventionSet);
@@ -98,18 +99,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return modelBuilder.FinalizeModel();
         }
-
-        /// <summary>
-        ///     Creates the convention set to be used for the model. Only uses the <see cref="CoreConventionSetBuilder" />
-        ///     if <paramref name="conventionSetBuilder" /> is null.
-        /// </summary>
-        /// <param name="conventionSetBuilder"> The provider convention set builder to be used. </param>
-        /// <param name="loggers"> The logger to use. </param>
-        /// <returns> The convention set to be used. </returns>
-        protected virtual ConventionSet CreateConventionSet(
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            DiagnosticsLoggers loggers)
-            => conventionSetBuilder.AddConventions(
-                Dependencies.CoreConventionSetBuilder.CreateConventionSet(loggers));
     }
 }

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -852,14 +853,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
             var logger = CreateLogger();
+            var dependencies = contextServices.GetRequiredService<ProviderConventionSetBuilderDependencies>().With(logger);
 
             return new ModelBuilder(
-                new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
-                    .AddConventions(
-                        new CoreConventionSetBuilder(
-                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(logger))
-                            .CreateConventionSet(
-                                new DiagnosticsLoggers(logger))));
+                new RuntimeConventionSetBuilder(
+                        new ProviderConventionSetBuilder(dependencies),
+                        Enumerable.Empty<IConventionSetCustomizer>())
+                    .CreateConventionSet());
         }
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()

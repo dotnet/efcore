@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -168,10 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
                 context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
 
-            var conventionSet = new CompositeConventionSetBuilder(
-                    context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                .AddConventions(context.GetService<ICoreConventionSetBuilder>()
-                    .CreateConventionSet(loggers));
+            var conventionSet = context.GetService<IConventionSetBuilder>().CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
                 new ValidatingConvention(context.GetService<IModelValidator>(), loggers));

@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,28 +24,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class InMemoryConventionSetBuilder : IConventionSetBuilder
+    public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public InMemoryConventionSetBuilder([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        public InMemoryConventionSetBuilder(
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies)
+            : base(dependencies)
         {
-            Logger = logger;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConventionSet AddConventions(ConventionSet conventionSet) => conventionSet;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

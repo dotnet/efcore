@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 return _scopedProvider.GetService<IModelSource>().GetModel(
                     _currentContext.Context,
-                    new CompositeConventionSetBuilder(_scopedProvider.GetService<IEnumerable<IConventionSetBuilder>>()
-                        .ToList()),
+                    _scopedProvider.GetService<IConventionSetBuilder>(),
                     _scopedProvider.GetService<IModelValidator>(),
                     new DiagnosticsLoggers(
                         _scopedProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),

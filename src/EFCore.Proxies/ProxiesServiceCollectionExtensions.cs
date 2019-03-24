@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -37,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             new EntityFrameworkServicesBuilder(serviceCollection)
-                .TryAdd<IConventionSetBuilder, ProxiesConventionSetBuilder>()
+                .TryAdd<IConventionSetCustomizer, ProxiesConventionSetCustomizer>()
                 .TryAddProviderSpecificServices(
                     b => b.TryAddSingleton<IProxyFactory, ProxyFactory>());
 

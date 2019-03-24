@@ -13,11 +13,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="CoreConventionSetBuilder" />
+    ///         Service dependencies parameter class for <see cref="ProviderConventionSetBuilder" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -36,18 +36,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>.
-    ///         This means a single instance of each service is used by many <see cref="DbContext"/> instances.
-    ///         The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public sealed class CoreConventionSetBuilderDependencies
+    public sealed class ProviderConventionSetBuilderDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="CoreConventionSetBuilder" />.
+        ///         Creates the service dependencies parameter object for a <see cref="ProviderConventionSetBuilder" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -62,11 +61,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         /// </summary>
-        public CoreConventionSetBuilderDependencies(
+        /// <param name="typeMappingSource"> The type mapping source. </param>
+        /// <param name="constructorBindingFactory"> The constructor binding factory. </param>
+        /// <param name="parameterBindingFactories"> The parameter binding factories. </param>
+        /// <param name="memberClassifier"> The member classifier. </param>
+        /// <param name="logger"> The model logger. </param>
+        /// <param name="setFinder"> The set finder. </param>
+        /// <param name="context"> The current context instance. </param>
+        public ProviderConventionSetBuilderDependencies(
             [NotNull] ITypeMappingSource typeMappingSource,
             [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
             [CanBeNull] IParameterBindingFactories parameterBindingFactories,
-            [CanBeNull] IMemberClassifier memberClassifier)
+            [CanBeNull] IMemberClassifier memberClassifier,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            [CanBeNull] IDbSetFinder setFinder,
+            [CanBeNull] ICurrentDbContext context)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -98,75 +107,114 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             ConstructorBindingFactory = constructorBindingFactory;
+
+            Logger = logger
+                     ?? new DiagnosticsLogger<DbLoggerCategory.Model>(
+                         new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
+                         new LoggingOptions(),
+                         new DiagnosticListener(""),
+                         new LoggingDefinitions());
+
+            SetFinder = setFinder;
+            Context = context;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The type mapping source.
         /// </summary>
         public ITypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The parameter binding factories.
         /// </summary>
         public IParameterBindingFactories ParameterBindingFactories { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The member classifier.
         /// </summary>
         public IMemberClassifier MemberClassifier { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The constructor binding factory.
         /// </summary>
         public IConstructorBindingFactory ConstructorBindingFactory { get; }
+
+        /// <summary>
+        ///     The logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
+
+        /// <summary>
+        ///     The set finder.
+        /// </summary>
+        public IDbSetFinder SetFinder { get; }
+
+        /// <summary>
+        ///     The current context instance.
+        /// </summary>
+        public ICurrentDbContext Context { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new CoreConventionSetBuilderDependencies(
-                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier);
+        public ProviderConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
+            => new ProviderConventionSetBuilderDependencies(
+                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="constructorBindingFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
-            => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier);
+        public ProviderConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier);
+        public ProviderConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, logger, SetFinder, Context);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="parameterBindingFactories"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
-            => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier);
+        public ProviderConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] IMemberClassifier memberClassifier)
-            => new CoreConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier);
+        public ProviderConventionSetBuilderDependencies With([NotNull] IMemberClassifier memberClassifier)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier, Logger, SetFinder, Context);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ProviderConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, setFinder, Context);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="context"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext context)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, context);
     }
 }

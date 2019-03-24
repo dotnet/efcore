@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,24 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public ModelSourceDependencies(
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
             [NotNull] IModelCustomizer modelCustomizer,
             [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
         {
-            Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
             Check.NotNull(modelCustomizer, nameof(modelCustomizer));
             Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
 
-            CoreConventionSetBuilder = coreConventionSetBuilder;
             ModelCustomizer = modelCustomizer;
             ModelCacheKeyFactory = modelCacheKeyFactory;
         }
-
-        /// <summary>
-        ///     Gets the <see cref="ICoreConventionSetBuilder" /> that will build the conventions to be used
-        ///     to build the model.
-        /// </summary>
-        public ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
@@ -85,18 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="coreConventionSetBuilder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
-            => new ModelSourceDependencies(coreConventionSetBuilder, ModelCustomizer, ModelCacheKeyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
         /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
-            => new ModelSourceDependencies(CoreConventionSetBuilder, modelCustomizer, ModelCacheKeyFactory);
+            => new ModelSourceDependencies(modelCustomizer, ModelCacheKeyFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -104,6 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            => new ModelSourceDependencies(CoreConventionSetBuilder, ModelCustomizer, modelCacheKeyFactory);
+            => new ModelSourceDependencies(ModelCustomizer, modelCacheKeyFactory);
     }
 }

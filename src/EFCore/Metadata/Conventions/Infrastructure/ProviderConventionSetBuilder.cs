@@ -1,32 +1,44 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet"/>
+    ///         for the current database provider. This is combined with <see cref="IConventionSetCustomizer"/>
+    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder"/>
+    ///         service.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         Database providers should implement this service by inheriting from either
+    ///         this class (for non-relational providers) or `RelationalConventionSetBuilder` (for relational providers).
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public class CoreConventionSetBuilder : ICoreConventionSetBuilder
+    public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CoreConventionSetBuilder" /> class.
+        ///     Initializes a new instance of the <see cref="ProviderConventionSetBuilder" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public CoreConventionSetBuilder([NotNull] CoreConventionSetBuilderDependencies dependencies)
+        public ProviderConventionSetBuilder([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -36,16 +48,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
-        protected virtual CoreConventionSetBuilderDependencies Dependencies { get; }
+        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        public virtual ConventionSet CreateConventionSet(DiagnosticsLoggers loggers)
+        /// <returns> The convention set for the current database provider. </returns>
+        public virtual ConventionSet CreateConventionSet()
         {
             var conventionSet = new ConventionSet();
-            var logger = loggers.GetLogger<DbLoggerCategory.Model>();
+            var logger = Dependencies.Logger;
 
             var propertyDiscoveryConvention
                 = new PropertyDiscoveryConvention(
@@ -200,6 +212,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
 
             return conventionSet;
+        }
+
+        /// <summary>
+        ///     Helper method used to replace an existing convention implementation
+        ///     with a new implementation.
+        /// </summary>
+        /// <typeparam name="TConvention"> The type defining convention being replaced. </typeparam>
+        /// <typeparam name="TImplementation"> The type of the new implementation. </typeparam>
+        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
+        /// <param name="newConvention"> The new convention. </param>
+        protected virtual void ReplaceConvention<TConvention, TImplementation>(
+            [NotNull] IList<TConvention> conventionsList,
+            [NotNull] TImplementation newConvention)
+            where TImplementation : TConvention
+        {
+            Check.NotNull(conventionsList, nameof(conventionsList));
+            Check.NotNull(newConvention, nameof(newConvention));
+
+            var oldConvention = conventionsList.OfType<TImplementation>().FirstOrDefault();
+            if (oldConvention == null)
+            {
+                return; // Nothing to replace.
+            }
+
+            var index = conventionsList.IndexOf(oldConvention);
+
+            conventionsList.RemoveAt(index);
+            conventionsList.Insert(index, newConvention);
         }
     }
 }

@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -31,15 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return new CompositeConventionSetBuilder(
-                            context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                        .AddConventions(
-                            context.GetService<ICoreConventionSetBuilder>().CreateConventionSet(
-                                new DiagnosticsLoggers(
-                                    context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>())));
-                }
+                return serviceScope.ServiceProvider
+                    .GetService<DbContext>()
+                    .GetService<IConventionSetBuilder>()
+                    .CreateConventionSet();
             }
         }
 
