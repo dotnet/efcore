@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -69,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDbSetSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityFinderSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ICoreConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ITypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -99,6 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IParameterBindingFactories), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberClassifier), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemoryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILoggerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityGraphAttacher), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -141,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-                { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+                { typeof(IConventionSetCustomizer), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IEntityStateListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(INavigationListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IKeyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
@@ -213,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IDbSetSource, DbSetSource>();
             TryAdd<IEntityFinderSource, EntityFinderSource>();
             TryAdd<IEntityMaterializerSource, EntityMaterializerSource>();
-            TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();
+            TryAdd<IProviderConventionSetBuilder, ProviderConventionSetBuilder>();
+            TryAdd<IConventionSetBuilder, RuntimeConventionSetBuilder>();
             TryAdd<IModelCustomizer, ModelCustomizer>();
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
             TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
@@ -236,7 +239,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IDbContextServices, DbContextServices>();
             TryAdd<IDbContextDependencies, DbContextDependencies>();
             TryAdd<IValueGeneratorSelector, ValueGeneratorSelector>();
-            TryAdd<IConventionSetBuilder, NullConventionSetBuilder>();
             TryAdd<IModelValidator, ModelValidator>();
             TryAdd<IExecutionStrategyFactory, ExecutionStrategyFactory>();
             TryAdd<ICompiledQueryCache, CompiledQueryCache>();
@@ -298,11 +300,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ModelSourceDependencies>()
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
                 .AddDependencySingleton<ModelValidatorDependencies>()
-                .AddDependencySingleton<CoreConventionSetBuilderDependencies>()
                 .AddDependencySingleton<TypeMappingSourceDependencies>()
                 .AddDependencySingleton<ModelCustomizerDependencies>()
                 .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
                 .AddDependencySingleton<ValueConverterSelectorDependencies>()
+                .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
                 .AddDependencyScoped<StateManagerDependencies>()
                 .AddDependencyScoped<ExecutionStrategyDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()

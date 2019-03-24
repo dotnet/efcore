@@ -27,7 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [CanBeNull] IDbSetFinder setFinder,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            _sets = setFinder?.CreateClrTypeDbSetMapping(context);
+            _sets = context != null
+                    && setFinder != null
+                ? setFinder.CreateClrTypeDbSetMapping(context)
+                : new Dictionary<Type, DbSetProperty>();
+
             Logger = logger;
         }
 

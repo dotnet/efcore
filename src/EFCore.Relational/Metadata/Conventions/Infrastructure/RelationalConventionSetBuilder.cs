@@ -1,53 +1,65 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet"/>
+    ///         for the current relational database provider. This is combined with <see cref="IConventionSetCustomizer"/>
+    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder"/>
+    ///         service.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
-    ///         are allowed. This means that each <see cref="DbContext"/> instance will use its own
-    ///         set of instances of this service.
-    ///         The implementations may depend on other services registered with any lifetime.
-    ///         The implementations do not need to be thread-safe.
+    ///         Database providers should implement this service by inheriting from either
+    ///         this class (for relational providers) or <see cref="ProviderConventionSetBuilder"/> (for non-relational providers).
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
+    public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuilder
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConventionSetBuilder" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected RelationalConventionSetBuilder([NotNull] RelationalConventionSetBuilderDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
+        protected RelationalConventionSetBuilder(
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            : base(dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Parameter object containing relational service dependencies.
         /// </summary>
-        protected virtual RelationalConventionSetBuilderDependencies Dependencies { get; }
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        public virtual ConventionSet AddConventions(ConventionSet conventionSet)
+        /// <returns> The convention set for the current database provider. </returns>
+        public override ConventionSet CreateConventionSet()
         {
+            var conventionSet = base.CreateConventionSet();
+
             var logger = Dependencies.Logger;
 
             ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(logger);
@@ -77,24 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));
 
             return conventionSet;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ReplaceConvention<T1, T2>([NotNull] IList<T1> conventionsList, [NotNull] T2 newConvention)
-            where T2 : T1
-        {
-            var oldConvention = conventionsList.OfType<T2>().FirstOrDefault();
-            if (oldConvention == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            var index = conventionsList.IndexOf(oldConvention);
-            conventionsList.RemoveAt(index);
-            conventionsList.Insert(index, newConvention);
         }
     }
 }

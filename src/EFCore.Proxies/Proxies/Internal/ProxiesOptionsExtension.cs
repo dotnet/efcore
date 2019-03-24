@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -94,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     using (var scope = internalServiceProvider.CreateScope())
                     {
                         if (scope.ServiceProvider
-                                .GetService<IEnumerable<IConventionSetBuilder>>()
-                                ?.Any(s => s is ProxiesConventionSetBuilder) == false)
+                                .GetService<IEnumerable<IConventionSetCustomizer>>()
+                                ?.Any(s => s is ProxiesConventionSetCustomizer) == false)
                         {
                             throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
                         }

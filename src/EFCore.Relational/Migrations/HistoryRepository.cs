@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -62,10 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _model = new LazyRef<IModel>(
                 () =>
                 {
-                    var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet(
-                        new DiagnosticsLoggers(Dependencies.ModelLogger));
-
-                    var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.AddConventions(conventionSet));
+                    var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.CreateConventionSet());
 
                     modelBuilder.Entity<HistoryRow>(
                         x =>

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
@@ -76,7 +77,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
                 .TryAdd<IMigrationsAnnotationProvider, SqliteMigrationsAnnotationProvider>()
                 .TryAdd<IModelValidator, SqliteModelValidator>()
-                .TryAdd<IConventionSetBuilder, SqliteConventionSetBuilder>()
+                .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())

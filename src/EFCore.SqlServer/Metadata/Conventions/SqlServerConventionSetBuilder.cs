@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -32,9 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerConventionSetBuilder(
-            [NotNull] RelationalConventionSetBuilderDependencies dependencies,
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            : base(dependencies)
+            : base(dependencies, relationalDependencies)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
         }
@@ -43,11 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ConventionSet AddConventions(ConventionSet conventionSet)
+        public override ConventionSet CreateConventionSet()
         {
-            Check.NotNull(conventionSet, nameof(conventionSet));
-
-            base.AddConventions(conventionSet);
+            var conventionSet = base.CreateConventionSet();
 
             var logger = Dependencies.Logger;
 

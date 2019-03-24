@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IModelValidator validator,
             DiagnosticsLoggers loggers)
         {
-            var conventionSet = CreateConventionSet(conventionSetBuilder, loggers);
+            var conventionSet = conventionSetBuilder.CreateConventionSet();
             conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, loggers));
 
             var modelBuilder = new ModelBuilder(conventionSet);
