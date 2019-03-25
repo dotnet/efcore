@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,9 +16,42 @@ namespace EFCore.Analyzers.Test.TestUtilities
 {
     public abstract class DiagnosticAnalyzerTestBase
     {
+        static string[] Usings = new[] {
+            "System",
+            "Microsoft.EntityFrameworkCore"
+        };
+
         protected abstract DiagnosticAnalyzer CreateDiagnosticAnalyzer();
 
-        protected async Task<Diagnostic[]> GetDiagnosticsAsync(string source)
+        protected async Task AssertNoDiagnostics(string source, params string[] extraUsings)
+        {
+            var (diagnostics, _) = await GetDiagnosticsAsync(source, extraUsings);
+            Assert.Empty(diagnostics);
+        }
+
+        protected virtual async Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
+        {
+            var sb = new StringBuilder();
+            foreach (var @using in Usings.Concat(extraUsings))
+            {
+                sb
+                    .Append("using ")
+                    .Append(@using)
+                    .AppendLine(";");
+            }
+            sb
+                .AppendLine()
+                .AppendLine("class C {")
+                .AppendLine("void M() {")
+                .AppendLine(source)
+                .AppendLine("}")
+                .AppendLine("}");
+
+            var fullSource = sb.ToString();
+            return (await GetDiagnosticsFullSourceAsync(fullSource), fullSource);
+        }
+
+        protected async Task<Diagnostic[]> GetDiagnosticsFullSourceAsync(string source)
         {
             var compilation = await CreateProject(source).GetCompilationAsync();
             var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error);
@@ -40,8 +74,6 @@ namespace EFCore.Analyzers.Test.TestUtilities
         private Project CreateProject(string source)
         {
             const string fileName = "Test.cs";
-
-            source = $"using Microsoft.EntityFrameworkCore;using System.Data.SqlClient;class C {{ void M() {{ {source} }} }}";
 
             //Debugger.Launch();
 

@@ -6,8 +6,8 @@ using System;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    /// Marks a type or member as internal to an Entity Framework Core component, meaning that it may undergo
-    /// breaking changes in non-major versions.
+    /// Marks a type or member as supporting the Entity Framework Core infrastructure and not intended to be used directly from
+    /// user or provider code.
     /// </summary>
     [AttributeUsage(
         AttributeTargets.Enum | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface |
