@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>CSharp Analyzers for Entity Framework Core.</Description>
     <MinClientVersion>3.6</MinClientVersion>
