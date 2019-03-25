@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
 
-                    Assert.Equal(ConnectionState.Open, connection.State);
+                    Assert.Equal(ConnectionState.Closed, connection.State);
 
                     context.Database.AutoTransactionsEnabled = true;
                 }
@@ -465,7 +465,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                        Assert.Equal(RelationalStrings.PendingAmbientTransaction,
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                     }
                 }
             }

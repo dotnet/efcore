@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private bool _openedInternally;
         private int? _commandTimeout;
         private Transaction _ambientTransaction;
-        private SemaphoreSlim _semaphore { get; } = new SemaphoreSlim(1);
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
@@ -350,12 +349,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             var wasOpened = false;
-
             if (DbConnection.State != ConnectionState.Open)
             {
+                ClearTransactions(clearAmbient: false);
                 OpenDbConnection(errorsExpected);
                 wasOpened = true;
-                ClearTransactions();
             }
 
             _openedCount++;
@@ -384,12 +382,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             var wasOpened = false;
-
             if (DbConnection.State != ConnectionState.Open)
             {
+                ClearTransactions(clearAmbient: false);
                 await OpenDbConnectionAsync(errorsExpected, cancellationToken);
                 wasOpened = true;
-                ClearTransactions();
             }
 
             _openedCount++;
@@ -399,20 +396,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return wasOpened;
         }
 
-        private void ClearTransactions()
+        private void ClearTransactions(bool clearAmbient)
         {
-            var previousOpenedCount = _openedCount;
-            _openedCount += 2;
             CurrentTransaction?.Dispose();
             CurrentTransaction = null;
             EnlistedTransaction = null;
-            if (_ambientTransaction != null)
+            if (clearAmbient
+                && _ambientTransaction != null)
             {
                 _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
                 _ambientTransaction = null;
             }
 
-            _openedCount = previousOpenedCount;
+            if (_openedCount < 0)
+            {
+                _openedCount = 0;
+            }
         }
 
         private void OpenDbConnection(bool errorsExpected)
@@ -507,53 +506,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return;
             }
 
+            if (_ambientTransaction != null)
+            {
+                throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
+            }
+
             if (current != null)
             {
                 Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
             }
 
             DbConnection.EnlistTransaction(current);
-            try
+
+            var ambientTransaction = _ambientTransaction;
+            if (ambientTransaction != null)
             {
-                _semaphore.Wait();
-
-                if (_ambientTransaction != null)
-                {
-                    _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                    _openedCount--;
-                }
-
-                if (current != null)
-                {
-                    _openedCount++;
-                    current.TransactionCompleted += HandleTransactionCompleted;
-                }
-
-                _ambientTransaction = current;
+                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
             }
-            finally
+
+            if (current != null)
             {
-                _semaphore.Release();
+                current.TransactionCompleted += HandleTransactionCompleted;
             }
+
+            _ambientTransaction = current;
         }
 
         private void HandleTransactionCompleted(object sender, TransactionEventArgs e)
         {
             // This could be invoked on a different thread at arbitrary time after the transaction completes
-            try
+            var ambientTransaction = _ambientTransaction;
+            if (ambientTransaction != null)
             {
-                _semaphore.Wait();
-
-                if (_ambientTransaction != null)
-                {
-                    _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                    _ambientTransaction = null;
-                    _openedCount--;
-                }
-            }
-            finally
-            {
-                _semaphore.Release();
+                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+                _ambientTransaction = null;
             }
         }
 
@@ -570,6 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                  && --_openedCount == 0)
                 && _openedInternally)
             {
+                ClearTransactions(clearAmbient: false);
+
                 if (DbConnection.State != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
@@ -691,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Dispose()
         {
-            ClearTransactions();
+            ClearTransactions(clearAmbient: true);
 
             if (_connectionOwned && _connection.HasValue)
             {

@@ -614,6 +614,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("MissingConcurrencyColumn", nameof(entityType), nameof(missingColumn), nameof(table)),
                 entityType, missingColumn, table);
 
+        /// <summary>
+        ///     This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.
+        /// </summary>
+        public static string PendingAmbientTransaction
+            => GetString("PendingAmbientTransaction");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
