@@ -39,8 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 Assert.Throws<ArgumentException>(
                         () => reverseEngineer.ScaffoldModel(
                             "connectionstring",
-                            /* tables: */ Enumerable.Empty<string>(),
-                            /* schemas: */ Enumerable.Empty<string>(),
+                            new DatabaseModelFactoryOptions(
+                                /* tables: */ Enumerable.Empty<string>(),
+                                /* schemas: */ Enumerable.Empty<string>()),
                             "FakeNamespace",
                             "FakeNamespace",
                             "FakeNamespace",

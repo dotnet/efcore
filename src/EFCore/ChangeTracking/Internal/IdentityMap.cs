@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -205,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(
                     CoreStrings.IdentityConflictOwned(
                         entry.EntityType.DisplayName(),
-                        Property.Format(Key.Properties)));
+                        Key.Properties.Format()));
             }
 
             if (_sensitiveLoggingEnabled)
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             throw new InvalidOperationException(
                 CoreStrings.IdentityConflict(
                     entry.EntityType.DisplayName(),
-                    Property.Format(Key.Properties)));
+                    Key.Properties.Format()));
         }
 
         private void Add(TKey key, InternalEntityEntry entry, bool updateDuplicate)

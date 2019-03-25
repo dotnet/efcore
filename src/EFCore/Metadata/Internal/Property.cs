@@ -7,8 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -416,18 +416,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <returns> The annotation that was set. </returns>
         protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnPropertyAnnotationChanged(Builder, name, annotation, oldAnnotation);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static string Format([NotNull] IEnumerable<IPropertyBase> properties, bool includeTypes = false)
-            => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(
-                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
-               + "}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

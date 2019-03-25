@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
@@ -896,10 +897,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateForeignKey(
-                    Property.Format(new[] { foreignKeyProperty }),
+                    new[] { foreignKeyProperty }.Format(),
                     typeof(SpecialOrder).Name,
                     typeof(Order).Name,
-                    Property.Format(customerKey.Properties),
+                    customerKey.Properties.Format(),
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
@@ -925,10 +926,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateForeignKey(
-                    Property.Format(new[] { foreignKeyProperty }),
+                    new[] { foreignKeyProperty }.Format(),
                     typeof(VerySpecialOrder).Name,
                     typeof(Order).Name,
-                    Property.Format(customerKey.Properties),
+                    customerKey.Properties.Format(),
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
@@ -951,10 +952,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateForeignKey(
-                    Property.Format(new[] { foreignKeyProperty }),
+                    new[] { foreignKeyProperty }.Format(),
                     typeof(Order).Name,
                     typeof(SpecialOrder).Name,
-                    Property.Format(customerKey.Properties),
+                    customerKey.Properties.Format(),
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
@@ -980,10 +981,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateForeignKey(
-                    Property.Format(new[] { foreignKeyProperty }),
+                    new[] { foreignKeyProperty }.Format(),
                     typeof(Order).Name,
                     typeof(VerySpecialOrder).Name,
-                    Property.Format(customerKey.Properties),
+                    customerKey.Properties.Format(),
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
@@ -1115,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.HasBaseType(orderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(SpecialOrder).Name, typeof(Order).Name),
+                CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(SpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => specialOrderType.AddIndex(indexProperty)).Message);
         }
@@ -1136,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             verySpecialOrderType.HasBaseType(specialOrderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(VerySpecialOrder).Name, typeof(Order).Name),
+                CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(VerySpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => verySpecialOrderType.AddIndex(indexProperty)).Message);
         }
@@ -1154,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.AddIndex(indexProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(SpecialOrder).Name),
+                CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(Order).Name, typeof(SpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddIndex(indexProperty)).Message);
         }
@@ -1175,7 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             verySpecialOrderType.AddIndex(indexProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(VerySpecialOrder).Name),
+                CoreStrings.DuplicateIndex(new[] { indexProperty }.Format(), typeof(Order).Name, typeof(VerySpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddIndex(indexProperty)).Message);
         }

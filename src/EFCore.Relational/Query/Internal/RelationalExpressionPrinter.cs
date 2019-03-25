@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     stringBuilder.IncrementIndent();
 
                     var querySqlGenerator = shaperCommandContext.QuerySqlGeneratorFactory();
-                    var sql = querySqlGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
+                    var sql = querySqlGenerator.GenerateSql(shaperCommandContext.CommandBuilderFactory, new Dictionary<string, object>()).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                     for (var i = 0; i < lines.Length; i++)

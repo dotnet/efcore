@@ -3,7 +3,6 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using System.Threading;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
@@ -53,3 +52,4 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         }
     }
 }
+

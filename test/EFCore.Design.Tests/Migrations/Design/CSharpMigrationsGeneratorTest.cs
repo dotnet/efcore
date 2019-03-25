@@ -45,11 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Only add the annotation here if it will never be present on IEntityType
             var notForEntityType = new HashSet<string>
             {
-                CoreAnnotationNames.MaxLengthAnnotation,
-                CoreAnnotationNames.UnicodeAnnotation,
-                CoreAnnotationNames.ProductVersionAnnotation,
-                CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.MaxLength,
+                CoreAnnotationNames.Unicode,
+                CoreAnnotationNames.ProductVersion,
+                CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
@@ -113,10 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Only add the annotation here if it will never be present on IProperty
             var notForProperty = new HashSet<string>
             {
-                CoreAnnotationNames.ProductVersionAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.ProductVersion,
+                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessModeAnnotation,
+                CoreAnnotationNames.NavigationAccessMode,
                 RelationalAnnotationNames.TableName,
                 RelationalAnnotationNames.Schema,
                 RelationalAnnotationNames.DefaultSchema,
@@ -134,11 +134,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var forProperty = new Dictionary<string, (object, string)>
             {
                 {
-                    CoreAnnotationNames.MaxLengthAnnotation,
+                    CoreAnnotationNames.MaxLength,
                     (256, _nl + "." + nameof(PropertyBuilder.HasMaxLength) + "(256)")
                 },
                 {
-                    CoreAnnotationNames.UnicodeAnnotation,
+                    CoreAnnotationNames.Unicode,
                     (false, _nl + "." + nameof(PropertyBuilder.IsUnicode) + "(false)")
                 },
                 {
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             codeHelper))));
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             modelBuilder.Entity<WithAnnotations>(
                 eb =>
                 {
@@ -530,7 +530,7 @@ namespace MyNamespace
             var generator = CreateMigrationsCodeGenerator();
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             modelBuilder.Entity<EntityWithConstructorBinding>(
                 x =>
                 {

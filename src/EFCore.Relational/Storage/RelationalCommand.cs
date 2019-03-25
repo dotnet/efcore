@@ -12,55 +12,73 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         A command to be executed against a relational database.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
     public class RelationalCommand : IRelationalCommand
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Constructs a new <see cref="RelationalCommand"/>.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> Service dependencies. </param>
+        /// <param name="commandText"> The text of the command to be executed. </param>
+        /// <param name="parameters"> Parameters for the command. </param>
         public RelationalCommand(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] RelationalCommandBuilderDependencies dependencies,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<IRelationalParameter> parameters)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
-            Logger = logger;
+
+            Dependencies = dependencies;
+            Logger = dependencies.Logger;
             CommandText = commandText;
             Parameters = parameters;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Command building dependencies.
+        /// </summary>
+        protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     The logger used for command events.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the command text to be executed.
         /// </summary>
         public virtual string CommandText { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Gets the parameters for the command.
         /// </summary>
         public virtual IReadOnlyList<IRelationalParameter> Parameters { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Executes the command with no results.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <returns> The number of rows affected. </returns>
         public virtual int ExecuteNonQuery(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues)
@@ -69,10 +87,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 DbCommandMethod.ExecuteNonQuery,
                 parameterValues);
 
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Asynchronously executes the command with no results.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
+        /// </returns>
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
@@ -84,9 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 cancellationToken).Cast<object, int>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Executes the command with a single scalar result.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <returns> The result of the command. </returns>
         public virtual object ExecuteScalar(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues)
@@ -96,9 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameterValues);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Asynchronously executes the command with a single scalar result.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
+        /// </returns>
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
@@ -110,9 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 cancellationToken);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <returns> The result of the command. </returns>
         public virtual RelationalDataReader ExecuteReader(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues)
@@ -122,9 +155,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameterValues);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
+        /// </returns>
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
@@ -136,9 +174,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///    The method called by other methods on this type to execute synchronously.
         /// </summary>
+        /// <param name="connection"> The connection to use. </param>
+        /// <param name="executeMethod"> The method type. </param>
+        /// <param name="parameterValues"> The parameter values. </param>
+        /// <returns> The result of the execution. </returns>
         protected virtual object Execute(
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
@@ -238,9 +279,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///    The method called by other methods on this type to execute synchronously.
         /// </summary>
+        /// <param name="connection"> The connection to use. </param>
+        /// <param name="executeMethod"> The method type. </param>
+        /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The result of the execution. </returns>
         protected virtual async Task<object> ExecuteAsync(
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
@@ -340,19 +385,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Template method called by <see cref="Execute"/> amd <see cref="ExecuteAsync"/> to
+        ///         create a <see cref="DbCommand"/> for the given <see cref="DbConnection"/> and configure
+        ///         timeouts and transactions.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="parameterValues"> The parameter values. </param>
+        /// <returns> The created command. </returns>
         protected virtual DbCommand CreateCommand(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues)
         {
             var command = connection.DbConnection.CreateCommand();
 
-            command.CommandText = AdjustCommandText(CommandText);
-
-            ConfigureCommand(command);
-
+            command.CommandText = CommandText;
+            
             if (connection.CurrentTransaction != null)
             {
                 command.Transaction = connection.CurrentTransaction.GetDbTransaction();
@@ -380,20 +433,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             return command;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void ConfigureCommand(DbCommand command)
-        {
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual string AdjustCommandText(string commandText)
-            => commandText;
     }
 }

@@ -558,9 +558,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);

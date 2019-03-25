@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryStrings.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
+                        InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                         "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction()).Message);
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryStrings.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
+                        InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                         "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
-                        CoreStrings.LogFirstWithoutOrderByAndFilter(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(
+                        CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(
                             "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs..."),
                         "CoreEventId.FirstWithoutOrderByAndFilterWarning"),
                     Assert.Throws<InvalidOperationException>(
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
-                        CoreStrings.LogFirstWithoutOrderByAndFilter(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(
+                        CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(
                             "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs..."),
                         "CoreEventId.FirstWithoutOrderByAndFilterWarning"),
                     Assert.Throws<InvalidOperationException>(
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var _ = context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
-                Assert.Contains(CoreStrings.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"), loggerFactory.Log.Select(l => l.Message));
+                Assert.Contains(CoreResources.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"), loggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
-                        CoreStrings.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"),
+                        CoreResources.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"),
                         "CoreEventId.IncludeIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         ()
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             var log = loggerFactory.Log.Single(
-                l => l.Message == CoreStrings
+                l => l.Message == CoreResources
                          .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
                          .GenerateMessage("Nav", "WarningAsErrorEntity"));
 
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             var log = loggerFactory.Log.Single(
-                l => l.Message == CoreStrings
+                l => l.Message == CoreResources
                          .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
                          .GenerateMessage("Nav", "WarningAsErrorEntity"));
 
@@ -303,13 +303,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(entity.Nav);
 
                 Assert.Contains(
-                    CoreStrings.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
                     loggerFactory.Log.Select(l => l.Message));
 
                 loggerFactory.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
-                    CoreStrings.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
                     loggerFactory.Log.Select(l => l.Message));
             }
         }

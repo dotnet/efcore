@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -29,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateForeignKeyPrincipalTableMismatch(
-                            Property.Format(foreignKey.Properties),
+                            foreignKey.Properties.Format(),
                             foreignKey.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateForeignKey.Properties),
+                            duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
                             foreignKey.Relational().Name,
@@ -49,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateForeignKeyColumnMismatch(
-                            Property.Format(foreignKey.Properties),
+                            foreignKey.Properties.Format(),
                             foreignKey.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateForeignKey.Properties),
+                            duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
                             foreignKey.Relational().Name,
@@ -72,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateForeignKeyPrincipalColumnMismatch(
-                            Property.Format(foreignKey.Properties),
+                            foreignKey.Properties.Format(),
                             foreignKey.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateForeignKey.Properties),
+                            duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
                             foreignKey.Relational().Name,
@@ -91,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateForeignKeyUniquenessMismatch(
-                            Property.Format(foreignKey.Properties),
+                            foreignKey.Properties.Format(),
                             foreignKey.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateForeignKey.Properties),
+                            duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
                             foreignKey.Relational().Name));
@@ -108,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateForeignKeyDeleteBehaviorMismatch(
-                            Property.Format(foreignKey.Properties),
+                            foreignKey.Properties.Format(),
                             foreignKey.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateForeignKey.Properties),
+                            duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             Format(foreignKey.DeclaringEntityType.Relational()),
                             foreignKey.Relational().Name,

@@ -4,9 +4,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -174,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
             var (Level, _, Message, _, _) = loggerFactory.Log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
 
             Assert.Equal(LogLevel.Information, Level);
-            Assert.Equal(InMemoryStrings.LogSavedChanges(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(1), Message);
+            Assert.Equal(InMemoryResources.LogSavedChanges(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(1), Message);
         }
 
         private static IModel CreateModel()

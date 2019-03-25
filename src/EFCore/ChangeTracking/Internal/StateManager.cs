@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -180,7 +181,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         throw new InvalidOperationException(
                             CoreStrings.UntrackedDependentEntity(
                                 entity.GetType().ShortDisplayName(),
-                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry),
+                                "." + nameof(EntityEntry.Collection) + "()." + nameof(CollectionEntry.GetTargetEntry) +
+                                "()"));
                     }
 
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));

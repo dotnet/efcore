@@ -22,21 +22,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string GetProductVersion([NotNull] this IModel model)
-            => model[CoreAnnotationNames.ProductVersionAnnotation] as string;
+            => model[CoreAnnotationNames.ProductVersion] as string;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void SetProductVersion([NotNull] this Model model, [NotNull] string value)
-            => model[CoreAnnotationNames.ProductVersionAnnotation] = value;
+            => model[CoreAnnotationNames.ProductVersion] = value;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool ShouldBeOwnedType([NotNull] this IModel model, [NotNull] string value)
-            => model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes && ownedTypes.Contains(value);
+            => model[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes && ownedTypes.Contains(value);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool ShouldBeOwnedType([NotNull] this IModel model, [NotNull] Type clrType)
         {
-            if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
+            if (!(model[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
             {
                 return false;
             }
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static void MarkAsOwnedType([NotNull] this Model model, [NotNull] string value)
         {
-            if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
+            if (!(model[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
             {
                 ownedTypes = new HashSet<string>(StringComparer.Ordinal);
-                model[CoreAnnotationNames.OwnedTypesAnnotation] = ownedTypes;
+                model[CoreAnnotationNames.OwnedTypes] = ownedTypes;
             }
 
             ownedTypes.Add(value);
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static void UnmarkAsOwnedType([NotNull] this Model model, [NotNull] string value)
         {
-            var ownedTypes = model[CoreAnnotationNames.OwnedTypesAnnotation] as HashSet<string>;
+            var ownedTypes = model[CoreAnnotationNames.OwnedTypes] as HashSet<string>;
             ownedTypes?.Remove(value);
         }
 
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static void UnmarkAsOwnedType([NotNull] this Model model, [NotNull] Type clrType)
         {
-            if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
+            if (!(model[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
             {
                 return;
             }

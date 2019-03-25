@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IncludeCompiler _includeCompiler;
 
             private static readonly MethodInfo _emptyMethodInfo
-                = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.Empty));
+                = typeof(Enumerable).GetRuntimeMethod(nameof(Enumerable.Empty), Type.EmptyTypes);
 
             public CollectionQueryModelRewritingExpressionVisitor(
                 QueryCompilationContext queryCompilationContext,

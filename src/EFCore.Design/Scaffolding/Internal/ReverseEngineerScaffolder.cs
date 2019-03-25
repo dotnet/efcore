@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -67,8 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ScaffoldedModel ScaffoldModel(
             string connectionString,
-            IEnumerable<string> tables,
-            IEnumerable<string> schemas,
+            DatabaseModelFactoryOptions options,
             string rootNamespace,
             string modelNamespace,
             string contextNamespace,
@@ -79,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ModelCodeGenerationOptions codeOptions)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
             Check.NotEmpty(modelNamespace, nameof(modelNamespace));
             Check.NotEmpty(contextNamespace, nameof(contextNamespace));
             Check.NotNull(modelOptions, nameof(modelOptions));
@@ -100,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 codeOptions.SuppressConnectionStringWarning = true;
             }
 
-            var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, tables, schemas);
+            var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, options);
             var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
 
             if (model == null)

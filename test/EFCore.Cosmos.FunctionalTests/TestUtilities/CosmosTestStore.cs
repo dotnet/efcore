@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -18,23 +20,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
 
-        public static CosmosTestStore Create(string name) => new CosmosTestStore(name, shared: false);
+        public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null) => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
-        public static CosmosTestStore CreateInitialized(string name)
-            => (CosmosTestStore)Create(name).Initialize(null, (Func<DbContext>)null, null);
+        public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null);
 
         public static CosmosTestStore GetOrCreate(string name) => new CosmosTestStore(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
             => new CosmosTestStore(name, dataFilePath: dataFilePath);
 
-        private CosmosTestStore(string name, bool shared = true, string dataFilePath = null)
+        private CosmosTestStore(string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             : base(name, shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
 
-            _storeContext = new TestStoreContext(this);
+            _storeContext = new TestStoreContext(this, extensionConfiguration);
 
             if (dataFilePath != null)
             {
@@ -148,15 +150,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private class TestStoreContext : DbContext
         {
             private readonly CosmosTestStore _testStore;
+            private readonly Action<CosmosDbContextOptionsBuilder> _extensionConfiguration;
 
-            public TestStoreContext(CosmosTestStore testStore)
+            public TestStoreContext(CosmosTestStore testStore,
+                Action<CosmosDbContextOptionsBuilder> extensionConfiguration)
             {
                 _testStore = testStore;
+                _extensionConfiguration = extensionConfiguration;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name);
+                var extensionConfiguration = _extensionConfiguration ?? (_ => { });
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, extensionConfiguration);
             }
         }
     }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>.
-    ///         This means a single instance of each service is used by many <see cref="DbContext"/> instances.
-    ///         The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public sealed class SelectExpressionDependencies
@@ -49,16 +50,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
+        /// <param name="commandBuilderFactory"> The command builder factory. </param>
+        /// <param name="commandLogger"> The commandLogger. </param>
+        /// <param name="queryLogger"> The commandLogger. </param>
         public SelectExpressionDependencies(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(commandLogger, nameof(commandLogger));
+            Check.NotNull(queryLogger, nameof(queryLogger));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
             TypeMappingSource = typeMappingSource;
+            CommandBuilderFactory = commandBuilderFactory;
+            CommandLogger = commandLogger;
+            QueryLogger = queryLogger;
         }
+        
+        /// <summary>
+        ///     The command Logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+        
+        /// <summary>
+        ///     The query Logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; }
 
         /// <summary>
         ///     The query SQL generator factory.
@@ -71,12 +94,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
+        ///     Gets the type mapper.
+        /// </summary>
+        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="querySqlGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            => new SelectExpressionDependencies(querySqlGeneratorFactory, TypeMappingSource);
+            => new SelectExpressionDependencies(querySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, CommandLogger, QueryLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -84,6 +112,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, typeMappingSource);
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, typeMappingSource, CommandBuilderFactory, CommandLogger, QueryLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SelectExpressionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, commandLogger, QueryLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="queryLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SelectExpressionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, CommandLogger, queryLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SelectExpressionDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, commandBuilderFactory, CommandLogger, QueryLogger);
     }
 }

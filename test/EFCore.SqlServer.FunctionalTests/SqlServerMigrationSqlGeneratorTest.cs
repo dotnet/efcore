@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.0.0-rtm")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.0.0-rtm")
                     .Entity(
                         "Person", x =>
                         {
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Generate(
                 modelBuilder => modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
                     .Entity(
                         "Person", x =>
                         {
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void AlterColumnOperation_identity()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => Generate(
-                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
                     new AlterColumnOperation
                     {
                         Table = "Person",
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => Generate(
-                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0"),
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
                     new AlterColumnOperation
                     {
                         Table = "Person",
@@ -919,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_unique_non_legacy()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.0.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.0.0"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1069,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_unique_with_include_non_legacy()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.0.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.0.0"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1309,7 +1309,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void MoveSequenceOperation()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -1327,7 +1327,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void MoveSequenceOperation_into_default()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -1361,7 +1361,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void MoveTableOperation()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameTableOperation
                 {
                     Name = "People",
@@ -1379,7 +1379,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void MoveTableOperation_into_default()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameTableOperation
                 {
                     Name = "People",
@@ -1462,7 +1462,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void RenameSequenceOperation()
         {
             Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",

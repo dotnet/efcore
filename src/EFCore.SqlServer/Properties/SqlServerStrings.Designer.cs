@@ -76,54 +76,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("TransientExceptionDetected");
 
         /// <summary>
-        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()'.
-        /// </summary>
-        public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.DecimalTypeDefaultWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.DecimalTypeDefaultWarning",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.DecimalTypeDefaultWarning,
-                            _resourceManager.GetString("LogDefaultDecimalTypeColumn"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
-        /// </summary>
-        public static EventDefinition<string, string> LogByteIdentityColumn([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.ByteIdentityColumnWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.ByteIdentityColumnWarning",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.ByteIdentityColumnWarning,
-                            _resourceManager.GetString("LogByteIdentityColumn"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
         ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
         /// </summary>
         public static string NonKeyValueGeneration([CanBeNull] object property, [CanBeNull] object entityType)
@@ -148,216 +100,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     Found default schema {defaultSchema}.
-        /// </summary>
-        public static EventDefinition<string> LogFoundDefaultSchema([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.DefaultSchemaFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.DefaultSchemaFound",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.DefaultSchemaFound,
-                            _resourceManager.GetString("LogFoundDefaultSchema"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
-        /// </summary>
-        public static EventDefinition<string, string> LogFoundTypeAlias([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.TypeAliasFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.TypeAliasFound",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.TypeAliasFound,
-                            _resourceManager.GetString("LogFoundTypeAlias"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}
-        /// </summary>
-        public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn,
-                    () => new FallbackEventDefinition(
-                        logger.Options,
-                        SqlServerEventId.ColumnFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.ColumnFound",
-                        _resourceManager.GetString("LogFoundColumn")));
-            }
-
-            return (FallbackEventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
-        /// </summary>
-        public static EventDefinition<string, string, string, string> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
-                    () => new EventDefinition<string, string, string, string>(
-                        logger.Options,
-                        SqlServerEventId.ForeignKeyFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.ForeignKeyFound",
-                        level => LoggerMessage.Define<string, string, string, string>(
-                            level,
-                            SqlServerEventId.ForeignKeyFound,
-                            _resourceManager.GetString("LogFoundForeignKey"))));
-            }
-
-            return (EventDefinition<string, string, string, string>)definition;
-        }
-
-        /// <summary>
-        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
-        /// </summary>
-        public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet,
-                    () => new EventDefinition<string, string, string>(
-                        logger.Options,
-                        SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning",
-                        level => LoggerMessage.Define<string, string, string>(
-                            level,
-                            SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
-                            _resourceManager.GetString("LogPrincipalTableNotInSelectionSet"))));
-            }
-
-            return (EventDefinition<string, string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Unable to find a schema in the database matching the selected schema {schema}.
-        /// </summary>
-        public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.MissingSchemaWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.MissingSchemaWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.MissingSchemaWarning,
-                            _resourceManager.GetString("LogMissingSchema"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Unable to find a table in the database matching the selected table {table}.
-        /// </summary>
-        public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.MissingTableWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.MissingTableWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.MissingTableWarning,
-                            _resourceManager.GetString("LogMissingTable"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
-        /// </summary>
-        public static FallbackEventDefinition LogFoundSequence([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence,
-                    () => new FallbackEventDefinition(
-                        logger.Options,
-                        SqlServerEventId.SequenceFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.SequenceFound",
-                        _resourceManager.GetString("LogFoundSequence")));
-            }
-
-            return (FallbackEventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     Found table with name: {name}.
-        /// </summary>
-        public static EventDefinition<string> LogFoundTable([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.TableFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.TableFound",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.TableFound,
-                            _resourceManager.GetString("LogFoundTable"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.
         /// </summary>
         public static string NoInitialCatalog
@@ -370,102 +112,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("DuplicateColumnNameValueGenerationStrategyMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
-        /// </summary>
-        public static EventDefinition<string, string, bool> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex,
-                    () => new EventDefinition<string, string, bool>(
-                        logger.Options,
-                        SqlServerEventId.IndexFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.IndexFound",
-                        level => LoggerMessage.Define<string, string, bool>(
-                            level,
-                            SqlServerEventId.IndexFound,
-                            _resourceManager.GetString("LogFoundIndex"))));
-            }
-
-            return (EventDefinition<string, string, bool>)definition;
-        }
-
-        /// <summary>
-        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
-        /// </summary>
-        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.PrimaryKeyFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.PrimaryKeyFound",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.PrimaryKeyFound,
-                            _resourceManager.GetString("LogFoundPrimaryKey"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
-        /// </summary>
-        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.UniqueConstraintFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.UniqueConstraintFound",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.UniqueConstraintFound,
-                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
-        /// </summary>
-        public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound,
-                    () => new EventDefinition<string, string, string, string>(
-                        logger.Options,
-                        SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning",
-                        level => LoggerMessage.Define<string, string, string, string>(
-                            level,
-                            SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
-                            _resourceManager.GetString("LogPrincipalColumnNotFound"))));
-            }
-
-            return (EventDefinition<string, string, string, string>)definition;
-        }
 
         /// <summary>
         ///     The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.
@@ -518,30 +164,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("ContainsFunctionOnClient");
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.
-        /// </summary>
-        public static EventDefinition<string, string> LogReflexiveConstraintIgnored([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.SqlServer.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqlServerEventId.ReflexiveConstraintIgnored,
-                        LogLevel.Debug,
-                        "SqlServerEventId.ReflexiveConstraintIgnored",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqlServerEventId.ReflexiveConstraintIgnored,
-                            _resourceManager.GetString("LogReflexiveConstraintIgnored"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
         ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.
         /// </summary>
         public static string DuplicateKeyMismatchedClustering([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName)
@@ -558,6 +180,397 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return value;
+        }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
+{
+    /// <summary>
+    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public static class SqlServerResources
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerResources).GetTypeInfo().Assembly);
+
+        /// <summary>
+        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()'.
+        /// </summary>
+        public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.DecimalTypeDefaultWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.DecimalTypeDefaultWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.DecimalTypeDefaultWarning,
+                            _resourceManager.GetString("LogDefaultDecimalTypeColumn"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
+        /// </summary>
+        public static EventDefinition<string, string> LogByteIdentityColumn([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.ByteIdentityColumnWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ByteIdentityColumnWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.ByteIdentityColumnWarning,
+                            _resourceManager.GetString("LogByteIdentityColumn"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Found default schema {defaultSchema}.
+        /// </summary>
+        public static EventDefinition<string> LogFoundDefaultSchema([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.DefaultSchemaFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.DefaultSchemaFound",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.DefaultSchemaFound,
+                            _resourceManager.GetString("LogFoundDefaultSchema"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
+        /// </summary>
+        public static EventDefinition<string, string> LogFoundTypeAlias([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.TypeAliasFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.TypeAliasFound",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.TypeAliasFound,
+                            _resourceManager.GetString("LogFoundTypeAlias"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}
+        /// </summary>
+        public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        SqlServerEventId.ColumnFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.ColumnFound",
+                        _resourceManager.GetString("LogFoundColumn")));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        SqlServerEventId.ForeignKeyFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.ForeignKeyFound",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            SqlServerEventId.ForeignKeyFound,
+                            _resourceManager.GetString("LogFoundForeignKey"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
+                            _resourceManager.GetString("LogPrincipalTableNotInSelectionSet"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        /// </summary>
+        public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.MissingSchemaWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingSchemaWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.MissingSchemaWarning,
+                            _resourceManager.GetString("LogMissingSchema"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Unable to find a table in the database matching the selected table {table}.
+        /// </summary>
+        public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.MissingTableWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingTableWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.MissingTableWarning,
+                            _resourceManager.GetString("LogMissingTable"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        /// </summary>
+        public static FallbackEventDefinition LogFoundSequence([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        SqlServerEventId.SequenceFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.SequenceFound",
+                        _resourceManager.GetString("LogFoundSequence")));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Found table with name: {name}.
+        /// </summary>
+        public static EventDefinition<string> LogFoundTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqlServerEventId.TableFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.TableFound",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqlServerEventId.TableFound,
+                            _resourceManager.GetString("LogFoundTable"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static EventDefinition<string, string, bool> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex,
+                    () => new EventDefinition<string, string, bool>(
+                        logger.Options,
+                        SqlServerEventId.IndexFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.IndexFound",
+                        level => LoggerMessage.Define<string, string, bool>(
+                            level,
+                            SqlServerEventId.IndexFound,
+                            _resourceManager.GetString("LogFoundIndex"))));
+            }
+
+            return (EventDefinition<string, string, bool>)definition;
+        }
+
+        /// <summary>
+        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        /// </summary>
+        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.PrimaryKeyFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.PrimaryKeyFound",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.PrimaryKeyFound,
+                            _resourceManager.GetString("LogFoundPrimaryKey"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        /// </summary>
+        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.UniqueConstraintFound,
+                        LogLevel.Debug,
+                        "SqlServerEventId.UniqueConstraintFound",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.UniqueConstraintFound,
+                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
+                            _resourceManager.GetString("LogPrincipalColumnNotFound"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.
+        /// </summary>
+        public static EventDefinition<string, string> LogReflexiveConstraintIgnored([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.ReflexiveConstraintIgnored,
+                        LogLevel.Debug,
+                        "SqlServerEventId.ReflexiveConstraintIgnored",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.ReflexiveConstraintIgnored,
+                            _resourceManager.GetString("LogReflexiveConstraintIgnored"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
     }
 }

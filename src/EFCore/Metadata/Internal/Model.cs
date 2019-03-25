@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -231,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     CoreStrings.EntityTypeInUseByForeignKey(
                         entityType.DisplayName(),
                         foreignKey.PrincipalEntityType.DisplayName(),
-                        Property.Format(foreignKey.Properties)));
+                        foreignKey.Properties.Format()));
             }
 
             var referencingForeignKey = entityType.GetDeclaredReferencingForeignKeys().FirstOrDefault();
@@ -240,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.EntityTypeInUseByReferencingForeignKey(
                         entityType.DisplayName(),
-                        Property.Format(referencingForeignKey.Properties),
+                        referencingForeignKey.Properties.Format(),
                         referencingForeignKey.DeclaringEntityType.DisplayName()));
             }
 

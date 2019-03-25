@@ -64,13 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalValueBufferFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMaterializerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IConditionalRemovingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IExpressionFragmentTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IUpdateSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -78,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICompositeMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTransactionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -183,10 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<MigrationsAnnotationProviderDependencies>()
                 .AddDependencySingleton<SqlTranslatingExpressionVisitorDependencies>()
                 .AddDependencySingleton<ParameterNameGeneratorDependencies>()
-                .AddDependencySingleton<SelectExpressionDependencies>()
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
                 .AddDependencySingleton<RelationalProjectionExpressionVisitorDependencies>()
                 .AddDependencySingleton<RelationalTransactionFactoryDependencies>()
+                .AddDependencyScoped<SelectExpressionDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()
@@ -198,6 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalEntityQueryableExpressionVisitorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
+                .AddDependencyScoped<RelationalCommandBuilderDependencies>()
                 .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();

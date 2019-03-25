@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    // Issue#11266 This interface is being used by provider code. Do not break. // PropertyInfoExtensions
     public interface IParameterBindingFactories
     {
         /// <summary>

@@ -12,13 +12,13 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -706,11 +706,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
             Debug.Assert(!navigation.IsShadowProperty);
 
-            ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
+            return ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
         }
 
         /// <summary>
@@ -1493,7 +1493,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         public override string ToString()
-            => $"{this.BuildCurrentValuesString(EntityType.FindPrimaryKey().Properties)} {EntityState} {EntityType}";
+            => $"{this.BuildCurrentValuesString(EntityType.FindPrimaryKey().Properties)} {EntityState}"
+               + $"{(((IUpdateEntry)this).SharedIdentityEntry == null ? "" : "Shared")} {EntityType}";
 
         IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
 

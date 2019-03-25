@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -64,9 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
-            Loggers = queryCompilationContext.Loggers;
+
+            Dependencies = dependencies;
+            Loggers = new DiagnosticsLoggers(dependencies.QueryLogger, dependencies.CommandLogger);
         }
 
         /// <summary>
@@ -1486,7 +1488,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public override string ToString()
             => CreateDefaultQuerySqlGenerator()
-                .GenerateSql(new Dictionary<string, object>())
+                .GenerateSql(Dependencies.CommandBuilderFactory, new Dictionary<string, object>())
                 .CommandText;
     }
 }

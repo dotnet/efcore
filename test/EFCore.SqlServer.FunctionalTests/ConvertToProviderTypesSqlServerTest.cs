@@ -4,8 +4,9 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Contains(
-                    RelationalStrings.LogValueConversionSqlLiteralWarning(new TestLogger<SqlServerLoggingDefinitions>())
+                    RelationalResources.LogValueConversionSqlLiteralWarning(new TestLogger<SqlServerLoggingDefinitions>())
                         .GenerateMessage(
                             typeof(decimal).ShortDisplayName(),
                             new NumberToBytesConverter<decimal>().GetType().ShortDisplayName()),

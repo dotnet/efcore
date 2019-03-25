@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IEntityType entityType,
             [NotNull] string schema)
         {
-            var definition = SqliteStrings.LogSchemaConfigured(diagnostics);
+            var definition = SqliteResources.LogSchemaConfigured(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] ISequence sequence)
         {
-            var definition = SqliteStrings.LogSequenceConfigured(diagnostics);
+            var definition = SqliteResources.LogSequenceConfigured(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -105,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool notNull,
             [CanBeNull] string defaultValue)
         {
-            var definition = SqliteStrings.LogFoundColumn(diagnostics);
+            var definition = SqliteResources.LogFoundColumn(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
         {
-            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning(diagnostics);
+            var definition = SqliteResources.LogUsingSchemaSelectionsWarning(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -145,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
         {
-            var definition = SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
+            var definition = SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundTable(diagnostics);
+            var definition = SqliteResources.LogFoundTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogMissingTable(diagnostics);
+            var definition = SqliteResources.LogMissingTable(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -214,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalColumnName,
             [CanBeNull] string principalTableName)
         {
-            var definition = SqliteStrings.LogPrincipalColumnNotFound(diagnostics);
+            var definition = SqliteResources.LogPrincipalColumnNotFound(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -238,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             bool? unique)
         {
-            var definition = SqliteStrings.LogFoundIndex(diagnostics);
+            var definition = SqliteResources.LogFoundIndex(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string principalTableName,
             [CanBeNull] string deleteAction)
         {
-            var definition = SqliteStrings.LogFoundForeignKey(diagnostics);
+            var definition = SqliteResources.LogFoundForeignKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -286,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string primaryKeyName,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundPrimaryKey(diagnostics);
+            var definition = SqliteResources.LogFoundPrimaryKey(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -309,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string uniqueConstraintName,
             [CanBeNull] string tableName)
         {
-            var definition = SqliteStrings.LogFoundUniqueConstraint(diagnostics);
+            var definition = SqliteResources.LogFoundUniqueConstraint(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

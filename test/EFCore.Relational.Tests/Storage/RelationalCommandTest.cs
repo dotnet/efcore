@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -998,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(3, logFactory.Log.Count);
             Assert.Equal(LogLevel.Warning, logFactory.Log[0].Level);
-            Assert.Equal(CoreStrings.LogSensitiveDataLoggingEnabled(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
+            Assert.Equal(CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
 
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
@@ -1185,7 +1186,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new RelationalCommandBuilderDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
                 commandText,
                 parameters ?? Array.Empty<IRelationalParameter>());
     }

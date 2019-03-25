@@ -9,7 +9,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Versioning;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -81,36 +83,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
-        {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
-
-            var propertyPaths
-                = MatchPropertyAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
-
-            if (propertyPaths == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
-            }
-
-            return propertyPaths;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
-            this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
+        public static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
+            [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
             Debug.Assert(lambdaExpression.Body != null);
 
             var parameterExpression
                 = lambdaExpression.Parameters.Single();
 
-            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
+            if (lambdaExpression.Body.RemoveConvert() is NewExpression newExpression)
             {
                 var propertyInfos
                     = newExpression
@@ -132,8 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private static PropertyInfo MatchSimplePropertyAccess(
-            this Expression parameterExpression, Expression propertyAccessExpression)
+        public static PropertyInfo MatchSimplePropertyAccess(
+            [NotNull] this Expression parameterExpression, [NotNull] Expression propertyAccessExpression)
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
@@ -185,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             do
             {
-                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
+                memberExpression = RemoveTypeAs(propertyAccessExpression.RemoveConvert()) as MemberExpression;
 
                 if (!(memberExpression?.Member is PropertyInfo propertyInfo))
                 {
@@ -196,26 +177,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 propertyAccessExpression = memberExpression.Expression;
             }
-            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
+            while (RemoveTypeAs(memberExpression.Expression.RemoveConvert()) != parameterExpression);
 
             return propertyInfos;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
-        {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
-            }
-
-            return expression;
         }
 
         /// <summary>
@@ -233,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             while ((expression?.NodeType == ExpressionType.TypeAs))
             {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+                expression = ((UnaryExpression)expression.RemoveConvert()).Operand;
             }
 
             return expression;
@@ -469,9 +433,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
 
         private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo)
-                .GetTypeInfo()
-                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);
+            = typeof(FieldInfo).GetRuntimeMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
     }
 }

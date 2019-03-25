@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
-                        Property.Format(principalKey.Properties),
+                        principalKey.Properties.Format(),
                         principalEntityType.DisplayName()));
             }
 
@@ -731,9 +731,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyCountMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 
@@ -746,9 +746,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 

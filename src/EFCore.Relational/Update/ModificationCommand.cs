@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -328,8 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.ConflictingRowValues(
                         firstEntry.EntityType.DisplayName(),
                         lastEntry.EntityType.DisplayName(),
-                        Property.Format(firstProperties),
-                        Property.Format(lastProperties),
+                        firstProperties.Format(),
+                        lastProperties.Format(),
                         firstProperties.FormatColumns()));
             }
 
@@ -358,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.ConflictingOriginalRowValues(
                         firstEntry.EntityType.DisplayName(),
                         lastEntry.EntityType.DisplayName(),
-                        Property.Format(firstProperties),
-                        Property.Format(lastProperties),
+                        firstProperties.Format(),
+                        lastProperties.Format(),
                         firstProperties.FormatColumns()));
             }
 

@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private sealed class IncludeLoadTreeNode : IncludeLoadTreeNodeBase
         {
             private static readonly MethodInfo _referenceEqualsMethodInfo
-                = typeof(object).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(ReferenceEquals));
+                = typeof(object).GetRuntimeMethod(nameof(ReferenceEquals), new[] { typeof(object), typeof(object) });
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()

@@ -7,8 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -19,14 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public static class PropertyExtensions
     {
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static CoreTypeMapping FindMapping(
-            [NotNull] this IProperty property)
-            => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -145,31 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
                || property.IsForeignKey();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static IProperty FindPrincipal([NotNull] this IProperty property)
-        {
-            var concreteProperty = property.AsProperty();
-            if (concreteProperty.ForeignKeys != null)
-            {
-                foreach (var foreignKey in concreteProperty.ForeignKeys)
-                {
-                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                    {
-                        if (property == foreignKey.Properties[propertyIndex])
-                        {
-                            return foreignKey.PrincipalKey.Properties[propertyIndex];
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -311,11 +277,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var indexes = property.GetPropertyIndexes();
-            builder.Append(" ").Append(indexes.Index);
-            builder.Append(" ").Append(indexes.OriginalValueIndex);
-            builder.Append(" ").Append(indexes.RelationshipIndex);
-            builder.Append(" ").Append(indexes.ShadowIndex);
-            builder.Append(" ").Append(indexes.StoreGenerationIndex);
+            if (indexes != null)
+            {
+                builder.Append(" ").Append(indexes.Index);
+                builder.Append(" ").Append(indexes.OriginalValueIndex);
+                builder.Append(" ").Append(indexes.RelationshipIndex);
+                builder.Append(" ").Append(indexes.ShadowIndex);
+                builder.Append(" ").Append(indexes.StoreGenerationIndex);
+            }
 
             if (!singleLine)
             {

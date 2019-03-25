@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
         private string _logFragment;
+        private string _region;
 
         public CosmosDbOptionsExtension()
         {
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _authKeyOrResourceToken = copyFrom._authKeyOrResourceToken;
             _databaseName = copyFrom._databaseName;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
+            _region = copyFrom._region;
         }
 
         public virtual string ServiceEndPoint => _serviceEndPoint;
@@ -60,6 +62,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._databaseName = database;
+
+            return clone;
+        }
+
+        public virtual string Region => _region;
+
+        public virtual CosmosDbOptionsExtension WithRegion(string region)
+        {
+            var clone = Clone();
+
+            clone._region = region;
 
             return clone;
         }

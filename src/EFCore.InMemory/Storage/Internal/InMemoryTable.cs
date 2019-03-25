@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -232,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             throw new DbUpdateConcurrencyException(
                 InMemoryStrings.UpdateConcurrencyTokenException(
                     entry.EntityType.DisplayName(),
-                    Property.Format(concurrencyConflicts.Keys)),
+                    concurrencyConflicts.Keys.Format()),
                 new[] { entry });
         }
     }

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -21,10 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
             var batch = new SqlServerModificationCommandBatch(
                 new ModificationCommandBatchFactoryDependencies(
                     new RelationalCommandBuilderFactory(
-                        typeMapper),
+                        new RelationalCommandBuilderDependencies(
+                            typeMapper,
+                            logger)),
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
                     new SqlServerUpdateSqlGenerator(
@@ -35,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new TypedRelationalValueBufferFactoryFactory(
                         new RelationalValueBufferFactoryDependencies(
                             typeMapper, new CoreSingletonOptions())),
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()),
+                    logger),
                 1);
 
             Assert.True(
