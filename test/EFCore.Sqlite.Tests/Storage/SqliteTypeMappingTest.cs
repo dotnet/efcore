@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(Guid)),
                 new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
-                "X'9E3AF4C6E191EF45A320832EA23B7292'");
+                "'C6F43A9E-91E1-45EF-A320-832EA23B7292'");
         }
 
         public override void ULong_literal_generated_correctly()

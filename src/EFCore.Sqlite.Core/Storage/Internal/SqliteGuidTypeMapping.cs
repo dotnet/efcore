@@ -47,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
-            => new ByteArrayTypeMapping(StoreType).GenerateSqlLiteral(((Guid)value).ToByteArray());
+            => "'" + ((Guid)value).ToString().ToUpper() + "'";
     }
 }

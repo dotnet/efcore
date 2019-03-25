@@ -134,7 +134,7 @@ namespace Microsoft.Data.Sqlite
             else if (type == typeof(Guid))
             {
                 var guid = (Guid)_value;
-                if (_sqliteType == SqliteType.Text)
+                if (_sqliteType != SqliteType.Blob)
                 {
                     var value = guid.ToString().ToUpper();
                     BindText(value);
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(decimal), SqliteType.Text },
                 { typeof(double), SqliteType.Real },
                 { typeof(float), SqliteType.Real },
-                { typeof(Guid), SqliteType.Blob },
+                { typeof(Guid), SqliteType.Text },
                 { typeof(int), SqliteType.Integer },
                 { typeof(long), SqliteType.Integer },
                 { typeof(sbyte), SqliteType.Integer },
