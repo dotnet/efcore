@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int ExecuteTransaction(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             var rowsAffected = 0;

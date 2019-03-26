@@ -168,13 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
             Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splew"));
-            Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().Name);
+            Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().ConstraintName);
 
             Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).HasConstraintName("Splow"));
-            Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
+            Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().ConstraintName);
 
             Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splod"));
-            Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
+            Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().ConstraintName);
 
             Assert.Equal(
                 1, relationshipBuilder.Metadata.GetAnnotations().Count(

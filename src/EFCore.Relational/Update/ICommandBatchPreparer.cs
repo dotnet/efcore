@@ -30,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entries"> The entries that represent the entities to be modified. </param>
         /// <returns> The list of batches to execute. </returns>
-        IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<IUpdateEntry> entries);
+        IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IList<IUpdateEntry> entries);
     }
 }

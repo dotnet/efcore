@@ -283,7 +283,7 @@ FROM [Order Details] AS [od0]
 WHERE @_outer_OrderID = [od0].[OrderID]");
 
             Assert.Contains(
-                RelationalResources.LogQueryPossibleExceptionWithAggregateOperator(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                RelationalResources.LogQueryPossibleExceptionWithAggregateOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 

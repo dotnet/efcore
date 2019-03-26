@@ -1117,7 +1117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, c) => s.Relational().Name == t.Relational().Name
+                (s, t, c) => s.Relational().ConstraintName == t.Relational().ConstraintName
                              && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
                                  t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
                              && c.FindSourceTable(s.PrincipalEntityType)
@@ -1149,7 +1149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 Schema = targetEntityTypeAnnotations.Schema,
                 Table = targetEntityTypeAnnotations.TableName,
-                Name = target.Relational().Name,
+                Name = target.Relational().ConstraintName,
                 Columns = GetColumns(target.Properties),
                 PrincipalSchema = targetPrincipalEntityTypeAnnotations.Schema,
                 PrincipalTable = targetPrincipalEntityTypeAnnotations.TableName,
@@ -1185,7 +1185,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
                     Table = sourceEntityTypeAnnotations.TableName,
-                    Name = source.Relational().Name
+                    Name = source.Relational().ConstraintName
                 };
                 operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 

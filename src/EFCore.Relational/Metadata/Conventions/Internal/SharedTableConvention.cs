@@ -17,10 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class SharedTableConvention :
-        IEntityTypeAddedConvention,
-        IEntityTypeAnnotationChangedConvention,
-        IForeignKeyOwnershipChangedConvention,
-        IForeignKeyUniquenessChangedConvention,
         IModelBuiltConvention
     {
         /// <summary>
@@ -37,68 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
-        {
-            var ownership = entityTypeBuilder.Metadata.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership && fk.IsUnique);
-            if (ownership != null)
-            {
-                SetOwnedTable(ownership);
-            }
-
-            return entityTypeBuilder;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Annotation Apply(
-            InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
-        {
-            var entityType = entityTypeBuilder.Metadata;
-            if (name == RelationalAnnotationNames.TableName
-                || name == RelationalAnnotationNames.Schema)
-            {
-                foreach (var foreignKey in entityType.GetReferencingForeignKeys())
-                {
-                    if (foreignKey.IsOwnership
-                        && foreignKey.IsUnique)
-                    {
-                        SetOwnedTable(foreignKey);
-                    }
-                }
-            }
-
-            return annotation;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
-        {
-            var foreignKey = relationshipBuilder.Metadata;
-            if (foreignKey.IsOwnership
-                && foreignKey.IsUnique)
-            {
-                SetOwnedTable(foreignKey);
-            }
-
-            return relationshipBuilder;
-        }
-
-        private static void SetOwnedTable(ForeignKey foreignKey)
-        {
-            var ownerType = foreignKey.PrincipalEntityType;
-            foreignKey.DeclaringEntityType.Builder.Relational(ConfigurationSource.Convention)
-                .ToTable(ownerType.Relational().TableName, ownerType.Relational().Schema);
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -347,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         var otherAssociatedForeignKey = otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
                         if (associatedForeignKey != null
                             && otherAssociatedForeignKey != null
-                            && associatedForeignKey.Relational().Name == otherAssociatedForeignKey.Relational().Name
+                            && associatedForeignKey.Relational().ConstraintName == otherAssociatedForeignKey.Relational().ConstraintName
                             && index.AreCompatible(otherIndex, shouldThrow: false))
                         {
                             continue;
@@ -394,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.Relational().Name;
+                var foreignKeyName = foreignKey.Relational().ConstraintName;
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
@@ -403,9 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
                 var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
-                if (relationalKeyBuilder.CanSetName(null))
+                if (relationalKeyBuilder.CanSetConstraintName(null))
                 {
-                    if (otherRelationalKeyBuilder.CanSetName(null)
+                    if (otherRelationalKeyBuilder.CanSetConstraintName(null)
                         && (foreignKey.PrincipalToDependent != null
                             || foreignKey.DependentToPrincipal != null)
                         && (foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo()).IsSameAs(
@@ -435,10 +369,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
            ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
         {
             var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalKeyBuilder.CanSetName(null))
+            if (relationalKeyBuilder.CanSetConstraintName(null))
             {
                 foreignKeyName = ConstraintNamer.Uniquify(foreignKeyName, foreignKeys, maxLength);
-                relationalKeyBuilder.Name = foreignKeyName;
+                relationalKeyBuilder.ConstraintName = foreignKeyName;
                 return foreignKeyName;
             }
 

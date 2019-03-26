@@ -27,15 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Sql);
         }
 
-        public override void AddColumnOperation_with_computed_column_SQL()
-        {
-            base.AddColumnOperation_with_computed_column_SQL();
-
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
-                Sql);
-        }
-
         public override void AddColumnOperation_without_column_type()
         {
             base.AddColumnOperation_without_column_type();

@@ -80,12 +80,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private string GetDefaultTableName()
-            => ConstraintNamer.Truncate(
-                EntityType.HasDefiningNavigation()
-                    ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
-                    : EntityType.ShortName(),
-                null,
-                EntityType.Model.GetMaxIdentifierLength());
+        {
+            var ownership = EntityType.FindOwnership();
+            if (ownership != null
+                && ownership.IsUnique)
+            {
+                return ownership.PrincipalEntityType.Relational().TableName;
+            }
+
+            return ConstraintNamer.Truncate(
+                           EntityType.HasDefiningNavigation()
+                               ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
+                               : EntityType.ShortName(),
+                           null,
+                           EntityType.Model.GetMaxIdentifierLength());
+        }
 
         /// <summary>
         ///     Attempts to set the <see cref="TableName" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.
@@ -111,9 +120,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private string GetDefaultSchema()
-            => EntityType.HasDefiningNavigation()
-                ? GetAnnotations(EntityType.DefiningEntityType).Schema
-                : GetAnnotations(EntityType.Model).DefaultSchema;
+        {
+            var ownership = EntityType.FindOwnership();
+            if (ownership != null
+                && ownership.IsUnique)
+            {
+                return ownership.PrincipalEntityType.Relational().Schema;
+            }
+
+            return EntityType.HasDefiningNavigation()
+                           ? GetAnnotations(EntityType.DefiningEntityType).Schema
+                           : GetAnnotations(EntityType.Model).DefaultSchema;
+        }
 
         /// <summary>
         ///     Attempts to set the <see cref="Schema" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.

@@ -593,9 +593,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var dependentEntry = dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
-                            if (!foreignKey.IsOwnership
-                                || (dependentEntry.EntityState != EntityState.Deleted
-                                 && dependentEntry.EntityState != EntityState.Detached))
+                            if ((!foreignKey.IsOwnership
+                                    || (dependentEntry.EntityState != EntityState.Deleted
+                                     && dependentEntry.EntityState != EntityState.Detached))
+                                 && (foreignKey.PrincipalToDependent == null
+                                    || entry[foreignKey.PrincipalToDependent] == null
+                                    || entry[foreignKey.PrincipalToDependent] == dependentEntry.Entity))
                             {
                                 // Set navigations to and from principal entity that is indicated by FK
                                 SetNavigation(entry, foreignKey.PrincipalToDependent, dependentEntry);

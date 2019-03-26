@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter())
             {
                 Assert.Equal(
-                    CoreStrings.DataBindingWithIListSource,
+                    CoreStrings.DataBindingToLocalWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
             }
         }

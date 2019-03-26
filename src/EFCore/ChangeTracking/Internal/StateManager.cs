@@ -818,7 +818,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetInternalEntriesToSave();
+            var entriesToSave = GetEntriesToSave();
             if (entriesToSave.Count == 0)
             {
                 return 0;
@@ -830,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (acceptAllChangesOnSuccess)
                 {
-                    AcceptAllChanges(entriesToSave);
+                    AcceptAllChanges((IReadOnlyList<IUpdateEntry>)entriesToSave);
                 }
 
                 return result;
@@ -839,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var entry in entriesToSave)
                 {
-                    entry.DiscardStoreGeneratedValues();
+                    ((InternalEntityEntry)entry).DiscardStoreGeneratedValues();
                 }
 
                 throw;
@@ -850,18 +850,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<IUpdateEntry> GetEntriesToSave()
-            => GetInternalEntriesToSave();
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual IReadOnlyList<InternalEntityEntry> GetInternalEntriesToSave()
+        public virtual IList<IUpdateEntry> GetEntriesToSave()
         {
             CascadeChanges(force: false);
 
-            var toSave = new List<InternalEntityEntry>(GetCountForState(added: true, modified: true, deleted: true));
+            var toSave = new List<IUpdateEntry>(GetCountForState(added: true, modified: true, deleted: true));
 
             // Perf sensitive
 
@@ -995,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetInternalEntriesToSave();
+            var entriesToSave = GetEntriesToSave();
             if (entriesToSave.Count == 0)
             {
                 return 0;
@@ -1007,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (acceptAllChangesOnSuccess)
                 {
-                    AcceptAllChanges(entriesToSave);
+                    AcceptAllChanges((IReadOnlyList<IUpdateEntry>)entriesToSave);
                 }
 
                 return result;
@@ -1016,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var entry in entriesToSave)
                 {
-                    entry.DiscardStoreGeneratedValues();
+                    ((InternalEntityEntry)entry).DiscardStoreGeneratedValues();
                 }
 
                 throw;
@@ -1028,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
+            [NotNull] IList<IUpdateEntry> entriesToSave)
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
@@ -1041,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual async Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
+            [NotNull] IList<IUpdateEntry> entriesToSave,
             CancellationToken cancellationToken = default)
         {
             using (_concurrencyDetector.EnterCriticalSection())
@@ -1057,12 +1050,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void AcceptAllChanges()
             => AcceptAllChanges(this.ToListForState(added: true, modified: true, deleted: true));
 
-        private static void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
+        private static void AcceptAllChanges(IReadOnlyList<IUpdateEntry> changedEntries)
         {
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var entryIndex = 0; entryIndex < changedEntries.Count; entryIndex++)
             {
-                changedEntries[entryIndex].AcceptChanges();
+                ((InternalEntityEntry)changedEntries[entryIndex]).AcceptChanges();
             }
         }
 

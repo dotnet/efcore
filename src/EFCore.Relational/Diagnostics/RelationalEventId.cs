@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
             QueryPossibleUnintendedUseOfEqualsWarning,
-            QueryPossibleExceptionWithAggregateOperator,
+            QueryPossibleExceptionWithAggregateOperatorWarning,
             ValueConversionSqlLiteralWarning,
 
             // Model validation events
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
-        public static readonly EventId QueryPossibleExceptionWithAggregateOperator = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperator);
+        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
 
         /// <summary>
         ///     <para>

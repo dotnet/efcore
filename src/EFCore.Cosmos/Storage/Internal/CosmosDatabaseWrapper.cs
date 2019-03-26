@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        public override int SaveChanges(IReadOnlyList<IUpdateEntry> entries)
+        public override int SaveChanges(IList<IUpdateEntry> entries)
         {
             var rowsAffected = 0;
             var entriesSaved = new HashSet<IUpdateEntry>();
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         public override async Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
+            IList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
         {
             var rowsAffected = 0;
             var entriesSaved = new HashSet<IUpdateEntry>();

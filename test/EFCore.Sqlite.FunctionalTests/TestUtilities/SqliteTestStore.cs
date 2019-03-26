@@ -84,6 +84,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return command.ExecuteNonQuery();
             }
         }
+        public T ExecuteScalar<T>(string sql, params object[] parameters)
+        {
+            using (var command = CreateCommand(sql, parameters))
+            {
+                return (T)command.ExecuteScalar();
+            }
+        }
 
         private DbCommand CreateCommand(string commandText, object[] parameters)
         {

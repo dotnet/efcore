@@ -51,7 +51,7 @@ SELECT @@ROWCOUNT;"
                     entityType.GetKeys().Single().Relational().Name);
                 Assert.Equal(
                     "FK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-                    entityType.GetForeignKeys().Single().Relational().Name);
+                    entityType.GetForeignKeys().Single().Relational().ConstraintName);
                 Assert.Equal(
                     "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
                     entityType.GetIndexes().Single().Relational().Name);

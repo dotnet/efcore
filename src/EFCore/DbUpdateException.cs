@@ -56,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(entries, nameof(entries));
 
-            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => entries.Select(e => e.ToEntityEntry()).ToList());
+            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => entries.Where(e => e.EntityState != EntityState.Unchanged)
+                .Select(e => e.ToEntityEntry()).ToList());
         }
 
         /// <summary>

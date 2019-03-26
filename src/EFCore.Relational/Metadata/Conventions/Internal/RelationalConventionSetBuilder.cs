@@ -65,16 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var discriminatorConvention = new DiscriminatorConvention(logger);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
-            conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
-            conventionSet.EntityTypeAnnotationChangedConventions.Add(sharedTableConvention);
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
-            conventionSet.ForeignKeyUniquenessChangedConventions.Add(sharedTableConvention);
-            conventionSet.ForeignKeyOwnershipChangedConventions.Add(sharedTableConvention);
 
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 

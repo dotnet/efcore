@@ -476,6 +476,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
+        protected override void ComputedColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            ColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(SqliteStrings.ComputedColumnsNotSupported);
+
         #endregion
 
         #region Ignored schema operations

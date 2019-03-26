@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        public abstract int SaveChanges(IReadOnlyList<IUpdateEntry> entries);
+        public abstract int SaveChanges(IList<IUpdateEntry> entries);
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     number of entries persisted to the database.
         /// </returns>
         public abstract Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
         /// <summary>

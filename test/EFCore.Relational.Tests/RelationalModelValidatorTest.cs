@@ -601,8 +601,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -622,8 +622,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().Name);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().Name);
+            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -749,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().Name, fk2.Relational().Name);
+            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
@@ -897,6 +897,62 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotSame(index1, index2);
             Assert.Equal(index1.Relational().Name, index2.Relational().Name);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_concurrency_token_on_the_base_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            VerifyError(
+                RelationalStrings.MissingConcurrencyColumn(nameof(Animal), "Version", nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_concurrency_token_on_the_sharing_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+            modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            VerifyError(
+                RelationalStrings.MissingConcurrencyColumn(nameof(Person), "Version", nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_table_sharing()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>()
+                .HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Animal>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_owned()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson,
+                    pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
         }
 
         [Fact]
