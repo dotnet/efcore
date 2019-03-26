@@ -99,6 +99,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("DisjointChildSubclass2_ParentId", property2.SqlServer().ColumnName);
             }
 
+            [Fact]
+            public void Inherited_clr_properties_are_mapped_to_the_same_column()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<ChildBase>();
+                modelBuilder.Ignore<Child>();
+                modelBuilder.Entity<DisjointChildSubclass1>();
+                modelBuilder.Entity<DisjointChildSubclass2>();
+
+                modelBuilder.FinalizeModel();
+
+                var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty(nameof(Child.Name));
+                Assert.Equal(nameof(Child.Name), property1.SqlServer().ColumnName);
+                var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty(nameof(Child.Name));
+                Assert.Equal(nameof(Child.Name), property2.SqlServer().ColumnName);
+            }
+
             [Fact] //Issue#10659
             public void Index_convention_run_for_fk_when_derived_type_discovered_before_base_type()
             {
@@ -139,9 +156,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public IList<DisjointChildSubclass2> B { get; set; }
             }
 
-            public abstract class Child
+            public abstract class ChildBase
             {
                 public int Id { get; set; }
+            }
+
+            public abstract class Child : ChildBase
+            {
+                public string Name { get; set; }
             }
 
             public class DisjointChildSubclass1 : Child

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -16,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SharedTableConvention :
-        IModelBuiltConvention
+    public class SharedTableConvention : IModelBuiltConvention
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -159,6 +157,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (!properties.TryGetValue(columnName, out var otherProperty))
                 {
                     properties[columnName] = property;
+                    continue;
+                }
+
+                var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
+                if (identifyingMemberInfo != null
+                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo()))
+                {
                     continue;
                 }
 

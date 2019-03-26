@@ -26,6 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             // TODO: For this to work Join needs to be translated or compiled as a Join with custom equality comparer
         }
 
+        public override void Can_perform_query_with_max_length()
+        {
+            // TODO: Better translation of sequential equality #14935
+        }
+
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
