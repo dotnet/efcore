@@ -42,6 +42,12 @@ jobs:
               - _DotNetPublishToBlobFeed: true
               - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
           steps:
+            - script: "echo ##vso[build.addbuildtag]daily-build"
+              condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+              displayName: 'Set CI tags'
+            - script: "echo ##vso[build.addbuildtag]release-candidate"
+              condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+              displayName: 'Set CI tags'
             - powershell: |
                 SqlLocalDB stop MSSQLLocalDB -i
                 SqlLocalDB start MSSQLLocalDB
