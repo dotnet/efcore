@@ -40,6 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitIsNull([NotNull] IsNullExpression isNullExpression);
 
         /// <summary>
+        ///     Visit a NullableExpression.
+        /// </summary>
+        /// <param name="nullableExpression"> The nullable expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        Expression VisitNullable([NotNull] NullableExpression nullableExpression);
+
+        /// <summary>
         ///     Visit a LikeExpression.
         /// </summary>
         /// <param name="likeExpression"> The like expression. </param>

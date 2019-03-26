@@ -149,12 +149,32 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Equal(
-                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [r].[UniqueNo], [r].[Details_Name], [r].[UniqueNo], [r].[AdditionalDetails_Name]
+                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
 FROM [Sample] AS [r]
+LEFT JOIN (
+    SELECT [r.Details].*
+    FROM [Sample] AS [r.Details]
+    WHERE [r.Details].[Details_Name] IS NOT NULL
+) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+LEFT JOIN (
+    SELECT [r.AdditionalDetails].*
+    FROM [Sample] AS [r.AdditionalDetails]
+    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
+) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
 WHERE [r].[UniqueNo] = 1
 
-SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [r].[UniqueNo], [r].[Details_Name], [r].[UniqueNo], [r].[AdditionalDetails_Name]
+SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
 FROM [Sample] AS [r]
+LEFT JOIN (
+    SELECT [r.Details].*
+    FROM [Sample] AS [r.Details]
+    WHERE [r.Details].[Details_Name] IS NOT NULL
+) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+LEFT JOIN (
+    SELECT [r.AdditionalDetails].*
+    FROM [Sample] AS [r.AdditionalDetails]
+    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
+) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
 WHERE [r].[UniqueNo] = 1
 
 @p2='1'

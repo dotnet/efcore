@@ -39,20 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
-            => property.DeclaringEntityType.BaseType != null
-               || property.IsNullable ||
-               !property.IsPrimaryKey()
-               && IsOwnedByDerivedType(property.DeclaringEntityType);
+            => !property.IsPrimaryKey()
+                   && (property.DeclaringEntityType.BaseType != null
+                       || property.IsNullable
+                       || IsTableSplitting(property.DeclaringEntityType));
 
-        private static bool IsOwnedByDerivedType(IEntityType entityType)
-        {
-            var ownerEntityType = entityType.FindPrimaryKey()?.Properties.First()
-                ?.FindSharedTableLink()?.PrincipalEntityType;
-
-            return ownerEntityType?.BaseType != null ||
-                   ownerEntityType != null
-                   && IsOwnedByDerivedType(ownerEntityType);
-        }
+        private static bool IsTableSplitting(IEntityType entityType)
+            => entityType.FindPrimaryKey()?.Properties[0].FindSharedTableLink() != null;
 
         /// <summary>
         ///     <para>

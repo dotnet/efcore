@@ -948,12 +948,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        [InlineData(EntityState.Added, true)]
-        [InlineData(EntityState.Added, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
         [Theory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state, bool sensitiveLogging)
+        public void BatchCommands_works_with_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
@@ -971,25 +969,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
+            
+            var batches = CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
+                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
 
-            if (sensitiveLogging)
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), "{Id: 42}", state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
-            }
-            else
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
-            }
+            Assert.Equal(1, batches.Length);
         }
 
         [InlineData(EntityState.Added, true)]
@@ -1021,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(FakeEntity), nameof(FakeEntity), nameof(RelatedFakeEntity), "{Id: 42}", state),
+                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "{Id: 42}", state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
@@ -1031,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(FakeEntity), nameof(FakeEntity), nameof(RelatedFakeEntity), state),
+                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)

@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
@@ -56,6 +57,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return newExpression != _operand
                 ? new NullableExpression(newExpression)
                 : this;
+        }
+
+        /// <summary>
+        ///     Dispatches to the specific visit method for this node type.
+        /// </summary>
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return visitor is ISqlExpressionVisitor specificVisitor
+                ? specificVisitor.VisitNullable(this)
+                : base.Accept(visitor);
         }
 
         /// <summary>

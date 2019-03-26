@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, idColumn["SqlServer:ValueGenerationStrategy"]);
                     var timeColumn = createTableOperation.Columns[1];
                     Assert.Equal("Time", timeColumn.Name);
-                    Assert.False(timeColumn.IsNullable);
+                    Assert.True(timeColumn.IsNullable);
                 });
         }
 

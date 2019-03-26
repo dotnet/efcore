@@ -1395,6 +1395,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visit a NullableExpression.
+        /// </summary>
+        /// <param name="nullableExpression"> The nullable expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitNullable(NullableExpression nullableExpression)
+        {
+            Visit(nullableExpression.Operand);
+
+            return nullableExpression;
+        }
+
+        /// <summary>
         ///     Visits an IsNotNullExpression.
         /// </summary>
         /// <param name="isNotNullExpression"> The is not null expression. </param>
@@ -1822,8 +1836,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         if (parameterValue == null)
                         {
-                            return
-                                expression.NodeType == ExpressionType.Equal
+                            return expression.NodeType == ExpressionType.Equal
                                     ? (Expression)new IsNullExpression(nonParameterExpression)
                                     : Expression.Not(new IsNullExpression(nonParameterExpression));
                         }

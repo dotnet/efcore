@@ -4921,7 +4921,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(2, createTableOperation.Columns.Count);
                     var timeColumn = createTableOperation.Columns[1];
                     Assert.Equal("Time", timeColumn.Name);
-                    Assert.False(timeColumn.IsNullable);
+                    Assert.True(timeColumn.IsNullable);
                 });
         }
 

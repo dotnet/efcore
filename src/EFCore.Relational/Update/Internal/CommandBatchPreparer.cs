@@ -275,50 +275,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     principalEntityType.DisplayName(),
                                     command.EntityState));
                         }
-
-                        var dependents = modificationCommandIdentityMap.GetDependents(entry.EntityType);
-                        // ReSharper disable once ForCanBeConvertedToForeach
-                        for (var dependentIndex = 0; dependentIndex < dependents.Count; dependentIndex++)
-                        {
-                            var dependentEntityType = dependents[dependentIndex];
-                            var dependentFound = false;
-                            // ReSharper disable once ForCanBeConvertedToForeach
-                            for (var otherEntryIndex = 0; otherEntryIndex < command.Entries.Count; otherEntryIndex++)
-                            {
-                                var dependentEntry = command.Entries[otherEntryIndex];
-                                if (dependentEntry != entry
-                                    && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType))
-                                {
-                                    dependentFound = true;
-                                    break;
-                                }
-                            }
-
-                            if (dependentFound)
-                            {
-                                continue;
-                            }
-
-                            var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") +
-                                            command.TableName;
-                            if (_sensitiveLoggingEnabled)
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                                        entry.EntityType.DisplayName(),
-                                        tableName,
-                                        dependentEntityType.DisplayName(),
-                                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                                        command.EntityState));
-                            }
-
-                            throw new InvalidOperationException(
-                                RelationalStrings.SharedRowEntryCountMismatch(
-                                    entry.EntityType.DisplayName(),
-                                    tableName,
-                                    dependentEntityType.DisplayName(),
-                                    command.EntityState));
-                        }
                     }
                 }
             }

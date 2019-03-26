@@ -18,9 +18,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.Property_entry_original_value_is_set();
 
-            AssertContainsSql(
-                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[Id], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
+             AssertContainsSql(
+                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [t].[Id], [t].[StorageLocation_Latitude], [t].[StorageLocation_Longitude]
 FROM [Engines] AS [e]
+LEFT JOIN (
+    SELECT [e.StorageLocation].*
+    FROM [Engines] AS [e.StorageLocation]
+    WHERE [e.StorageLocation].[StorageLocation_Longitude] IS NOT NULL AND [e.StorageLocation].[StorageLocation_Latitude] IS NOT NULL
+) AS [t] ON [e].[Id] = [t].[Id]
 ORDER BY [e].[Id]",
                 //
                 @"@p1='1'

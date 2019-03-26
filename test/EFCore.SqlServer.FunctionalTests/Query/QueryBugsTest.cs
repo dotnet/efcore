@@ -2433,17 +2433,32 @@ WHERE [c].[Id] IN (
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN (
+    SELECT [m.Details].*
+    FROM [Movies] AS [m.Details]
+    WHERE [m.Details].[Details_Info] IS NOT NULL
+) AS [t] ON [m].[Id] = [t].[Id]
 ORDER BY [m].[Id]",
-                        //
-                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
+                //
+                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
 FROM [Actors] AS [m.Cast]
+LEFT JOIN (
+    SELECT [a.Details].*
+    FROM [Actors] AS [a.Details]
+    WHERE [a.Details].[Details_Info] IS NOT NULL
+) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
 INNER JOIN (
     SELECT DISTINCT [m0].[Id]
     FROM [Movies] AS [m0]
-) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
-ORDER BY [t].[Id]");
+    LEFT JOIN (
+        SELECT [m.Details0].*
+        FROM [Movies] AS [m.Details0]
+        WHERE [m.Details0].[Details_Info] IS NOT NULL
+    ) AS [t1] ON [m0].[Id] = [t1].[Id]
+) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
+ORDER BY [t2].[Id]");
                 }
             }
         }
@@ -2464,17 +2479,32 @@ ORDER BY [t].[Id]");
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN (
+    SELECT [m.Details].*
+    FROM [Movies] AS [m.Details]
+    WHERE [m.Details].[Details_Info] IS NOT NULL
+) AS [t] ON [m].[Id] = [t].[Id]
 ORDER BY [m].[Id]",
-                        //
-                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
+                //
+                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
 FROM [Actors] AS [m.Cast]
+LEFT JOIN (
+    SELECT [a.Details].*
+    FROM [Actors] AS [a.Details]
+    WHERE [a.Details].[Details_Info] IS NOT NULL
+) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
 INNER JOIN (
     SELECT DISTINCT [m0].[Id]
     FROM [Movies] AS [m0]
-) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
-ORDER BY [t].[Id]");
+    LEFT JOIN (
+        SELECT [m.Details0].*
+        FROM [Movies] AS [m.Details0]
+        WHERE [m.Details0].[Details_Info] IS NOT NULL
+    ) AS [t1] ON [m0].[Id] = [t1].[Id]
+) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
+ORDER BY [t2].[Id]");
                 }
             }
         }
@@ -3490,16 +3520,21 @@ ORDER BY [t].[Id]");
                 Assert.Equal("Full1", result.User.Fullname);
 
                 AssertSql(
-                    @"@__p_0='?' (DbType = Int32)
+                @"@__p_0='?' (DbType = Int32)
 @__p_1='?' (DbType = Int32)
 
-SELECT [t].[Id], [t].[Text], [t].[Id], [t].[User_Email], [t].[User_Fullname]
+SELECT [t0].[Id], [t0].[Text], [t0].[Id0], [t0].[User_Email], [t0].[User_Fullname]
 FROM (
-    SELECT [x].[Id], [x].[Text], [x].[User_Email], [x].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+    SELECT [x].[Id], [x].[Text], [t].[Id] AS [Id0], [t].[User_Email], [t].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM [Note] AS [x]
+    LEFT JOIN (
+        SELECT [x.User].*
+        FROM [Note] AS [x.User]
+        WHERE [x.User].[User_Fullname] IS NOT NULL OR [x.User].[User_Email] IS NOT NULL
+    ) AS [t] ON [x].[Id] = [t].[Id]
     WHERE [x].[Text] = N'Foo Bar'
-) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
+) AS [t0]
+WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))");
             }
         }
 
@@ -3756,9 +3791,14 @@ WHERE [b].[IsTwo] IN (CAST(1 AS bit), CAST(0 AS bit))");
                         .ToList();
 
                     AssertSql(
-                        @"SELECT [e].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [e]
-GROUP BY [e].[Name]");
+LEFT JOIN (
+    SELECT [a].*
+    FROM [Table] AS [a]
+    WHERE [a].[Name] IS NOT NULL
+) AS [t] ON [e].[Id] = [t].[Id]
+GROUP BY [t].[Name]");
                 }
             }
         }
@@ -3797,9 +3837,19 @@ GROUP BY [e].[Name]");
                         .ToList();
 
                     AssertSql(
-                        @"SELECT [e].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [e]
-GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
+LEFT JOIN (
+    SELECT [a].*
+    FROM [Table] AS [a]
+    WHERE [a].[Name] IS NOT NULL
+) AS [t] ON [e].[Id] = [t].[Id]
+LEFT JOIN (
+    SELECT [m].*
+    FROM [Table] AS [m]
+    WHERE [m].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t0] ON [e].[Id] = [t0].[Id]
+GROUP BY [t].[Name], [t0].[MaumarEntity11818_Name]");
                 }
             }
         }
@@ -5075,20 +5125,25 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
 
                     AssertSql(
-                        @"SELECT [x].[Id]
+                @"SELECT [x].[Id]
 FROM [Partners] AS [x]
 ORDER BY [x].[Id]",
-                        //
-                        @"SELECT [t].[Id], CASE
-    WHEN [x.Addresses].[Id] IS NULL
+                //
+                @"SELECT [t0].[Id], CASE
+    WHEN [t].[Id] IS NULL
     THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END, [x.Addresses].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
+END, [t].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
 FROM [Address13157] AS [x.Addresses]
+LEFT JOIN (
+    SELECT [y.Turnovers].*
+    FROM [Address13157] AS [y.Turnovers]
+    WHERE [y.Turnovers].[Turnovers_AmountIn] IS NOT NULL
+) AS [t] ON [x.Addresses].[Id] = [t].[Id]
 INNER JOIN (
     SELECT [x0].[Id]
     FROM [Partners] AS [x0]
-) AS [t] ON [x.Addresses].[Partner13157Id] = [t].[Id]
-ORDER BY [t].[Id]");
+) AS [t0] ON [x.Addresses].[Partner13157Id] = [t0].[Id]
+ORDER BY [t0].[Id]");
                 }
             }
         }

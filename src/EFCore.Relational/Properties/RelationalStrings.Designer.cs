@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SqlFunctionUnexpectedInstanceMapping");
 
         /// <summary>
-        ///     Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a compatible property, that can be in shadow state, to '{entityType}'.
+        ///     Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.
         /// </summary>
         public static string MissingConcurrencyColumn([CanBeNull] object entityType, [CanBeNull] object missingColumn, [CanBeNull] object table)
             => string.Format(
