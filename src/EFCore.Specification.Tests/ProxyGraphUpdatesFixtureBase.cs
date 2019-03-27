@@ -1,3 +1,6 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,7 +149,11 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasMany(e => e.CompositeChildren)
                             .WithOne(e => e.Parent2)
-                            .HasForeignKey(e => new { e.Parent2Id });
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.Parent2Id
+                                });
                     });
 
                 modelBuilder.Entity<Optional1Derived>();
@@ -189,8 +196,18 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasMany(e => e.CompositeChildren)
                             .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => new { e.Id, e.AlternateId })
-                            .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
                     });
 
                 modelBuilder.Entity<RequiredAk1Derived>();
@@ -210,8 +227,18 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasMany(e => e.CompositeChildren)
                             .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => new { e.Id, e.AlternateId })
-                            .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
                     });
 
                 modelBuilder.Entity<OptionalAk1Derived>();
@@ -230,8 +257,18 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasOne(e => e.SingleComposite)
                             .WithOne(e => e.Back)
-                            .HasForeignKey<RequiredSingleComposite2>(e => new { e.BackId, e.BackAlternateId })
-                            .HasPrincipalKey<RequiredSingleAk1>(e => new { e.Id, e.AlternateId });
+                            .HasForeignKey<RequiredSingleComposite2>(
+                                e => new
+                                {
+                                    e.BackId,
+                                    e.BackAlternateId
+                                })
+                            .HasPrincipalKey<RequiredSingleAk1>(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                });
                     });
 
                 modelBuilder.Entity<OptionalSingleAk1>(
@@ -248,8 +285,18 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasOne(e => e.SingleComposite)
                             .WithOne(e => e.Back)
-                            .HasForeignKey<OptionalSingleComposite2>(e => new { e.BackId, e.ParentAlternateId })
-                            .HasPrincipalKey<OptionalSingleAk1>(e => new { e.Id, e.AlternateId });
+                            .HasForeignKey<OptionalSingleComposite2>(
+                                e => new
+                                {
+                                    e.BackId,
+                                    e.ParentAlternateId
+                                })
+                            .HasPrincipalKey<OptionalSingleAk1>(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.AlternateId
+                                });
                     });
 
                 modelBuilder.Entity<OptionalSingleAk2Derived>();
@@ -299,18 +346,38 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<RequiredComposite1>(
                     eb =>
                     {
-                        eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+                        eb.HasKey(
+                            e => new
+                            {
+                                e.Id,
+                                e.ParentAlternateId
+                            });
 
                         eb.HasMany(e => e.CompositeChildren)
                             .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => new { e.Id, e.ParentAlternateId })
-                            .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+                            .HasPrincipalKey(
+                                e => new
+                                {
+                                    e.Id,
+                                    e.ParentAlternateId
+                                })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.ParentId,
+                                    e.ParentAlternateId
+                                });
                     });
 
                 modelBuilder.Entity<OptionalOverlaping2>(
                     eb =>
                     {
-                        eb.HasKey(e => new { e.Id, e.ParentAlternateId });
+                        eb.HasKey(
+                            e => new
+                            {
+                                e.Id,
+                                e.ParentAlternateId
+                            });
 
                         eb.HasOne(e => e.Root)
                             .WithMany()
@@ -404,8 +471,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -418,8 +491,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new RequiredAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -435,8 +514,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -449,8 +534,14 @@ namespace Microsoft.EntityFrameworkCore
                             AlternateId = Guid.NewGuid(),
                             Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                },
+                                new OptionalAk2
+                                {
+                                    AlternateId = Guid.NewGuid()
+                                }
                             },
                             CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                             {
@@ -462,40 +553,61 @@ namespace Microsoft.EntityFrameworkCore
                     RequiredSingleAk = new RequiredSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         SingleComposite = new RequiredSingleComposite2()
                     },
                     OptionalSingleAk = new OptionalSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() },
+                        Single = new OptionalSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         SingleComposite = new OptionalSingleComposite2()
                     },
                     OptionalSingleAkDerived = new OptionalSingleAk1Derived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
+                        Single = new OptionalSingleAk2Derived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     OptionalSingleAkMoreDerived = new OptionalSingleAk1MoreDerived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
+                        Single = new OptionalSingleAk2MoreDerived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     RequiredNonPkSingleAk = new RequiredNonPkSingleAk1
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
+                        Single = new RequiredNonPkSingleAk2
+                        {
+                            AlternateId = Guid.NewGuid()
+                        }
                     },
                     RequiredNonPkSingleAkDerived = new RequiredNonPkSingleAk1Derived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredNonPkSingleAk2Derived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         Root = new Root()
                     },
                     RequiredNonPkSingleAkMoreDerived = new RequiredNonPkSingleAk1MoreDerived
                     {
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() },
+                        Single = new RequiredNonPkSingleAk2MoreDerived
+                        {
+                            AlternateId = Guid.NewGuid()
+                        },
                         Root = new Root(),
                         DerivedRoot = new Root()
                     },
@@ -506,8 +618,14 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 1,
                             CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2 { Id = 1 },
-                                new OptionalOverlaping2 { Id = 2 }
+                                new OptionalOverlaping2
+                                {
+                                    Id = 1
+                                },
+                                new OptionalOverlaping2
+                                {
+                                    Id = 2
+                                }
                             }
                         },
                         new RequiredComposite1
@@ -515,8 +633,14 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 2,
                             CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2 { Id = 3 },
-                                new OptionalOverlaping2 { Id = 4 }
+                                new OptionalOverlaping2
+                                {
+                                    Id = 3
+                                },
+                                new OptionalOverlaping2
+                                {
+                                    Id = 4
+                                }
                             }
                         }
                     }
@@ -528,7 +652,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e.Entry));
 
-                context.Add(new BadOrder { BadCustomer = new BadCustomer() });
+                context.Add(
+                    new BadOrder
+                    {
+                        BadCustomer = new BadCustomer()
+                    });
 
                 context.SaveChanges();
             }

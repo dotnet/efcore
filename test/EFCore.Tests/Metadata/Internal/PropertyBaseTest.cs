@@ -753,9 +753,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ReadOnlyProp
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _foo;
             private ReadOnlyProp _reference;
             private IEnumerable<ReadOnlyProp> _collection;
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public int Id { get; set; }
 
@@ -831,7 +833,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FieldOnly
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private int _foo;
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public FieldOnly(int id)
             {
@@ -863,28 +867,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                get { return _notFound; }
-                set { _notFound = value; }
+                get => _notFound;
+                set => _notFound = value;
             }
 
             public FullPropNoField Reference
             {
-                get { return _notFoundRef; }
-                set { _notFoundRef = value; }
+                get => _notFoundRef;
+                set => _notFoundRef = value;
             }
 
             public IEnumerable<FullPropNoField> Collection
             {
-                get { return _notFoundColl; }
-                set { _notFoundColl = value; }
+                get => _notFoundColl;
+                set => _notFoundColl = value;
             }
         }
 
         private class ReadOnlyPropNoField
         {
-            private int _notFound;
-            private ReadOnlyPropNoField _notFoundRef;
-            private IEnumerable<ReadOnlyPropNoField> _notFoundColl;
+            private readonly int _notFound;
+            private readonly ReadOnlyPropNoField _notFoundRef;
+            private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl;
 
             public ReadOnlyPropNoField(int id, ReadOnlyPropNoField notFoundRef, IEnumerable<ReadOnlyPropNoField> notFoundColl)
             {
@@ -909,17 +913,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                set { _notFound = value; }
+                set => _notFound = value;
             }
 
             public WriteOnlyPropNoField Reference
             {
-                set { _notFoundRef = value; }
+                set => _notFoundRef = value;
             }
 
             public IEnumerable<WriteOnlyPropNoField> Collection
             {
-                set { _notFoundColl = value; }
+                set => _notFoundColl = value;
             }
         }
 
@@ -939,20 +943,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public virtual int Foo
             {
-                get { return _foo; }
-                private set { _foo = value; }
+                get => _foo;
+                private set => _foo = value;
             }
 
             public virtual PrivateSetterInBase Reference
             {
-                get { return _reference; }
-                private set { _reference = value; }
+                get => _reference;
+                private set => _reference = value;
             }
 
             public virtual IEnumerable<PrivateSetterInBase> Collection
             {
-                get { return _collection; }
-                private set { _collection = value; }
+                get => _collection;
+                private set => _collection = value;
             }
         }
 
@@ -960,17 +964,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public override int Foo
             {
-                set { _foo = value; }
+                set => _foo = value;
             }
 
             public override PrivateGetterInBase Reference
             {
-                set { _reference = value; }
+                set => _reference = value;
             }
 
             public override IEnumerable<PrivateGetterInBase> Collection
             {
-                set { _collection = value; }
+                set => _collection = value;
             }
         }
 
@@ -983,20 +987,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public virtual int Foo
             {
-                private get { return _foo; }
-                set { _foo = value; }
+                private get => _foo;
+                set => _foo = value;
             }
 
             public virtual PrivateGetterInBase Reference
             {
-                private get { return _reference; }
-                set { _reference = value; }
+                private get => _reference;
+                set => _reference = value;
             }
 
             public virtual IEnumerable<PrivateGetterInBase> Collection
             {
-                private get { return _collection; }
-                set { _collection = value; }
+                private get => _collection;
+                set => _collection = value;
             }
         }
     }

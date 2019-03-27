@@ -61,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(INavigation), () => navigation },
                 { typeof(IForeignKey), () => foreignKey },
                 { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
-                { typeof(ISet<object>), () => new HashSet<object>() }
+                { typeof(ISet<object>), () => new HashSet<object>() },
+                { typeof(IList<IDictionary<string, string>>), () => new List<IDictionary<string, string>> { new Dictionary<string, string> { { "A", "B"} } } },
+                { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() }
             };
 
             TestEventLogging(typeof(CoreEventId), typeof(CoreLoggerExtensions), fakeFactories);

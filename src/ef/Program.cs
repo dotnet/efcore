@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var wrappedException = ex as WrappedException;
                 if (ex is CommandException
                     || ex is CommandParsingException
-                    || (wrappedException != null
-                        && wrappedException.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
+                    || (wrappedException?.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
                 {
                     Reporter.WriteVerbose(ex.ToString());
                 }

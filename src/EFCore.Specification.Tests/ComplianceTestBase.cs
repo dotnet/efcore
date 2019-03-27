@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore
                    where !IgnoredTestBases.Contains(baseType)
                          && !concreteTests.Any(c => Implements(c, baseType))
                    select baseType.FullName)
-                    .ToList();
+                .ToList();
 
             Assert.False(
-                nonImplementedBases.Any(),
+                nonImplementedBases.Count > 0,
                 "\r\n-- Missing derived classes for --\r\n" + string.Join(Environment.NewLine, nonImplementedBases));
         }
 

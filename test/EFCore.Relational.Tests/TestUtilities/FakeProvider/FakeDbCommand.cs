@@ -98,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override bool DesignTimeVisible
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         public override UpdateRowSource UpdatedRowSource
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         public int DisposeCount { get; private set; }

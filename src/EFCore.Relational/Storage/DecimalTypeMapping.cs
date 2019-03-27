@@ -3,7 +3,6 @@
 
 using System.Data;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -44,20 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="parameters"> The parameters for this mapping. </param>
         /// <returns> The newly created mapping. </returns>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new DecimalTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        /// <summary>
-        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
-        ///     added.
-        /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new DecimalTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new DecimalTypeMapping(parameters);
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.

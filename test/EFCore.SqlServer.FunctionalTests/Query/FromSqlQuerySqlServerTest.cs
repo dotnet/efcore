@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            // #9182
-            Fixture.TestStore.CloseConnection();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
@@ -517,6 +515,16 @@ INNER JOIN (
 ORDER BY [t].[OrderID]");
         }
 
+        public override void From_sql_with_inlined_db_parameter()
+        {
+            base.From_sql_with_inlined_db_parameter();
+
+            AssertSql(
+                @"@somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+        }
+
         [Fact]
         public virtual void From_sql_in_subquery_with_dbParameter()
         {
@@ -560,7 +568,10 @@ WHERE [o].[CustomerID] IN (
                                 .FromSql(
                                     @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                                     // ReSharper disable once FormatStringProblem
-                                    new SqlParameter { Value = "London" })
+                                    new SqlParameter
+                                    {
+                                        Value = "London"
+                                    })
                                 .Select(c => c.CustomerID)
                                 .Contains(o.CustomerID))
                     .ToArray();

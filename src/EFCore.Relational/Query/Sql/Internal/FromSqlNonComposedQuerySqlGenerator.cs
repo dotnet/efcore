@@ -101,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                             columnExpression.Type,
                             columnExpression.Property,
                             Dependencies.TypeMappingSource,
+                            fromLeftOuterJoin: false,
                             readerColumn.Ordinal);
                     }
                 }

@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else if (foreignKey.PrincipalToDependent != null)
                         {
-                            foreach (var danglerEntry in stateManager.GetRecordedReferers(entry.Entity, clear: false))
+                            foreach (var danglerEntry in stateManager.GetRecordedReferrers(entry.Entity, clear: false))
                             {
                                 if (danglerEntry.Item1 == foreignKey.PrincipalToDependent)
                                 {
@@ -153,12 +153,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var generationProperty = property.GetGenerationProperty();
 
-            if (generationProperty != null)
-            {
-                return _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType);
-            }
-
-            return null;
+            return generationProperty != null ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType) : null;
         }
     }
 }

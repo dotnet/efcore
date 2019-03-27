@@ -201,10 +201,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                DisposePreparedStatements();
-            }
+            DisposePreparedStatements(disposing);
 
             base.Dispose(disposing);
         }
@@ -224,7 +221,7 @@ namespace Microsoft.Data.Sqlite
             => CreateParameter();
 
         /// <summary>
-        ///     Creates a prepared version of the command on the database. This has no effect.
+        ///     Creates a prepared version of the command on the database.
         /// </summary>
         public override void Prepare()
         {
@@ -312,6 +309,10 @@ namespace Microsoft.Data.Sqlite
                     Transaction == null
                         ? Resources.TransactionRequired
                         : Resources.TransactionConnectionMismatch);
+            }
+            if (_connection.Transaction?.ExternalRollback == true)
+            {
+                throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
             var hasChanges = false;
@@ -559,20 +560,24 @@ namespace Microsoft.Data.Sqlite
             while (!string.IsNullOrEmpty(tail));
         }
 
-        private void DisposePreparedStatements()
+        private void DisposePreparedStatements(bool disposing = true)
         {
-            if (DataReader != null)
+            if (disposing
+                && DataReader != null)
             {
                 DataReader.Dispose();
                 DataReader = null;
             }
 
-            foreach (var stmt in _preparedStatements)
+            if (_preparedStatements != null)
             {
-                stmt.Dispose();
-            }
+                foreach (var stmt in _preparedStatements)
+                {
+                    stmt.Dispose();
+                }
 
-            _preparedStatements.Clear();
+                _preparedStatements.Clear();
+            }
         }
 
         private static bool IsBusy(int rc)

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -39,9 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             FilterTest(c => true, "DB1", "SQL1", "Query1", "Random1", "DB2", "SQL2", "Query2", "Random2");
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private void FilterTest(Func<string, bool> filter, params string[] expected)
         {
-            var loggerFactory = new ListLoggerFactory(Log, filter);
+            var loggerFactory = new ListLoggerFactory(filter);
 
             var dbLogger = new DiagnosticsLogger<DbLoggerCategory.Database>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
             var sqlLogger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(loggerFactory, new LoggingOptions(), new DiagnosticListener("Fake"));
@@ -58,9 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             queryLogger.Logger.LogInformation(3, "Query2");
             randomLogger.LogInformation(4, "Random2");
 
-            Assert.Equal(expected, Log.Select(l => l.Message));
+            Assert.Equal(expected, loggerFactory.Log.Select(l => l.Message));
         }
-
-        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
     }
 }

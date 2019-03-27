@@ -37,11 +37,11 @@ namespace Microsoft.EntityFrameworkCore
                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
                    where method.ReturnType == typeof(void)
                    select type.Name + "." + method.Name)
-                .Except(new [] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
+                .Except(new[] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
                 .ToList();
 
             Assert.False(
-                voidMethods.Any(),
+                voidMethods.Count > 0,
                 "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                badServiceTypes.Any(),
+                badServiceTypes.Count > 0,
                 "\r\n-- Missing or bad dependencies parameter object --\r\n" + string.Join(Environment.NewLine, badServiceTypes));
         }
 
@@ -88,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore
                    where type.GetTypeInfo().IsVisible
                          && !type.GetTypeInfo().IsSealed
                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                         && type.Namespace != null
-                         && !type.Namespace.EndsWith(".Compiled")
+                         && type.Namespace?.EndsWith(".Compiled") == false
                          && ShouldHaveVirtualMethods(type)
                    from method in type.GetMethods(AnyInstance)
                    where method.DeclaringType == type
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                nonVirtualMethods.Any(),
+                nonVirtualMethods.Count > 0,
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
 
@@ -115,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
-                         && type.Name =="IdentityShaper"
+                                                      && type.Name == "IdentityShaper"
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                parametersMissingAttribute.Any(),
+                parametersMissingAttribute.Count > 0,
                 "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
@@ -170,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]").ToList();
 
             Assert.False(
-                parametersWithRedundantAttribute.Any(),
+                parametersWithRedundantAttribute.Count > 0,
                 "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersWithRedundantAttribute));
         }
 
@@ -208,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                missingOverloads.Any(),
+                missingOverloads.Count > 0,
                 "\r\n-- Missing async overloads --\r\n" + string.Join(Environment.NewLine, missingOverloads));
 
             var missingSuffixMethods
@@ -219,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ToList();
 
             Assert.False(
-                missingSuffixMethods.Any(),
+                missingSuffixMethods.Count > 0,
                 "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ToList();
 
             Assert.False(
-                parameters.Any(),
+                parameters.Count > 0,
                 "\r\n-- Prefixed bool parameteres --\r\n" + string.Join(Environment.NewLine, parameters));
         }
 

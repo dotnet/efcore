@@ -3,11 +3,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
-    public class TransportationContext : DbContext
+    public class TransportationContext : PoolableDbContext
     {
         public TransportationContext(DbContextOptions options)
             : base(options)
@@ -19,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Vehicle>(eb => { eb.HasKey(e => e.Name); });
+            modelBuilder.Entity<Vehicle>(eb => eb.HasKey(e => e.Name));
             modelBuilder.Entity<Engine>(
                 eb =>
                 {
@@ -55,14 +58,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     //eb.HasOne(e => e.Vehicle)
                     //    .WithOne()
                     //    .HasForeignKey<FuelTank>(e => e.VehicleName);
+                    eb.Ignore(e => e.Vehicle);
                 });
 
-            modelBuilder.Entity<SolidFuelTank>(eb =>
-            {
-                eb.HasOne(e => e.Rocket)
-                    .WithOne(e => e.SolidFuelTank)
-                    .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
-            });
+            modelBuilder.Entity<SolidFuelTank>(
+                eb =>
+                {
+                    eb.HasOne(e => e.Rocket)
+                        .WithOne(e => e.SolidFuelTank)
+                        .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
+                });
         }
 
         public void Seed()
@@ -72,12 +77,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         }
 
         public void AssertSeeded()
-            => Assert.Equal(CreateVehicles().OrderBy(v => v.Name).ToList(),
-                Vehicles
-                    .Include(v => v.Operator)
-                    .Include(v => ((PoweredVehicle)v).Engine)
-                    .ThenInclude(e => (e as CombustionEngine).FuelTank)
-                    .OrderBy(v => v.Name).ToList());
+        {
+            var expected = CreateVehicles().OrderBy(v => v.Name).ToList();
+            var actual = Vehicles
+                            .Include(v => v.Operator)
+                            .Include(v => ((PoweredVehicle)v).Engine)
+                            .ThenInclude(e => (e as CombustionEngine).FuelTank)
+                            .OrderBy(v => v.Name).ToList();
+            Assert.Equal(expected, actual);
+        }
 
         protected IEnumerable<Vehicle> CreateVehicles()
             => new List<Vehicle>
@@ -86,7 +94,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 {
                     Name = "Trek Pro Fit Madone 6 Series",
                     SeatingCapacity = 1,
-                    Operator = new Operator { Name = "Lance Armstrong", VehicleName = "Trek Pro Fit Madone 6 Series" }
+                    Operator = new Operator
+                    {
+                        Name = "Lance Armstrong",
+                        VehicleName = "Trek Pro Fit Madone 6 Series"
+                    }
                 },
                 // This should be a PoweredVehicle when Engine is made optional
                 // #9005
@@ -96,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     SeatingCapacity = 34,
                     Operator = new LicensedOperator
                     {
-                        Name = "Albert Williams", LicenseType = "Muni Transit", VehicleName = "1984 California Car"
+                        Name = "Albert Williams",
+                        LicenseType = "Muni Transit",
+                        VehicleName = "1984 California Car"
                     }
                 },
                 new PoweredVehicle
@@ -105,11 +119,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     SeatingCapacity = 5,
                     Engine = new Engine
                     {
-                        Description = "416 hp three phase, four pole AC induction", VehicleName = "P85 2012 Tesla Model S Performance Edition"
+                        Description = "416 hp three phase, four pole AC induction",
+                        VehicleName = "P85 2012 Tesla Model S Performance Edition"
                     },
                     Operator = new LicensedOperator
                     {
-                        Name = "Elon Musk", LicenseType = "Driver", VehicleName = "P85 2012 Tesla Model S Performance Edition"
+                        Name = "Elon Musk",
+                        LicenseType = "Driver",
+                        VehicleName = "P85 2012 Tesla Model S Performance Edition"
                     }
                 },
                 new PoweredVehicle
@@ -121,13 +138,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         Description = "Reaction Motors XLR99 throttleable, restartable liquid-propellant rocket engine",
                         FuelTank = new FuelTank
                         {
-                            FuelType = "Liquid oxygen and anhydrous ammonia", Capacity = "11250 kg", VehicleName = "North American X-15A-2"
+                            FuelType = "Liquid oxygen and anhydrous ammonia",
+                            Capacity = "11250 kg",
+                            VehicleName = "North American X-15A-2"
                         },
                         VehicleName = "North American X-15A-2"
                     },
                     Operator = new LicensedOperator
                     {
-                        Name = "William J. Knight", LicenseType = "Air Force Test Pilot", VehicleName = "North American X-15A-2"
+                        Name = "William J. Knight",
+                        LicenseType = "Air Force Test Pilot",
+                        VehicleName = "North American X-15A-2"
                     }
                 },
                 new PoweredVehicle
@@ -138,13 +159,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         Description = "Hercules/Bermite MK 36 Solid-fuel rocket",
                         FuelTank = new SolidFuelTank
                         {
-                            FuelType = "Reduced smoke Hydroxyl-Terminated Polybutadiene", Capacity = "22 kg", GrainGeometry = "Cylindrical", VehicleName = "AIM-9M Sidewinder"
+                            FuelType = "Reduced smoke Hydroxyl-Terminated Polybutadiene",
+                            Capacity = "22 kg",
+                            GrainGeometry = "Cylindrical",
+                            VehicleName = "AIM-9M Sidewinder"
                         },
                         VehicleName = "AIM-9M Sidewinder"
                     },
                     // This should be null
                     // #9005
-                    Operator = new Operator { Name = "Infrared homing guidance", VehicleName = "AIM-9M Sidewinder" }
+                    Operator = new Operator
+                    {
+                        Name = "Infrared homing guidance",
+                        VehicleName = "AIM-9M Sidewinder"
+                    }
                 }
             };
     }

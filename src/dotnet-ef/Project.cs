@@ -170,7 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add("/verbosity:quiet");
             args.Add("/nologo");
 
-
             var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
             if (exitCode != 0)
             {

@@ -54,7 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalNavigationBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
+        public virtual InternalNavigationBuilder Builder
+        {
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -98,12 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var sourceClrType = sourceType.ClrType;
             var navigationProperty = sourceClrType?.GetMembersInHierarchy(navigationName).FirstOrDefault();
-            if (!IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow))
-            {
-                return null;
-            }
-
-            return navigationProperty;
+            return !IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow) ? null : navigationProperty;
         }
 
         /// <summary>
@@ -126,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.NavigationToShadowEntity(navigationName, sourceType.DisplayName(), targetType.DisplayName()));
                 }
+
                 return false;
             }
 
@@ -152,13 +154,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.NoClrNavigation(
                             navigationProperty.Name, sourceClrType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             if (shouldBeCollection == false
-                || navigationTargetClrType == null
-                || !navigationTargetClrType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                || navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
             {
                 if (shouldBeCollection == true)
                 {
@@ -171,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
+
                     return false;
                 }
 
@@ -185,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
+
                     return false;
                 }
             }
@@ -196,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual Navigation FindInverse()
             => (Navigation)((INavigation)this).FindInverse();
 
@@ -203,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual EntityType GetTargetType()
             => (EntityType)((INavigation)this).GetTargetType();
 
@@ -211,15 +217,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IClrCollectionAccessor CollectionAccessor
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _collectionAccessor, this, n =>
-                !n.IsCollection() || n.IsShadowProperty
-                    ? null
-                    : new ClrCollectionAccessorFactory().Create(n));
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _collectionAccessor, this, n =>
+                    !n.IsCollection() || n.IsShadowProperty
+                        ? null
+                        : new ClrCollectionAccessorFactory().Create(n));
 
-        IForeignKey INavigation.ForeignKey => ForeignKey;
-        IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
-        IEntityType INavigation.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
+        IForeignKey INavigation.ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => ForeignKey;
+        }
+
+        IMutableForeignKey IMutableNavigation.ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => ForeignKey;
+        }
+
+        IEntityType INavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        IMutableEntityType IMutableNavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

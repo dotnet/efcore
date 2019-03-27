@@ -75,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 throw new ArgumentOutOfRangeException(nameof(maxRetryCount));
             }
+
             if (maxRetryDelay.TotalMilliseconds < 0.0)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxRetryDelay));

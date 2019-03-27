@@ -130,6 +130,9 @@
   <data name="StillUsingTypeMapper" xml:space="preserve">
     <value>The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.</value>
   </data>
+  <data name="LiteralGenerationNotSupported" xml:space="preserve">
+    <value>The type mapping for '{type}' has not implemented code literal generation.</value>
+  </data>
   <data name="InvalidPropertiesExpression" xml:space="preserve">
     <value>The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.</value>
   </data>
@@ -188,7 +191,7 @@
     <value>The source IQueryable doesn't implement IAsyncEnumerable&lt;{genericParameter}&gt;. Only sources that implement IAsyncEnumerable can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
-    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
+    <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
   <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
     <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.</value>
@@ -274,12 +277,28 @@
     <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. This is commonly caused by injection of a new singleton service instance into every DbContext instance. For example, calling UseLoggerFactory passing in a new instance each time--see https://go.microsoft.com/fwlink/?linkid=869049 for more details. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
     <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
+  <data name="LogServiceProviderDebugInfo" xml:space="preserve">
+    <value>An additional 'IServiceProvider' was created for internal use by Entity Framework. An existing service provider was not used due to the following configuration changes: {debugInfo}.</value>
+    <comment>Debug CoreEventId.ServiceProviderDebugInfo string</comment>
+  </data>
   <data name="LogContextInitialized" xml:space="preserve">
     <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
     <comment>Information CoreEventId.ContextInitialized string string string string</comment>
   </data>
+  <data name="ServiceProviderConfigChanged" xml:space="preserve">
+    <value>configuration changed for '{key}'</value>
+  </data>
+  <data name="ServiceProviderConfigAdded" xml:space="preserve">
+    <value>configuration added for '{key}'</value>
+  </data>
+  <data name="ServiceProviderConfigRemoved" xml:space="preserve">
+    <value>configuration removed for '{key}'</value>
+  </data>
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
+  </data>
+  <data name="CanConnectNotImplemented" xml:space="preserve">
+    <value>The current database provider has not implemented the 'CanConnect' method.</value>
   </data>
   <data name="ImplementationTypeRequired" xml:space="preserve">
     <value>The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.</value>
@@ -303,7 +322,7 @@
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the database while iterating the results of a query for context type '{contextType}'.{newline}{error}</value>
+    <value>An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}</value>
     <comment>Error CoreEventId.QueryIterationFailed Type string Exception</comment>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
@@ -539,7 +558,7 @@
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
-    <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
+    <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type .</value>
     <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
@@ -616,7 +635,7 @@
     <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
   </data>
   <data name="ValueGenWithConversion" xml:space="preserve">
-    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.</value>
+    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.</value>
   </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.</value>
@@ -728,7 +747,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
-    <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
+    <value>A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext, however instance members are not guaranteed to be thread safe. This could also be caused by a nested query being evaluated on the client, if this is the case rewrite the query avoiding nested invocations.</value>
   </data>
   <data name="EntityTypesNotInRelationship" xml:space="preserve">
     <value>The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.</value>
@@ -934,6 +953,12 @@
   <data name="SeedDatumMissingValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because there was no value provided for the required property '{property}'.</value>
   </data>
+  <data name="SeedDatumDefaultValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>
+  </data>
+  <data name="SeedDatumSignedNumericValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.</value>
+  </data>
   <data name="SeedDatumNavigation" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
   </data>
@@ -944,7 +969,7 @@
     <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.</value>
+    <value>No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
     <value>Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.</value>
@@ -987,7 +1012,7 @@
   <data name="QueryTypeNotValid" xml:space="preserve">
     <value>Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.</value>
   </data>
-  <data name="ErrorMixedQueryEntityTypeInheritance" xml:space="preserve">
+  <data name="MixedQueryEntityTypeInheritance" xml:space="preserve">
     <value>Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.</value>
   </data>
   <data name="CannotAccessEntityAsQuery" xml:space="preserve">
@@ -996,12 +1021,9 @@
   <data name="CannotAccessQueryAsEntity" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because a query type with the same name already exists.</value>
   </data>
-  <data name="ErrorNavCannotTargetQueryType" xml:space="preserve">
-    <value>Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.</value>
-  </data>
   <data name="LogRedundantIndexRemoved" xml:space="preserve">
-    <value>The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.</value>
-    <comment>Debug CoreEventId.RedundantIndexRemoved string string</comment>
+    <value>The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.</value>
+    <comment>Debug CoreEventId.RedundantIndexRemoved string string string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
     <value>The foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
@@ -1079,12 +1101,38 @@
     <value>Cannot use multiple DbContext instances within a single query execution. Ensure the query uses a single context instance.</value>
   </data>
   <data name="DerivedQueryTypeDefiningQuery" xml:space="preserve">
-    <value>The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.</value>
+    <value>The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.</value>
   </data>
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The owned entity type '{ownedType}' requires to be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}'.</value>
   </data>
   <data name="DuplicateQueryType" xml:space="preserve">
     <value>The query type '{queryType}' cannot be added to the model because a query type with the same name already exists.</value>
+  </data>
+  <data name="LogOptimisticConcurrencyException" xml:space="preserve">
+    <value>{error}</value>
+    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
+  </data>
+  <data name="AmbiguousOwnedNavigation" xml:space="preserve">
+    <value>Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="FkAttributeOnNonUniquePrincipal" xml:space="preserve">
+    <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
+  </data>
+  <data name="ConstructorBindingFailed" xml:space="preserve">
+    <value>cannot bind '{failedBinds}' in '{parameters}'</value>
+  </data>
+  <data name="NavigationToQueryType" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.</value>
+  </data>
+  <data name="QueryTypeWithKey" xml:space="preserve">
+    <value>The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.</value>
+  </data>
+  <data name="LogRedundantForeignKey" xml:space="preserve">
+    <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.</value>
+    <comment>Warning CoreEventId.RedundantForeignKeyWarning string string</comment>
+  </data>
+  <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
+    <value>There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.</value>
   </data>
 </root>

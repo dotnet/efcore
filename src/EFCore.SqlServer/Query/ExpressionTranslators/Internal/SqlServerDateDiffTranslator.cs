@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal
 {
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "MONTH"
                 },
-                 {
+                {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffDay),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "SECOND"
                 },
-                 {
+                {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
@@ -246,9 +246,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (_methodInfoDateDiffMapping.TryGetValue(methodCallExpression.Method, out var datePart))
-            {
-                return new SqlFunctionExpression(
+            return _methodInfoDateDiffMapping.TryGetValue(methodCallExpression.Method, out var datePart)
+                ? new SqlFunctionExpression(
                     functionName: "DATEDIFF",
                     returnType: methodCallExpression.Type,
                     arguments: new[]
@@ -256,10 +255,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
                         new SqlFragmentExpression(datePart),
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2]
-                    });
-            }
-
-            return null;
+                    })
+                : null;
         }
     }
 }

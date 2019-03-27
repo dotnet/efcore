@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexes = new List<int>();
                 _serviceMap[serviceType] = indexes;
             }
+
             return indexes;
         }
 

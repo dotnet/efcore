@@ -7,14 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -78,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -211,7 +207,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void AlterColumnOperation()
         {
             base.AlterColumnOperation();
@@ -253,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                    SqlServerValueGenerationStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -443,6 +438,89 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test21
+        [Fact]
+        public virtual void AlterColumnOperation_with_index_included_column()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.Property<string>("FirstName");
+                            x.Property<string>("LastName");
+                            x.HasIndex("FirstName", "LastName")
+                                .ForSqlServerInclude("Name");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_FirstName_LastName] ON [Person];" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
+                "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]) INCLUDE ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index_no_included()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.Property<string>("FirstName");
+                            x.Property<string>("LastName");
+                            x.HasIndex("FirstName", "LastName");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
+                Sql);
+        }
+#endif
+
         [Fact]
         public virtual void AlterColumnOperation_with_index_no_oldColumn()
         {
@@ -589,7 +667,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void AlterColumnOperation_add_identity()
@@ -633,11 +710,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
         }
 
-#if !Test20
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind"
+                });
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind];" + EOL +
@@ -653,7 +733,12 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateDatabaseOperation_with_filename()
         {
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "Narf.mdf"
+                });
 
             var expectedFile = Path.GetFullPath("Narf.mdf");
             var expectedLog = Path.GetFullPath("Narf_log.ldf");
@@ -676,7 +761,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "|DataDirectory|Narf.mdf"
+                });
 
             var expectedFile = Path.Combine(baseDirectory, "Narf.mdf");
             var expectedLog = Path.Combine(baseDirectory, "Narf_log.ldf");
@@ -701,7 +791,12 @@ namespace Microsoft.EntityFrameworkCore
 
             AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
 
-            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
+            Generate(
+                new SqlServerCreateDatabaseOperation
+                {
+                    Name = "Northwind",
+                    FileName = "|DataDirectory|Narf.mdf"
+                });
 
             AppDomain.CurrentDomain.SetData("DataDirectory", null);
 
@@ -720,12 +815,15 @@ namespace Microsoft.EntityFrameworkCore
                 "END;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void AlterDatabaseOperationOperation()
         {
-            Generate(new AlterDatabaseOperation { [SqlServerAnnotationNames.MemoryOptimized] = true });
+            Generate(
+                new AlterDatabaseOperation
+                {
+                    [SqlServerAnnotationNames.MemoryOptimized] = true
+                });
 
             Assert.Contains(
                 "CONTAINS MEMORY_OPTIMIZED_DATA;",
@@ -741,7 +839,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void CreateIndexOperation_unique()
         {
             base.CreateIndexOperation_unique();
@@ -750,21 +847,20 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_non_legacy()
         {
             Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.0.0"),
-                   new CreateIndexOperation
-                   {
-                       Name = "IX_People_Name",
-                       Table = "People",
-                       Schema = "dbo",
-                       Columns = new[] { "FirstName", "LastName" },
-                       IsUnique = true
-                   });
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true
+                });
 
             Assert.Equal(
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);" + EOL,
@@ -806,7 +902,99 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
+#if !Test21
+        [Fact]
+        public virtual void CreateIndexOperation_with_include()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
+                });
+
+            Assert.Equal(
+                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_with_include_and_filter()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    Filter = "[Name] IS NOT NULL AND <> ''",
+                    [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
+                });
+
+            Assert.Equal(
+                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_with_include()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_with_include_and_filter()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    Filter = "[Name] IS NOT NULL AND <> ''",
+                    [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_with_include_non_legacy()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.0.0"),
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
+                Sql);
+        }
+#endif
+
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_null()
         {
@@ -824,7 +1012,6 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_unique_bound_not_null()
@@ -844,7 +1031,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
@@ -863,7 +1049,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
@@ -906,7 +1091,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateSchemaOperation()
         {
-            Generate(new EnsureSchemaOperation { Name = "my" });
+            Generate(
+                new EnsureSchemaOperation
+                {
+                    Name = "my"
+                });
 
             Assert.Equal(
                 "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL,
@@ -916,14 +1105,17 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void CreateSchemaOperation_dbo()
         {
-            Generate(new EnsureSchemaOperation { Name = "dbo" });
+            Generate(
+                new EnsureSchemaOperation
+                {
+                    Name = "dbo"
+                });
 
             Assert.Equal(
                 "",
                 Sql);
         }
 
-#if !Test20
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
@@ -942,10 +1134,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void DropDatabaseOperation()
         {
-            Generate(new SqlServerDropDatabaseOperation { Name = "Northwind" });
+            Generate(
+                new SqlServerDropDatabaseOperation
+                {
+                    Name = "Northwind"
+                });
 
             Assert.Equal(
-
                 "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
                 "BEGIN" + EOL +
                 "    ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + EOL +
@@ -955,7 +1150,6 @@ namespace Microsoft.EntityFrameworkCore
                 "DROP DATABASE [Northwind];" + EOL,
                 Sql);
         }
-#endif
 
         public override void DropIndexOperation()
         {
@@ -998,7 +1192,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void MoveSequenceOperation()
         {
@@ -1017,6 +1210,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if  !Test21
         [Fact]
         public virtual void MoveSequenceOperation_into_default()
         {
@@ -1031,7 +1225,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
+                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
                 Sql);
         }
 #endif
@@ -1052,7 +1246,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         [Fact]
         public virtual void MoveTableOperation()
         {
@@ -1071,6 +1264,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test21
         [Fact]
         public virtual void MoveTableOperation_into_default()
         {
@@ -1085,9 +1279,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [dbo].[People];');" + EOL,
+                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void RenameColumnOperation()
@@ -1122,7 +1317,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void RenameIndexOperations_throws_when_no_table()
@@ -1139,7 +1333,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
-#if !Test20
         [Fact]
         public virtual void RenameSequenceOperation_legacy()
         {
@@ -1193,7 +1386,6 @@ namespace Microsoft.EntityFrameworkCore
                 "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void SqlOperation_handles_backslash()
@@ -1277,7 +1469,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
@@ -1295,7 +1486,6 @@ namespace Microsoft.EntityFrameworkCore
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }
-#endif
 
         public override void DeleteDataOperation_simple_key()
         {

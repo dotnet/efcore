@@ -50,6 +50,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
         }
 
+        [Fact]
+        public virtual void Detects_navigations_to_query_types()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(B));
+            var idProperty = entityType.AddProperty("id", typeof(int));
+            var key = entityType.SetPrimaryKey(idProperty);
+            var queryType = model.AddQueryType(typeof(A));
+            var fkProperty = queryType.AddProperty("p", typeof(int));
+            var fk = queryType.AddForeignKey(fkProperty, key, entityType);
+            Assert.Equal(CoreStrings.NavigationToQueryType(nameof(B.ManyAs), nameof(A)),
+                Assert.Throws<InvalidOperationException>(() => fk.HasPrincipalToDependent(nameof(B.ManyAs))).Message);
+        }
+
         private ForeignKey CreateForeignKey()
         {
             var model = new Model();
@@ -58,6 +72,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = entityType.SetPrimaryKey(idProperty);
             var fkProperty = entityType.AddProperty("p", typeof(int));
             return entityType.AddForeignKey(fkProperty, key, entityType);
+        }
+
+        protected class A
+        {
+            public int Id { get; set; }
+
+            public int? P0 { get; set; }
+            public int? P1 { get; set; }
+            public int? P2 { get; set; }
+            public int? P3 { get; set; }
+        }
+
+        protected class B
+        {
+            public int Id { get; set; }
+
+            public int? P0 { get; set; }
+            public int? P1 { get; set; }
+            public int? P2 { get; set; }
+            public int? P3 { get; set; }
+
+            public A A { get; set; }
+            public A AnotherA { get; set; }
+            public ICollection<A> ManyAs { get; set; }
         }
 
         private class E

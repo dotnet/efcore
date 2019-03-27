@@ -26,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return y == null;
             }
 
-            if (y == null)
-            {
-                return false;
-            }
-
-            return x.Name == y.Name
+            return y == null
+                ? false
+                : x.Name == y.Name
                    && (x.Name == CoreAnnotationNames.ValueGeneratorFactoryAnnotation
                        || x.Name == CoreAnnotationNames.TypeMapping
                        || Equals(x.Value, y.Value));

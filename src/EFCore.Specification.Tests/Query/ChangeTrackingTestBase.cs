@@ -284,6 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(9, results.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             }
         }
 

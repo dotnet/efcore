@@ -16,8 +16,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var comments0 = new[] { new Comment(), new Comment() };
                 var comments1 = new[] { new Comment(), new Comment() };
-                var posts = new[] { new Post { Comments = comments0.ToList() }, new Post { Comments = comments1.ToList() } };
-                var blog = new Blog { Posts = posts.ToList() };
+                var posts = new[]
+                {
+                    new Post
+                    {
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Comments = comments1.ToList()
+                    }
+                };
+                var blog = new Blog
+                {
+                    Posts = posts.ToList()
+                };
 
                 context.Add(blog);
 
@@ -37,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new AggregateContext())
             {
                 var statistics = new BlogCategoryStatistics();
-                var category = new BlogCategory { Statistics = statistics };
+                var category = new BlogCategory
+                {
+                    Statistics = statistics
+                };
 
                 context.Add(category);
 
@@ -51,14 +67,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var comments0 = new[] { new Comment { Id = 33, PostId = 55 }, new Comment { Id = 34, PostId = 55 } };
-                var comments1 = new[] { new Comment { Id = 44, PostId = 56 }, new Comment { Id = 45, PostId = 56 } };
+                var comments0 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 33,
+                        PostId = 55
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        PostId = 55
+                    }
+                };
+                var comments1 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 44,
+                        PostId = 56
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        PostId = 56
+                    }
+                };
                 var posts = new[]
                 {
-                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
-                    new Post { Id = 56, BlogId = 66, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        BlogId = 66,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        BlogId = 66,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Posts = posts.ToList()
+                };
 
                 context.Attach(blog);
 
@@ -77,8 +131,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var statistics = new BlogCategoryStatistics { Id = 11, BlogCategoryId = 22 };
-                var category = new BlogCategory { Id = 22, Statistics = statistics };
+                var statistics = new BlogCategoryStatistics
+                {
+                    Id = 11,
+                    BlogCategoryId = 22
+                };
+                var category = new BlogCategory
+                {
+                    Id = 22,
+                    Statistics = statistics
+                };
 
                 context.Attach(category);
 
@@ -94,8 +156,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var comments0 = new[] { new Comment(), new Comment() };
                 var comments1 = new[] { new Comment(), new Comment() };
-                var posts = new[] { new Post { Comments = comments0.ToList() }, new Post { Comments = comments1.ToList() } };
-                var blog = new Blog { Posts = posts.ToList() };
+                var posts = new[]
+                {
+                    new Post
+                    {
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Comments = comments1.ToList()
+                    }
+                };
+                var blog = new Blog
+                {
+                    Posts = posts.ToList()
+                };
 
                 context.Attach(blog);
 
@@ -115,7 +190,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new AggregateContext())
             {
                 var statistics = new BlogCategoryStatistics();
-                var category = new BlogCategory { Statistics = statistics };
+                var category = new BlogCategory
+                {
+                    Statistics = statistics
+                };
 
                 context.Attach(category);
 
@@ -129,14 +207,49 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var comments0 = new[] { new Comment { Id = 33, PostId = 55 }, new Comment { Id = 34, PostId = 55 } };
-                var comments1 = new[] { new Comment { PostId = 56 }, new Comment { PostId = 56 } };
+                var comments0 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 33,
+                        PostId = 55
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        PostId = 55
+                    }
+                };
+                var comments1 = new[]
+                {
+                    new Comment
+                    {
+                        PostId = 56
+                    },
+                    new Comment
+                    {
+                        PostId = 56
+                    }
+                };
                 var posts = new[]
                 {
-                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
-                    new Post { BlogId = 66, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        BlogId = 66,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        BlogId = 66,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Posts = posts.ToList()
+                };
 
                 context.Attach(blog);
 
@@ -155,8 +268,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var statistics = new BlogCategoryStatistics { BlogCategoryId = 22 };
-                var category = new BlogCategory { Id = 22, Statistics = statistics };
+                var statistics = new BlogCategoryStatistics
+                {
+                    BlogCategoryId = 22
+                };
+                var category = new BlogCategory
+                {
+                    Id = 22,
+                    Statistics = statistics
+                };
 
                 context.Attach(category);
 
@@ -170,17 +290,70 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var reminders = new[] { new Reminder { Id = 11 }, new Reminder { Id = 12 } };
-                var author = new Author { Id = 22, Reminders = reminders.ToList() };
+                var reminders = new[]
+                {
+                    new Reminder
+                    {
+                        Id = 11
+                    },
+                    new Reminder
+                    {
+                        Id = 12
+                    }
+                };
+                var author = new Author
+                {
+                    Id = 22,
+                    Reminders = reminders.ToList()
+                };
 
-                var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
-                var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
+                var comments0 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 33,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        Author = author
+                    }
+                };
+                var comments1 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 44,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        Author = author
+                    }
+                };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.Add(blog);
 
@@ -202,17 +375,70 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var reminders = new[] { new Reminder { Id = 11 }, new Reminder { Id = 12 } };
-                var author = new Author { Id = 22, Reminders = reminders.ToList() };
+                var reminders = new[]
+                {
+                    new Reminder
+                    {
+                        Id = 11
+                    },
+                    new Reminder
+                    {
+                        Id = 12
+                    }
+                };
+                var author = new Author
+                {
+                    Id = 22,
+                    Reminders = reminders.ToList()
+                };
 
-                var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
-                var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
+                var comments0 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 33,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        Author = author
+                    }
+                };
+                var comments1 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 44,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        Author = author
+                    }
+                };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 author.Comments = comments0.Concat(comments1).ToList();
                 comments0[0].Post = posts[0];
@@ -238,28 +464,88 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var reminders = new[] { new Reminder { Id = 11, AuthorId = 22 }, new Reminder { Id = 12, AuthorId = 22 } };
-                var author = new Author { Id = 22, Reminders = reminders.ToList() };
+                var reminders = new[]
+                {
+                    new Reminder
+                    {
+                        Id = 11,
+                        AuthorId = 22
+                    },
+                    new Reminder
+                    {
+                        Id = 12,
+                        AuthorId = 22
+                    }
+                };
+                var author = new Author
+                {
+                    Id = 22,
+                    Reminders = reminders.ToList()
+                };
 
                 var comments0 = new[]
                 {
-                    new Comment { Id = 33, AuthorId = 22, PostId = 55, Author = author },
-                    new Comment { Id = 34, AuthorId = 22, PostId = 55, Author = author }
+                    new Comment
+                    {
+                        Id = 33,
+                        AuthorId = 22,
+                        PostId = 55,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        AuthorId = 22,
+                        PostId = 55,
+                        Author = author
+                    }
                 };
 
                 var comments1 = new[]
                 {
-                    new Comment { Id = 44, AuthorId = 22, PostId = 56, Author = author },
-                    new Comment { Id = 45, AuthorId = 22, PostId = 56, Author = author }
+                    new Comment
+                    {
+                        Id = 44,
+                        AuthorId = 22,
+                        PostId = 56,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        AuthorId = 22,
+                        PostId = 56,
+                        Author = author
+                    }
                 };
 
                 var posts = new[]
                 {
-                    new Post { Id = 55, AuthorId = 22, BlogId = 66, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, AuthorId = 22, BlogId = 66, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        AuthorId = 22,
+                        BlogId = 66,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        AuthorId = 22,
+                        BlogId = 66,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
 
-                var blog = new Blog { Id = 66, AuthorId = 22, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    AuthorId = 22,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.Attach(blog);
 
@@ -281,17 +567,70 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var reminders = new[] { new Reminder { Id = 11 }, new Reminder { Id = 12 } };
-                var author = new Author { Id = 22, Reminders = reminders.ToList() };
+                var reminders = new[]
+                {
+                    new Reminder
+                    {
+                        Id = 11
+                    },
+                    new Reminder
+                    {
+                        Id = 12
+                    }
+                };
+                var author = new Author
+                {
+                    Id = 22,
+                    Reminders = reminders.ToList()
+                };
 
-                var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
-                var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
+                var comments0 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 33,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 34,
+                        Author = author
+                    }
+                };
+                var comments1 = new[]
+                {
+                    new Comment
+                    {
+                        Id = 44,
+                        Author = author
+                    },
+                    new Comment
+                    {
+                        Id = 45,
+                        Author = author
+                    }
+                };
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post
+                    {
+                        Id = 55,
+                        Author = author,
+                        Comments = comments0.ToList()
+                    },
+                    new Post
+                    {
+                        Id = 56,
+                        Author = author,
+                        Comments = comments1.ToList()
+                    }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+                var blog = new Blog
+                {
+                    Id = 66,
+                    Author = author,
+                    Posts = posts.ToList()
+                };
 
                 context.AddRange(blog, author);
 

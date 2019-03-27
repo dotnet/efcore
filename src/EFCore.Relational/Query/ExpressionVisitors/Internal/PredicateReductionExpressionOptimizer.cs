@@ -79,17 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var newLeft = Visit(node.Left);
                 var newRight = Visit(node.Right);
 
-                if (newLeft is ConstantExpression leftConstant && (bool?)leftConstant.Value == true)
+                if (newLeft is ConstantExpression leftConstant
+                    && (bool?)leftConstant.Value == true)
                 {
                     return newRight.Type == typeof(bool) ? newRight : Expression.Convert(newRight, typeof(bool));
                 }
 
-                if (newRight is ConstantExpression rightConstant && (bool?)rightConstant.Value == true)
-                {
-                    return newLeft.Type == typeof(bool) ? newLeft : Expression.Convert(newLeft, typeof(bool));
-                }
-
-                return node.Update(newLeft, node.Conversion, newRight);
+                return newRight is ConstantExpression rightConstant
+                    && (bool?)rightConstant.Value == true
+                    ? newLeft.Type == typeof(bool) ? newLeft : Expression.Convert(newLeft, typeof(bool))
+                    : node.Update(newLeft, node.Conversion, newRight);
             }
 
             return base.VisitBinary(node);

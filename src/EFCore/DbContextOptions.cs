@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
             }
+
             return extension;
         }
 

@@ -31,14 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string DbSetName
         {
-            get { return (string)Annotations.Metadata[ScaffoldingAnnotationNames.DbSetName]; }
+            get => (string)Annotations.Metadata[ScaffoldingAnnotationNames.DbSetName]
+                   ?? EntityType.Name;
+
             [param: CanBeNull]
-            set
-            {
-                Annotations.SetAnnotation(
-                    ScaffoldingAnnotationNames.DbSetName,
-                    Check.NullButNotEmpty(value, nameof(value)));
-            }
+            set => Annotations.SetAnnotation(
+                ScaffoldingAnnotationNames.DbSetName,
+                Check.NullButNotEmpty(value, nameof(value)));
         }
     }
 }

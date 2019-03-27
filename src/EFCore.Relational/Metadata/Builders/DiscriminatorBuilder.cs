@@ -65,7 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual DiscriminatorBuilder HasValue([NotNull] Type entityType, [CanBeNull] object value)
         {
-            var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(entityType, AnnotationsBuilder.ConfigurationSource);
+            var entityTypeBuilder =
+                EntityTypeBuilder.Metadata.IsQueryType
+                ? EntityTypeBuilder.ModelBuilder.Query(
+                    entityType, AnnotationsBuilder.ConfigurationSource)
+                : EntityTypeBuilder.ModelBuilder.Entity(
+                    entityType, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+
             return HasValue(entityTypeBuilder, value);
         }
 
@@ -77,7 +83,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual DiscriminatorBuilder HasValue([NotNull] string entityTypeName, [CanBeNull] object value)
         {
-            var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(entityTypeName, AnnotationsBuilder.ConfigurationSource);
+            var entityTypeBuilder =
+                EntityTypeBuilder.Metadata.IsQueryType
+                ? EntityTypeBuilder.ModelBuilder.Query(
+                    entityTypeName, AnnotationsBuilder.ConfigurationSource)
+                : EntityTypeBuilder.ModelBuilder.Entity(
+                    entityTypeName, AnnotationsBuilder.ConfigurationSource, allowOwned: true);
+
             return HasValue(entityTypeBuilder, value);
         }
 

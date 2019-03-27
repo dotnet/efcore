@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -21,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private static readonly ParameterExpression _resultsParameter
             = Expression.Parameter(typeof(object[]), name: "results");
-        private static readonly ParameterExpression _dummyCancellationToken
-            = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
         private readonly List<Expression> _taskExpressions = new List<Expression>();
 
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (CancellationTokenParameter == null)
                 {
-                    CancellationTokenParameter = _dummyCancellationToken;
+                    CancellationTokenParameter = IncludeCompiler.CancellationTokenParameter;
                 }
             }
 
@@ -89,21 +88,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             task.ContinueWith(
                 t =>
+                {
+                    if (t.IsFaulted)
                     {
-                        if (t.IsFaulted)
-                        {
-                            // ReSharper disable once PossibleNullReferenceException
-                            tcs.TrySetException(t.Exception.InnerExceptions);
-                        }
-                        else if (t.IsCanceled)
-                        {
-                            tcs.TrySetCanceled();
-                        }
-                        else
-                        {
-                            tcs.TrySetResult(t.Result);
-                        }
-                    },
+                        // ReSharper disable once PossibleNullReferenceException
+                        tcs.TrySetException(t.Exception.InnerExceptions);
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        tcs.TrySetCanceled();
+                    }
+                    else
+                    {
+                        tcs.TrySetResult(t.Result);
+                    }
+                },
                 TaskContinuationOptions.ExecuteSynchronously);
 
             return tcs.Task;
@@ -142,11 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 memberExpressionType.GenericTypeArguments[0]),
                             memberExpression.Expression)));
 
-                if (CancellationTokenParameter == null)
-                {
-                    Visit(memberExpression.Expression);
-                }
-
                 return
                     Expression.Convert(
                         Expression.ArrayAccess(
@@ -174,13 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 methodCallExpression.Method.ReturnType),
                             methodCallExpression.Arguments[0])));
 
-                if (CancellationTokenParameter == null)
-                {
-                    Visit(methodCallExpression.Arguments[0]);
-                }
-
-                return
-                    Expression.Convert(
+                return Expression.Convert(
                         Expression.ArrayAccess(
                             _resultsParameter,
                             Expression.Constant(_taskExpressions.Count - 1)),

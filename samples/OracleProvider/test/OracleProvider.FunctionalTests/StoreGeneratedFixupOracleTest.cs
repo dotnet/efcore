@@ -4,8 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -69,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -187,9 +185,9 @@ namespace Microsoft.EntityFrameworkCore
                             b.Property(e => e.Id2).ValueGeneratedOnAdd().HasDefaultValueSql("SYS_GUID()");
                         });
 
-                modelBuilder.Entity<Item>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd(); });
+                modelBuilder.Entity<Item>(b => b.Property(e => e.Id).ValueGeneratedOnAdd());
 
-                modelBuilder.Entity<Game>(b => { b.Property(e => e.Id).ValueGeneratedOnAdd().HasDefaultValueSql("SYS_GUID()"); });
+                modelBuilder.Entity<Game>(b => b.Property(e => e.Id).ValueGeneratedOnAdd().HasDefaultValueSql("SYS_GUID()"));
             }
         }
     }

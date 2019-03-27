@@ -25,13 +25,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             {
                 return true;
             }
-
+#pragma warning disable IDE0046 // Convert to conditional expression
 #if NET461
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR))
             {
                 return false;
             }
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
+#elif NETCOREAPP2_0 || NETCOREAPP2_2
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR))
             {
                 return false;
@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 #else
 #error target frameworks need to be updated.
 #endif
+#pragma warning restore IDE0046 // Convert to conditional expression
             return true;
         }
     }

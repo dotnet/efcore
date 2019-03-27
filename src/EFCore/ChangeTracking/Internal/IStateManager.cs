@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers([NotNull] object referencedEntity, bool clear);
+        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers([NotNull] object referencedEntity, bool clear);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

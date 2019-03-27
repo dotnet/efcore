@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,10 +7,10 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -112,14 +112,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
         }
 
-        protected class CustomerDetails : DetailsBase
+        protected class CustomerDetails : DetailsBase, INotifyPropertyChanged
         {
             public int CustomerId { get; set; }
 
             public Customer Customer { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
-        protected class Order
+        protected class Order : INotifyPropertyChanged
         {
             public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details));
 
@@ -132,6 +141,30 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OrderCombination OrderCombination { get; set; }
 
             public OrderDetails Details { get; set; }
+            public ICollection<Product> Products { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                if (PropertyChanged == null)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
+        [NotMapped]
+        protected class Product
+        {
+            public int Id { get; set; }
+            public Order Order { get; set; }
+        }
+
+        protected class ProductCategory
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ICollection<Product> Products { get; set; }
         }
 
         [Owned]
@@ -144,6 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         [NotMapped]
         protected class SpecialOrder : Order
         {
+            public int SpecialOrderId { get; set; }
             public int? SpecialCustomerId { get; set; }
             public SpecialCustomer SpecialCustomer { get; set; }
             public BackOrder BackOrder { get; set; }
@@ -350,6 +384,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class Gamma
         {
             public int Id { get; set; }
+            private int PrivateProperty { get; set; }
 
             public List<Alpha> Alphas { get; set; }
         }
@@ -600,6 +635,89 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ValueFk { get; set; }
             public int ValueId { get; set; }
             public Value Value { get; set; }
+        }
+
+        protected class QueryType
+        {
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public List<CompositeChild> Children { get; set; }
+        }
+
+        protected class CompositeChild
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Parent Parent { get; set; }
+        }
+
+        protected class BillingOwner
+        {
+            public int Id { get; set; }
+            public BillingDetail Bill1 { get; set; }
+            public BillingDetail Bill2 { get; set; }
+        }
+
+        protected class BillingDetail
+        {
+            public string Country { get; set; }
+        }
+
+        protected class Country
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        protected class DependentShadowFk
+        {
+            public Guid DependentShadowFkId { get; set; }
+            [ForeignKey("PrincipalShadowFkId")]
+            public PrincipalShadowFk Principal { get; set; }
+        }
+
+        protected class PrincipalShadowFk
+        {
+            public Guid PrincipalShadowFkId { get; set; }
+            public List<DependentShadowFk> Dependends { get; set; }
+        }
+
+        protected class BaseOwner
+        {
+            public int Id { get; set; }
+            public OwnedTypeInheritance1 Owned1 { get; set; }
+            public OwnedTypeInheritance2 Owned2 { get; set; }
+        }
+
+        protected class DerivedOwner : BaseOwner { }
+
+        [Owned]
+        protected class OwnedTypeInheritance1
+        {
+            public string Value { get; set; }
+        }
+
+        [Owned]
+        protected class OwnedTypeInheritance2
+        {
+            public string Value { get; set; }
+        }
+
+        protected interface IReplacable
+        {
+            int Property { get; set; }
+        }
+
+        protected class DoubleProperty : IReplacable
+        {
+            public int Id { get; set; }
+            public int Property { get; set; }
+            int IReplacable.Property { get => Property; set => Property = value; }
         }
     }
 }

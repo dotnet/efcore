@@ -27,19 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IKey key,
             [NotNull] Func<MaterializationContext, object> materializer,
             [CanBeNull] Expression materializerExpression)
-            : base(querySource)
+            : base(querySource, materializerExpression)
         {
             IsTrackingQuery = trackingQuery;
             Key = key;
             Materializer = materializer;
-            MaterializerExpression = materializerExpression;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public Expression MaterializerExpression { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

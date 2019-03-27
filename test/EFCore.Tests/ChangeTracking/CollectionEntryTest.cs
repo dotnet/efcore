@@ -73,7 +73,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -102,7 +105,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -130,7 +136,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Null(chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -158,7 +167,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Null(chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -187,7 +199,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -222,7 +237,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -257,7 +275,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -294,7 +315,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky> { chunky };
+                collection.CurrentValue = new List<Chunky>
+                {
+                    chunky
+                };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -324,9 +348,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
-                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
-                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+                var chunky1 = new Chunky
+                {
+                    Id = 1,
+                    Garcia = cherry
+                };
+                var chunky2 = new Chunky
+                {
+                    Id = 2,
+                    Garcia = cherry
+                };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky1,
+                    chunky2
+                };
                 context.AttachRange(cherry, chunky1, chunky2);
 
                 var collection = context.Entry(cherry).Collection(e => e.Monkeys);
@@ -360,10 +396,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
-                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
+                var chunky1 = new Chunky
+                {
+                    Id = 1,
+                    Garcia = cherry
+                };
+                var chunky2 = new Chunky
+                {
+                    Id = 2,
+                    Garcia = cherry
+                };
 
-                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky1,
+                    chunky2
+                };
 
                 context.Entry(cherry).State = principalState;
                 context.Entry(chunky1).State = dependentState;
@@ -416,9 +464,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
-                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
-                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+                var chunky1 = new Chunky
+                {
+                    Id = 1,
+                    Garcia = cherry
+                };
+                var chunky2 = new Chunky
+                {
+                    Id = 2,
+                    Garcia = cherry
+                };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky1,
+                    chunky2
+                };
 
                 context.Entry(cherry).State = principalState;
                 context.Entry(chunky1).State = dependentState;
@@ -456,9 +516,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky { Id = 1, Garcia = cherry };
-                var chunky2 = new Chunky { Id = 2, Garcia = cherry };
-                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+                var chunky1 = new Chunky
+                {
+                    Id = 1,
+                    Garcia = cherry
+                };
+                var chunky2 = new Chunky
+                {
+                    Id = 2,
+                    Garcia = cherry
+                };
+                cherry.Monkeys = new List<Chunky>
+                {
+                    chunky1,
+                    chunky2
+                };
 
                 context.Entry(cherry).State = principalState;
                 context.Entry(chunky1).State = dependentState;

@@ -4,6 +4,7 @@
     <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\EFCore.InMemory.FunctionalTests\EFCore.InMemory.FunctionalTests.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>

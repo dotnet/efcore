@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ISqlServerModelAnnotations : IRelationalModelAnnotations
     {
         /// <summary>
-        /// The <see cref="SqlServerValueGenerationStrategy"/> to use for properties
-        /// of keys in the model, unless the property has a different strategy explicitly set.
+        ///     The <see cref="SqlServerValueGenerationStrategy" /> to use for properties
+        ///     of keys in the model, unless the property has a different strategy explicitly set.
         /// </summary>
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
 

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,13 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 return null;
             }
 
-            if (connectionString.Substring(0, firstEquals).Trim().Equals(
-                "name", StringComparison.OrdinalIgnoreCase))
-            {
-                return connectionString.Substring(firstEquals + 1).Trim();
-            }
-
-            return null;
+            return connectionString.Substring(0, firstEquals).Trim().Equals(
+                "name", StringComparison.OrdinalIgnoreCase)
+                ? connectionString.Substring(firstEquals + 1).Trim()
+                : null;
         }
     }
 }

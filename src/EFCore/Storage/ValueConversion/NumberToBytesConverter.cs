@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     </para>
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public NumberToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
@@ -145,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 default:
                     return expression;
             }
-
         }
 
         private static readonly MethodInfo _reverseLongMethod
@@ -165,21 +164,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static byte[] ReverseLong(byte[] bytes)
             => new[]
-            {
-                bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]
-            };
+                { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseInt(byte[] bytes)
             => new[]
-            {
-                bytes[3], bytes[2], bytes[1], bytes[0]
-            };
+                { bytes[3], bytes[2], bytes[1], bytes[0] };
 
         private static byte[] ReverseShort(byte[] bytes)
             => new[]
-            {
-                bytes[1], bytes[0]
-            };
+                { bytes[1], bytes[0] };
 
         private static int GetByteCount()
         {

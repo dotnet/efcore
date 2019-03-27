@@ -3,21 +3,50 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <!-- These package versions may be overridden or updated by automation. -->
-  <PropertyGroup Label="Package Versions: Auto">
+  <!--
+    These versions may be overriden by automation.
+    They are used to automatically flow new dependencies in a ProdCon build.
+  -->
+  <PropertyGroup Label="Package Versions">
+    <InternalAspNetCoreSdkPackageVersion>2.2.1-build-20181203.2</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>2.2.0</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.5.0</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.6.0</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
+  </PropertyGroup>
+
+  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />
+
+  <!-- These versions should not be overriden by automation. -->
+  <PropertyGroup Label="Package Versions: Pinned">
+    <!--
+      These are pinned to ensure EF 2.2.x remains compatible with most installations of .NET Core.
+      They should be updated if there is an essential update to these packages which EF must have to function correctly.
+    -->
+    <InternalWebHostBuilderFactorySourcesPackageVersion>2.2.0</InternalWebHostBuilderFactorySourcesPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.2.0</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.2.0</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.2.0</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>2.2.0</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.2.0</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>2.1.0</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>2.2.0</MicrosoftExtensionsLoggingPackageVersion>
+
+    <!-- These dependencies are not automatically flowed via ProdCon. If updates are required, they must be made manually. -->
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>2.1.7-build-20190110.2</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
-    <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>2.1.0</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreApp11PackageVersion>1.1.8</MicrosoftNETCoreApp11PackageVersion>
+    <MicrosoftNETCoreApp11PackageVersion>1.1.9</MicrosoftNETCoreApp11PackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.9</MicrosoftNETCoreApp20PackageVersion>
-    <MicrosoftNETCoreApp21PackageVersion>2.1.7</MicrosoftNETCoreApp21PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
-    <NETStandardLibrary20PackageVersion>2.0.3</NETStandardLibrary20PackageVersion>
+    <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
+    <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
+    <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
+    <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
@@ -25,30 +54,13 @@
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.12</SQLitePCLRawBundleSqlcipherPackageVersion>
     <SQLitePCLRawCorePackageVersion>1.1.12</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.5.0</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.5.1</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
-    <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
+    <!-- This package is System.*, but it's not from corefx. -->
+    <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
     <XunitAnalyzersPackageVersion>0.10.0</XunitAnalyzersPackageVersion>
     <XunitAssertPackageVersion>2.3.1</XunitAssertPackageVersion>
     <XunitCorePackageVersion>2.3.1</XunitCorePackageVersion>
+    <XunitExtensibilityExecutionPackageVersion>2.3.1</XunitExtensibilityExecutionPackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.4.0</XunitRunnerVisualStudioPackageVersion>
-  </PropertyGroup>
-
-  <!-- This may import a generated file which may override the variables above. -->
-  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />
-
-  <!-- These are package versions that should not be overridden or updated by automation. -->
-  <PropertyGroup Label="Package Versions: Pinned">
-    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.1</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.1</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.1.1</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.1.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.1.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>2.1.1</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.1.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>2.1.1</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
 </Project>

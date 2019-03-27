@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -135,6 +134,8 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable int] [Pr
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
+EmailTemplate.Id ---> [uniqueidentifier]
+EmailTemplate.TemplateType ---> [int] [Precision = 10 Scale = 0]
 Load.Fuel ---> [float] [Precision = 53]
 Load.LoadId ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 7]
@@ -142,6 +143,12 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable nvarchar] [MaxLength = 12]
 MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
+NonNullableDependent.Id ---> [int] [Precision = 10 Scale = 0]
+NonNullableDependent.PrincipalId ---> [int] [Precision = 10 Scale = 0]
+NullablePrincipal.Id ---> [int] [Precision = 10 Scale = 0]
+Person.Id ---> [int] [Precision = 10 Scale = 0]
+Person.Name ---> [nullable nvarchar] [MaxLength = -1]
+Person.SSN ---> [nullable int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -192,4 +199,3 @@ User.Id ---> [uniqueidentifier]
         }
     }
 }
-#endif

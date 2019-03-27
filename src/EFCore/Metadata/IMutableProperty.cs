@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified before the entity is
+        ///         Gets a value indicating whether or not this property can be modified after the entity is
         ///         saved to the database.
         ///     </para>
         ///     <para>

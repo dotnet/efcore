@@ -1,0 +1,46 @@
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <EFCoreSqlServerNetTopologySuiteFile>$(IntermediateOutputPath)EFCoreSqlServerNetTopologySuite$(DefaultLanguageSourceExtension)</EFCoreSqlServerNetTopologySuiteFile>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(Language)' == 'F#'">
+      <Choose>
+        <When Condition="'$(OutputType)' == 'Exe' OR '$(OutputType)' == 'WinExe'">
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileBefore</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </When>
+        <Otherwise>
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileAfter</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </Otherwise>
+      </Choose>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <CodeFragmentItemGroup>Compile</CodeFragmentItemGroup>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Target Name="AddEFCoreSqlServerNetTopologySuite"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="PrepareForBuild"
+          Condition="'$(DesignTimeBuild)' != 'True'"
+          Inputs="$(MSBuildAllProjects)"
+          Outputs="$(EFCoreSqlServerNetTopologySuiteFile)">
+    <ItemGroup>
+      <EFCoreSqlServerNetTopologySuiteServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
+        <_Parameter1>Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerNetTopologySuiteDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite</_Parameter1>
+        <_Parameter2>Microsoft.EntityFrameworkCore.SqlServer</_Parameter2>
+      </EFCoreSqlServerNetTopologySuiteServices>
+    </ItemGroup>
+    <WriteCodeFragment AssemblyAttributes="@(EFCoreSqlServerNetTopologySuiteServices)"
+                       Language="$(Language)"
+                       OutputFile="$(EFCoreSqlServerNetTopologySuiteFile)">
+      <Output TaskParameter="OutputFile" ItemName="$(CodeFragmentItemGroup)" />
+      <Output TaskParameter="OutputFile" ItemName="FileWrites" />
+    </WriteCodeFragment>
+  </Target>
+</Project>

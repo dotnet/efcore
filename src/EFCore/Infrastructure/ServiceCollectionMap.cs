@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(implementationType, nameof(implementationType));
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
-            if (!indexes.Any())
+            if (indexes.Count == 0)
             {
                 _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
             }
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(factory, nameof(factory));
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
-            if (!indexes.Any())
+            if (indexes.Count == 0)
             {
                 _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
             }
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(serviceType, nameof(serviceType));
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
-            if (!indexes.Any())
+            if (indexes.Count == 0)
             {
                 _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
             }

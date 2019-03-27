@@ -32,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             _targetModel = new LazyRef<IModel>(
                 () =>
-                    {
-                        var modelBuilder = new ModelBuilder(new ConventionSet());
-                        BuildTargetModel(modelBuilder);
+                {
+                    var modelBuilder = new ModelBuilder(new ConventionSet());
+                    BuildTargetModel(modelBuilder);
 
-                        return modelBuilder.Model;
-                    });
+                    return modelBuilder.Model;
+                });
             _upOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Up));
             _downOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Down));
         }

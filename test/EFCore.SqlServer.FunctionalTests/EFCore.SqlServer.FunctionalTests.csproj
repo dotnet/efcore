@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <!-- Put this project into its own test group to avoid running parallel with other test projects. SqlServer is not able to finalize properly for next test run. -->
     <TestGroupName>SqlServer.FunctionalTests</TestGroupName>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
@@ -26,19 +27,19 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
-   <DefineConstants>$(DefineConstants);Test20</DefineConstants>
+
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
+   <DefineConstants>$(DefineConstants);Test21</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
-    <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
+  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '2.1.0'">
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(FunctionalTests_PackageVersion)" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>

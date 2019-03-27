@@ -57,26 +57,28 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             lock (_lock)
             {
-                var returnValue = !_tables.HasValue;
-
-                // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = _tables.Value;
-
-                var stateManager = new StateManager(stateManagerDependencies);
-                var entries = new List<IUpdateEntry>();
-                foreach (var entityType in stateManagerDependencies.Model.GetEntityTypes())
+                var valuesSeeded = !_tables.HasValue;
+                if (valuesSeeded)
                 {
-                    foreach (var targetSeed in entityType.GetData())
+                    // ReSharper disable once AssignmentIsFullyDiscarded
+                    _ = _tables.Value;
+
+                    var stateManager = new StateManager(stateManagerDependencies);
+                    var entries = new List<IUpdateEntry>();
+                    foreach (var entityType in stateManagerDependencies.Model.GetEntityTypes())
                     {
-                        var entry = stateManager.CreateEntry(targetSeed, entityType);
-                        entry.SetEntityState(EntityState.Added);
-                        entries.Add(entry);
+                        foreach (var targetSeed in entityType.GetData())
+                        {
+                            var entry = stateManager.CreateEntry(targetSeed, entityType);
+                            entry.SetEntityState(EntityState.Added);
+                            entries.Add(entry);
+                        }
                     }
+
+                    ExecuteTransaction(entries, updateLogger);
                 }
 
-                ExecuteTransaction(entries, updateLogger);
-
-                return returnValue;
+                return valuesSeeded;
             }
         }
 
@@ -123,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     }
                 }
             }
+
             return data;
         }
 

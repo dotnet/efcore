@@ -21,7 +21,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var product = new Product { Name = "blah" };
+                var product = new Product
+                {
+                    Name = "blah"
+                };
                 context.Products.Add(product);
                 context.SaveChanges();
 
@@ -49,20 +52,38 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var productToBeUpdated1 = new Product { Name = "u1" };
-                var productToBeUpdated2 = new Product { Name = "u2" };
+                var productToBeUpdated1 = new Product
+                {
+                    Name = "u1"
+                };
+                var productToBeUpdated2 = new Product
+                {
+                    Name = "u2"
+                };
                 context.Products.Add(productToBeUpdated1);
                 context.Products.Add(productToBeUpdated2);
 
-                var productToBeDeleted1 = new Product { Name = "d1" };
-                var productToBeDeleted2 = new Product { Name = "d2" };
+                var productToBeDeleted1 = new Product
+                {
+                    Name = "d1"
+                };
+                var productToBeDeleted2 = new Product
+                {
+                    Name = "d2"
+                };
                 context.Products.Add(productToBeDeleted1);
                 context.Products.Add(productToBeDeleted2);
 
                 context.SaveChanges();
 
-                var productToBeAdded1 = new Product { Name = "a1" };
-                var productToBeAdded2 = new Product { Name = "a2" };
+                var productToBeAdded1 = new Product
+                {
+                    Name = "a1"
+                };
+                var productToBeAdded2 = new Product
+                {
+                    Name = "a2"
+                };
                 context.Products.Add(productToBeAdded1);
                 context.Products.Add(productToBeAdded2);
 
@@ -97,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TriggersContext CreateContext() => (TriggersContext)Fixture.CreateContext();
 
-        protected class TriggersContext : DbContext
+        protected class TriggersContext : PoolableDbContext
         {
             public TriggersContext(DbContextOptions options)
                 : base(options)
@@ -111,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Product>(
                     eb =>
-                        {
-                            eb.Property(e => e.Version)
-                                .ValueGeneratedOnAddOrUpdate()
-                                .IsConcurrencyToken();
-                            eb.Ignore(e => e.StoreUpdated);
-                        });
+                    {
+                        eb.Property(e => e.Version)
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken();
+                        eb.Ignore(e => e.StoreUpdated);
+                    });
 
                 modelBuilder.Entity<ProductBackup>()
                     .Property(e => e.Id).ValueGeneratedNever();
@@ -138,15 +159,15 @@ namespace Microsoft.EntityFrameworkCore
             public virtual string Name { get; set; }
         }
 
-        public class SqlServerTriggersFixture : SharedStoreFixtureBase<DbContext>
+        public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "SqlServerTriggers";
             protected override Type ContextType { get; } = typeof(TriggersContext);
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
                 context.Database.ExecuteSqlCommand(
                     @"

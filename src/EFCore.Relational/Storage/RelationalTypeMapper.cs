@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The name of the database type. </returns>
-        protected virtual string GetColumnType([NotNull] IProperty property) 
+        protected virtual string GetColumnType([NotNull] IProperty property)
             => (string)Check.NotNull(property, nameof(property))[RelationalAnnotationNames.ColumnType];
 
         /// <summary>

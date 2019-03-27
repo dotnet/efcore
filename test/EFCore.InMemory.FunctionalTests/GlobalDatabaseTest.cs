@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+
 namespace Microsoft.EntityFrameworkCore
 {
-#if !Test20
     public class GlobalDatabaseTest
     {
         private static readonly InMemoryDatabaseRoot _databaseRoot = new InMemoryDatabaseRoot();
@@ -166,5 +168,4 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
     }
-#endif
 }

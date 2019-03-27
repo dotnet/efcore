@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
@@ -44,16 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     return null;
                 }
 
-                var leftMethodCall = binaryExpression.Left as MethodCallExpression;
-                var rightConstant = binaryExpression.Right as ConstantExpression;
+                var leftMethodCall = RemoveNullConditional(binaryExpression.Left) as MethodCallExpression;
+                var rightConstant = binaryExpression.Right.RemoveConvert() as ConstantExpression;
                 var translated = TranslateInternal(t => t, expression.NodeType, leftMethodCall, rightConstant);
                 if (translated != null)
                 {
                     return translated;
                 }
 
-                var leftConstant = binaryExpression.Left as ConstantExpression;
-                var rightMethodCall = binaryExpression.Right as MethodCallExpression;
+                var leftConstant = binaryExpression.Left.RemoveConvert() as ConstantExpression;
+                var rightMethodCall = RemoveNullConditional(binaryExpression.Right) as MethodCallExpression;
                 var translatedReverse = TranslateInternal(t => _operatorMap[t], expression.NodeType, rightMethodCall, leftConstant);
 
                 return translatedReverse;
@@ -61,6 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
             return null;
         }
+
+        private static Expression RemoveNullConditional(Expression expression)
+            => expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
+            ? RemoveNullConditional(nullConditionalExpression.AccessOperation)
+            : expression;
 
         private static Expression TranslateInternal(
             Func<ExpressionType, ExpressionType> opFunc,

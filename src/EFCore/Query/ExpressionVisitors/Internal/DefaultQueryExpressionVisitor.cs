@@ -66,15 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (node.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
-            {
-                return Expression.Call(
+            return node.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal)
+                ? Expression.Call(
                     GetParameterValueMethodInfo.MakeGenericMethod(node.Type),
                     EntityQueryModelVisitor.QueryContextParameter,
-                    Expression.Constant(node.Name));
-            }
-
-            return node;
+                    Expression.Constant(node.Name))
+                : (Expression)node;
         }
 
         /// <summary>

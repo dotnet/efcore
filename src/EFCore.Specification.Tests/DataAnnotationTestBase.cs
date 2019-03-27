@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,12 +25,13 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : DataAnnotationTestBase<TFixture>.DataAnnotationFixtureBase, new()
     {
-        protected DataAnnotationTestBase(TFixture fixture) => Fixture = fixture;
+        protected DataAnnotationTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            fixture.ListLoggerFactory.Clear();
+        }
 
         protected TFixture Fixture { get; }
-
-        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; }
-            = new List<(LogLevel, EventId, string)>();
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
@@ -45,35 +46,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             var context = CreateContext();
             var conventionSetBuilder = CreateConventionSetBuilder(context);
-            var conventionSet = new CoreConventionSetBuilder(
-                    context.GetService<CoreConventionSetBuilderDependencies>().With(CreateLogger()))
+            var conventionSet = new CoreConventionSetBuilder(context.GetService<CoreConventionSetBuilderDependencies>())
                 .CreateConventionSet();
+
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
                 : conventionSetBuilder.AddConventions(conventionSet);
+
+            conventionSet.ModelBuiltConventions.Add(
+                new ValidatingConvention(context.GetService<IModelValidator>()));
+
             return new ModelBuilder(conventionSet);
         }
 
         protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
             => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList());
 
-        protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
-        {
-            var options = new LoggingOptions();
-            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
-            var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
-                options,
-                new DiagnosticListener("Fake"));
-            return modelLogger;
-        }
-
         protected virtual void Validate(ModelBuilder modelBuilder)
-        {
-            modelBuilder.GetInfrastructure().Metadata.Validate();
-            var context = CreateContext();
-            context.GetService<IModelValidator>().Validate(modelBuilder.Model);
-        }
+            => modelBuilder.FinalizeModel();
 
         protected class Person
         {
@@ -231,7 +221,9 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable 169
             [Key]
             [Column("dsdsd", Order = 1, TypeName = "nvarchar(128)")]
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _personFirstName;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 169
         }
 
@@ -774,7 +766,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<CompositeKeyAttribute>().HasKey(c => new { c.IdRow, c.Name });
+            modelBuilder.Entity<CompositeKeyAttribute>().HasKey(
+                c => new
+                {
+                    c.IdRow,
+                    c.Name
+                });
 
             Validate(modelBuilder);
 
@@ -799,7 +796,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<GeneratedEntity>().HasAlternateKey(e => new { e.Identity, e.Version });
+            modelBuilder.Entity<GeneratedEntity>().HasAlternateKey(
+                e => new
+                {
+                    e.Identity,
+                    e.Version
+                });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity));
 
@@ -835,7 +837,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(e => new { e.String, e.DateTime, e.Guid });
+            modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(
+                e => new
+                {
+                    e.String,
+                    e.DateTime,
+                    e.Guid
+                });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
@@ -1333,23 +1341,23 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
+                {
+                    var clientRow = context.Set<One>().First(r => r.UniqueNo == 1);
+                    clientRow.RowVersion = new Guid("00000000-0000-0000-0002-000000000001");
+                    clientRow.RequiredColumn = "ChangedData";
+
+                    using (var innerContext = CreateContext())
                     {
-                        var clientRow = context.Set<One>().First(r => r.UniqueNo == 1);
-                        clientRow.RowVersion = new Guid("00000000-0000-0000-0002-000000000001");
-                        clientRow.RequiredColumn = "ChangedData";
+                        UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
+                        var storeRow = innerContext.Set<One>().First(r => r.UniqueNo == 1);
+                        storeRow.RowVersion = new Guid("00000000-0000-0000-0003-000000000001");
+                        storeRow.RequiredColumn = "ModifiedData";
 
-                        using (var innerContext = CreateContext())
-                        {
-                            UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
-                            var storeRow = innerContext.Set<One>().First(r => r.UniqueNo == 1);
-                            storeRow.RowVersion = new Guid("00000000-0000-0000-0003-000000000001");
-                            storeRow.RequiredColumn = "ModifiedData";
+                        innerContext.SaveChanges();
 
-                            innerContext.SaveChanges();
-
-                            Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                        }
-                    });
+                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                    }
+                });
         }
 
         [Fact]
@@ -1357,17 +1365,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<One>().Add(new One
+                {
+                    context.Set<One>().Add(
+                        new One
                         {
                             RequiredColumn = "Third",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000003"),
-                            Details = new Details { Name = "Third Name" },
-                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                            Details = new Details
+                            {
+                                Name = "Third Name"
+                            },
+                            AdditionalDetails = new Details
+                            {
+                                Name = "Third Additional Name"
+                            }
                         });
 
-                        context.SaveChanges();
-                    });
+                    context.SaveChanges();
+                });
         }
 
         [Fact]
@@ -1375,35 +1390,49 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<One>().Add(new One
+                {
+                    context.Set<One>().Add(
+                        new One
                         {
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
                             MaxLengthProperty = "Short",
-                            Details = new Details { Name = "Third Name" },
-                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                            Details = new Details
+                            {
+                                Name = "Third Name"
+                            },
+                            AdditionalDetails = new Details
+                            {
+                                Name = "Third Additional Name"
+                            }
                         });
 
-                        context.SaveChanges();
-                    });
+                    context.SaveChanges();
+                });
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<One>().Add(new One
+                {
+                    context.Set<One>().Add(
+                        new One
                         {
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
                             MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString",
-                            Details = new Details { Name = "Third Name" },
-                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                            Details = new Details
+                            {
+                                Name = "Third Name"
+                            },
+                            AdditionalDetails = new Details
+                            {
+                                Name = "Third Additional Name"
+                            }
                         });
 
-                        Assert.Equal(
-                            "An error occurred while updating the entries. See the inner exception for details.",
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        "An error occurred while updating the entries. See the inner exception for details.",
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -1806,14 +1835,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
-                nameof(PostDetails), nameof(PostDetails.Post),
-                nameof(Post), nameof(Post.PostDetails),
-                nameof(PostDetails.PostId),
-                nameof(Post.PostDetailsId)),
-                Log[0].Message);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
+            Assert.Equal(
+                CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
+                    nameof(PostDetails), nameof(PostDetails.Post),
+                    nameof(Post), nameof(Post.PostDetails),
+                    nameof(PostDetails.PostId),
+                    nameof(Post.PostDetailsId)),
+                logEntry.Message);
         }
 
         [Fact]
@@ -1831,10 +1861,11 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
-                nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), Log[0].Message);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
+            Assert.Equal(
+                CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
+                    nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), logEntry.Message);
         }
 
         [Fact]
@@ -1859,10 +1890,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(new[] { "Id", "AuthorId" }, authorDetails.GetProperties().Select(p => p.Name));
             Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute" }, author.GetProperties().Select(p => p.Name));
 
-            Assert.Equal(1, Log.Count);
-            Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
-                nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)), Log[0].Message);
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Warning, logEntry.Level);
+            Assert.Equal(
+                CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
+                    nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
+                logEntry.Message);
         }
 
         protected class Post
@@ -1916,7 +1949,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.InvalidRelationshipUsingDataAnnotations("B", nameof(A), "A", nameof(B)),
+                CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(A.B), nameof(A), nameof(B.A), nameof(B)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
         }
 
@@ -1928,6 +1961,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
+        }
+
+        [Fact]
+        public virtual void ForeignKeyAttribute_throws_if_applied_on_two_relationships_targetting_the_same_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<B>();
+
+            Assert.Equal(
+                CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ConflictingFKAttributes>()).Message);
         }
 
         protected class A
@@ -1968,26 +2013,43 @@ namespace Microsoft.EntityFrameworkCore
             public C C { get; set; }
         }
 
+        protected class ConflictingFKAttributes
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("A")]
+            public int AId { get; set; }
+
+            public A A { get; set; }
+
+            [ForeignKey("AId")]
+            public A As { get; set; }
+        }
+
         [Fact]
         public virtual void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<BookDetails>().Add(new BookDetails { AnotherBookId = 1 });
+                {
+                    context.Set<BookDetails>().Add(
+                        new BookDetails
+                        {
+                            AnotherBookId = 1
+                        });
 
-                        context.SaveChanges();
-                    });
+                    context.SaveChanges();
+                });
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<BookDetails>().Add(new BookDetails());
+                {
+                    context.Set<BookDetails>().Add(new BookDetails());
 
-                        Assert.Equal(
-                            "An error occurred while updating the entries. See the inner exception for details.",
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        "An error occurred while updating the entries. See the inner exception for details.",
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -2008,32 +2070,46 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    context.Set<One>().Add(new One
-                    {
-                        RequiredColumn = "ValidString",
-                        RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
-                        Details = new Details { Name = "One" },
-                        AdditionalDetails = new Details { Name = "Two" }
-                    });
+                    context.Set<One>().Add(
+                        new One
+                        {
+                            RequiredColumn = "ValidString",
+                            RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
+                            Details = new Details
+                            {
+                                Name = "One"
+                            },
+                            AdditionalDetails = new Details
+                            {
+                                Name = "Two"
+                            }
+                        });
 
-                        context.SaveChanges();
-                    });
+                    context.SaveChanges();
+                });
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<One>().Add(new One
+                {
+                    context.Set<One>().Add(
+                        new One
                         {
                             RequiredColumn = null,
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
-                            Details = new Details { Name = "One" },
-                            AdditionalDetails = new Details { Name = "Two" }
+                            Details = new Details
+                            {
+                                Name = "One"
+                            },
+                            AdditionalDetails = new Details
+                            {
+                                Name = "Two"
+                            }
                         });
 
-                        Assert.Equal(
-                            "An error occurred while updating the entries. See the inner exception for details.",
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        "An error occurred while updating the entries. See the inner exception for details.",
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -2041,21 +2117,29 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<Two>().Add(new Two { Data = "ValidString" });
+                {
+                    context.Set<Two>().Add(
+                        new Two
+                        {
+                            Data = "ValidString"
+                        });
 
-                        context.SaveChanges();
-                    });
+                    context.SaveChanges();
+                });
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.Set<Two>().Add(new Two { Data = "ValidButLongString" });
+                {
+                    context.Set<Two>().Add(
+                        new Two
+                        {
+                            Data = "ValidButLongString"
+                        });
 
-                        Assert.Equal(
-                            "An error occurred while updating the entries. See the inner exception for details.",
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
-                    });
+                    Assert.Equal(
+                        "An error occurred while updating the entries. See the inner exception for details.",
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+                });
         }
 
         [Fact]
@@ -2063,21 +2147,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
+                {
+                    var clientRow = context.Set<Two>().First(r => r.Id == 1);
+                    clientRow.Data = "ChangedData";
+
+                    using (var innerContext = CreateContext())
                     {
-                        var clientRow = context.Set<Two>().First(r => r.Id == 1);
-                        clientRow.Data = "ChangedData";
+                        UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
+                        var storeRow = innerContext.Set<Two>().First(r => r.Id == 1);
+                        storeRow.Data = "ModifiedData";
 
-                        using (var innerContext = CreateContext())
-                        {
-                            UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
-                            var storeRow = innerContext.Set<Two>().First(r => r.Id == 1);
-                            storeRow.Data = "ModifiedData";
+                        innerContext.SaveChanges();
 
-                            innerContext.SaveChanges();
-
-                            Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                        }
-                    });
+                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                    }
+                });
         }
 
         [Fact]
@@ -2128,7 +2212,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(ownership2.DeclaringEntityType.FindProperty(nameof(Details.Name)));
         }
 
-        public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "DataAnnotations";
 
@@ -2140,28 +2224,66 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BookDetails>();
                 modelBuilder.Entity<Book>().Property(d => d.Id).ValueGeneratedNever();
             }
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(c => c
+                    .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning )
+                    .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
+                    .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning));
 
-            protected override void Seed(DbContext context)
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Model.Name;
+
+            protected override void Seed(PoolableDbContext context)
             {
-                context.Set<One>().Add(new One
-                {
-                    RequiredColumn = "First",
-                    RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                    Details = new Details { Name = "First Name" },
-                    AdditionalDetails = new Details { Name = "First Additional Name" }
-                });
-                context.Set<One>().Add(new One
-                {
-                    RequiredColumn = "Second",
-                    RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                    Details = new Details { Name = "Second Name" },
-                    AdditionalDetails = new Details { Name = "Second Additional Name" }
-                });
+                context.Set<One>().Add(
+                    new One
+                    {
+                        RequiredColumn = "First",
+                        RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
+                        Details = new Details
+                        {
+                            Name = "First Name"
+                        },
+                        AdditionalDetails = new Details
+                        {
+                            Name = "First Additional Name"
+                        }
+                    });
+                context.Set<One>().Add(
+                    new One
+                    {
+                        RequiredColumn = "Second",
+                        RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
+                        Details = new Details
+                        {
+                            Name = "Second Name"
+                        },
+                        AdditionalDetails = new Details
+                        {
+                            Name = "Second Additional Name"
+                        }
+                    });
 
-                context.Set<Two>().Add(new Two { Data = "First" });
-                context.Set<Two>().Add(new Two { Data = "Second" });
+                context.Set<Two>().Add(
+                    new Two
+                    {
+                        Data = "First"
+                    });
+                context.Set<Two>().Add(
+                    new Two
+                    {
+                        Data = "Second"
+                    });
 
-                context.Set<Book>().Add(new Book { Id = 1, AdditionalDetails = new Details { Name = "Book Name" } });
+                context.Set<Book>().Add(
+                    new Book
+                    {
+                        Id = 1,
+                        AdditionalDetails = new Details
+                        {
+                            Name = "Book Name"
+                        }
+                    });
 
                 context.SaveChanges();
             }

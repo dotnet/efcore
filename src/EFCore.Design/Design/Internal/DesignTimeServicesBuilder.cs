@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DesignTimeServicesBuilder
     {
+        private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly IOperationReporter _reporter;
         private readonly string[] _args;
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public DesignTimeServicesBuilder(
+            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] IOperationReporter reporter,
             [NotNull] string[] args)
@@ -36,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _startupAssembly = startupAssembly;
             _reporter = reporter;
             _args = args;
+            _assembly = assembly;
         }
 
         /// <summary>
@@ -49,8 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
                 .AddDbContextDesignTimeServices(context);
-            ConfigureProviderServices(context.GetService<IDatabaseProvider>().Name, services);
-            ConfigureReferencedServices(services);
+            var provider = context.GetService<IDatabaseProvider>().Name;
+            ConfigureProviderServices(provider, services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
@@ -67,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureProviderServices(provider, services, throwOnError: true);
-            ConfigureReferencedServices(services);
+            ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
@@ -95,11 +99,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             ConfigureDesignTimeServices(designTimeServicesType, services);
         }
 
-        private void ConfigureReferencedServices(IServiceCollection services)
+        private void ConfigureReferencedServices(IServiceCollection services, string provider)
         {
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
 
-            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>().ToList();
+            var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>()
+                                .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
+                                .Distinct()
+                                .ToList();
+
             if (references.Count == 0)
             {
                 _reporter.WriteVerbose(DesignStrings.NoReferencedServices);
@@ -109,6 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             foreach (var reference in references)
             {
+                if (reference.ForProvider != null
+                    && !string.Equals(reference.ForProvider, provider, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var designTimeServicesType = Type.GetType(reference.TypeName, throwOnError: true);
 
                 _reporter.WriteVerbose(

@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -22,6 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class IncludeCompiler
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly ParameterExpression CancellationTokenParameter
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
+
         private sealed class IncludeLoadTreeNode : IncludeLoadTreeNodeBase
         {
             private static readonly MethodInfo _referenceEqualsMethodInfo
@@ -95,18 +103,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionId = collectionIncludeId++;
                 }
 
-                var targetType = Navigation.GetTargetType().ClrType;
+                var targetEntityType = Navigation.GetTargetType();
+                var targetType = targetEntityType.ClrType;
 
                 var mainFromClause
                     = new MainFromClause(
                         targetType.Name.Substring(0, 1).ToLowerInvariant(),
                         targetType,
-                        targetExpression.CreateEFPropertyExpression(Navigation.GetIdentifyingMemberInfo()));
+                        targetExpression.CreateEFPropertyExpression(Navigation));
 
                 queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
 
                 var querySourceReferenceExpression
                     = new QuerySourceReferenceExpression(mainFromClause);
+
+                queryCompilationContext.AddOrUpdateMapping(mainFromClause, targetEntityType);
 
                 var collectionQueryModel
                     = new QueryModel(
@@ -139,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             typeof(Func<>).MakeGenericType(asyncEnumerableType));
 
                     includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
-                    cancellationTokenExpression = _cancellationTokenParameter;
+                    cancellationTokenExpression = CancellationTokenParameter;
                 }
 
                 return
@@ -193,10 +204,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             nameof(QueryContext.QueryBuffer)),
                         includeCollectionMethodInfo
                             .MakeGenericMethod(
-                            targetEntityExpression.Type,
+                                targetEntityExpression.Type,
                                 targetClrType,
                                 clrCollectionAccessor.CollectionType.TryGetSequenceType()
-                                    ?? targetClrType),
+                                ?? targetClrType),
                         arguments);
 
                 return
@@ -223,15 +234,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || foreignKeyProperties.Any(p => p.IsShadowProperty))
                 {
                     return
-                        Expression.Default(typeof(Func<,,>)
-                            .MakeGenericType(targetType, relatedType, typeof(bool)));
+                        Expression.Default(
+                            typeof(Func<,,>)
+                                .MakeGenericType(targetType, relatedType, typeof(bool)));
                 }
 
                 var targetEntityParameter = Expression.Parameter(targetType, "p");
                 var relatedEntityParameter = Expression.Parameter(relatedType, "d");
 
                 return Expression.Lambda(
-                    primaryKeyProperties.Zip(foreignKeyProperties,
+                    primaryKeyProperties.Zip(
+                            foreignKeyProperties,
                             (pk, fk) =>
                             {
                                 Expression pkMemberAccess
@@ -239,10 +252,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         targetEntityParameter,
                                         pk.GetMemberInfo(forConstruction: false, forSet: false));
 
+                                if (pkMemberAccess.Type != pk.ClrType)
+                                {
+                                    pkMemberAccess = Expression.Convert(pkMemberAccess, pk.ClrType);
+                                }
+
                                 Expression fkMemberAccess
                                     = Expression.MakeMemberAccess(
                                         relatedEntityParameter,
                                         fk.GetMemberInfo(forConstruction: false, forSet: false));
+
+                                if (fkMemberAccess.Type != fk.ClrType)
+                                {
+                                    fkMemberAccess = Expression.Convert(fkMemberAccess, fk.ClrType);
+                                }
 
                                 if (pkMemberAccess.Type != fkMemberAccess.Type)
                                 {

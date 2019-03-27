@@ -1,22 +1,24 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
-        public override void QueryType_simple()
+        public override async Task QueryType_simple(bool isAsync)
         {
-            base.QueryType_simple();
+            await base.QueryType_simple(isAsync);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
 FROM [Customers] AS [c]");
         }
 
-        public override void QueryType_where_simple()
+        public override async Task QueryType_where_simple(bool isAsync)
         {
-            base.QueryType_where_simple();
+            await base.QueryType_where_simple(isAsync);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
@@ -32,7 +34,7 @@ WHERE [c].[City] = N'London'");
                 @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
 FROM [Alphabetical list of products] AS [a]");
         }
-        
+
         public override void QueryType_with_nav_defining_query()
         {
             base.QueryType_with_nav_defining_query();
@@ -53,9 +55,9 @@ FROM (
 WHERE (([t].[CompanyName] LIKE @__ef_filter___searchTerm_1 + N'%' AND (LEFT([t].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1)) OR (@__ef_filter___searchTerm_1 = N'')) AND ([t].[OrderCount] > 0)");
         }
 
-        public override void QueryType_with_mixed_tracking()
+        public override async Task QueryType_with_mixed_tracking(bool isAsync)
         {
-            base.QueryType_with_mixed_tracking();
+            await base.QueryType_with_mixed_tracking(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID]
@@ -69,9 +71,9 @@ CROSS JOIN (
 WHERE [t].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void QueryType_with_defining_query()
+        public override async Task QueryType_with_defining_query(bool isAsync)
         {
-            base.QueryType_with_defining_query();
+            await base.QueryType_with_defining_query(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]
@@ -84,9 +86,17 @@ FROM (
 WHERE [t].[CustomerID] = N'ALFKI'");
         }
 
-        public override void QueryType_with_included_nav()
+        public override async Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
         {
-            base.QueryType_with_included_nav();
+            await base.QueryType_with_defining_query_and_correlated_collection(isAsync);
+
+            AssertSql(
+                "");
+        }
+
+        public override async Task QueryType_with_included_nav(bool isAsync)
+        {
+            await base.QueryType_with_included_nav(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
@@ -100,9 +110,9 @@ LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[Cust
 WHERE [t].[CustomerID] = N'ALFKI'");
         }
 
-        public override void QueryType_with_included_navs_multi_level()
+        public override async Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
-            base.QueryType_with_included_navs_multi_level();
+            await base.QueryType_with_included_navs_multi_level(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
@@ -132,9 +142,9 @@ INNER JOIN (
 ORDER BY [t1].[CustomerID]");
         }
 
-        public override void QueryType_select_where_navigation()
+        public override async Task QueryType_select_where_navigation(bool isAsync)
         {
-            base.QueryType_select_where_navigation();
+            await base.QueryType_select_where_navigation(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]
@@ -148,9 +158,9 @@ LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[Cust
 WHERE [ov.Customer].[City] = N'Seattle'");
         }
 
-        public override void QueryType_select_where_navigation_multi_level()
+        public override async Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
-            base.QueryType_select_where_navigation_multi_level();
+            await base.QueryType_select_where_navigation_multi_level(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]

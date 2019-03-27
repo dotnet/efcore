@@ -23,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyDetectorTest(
                 c =>
-                    {
-                        // ReSharper disable once UnusedVariable
-                        var result = c.Products.FromSql("select * from products").ToList();
-                        return Task.FromResult(false);
-                    });
+                {
+                    // ReSharper disable once UnusedVariable
+                    var result = c.Products.FromSql("select * from products").ToList();
+                    return Task.FromResult(false);
+                });
         }
 
         [Fact]

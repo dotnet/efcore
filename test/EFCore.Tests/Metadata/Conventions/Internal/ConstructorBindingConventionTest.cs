@@ -438,11 +438,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 string fooBaar5,
                 string fooBaar6,
                 // ReSharper disable once InconsistentNaming
+#pragma warning disable IDE1006 // Naming Styles
                 string FooBaar1,
                 // ReSharper disable once InconsistentNaming
                 string FooBaar5,
                 // ReSharper disable once InconsistentNaming
                 string FooBaar6)
+#pragma warning restore IDE1006 // Naming Styles
             {
             }
         }
@@ -644,8 +646,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Throws_if_no_usable_constructor()
         {
+            var constructors = new string[] {
+                    CoreStrings.ConstructorBindingFailed("did", "BlogNone(string title, int did)"),
+                    CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Nullable<Guid> shadow, int id)"),
+                    CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id)"),
+                    CoreStrings.ConstructorBindingFailed("dummy', 'description", 
+                        "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id, string description)")
+            };
+
             Assert.Equal(
-                CoreStrings.ConstructorNotFound(nameof(BlogNone), "did', 'notTitle', 'dummy"),
+                CoreStrings.ConstructorNotFound(nameof(BlogNone), string.Join("; ", constructors)),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogNone>()).Message);
         }
 
@@ -662,13 +672,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public BlogNone(string title, Guid? shadow, bool dummy, int id)
             {
             }
+
+            public BlogNone(string title, Guid? shadow, bool dummy, int id, string description)
+            {
+            }
         }
 
         [Fact]
         public void Throws_if_no_usable_constructor_due_to_bad_type()
         {
             Assert.Equal(
-                CoreStrings.ConstructorNotFound(nameof(BlogBadType), "shadow"),
+                CoreStrings.ConstructorNotFound(nameof(BlogBadType), 
+                    CoreStrings.ConstructorBindingFailed("shadow", "BlogBadType(Guid shadow, int id)")),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogBadType>()).Message);
         }
 
@@ -747,13 +762,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private abstract class Blog
         {
-#pragma warning disable 649
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable 649, IDE1006 // Naming Styles
             public string _content;
 
             public int m_follows;
-#pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore 649
+#pragma warning restore 649, IDE1006 // Naming Styles
 
             public int Id { get; set; }
             public string Title { get; set; }

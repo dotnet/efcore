@@ -185,7 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Property("ShadowPrimaryKey", typeof(int), ConfigurationSource.Explicit);
-            customerEntityBuilder.PrimaryKey(new List<string> { "ShadowPrimaryKey" }, ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "ShadowPrimaryKey"
+                }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             Assert.Equal(
@@ -203,7 +207,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Property("ShadowPrimaryKey", typeof(int), ConfigurationSource.Explicit);
-            customerEntityBuilder.PrimaryKey(new List<string> { "ShadowPrimaryKey" }, ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(
+                new List<string>
+                {
+                    "ShadowPrimaryKey"
+                }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = orderEntityBuilder.HasForeignKey(
@@ -409,9 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
-                },
+                    { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
 
@@ -423,7 +429,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var customerEntityTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            customerEntityTypeBuilder.PrimaryKey(new List<PropertyInfo> { Customer.IdProperty }, ConfigurationSource.Explicit);
+            customerEntityTypeBuilder.PrimaryKey(
+                new List<PropertyInfo>
+                {
+                    Customer.IdProperty
+                }, ConfigurationSource.Explicit);
 
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             entityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
@@ -506,9 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
-                },
+                    { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
 
@@ -528,9 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
-                },
+                    { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
             dependentEntityBuilder.HasIndex(new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit);
@@ -1252,6 +1258,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Property_returns_same_instance_if_type_matches()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var propertyBuilder = entityBuilder.Property(Order.IdProperty, ConfigurationSource.DataAnnotation);
+            Assert.NotNull(propertyBuilder);
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.DataAnnotation, typeConfigurationSource: ConfigurationSource.DataAnnotation));
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.Convention, typeConfigurationSource: null));
+
+            Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty.Name, null, ConfigurationSource.Convention, typeConfigurationSource: ConfigurationSource.Convention));
+
+            Assert.Null(entityBuilder.Property(Order.IdProperty.Name, typeof(string), ConfigurationSource.Convention, typeConfigurationSource: ConfigurationSource.Convention));
+
+            Assert.Equal(new[] { propertyBuilder.Metadata }, entityBuilder.GetActualProperties(new[] { propertyBuilder.Metadata }, null));
+        }
+
+        [Fact]
         public void Property_throws_for_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1355,11 +1381,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 },
                 principalKey, ConfigurationSource.Convention).Metadata;
 
-            var newFkProperties = dependentEntityBuilder.ReUniquifyTemporaryProperties(foreignKey.Properties, principalKey.Properties, true, "");
-            foreignKey.Builder.HasForeignKey(newFkProperties, ConfigurationSource.Convention);
+            Assert.True(dependentEntityBuilder.ShouldReuniquifyTemporaryProperties(
+                foreignKey.Properties, principalKey.Properties, true, ""));
 
-            Assert.Equal("Id", newFkProperties[0].Name);
-            Assert.Equal("AlternateId", newFkProperties[1].Name);
+            var newFkProperties = foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>) null, ConfigurationSource.Convention)
+                .Metadata.Properties;
+
+            Assert.Equal("CustomerId", newFkProperties[0].Name);
+            Assert.Equal("CustomerAlternateId", newFkProperties[1].Name);
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
@@ -1384,13 +1413,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 },
                 principalKey, ConfigurationSource.Convention).Metadata;
 
-            var newFkProperties = dependentEntityBuilder.ReUniquifyTemporaryProperties(foreignKey.Properties, principalKey.Properties, true, "");
-            foreignKey = foreignKey.Builder.HasForeignKey(newFkProperties, ConfigurationSource.Convention).Metadata;
-            newFkProperties = dependentEntityBuilder.ReUniquifyTemporaryProperties(foreignKey.Properties, principalKey.Properties, true, "");
-            foreignKey.Builder.HasForeignKey(newFkProperties, ConfigurationSource.Convention);
+            Assert.True(dependentEntityBuilder.ShouldReuniquifyTemporaryProperties(
+                foreignKey.Properties, principalKey.Properties, true, ""));
 
-            Assert.Equal("Id", newFkProperties[0].Name);
-            Assert.Equal("AlternateId", newFkProperties[1].Name);
+            var newFkProperties = foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention)
+                .Metadata.Properties;
+
+            Assert.Equal("CustomerId", newFkProperties[0].Name);
+            Assert.Equal("CustomerAlternateId", newFkProperties[1].Name);
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
@@ -1415,8 +1445,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 },
                 principalKey, ConfigurationSource.Convention).Metadata;
 
-            var newFkProperties = dependentEntityBuilder.ReUniquifyTemporaryProperties(foreignKey.Properties, principalKey.Properties, true, "Customer");
-            foreignKey.Builder.HasForeignKey(newFkProperties, ConfigurationSource.Convention);
+            Assert.True(dependentEntityBuilder.ShouldReuniquifyTemporaryProperties(
+                foreignKey.Properties, principalKey.Properties, true, "Customer"));
+
+            var newFkProperties = foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention)
+                .Metadata.Properties;
 
             Assert.Equal("CustomerId1", newFkProperties[0].Name);
             Assert.Equal("CustomerUnique1", newFkProperties[1].Name);
@@ -1536,6 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 ConfigureOrdersHierarchy(modelBuilder);
             }
+
             var ignoredEntityTypeBuilder = modelBuilder.Entity(ignoredOnType, ConfigurationSource.Convention);
             var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             Assert.False(findMember(addedEntityTypeBuilder));
@@ -1569,6 +1603,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             () => ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource)).Message);
                     return;
                 }
+
                 Assert.Equal(
                     expectedIgnored
                     || (!setBaseFirst && (ignoreConfigurationSource == ConfigurationSource.Explicit || ignoredOnType != typeof(SpecialOrder))),
@@ -2413,7 +2448,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             derivedEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
             derivedEntityBuilder.ServiceProperty(Order.ContextProperty, ConfigurationSource.Explicit);
 
-            Assert.Same(derivedEntityBuilder,
+            Assert.Same(
+                derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit));
 
             Assert.Equal(1, entityBuilder.Metadata.GetServiceProperties().Count());

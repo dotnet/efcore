@@ -24,34 +24,34 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await c.Database.CreateExecutionStrategy().ExecuteAsync(
                     c, async context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            using (var transaction = context.Database.BeginTransaction())
+                            var driver = context.Drivers.Single(d => d.CarNumber == 1);
+                            driver.Podiums = StorePodiums;
+                            var firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                            await context.SaveChangesAsync();
+
+                            using (var innerContext = CreateF1Context())
                             {
-                                var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                                driver.Podiums = StorePodiums;
-                                var firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                                await context.SaveChangesAsync();
+                                innerContext.Database.UseTransaction(transaction.GetDbTransaction());
+                                driver = innerContext.Drivers.Single(d => d.CarNumber == 1);
+                                Assert.NotEqual(firstVersion, innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
+                                Assert.Equal(StorePodiums, driver.Podiums);
 
-                                using (var innerContext = CreateF1Context())
+                                var secondVersion = innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                                innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
+                                await innerContext.SaveChangesAsync();
+                                using (var validationContext = CreateF1Context())
                                 {
-                                    innerContext.Database.UseTransaction(transaction.GetDbTransaction());
-                                    driver = innerContext.Drivers.Single(d => d.CarNumber == 1);
-                                    Assert.NotEqual(firstVersion, innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
+                                    validationContext.Database.UseTransaction(transaction.GetDbTransaction());
+                                    driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
+                                    Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
                                     Assert.Equal(StorePodiums, driver.Podiums);
-
-                                    var secondVersion = innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                                    innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
-                                    await innerContext.SaveChangesAsync();
-                                    using (var validationContext = CreateF1Context())
-                                    {
-                                        validationContext.Database.UseTransaction(transaction.GetDbTransaction());
-                                        driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                                        Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                                        Assert.Equal(StorePodiums, driver.Podiums);
-                                    }
                                 }
                             }
-                        });
+                        }
+                    });
             }
         }
 
@@ -63,30 +63,30 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.CarNumber == 2).Podiums = StorePodiums,
                 c =>
-                    {
-                        var driver = c.Drivers.Single(d => d.CarNumber == 1);
-                        driver.Podiums = ClientPodiums;
-                        firstVersion = c.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                {
+                    var driver = c.Drivers.Single(d => d.CarNumber == 1);
+                    driver.Podiums = ClientPodiums;
+                    firstVersion = c.Entry(driver).Property<byte[]>("Version").CurrentValue;
 
-                        var secondDriver = c.Drivers.Single(d => d.CarNumber == 2);
-                        secondDriver.Podiums = ClientPodiums;
-                        secondVersion = c.Entry(secondDriver).Property<byte[]>("Version").CurrentValue;
-                    },
+                    var secondDriver = c.Drivers.Single(d => d.CarNumber == 2);
+                    secondDriver.Podiums = ClientPodiums;
+                    secondVersion = c.Entry(secondDriver).Property<byte[]>("Version").CurrentValue;
+                },
                 (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var firstDriverEntry = c.Entry(c.Drivers.Local.Single(d => d.CarNumber == 1));
-                        Assert.Equal(firstVersion, firstDriverEntry.Property<byte[]>("Version").CurrentValue);
-                        var databaseValues = firstDriverEntry.GetDatabaseValues();
-                        Assert.NotEqual(firstVersion, databaseValues["Version"]);
-                        firstDriverEntry.OriginalValues.SetValues(databaseValues);
+                    var firstDriverEntry = c.Entry(c.Drivers.Local.Single(d => d.CarNumber == 1));
+                    Assert.Equal(firstVersion, firstDriverEntry.Property<byte[]>("Version").CurrentValue);
+                    var databaseValues = firstDriverEntry.GetDatabaseValues();
+                    Assert.NotEqual(firstVersion, databaseValues["Version"]);
+                    firstDriverEntry.OriginalValues.SetValues(databaseValues);
 
-                        var secondDriverEntry = ex.Entries.Single();
-                        Assert.Equal(secondVersion, secondDriverEntry.Property("Version").CurrentValue);
-                        secondDriverEntry.OriginalValues.SetValues(secondDriverEntry.GetDatabaseValues());
-                        ResolveConcurrencyTokens(secondDriverEntry);
-                    },
+                    var secondDriverEntry = ex.Entries.Single();
+                    Assert.Equal(secondVersion, secondDriverEntry.Property("Version").CurrentValue);
+                    secondDriverEntry.OriginalValues.SetValues(secondDriverEntry.GetDatabaseValues());
+                    ResolveConcurrencyTokens(secondDriverEntry);
+                },
                 c => Assert.Equal(ClientPodiums, c.Drivers.Single(d => d.CarNumber == 2).Podiums));
         }
 

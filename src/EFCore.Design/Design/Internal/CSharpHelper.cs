@@ -7,8 +7,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Numerics;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -19,6 +23,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class CSharpHelper : ICSharpHelper
     {
+        private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public CSharpHelper([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+        {
+            _relationalTypeMappingSource = relationalTypeMappingSource;
+        }
+
         private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
@@ -147,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { typeof(TimeSpan), (c, v) => c.Literal((TimeSpan)v) },
                 { typeof(uint), (c, v) => c.Literal((uint)v) },
                 { typeof(ulong), (c, v) => c.Literal((ulong)v) },
-                { typeof(ushort), (c, v) => c.Literal((ushort)v) }
+                { typeof(ushort), (c, v) => c.Literal((ushort)v) },
+                { typeof(BigInteger), (c, v) => c.Literal((BigInteger)v) }
             };
 
         /// <summary>
@@ -182,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Reference(Type type)
+            => Reference(type, useFullName: false);
+
+        private string Reference(Type type, bool useFullName)
         {
             Check.NotNull(type, nameof(type));
 
@@ -223,7 +242,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     .Append(".");
             }
 
-            builder.Append(type.ShortDisplayName());
+            builder.Append(
+                useFullName
+                    ? type.DisplayName()
+                    : type.ShortDisplayName());
 
             return builder.ToString();
         }
@@ -245,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     if (partStart != i)
                     {
-                        builder.Append(name.Substring(partStart, i - partStart));
+                        builder.Append(name, partStart, i - partStart);
                     }
 
                     partStart = i + 1;
@@ -272,16 +294,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     uniqueIdentifier = identifier + qualifier++;
                 }
+
                 scope.Add(uniqueIdentifier);
                 identifier = uniqueIdentifier;
             }
 
-            if (_keywords.Contains(identifier))
-            {
-                return "@" + identifier;
-            }
-
-            return identifier;
+            return _keywords.Contains(identifier) ? "@" + identifier : identifier;
         }
 
         /// <summary>
@@ -302,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .Append('.');
                 }
             }
+
             return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
@@ -310,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(string value) =>
-            value.Contains(Environment.NewLine)
+            value.Contains('\n') || value.Contains('\r')
                 ? "@\"" + value.Replace("\"", "\"\"") + "\""
                 : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
@@ -354,7 +373,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 value.Minute,
                 value.Second,
                 value.Millisecond,
-                value.Kind);
+                value.Kind)
+               + (value.Ticks % 10000 == 0
+                   ? ""
+                   : string.Format(
+                       CultureInfo.InvariantCulture,
+                       ".AddTicks({0})",
+                       value.Ticks % 10000));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -373,9 +398,33 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal(double value) => EnsureDecimalPlaces(value.ToString("R", CultureInfo.InvariantCulture));
+        public virtual string Literal(double value) => EnsureDecimalPlaces(value);
 
-        private static string EnsureDecimalPlaces(string number) => number.IndexOf('.') >= 0 ? number : number + ".0";
+        private static string EnsureDecimalPlaces(double number)
+        {
+            var literal = number.ToString("G17", CultureInfo.InvariantCulture);
+
+            if (double.IsNaN(number))
+            {
+                return $"double.{nameof(double.NaN)}";
+            }
+            else if (double.IsNegativeInfinity(number))
+            {
+                return $"double.{nameof(double.NegativeInfinity)}";
+            }
+            else if (double.IsPositiveInfinity(number))
+            {
+                return $"double.{nameof(double.PositiveInfinity)}";
+            }
+            else
+            {
+                return !literal.Contains("E")
+                    && !literal.Contains("e")
+                    && !literal.Contains(".")
+                    ? literal + ".0"
+                    : literal;
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -418,14 +467,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(TimeSpan value)
-            => string.Format(
-                CultureInfo.InvariantCulture,
-                "new TimeSpan({0}, {1}, {2}, {3}, {4})",
-                value.Days,
-                value.Hours,
-                value.Minutes,
-                value.Seconds,
-                value.Milliseconds);
+            => value.Ticks % 10000 == 0
+                ? string.Format(
+                    CultureInfo.InvariantCulture,
+                    "new TimeSpan({0}, {1}, {2}, {3}, {4})",
+                    value.Days,
+                    value.Hours,
+                    value.Minutes,
+                    value.Seconds,
+                    value.Milliseconds)
+                : string.Format(
+                    CultureInfo.InvariantCulture,
+                    "new TimeSpan({0})",
+                    value.Ticks);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -444,6 +498,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Literal(ushort value) => "(ushort)" + value;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string Literal(BigInteger value) => $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -557,7 +617,66 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string Literal(Enum value) => Reference(value.GetType()) + "." + value;
+        public virtual string Literal(Enum value)
+        {
+            var type = value.GetType();
+            var name = Enum.GetName(type, value);
+
+            return name == null
+                ? GetCompositeEnumValue(type, value)
+                : GetSimpleEnumValue(type, name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string GetSimpleEnumValue(Type type, string name)
+            => Reference(type) + "." + name;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string GetCompositeEnumValue(Type type, Enum flags)
+        {
+            var allValues = new HashSet<Enum>(GetFlags(flags));
+            foreach (var currentValue in allValues.ToList())
+            {
+                var decomposedValues = GetFlags(currentValue);
+                if (decomposedValues.Count > 1)
+                {
+                    allValues.ExceptWith(decomposedValues.Where(v => !Equals(v, currentValue)));
+                }
+            }
+
+            return allValues.Aggregate((string)null,
+                (previous, current) =>
+                    previous == null
+                        ? GetSimpleEnumValue(type, Enum.GetName(type, current))
+                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)));
+        }
+
+        internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)
+        {
+            var values = new List<Enum>();
+            var type = flags.GetType();
+            var defaultValue = Enum.ToObject(type, value: 0);
+            foreach (Enum currValue in Enum.GetValues(type))
+            {
+                if (currValue.Equals(defaultValue))
+                {
+                    continue;
+                }
+
+                if (flags.HasFlag(currValue))
+                {
+                    values.Add(currValue);
+                }
+            }
+
+            return values;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -571,9 +690,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return "null";
             }
 
-            var type = value.GetType().UnwrapNullableType();
+            var literalType = value.GetType();
 
-            if (_literalFuncs.TryGetValue(type, out var literalFunc))
+            if (_literalFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
             {
                 return literalFunc(this, value);
             }
@@ -588,7 +707,126 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return Array(array);
             }
 
-            throw new InvalidOperationException(DesignStrings.UnknownLiteral(value.GetType()));
+            var mapping = _relationalTypeMappingSource.FindMapping(literalType);
+            if (mapping != null)
+            {
+                var builder = new StringBuilder();
+                var expression = mapping.GenerateCodeLiteral(value);
+                var handled = HandleExpression(expression, builder);
+
+                if (!handled)
+                {
+                    throw new NotSupportedException(
+                        DesignStrings.LiteralExpressionNotSupported(
+                            expression.ToString(),
+                            literalType.ShortDisplayName()));
+                }
+
+                return builder.ToString();
+            }
+
+            throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));
+        }
+
+        private bool HandleExpression(Expression expression, StringBuilder builder, bool simple = false)
+        {
+            // Only handle trivially simple cases for `new` and factory methods
+            switch (expression.NodeType)
+            {
+                case ExpressionType.NewArrayInit:
+                    builder
+                        .Append("new ")
+                        .Append(Reference(expression.Type.GetElementType()))
+                        .Append("[] { ");
+
+                    HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
+
+                    builder
+                        .Append(" }");
+
+                    return true;
+                case ExpressionType.Convert:
+                    builder
+                        .Append('(')
+                        .Append(Reference(expression.Type, useFullName: true))
+                        .Append(')');
+
+                    return HandleExpression(((UnaryExpression)expression).Operand, builder);
+                case ExpressionType.New:
+                    builder
+                        .Append("new ")
+                        .Append(Reference(expression.Type, useFullName: true));
+
+                    return HandleArguments(((NewExpression)expression).Arguments, builder);
+                case ExpressionType.Call:
+                {
+                    var callExpression = (MethodCallExpression)expression;
+                    if (callExpression.Method.IsStatic)
+                    {
+                        builder
+                            .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
+                    }
+                    else
+                    {
+                        if (!HandleExpression(callExpression.Object, builder))
+                        {
+                            return false;
+                        }
+                    }
+
+                    builder
+                        .Append('.')
+                        .Append(callExpression.Method.Name);
+
+                    return HandleArguments(callExpression.Arguments, builder);
+                }
+                case ExpressionType.Constant:
+                {
+                    var value = ((ConstantExpression)expression).Value;
+
+                    builder
+                        .Append(
+                            simple
+                            && value?.GetType()?.IsNumeric() == true
+                                ? value
+                                : UnknownLiteral(value));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HandleArguments(IEnumerable<Expression> argumentExpressions, StringBuilder builder)
+        {
+            builder.Append('(');
+
+            if (!HandleList(argumentExpressions, builder))
+            {
+                return false;
+            }
+
+            builder.Append(')');
+
+            return true;
+        }
+
+        private bool HandleList(IEnumerable<Expression> argumentExpressions, StringBuilder builder, bool simple = false)
+        {
+            var separator = string.Empty;
+            foreach (var expression in argumentExpressions)
+            {
+                builder.Append(separator);
+
+                if (!HandleExpression(expression, builder, simple))
+                {
+                    return false;
+                }
+
+                separator = ", ";
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -632,43 +870,36 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return false;
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? false
+                    : ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
-            if (ch <= '\u007F') // max ASCII
-            {
-                return false;
-            }
 
-            return IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+            return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
         }
 
         private static bool IsIdentifierPartCharacter(char ch)
         {
             if (ch < 'a')
             {
-                if (ch < 'A')
-                {
-                    return ch >= '0'
-                           && ch <= '9';
-                }
-
-                return ch <= 'Z'
+                return ch < 'A'
+                    ? ch >= '0'
+                           && ch <= '9'
+                    : ch <= 'Z'
                        || ch == '_';
             }
+
             if (ch <= 'z')
             {
                 return true;
             }
+
             if (ch <= '\u007F')
             {
                 return false;

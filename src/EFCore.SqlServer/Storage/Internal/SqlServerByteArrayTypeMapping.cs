@@ -2,14 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -21,15 +19,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     {
         private const int MaxSize = 8000;
 
-        private readonly StoreTypePostfix? _storeTypePostfix;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerByteArrayTypeMapping(
-            [NotNull] string storeType,
-            DbType? dbType = System.Data.DbType.Binary,
+            [CanBeNull] string storeType = null,
             int? size = null,
             bool fixedLength = false,
             ValueComparer comparer = null,
@@ -37,18 +32,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
-                    storeType,
-                    GetStoreTypePostfix(storeTypePostfix, size),
-                    dbType,
+                    storeType ?? (fixedLength ? "binary" : "varbinary"),
+                    storeTypePostfix ?? StoreTypePostfix.Size,
+                    System.Data.DbType.Binary,
                     size: size,
                     fixedLength: fixedLength))
         {
-            _storeTypePostfix = storeTypePostfix;
         }
-
-        private static StoreTypePostfix GetStoreTypePostfix(StoreTypePostfix? storeTypePostfix, int? size)
-            => storeTypePostfix
-               ?? (size != null && size <= MaxSize ? StoreTypePostfix.Size : StoreTypePostfix.None);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -63,19 +53,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             => size.HasValue && size < MaxSize ? size.Value : MaxSize;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a copy of this mapping.
         /// </summary>
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerByteArrayTypeMapping(
-                Parameters.WithStoreTypeAndSize(storeType, size, GetStoreTypePostfix(_storeTypePostfix, size)));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerByteArrayTypeMapping(Parameters.WithComposedConverter(converter));
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <returns> The newly created mapping. </returns>
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new SqlServerByteArrayTypeMapping(parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

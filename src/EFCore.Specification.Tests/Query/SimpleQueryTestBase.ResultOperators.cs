@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
@@ -14,14 +15,19 @@ using Xunit;
 // ReSharper disable ReplaceWithSingleCallToFirst
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
+
+#pragma warning disable RCS1202 // Avoid NullReferenceException.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [ConditionalFact]
-        public virtual void Union_with_custom_projection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_with_custom_projection(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CompanyName.StartsWith("A"))
                     .Union(cs.Where(c => c.CompanyName.StartsWith("B")))
                     .Select(
@@ -42,12 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return false;
                 }
 
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return obj.GetType() == GetType()
+                return ReferenceEquals(this, obj)
+                    ? true
+                    : obj.GetType() == GetType()
                        && string.Equals(Id, ((CustomerDeets)obj).Id);
             }
 
@@ -86,12 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     return false;
                 }
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
 
-                return obj.GetType() == GetType()
+                return ReferenceEquals(this, obj)
+                    ? true
+                    : obj.GetType() == GetType()
                        && Equals((ProjectedType)obj);
             }
 
@@ -111,171 +112,309 @@ namespace Microsoft.EntityFrameworkCore.Query
             groups[0].First();
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_no_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_no_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Sum());
+            return AssertSum<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_no_data_nullable()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_no_data_nullable(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).Sum());
+            return AssertSum<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_binary_expression()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_binary_expression(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID * 2).Sum());
+            return AssertSum<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID * 2));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_no_arg_empty()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_no_arg_empty(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Where(o => o.OrderID == 42).Select(o => o.OrderID).Sum());
+            return AssertSum<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID == 42).Select(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Sum(o => o.OrderID));
+            return AssertSum<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_arg_expression()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_arg_expression(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Sum(o => o.OrderID + o.OrderID));
+            return AssertSum<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID + o.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_division_on_decimal()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_division_on_decimal(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(
-                ods => ods.Sum(od => od.Quantity / 2.09m),
+            return AssertSum<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods,
+                selector: od => od.Quantity / 2.09m,
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_division_on_decimal_no_significant_digits()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_division_on_decimal_no_significant_digits(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(
-                ods => ods.Sum(od => od.Quantity / 2m),
+            return AssertSum<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods,
+                selector: od => od.Quantity / 2m,
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_with_coalesce()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_coalesce(bool isAsync)
         {
-            AssertSingleResult<Product>(ps => ps.Where(p => p.ProductID < 40).Sum(p => p.UnitPrice ?? 0));
+            return AssertSum<Product, Product>(
+                isAsync,
+                ps => ps.Where(p => p.ProductID < 40),
+                selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalFact]
-        public virtual void Sum_over_subquery_is_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Sum(c => c.Orders.Sum(o => o.OrderID)));
+            return AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_on_float_column()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(ods => ods.Where(od => od.ProductID == 1).Sum(od => od.Discount));
+            return AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
         }
 
-        [ConditionalFact]
-        public virtual void Sum_on_float_column_in_subquery()
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_min_subquery_is_client_eval(bool isAsync)
         {
-            AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10300).Select(o => new { o.OrderID, Sum = o.OrderDetails.Sum(od => od.Discount) }),
+            return AssertSum<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_on_float_column(bool isAsync)
+        {
+            return AssertSum<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods.Where(od => od.ProductID == 1),
+                selector: od => od.Discount);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_on_float_column_in_subquery(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10300).Select(
+                    o => new
+                    {
+                        o.OrderID,
+                        Sum = o.OrderDetails.Sum(od => od.Discount)
+                    }),
                 e => e.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_no_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_no_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Average());
+             return AssertAverage <Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_binary_expression()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_binary_expression(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID * 2).Average());
+            return AssertAverage<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID * 2));
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Average(o => o.OrderID));
+            return AssertAverage<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_arg_expression()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_arg_expression(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Average(o => o.OrderID + o.OrderID));
+            return AssertAverage<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID + o.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_division_on_decimal()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_division_on_decimal(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(
-                ods => ods.Average(od => od.Quantity / 2.09m),
+            return AssertAverage<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods,
+                selector: od => od.Quantity / 2.09m,
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_division_on_decimal_no_significant_digits()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_division_on_decimal_no_significant_digits(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(
-                ods => ods.Average(od => od.Quantity / 2m),
+            return AssertAverage<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods,
+                selector: od => od.Quantity / 2m,
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_coalesce()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_coalesce(bool isAsync)
         {
-            AssertSingleResult<Product>(
-                ps => ps.Where(p => p.ProductID < 40).Average(p => p.UnitPrice ?? 0),
+            return AssertAverage<Product, Product>(
+                isAsync,
+                ps => ps.Where(p => p.ProductID < 40),
+                selector: p => p.UnitPrice ?? 0,
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
-        [ConditionalFact]
-        public virtual void Average_over_subquery_is_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Average(c => c.Orders.Sum(o => o.OrderID)));
+            return AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Average_on_float_column()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<OrderDetail>(ods => ods.Where(od => od.ProductID == 1).Average(od => od.Discount));
+            return AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
+                selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
         }
 
-        [ConditionalFact]
-        public virtual void Average_on_float_column_in_subquery()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_max_subquery_is_client_eval(bool isAsync)
         {
-            AssertQuery<Order>(
-                os => os.Where(o => o.OrderID < 10300).Select(o => new { o.OrderID, Sum = o.OrderDetails.Average(od => od.Discount) }),
+            return AssertAverage<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
+                selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_on_float_column(bool isAsync)
+        {
+            return AssertAverage<OrderDetail, OrderDetail>(
+                isAsync,
+                ods => ods.Where(od => od.ProductID == 1),
+                selector: od => od.Discount);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_on_float_column_in_subquery(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID < 10300).Select(
+                    o => new
+                    {
+                        o.OrderID,
+                        Sum = o.OrderDetails.Average(od => od.Discount)
+                    }),
                 e => e.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Average_on_float_column_in_subquery_with_cast()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_on_float_column_in_subquery_with_cast(bool isAsync)
         {
-            AssertQuery<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Where(o => o.OrderID < 10300)
-                    .Select(o => new { o.OrderID, Sum = o.OrderDetails.Average(od => (float?)od.Discount) }),
+                    .Select(
+                        o => new
+                        {
+                            o.OrderID,
+                            Sum = o.OrderDetails.Average(od => (float?)od.Discount)
+                        }),
                 e => e.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Min_with_no_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_with_no_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Min());
+            return AssertMin<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Min_with_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_with_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Min(o => o.OrderID));
+            return AssertMin<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID);
         }
 
         [ConditionalFact]
@@ -338,136 +477,253 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Min_with_coalesce()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_with_coalesce(bool isAsync)
         {
-            AssertSingleResult<Product>(ps => ps.Where(p => p.ProductID < 40).Min(p => p.UnitPrice ?? 0));
+            return AssertMin<Product, Product>(
+                isAsync,
+                ps => ps.Where(p => p.ProductID < 40),
+                selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalFact]
-        public virtual void Min_over_subquery_is_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Min(c => c.Orders.Sum(o => o.OrderID)));
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Max_with_no_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Max());
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
+                selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+        }
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_max_subquery_is_client_eval(bool isAsync)
+        {
+            return AssertMin<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Take(3),
+                selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
-        [ConditionalFact]
-        public virtual void Max_with_arg()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_with_no_arg(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Max(o => o.OrderID));
+            return AssertMax<Order>(
+                isAsync,
+                os => os.Select(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Max_with_coalesce()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_with_arg(bool isAsync)
         {
-            AssertSingleResult<Product>(ps => ps.Where(p => p.ProductID < 40).Max(p => p.UnitPrice ?? 0));
+            return AssertMax<Order, Order>(
+                isAsync,
+                os => os,
+                selector: o => o.OrderID);
         }
 
-        [ConditionalFact]
-        public virtual void Max_over_subquery_is_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_with_coalesce(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Max(c => c.Orders.Sum(o => o.OrderID)));
+            return AssertMax<Product, Product>(
+                isAsync,
+                ps => ps.Where(p => p.ProductID < 40),
+                selector: p => p.UnitPrice ?? 0);
         }
 
-        [ConditionalFact]
-        public virtual void Count_with_no_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Count());
+            return AssertMax<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                selector: c => c.Orders.Sum(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Count_with_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Count(o => o.CustomerID == "ALFKI"));
+            return AssertMax<Customer, Customer>(
+               isAsync,
+               cs => cs.OrderBy(c => c.CustomerID).Take(3),
+               selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
         }
 
-        [ConditionalFact]
-        public virtual void Count_with_order_by()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_sum_subquery_is_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.CustomerID).Count());
+            return AssertMax<Customer, Customer>(
+               isAsync,
+               cs => cs.OrderBy(c => c.CustomerID).Take(3),
+               selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
         }
 
-        [ConditionalFact]
-        public virtual void Where_OrderBy_Count()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_with_no_predicate(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Where(o => o.CustomerID == "ALFKI").OrderBy(o => o.OrderID).Count());
+            return AssertCount<Order>(
+                isAsync,
+                os => os);
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_with_predicate(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.CustomerID == "ALFKI").Count());
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os,
+                predicate: o => o.CustomerID == "ALFKI");
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Count_with_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_with_order_by(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Count(o => o.CustomerID == "ALFKI"));
+            return AssertCount<Order>(
+                isAsync,
+                os => os.OrderBy(o => o.CustomerID));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count_with_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_OrderBy_Count(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.OrderID > 10).Count(o => o.CustomerID != "ALFKI"));
+            return AssertCount<Order>(
+                isAsync,
+                os => os.Where(o => o.CustomerID == "ALFKI").OrderBy(o => o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Where_OrderBy_Count_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless()).Count());
+            return AssertCount<Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Where(o => o.CustomerID == "ALFKI"));
         }
 
-        [ConditionalFact]
-        public virtual void Where_OrderBy_Count_client_eval_mixed()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Count_with_predicate(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)).Count());
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID),
+                predicate: o => o.CustomerID == "ALFKI");
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count_with_predicate(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)).Count());
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Where(o => o.OrderID > 10),
+                predicate: o => o.CustomerID != "ALFKI");
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count_client_eval_mixed()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_OrderBy_Count_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count());
+            return AssertCount<Order>(
+                isAsync,
+                os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless()));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Count_with_predicate_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_OrderBy_Count_client_eval_mixed(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Count(o => ClientEvalPredicate(o)));
+            return AssertCount<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Count_with_predicate_client_eval_mixed()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicate(o)));
+            return AssertCount<Order>(
+                isAsync,
+                os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count_with_predicate_client_eval()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count_client_eval_mixed(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)).Count(o => ClientEvalPredicate(o)));
+            return AssertCount<Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Where_Count_with_predicate_client_eval_mixed()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Count_with_predicate_client_eval(bool isAsync)
         {
-            AssertSingleResult<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => ClientEvalSelectorStateless()),
+                predicate: o => ClientEvalPredicate(o));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_client_Take()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Count_with_predicate_client_eval_mixed(bool isAsync)
         {
-            AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID),
+                predicate: o => ClientEvalPredicate(o));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count_with_predicate_client_eval(bool isAsync)
+        {
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)),
+                predicate: o => ClientEvalPredicate(o));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Where_Count_with_predicate_client_eval_mixed(bool isAsync)
+        {
+            return AssertCount<Order, Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)),
+                predicate: o => o.CustomerID != "ALFKI");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_client_Take(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
         }
 
         public static bool ClientEvalPredicateStateless() => true;
@@ -476,505 +732,632 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static int ClientEvalSelectorStateless() => 42;
 
-#if Test20
-        protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#else
         protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
-#endif
 
-        [ConditionalFact]
-        public virtual void Distinct()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Distinct(),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual void Distinct_Scalar()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_Scalar(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Select(c => c.City).Distinct());
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Distinct()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Distinct(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
         }
 
-        [ConditionalFact]
-        public virtual void Distinct_OrderBy()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_OrderBy(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Select(c => c.Country).Distinct().OrderBy(c => c),
                 assertOrder: true);
         }
 
-        [ConditionalFact]
-        public virtual void Distinct_OrderBy2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_OrderBy2(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Distinct().OrderBy(c => c.CustomerID),
                 cs => cs.Distinct().OrderBy(c => c.CustomerID, StringComparer.Ordinal),
                 assertOrder: true,
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual void Distinct_OrderBy3()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_OrderBy3(bool isAsync)
         {
-            AssertQuery<Customer>(
-                cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID),
-                cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID, StringComparer.Ordinal),
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(
+                    c => new
+                    {
+                        c.CustomerID
+                    }).Distinct().OrderBy(a => a.CustomerID),
+                cs => cs.Select(
+                    c => new
+                    {
+                        c.CustomerID
+                    }).Distinct().OrderBy(a => a.CustomerID, StringComparer.Ordinal),
                 assertOrder: true);
         }
 
-        [ConditionalFact]
-        public virtual void Distinct_Count()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_Count(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.Distinct().Count());
+            return AssertCount<Customer>(
+                isAsync,
+                cs => cs.Distinct());
         }
 
-        [ConditionalFact]
-        public virtual void Select_Select_Distinct_Count()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_Select_Distinct_Count(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.Select(c => c.City).Select(c => c).Distinct().Count());
+            return AssertCount<Customer>(
+                isAsync,
+                cs => cs.Select(c => c.City).Select(c => c).Distinct());
         }
 
-        [ConditionalFact]
-        public virtual void Single_Throws()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Single_Throws(bool isAsync)
         {
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    AssertSingleResult<Customer>(cs => cs.Single()));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await AssertSingle<Customer>(isAsync, cs => cs));
         }
 
-        [ConditionalFact]
-        public virtual void Single_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Single_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.Single(c => c.CustomerID == "ALFKI"),
+            return AssertSingle<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                predicate: c => c.CustomerID == "ALFKI",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_Single()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Single(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToSingle
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Single(),
+            return AssertSingle<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void SingleOrDefault_Throws()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SingleOrDefault_Throws(bool isAsync)
         {
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    AssertSingleResult<Customer>(
-                        cs => cs.SingleOrDefault()));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await AssertSingleOrDefault<Customer>(isAsync, cs => cs));
         }
 
-        [ConditionalFact]
-        public virtual void SingleOrDefault_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SingleOrDefault_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.SingleOrDefault(c => c.CustomerID == "ALFKI"),
+            return AssertSingle<Customer, Customer>(
+                isAsync,
+                cs => cs,
+                predicate: c => c.CustomerID == "ALFKI",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_SingleOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_SingleOrDefault(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToSingleOrDefault
-                cs => cs.Where(c => c.CustomerID == "ALFKI").SingleOrDefault(),
+            return AssertSingleOrDefault<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void First()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task First(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).First(),
+            return AssertFirst<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void First_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task First_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).First(c => c.City == "London"),
+            return AssertFirst<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
+                predicate: c => c.City == "London",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_First()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_First(bool isAsync)
         {
-            AssertSingleResult<Customer>(
+            return AssertFirst<Customer>(
+                isAsync,
                 // ReSharper disable once ReplaceWithSingleCallToFirst
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").First(),
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void FirstOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstOrDefault(),
+            return AssertFirstOrDefault<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void FirstOrDefault_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).FirstOrDefault(c => c.City == "London"),
+            return AssertFirstOrDefault<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
+                predicate: c => c.City == "London",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_FirstOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_FirstOrDefault(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefault(),
+            return AssertFirstOrDefault<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void FirstOrDefault_inside_subquery_gets_server_evaluated()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_inside_subquery_gets_server_evaluated(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void First_inside_subquery_gets_client_evaluated()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task First_inside_subquery_gets_client_evaluated(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").First().CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Last()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Last(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).Last(),
+            return AssertLast<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Last_when_no_order_by()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Last_when_no_order_by(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToLast
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Last(),
+            return AssertLast<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Last_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Last_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).Last(c => c.City == "London"),
+            return AssertLast<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
+                predicate: c => c.City == "London",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_Last()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Last(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToLast
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").Last(),
+            return AssertLast<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void LastOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task LastOrDefault(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).LastOrDefault(),
+            return AssertLastOrDefault<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void LastOrDefault_Predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task LastOrDefault_Predicate(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).LastOrDefault(c => c.City == "London"),
+            return AssertLastOrDefault<Customer, Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName),
+                predicate: c => c.City == "London",
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_LastOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_LastOrDefault(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
-                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").LastOrDefault(),
+            return AssertLastOrDefault<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London"),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_subquery()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_subquery(bool isAsync)
         {
-            AssertQuery<Customer, Order>(
+            return AssertQuery<Customer, Order>(
+                isAsync,
                 (cs, os) =>
                     cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)),
                 entryCount: 89);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_array_closure(bool isAsync)
         {
             var ids = new[] { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
 
             ids = new[] { "ABCDE" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)));
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_subquery_and_local_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_subquery_and_local_array_closure(bool isAsync)
         {
             var ids = new[] { "London", "Buenos Aires" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(
-                        c =>
-                            cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c =>
+                        cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
                 entryCount: 9);
 
             ids = new[] { "London" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(
-                        c =>
-                            cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c =>
+                        cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
                 entryCount: 6);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_int_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_int_array_closure(bool isAsync)
         {
-#if Test20
-            var ids = new int[] { 0, 1 };
-#else
             var ids = new uint[] { 0, 1 };
-#endif
 
-            AssertQuery<Employee>(
-                es =>
-                    es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+            await AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
-#if Test20
-            ids = new int[] { 0 };
-#else
             ids = new uint[] { 0 };
-#endif
 
-            AssertQuery<Employee>(
-                es =>
-                    es.Where(e => ids.Contains(e.EmployeeID)));
+            await AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_nullable_int_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_nullable_int_array_closure(bool isAsync)
         {
-#if Test20
-            var ids = new int?[] { 0, 1 };
-#else
             var ids = new uint?[] { 0, 1 };
-#endif
 
-            AssertQuery<Employee>(
-                es =>
-                    es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+            await AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
-#if Test20
-            ids = new int?[] { 0 };
-#else
             ids = new uint?[] { 0 };
-#endif
 
-            AssertQuery<Employee>(
-                es =>
-                    es.Where(e => ids.Contains(e.EmployeeID)));
+            await AssertQuery<Employee>(
+                isAsync,
+                es => es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_array_inline()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_array_inline(bool isAsync)
         {
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_list_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_list_closure(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI" };
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_list_closure_all_null()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_list_closure_all_null(bool isAsync)
         {
-            var ids = new List<string> { null, null };
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)));
+            var ids = new List<string>
+            {
+                null,
+                null
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_list_inline()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_list_inline(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs =>
-                    cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+                    cs.Where(
+                        c => new List<string>
+                        {
+                            "ABCDE",
+                            "ALFKI"
+                        }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_list_inline_closure_mix()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_list_inline_closure_mix(bool isAsync)
         {
             var id = "ALFKI";
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c => new List<string>
+                    {
+                        "ABCDE",
+                        id
+                    }.Contains(c.CustomerID)), entryCount: 1);
 
             id = "ANATR";
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(
+                    c => new List<string>
+                    {
+                        "ABCDE",
+                        id
+                    }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_false()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_false(bool isAsync)
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_complex_predicate_and()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_complex_predicate_and(bool isAsync)
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_complex_predicate_or()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_complex_predicate_or(bool isAsync)
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_complex_predicate_not_matching_ins1(bool isAsync)
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_complex_predicate_not_matching_ins2(bool isAsync)
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_sql_injection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_sql_injection(bool isAsync)
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_empty_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_empty_closure(bool isAsync)
         {
             var ids = Array.Empty<string>();
 
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => ids.Contains(c.CustomerID)));
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_collection_empty_inline()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_collection_empty_inline(bool isAsync)
         {
-            AssertQuery<Customer>(
-                cs =>
-                    cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual void Contains_top_level()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_top_level(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Select(c => c.CustomerID).Contains("ALFKI"));
+            return AssertSingleResult<Customer>(
+                isAsync,
+                syncQuery: cs => cs.Select(c => c.CustomerID).Contains("ALFKI"),
+                asyncQuery: cs => cs.Select(c => c.CustomerID).ContainsAsync("ALFKI"));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_tuple_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_tuple_array_closure(bool isAsync)
         {
             var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
 
-            AssertQuery<OrderDetail>(
+            await AssertQuery<OrderDetail>(
+                isAsync,
                 od => od.Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))), entryCount: 1);
 
             ids = new[] { Tuple.Create(1, 2) };
 
-            AssertQuery<OrderDetail>(
+            await AssertQuery<OrderDetail>(
+                isAsync,
                 od => od.Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
         }
 
-        [ConditionalFact]
-        public virtual void Contains_with_local_anonymous_type_array_closure()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_local_anonymous_type_array_closure(bool isAsync)
         {
-            var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
+            var ids = new[]
+            {
+                new
+                {
+                    Id1 = 1,
+                    Id2 = 2
+                },
+                new
+                {
+                    Id1 = 10248,
+                    Id2 = 11
+                }
+            };
 
-            AssertQuery<OrderDetail>(
-                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })), entryCount: 1);
+            await AssertQuery<OrderDetail>(
+                isAsync,
+                od => od.Where(
+                    o => ids.Contains(
+                        new
+                        {
+                            Id1 = o.OrderID,
+                            Id2 = o.ProductID
+                        })), entryCount: 1);
 
-            ids = new[] { new { Id1 = 1, Id2 = 2 } };
+            ids = new[]
+            {
+                new
+                {
+                    Id1 = 1,
+                    Id2 = 2
+                }
+            };
 
-            AssertQuery<OrderDetail>(
-                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
+            await AssertQuery<OrderDetail>(
+                isAsync,
+                od => od.Where(
+                    o => ids.Contains(
+                        new
+                        {
+                            Id1 = o.OrderID,
+                            Id2 = o.ProductID
+                        })));
         }
 
         [ConditionalFact]
@@ -1039,10 +1422,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Concat_nested()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Concat_nested(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "México D.F.")
                     .Concat(cs.Where(s => s.City == "Berlin"))
                     .Concat(cs.Where(e => e.City == "London")),
@@ -1067,26 +1452,42 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Except_dbset()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Except_dbset(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs));
         }
 
-        [ConditionalFact]
-        public virtual void Except_simple()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Except_simple(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Except(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 14);
         }
 
-        [ConditionalFact]
-        public virtual void Except_nested()
+        // issue #12568
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task Except_simple_followed_by_projecting_constant(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Except(cs).Select(e => 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Except_nested(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Except(cs.Where(s => s.City == "México D.F."))
                     .Except(cs.Where(e => e.City == "Seattle")),
@@ -1111,27 +1512,33 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Intersect_dbset()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Intersect_dbset(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "México D.F.").Intersect(cs),
                 entryCount: 5);
         }
 
-        [ConditionalFact]
-        public virtual void Intersect_simple()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Intersect_simple(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "México D.F.")
                     .Intersect(cs.Where(s => s.ContactTitle == "Owner")),
                 entryCount: 3);
         }
 
-        [ConditionalFact]
-        public virtual void Intersect_nested()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Intersect_nested(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(c => c.City == "México D.F.")
                     .Intersect(cs.Where(s => s.ContactTitle == "Owner"))
                     .Intersect(cs.Where(e => e.Fax != null)),
@@ -1156,27 +1563,33 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Union_dbset()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_dbset(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs),
                 entryCount: 91);
         }
 
-        [ConditionalFact]
-        public virtual void Union_simple()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_simple(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Union(cs.Where(c => c.City == "México D.F.")),
                 entryCount: 19);
         }
 
-        [ConditionalFact]
-        public virtual void Union_nested()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_nested(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
+                isAsync,
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Union(cs.Where(s => s.City == "México D.F."))
                     .Union(cs.Where(e => e.City == "London")),
@@ -1201,52 +1614,58 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool isAsync)
         {
-            AssertSingleResult<Order>(
+            return AssertAverage<Order>(
+                isAsync,
                 os => os
                     .Where(o => o.CustomerID.StartsWith("A"))
                     .OrderBy(o => o.OrderID)
-                    .Select(o => (long)o.OrderID).Average());
+                    .Select(o => (long)o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Max_with_non_matching_types_in_projection_introduces_explicit_cast()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool isAsync)
         {
-            AssertSingleResult<Order>(
+            return AssertMax<Order>(
+                isAsync,
                 os => os
                     .Where(o => o.CustomerID.StartsWith("A"))
                     .OrderBy(o => o.OrderID)
-                    .Select(o => (long)o.OrderID).Max());
+                    .Select(o => (long)o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void Min_with_non_matching_types_in_projection_introduces_explicit_cast()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool isAsync)
         {
-            AssertSingleResult<Order>(
+            return AssertMin<Order>(
+                isAsync,
                 os => os
                     .Where(o => o.CustomerID.StartsWith("A"))
-                    .Select(o => (long)o.OrderID).Min());
+                    .Select(o => (long)o.OrderID));
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Take_Last_gives_correct_result()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Take_Last_gives_correct_result(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.CustomerID)
-                    .Take(20)
-                    .Last(),
+            return AssertLast<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Take(20),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void OrderBy_Skip_Last_gives_correct_result()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Skip_Last_gives_correct_result(bool isAsync)
         {
-            AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.CustomerID)
-                    .Skip(20)
-                    .Last(),
+            return AssertLast<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID).Skip(20),
                 entryCount: 1);
         }
 
@@ -1286,80 +1705,161 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Project_constant_Sum()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_constant_Sum(bool isAsync)
         {
-            AssertSingleResult<Employee>(es => es.Sum(e => 1));
+            return AssertSum<Employee, Employee>(
+                isAsync,
+                es => es,
+                selector: e => 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_any_equals_operator()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_any_equals_operator(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => li == c.CustomerID)),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Any(li => li == c.CustomerID)),
                 entryCount: 2);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_any_equals()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_any_equals(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => li.Equals(c.CustomerID))),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Any(li => li.Equals(c.CustomerID))),
                 entryCount: 2);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_any_equals_static()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_any_equals_static(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.Any(li => Equals(li, c.CustomerID))),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Any(li => Equals(li, c.CustomerID))),
                 entryCount: 2);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_where_any()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_where_any(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => li == c.CustomerID)),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => li == c.CustomerID)),
                 entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_all_not_equals_operator()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_all_not_equals_operator(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => li != c.CustomerID)),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.All(li => li != c.CustomerID)),
                 entryCount: 89);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_all_not_equals()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_all_not_equals(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => !li.Equals(c.CustomerID))),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.All(li => !li.Equals(c.CustomerID))),
                 entryCount: 89);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_all_not_equals_static()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_all_not_equals_static(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => ids.All(li => !Equals(li, c.CustomerID))),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.All(li => !Equals(li, c.CustomerID))),
                 entryCount: 89);
         }
 
-        [ConditionalFact]
-        public virtual void Where_subquery_where_all()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_where_all(bool isAsync)
         {
-            var ids = new List<string> { "ABCDE", "ALFKI", "ANATR" };
-            AssertQuery<Customer>(cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
+            var ids = new List<string>
+            {
+                "ABCDE",
+                "ALFKI",
+                "ANATR"
+            };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
                 entryCount: 4);
         }
 
-        [ConditionalFact]
-        public virtual void Cast_to_same_Type_Count_works()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_to_same_Type_Count_works(bool isAsync)
         {
-            AssertSingleResult<Customer>(cs => cs.Cast<Customer>().Count());
+            return AssertCount<Customer>(
+                isAsync,
+                cs => cs.Cast<Customer>());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_before_aggregate_is_preserved(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Average()));
         }
     }
 }

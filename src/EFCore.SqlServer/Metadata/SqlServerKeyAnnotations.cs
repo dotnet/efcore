@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -39,8 +40,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual bool? IsClustered
         {
-            get => (bool?)Annotations.Metadata[SqlServerAnnotationNames.Clustered];
+            get => (bool?)Annotations.Metadata[SqlServerAnnotationNames.Clustered] ?? DefaultIsClustered;
             set => SetIsClustered(value);
+        }
+
+        private bool? DefaultIsClustered
+        {
+            get
+            {
+                var sharedTablePrincipalPrimaryKeyProperty = Key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
+                if (sharedTablePrincipalPrimaryKeyProperty != null)
+                {
+                    return sharedTablePrincipalPrimaryKeyProperty.GetContainingPrimaryKey().SqlServer().IsClustered;
+                }
+
+                return null;
+            }
         }
 
         /// <summary>

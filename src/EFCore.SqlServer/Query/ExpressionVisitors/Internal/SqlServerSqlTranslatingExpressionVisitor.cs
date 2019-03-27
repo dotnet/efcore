@@ -18,8 +18,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionVisitors.Inter
     /// </summary>
     public class SqlServerSqlTranslatingExpressionVisitor : SqlTranslatingExpressionVisitor
     {
-        private static HashSet<string> _dateTimeDataTypes
-            = new HashSet<string> { "time", "date", "datetime", "datetime2", "datetimeoffset" };
+        private static readonly HashSet<string> _dateTimeDataTypes
+            = new HashSet<string>
+            {
+                "time",
+                "date",
+                "datetime",
+                "datetime2",
+                "datetimeoffset"
+            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -68,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionVisitors.Inter
             if (expression is BinaryExpression binaryExpression)
             {
                 var typeMapping = InferTypeMappingFromColumn(binaryExpression.Left)
-                    ?? InferTypeMappingFromColumn(binaryExpression.Right);
+                                  ?? InferTypeMappingFromColumn(binaryExpression.Right);
 
                 if (typeMapping != null
                     && _dateTimeDataTypes.Contains(typeMapping.StoreType))
@@ -82,6 +89,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionVisitors.Inter
 
         private static RelationalTypeMapping InferTypeMappingFromColumn(Expression expression)
             => expression.FindProperty(expression.Type)?.FindRelationalMapping();
-
     }
 }

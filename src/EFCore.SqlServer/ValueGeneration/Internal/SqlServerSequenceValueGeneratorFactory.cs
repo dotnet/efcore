@@ -60,6 +60,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                 return new SqlServerSequenceHiLoValueGenerator<int>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
+            if (type == typeof(decimal))
+            {
+                return new SqlServerSequenceHiLoValueGenerator<decimal>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
+            }
+
             if (type == typeof(short))
             {
                 return new SqlServerSequenceHiLoValueGenerator<short>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);

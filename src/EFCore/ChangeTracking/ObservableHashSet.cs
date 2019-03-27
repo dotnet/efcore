@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => CollectionChanged?.Invoke(this, e);
     }
 
-    internal class ObservableHashSetSingletons
+    internal static class ObservableHashSetSingletons
     {
         public static readonly PropertyChangedEventArgs _countPropertyChanged
             = new PropertyChangedEventArgs("Count");

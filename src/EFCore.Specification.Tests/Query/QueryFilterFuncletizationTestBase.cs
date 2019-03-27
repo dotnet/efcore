@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_field_is_parametrized()
+        public virtual void DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_property_is_parametrized()
+        public virtual void DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_method_call_is_parametrized()
+        public virtual void DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_list_is_parametrized()
+        public virtual void DbContext_list_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -84,36 +84,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Set<ListFilter>().ToList();
                 Assert.Empty(query);
 
-                context.TenantIds = new List<int> { 1 };
+                context.TenantIds = new List<int>
+                {
+                    1
+                };
                 query = context.Set<ListFilter>().ToList();
                 Assert.Single(query);
 
-                context.TenantIds = new List<int> { 2, 3 };
+                context.TenantIds = new List<int>
+                {
+                    2,
+                    3
+                };
                 query = context.Set<ListFilter>().ToList();
                 Assert.Equal(2, query.Count);
             }
         }
 
         [Fact]
-        public virtual void DbContext_property_chain_is_parametrized()
+        public virtual void DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<PropertyChainFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<PropertyChainFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<PropertyChainFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }
         }
 
         [Fact]
-        public virtual void DbContext_property_method_call_is_parametrized()
+        public virtual void DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -127,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_method_call_chain_is_parametrized()
+        public virtual void DbContext_method_call_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -137,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void DbContext_complex_expression_is_parametrized()
+        public virtual void DbContext_complex_expression_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -172,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_field_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -187,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_property_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -202,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_method_call_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -212,25 +225,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void EntityTypeConfiguration_DbContext_property_chain_is_parametrized()
+        public virtual void EntityTypeConfiguration_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<EntityTypeConfigurationPropertyChainFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }
         }
 
         [Fact]
-        public virtual void Local_method_DbContext_field_is_parametrized()
+        public virtual void Local_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -245,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Local_static_method_DbContext_property_is_parametrized()
+        public virtual void Local_static_method_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -260,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Remote_method_DbContext_property_method_call_is_parametrized()
+        public virtual void Remote_method_DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -274,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Extension_method_DbContext_field_is_parametrized()
+        public virtual void Extension_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
             {
@@ -289,18 +308,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public virtual void Extension_method_DbContext_property_chain_is_parametrized()
+        public virtual void Extension_method_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
             {
                 // This throws because IndirectionFlag is null
                 Assert.Throws<NullReferenceException>(() => context.Set<ExtensionContextFilter>().ToList());
 
-                context.IndirectionFlag = new Indirection { Enabled = false };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = false
+                };
                 var entity = Assert.Single(context.Set<ExtensionContextFilter>().ToList());
                 Assert.False(entity.IsEnabled);
 
-                context.IndirectionFlag = new Indirection { Enabled = true };
+                context.IndirectionFlag = new Indirection
+                {
+                    Enabled = true
+                };
                 entity = Assert.Single(context.Set<ExtensionContextFilter>().ToList());
                 Assert.True(entity.IsEnabled);
             }

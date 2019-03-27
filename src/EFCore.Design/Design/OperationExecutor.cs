@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var runtimeVersion = ProductInfo.GetVersion();
             if (toolsVersion != null
-                && new SemanticVersionComparer().Compare(toolsVersion, runtimeVersion) < 0)
+                && new SemanticVersionComparer().Compare(RemovePatch(toolsVersion), RemovePatch(runtimeVersion)) < 0)
             {
                 reporter.WriteWarning(DesignStrings.VersionMismatch(toolsVersion, runtimeVersion));
             }
@@ -70,18 +70,18 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => Assembly.Load(new AssemblyName(startupTargetName)));
             var assembly = new LazyRef<Assembly>(
                 () =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return Assembly.Load(new AssemblyName(targetName));
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new OperationException(
-                                DesignStrings.UnreferencedAssembly(targetName, startupTargetName),
-                                ex);
-                        }
-                    });
+                        return Assembly.Load(new AssemblyName(targetName));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new OperationException(
+                            DesignStrings.UnreferencedAssembly(targetName, startupTargetName),
+                            ex);
+                    }
+                });
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     reporter,
@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     reporter,
+                    assembly.Value,
                     startupAssembly.Value,
                     _projectDir,
                     rootNamespace,
@@ -105,6 +106,19 @@ namespace Microsoft.EntityFrameworkCore.Design
                     rootNamespace,
                     language,
                     designArgs));
+
+            string RemovePatch(string versionString)
+            {
+                var prereleaseIndex = versionString.IndexOf("-", StringComparison.Ordinal);
+                if (prereleaseIndex != -1)
+                {
+                    versionString = versionString.Substring(0, prereleaseIndex);
+                }
+
+                var version = new Version(versionString);
+
+                return new Version(version.Major, version.Minor).ToString();
+            }
         }
 
         /// <summary>

@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                 w =>
-                    {
-                        w.Log(RelationalEventId.QueryClientEvaluationWarning);
-                        w.Log(SqlServerEventId.ByteIdentityColumnWarning);
-                    });
+                {
+                    w.Log(RelationalEventId.QueryClientEvaluationWarning);
+                    w.Log(SqlServerEventId.ByteIdentityColumnWarning);
+                });
     }
 }

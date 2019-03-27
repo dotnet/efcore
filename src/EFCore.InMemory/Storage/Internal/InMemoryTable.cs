@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -45,12 +46,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual IReadOnlyList<object[]> SnapshotRows()
             => _rows.Values.ToList();
 
+        private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
+            => properties.Select(GetStructuralComparer).ToList();
+
+        private static ValueComparer GetStructuralComparer(IProperty p)
+            => p.GetStructuralValueComparer() ?? p.FindMapping()?.StructuralComparer;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Create(IUpdateEntry entry)
-            => _rows.Add(CreateKey(entry), CreateValueBuffer(entry));
+            => _rows.Add(
+                CreateKey(entry),
+                entry.EntityType.GetProperties().Select(p => SnapshotValue(p, GetStructuralComparer(p), entry)).ToArray());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -70,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts);
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }
@@ -89,22 +98,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             object rowValue,
             Dictionary<IProperty, object> concurrencyConflicts)
         {
-            if (property.IsConcurrencyToken)
+            if (property.IsConcurrencyToken
+                && !StructuralComparisons.StructuralEqualityComparer.Equals(
+                    rowValue,
+                    entry.GetOriginalValue(property)))
             {
-                var originalValue = entry.GetOriginalValue(property);
+                concurrencyConflicts.Add(property, rowValue);
 
-                var revertPatchBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue12214", out var isEnabled)
-                                          && isEnabled;
-
-                if ((revertPatchBehavior
-                    && !Equals(rowValue, originalValue))
-                    || (!revertPatchBehavior
-                        && !StructuralComparisons.StructuralEqualityComparer.Equals(rowValue, originalValue)))
-                {
-                    concurrencyConflicts.Add(property, rowValue);
-
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -121,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             if (_rows.ContainsKey(key))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
+                var comparers = GetStructuralComparers(properties);
                 var valueBuffer = new object[properties.Count];
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
 
@@ -132,11 +134,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     }
 
                     valueBuffer[index] = entry.IsModified(properties[index])
-                        ? entry.GetCurrentValue(properties[index])
+                        ? SnapshotValue(properties[index], comparers[index], entry)
                         : _rows[key][index];
                 }
 
-                if (concurrencyConflicts.Any())
+                if (concurrencyConflicts.Count > 0)
                 {
                     ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
                 }
@@ -152,8 +154,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private TKey CreateKey(IUpdateEntry entry)
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
-        private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(entry.GetCurrentValue).ToArray();
+        private static object SnapshotValue(IProperty property, ValueComparer comparer, IUpdateEntry entry)
+            => SnapshotValue(comparer, entry.GetCurrentValue(property));
+
+        private static object SnapshotValue(ValueComparer comparer, object value)
+            => comparer == null ? value : comparer.Snapshot(value);
 
         /// <summary>
         ///     Throws an exception indicating that concurrency conflicts were detected.

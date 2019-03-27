@@ -24,9 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-        {
-            EntityFrameworkQueryableExtensions.IncludeMethodInfo
-        };
+            { EntityFrameworkQueryableExtensions.IncludeMethodInfo };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -48,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
 
-            if (!(NavigationPropertyPathLambda.Body is MemberExpression navigationPropertyPath))
+            if (!NavigationPropertyPathLambda.TryGetComplexPropertyAccess(out var propertyPath))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidIncludeLambdaExpression(
@@ -57,9 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             }
 
             var includeResultOperator = new IncludeResultOperator(
-                NavigationPropertyPathLambda.GetComplexPropertyAccess(
-                    nameof(EntityFrameworkQueryableExtensions.Include))
-                    .Select(p => p.Name),
+                propertyPath.Select(p => p.Name),
                 pathFromQuerySource);
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);

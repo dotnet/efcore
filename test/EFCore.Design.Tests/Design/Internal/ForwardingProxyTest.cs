@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #if NET461
-
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
     }
 }
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
+#elif NETCOREAPP2_0 || NETCOREAPP2_2
 #else
 #error target frameworks need to be updated.
 #endif

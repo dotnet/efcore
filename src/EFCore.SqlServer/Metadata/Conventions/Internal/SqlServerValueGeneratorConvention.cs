@@ -37,12 +37,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         public override ValueGenerated? GetValueGenerated(Property property)
         {
             var valueGenerated = base.GetValueGenerated(property);
-            if (valueGenerated != null)
-            {
-                return valueGenerated;
-            }
-
-            return property.SqlServer().GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
+            return valueGenerated != null
+                ? valueGenerated
+                : property.SqlServer().GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
                 ? ValueGenerated.OnAdd
                 : (ValueGenerated?)null;
         }

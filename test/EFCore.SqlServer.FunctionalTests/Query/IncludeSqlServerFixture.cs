@@ -10,5 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CoreEventId.IncludeIgnoredWarning));
+
+        protected override bool ShouldLogCategory(string logCategory)
+            => base.ShouldLogCategory(logCategory) || logCategory == DbLoggerCategory.Query.Name;
     }
 }

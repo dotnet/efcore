@@ -26,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return y == null;
             }
 
-            if (y == null)
-            {
-                return false;
-            }
-
-            return PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
+            return y == null
+                ? false
+                : PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
                    && x.IsUnique == y.IsUnique
                    && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }

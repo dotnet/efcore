@@ -23,8 +23,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
 
-            var principal = new Category { Id = 11 };
-            var dependent = new Product { Id = 21, Category = principal };
+            var principal = new Category
+            {
+                Id = 11
+            };
+            var dependent = new Product
+            {
+                Id = 21,
+                Category = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
@@ -48,8 +55,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var contextServices = CreateContextServices(model);
             var manager = contextServices.GetRequiredService<IStateManager>();
 
-            var principal = new Category { Id = 11 };
-            var dependent = new Product { Id = 21 };
+            var principal = new Category
+            {
+                Id = 11
+            };
+            var dependent = new Product
+            {
+                Id = 21
+            };
             principal.Products.Add(dependent);
 
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
@@ -73,7 +86,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var model = BuildModel(generateTemporary);
 
             var principal = new Category();
-            var dependent = new Product { Id = 21, Category = principal };
+            var dependent = new Product
+            {
+                Id = 21,
+                Category = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
@@ -95,8 +112,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
 
-            var principal = new Product { Id = 21 };
-            var dependent = new ProductDetail { Product = principal };
+            var principal = new Product
+            {
+                Id = 21
+            };
+            var dependent = new ProductDetail
+            {
+                Product = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
@@ -121,7 +144,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent = new ProductDetail();
-            var principal = new Product { Id = 21, Detail = dependent };
+            var principal = new Product
+            {
+                Id = 21,
+                Detail = dependent
+            };
 
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
@@ -144,7 +171,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var model = BuildModel(generateTemporary);
 
             var principal = new Product();
-            var dependent = new ProductDetail { Product = principal };
+            var dependent = new ProductDetail
+            {
+                Product = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
@@ -167,7 +197,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var model = BuildModel(generateTemporary);
 
             var principal = new Product();
-            var dependent = new ProductDetail { Product = principal };
+            var dependent = new ProductDetail
+            {
+                Product = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -196,8 +229,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
 
-            var principal = new OrderLine { OrderId = 11, ProductId = 21 };
-            var dependent = new OrderLineDetail { OrderLine = principal };
+            var principal = new OrderLine
+            {
+                OrderId = 11,
+                ProductId = 21
+            };
+            var dependent = new OrderLineDetail
+            {
+                OrderLine = principal
+            };
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
@@ -226,7 +266,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent = new OrderLineDetail();
-            var principal = new OrderLine { OrderId = 11, ProductId = 21, Detail = dependent };
+            var principal = new OrderLine
+            {
+                OrderId = 11,
+                ProductId = 21,
+                Detail = dependent
+            };
 
             manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
@@ -317,10 +362,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Product>(
                 b =>
-                    {
-                        b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
-                        b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
-                    });
+                {
+                    b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
+                });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
@@ -328,14 +373,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Order>().HasMany(e => e.OrderLines).WithOne(e => e.Order);
 
-            builder.Entity<OrderLineDetail>().HasKey(e => new { e.OrderId, e.ProductId });
+            builder.Entity<OrderLineDetail>().HasKey(
+                e => new
+                {
+                    e.OrderId,
+                    e.ProductId
+                });
 
             builder.Entity<OrderLine>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.OrderId, e.ProductId });
-                        b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
-                    });
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.OrderId,
+                            e.ProductId
+                        });
+                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(
+                        e => new
+                        {
+                            e.OrderId,
+                            e.ProductId
+                        });
+                });
 
             if (generateTemporary)
             {

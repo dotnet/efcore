@@ -159,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 _innerEnumerator = _exceptionInterceptor._innerAsyncEnumerable.GetEnumerator();
                             }
+
                             return await _innerEnumerator.MoveNext(cancellationToken);
                         }
                         catch (Exception exception)
@@ -202,34 +203,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _Select(
                 results,
                 result =>
+                {
+                    if (result != null)
                     {
-                        if (result != null)
+                        for (var i = 0; i < entityTrackingInfos.Count; i++)
                         {
-                            for (var i = 0; i < entityTrackingInfos.Count; i++)
+                            var entityOrCollection = entityAccessors[i](result as TIn);
+
+                            if (entityOrCollection != null)
                             {
-                                var entityOrCollection = entityAccessors[i](result as TIn);
+                                var entityTrackingInfo = entityTrackingInfos[i];
 
-                                if (entityOrCollection != null)
+                                if (entityTrackingInfo.IsEnumerableTarget)
                                 {
-                                    var entityTrackingInfo = entityTrackingInfos[i];
-
-                                    if (entityTrackingInfo.IsEnumerableTarget)
+                                    foreach (var entity in (IEnumerable)entityOrCollection)
                                     {
-                                        foreach (var entity in (IEnumerable)entityOrCollection)
-                                        {
-                                            queryContext.StartTracking(entity, entityTrackingInfos[i]);
-                                        }
+                                        queryContext.StartTracking(entity, entityTrackingInfos[i]);
                                     }
-                                    else
-                                    {
-                                        queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
-                                    }
+                                }
+                                else
+                                {
+                                    queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
                                 }
                             }
                         }
+                    }
 
-                        return result;
-                    });
+                    return result;
+                });
         }
 
         /// <summary>
@@ -546,6 +547,63 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, TResult> selector)
             => source.Select(selector);
+
+        /// <summary>
+        ///     The _SelectAsync method info.
+        /// </summary>
+        public static MethodInfo SelectAsyncMethod { get; }
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_SelectAsync));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TResult> _SelectAsync<TSource, TResult>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, Task<TResult>> selector)
+            => new AsyncSelectEnumerable<TSource, TResult>(source, selector);
+
+        private class AsyncSelectEnumerable<TSource, TResult> : IAsyncEnumerable<TResult>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+            public AsyncSelectEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, CancellationToken, Task<TResult>> selector)
+            {
+                _source = source;
+                _selector = selector;
+            }
+
+            public IAsyncEnumerator<TResult> GetEnumerator() => new AsyncSelectEnumerator(this);
+
+            private class AsyncSelectEnumerator : IAsyncEnumerator<TResult>
+            {
+                private readonly IAsyncEnumerator<TSource> _enumerator;
+                private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
+
+                public AsyncSelectEnumerator(AsyncSelectEnumerable<TSource, TResult> enumerable)
+                {
+                    _enumerator = enumerable._source.GetEnumerator();
+                    _selector = enumerable._selector;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (!await _enumerator.MoveNext(cancellationToken))
+                    {
+                        return false;
+                    }
+
+                    Current = await _selector(_enumerator.Current, cancellationToken);
+
+                    return true;
+                }
+
+                public TResult Current { get; private set; }
+
+                public void Dispose() => _enumerator.Dispose();
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

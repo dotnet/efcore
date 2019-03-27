@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.1;</TargetFrameworks>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Remove="BenchmarkDotNet.Artifacts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\EFCore.Benchmarks.Sqlite.Version22\AdventureWorks2014.db" Link="AdventureWorks2014.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Benchmarks.Version21\EFCore.Benchmarks.Version21.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EFCore.Benchmarks.Sqlite.Version22\**\*.cs"
+             Exclude="..\EFCore.Benchmarks.Sqlite.Version22\obj\**\*;
+                      ..\EFCore.Benchmarks.Sqlite.Version22\bin\**\*" />
+  </ItemGroup>
+
+</Project>

@@ -36,14 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool ShouldBeOwnedType([NotNull] this IModel model, [NotNull] string value)
-        {
-            if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
-            {
-                return false;
-            }
-
-            return ownedTypes.Contains(value);
-        }
+            => model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes && ownedTypes.Contains(value);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (!(model[CoreAnnotationNames.OwnedTypesAnnotation] is HashSet<string> ownedTypes))
             {
-                ownedTypes = new HashSet<string>();
+                ownedTypes = new HashSet<string>(StringComparer.Ordinal);
                 model[CoreAnnotationNames.OwnedTypesAnnotation] = ownedTypes;
             }
 

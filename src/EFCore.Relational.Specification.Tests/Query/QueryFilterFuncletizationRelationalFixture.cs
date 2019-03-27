@@ -3,20 +3,17 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class QueryFilterFuncletizationRelationalFixture : QueryFilterFuncletizationFixtureBase
     {
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
             base.AddOptions(builder);
             return builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.QueryClientEvaluationWarning));
         }
-
-        public TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
     }
 }

@@ -103,12 +103,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.fn.Contains(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.Contains(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -127,12 +137,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => !r.fn.Contains(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.Contains(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -229,12 +249,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.fn.StartsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.StartsWith(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -253,12 +283,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => !r.fn.StartsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.StartsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -355,12 +395,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.fn.EndsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -379,12 +429,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => !r.fn.EndsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln))
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -403,12 +463,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.fn.EndsWith(r.ln) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -427,12 +497,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => !r.fn.EndsWith(r.ln) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
                 var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new
+                        {
+                            fn,
+                            ln
+                        })
                     .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln) ? true : false)
                     .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
 
@@ -451,16 +531,38 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var expected = ctx.FunkyCustomers.ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.ToList(), (c1, c2) => new { c1, c2 })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.ToList(), (c1, c2) => new
+                        {
+                            c1,
+                            c2
+                        })
                     .Where(r => (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value) || (r.c2.LastName == null && r.c1.NullableBool == false))
-                    .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
+                    .ToList().Select(
+                        r => new
+                        {
+                            r.c1.FirstName,
+                            r.c2.LastName,
+                            r.c1.NullableBool
+                        }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 ClearLog();
 
                 var result = ctx.FunkyCustomers
-                    .SelectMany(c => ctx.FunkyCustomers, (c1, c2) => new { c1, c2 })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers, (c1, c2) => new
+                        {
+                            c1,
+                            c2
+                        })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value)
-                    .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
+                    .ToList().Select(
+                        r => new
+                        {
+                            r.c1.FirstName,
+                            r.c2.LastName,
+                            r.c1.NullableBool
+                        }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
                 for (var i = 0; i < result.Count; i++)
@@ -477,20 +579,42 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var ctx = CreateContext())
             {
                 var expected = ctx.FunkyCustomers.ToList()
-                    .SelectMany(c => ctx.FunkyCustomers.ToList(), (c1, c2) => new { c1, c2 })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers.ToList(), (c1, c2) => new
+                        {
+                            c1,
+                            c2
+                        })
                     .Where(
                         r =>
                             (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
                             || r.c1.NullableBool == null
                             || (r.c2.LastName == null && r.c1.NullableBool == true))
-                    .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
+                    .ToList().Select(
+                        r => new
+                        {
+                            r.c1.FirstName,
+                            r.c2.LastName,
+                            r.c1.NullableBool
+                        }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 ClearLog();
 
                 var result = ctx.FunkyCustomers
-                    .SelectMany(c => ctx.FunkyCustomers, (c1, c2) => new { c1, c2 })
+                    .SelectMany(
+                        c => ctx.FunkyCustomers, (c1, c2) => new
+                        {
+                            c1,
+                            c2
+                        })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
-                    .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
+                    .ToList().Select(
+                        r => new
+                        {
+                            r.c1.FirstName,
+                            r.c2.LastName,
+                            r.c1.NullableBool
+                        }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
                 for (var i = 0; i < result.Count; i++)

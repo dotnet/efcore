@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     /// </summary>
     public abstract class RelationalCompositeMethodCallTranslator : ICompositeMethodCallTranslator
     {
+        private readonly List<IMethodCallTranslator> _plugins = new List<IMethodCallTranslator>();
         private readonly List<IMethodCallTranslator> _methodCallTranslators;
 
         /// <summary>
@@ -31,19 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 
             Dependencies = dependencies;
 
+            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
+
             _methodCallTranslators
                 = new List<IMethodCallTranslator>
                 {
                     new EnumHasFlagTranslator(),
                     new EqualsTranslator(dependencies.Logger),
+                    new GetValueOrDefaultTranslator(),
                     new IsNullOrEmptyTranslator(),
-                    new LikeTranslator()
+                    new LikeTranslator(),
                 };
-
-            if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue10153", out var isEnabled) || !isEnabled)
-            {
-                _methodCallTranslators.Add(new GetValueOrDefaultTranslator());
-            }
         }
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
             => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
-               ?? _methodCallTranslators
+               ?? Enumerable.Concat(_plugins, _methodCallTranslators)
                    .Select(translator => translator.Translate(methodCallExpression))
                    .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 

@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
             = new OracleFloatTypeMapping("REAL");
 
         private readonly DecimalTypeMapping _decimal
-            = new OracleDecimalTypeMapping("DECIMAL(29,4)");
+            = new OracleDecimalTypeMapping("DECIMAL(29,4)", precision: 29, scale: 4, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
 
         private readonly TimeSpanTypeMapping _time
             = new OracleTimeSpanTypeMapping("INTERVAL DAY TO SECOND");

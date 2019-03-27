@@ -2489,16 +2489,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Entity<FullNotificationEntity>(
                 b =>
-                    {
-                        b.HasOne(e => e.ReferenceNav)
-                            .WithMany()
-                            .HasForeignKey(e => e.AnotherEntityId);
+                {
+                    b.HasOne(e => e.ReferenceNav)
+                        .WithMany()
+                        .HasForeignKey(e => e.AnotherEntityId);
 
-                        b.HasMany(e => e.CollectionNav)
-                            .WithOne();
+                    b.HasMany(e => e.CollectionNav)
+                        .WithOne();
 
-                        b.Property(e => e.Token).IsConcurrencyToken();
-                    });
+                    b.Property(e => e.Token).IsConcurrencyToken();
+                });
 
             return (Model)builder.Model;
         }

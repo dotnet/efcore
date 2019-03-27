@@ -22,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-        {
-            EntityFrameworkQueryableExtensions.StringIncludeMethodInfo
-        };
+            { EntityFrameworkQueryableExtensions.StringIncludeMethodInfo };
 
         private readonly ConstantExpression _navigationPropertyPath;
 

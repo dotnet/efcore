@@ -187,10 +187,7 @@ DEFAULT VALUES;
 
         protected override string RowsAffected => "@@ROWCOUNT";
 
-        protected override string Identity
-        {
-            get { throw new NotImplementedException(); }
-        }
+        protected override string Identity => throw new NotImplementedException();
 
         protected override string OpenDelimeter => "[";
 

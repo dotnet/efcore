@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
+
             return propertyBuilder;
         }
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -10,10 +11,12 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader
     {
         private readonly sqlite3_stmt _stmt;
+        private readonly byte[][] _blobCache;
 
         public SqliteDataRecord(sqlite3_stmt stmt)
         {
             _stmt = stmt;
+            _blobCache = new byte[FieldCount][];
         }
 
         public virtual object this[string name]
@@ -170,9 +173,55 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var blob = GetCachedBlob(ordinal);
+
+            long bytesToRead = (long)blob.Length - dataOffset;
+            if (buffer != null)
+            {
+                bytesToRead = System.Math.Min(bytesToRead, length);
+                Array.Copy(blob, dataOffset, buffer, bufferOffset, bytesToRead);
+            }
+            return bytesToRead;
+        }
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+        {
+            var text = GetString(ordinal);
+
+            int charsToRead = text.Length - (int)dataOffset;
+            charsToRead = System.Math.Min(charsToRead, length);
+            text.CopyTo((int)dataOffset, buffer, bufferOffset, charsToRead);
+            return charsToRead;
+        }
+
+        public virtual Stream GetStream(int ordinal)
+            => new MemoryStream(GetCachedBlob(ordinal), false);
+
+        internal void Clear()
+        {
+            for (var i = 0; i < _blobCache.Length; i++)
+            {
+                _blobCache[i] = null;
+            }
+        }
+
+        private byte[] GetCachedBlob(int ordinal)
+        {
+            if (ordinal < 0 || ordinal >= FieldCount)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
+            }
+
+            var blob = _blobCache[ordinal];
+            if (blob == null)
+            {
+                blob = GetBlob(ordinal);
+                _blobCache[ordinal] = blob;
+            }
+
+            return blob;
+        }
     }
 }

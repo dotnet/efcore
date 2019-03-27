@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
+    public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator, IDatabaseCreatorWithCanConnect
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
@@ -176,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Delete();
                 return true;
             }
+
             return false;
         }
 
@@ -202,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 return true;
             }
+
             return false;
         }
 
@@ -286,5 +288,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return builder.ToString();
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        public virtual bool CanConnect()
+            => Exists();
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => ExistsAsync(cancellationToken);
     }
 }

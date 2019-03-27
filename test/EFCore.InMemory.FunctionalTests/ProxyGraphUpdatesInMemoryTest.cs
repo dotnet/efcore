@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
 {
     public class ProxyGraphUpdatesInMemoryTest
@@ -94,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-#if !Test20
         public class LazyLoading : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture)
@@ -113,6 +113,5 @@ namespace Microsoft.EntityFrameworkCore
                     => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
             }
         }
-#endif
     }
 }

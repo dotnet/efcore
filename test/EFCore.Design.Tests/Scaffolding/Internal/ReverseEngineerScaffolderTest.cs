@@ -143,13 +143,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             Code = "// TestContext"
                         },
                         AdditionalFiles =
-                    {
-                        new ScaffoldedFile
                         {
-                            Path = "TestEntity.cs",
-                            Code = "// TestEntity"
+                            new ScaffoldedFile
+                            {
+                                Path = "TestEntity.cs",
+                                Code = "// TestEntity"
+                            }
                         }
-                    }
                     };
 
                     var ex = Assert.Throws<OperationException>(

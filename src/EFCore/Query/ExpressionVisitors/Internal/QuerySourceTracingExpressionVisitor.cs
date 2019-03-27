@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -100,6 +102,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return expression;
         }
 
+        private static readonly ISet<Type> _aggregateResultOperators = new HashSet<Type>
+        {
+            typeof(AverageResultOperator),
+            typeof(CountResultOperator),
+            typeof(LongCountResultOperator),
+            typeof(MaxResultOperator),
+            typeof(MinResultOperator),
+            typeof(SumResultOperator)
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -107,6 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
             if (_reachable)
+            {
+                return subQueryExpression;
+            }
+
+            if (subQueryExpression.QueryModel.ResultOperators.Any(ro => _aggregateResultOperators.Contains(ro.GetType())))
             {
                 return subQueryExpression;
             }

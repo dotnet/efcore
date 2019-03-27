@@ -538,7 +538,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             Assert.Equal(1, entry[keyProperty]);
@@ -555,7 +559,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry[keyProperty] = 77;
@@ -626,7 +634,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = model.FindEntityType(typeof(FullNotificationEntity).FullName);
             entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
 
-            AllOriginalValuesTest(model, entityType, new FullNotificationEntity { Id = 1, Name = "Kool" });
+            AllOriginalValuesTest(
+                model, entityType, new FullNotificationEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         protected void AllOriginalValuesTest(IModel model, IEntityType entityType, object entity)
@@ -667,21 +680,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
-            OriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1, Name = "Kool" });
+            OriginalValuesTest(
+                model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
-            OriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1, Name = "Kool" });
+            OriginalValuesTest(
+                model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
-            OriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1, Name = "Kool" });
+            OriginalValuesTest(
+                model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         protected void OriginalValuesTest(IModel model, IEntityType entityType, object entity)
@@ -710,21 +738,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
-            GenericOriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1, Name = "Kool" });
+            GenericOriginalValuesTest(
+                model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
-            GenericOriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1, Name = "Kool" });
+            GenericOriginalValuesTest(
+                model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
-            GenericOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1, Name = "Kool" });
+            GenericOriginalValuesTest(
+                model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         protected void GenericOriginalValuesTest(IModel model, IEntityType entityType, object entity)
@@ -753,21 +796,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
-            NullOriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1 });
+            NullOriginalValuesTest(
+                model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity
+                {
+                    Id = 1
+                });
         }
 
         [Fact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
-            NullOriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1 });
+            NullOriginalValuesTest(
+                model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity
+                {
+                    Id = 1
+                });
         }
 
         [Fact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
-            NullOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1 });
+            NullOriginalValuesTest(
+                model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity
+                {
+                    Id = 1
+                });
         }
 
         protected void NullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
@@ -801,21 +856,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
-            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1 });
+            GenericNullOriginalValuesTest(
+                model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity
+                {
+                    Id = 1
+                });
         }
 
         [Fact]
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
-            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1 });
+            GenericNullOriginalValuesTest(
+                model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity
+                {
+                    Id = 1
+                });
         }
 
         [Fact]
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
-            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1 });
+            GenericNullOriginalValuesTest(
+                model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity
+                {
+                    Id = 1
+                });
         }
 
         protected void GenericNullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
@@ -850,9 +917,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
 
-            SetPropertyInternalEntityEntryTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1, Name = "Kool" });
-            SetPropertyInternalEntityEntryTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1, Name = "Kool" });
-            SetPropertyInternalEntityEntryTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1, Name = "Kool" });
+            SetPropertyInternalEntityEntryTest(
+                model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
+            SetPropertyInternalEntityEntryTest(
+                model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
+            SetPropertyInternalEntityEntryTest(
+                model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         protected void SetPropertyInternalEntityEntryTest(IModel model, IEntityType entityType, object entity)
@@ -932,7 +1014,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
@@ -964,7 +1050,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
@@ -990,7 +1080,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Modified);
@@ -1014,7 +1108,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Deleted);
@@ -1055,7 +1153,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 contextServices,
                 ownedType,
-                new OwnedClass { Value = "Kool" },
+                new OwnedClass
+                {
+                    Value = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
@@ -1064,6 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 entry[valueProperty] = "Pickle";
             }
+
             entry.SetOriginalValue(valueProperty, "Cheese");
 
             entry.AcceptChanges();
@@ -1092,7 +1194,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 InMemoryTestHelpers.Instance.CreateContextServices(model),
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Added);
@@ -1125,13 +1231,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             modelBuilder
                 .Entity<Root>(
                     b =>
-                        {
-                            b.Property(e => e.Id).ValueGeneratedNever();
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
 
-                            b.HasOne(e => e.First)
-                                .WithOne(e => e.Root)
-                                .HasForeignKey<FirstDependent>(e => e.Id);
-                        });
+                        b.HasOne(e => e.First)
+                            .WithOne(e => e.Root)
+                            .HasForeignKey<FirstDependent>(e => e.Id);
+                    });
 
             return modelBuilder.Model;
         }
@@ -1142,28 +1248,53 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             modelBuilder
                 .Entity<CompositeRoot>()
-                .HasKey(e => new { e.Id1, e.Id2 });
+                .HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
 
             modelBuilder
                 .Entity<CompositeFirstDependent>()
-                .HasKey(e => new { e.Id1, e.Id2 });
+                .HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
 
             modelBuilder
                 .Entity<CompositeSecondDependent>()
-                .HasKey(e => new { e.Id1, e.Id2 });
+                .HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
 
             modelBuilder
                 .Entity<CompositeRoot>()
                 .HasOne(e => e.First)
                 .WithOne(e => e.Root)
-                .HasForeignKey<CompositeFirstDependent>(e => new { e.RootId1, e.RootId2 })
+                .HasForeignKey<CompositeFirstDependent>(
+                    e => new
+                    {
+                        e.RootId1,
+                        e.RootId2
+                    })
                 .IsRequired(required);
 
             modelBuilder
                 .Entity<CompositeFirstDependent>()
                 .HasOne(e => e.Second)
                 .WithOne(e => e.First)
-                .HasForeignKey<CompositeSecondDependent>(e => new { e.FirstId1, e.FirstId2 })
+                .HasForeignKey<CompositeSecondDependent>(
+                    e => new
+                    {
+                        e.FirstId1,
+                        e.FirstId2
+                    })
                 .IsRequired(required);
 
             return modelBuilder.Model;
@@ -1369,6 +1500,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int RootId1 { get; set; }
             public string RootId2 { get; set; }
+
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public CompositeRoot Root { get; set; }
 
@@ -1456,12 +1588,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             modelBuilder.Entity<OwnerClass>(
                 eb =>
-                    {
-                        eb.HasKey(e => e.Id);
-                        var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
-                        owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
-                        owned.Property(e => e.Value);
-                    });
+                {
+                    eb.HasKey(e => e.Id);
+                    var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
+                    owned.HasKey("Id");
+                    owned.Property(e => e.Value);
+                });
 
             return (Model)model;
         }

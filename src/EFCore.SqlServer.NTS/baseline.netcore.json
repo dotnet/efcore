@@ -1,0 +1,59 @@
+{
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "Types": [
+    {
+      "Name": "Microsoft.Extensions.DependencyInjection.SqlServerNetTopologySuiteServiceCollectionExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "AddEntityFrameworkSqlServerNetTopologySuite",
+          "Parameters": [
+            {
+              "Name": "serviceCollection",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            }
+          ],
+          "ReturnType": "Microsoft.Extensions.DependencyInjection.IServiceCollection",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "UseNetTopologySuite",
+          "Parameters": [
+            {
+              "Name": "optionsBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    }
+  ]
+}

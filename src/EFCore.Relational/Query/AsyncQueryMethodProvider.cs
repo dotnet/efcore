@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private readonly Func<DbDataReader, DbContext, TEntity> _materializer;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-                
+
                 private RelationalDataReader _dataReader;
                 private DbDataReader _dbDataReader;
 
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
-        
+
         /// <summary>
         ///     The shaped query method.
         /// </summary>
@@ -385,7 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var currentKey = _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current);
                         var element = _groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current);
-                        var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+                        var grouping = new Grouping<TKey, TElement>(currentKey)
+                        {
+                            element
+                        };
 
                         while (true)
                         {

@@ -140,19 +140,19 @@ namespace Microsoft.EntityFrameworkCore
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
+                {
+                    for (var j = 0; j < valueCount; j++)
                     {
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var connection = CreateConnection(serviceProvider);
-                            var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
+                        var connection = CreateConnection(serviceProvider);
+                        var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
 
-                            var value = j % 2 == 0
-                                ? await generator.NextAsync(null)
-                                : generator.Next(null);
+                        var value = j % 2 == 0
+                            ? await generator.NextAsync(null)
+                            : generator.Next(null);
 
-                            generatedValues[testNumber].Add(value);
-                        }
-                    };
+                        generatedValues[testNumber].Add(value);
+                    }
+                };
             }
 
             var tasks = tests.Select(Task.Run).ToArray();

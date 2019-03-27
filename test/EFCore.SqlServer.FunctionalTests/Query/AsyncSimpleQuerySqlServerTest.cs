@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public async Task Query_compiler_concurrency()
+        public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;
 
@@ -38,32 +38,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 tasks[i] = Task.Run(
                     () =>
+                    {
+                        using (var context = CreateContext())
                         {
-                            using (var context = CreateContext())
+                            using ((from c in context.Customers
+                                    where c.City == "London"
+                                    orderby c.CustomerID
+                                    select (from o1 in context.Orders
+                                            where o1.CustomerID == c.CustomerID
+                                                  && o1.OrderDate.Value.Year == 1997
+                                            orderby o1.OrderID
+                                            select (from o2 in context.Orders
+                                                    where o1.CustomerID == c.CustomerID
+                                                    orderby o2.OrderID
+                                                    select o1.OrderID)))
+                                .GetEnumerator())
                             {
-                                using ((from c in context.Customers
-                                        where c.City == "London"
-                                        orderby c.CustomerID
-                                        select (from o1 in context.Orders
-                                                where o1.CustomerID == c.CustomerID
-                                                      && o1.OrderDate.Value.Year == 1997
-                                                orderby o1.OrderID
-                                                select (from o2 in context.Orders
-                                                        where o1.CustomerID == c.CustomerID
-                                                        orderby o2.OrderID
-                                                        select o1.OrderID)))
-                                    .GetEnumerator())
-                                {
-                                }
                             }
-                        });
+                        }
+                    });
             }
 
-            await Task.WhenAll(tasks);
+            return Task.WhenAll(tasks);
         }
 
         [ConditionalFact]
-        public async Task Race_when_context_disposed_before_query_termination()
+        public Task Race_when_context_disposed_before_query_termination()
         {
             DbSet<Customer> task;
 
@@ -72,36 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 task = context.Customers;
             }
 
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
-        }
-
-        public override async Task String_Contains_Literal()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
-        }
-
-        public override async Task String_Contains_MethodCall()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-        }
-
-        public async Task Skip_when_no_order_by()
-        {
-            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
         [Fact]
-        public async Task Single_Predicate_Cancellation()
+        public Task Single_Predicate_Cancellation()
         {
-            await Assert.ThrowsAsync<TaskCanceledException>(
-                async () =>
-                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+            return Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
         [Fact]
@@ -161,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 await context.Customers.ForEachAsync(
                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
+                    c => context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList());
             }
         }
 
@@ -204,30 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }
-            }
-        }
-
-        [Fact]
-        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
-        {
-            await AssertQuery<Order>(
-                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
-                elementSorter: e => e.City + " " + e.Count);
-        }
-
-        [Fact]
-        public async Task Sum_with_no_data_nullable_legacy_behavior()
-        {
-            AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", true);
-
-            try
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).SumAsync()));
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", false);
             }
         }
     }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -91,15 +90,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override IModelValidator CreateModelValidator()
             => new SqliteModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))),
+                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
                 new RelationalModelValidatorDependencies(
 #pragma warning disable 618
                     new ObsoleteRelationalTypeMapper(),

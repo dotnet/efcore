@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(
                 "INSERT INTO " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " (" +
                 OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks"
-                + CloseDelimeter + ", " + OpenDelimeter + "Concurrency" + "Token" + CloseDelimeter + ")" + Environment.NewLine +
+                + CloseDelimeter + ", " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + ")" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine,
                 stringBuilder.ToString());
         }

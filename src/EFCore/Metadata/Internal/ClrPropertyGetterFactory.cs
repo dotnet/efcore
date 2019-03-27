@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
-            var memberType = memberInfo.GetMemberType();
-            var defaultExpression = Expression.Default(memberType);
 
             Expression readExpression;
             if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
@@ -55,28 +53,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
-                            defaultExpression,
+                            Expression.Default(memberInfo.GetMemberType()),
                             Expression.MakeMemberAccess(converted, memberInfo))
                     });
             }
 
-            var useRtmBehaviour = AppContext.TryGetSwitch(
-                                      "Microsoft.EntityFrameworkCore.Issue12290",
-                                      out var isEnabled)
-                                  && isEnabled;
+            if (readExpression.Type != typeof(TValue))
+            {
+                readExpression = Expression.Convert(readExpression, typeof(TValue));
+            }
 
-            var property = propertyBase as IProperty;
-            var comparer = memberType.IsNullableType() || useRtmBehaviour
-                ? null
-                : property?.GetValueComparer()
-                  ?? property?.FindMapping()?.Comparer
-                  ?? (ValueComparer)Activator.CreateInstance(
-                      typeof(ValueComparer<>).MakeGenericType(memberType),
-                      new object[] { false });
+            Expression hasDefaultValueExpression;
 
-            var hasDefaultValueExpression = comparer == null
-                ? Expression.Equal(readExpression, defaultExpression)
-                : comparer.ExtractEqualsBody(readExpression, defaultExpression);
+            if (!readExpression.Type.IsValueType)
+            {
+                hasDefaultValueExpression
+                    = Expression.ReferenceEqual(
+                        readExpression,
+                        Expression.Constant(null, readExpression.Type));
+            }
+            else if (readExpression.Type.IsGenericType
+                     && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                hasDefaultValueExpression
+                    = Expression.Not(
+                        Expression.Call(
+                            readExpression,
+                            readExpression.Type.GetMethod("get_HasValue")));
+            }
+            else
+            {
+                var property = propertyBase as IProperty;
+                var comparer = property?.GetValueComparer()
+                               ?? property?.FindMapping()?.Comparer
+                               ?? (ValueComparer)Activator.CreateInstance(
+                                   typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
+                                   new object[] { false });
+
+                hasDefaultValueExpression = comparer.ExtractEqualsBody(
+                    comparer.Type != typeof(TValue)
+                        ? Expression.Convert(readExpression, comparer.Type)
+                        : readExpression,
+                    Expression.Default(comparer.Type));
+            }
 
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),

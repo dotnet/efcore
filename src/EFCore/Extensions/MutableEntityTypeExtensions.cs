@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.FindNavigation(propertyInfo.Name);
+            return entityType.FindNavigation(propertyInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.FindProperty(propertyInfo.Name);
+            return entityType.FindProperty(propertyInfo.GetSimpleMemberName());
         }
 
         /// <summary>

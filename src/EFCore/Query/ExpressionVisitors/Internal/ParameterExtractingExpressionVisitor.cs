@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -32,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private readonly bool _parameterize;
         private readonly bool _generateContextAccessors;
+
+        private readonly Dictionary<Expression, (ParameterExpression Parameter, int RefCount)> _parameterCache
+            = new Dictionary<Expression, (ParameterExpression, int)>(ExpressionEqualityComparer.Instance);
 
         private PartialEvaluationInfo _partialEvaluationInfo;
 
@@ -82,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             finally
             {
                 _partialEvaluationInfo = oldPartialEvaluationInfo;
+                _parameterCache.Clear();
             }
         }
 
@@ -95,10 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var declaringType = methodInfo.DeclaringType;
 
             if (declaringType == typeof(Queryable)
-                || declaringType == typeof(EntityFrameworkQueryableExtensions)
-                && (!methodInfo.IsGenericMethod
-                    || !methodInfo.GetGenericMethodDefinition()
-                        .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo)))
+                || (declaringType == typeof(EntityFrameworkQueryableExtensions)
+                    && (!methodInfo.IsGenericMethod
+                        || !methodInfo.GetGenericMethodDefinition()
+                            .Equals(EntityFrameworkQueryableExtensions.StringIncludeMethodInfo))
+                    && !methodInfo.GetGenericMethodDefinition()
+                        .Equals(EntityFrameworkQueryableExtensions.TagWithMethodInfo)))
             {
                 return base.VisitMethodCall(methodCallExpression);
             }
@@ -169,7 +176,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         if (newArgument.RemoveConvert() is ParameterExpression parameter)
                         {
-                            var parameterValue = _parameterValues.RemoveParameter(parameter.Name);
+                            var parameterValue = _parameterValues.ParameterValues[parameter.Name];
+
+                            if (_parameterCache.TryGetValue(argument, out var cachedParameter))
+                            {
+                                if (cachedParameter.RefCount == 1)
+                                {
+                                    _parameterCache.Remove(argument);
+                                    _parameterValues.RemoveParameter(parameter.Name);
+                                }
+                                else
+                                {
+                                    _parameterCache[argument] = (cachedParameter.Parameter, cachedParameter.RefCount - 1);
+                                }
+                            }
 
                             if (parameter.Type == typeof(FormattableString))
                             {
@@ -195,15 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             {
                                 var constantParameterValue = Expression.Constant(parameterValue);
 
-                                if (newArgument is UnaryExpression unaryExpression
-                                    && unaryExpression.NodeType == ExpressionType.Convert)
-                                {
-                                    newArgument = unaryExpression.Update(constantParameterValue);
-                                }
-                                else
-                                {
-                                    newArgument = constantParameterValue;
-                                }
+                                newArgument = newArgument is UnaryExpression unaryExpression
+                                    && unaryExpression.NodeType == ExpressionType.Convert
+                                    ? unaryExpression.Update(constantParameterValue)
+                                    : (Expression)constantParameterValue;
                             }
                         }
                     }
@@ -283,6 +298,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        {
+            if (_partialEvaluationInfo.IsEvaluatableExpression(conditionalExpression))
+            {
+                return TryExtractParameter(conditionalExpression);
+            }
+
+            return base.VisitConditional(conditionalExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             var value = constantExpression.Value;
@@ -297,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
                    && !_inLambda
                    && !(value is IQueryable)
-                || _inLambda
+                   || _inLambda
                    && value is IQueryable
                    && !(constantExpressionType.IsGenericType
                         && constantExpressionType.BaseType.IsGenericType
@@ -332,13 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitNew(NewExpression node)
-        {
-            var arguments = Visit(node.Arguments);
-
-            var newNode = node.Update(arguments);
-
-            return newNode;
-        }
+            => node.Update(Visit(node.Arguments));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -427,10 +450,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private Expression TryExtractParameter(Expression expression)
         {
+            if (_parameterCache.TryGetValue(expression, out var cachedParameter))
+            {
+                _parameterCache[expression]
+                    = (cachedParameter.Parameter, cachedParameter.RefCount + 1);
+
+                return cachedParameter.Parameter;
+            }
+
             var parameterValue = Evaluate(expression, out var parameterName);
 
-            if (parameterName == null
-                || !parameterName.StartsWith(QueryFilterPrefix, StringComparison.Ordinal))
+            if (parameterName?.StartsWith(QueryFilterPrefix, StringComparison.Ordinal) != true)
             {
                 if (parameterValue is Expression valueExpression)
                 {
@@ -464,7 +494,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             _parameterValues.AddParameter(parameterName, parameterValue);
 
-            return Expression.Parameter(expression.Type, parameterName);
+            var parameter = Expression.Parameter(expression.Type, parameterName);
+
+            _parameterCache.Add(expression, (parameter, 1));
+
+            return parameter;
         }
 
         private class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
@@ -481,13 +515,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Expression Visit(Expression expression)
             {
-                if (expression != null
-                    && expression.Type.GetTypeInfo().IsAssignableFrom(_contextType))
-                {
-                    return ContextParameterExpression;
-                }
-
-                return base.Visit(expression);
+                return expression?.Type.GetTypeInfo().IsAssignableFrom(_contextType) == true
+                    ? ContextParameterExpression
+                    : base.Visit(expression);
             }
         }
 
@@ -511,9 +541,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (newExpression != expression)
                 {
                     parameterName = QueryFilterPrefix + "__"
-                                    + (expression is MemberExpression memberExpression
-                                        ? memberExpression.Member.Name
-                                        : QueryFilterPrefix);
+                                                      + (expression is MemberExpression memberExpression
+                                                          ? memberExpression.Member.Name
+                                                          : QueryFilterPrefix);
 
                     return Expression.Lambda(
                         newExpression,
