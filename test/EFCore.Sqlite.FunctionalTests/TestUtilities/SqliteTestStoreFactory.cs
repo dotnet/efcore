@@ -9,6 +9,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public static SqliteTestStoreFactory Instance { get; } = new SqliteTestStoreFactory();
 
+        static SqliteTestStoreFactory()
+        {
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
+        }
+
         protected SqliteTestStoreFactory()
         {
         }

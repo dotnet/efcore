@@ -7,6 +7,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public static new SqliteNorthwindTestStoreFactory Instance { get; } = new SqliteNorthwindTestStoreFactory();
 
+        static SqliteNorthwindTestStoreFactory()
+        {
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
+        }
+
         protected SqliteNorthwindTestStoreFactory()
         {
         }
