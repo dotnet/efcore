@@ -73,7 +73,12 @@ jobs:
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
       vmImage: ubuntu-16.04
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
-      vmImage: vs2017-win2016
+      ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+        name: NetCorePublic-Int-Pool
+        queue: BuildPool.Windows.10.Amd64.VS2017.Open
+      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        name: NetCoreInternal-Int-Pool
+        queue: BuildPool.Windows.10.Amd64.VS2017
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
