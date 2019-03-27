@@ -9,12 +9,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public static new SqlServerAdventureWorksTestStoreFactory Instance { get; } = new SqlServerAdventureWorksTestStoreFactory();
 
-        static SqlServerAdventureWorksTestStoreFactory()
-        {
-            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
-            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
-        }
-
         protected SqlServerAdventureWorksTestStoreFactory()
         {
         }

@@ -9,12 +9,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static readonly string NorthwindConnectionString = SqlServerTestStore.CreateConnectionString(Name);
         public static new SqlServerNorthwindTestStoreFactory Instance { get; } = new SqlServerNorthwindTestStoreFactory();
 
-        static SqlServerNorthwindTestStoreFactory()
-        {
-            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
-            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("cs-CZ");
-        }
-
         protected SqlServerNorthwindTestStoreFactory()
         {
         }
