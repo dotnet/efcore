@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class Key : ConventionalAnnotatable, IMutableKey
+    public class Key : ConventionAnnotatable, IMutableKey, IConventionKey
     {
         private ConfigurationSource _configurationSource;
 
@@ -120,17 +120,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
                 ref _principalKeyValueFactory, this, k => new KeyValueFactoryFactory().Create<TKey>(k));
 
-        IReadOnlyList<IProperty> IKey.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
-        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // Note this is ISet because there is no suitable readonly interface in the profiles we are using
         public virtual ISet<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
+
+        IReadOnlyList<IProperty> IKey.Properties => Properties;
+        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
+
+        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
+        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+
+        IReadOnlyList<IConventionProperty> IConventionKey.Properties => Properties;
+        IConventionEntityType IConventionKey.DeclaringEntityType => DeclaringEntityType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

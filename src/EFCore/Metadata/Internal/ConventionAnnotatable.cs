@@ -12,61 +12,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ConventionalAnnotatable : Annotatable
+    public class ConventionAnnotatable : Annotatable, IConventionAnnotatable
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual IEnumerable<ConventionalAnnotation> GetAnnotations() => base.GetAnnotations().Cast<ConventionalAnnotation>();
+        public new virtual IEnumerable<ConventionAnnotation> GetAnnotations() => base.GetAnnotations().Cast<ConventionAnnotation>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConventionalAnnotation AddAnnotation(
+        public virtual ConventionAnnotation AddAnnotation(
             [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
-            => (ConventionalAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
+            => (ConventionAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual ConventionalAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object value)
-            => (ConventionalAnnotation)base.AddAnnotation(name, value);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ConventionalAnnotation SetAnnotation(
+        public virtual ConventionAnnotation SetAnnotation(
             [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
-            => (ConventionalAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource));
+            => (ConventionAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual ConventionalAnnotation GetOrAddAnnotation([NotNull] string name, [CanBeNull] object value)
-            => (ConventionalAnnotation)base.GetOrAddAnnotation(name, value);
+        public new virtual ConventionAnnotation FindAnnotation(string name)
+            => (ConventionAnnotation)base.FindAnnotation(name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public new virtual ConventionalAnnotation FindAnnotation([NotNull] string name)
-            => (ConventionalAnnotation)base.FindAnnotation(name);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public new virtual ConventionalAnnotation RemoveAnnotation([NotNull] string name)
-            => (ConventionalAnnotation)base.RemoveAnnotation(name);
-
-        private static ConventionalAnnotation CreateAnnotation(
-            string name, object value, ConfigurationSource configurationSource)
-            => new ConventionalAnnotation(name, value, configurationSource);
+        public new virtual ConventionAnnotation RemoveAnnotation(string name)
+            => (ConventionAnnotation)base.RemoveAnnotation(name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -74,5 +56,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected override Annotation CreateAnnotation(string name, object value)
             => CreateAnnotation(name, value, ConfigurationSource.Explicit);
+
+        private static ConventionAnnotation CreateAnnotation(
+            string name, object value, ConfigurationSource configurationSource)
+            => new ConventionAnnotation(name, value, configurationSource);
+
+        IEnumerable<IConventionAnnotation> IConventionAnnotatable.GetAnnotations() => GetAnnotations();
+
+        void IConventionAnnotatable.SetAnnotation(string name, object value, bool fromDataAnnotation)
+            => SetAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionAnnotation IConventionAnnotatable.AddAnnotation(string name, object value, bool fromDataAnnotation)
+            => AddAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionAnnotation IConventionAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
+
+        IConventionAnnotation IConventionAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

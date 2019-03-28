@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             fk => fk != foreignKey
                                   && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
                                   && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
-                                  && fk.GetForeignKeyPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                                  && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
                     if (conflictingFk != null)
                     {
                         throw new InvalidOperationException(

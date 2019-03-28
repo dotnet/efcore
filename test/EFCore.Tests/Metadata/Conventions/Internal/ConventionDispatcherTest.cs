@@ -2340,11 +2340,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.Null(new InternalModelBuilder(model).Metadata.Finalize());
+                Assert.Null(new InternalModelBuilder(model).Metadata.FinalizeModel());
             }
             else
             {
-                Assert.Null(model.Finalize());
+                Assert.Null(model.FinalizeModel());
             }
 
             Assert.Equal(1, convention1.Calls);

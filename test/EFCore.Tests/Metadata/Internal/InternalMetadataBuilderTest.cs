@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("1", metadata.GetAnnotations().Single().Value);
 
             Assert.True(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
-            Assert.Equal(0, metadata.GetAnnotations().Count());
+            Assert.Null(metadata.GetAnnotations().Single().Value);
         }
 
         private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()

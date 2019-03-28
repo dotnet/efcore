@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         ///    Returns the <see cref="CoreTypeMapping"/> for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or null if none was found. </returns>
+        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public static CoreTypeMapping FindMapping(
             [NotNull] this IProperty property)
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given property is part of a foreign key.
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
-        /// <returns> The associated principal property, or null if none exists. </returns>
+        /// <returns> The associated principal property, or <c>null</c> if none exists. </returns>
         public static IProperty FindPrincipal([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the factory that has been set to generate values for this property, if any.
         /// </summary>
         /// <param name="property"> The property to get the value generator factory for. </param>
-        /// <returns> The factory, or null if no factory has been set. </returns>
+        /// <returns> The factory, or <c>null</c> if no factory has been set. </returns>
         public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     then this is the maximum number of characters.
         /// </summary>
         /// <param name="property"> The property to get the maximum length of. </param>
-        /// <returns> The maximum length, or null if none if defined. </returns>
+        /// <returns> The maximum length, or <c>null</c> if none if defined. </returns>
         public static int? GetMaxLength([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to get the Unicode setting for. </param>
-        /// <returns> The Unicode setting, or null if none if defined. </returns>
+        /// <returns> The Unicode setting, or <c>null</c> if none if defined. </returns>
         public static bool? IsUnicode([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns>
-        ///     The primary that use this property, or null if it is not part of the primary key.
+        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
         /// </returns>
         public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().PrimaryKey;
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             => (ValueConverter)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> for this property, or null if none is set.
+        ///     Gets the <see cref="ValueComparer" /> for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueComparer];
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or null if none is set.
+        ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or null if none is set.
+        ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>

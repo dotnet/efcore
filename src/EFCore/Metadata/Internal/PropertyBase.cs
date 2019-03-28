@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class PropertyBase : ConventionalAnnotatable, IMutablePropertyBase
+    public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase, IConventionPropertyBase
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
@@ -86,9 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual FieldInfo FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set => SetFieldInfo(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough] set => SetField(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -99,20 +97,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (fieldName == null)
             {
-                SetFieldInfo(null, configurationSource);
+                SetField((FieldInfo)null, configurationSource);
                 return;
             }
 
             if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
-                SetFieldInfo(FieldInfo, configurationSource);
+                SetField(FieldInfo, configurationSource);
                 return;
             }
 
             var fieldInfo = GetFieldInfo(fieldName, DeclaringType, Name, shouldThrow: true);
             if (fieldInfo != null)
             {
-                SetFieldInfo(fieldInfo, configurationSource);
+                SetField(fieldInfo, configurationSource);
             }
         }
 
@@ -139,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual void SetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
             if (Equals(FieldInfo, fieldInfo))
             {
@@ -290,5 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         ITypeBase IPropertyBase.DeclaringType => DeclaringType;
         IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
+        IConventionTypeBase IConventionPropertyBase.DeclaringType => DeclaringType;
+
+        void IConventionPropertyBase.SetField(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => SetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

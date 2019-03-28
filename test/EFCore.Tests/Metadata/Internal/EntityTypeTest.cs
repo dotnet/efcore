@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Invalid_filter_expressions_throws()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityTypeA = model.AddEntityType(typeof(A).Name);
 
@@ -70,13 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.QueryFilter = badExpression1).Message);
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
 
             Expression<Func<A, string>> badExpression2 = a => "";
 
             Assert.Equal(
                 CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.QueryFilter = badExpression2).Message);
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
         }
 
         [Fact]
@@ -1760,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Indexes_are_rebuilt_when_more_properties_added_or_relevant_state_changes()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
@@ -2161,7 +2161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
 
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
@@ -2169,14 +2169,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Change_tracking_from_model_is_used_by_default_for_shadow_entities()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType("Z'ha'dum");
 
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
 
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
-            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
         [Fact]
@@ -2205,63 +2205,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Change_tracking_can_be_set_to_snapshot_or_changed_only_for_changed_only_entities()
         {
-            var model = new Model
-            {
-                ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications
-            };
+            IMutableModel model = new Model();
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
 
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
-            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.ChangeTrackingStrategy);
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
 
             Assert.Equal(
                 CoreStrings.ChangeTrackingInterfaceMissing(
                     "ChangedOnlyEntity", "ChangingAndChangedNotifications", "INotifyPropertyChanging"),
                 Assert.Throws<InvalidOperationException>(
-                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications).Message);
+                    () => entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
 
             Assert.Equal(
                 CoreStrings.ChangeTrackingInterfaceMissing(
                     "ChangedOnlyEntity", "ChangingAndChangedNotificationsWithOriginalValues", "INotifyPropertyChanging"),
                 Assert.Throws<InvalidOperationException>(
-                        () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        () => entityType.SetChangeTrackingStrategy(
+                            ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues))
                     .Message);
         }
 
         [Fact]
         public void Change_tracking_can_be_set_to_snapshot_only_for_non_notifying_entities()
         {
-            var model = new Model
-            {
-                ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications
-            };
+            IMutableModel model = new Model();
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
             var entityType = model.AddEntityType(typeof(Customer));
 
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
 
             Assert.Equal(
                 CoreStrings.ChangeTrackingInterfaceMissing("Customer", "ChangedNotifications", "INotifyPropertyChanged"),
                 Assert.Throws<InvalidOperationException>(
-                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications).Message);
+                    () => entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications)).Message);
 
             Assert.Equal(
                 CoreStrings.ChangeTrackingInterfaceMissing("Customer", "ChangingAndChangedNotifications", "INotifyPropertyChanged"),
                 Assert.Throws<InvalidOperationException>(
-                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications).Message);
+                    () => entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
 
             Assert.Equal(
                 CoreStrings.ChangeTrackingInterfaceMissing(
                     "Customer", "ChangingAndChangedNotificationsWithOriginalValues", "INotifyPropertyChanged"),
                 Assert.Throws<InvalidOperationException>(
-                        () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        () => entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues))
                     .Message);
         }
 
@@ -2269,7 +2266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void All_properties_have_original_value_indexes_when_using_snapshot_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
@@ -2283,7 +2280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void All_relationship_properties_have_relationship_indexes_when_using_snapshot_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2299,7 +2296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void All_properties_have_original_value_indexes_when_using_changed_only_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
@@ -2313,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Collections_dont_have_relationship_indexes_when_using_changed_only_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2329,7 +2326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Only_concurrency_and_key_properties_have_original_value_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
@@ -2343,7 +2340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Collections_dont_have_relationship_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
@@ -2359,7 +2356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void All_properties_have_original_value_indexes_when_full_notifications_with_original_values()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
@@ -2373,7 +2370,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Collections_dont_have_relationship_indexes_when_full_notifications_with_original_values()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());

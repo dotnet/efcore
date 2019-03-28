@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IProperty" /> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="IProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableProperty : IProperty, IMutablePropertyBase
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this property can contain null.
+        ///     Gets or sets a value indicating whether this property can contain <c>null</c>.
         /// </summary>
         new bool IsNullable { get; set; }
 
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified before the entity is
+        ///         Gets or sets a value indicating whether or not this property can be modified before the entity is
         ///         saved to the database.
         ///     </para>
         ///     <para>
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified after the entity is
+        ///         Gets or sets a value indicating whether or not this property can be modified after the entity is
         ///         saved to the database.
         ///     </para>
         ///     <para>

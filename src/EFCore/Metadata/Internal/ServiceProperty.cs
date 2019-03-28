@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ServiceProperty : PropertyBase, IMutableServiceProperty
+    public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventionServiceProperty
     {
         private ServiceParameterBinding _parameterBinding;
 
@@ -128,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateParameterBindingConfigurationSource(ConfigurationSource configurationSource)
             => _parameterBindingConfigurationSource = configurationSource.Max(_parameterBindingConfigurationSource);
 
+        IEntityType IServiceProperty.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableServiceProperty.DeclaringEntityType => DeclaringEntityType;
+        IConventionEntityType IConventionServiceProperty.DeclaringEntityType => DeclaringEntityType;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -140,8 +144,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<ServiceProperty> DebugView
             => new DebugView<ServiceProperty>(this, m => m.ToDebugString(false));
-
-        IEntityType IServiceProperty.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableServiceProperty.DeclaringEntityType => DeclaringEntityType;
     }
 }

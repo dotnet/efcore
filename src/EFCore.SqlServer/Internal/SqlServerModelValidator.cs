@@ -68,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                          && !p.IsForeignKey()))
             {
 #pragma warning disable IDE0019 // Use pattern matching
-                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
+                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionAnnotation;
 #pragma warning restore IDE0019 // Use pattern matching
-                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;
+                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionAnnotation;
                 if ((type == null
                      && (typeMapping == null
                          || ConfigurationSource.Convention.Overrides(typeMapping.GetConfigurationSource())))
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                          == SqlServerValueGenerationStrategy.SequenceHiLo
                          && !p.IsKey()
                          && p.ValueGenerated != ValueGenerated.Never
-                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionalAnnotation strategy)
+                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
                              || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(

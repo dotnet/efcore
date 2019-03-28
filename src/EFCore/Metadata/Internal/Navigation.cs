@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class Navigation : PropertyBase, IMutableNavigation
+    public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
@@ -59,16 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalNavigationBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] [param: CanBeNull] set;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsEagerLoaded { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -244,6 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
+
+        IConventionEntityType IConventionNavigation.DeclaringEntityType => DeclaringEntityType;
+        IConventionForeignKey IConventionNavigation.ForeignKey => ForeignKey;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

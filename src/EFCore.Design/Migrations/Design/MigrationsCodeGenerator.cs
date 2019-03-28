@@ -221,17 +221,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
                 RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
                 InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                CoreAnnotationNames.OwnedTypes,
+                CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.NavigationAccessMode,
-                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ProviderClrType,
                 CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.ValueGeneratorFactory
+                CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.DefiningQuery,
+                CoreAnnotationNames.QueryFilter
             };
 
             var ignoredAnnotationTypes = new List<string>

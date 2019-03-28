@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var outboundNavigations
                             = targetType.GetNavigations()
                                 .Concat(targetType.GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations()))
-                                .Where(n => n.IsEagerLoaded);
+                                .Where(n => n.IsEagerLoaded());
 
                         foreach (var outboundNavigation in outboundNavigations)
                         {

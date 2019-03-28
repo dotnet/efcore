@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(indent).Append("Model: ");
 
-            if (model.GetPropertyAccessMode() != null)
+            if (model.GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(model.GetPropertyAccessMode());
             }

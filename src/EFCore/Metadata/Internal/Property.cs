@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public class Property : PropertyBase, IMutableProperty
+    public class Property : PropertyBase, IMutableProperty, IConventionProperty
     {
         private bool? _isConcurrencyToken;
         private bool? _isNullable;
@@ -363,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetIsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
+        public virtual void SetIsConcurrencyToken(bool? concurrencyToken, ConfigurationSource configurationSource)
         {
             if (IsConcurrencyToken != concurrencyToken)
             {
@@ -372,7 +371,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 PropertyMetadataChanged();
             }
 
-            UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
+            if (concurrencyToken == null)
+            {
+                _isConcurrencyTokenConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
+            }
         }
 
         private static bool DefaultIsConcurrencyToken => false;
@@ -473,6 +479,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual List<IIndex> Indexes { get; [param: CanBeNull] set; }
+
+        IConventionEntityType IConventionProperty.DeclaringEntityType => DeclaringEntityType;
+
+        void IConventionProperty.SetIsNullable(bool? nullable, bool fromDataAnnotation)
+            => SetIsNullable(
+                nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionProperty.SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation)
+            => SetValueGenerated(
+                valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionProperty.SetAfterSaveBehavior(PropertySaveBehavior? afterSaveBehavior, bool fromDataAnnotation)
+            => SetAfterSaveBehavior(
+                afterSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionProperty.SetBeforeSaveBehavior(PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation)
+            => SetBeforeSaveBehavior(
+                beforeSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionProperty.IsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
+            => SetIsConcurrencyToken(
+                concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class TypeBase : ConventionalAnnotatable, IMutableTypeBase
+    public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase
     {
         private ConfigurationSource _configurationSource;
 
@@ -230,6 +229,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         IMutableModel IMutableTypeBase.Model
+        {
+            [DebuggerStepThrough] get => Model;
+        }
+
+        IConventionModel IConventionTypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }

@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         IsKeylessQuery = true;
 
-                        var query = entityType.DefiningQuery;
+                        var query = entityType.GetDefiningQuery();
 
                         if (query != null
                             && _entityQueryModelVisitor.ShouldApplyDefiningQuery(entityType, _querySource))
@@ -127,11 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
 
                     if (!_queryCompilationContext.IgnoreQueryFilters
-                        && entityType.QueryFilter != null)
+                        && entityType.GetQueryFilter() != null)
                     {
                         var parameterizedFilter
                             = (LambdaExpression)_parameterExtractingExpressionVisitor
-                                .ExtractParameters(entityType.QueryFilter);
+                                .ExtractParameters(entityType.GetQueryFilter());
 
                         var oldParameterExpression = parameterizedFilter.Parameters[0];
                         var newParameterExpression = Expression.Parameter(type, oldParameterExpression.Name);

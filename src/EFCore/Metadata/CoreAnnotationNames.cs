@@ -41,6 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string NavigationAccessMode = "NavigationAccessMode";
 
         /// <summary>
+        ///     Indicates the <see cref="EntityFrameworkCore.ChangeTrackingStrategy"/> used for entities in the model.
+        /// </summary>
+        public const string ChangeTrackingStrategy = "ChangeTrackingStrategy";
+
+        /// <summary>
         ///     Used while model building to keep a reference to owned types.
         /// </summary>
         public const string OwnedTypes = "OwnedTypes";
@@ -74,6 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Indicates the <see cref="ChangeTracking.ValueComparer"/> when structural, as opposed to reference, comparison is required.
         /// </summary>
         public const string StructuralValueComparer = "StructuralValueComparer";
+
+        /// <summary>
+        ///     Indicates the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        public const string QueryFilter = "QueryFilter";
+
+        /// <summary>
+        ///     Indicates the LINQ query used as the default source for queries of this type.
+        /// </summary>
+        public const string DefiningQuery = "DefiningQuery";
+
+        /// <summary>
+        ///     Indicates whether the navigation should be eager loaded by default.
+        /// </summary>
+        public const string EagerLoaded = "EagerLoaded";
 
         /// <summary>
         ///     Indicates the <see cref="System.Type"/> used by the provider for the annotated item.

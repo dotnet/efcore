@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(SqlServerAnnotationNames.HiLoSequenceName, annotations[2].Name);
             Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, annotations[2].Value);
-
+            
             Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, annotations[3].Name);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, annotations[3].Value);
         }

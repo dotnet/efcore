@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             return this;
         }
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The finalized <see cref="IModel" />.
         /// </returns>
-        public virtual IModel FinalizeModel() => Builder.Metadata.Finalize();
+        public virtual IModel FinalizeModel() => Builder.Metadata.FinalizeModel();
 
         private InternalModelBuilder Builder => this.GetInfrastructure();
 

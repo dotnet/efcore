@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public abstract class InternalMetadataBuilder<TMetadata> : InternalMetadataBuilder
-        where TMetadata : ConventionalAnnotatable
+        where TMetadata : ConventionAnnotatable
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

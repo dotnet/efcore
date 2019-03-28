@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .SelectMany(p => p.GetContainingForeignKeys().Where(k => k.DeclaringEntityType != Metadata))
                     .ToList();
 
-                if (containingForeignKeys.Any(fk => !configurationSource.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
+                if (containingForeignKeys.Any(fk => !configurationSource.Overrides(fk.GetPropertiesConfigurationSource())))
                 {
                     return null;
                 }
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     foreach (var foreignKey in containingForeignKeys)
                     {
-                        if (foreignKey.GetForeignKeyPropertiesConfigurationSource() == ConfigurationSource.Explicit)
+                        if (foreignKey.GetPropertiesConfigurationSource() == ConfigurationSource.Explicit)
                         {
                             // let it throw for explicit
                             continue;
@@ -378,8 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource)
             => Property(
-                propertyName, propertyType, memberInfo: null,
-                configurationSource: configurationSource, typeConfigurationSource: typeConfigurationSource);
+                propertyName, propertyType, memberInfo: null, configurationSource, typeConfigurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -539,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     property = clrProperty != null
                         ? Metadata.AddProperty(clrProperty, configurationSource.Value)
-                        : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
+                        : Metadata.AddProperty(propertyName, propertyType, typeConfigurationSource, configurationSource.Value);
                 }
             }
             else
@@ -560,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         property = clrProperty != null
                             ? Metadata.AddProperty(clrProperty, configurationSource.Value)
-                            : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
+                            : Metadata.AddProperty(propertyName, propertyType, typeConfigurationSource, configurationSource.Value);
 
                         detachedProperties.Attach(this);
                     }
@@ -910,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasQueryFilter([CanBeNull] LambdaExpression filter)
         {
-            Metadata.QueryFilter = filter;
+            Metadata.SetQueryFilter(filter);
         }
 
         /// <summary>
@@ -919,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasDefiningQuery([CanBeNull] LambdaExpression query)
         {
-            Metadata.DefiningQuery = query;
+            Metadata.SetDefiningQuery(query);
         }
 
         /// <summary>
@@ -1001,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         .Where(fk => fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
 
                     if (foreignKeysUsingKeyProperties.Any(
-                        fk => !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
+                        fk => !configurationSourceForRemoval.Overrides(fk.GetPropertiesConfigurationSource())))
                     {
                         return null;
                     }

@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>true if the target type should have a defining query applied.</returns>
         public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
         {
-            return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
+            return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionAnnotation tableNameAnnotation)
                     || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
                    && QueryCompilationContext.QueryAnnotations
                        .OfType<FromSqlResultOperator>()

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class Model : ConventionalAnnotatable, IMutableModel
+    public class Model : ConventionAnnotatable, IMutableModel, IConventionModel
     {
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>(StringComparer.Ordinal);
@@ -67,13 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Builder = builder;
             dispatcher.OnModelInitialized(builder);
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ChangeTrackingStrategy ChangeTrackingStrategy { [DebuggerStepThrough] get; set; }
-            = ChangeTrackingStrategy.Snapshot;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -168,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 _detachedEntityTypesWithDefiningNavigation.Remove(entityTypeName);
 
-                if (_entityTypes.TryGetValue(entityTypeName, out var clashingEntityType))
+                if (_entityTypes.ContainsKey(entityTypeName))
                 {
                     throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.DisplayName()));
                 }
@@ -613,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IModel Finalize()
+        public virtual IModel FinalizeModel()
         {
             var finalModel = ConventionDispatcher.OnModelBuilt(Builder)?.Metadata;
             if (finalModel != null)
@@ -655,6 +648,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
+
+        IConventionEntityType IConventionModel.FindEntityType(string name) => FindEntityType(name);
+
+        IConventionEntityType IConventionModel.FindEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType)
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        IConventionEntityType IConventionModel.AddEntityType(string name, bool fromDataAnnotation)
+            => AddEntityType(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionEntityType IConventionModel.AddEntityType(Type clrType, bool fromDataAnnotation)
+            => AddEntityType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionEntityType IConventionModel.AddEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
+            => AddEntityType(
+                name, definingNavigationName, (EntityType)definingEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionEntityType IConventionModel.AddEntityType(
+            Type clrType, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
+            => AddEntityType(
+                clrType, definingNavigationName, (EntityType)definingEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionEntityType IConventionModel.RemoveEntityType(string name) => RemoveEntityType(name);
+
+        IConventionEntityType IConventionModel.RemoveEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType)
+            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        IEnumerable<IConventionEntityType> IConventionModel.GetEntityTypes() => GetEntityTypes();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

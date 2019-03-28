@@ -41,24 +41,6 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
-        ///     Gets the entity type with the given name or adds a new entity type if none is found.
-        /// </summary>
-        /// <param name="model"> The model to find or add the entity type to. </param>
-        /// <param name="name"> The name of the entity type. </param>
-        /// <returns> The existing or newly created entity type. </returns>
-        public static IMutableEntityType GetOrAddEntityType([NotNull] this IMutableModel model, [NotNull] string name)
-            => Check.NotNull(model, nameof(model)).FindEntityType(name) ?? model.AddEntityType(name);
-
-        /// <summary>
-        ///     Gets the entity type with the given CLR class or adds a new entity type if none is found.
-        /// </summary>
-        /// <param name="model"> The model to find or add the entity type to. </param>
-        /// <param name="type"> The CLR class of the entity type. </param>
-        /// <returns> The existing or newly created entity type. </returns>
-        public static IMutableEntityType GetOrAddEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).FindEntityType(type) ?? model.AddEntityType(type);
-
-        /// <summary>
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
@@ -114,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="model"> The model to set the access mode for. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
         public static void SetPropertyAccessMode(
             [NotNull] this IMutableModel model, PropertyAccessMode? propertyAccessMode)
         {
@@ -130,8 +112,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to set the default change tracking strategy for. </param>
         /// <param name="changeTrackingStrategy"> The strategy to use. </param>
         public static void SetChangeTrackingStrategy(
-            [NotNull] this IMutableModel model,
-            ChangeTrackingStrategy changeTrackingStrategy)
-            => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy = changeTrackingStrategy;
+            [NotNull] this IMutableModel model, ChangeTrackingStrategy? changeTrackingStrategy)
+        {
+            Check.NotNull(model, nameof(model));
+
+            model[CoreAnnotationNames.ChangeTrackingStrategy] = changeTrackingStrategy;
+        }
     }
 }

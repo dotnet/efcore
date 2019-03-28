@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IForeignKey" /> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="IForeignKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable
@@ -42,6 +42,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     hierarchy (since the key is defined on the base type of the hierarchy).
         /// </summary>
         new IMutableEntityType PrincipalEntityType { get; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.
+        /// </summary>
+        new bool IsUnique { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this relationship is required. If true, the dependent entity must always be
+        ///     assigned to a valid principal entity.
+        /// </summary>
+        new bool IsRequired { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
+        ///     accessed via the navigation from the principal entity.
+        /// </summary>
+        new bool IsOwnership { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating how a delete operation is applied to dependent entities in the relationship when the
+        ///     principal is deleted or the relationship is severed.
+        /// </summary>
+        new DeleteBehavior DeleteBehavior { get; set; }
 
         /// <summary>
         ///     Gets the navigation property on the dependent entity type that points to the principal entity.
@@ -92,28 +115,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         IMutableNavigation HasPrincipalToDependent([CanBeNull] PropertyInfo property);
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.
-        /// </summary>
-        new bool IsUnique { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this relationship is required. If true, the dependent entity must always be
-        ///     assigned to a valid principal entity.
-        /// </summary>
-        new bool IsRequired { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be
-        ///     accessed via the navigation from the principal entity.
-        /// </summary>
-        new bool IsOwnership { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating how a delete operation is applied to dependent entities in the relationship when the
-        ///     principal is deleted or the relationship is severed.
-        /// </summary>
-        new DeleteBehavior DeleteBehavior { get; set; }
     }
 }

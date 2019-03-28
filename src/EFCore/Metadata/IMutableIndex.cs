@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IIndex" /> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="IIndex" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableIndex : IIndex, IMutableAnnotatable

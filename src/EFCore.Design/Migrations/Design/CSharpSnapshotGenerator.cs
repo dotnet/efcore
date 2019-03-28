@@ -63,7 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema), stringBuilder);
 
                     IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
-                    IgnoreAnnotationTypes(annotations, CoreAnnotationNames.OwnedTypes);
+                    IgnoreAnnotations(
+                        annotations,
+                        CoreAnnotationNames.ChangeTrackingStrategy,
+                        CoreAnnotationNames.OwnedTypes);
 
                     GenerateAnnotations(annotations, stringBuilder);
                 }
@@ -480,13 +483,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
             }
 
-            foreach (var consumed in annotations.Where(
-                a => a.Name == CoreAnnotationNames.ValueConverter
-                     || a.Name == CoreAnnotationNames.ProviderClrType).ToList())
-            {
-                annotations.Remove(consumed);
-            }
-
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
@@ -506,10 +502,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.PropertyAccessMode,
+                CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
-                CoreAnnotationNames.StructuralValueComparer);
+                CoreAnnotationNames.StructuralValueComparer,
+                CoreAnnotationNames.ValueConverter,
+                CoreAnnotationNames.ProviderClrType);
 
             GenerateAnnotations(annotations, stringBuilder);
         }
@@ -760,12 +759,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.PropertyAccessMode,
-                CoreAnnotationNames.ConstructorBinding);
+                CoreAnnotationNames.ChangeTrackingStrategy,
+                CoreAnnotationNames.ConstructorBinding,
+                CoreAnnotationNames.DefiningQuery,
+                CoreAnnotationNames.QueryFilter);
 
             if (annotations.Count > 0)
             {
                 foreach (var annotation in annotations)
                 {
+                    if (annotation.Value == null)
+                    {
+                        continue;
+                    }
+
                     stringBuilder
                         .AppendLine()
                         .Append(builderName);

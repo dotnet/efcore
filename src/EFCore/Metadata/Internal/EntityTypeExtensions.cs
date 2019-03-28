@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -712,6 +713,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return property;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static string CheckQueryFilter([NotNull] this IEntityType entityType, [CanBeNull] LambdaExpression queryFilter)
+        {
+            if (queryFilter != null
+                && (queryFilter.Parameters.Count != 1
+                    || queryFilter.Parameters[0].Type != entityType.ClrType
+                    || queryFilter.ReturnType != typeof(bool)))
+            {
+                return CoreStrings.BadFilterExpression(queryFilter, entityType.DisplayName(), entityType.ClrType);
+            }
+
+            return null;
         }
 
         /// <summary>

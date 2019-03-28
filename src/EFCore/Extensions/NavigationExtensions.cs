@@ -75,5 +75,17 @@ namespace Microsoft.EntityFrameworkCore
                 ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.DeclaringEntityType;
         }
+
+        /// <summary>
+        ///     Gets a value indicating whether this navigation should be eager loaded by default.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
+        /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
+        public static bool IsEagerLoaded([NotNull] this INavigation navigation)
+        {
+            Check.NotNull(navigation, nameof(navigation));
+
+            return (bool?)navigation[CoreAnnotationNames.EagerLoaded] ?? false;
+        }
     }
 }

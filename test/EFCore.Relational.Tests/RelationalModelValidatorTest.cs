@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.SetBaseType(entityType, baseEntityType);
 
-            baseEntityType.Relational().DiscriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
+            baseEntityType.Relational().DiscriminatorProperty = baseEntityType.AddProperty("Discriminator", typeof(string));
             baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
             entityType.Relational().DiscriminatorValue = entityType.Name;
         }

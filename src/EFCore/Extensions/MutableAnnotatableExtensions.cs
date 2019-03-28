@@ -15,17 +15,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableAnnotatableExtensions
     {
         /// <summary>
-        ///     Gets the existing annotation with a given key, or adds a new annotation if one does not exist.
-        /// </summary>
-        /// <param name="annotatable"> The object to find or add the annotation to. </param>
-        /// <param name="annotationName"> The key of the annotation to be found or added. </param>
-        /// <param name="value"> The value to be stored in the annotation if a new one is created. </param>
-        /// <returns> The found or added annotation. </returns>
-        public static Annotation GetOrAddAnnotation(
-            [NotNull] this IMutableAnnotatable annotatable, [NotNull] string annotationName, [NotNull] string value)
-            => annotatable.FindAnnotation(annotationName) ?? annotatable.AddAnnotation(annotationName, value);
-
-        /// <summary>
         ///     Adds annotations to an object.
         /// </summary>
         /// <param name="annotatable"> The object to add the annotations to. </param>

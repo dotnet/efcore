@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -310,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                             .Ignore(l => l.Book)
                                             .Ignore(l => l.BookLabel);
 
-                                        ((Navigation)ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)))
+                                        ab.OwnedEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel))
                                             .AddAnnotation("Foo", "Bar");
                                     });
                                 tb.OwnsOne(

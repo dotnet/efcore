@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Index : ConventionalAnnotatable, IMutableIndex
+    public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex
     {
         private bool? _isUnique;
 
@@ -97,11 +96,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetIsUnique(bool unique, ConfigurationSource configurationSource)
+        public virtual void SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
-            UpdateIsUniqueConfigurationSource(configurationSource);
+
+            if (unique == null)
+            {
+                _isUniqueConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsUniqueConfigurationSource(configurationSource);
+            }
 
             if (isChanging)
             {
@@ -139,18 +146,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _nullableValueFactory, this, i => new CompositeNullableValueFactory(i.Properties));
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
         IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
+
+        IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
         IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
+
+
+        IReadOnlyList<IConventionProperty> IConventionIndex.Properties => Properties;
+        IConventionEntityType IConventionIndex.DeclaringEntityType => DeclaringEntityType;
+
+        void IConventionIndex.SetIsUnique(bool? unique, bool fromDataAnnotation)
+            => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override string ToString() => this.ToDebugString();
-
-        [UsedImplicitly]
-        private string DebuggerDisplay => Properties.Format();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

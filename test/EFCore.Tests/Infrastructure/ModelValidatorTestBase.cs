@@ -32,7 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperties = new IMutableProperty[propertyCount];
             for (var i = 0; i < propertyCount; i++)
             {
-                keyProperties[i] = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
+                var propertyName = "P" + (startingPropertyIndex + i);
+                keyProperties[i] = entityType.FindProperty(propertyName)
+                                   ?? entityType.AddProperty(propertyName, typeof(int?));
                 keyProperties[i].IsNullable = false;
             }
 
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
         }
 
-        protected virtual void Validate(IModel model) => ((Model)model).Finalize();
+        protected virtual void Validate(IModel model) => ((Model)model).FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {

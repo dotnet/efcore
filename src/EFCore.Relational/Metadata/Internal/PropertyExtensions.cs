@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IForeignKey FindSharedTableLink([NotNull] this IProperty property)
         {
-            var pk = ((Property)property).GetContainingPrimaryKey();
+            var pk = property.GetContainingPrimaryKey();
             if (pk == null)
             {
                 return null;

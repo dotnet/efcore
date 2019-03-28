@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="INavigation" /> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="INavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableNavigation : INavigation, IMutablePropertyBase
@@ -23,10 +23,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the foreign key that defines the relationship this navigation property will navigate.
         /// </summary>
         new IMutableForeignKey ForeignKey { get; }
-
-        /// <summary>
-        ///     Determines whether this navigation should be eager loaded by default.
-        /// </summary>
-        new bool IsEagerLoaded { get; set; }
     }
 }

@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static Dictionary<MemberInfo, List<(MemberInfo, EntityType)>> GetInverseNavigations(
-            ConventionalAnnotatable entityType)
+            ConventionAnnotatable entityType)
             => entityType.FindAnnotation(InverseNavigationsAnnotationName)?.Value
                 as Dictionary<MemberInfo, List<(MemberInfo, EntityType)>>;
 

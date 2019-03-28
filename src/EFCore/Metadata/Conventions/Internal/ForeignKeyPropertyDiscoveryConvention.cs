@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private InternalRelationshipBuilder DiscoverProperties(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
-            if (!ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+            if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPropertiesConfigurationSource()))
             {
                 using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
                 {
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private InternalRelationshipBuilder ReuniquifyTemporaryProperties(ForeignKey foreignKey, bool force)
         {
             if (!force
-                && (foreignKey.GetForeignKeyPropertiesConfigurationSource() != null
+                && (foreignKey.GetPropertiesConfigurationSource() != null
                     || !foreignKey.DeclaringEntityType.Builder.ShouldReuniquifyTemporaryProperties(
                         foreignKey.Properties,
                         foreignKey.PrincipalKey.Properties,
@@ -669,14 +669,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var conflictingFkFound = false;
-                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Where(fk => fk.GetForeignKeyPropertiesConfigurationSource() == null))
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Where(fk => fk.GetPropertiesConfigurationSource() == null))
                 {
                     var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
                     if (foreignKeyProperties != null)
                     {
                         var conflictingForeignKey = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties)
                             .FirstOrDefault(fk => fk != foreignKey
-                                                  && ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()));
+                                                  && ConfigurationSource.Convention.Overrides(fk.GetPropertiesConfigurationSource()));
                         if (conflictingForeignKey != null)
                         {
                             throw new InvalidOperationException(
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             otherForeignKey =>
                                 otherForeignKey != foreignKey
                                 && otherForeignKey.PrincipalEntityType == foreignKey.PrincipalEntityType
-                                && otherForeignKey.GetForeignKeyPropertiesConfigurationSource() == null);
+                                && otherForeignKey.GetPropertiesConfigurationSource() == null);
                         if (conflictingShadowFk != null)
                         {
                             conflictingFkFound = true;

@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
                     if (fieldInfo != null)
                     {
-                        propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention);
+                        propertyBase.SetField(fieldInfo, ConfigurationSource.Convention);
                         return;
                     }
 

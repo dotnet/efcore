@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (relationshipBuilder.Metadata.PrincipalToDependent != null)
             {
-                relationshipBuilder.Metadata.PrincipalToDependent.IsEagerLoaded = relationshipBuilder.Metadata.IsOwnership;
+                relationshipBuilder.Metadata.PrincipalToDependent.SetIsEagerLoaded(relationshipBuilder.Metadata.IsOwnership);
             }
 
             return relationshipBuilder;

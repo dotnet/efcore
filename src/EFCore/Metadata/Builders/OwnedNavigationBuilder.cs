@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnedNavigationBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            DependentEntityType.Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+            DependentEntityType.Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
 
             return this;
         }

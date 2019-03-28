@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> principalProperties = null;
             if (shouldInvert == true)
             {
-                Debug.Assert(configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()));
+                Debug.Assert(configurationSource.Value.Overrides(Metadata.GetPropertiesConfigurationSource()));
                 Debug.Assert(configurationSource.Value.Overrides(Metadata.GetPrincipalKeyConfigurationSource()));
 
                 var entityType = principalEntityType;
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipal = navigationToDependent;
                 navigationToDependent = navigation;
 
-                if (Metadata.GetForeignKeyPropertiesConfigurationSource() == configurationSource.Value)
+                if (Metadata.GetPropertiesConfigurationSource() == configurationSource.Value)
                 {
                     dependentProperties = Array.Empty<Property>();
                 }
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Debug.Assert(
                     configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()));
+                    && configurationSource.Value.Overrides(Metadata.GetPropertiesConfigurationSource()));
                 Debug.Assert(
                     configurationSource.HasValue
                     && configurationSource.Value.Overrides(Metadata.GetPrincipalKeyConfigurationSource()));
@@ -1258,7 +1258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 dependentProperties = shouldResetDependentProperties
                     ? dependentProperties
-                    : ((Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
+                    : ((Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
                         ? dependentEntityType.Builder.GetActualProperties(Metadata.Properties, configurationSource)
                         : null);
 
@@ -1358,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (properties == null)
             {
                 return !configurationSource.HasValue
-                       || !configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
+                       || !configurationSource.Value.Overrides(Metadata.GetPropertiesConfigurationSource())
                     ? null
                     : ReplaceForeignKey(
                         configurationSource,
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return this;
                 }
 
-                builder.Metadata.UpdateForeignKeyPropertiesConfigurationSource(configurationSource.Value);
+                builder.Metadata.UpdatePropertiesConfigurationSource(configurationSource.Value);
                 builder.Metadata.UpdateConfigurationSource(configurationSource.Value);
 
                 foreach (var property in properties)
@@ -1450,8 +1450,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             resetPrincipalKey = false;
 
-            if (!configurationSource.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
-                || (!overrideSameSource && configurationSource == Metadata.GetForeignKeyPropertiesConfigurationSource()))
+            if (!configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource())
+                || (!overrideSameSource && configurationSource == Metadata.GetPropertiesConfigurationSource()))
             {
                 return false;
             }
@@ -1587,12 +1587,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Metadata.DeclaringEntityType,
                 shouldThrow: false))
             {
-                if (!configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
+                if (!configurationSource.Value.Overrides(Metadata.GetPropertiesConfigurationSource()))
                 {
                     return false;
                 }
 
-                if (Metadata.GetForeignKeyPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
+                if (Metadata.GetPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
                     && Metadata.Properties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
                                                     && p.IsShadowProperty))
                 {
@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             dependentProperties = dependentProperties ??
-                                  ((Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
+                                  ((Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
                                    && !oldRelationshipInverted
                                       ? Metadata.Properties
                                       : null);
@@ -1882,7 +1882,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && !oldRelationshipInverted)
                     {
                         foreignKeyPropertiesConfigurationSource =
-                            foreignKeyPropertiesConfigurationSource.Max(Metadata.GetForeignKeyPropertiesConfigurationSource());
+                            foreignKeyPropertiesConfigurationSource.Max(Metadata.GetPropertiesConfigurationSource());
                     }
 
                     if (foreignKeyPropertiesConfigurationSource.HasValue)
@@ -2784,8 +2784,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if ((principalProperties.Count == 0
-                 && Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(ConfigurationSource.Explicit) != true)
-                || Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) != true)
+                 && Metadata.GetPropertiesConfigurationSource()?.Overrides(ConfigurationSource.Explicit) != true)
+                || Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) != true)
             {
                 dependentProperties = new List<Property>();
             }
@@ -3097,7 +3097,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!Property.AreCompatible(Metadata.Properties, dependentEntityType))
             {
                 if (!configurationSource.HasValue
-                    || !configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
+                    || !configurationSource.Value.Overrides(Metadata.GetPropertiesConfigurationSource()))
                 {
                     return false;
                 }

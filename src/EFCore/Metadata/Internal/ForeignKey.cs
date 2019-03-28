@@ -17,15 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
+    public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConventionForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
-        private bool _isRequired;
+        private bool? _isRequired;
         private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
-        private ConfigurationSource? _foreignKeyPropertiesConfigurationSource;
+        private ConfigurationSource? _propertiesConfigurationSource;
         private ConfigurationSource? _principalKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
@@ -107,9 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalRelationshipBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] [param: CanBeNull] set;
         }
 
         /// <summary>
@@ -134,15 +132,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ConfigurationSource? GetForeignKeyPropertiesConfigurationSource() => _foreignKeyPropertiesConfigurationSource;
+        public virtual ConfigurationSource? GetPropertiesConfigurationSource() => _propertiesConfigurationSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void UpdatePropertiesConfigurationSource(ConfigurationSource configurationSource)
         {
-            _foreignKeyPropertiesConfigurationSource = configurationSource.Max(_foreignKeyPropertiesConfigurationSource);
+            _propertiesConfigurationSource = configurationSource.Max(_propertiesConfigurationSource);
             foreach (var property in Properties)
             {
                 property.UpdateConfigurationSource(configurationSource);
@@ -386,11 +384,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ForeignKey SetIsUnique(bool unique, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
-            UpdateIsUniqueConfigurationSource(configurationSource);
+
+            if (unique == null)
+            {
+                _isUniqueConfigurationSource = null;
+            }
+
+            {
+                UpdateIsUniqueConfigurationSource(configurationSource);
+            }
 
             return isChanging
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
@@ -418,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsRequired
         {
-            get => _isRequired;
+            get => _isRequired ?? DefaultIsRequired;
             set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
@@ -426,16 +432,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ForeignKey SetIsRequired(bool required, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsRequired(bool? required, ConfigurationSource configurationSource)
         {
             var isChanging = required != IsRequired;
-            UpdateIsRequiredConfigurationSource(configurationSource);
             _isRequired = required;
+
+            if (required == null)
+            {
+                _isRequiredConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsRequiredConfigurationSource(configurationSource);
+            }
 
             return isChanging
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)?.Metadata
                 : this;
         }
+
+        private bool DefaultIsRequired
+            => false;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -471,10 +488,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetDeleteBehavior(DeleteBehavior deleteBehavior, ConfigurationSource configurationSource)
+        public virtual void SetDeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
         {
             _deleteBehavior = deleteBehavior;
-            UpdateDeleteBehaviorConfigurationSource(configurationSource);
+
+            if (deleteBehavior == null)
+            {
+                _deleteBehaviorConfigurationSource = null;
+            }
+            else
+            {
+                UpdateDeleteBehaviorConfigurationSource(configurationSource);
+            }
         }
 
         private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.ClientSetNull;
@@ -506,11 +531,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ForeignKey SetIsOwnership(bool ownership, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsOwnership(bool? ownership, ConfigurationSource configurationSource)
         {
             var isChanging = IsOwnership != ownership;
             _isOwnership = ownership;
-            UpdateIsOwnershipConfigurationSource(configurationSource);
+
+            if (_isOwnership == null)
+            {
+                _isOwnershipConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsOwnershipConfigurationSource(configurationSource);
+            }
 
             return isChanging
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata
@@ -581,9 +614,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
 
+        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
+
+        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
+
         IReadOnlyList<IProperty> IForeignKey.Properties
         {
             [DebuggerStepThrough] get => Properties;
+        }
+
+        IKey IForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough]
+            get => PrincipalKey;
+        }
+
+        IEntityType IForeignKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        IEntityType IForeignKey.PrincipalEntityType
+        {
+            [DebuggerStepThrough]
+            get => PrincipalEntityType;
+        }
+
+        INavigation IForeignKey.DependentToPrincipal
+        {
+            [DebuggerStepThrough]
+            get => DependentToPrincipal;
+        }
+
+        INavigation IForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough]
+            get => PrincipalToDependent;
         }
 
         IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
@@ -591,19 +668,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => Properties;
         }
 
-        IKey IForeignKey.PrincipalKey
-        {
-            [DebuggerStepThrough] get => PrincipalKey;
-        }
-
         IMutableKey IMutableForeignKey.PrincipalKey
         {
             [DebuggerStepThrough] get => PrincipalKey;
-        }
-
-        IEntityType IForeignKey.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         IMutableEntityType IMutableForeignKey.DeclaringEntityType
@@ -611,19 +678,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
-        IEntityType IForeignKey.PrincipalEntityType
-        {
-            [DebuggerStepThrough] get => PrincipalEntityType;
-        }
-
         IMutableEntityType IMutableForeignKey.PrincipalEntityType
         {
             [DebuggerStepThrough] get => PrincipalEntityType;
-        }
-
-        INavigation IForeignKey.DependentToPrincipal
-        {
-            [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
         IMutableNavigation IMutableForeignKey.DependentToPrincipal
@@ -631,14 +688,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
+        IMutableNavigation IMutableForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough] get => PrincipalToDependent;
+        }
+
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
 
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(PropertyInfo property) => HasDependentToPrincipal(property);
 
-        INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
-        IMutableNavigation IMutableForeignKey.PrincipalToDependent => PrincipalToDependent;
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(PropertyInfo property) => HasPrincipalToDependent(property);
+
+        IConventionEntityType IConventionForeignKey.DeclaringEntityType => DeclaringEntityType;
+
+        IConventionEntityType IConventionForeignKey.PrincipalEntityType => PrincipalEntityType;
+
+        IConventionKey IConventionForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough] get => PrincipalKey;
+        }
+
+        IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
+        {
+            [DebuggerStepThrough] get => Properties;
+        }
+
+        IConventionNavigation IConventionForeignKey.DependentToPrincipal
+        {
+            [DebuggerStepThrough] get => DependentToPrincipal;
+        }
+
+        IConventionNavigation IConventionForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough] get => PrincipalToDependent;
+        }
+
+        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
+            => HasDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(PropertyInfo property, bool fromDataAnnotation)
+            => HasDependentToPrincipal(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(string name, bool fromDataAnnotation)
+            => HasPrincipalToDependent(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(PropertyInfo property, bool fromDataAnnotation)
+            => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsUnique(bool? unique, bool fromDataAnnotation)
+            => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsRequired(bool? required, bool fromDataAnnotation)
+            => SetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsOwnership(bool? ownership, bool fromDataAnnotation)
+            => SetIsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
+            => SetDeleteBehavior(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -764,20 +872,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
-
-        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
-
-        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

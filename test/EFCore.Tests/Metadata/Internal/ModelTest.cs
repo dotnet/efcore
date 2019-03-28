@@ -40,20 +40,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Snapshot_change_tracking_is_used_by_default()
         {
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().ChangeTrackingStrategy);
             Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().GetChangeTrackingStrategy());
         }
 
         [Fact]
         public void Change_tracking_strategy_can_be_changed()
         {
-            var model = new Model
-            {
-                ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications
-            };
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.ChangeTrackingStrategy);
+            var model = new Model();
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.GetChangeTrackingStrategy());
 
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
         }
 
@@ -113,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
-            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var idProperty = customerType.AddProperty(Customer.IdProperty);
             var customerKey = customerType.AddKey(idProperty);
             var dependentOrderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
 

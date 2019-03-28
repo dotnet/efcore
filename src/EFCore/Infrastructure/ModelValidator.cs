@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.DefiningQuery != null)
+                if (entityType.GetDefiningQuery() != null)
                 {
                     if (entityType.BaseType != null)
                     {
@@ -549,12 +549,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.QueryFilter != null)
+                if (entityType.GetQueryFilter() != null)
                 {
                     if (entityType.BaseType != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.BadFilterDerivedType(entityType.QueryFilter, entityType.DisplayName()));
+                            CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
                     }
                 }
             }

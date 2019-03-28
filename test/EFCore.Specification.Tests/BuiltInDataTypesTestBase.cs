@@ -1811,11 +1811,9 @@ namespace Microsoft.EntityFrameworkCore
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
                 where TEntity : class
             {
-                var entityType = modelBuilder.Entity<TEntity>().Metadata;
-
-                foreach (var propertyInfo in entityType.ClrType.GetTypeInfo().DeclaredProperties)
+                foreach (var property in modelBuilder.Entity<TEntity>().Metadata.GetDeclaredProperties())
                 {
-                    entityType.GetOrAddProperty(propertyInfo).IsNullable = false;
+                    property.IsNullable = false;
                 }
             }
 

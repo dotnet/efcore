@@ -57,9 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to set. </param>
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
         protected virtual bool SetHiLoSequenceName([CanBeNull] string value)
-            => Annotations.SetAnnotation(
-                SqlServerAnnotationNames.HiLoSequenceName,
-                Check.NullButNotEmpty(value, nameof(value)));
+        {
+            Check.NullButNotEmpty(value, nameof(value));
+
+            return value == null
+                ? Annotations.RemoveAnnotation(SqlServerAnnotationNames.HiLoSequenceName)
+                : Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, value);
+        }
 
         /// <summary>
         ///     Gets or sets the schema for the sequence to use with
@@ -78,9 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to set. </param>
         /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
         protected virtual bool SetHiLoSequenceSchema([CanBeNull] string value)
-            => Annotations.SetAnnotation(
-                SqlServerAnnotationNames.HiLoSequenceSchema,
-                Check.NullButNotEmpty(value, nameof(value)));
+        {
+            Check.NullButNotEmpty(value, nameof(value));
+
+            return value == null
+                ? Annotations.RemoveAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema)
+                : Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, value);
+        }
 
         /// <summary>
         ///     The <see cref="SqlServerValueGenerationStrategy" /> to use for properties

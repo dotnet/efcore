@@ -4,8 +4,14 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
-    ///     injected service from the <see cref="DbContext" />.
+    ///     <para>
+    ///         A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
+    ///         injected service from the <see cref="DbContext" />.
+    ///     </para>
+    ///     <para>
+    ///         This interface is used during model creation and allows the metadata to be modified.
+    ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
+    ///     </para>
     /// </summary>
     public interface IMutableServiceProperty : IServiceProperty, IMutablePropertyBase
     {

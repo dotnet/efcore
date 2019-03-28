@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType1 = model.AddEntityType(typeof(FullProp));
             var e1p1 = entityType1.AddProperty("Id", typeof(int));
@@ -851,18 +851,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(null, ConfigurationSource.Explicit);
+            propertyBase.SetField((string)null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
+            propertyBase.SetField(fieldInfo, ConfigurationSource.Explicit);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
+            propertyBase.SetField((FieldInfo)null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);

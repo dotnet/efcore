@@ -125,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var categoryType = model.FindEntityType(typeof(Category));
             var productType = model.FindEntityType(typeof(Product));
 
-            var categoryFk = productType.GetOrAddForeignKey(
+            var categoryFk = productType.AddForeignKey(
                 productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
-            var featuredProductFk = categoryType.GetOrAddForeignKey(
+            var featuredProductFk = categoryType.AddForeignKey(
                 categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
             featuredProductFk.IsUnique = true;
 

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
@@ -427,8 +428,36 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the change tracking strategy for. </param>
         /// <returns> The change tracking strategy. </returns>
-        public static ChangeTrackingStrategy GetChangeTrackingStrategy(
-            [NotNull] this IEntityType entityType)
-            => ((EntityType)Check.NotNull(entityType, nameof(entityType))).ChangeTrackingStrategy;
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return (ChangeTrackingStrategy?)entityType[CoreAnnotationNames.ChangeTrackingStrategy]
+                   ?? entityType.Model.GetChangeTrackingStrategy();
+        }
+
+        /// <summary>
+        ///    Gets the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the query filter for. </param>
+        /// <returns> The LINQ expression filter. </returns>
+        public static LambdaExpression GetQueryFilter([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return (LambdaExpression)entityType[CoreAnnotationNames.QueryFilter];
+        }
+
+        /// <summary>
+        ///     Gets the LINQ query used as the default source for queries of this type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the defining query for. </param>
+        /// <returns> The LINQ query used as the default source. </returns>
+        public static LambdaExpression GetDefiningQuery([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return (LambdaExpression)entityType[CoreAnnotationNames.DefiningQuery];
+        }
     }
 }

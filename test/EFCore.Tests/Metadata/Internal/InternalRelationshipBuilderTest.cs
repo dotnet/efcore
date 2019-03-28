@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var fk = relationshipBuilder.Metadata;
             Assert.Equal(ConfigurationSource.Convention, fk.GetConfigurationSource());
-            Assert.Null(fk.GetForeignKeyPropertiesConfigurationSource());
+            Assert.Null(fk.GetPropertiesConfigurationSource());
             Assert.Null(fk.GetPrincipalKeyConfigurationSource());
             Assert.Null(fk.GetPrincipalEndConfigurationSource());
             Assert.Null(fk.GetDependentToPrincipalConfigurationSource());
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = dependentEntityBuilder.Relationship(
                 principalEntityBuilder, ConfigurationSource.Explicit).Metadata;
 
-            foreignKey.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Explicit);
+            foreignKey.UpdatePropertiesConfigurationSource(ConfigurationSource.Explicit);
             foreignKey.UpdatePrincipalKeyConfigurationSource(ConfigurationSource.Explicit);
             foreignKey.UpdatePrincipalEndConfigurationSource(ConfigurationSource.Explicit);
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetConfigurationSource());
-            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetForeignKeyPropertiesConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPropertiesConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalKeyConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalEndConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDependentToPrincipalConfigurationSource());
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 customerKeyBuilder.Metadata,
                 customerEntityBuilder.Metadata);
 
-            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetForeignKeyPropertiesConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPropertiesConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalKeyConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalEndConfigurationSource());
         }

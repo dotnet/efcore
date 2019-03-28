@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -17,13 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IModel" /> represents a ready-only view of the same metadata.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
+    ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableModel : IModel, IMutableAnnotatable
@@ -73,21 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableEntityType definingEntityType);
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns null if no entity type with the given name is found
+        ///     Gets the entity with the given name. Returns <c>null</c> if no entity type with the given name is found
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
         new IMutableEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns null if no matching entity type is found.
+        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
         IMutableEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,

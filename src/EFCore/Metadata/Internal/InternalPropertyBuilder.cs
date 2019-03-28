@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var fieldInfo = PropertyBase.GetFieldInfo(
                     fieldName, Metadata.DeclaringType, Metadata.Name,
                     shouldThrow: configurationSource == ConfigurationSource.Explicit);
-                Metadata.SetFieldInfo(fieldInfo, configurationSource);
+                Metadata.SetField(fieldInfo, configurationSource);
                 return true;
             }
 
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                          shouldThrow: configurationSource == ConfigurationSource.Explicit)))
                 || Equals(Metadata.FieldInfo, fieldInfo))
             {
-                Metadata.SetFieldInfo(fieldInfo, configurationSource);
+                Metadata.SetField(fieldInfo, configurationSource);
                 return true;
             }
 

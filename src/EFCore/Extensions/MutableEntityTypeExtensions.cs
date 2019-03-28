@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -135,30 +136,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the existing primary key of an entity, or sets it if one is not defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or set the key on. </param>
-        /// <param name="property"> The property to set as the primary key if one is not already defined. </param>
-        /// <returns> The existing or newly created key. </returns>
-        public static IMutableKey GetOrSetPrimaryKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
-            => entityType.GetOrSetPrimaryKey(new[] { property });
-
-        /// <summary>
-        ///     Gets the existing primary key of an entity, or sets it if one is not defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or set the key on. </param>
-        /// <param name="properties"> The properties to set as the primary key if one is not already defined. </param>
-        /// <returns> The existing or newly created key. </returns>
-        public static IMutableKey GetOrSetPrimaryKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IMutableProperty> properties)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SetPrimaryKey(properties);
-        }
-
-        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
         ///     for the given property.
         /// </summary>
@@ -184,32 +161,6 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
 
             return entityType.AddKey(new[] { property });
-        }
-
-        /// <summary>
-        ///     Gets the existing alternate key defined on a property, or creates a new one if one is not
-        ///     already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or create the alternate key on. </param>
-        /// <param name="property"> The property that is used as the alternate key. </param>
-        /// <returns> The existing or newly created alternate key. </returns>
-        public static IMutableKey GetOrAddKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
-            => entityType.GetOrAddKey(new[] { property });
-
-        /// <summary>
-        ///     Gets the existing alternate key defined on a set of properties, or creates a new one if one is not
-        ///     already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or create the alternate key on. </param>
-        /// <param name="properties"> The properties that are used as the alternate key. </param>
-        /// <returns> The existing or newly created alternate key. </returns>
-        public static IMutableKey GetOrAddKey(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IMutableProperty> properties)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindKey(properties) ?? entityType.AddKey(properties);
         }
 
         /// <summary>
@@ -291,49 +242,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets an existing relationship, or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the foreign key to. </param>
-        /// <param name="property"> The property that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType">
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
-        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
-        ///     base type of the hierarchy).
-        /// </param>
-        /// <returns> The existing or newly created foreign key. </returns>
-        public static IMutableForeignKey GetOrAddForeignKey(
-            [NotNull] this IMutableEntityType entityType,
-            [NotNull] IMutableProperty property,
-            [NotNull] IMutableKey principalKey,
-            [NotNull] IMutableEntityType principalEntityType)
-            => entityType.GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
-
-        /// <summary>
-        ///     Gets an existing relationship, or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the foreign key to. </param>
-        /// <param name="properties"> The properties that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType">
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
-        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
-        ///     base type of the hierarchy).
-        /// </param>
-        /// <returns> The existing or newly created foreign key. </returns>
-        public static IMutableForeignKey GetOrAddForeignKey(
-            [NotNull] this IMutableEntityType entityType,
-            [NotNull] IReadOnlyList<IMutableProperty> properties,
-            [NotNull] IMutableKey principalKey,
-            [NotNull] IMutableEntityType principalEntityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindForeignKey(properties, principalKey, principalEntityType)
-                   ?? entityType.AddForeignKey(properties, principalKey, principalEntityType);
-        }
-
-        /// <summary>
         ///     Gets a navigation property on the given entity type. Returns null if no navigation property is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
@@ -401,28 +309,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the property with the given name, or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the property to. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <returns> The existing or newly created property. </returns>
-        /// <remarks> The returned property might not have the specified type. </remarks>
-        public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] Type propertyType)
-            => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType);
-
-        /// <summary>
-        ///     Gets the property with the given name, or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the property to. </param>
-        /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
-        /// <returns> The existing or newly created property. </returns>
-        /// <remarks> The returned property might not have the specified type. </remarks>
-        public static IMutableProperty GetOrAddProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
-            => entityType.FindProperty(propertyInfo) ?? entityType.AddProperty(propertyInfo);
-
-        /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
         /// </summary>
         /// <param name="entityType"> The entity type to find the index on. </param>
@@ -450,68 +336,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the index defined on the given property or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the index to. </param>
-        /// <param name="property"> The property to be indexed. </param>
-        /// <returns> The existing or newly created index. </returns>
-        public static IMutableIndex GetOrAddIndex(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
-            => entityType.GetOrAddIndex(new[] { property });
-
-        /// <summary>
-        ///     Gets the index defined on the given property or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the index to. </param>
-        /// <param name="properties"> The properties to be indexed. </param>
-        /// <returns> The existing or newly created index. </returns>
-        public static IMutableIndex GetOrAddIndex(
-            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IMutableProperty> properties)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindIndex(properties) ?? entityType.AddIndex(properties);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties and navigations of this entity type.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual properties and navigations can override this access mode. The value set here will
-        ///         be used for any property or navigation for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type for which to set the access mode. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
-        public static void SetPropertyAccessMode(
-            [NotNull] this IMutableEntityType entityType, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual navigations can override this access mode. The value set here will
-        ///         be used for any navigation for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type for which to set the access mode. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
-        public static void SetNavigationAccessMode(
-            [NotNull] this IMutableEntityType entityType, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType[CoreAnnotationNames.NavigationAccessMode] = propertyAccessMode;
-        }
-
-        /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
@@ -520,6 +344,50 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetChangeTrackingStrategy(
             [NotNull] this IMutableEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy = changeTrackingStrategy;
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
+            if (errorMessage != null)
+            {
+                throw new InvalidOperationException(errorMessage);
+            }
+
+            entityType[CoreAnnotationNames.ChangeTrackingStrategy] = changeTrackingStrategy;
+        }
+
+        /// <summary>
+        ///    Sets the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the query filter for. </param>
+        /// <param name="queryFilter"> The LINQ expression filter. </param>
+        public static void SetQueryFilter(
+            [NotNull] this IMutableEntityType entityType,
+            [CanBeNull] LambdaExpression queryFilter)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var errorMessage = entityType.CheckQueryFilter(queryFilter);
+            if (errorMessage != null)
+            {
+                throw new InvalidOperationException(errorMessage);
+            }
+
+            entityType[CoreAnnotationNames.QueryFilter] = queryFilter;
+        }
+
+        /// <summary>
+        ///     Sets the LINQ query used as the default source for queries of this type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the defining query for. </param>
+        /// <param name="definingQuery"> The LINQ query used as the default source. </param>
+        public static void SetDefiningQuery(
+            [NotNull] this IMutableEntityType entityType,
+            [CanBeNull] LambdaExpression definingQuery)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType[CoreAnnotationNames.DefiningQuery] = definingQuery;
+        }
     }
 }

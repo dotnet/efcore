@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public virtual IEnumerable<Annotation> GetAnnotations() =>
             _annotations.HasValue
-                ? _annotations.Value.Values.Where(a => a.Value != null)
+                ? _annotations.Value.Values
                 : Enumerable.Empty<Annotation>();
 
         /// <summary>
@@ -120,11 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => FindAnnotation(name) ?? AddAnnotation(name, value);
 
         /// <summary>
-        ///     Gets the annotation with the given name, returning null if it does not exist.
+        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
         /// </returns>
         public virtual Annotation FindAnnotation(string name)
         {
@@ -160,12 +160,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the value annotation with the given name, returning null if it does not exist.
+        ///     Gets the value annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists.
-        ///     Otherwise, null.
+        ///     Otherwise, <c>null</c>.
         /// </returns>
         public virtual object this[string name]
         {
@@ -200,12 +200,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
         /// <summary>
-        ///     Gets the annotation with the given name, returning null if it does not exist.
+        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
         /// </returns>
         IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
+
+        /// <summary>
+        ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
+        /// </summary>
+        /// <param name="name"> The name of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <returns> The newly added annotation. </returns>
+        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
+
+        /// <summary>
+        ///     Removes the given annotation from this object.
+        /// </summary>
+        /// <param name="name"> The name of the annotation to remove. </param>
+        /// <returns> The annotation that was removed. </returns>
+        IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

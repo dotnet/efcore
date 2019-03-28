@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -17,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this property can contain null.
+        ///     Gets a value indicating whether this property can contain <c>null</c>.
         /// </summary>
         bool IsNullable { get; }
 
@@ -71,17 +68,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     changes will not be applied to the database.
         /// </summary>
         bool IsConcurrencyToken { get; }
-
-        /// <summary>
-        ///     Gets the type of value that this property holds.
-        /// </summary>
-        new Type ClrType { get; } // Defined here to maintain binary compat with 1.0
-
-        /// <summary>
-        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
-        ///     corresponding property in the entity class. The current value for the property is stored in
-        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        /// </summary>
-        new bool IsShadowProperty { get; } // Defined here to maintain binary compat with 1.0
     }
 }

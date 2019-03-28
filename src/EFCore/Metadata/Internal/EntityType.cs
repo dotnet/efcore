@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -23,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public class EntityType : TypeBase, IMutableEntityType
+    public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType
     {
         private readonly SortedSet<ForeignKey> _foreignKeys
             = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
@@ -45,10 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private List<object> _data;
         private Key _primaryKey;
-        private bool _isKeyless;
+        private bool? _isKeyless;
         private EntityType _baseType;
-        private LambdaExpression _queryFilter;
-        private ChangeTrackingStrategy? _changeTrackingStrategy;
 
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private ConfigurationSource? _isKeylessConfigurationSource;
@@ -128,11 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Builder
         {
-            [DebuggerStepThrough]
-            get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough] [param: CanBeNull] set;
         }
 
         /// <summary>
@@ -145,36 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual LambdaExpression QueryFilter
+        public virtual bool IsKeyless
         {
-            get => _queryFilter;
-            [param: CanBeNull]
-            set
-            {
-                if (value != null
-                    && (value.Parameters.Count != 1
-                        || value.Parameters[0].Type != ClrType
-                        || value.ReturnType != typeof(bool)))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadFilterExpression(value, this.DisplayName(), ClrType));
-                }
-
-                _queryFilter = value;
-            }
+            get => RootType()._isKeyless ?? false;
+            set => _isKeyless = value;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual LambdaExpression DefiningQuery { get; set; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsKeyless => RootType()._isKeyless;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -193,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void HasNoKey(
-            bool keyless,
+            bool? keyless,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             if (_isKeyless == keyless)
@@ -202,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (keyless)
+            if (keyless == true)
             {
                 if (_baseType != null)
                 {
@@ -216,7 +184,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             _isKeyless = keyless;
-            UpdateIsKeylessConfigurationSource(configurationSource);
+
+            if (keyless == null)
+            {
+                _isKeylessConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsKeylessConfigurationSource(configurationSource);
+            }
         }
 
         /// <summary>
@@ -293,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(this.DisplayName()));
                 }
 
-                if (_isKeyless)
+                if (IsKeyless)
                 {
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotBeKeyless(this.DisplayName()));
                 }
@@ -446,27 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             RemoveAnnotation(RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName);
             RemoveAnnotation(RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName);
             RemoveAnnotation(InversePropertyAttributeConvention.InverseNavigationsAnnotationName);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ChangeTrackingStrategy ChangeTrackingStrategy
-        {
-            get => _changeTrackingStrategy ?? Model.ChangeTrackingStrategy;
-            set
-            {
-                var errorMessage = this.CheckChangeTrackingStrategy(value);
-                if (errorMessage != null)
-                {
-                    throw new InvalidOperationException(errorMessage);
-                }
-
-                _changeTrackingStrategy = value;
-
-                PropertyMetadataChanged();
-            }
         }
 
         /// <summary>
@@ -667,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), _baseType.DisplayName()));
             }
 
-            if (_isKeyless)
+            if (IsKeyless)
             {
                 throw new InvalidOperationException(CoreStrings.KeylessTypeWithKey(properties.Format(), this.DisplayName()));
             }
@@ -919,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.HasValue)
             {
                 principalEntityType.UpdateConfigurationSource(configurationSource.Value);
-                foreignKey.UpdateForeignKeyPropertiesConfigurationSource(configurationSource.Value);
+                foreignKey.UpdatePropertiesConfigurationSource(configurationSource.Value);
                 foreignKey.UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
                 foreignKey.UpdatePrincipalEndConfigurationSource(configurationSource.Value);
             }
@@ -1634,9 +1589,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddProperty(
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
+            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
 
@@ -1687,9 +1642,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddIndexedProperty(
             [NotNull] string name,
             [NotNull] Type propertyType,
+            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
@@ -2250,12 +2205,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set => HasBaseType((EntityType)value);
         }
 
-        LambdaExpression IMutableEntityType.QueryFilter
-        {
-            get => QueryFilter;
-            set => QueryFilter = value;
-        }
-
         IEntityType IEntityType.DefiningEntityType
         {
             [DebuggerStepThrough]
@@ -2348,6 +2297,90 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IServiceProperty> IEntityType.GetServiceProperties() => GetServiceProperties();
         IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties() => GetServiceProperties();
         IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
+
+        IConventionModel IConventionEntityType.Model => Model;
+        IConventionEntityType IConventionEntityType.BaseType => BaseType;
+
+        void IConventionEntityType.HasBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
+            => HasBaseType((EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation:ConfigurationSource.Convention);
+
+        void IConventionEntityType.HasNoKey(bool? keyless, bool fromDataAnnotation)
+            => HasNoKey(keyless, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionKey IConventionEntityType.SetPrimaryKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+            => SetPrimaryKey(
+                properties?.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionKey IConventionEntityType.FindPrimaryKey() => FindPrimaryKey();
+        IConventionKey IConventionEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+        IEnumerable<IConventionKey> IConventionEntityType.GetKeys() => GetKeys();
+
+        IConventionForeignKey IConventionEntityType.FindForeignKey(
+            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+            => FindForeignKey(properties, principalKey, principalEntityType);
+
+        IEnumerable<IConventionForeignKey> IConventionEntityType.GetForeignKeys() => GetForeignKeys();
+        IConventionIndex IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+        IEnumerable<IConventionIndex> IConventionEntityType.GetIndexes() => GetIndexes();
+        IConventionProperty IConventionEntityType.FindProperty(string name) => FindProperty(name);
+        IEnumerable<IConventionProperty> IConventionEntityType.GetProperties() => GetProperties();
+        IConventionServiceProperty IConventionEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+        IEnumerable<IConventionServiceProperty> IConventionEntityType.GetServiceProperties() => GetServiceProperties();
+        IConventionServiceProperty IConventionEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
+        IConventionProperty IConventionEntityType.RemoveProperty(string name) => RemoveProperty(name);
+
+        IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
+            => AddServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionIndex IConventionEntityType.RemoveIndex(IReadOnlyList<IProperty> properties) => RemoveIndex(properties);
+
+        IConventionProperty IConventionEntityType.AddProperty(
+            string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
+            => AddProperty(
+                name,
+                propertyType,
+                setTypeConfigurationSource
+                    ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                    : (ConfigurationSource?)null,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionProperty IConventionEntityType.AddIndexedProperty(
+            string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
+            => AddIndexedProperty(
+                name,
+                propertyType,
+                setTypeConfigurationSource
+                    ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                    : (ConfigurationSource?)null,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionForeignKey IConventionEntityType.RemoveForeignKey(
+            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+            => RemoveForeignKey(properties, principalKey, principalEntityType);
+
+        IConventionIndex IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+            => AddIndex(
+                properties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionKey IConventionEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
+
+        IConventionForeignKey IConventionEntityType.AddForeignKey(
+            IReadOnlyList<IConventionProperty> properties,
+            IConventionKey principalKey,
+            IConventionEntityType principalEntityType,
+            bool fromDataAnnotation)
+            => AddForeignKey(
+                properties.Cast<Property>().ToList(),
+                (Key)principalKey,
+                (EntityType)principalEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionKey IConventionEntityType.AddKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+            => AddKey(
+                properties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         #endregion
 

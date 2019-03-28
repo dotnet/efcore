@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityTypeD = model.AddEntityType(typeof(D));
             SetBaseType(entityTypeD, entityTypeA);
 
-            entityTypeD.QueryFilter = (Expression<Func<D, bool>>)(_ => true);
+            entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
-            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.QueryFilter, entityTypeD.DisplayName()), model);
+            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName()), model);
         }
 
         [Fact]
