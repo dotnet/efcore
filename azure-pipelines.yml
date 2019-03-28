@@ -81,10 +81,7 @@ jobs:
 
         - job: macOS
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Hosted macOS
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Hosted Mac Internal
+            vmImage: macOS-10.13
           steps:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
@@ -94,7 +91,8 @@ jobs:
               continueOnError: true
 
         - job: Linux
-          pool: Hosted Ubuntu 1604
+          pool:
+            vmImage: ubuntu-16.04
           steps:
             - bash: sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
