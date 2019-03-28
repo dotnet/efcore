@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -30,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyRequirednessChangedConvention,
         IKeyAddedConvention,
         IKeyRemovedConvention,
-        IPrimaryKeyChangedConvention,
-        IModelBuiltConvention
+        IEntityTypePrimaryKeyChangedConvention,
+        IModelFinalizedConvention
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,12 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyAdded(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
             var shouldBeRequired = true;
             foreach (var property in relationshipBuilder.Metadata.Properties)
@@ -66,69 +67,71 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (property.IsNullable)
                 {
                     shouldBeRequired = false;
-                    relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
+                    relationshipBuilder.IsRequired(false);
                     break;
                 }
             }
 
             if (shouldBeRequired)
             {
-                relationshipBuilder.IsRequired(true, ConfigurationSource.Convention);
+                relationshipBuilder.IsRequired(true);
             }
 
-            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder);
+            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
 
             // If new properties were used for this relationship we have to examine the other foreign keys
             // in case they can use the properties used previously.
-            var fksToProcess = newRelationshipBuilder.Metadata.DeclaringEntityType.GetForeignKeysInHierarchy()
+            var fksToProcess = newRelationshipBuilder.Metadata.DeclaringEntityType.GetForeignKeys()
                 .Where(fk => fk != newRelationshipBuilder.Metadata)
+                .Concat(
+                    newRelationshipBuilder.Metadata.DeclaringEntityType.GetDerivedTypes()
+                        .SelectMany(et => et.GetDeclaredForeignKeys()))
                 .ToList();
 
             foreach (var fk in fksToProcess)
             {
                 if (fk.Builder != null)
                 {
-                    DiscoverProperties(fk.Builder);
+                    DiscoverProperties(fk.Builder, context);
                 }
             }
 
-            return newRelationshipBuilder;
+            context.StopProcessingIfChanged(newRelationshipBuilder);
         }
 
-        private InternalRelationshipBuilder DiscoverProperties(InternalRelationshipBuilder relationshipBuilder)
+        private IConventionRelationshipBuilder DiscoverProperties(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPropertiesConfigurationSource()))
             {
-                using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+                var batch = context.DelayConventions();
+                using (var foreignKeyReference = batch.Track(foreignKey))
                 {
-                    using (var foreignKeyReference = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.Tracker.Track(foreignKey))
+                    foreach (var fkProperty in foreignKey.Properties)
                     {
-                        foreach (var fkProperty in foreignKey.Properties)
+                        if (ConfigurationSource.Convention.Overrides(fkProperty.GetTypeConfigurationSource())
+                            && fkProperty.IsShadowProperty()
+                            && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
+                            && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                         {
-                            if (ConfigurationSource.Convention.Overrides(fkProperty.GetTypeConfigurationSource())
-                                && fkProperty.IsShadowProperty()
-                                && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
-                                && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
+                            var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
+                            if (fkProperty.ClrType != newType)
                             {
-                                var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
-                                if (fkProperty.ClrType != newType)
-                                {
-                                    fkProperty.DeclaringEntityType.Builder.Property(
-                                        fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
-                                        fkProperty.Name,
-                                        fkProperty.GetConfigurationSource(), ConfigurationSource.Convention);
-                                }
+                                fkProperty.DeclaringEntityType.Builder.Property(
+                                    newType,
+                                    fkProperty.Name,
+                                    fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation);
                             }
                         }
-
-                        batch.Run();
-                        return foreignKeyReference.Object?.Builder;
                     }
+
+                    batch.Dispose();
+                    return foreignKeyReference.Object?.Builder;
                 }
             }
 
-            var invertable = true;
+            var invertible = true;
             if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType
                 || foreignKey.IsOwnership
                 || foreignKey.DeclaringEntityType.IsKeyless
@@ -137,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 || foreignKey.DeclaringEntityType.FindOwnership() != null)
             {
                 relationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType, ConfigurationSource.Convention);
-                invertable = false;
+                    foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType);
+                invertible = false;
             }
             else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                      && (foreignKey.PrincipalEntityType.DefiningEntityType == foreignKey.DeclaringEntityType
@@ -147,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                              && foreignKey.DependentToPrincipal == null)))
             {
                 var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
                 if (invertedRelationshipBuilder != null)
                 {
                     return invertedRelationshipBuilder;
@@ -157,20 +160,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKeyProperties = FindCandidateForeignKeyProperties(relationshipBuilder.Metadata, onDependent: true);
             if (foreignKeyProperties == null)
             {
-                if (invertable
+                if (invertible
                     && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                     if (candidatePropertiesOnPrincipal != null)
                     {
                         var invertedRelationshipBuilder = relationshipBuilder
-                            .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                            .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
                         var invertedFk = invertedRelationshipBuilder?.Metadata;
                         if (invertedFk?.IsSelfReferencing() == true)
                         {
                             invertedRelationshipBuilder = invertedRelationshipBuilder.HasNavigations(
-                                invertedFk.PrincipalToDependent?.Name, invertedFk.DependentToPrincipal?.Name,
-                                ConfigurationSource.Convention);
+                                invertedFk.PrincipalToDependent?.Name, invertedFk.DependentToPrincipal?.Name);
                         }
 
                         return invertedRelationshipBuilder ?? (foreignKey.Builder == null ? null : relationshipBuilder);
@@ -191,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             foreignKey.PrincipalEntityType,
                             foreignKey.PrincipalKey.Properties);
                     }
-                    else if (invertable)
+                    else if (invertible)
                     {
                         foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
                         var candidatePropertiesOnPrincipal =
@@ -200,32 +202,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         {
                             if (foreignKeyProperties == null)
                             {
-                                using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+                                using (var batch = context.DelayConventions())
                                 {
                                     var invertedRelationshipBuilder = relationshipBuilder
-                                        .HasEntityTypes(
-                                            foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                                        .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
                                     return batch.Run(
-                                        invertedRelationshipBuilder.HasForeignKey(
-                                            candidatePropertiesOnPrincipal, foreignKey.PrincipalEntityType,
-                                            ConfigurationSource.Convention));
+                                        invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal).Metadata)
+                                        ?.Builder;
                                 }
                             }
 
                             foreignKeyProperties = null;
-                            relationshipBuilder.Metadata.SetPrincipalEndConfigurationSource(null);
+                            ((ForeignKey)relationshipBuilder.Metadata).SetPrincipalEndConfigurationSource(null);
                         }
                     }
                 }
 
                 if (foreignKeyProperties == null
-                    && invertable
+                    && invertible
                     && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
-                    relationshipBuilder.Metadata.SetPrincipalEndConfigurationSource(null);
+                    ((ForeignKey)relationshipBuilder.Metadata).SetPrincipalEndConfigurationSource(null);
                 }
             }
-            else if (invertable
+            else if (invertible
                      && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
             {
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     // Principal end is ambiguous
                     foreignKeyProperties = null;
-                    relationshipBuilder.Metadata.SetPrincipalEndConfigurationSource(null);
+                    ((ForeignKey)relationshipBuilder.Metadata).SetPrincipalEndConfigurationSource(null);
                 }
             }
 
@@ -242,7 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return ReuniquifyTemporaryProperties(foreignKey, force: false);
             }
 
-            var conflictingFKCount = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Count();
+            var conflictingFKCount = foreignKey.DeclaringEntityType.FindForeignKeys(foreignKeyProperties)
+                .Concat(
+                    foreignKey.DeclaringEntityType.GetDerivedTypes()
+                        .SelectMany(et => et.FindDeclaredForeignKeys(foreignKeyProperties)))
+                .Count();
             if (foreignKey.Properties.SequenceEqual(foreignKeyProperties))
             {
                 return conflictingFKCount > 1
@@ -255,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return ReuniquifyTemporaryProperties(foreignKey, force: false);
             }
 
-            var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
+            var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties);
             if (newRelationshipBuilder != null)
             {
                 return newRelationshipBuilder;
@@ -264,87 +268,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return relationshipBuilder.Metadata.Builder == null ? null : relationshipBuilder;
         }
 
-        private static string GetPropertyBaseName(ForeignKey foreignKey)
-            => foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName();
+        private IConventionRelationshipBuilder ReuniquifyTemporaryProperties(IConventionForeignKey foreignKey, bool force)
+            => ((ForeignKey)foreignKey).Builder.ReuniquifyTemporaryProperties(force);
 
-        private InternalRelationshipBuilder ReuniquifyTemporaryProperties(ForeignKey foreignKey, bool force)
+        private IReadOnlyList<IConventionProperty> FindCandidateForeignKeyProperties(
+            IConventionForeignKey foreignKey, bool onDependent, bool matchPk = false)
         {
-            if (!force
-                && (foreignKey.GetPropertiesConfigurationSource() != null
-                    || !foreignKey.DeclaringEntityType.Builder.ShouldReuniquifyTemporaryProperties(
-                        foreignKey.Properties,
-                        foreignKey.PrincipalKey.Properties,
-                        foreignKey.IsRequired && foreignKey.GetIsRequiredConfigurationSource().Overrides(ConfigurationSource.Convention),
-                        GetPropertyBaseName(foreignKey))))
-            {
-                return foreignKey.Builder;
-            }
-
-            var relationshipBuilder = foreignKey.Builder;
-            using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
-            {
-                var temporaryProperties = foreignKey.Properties.Where(
-                    p => p.IsShadowProperty()
-                         && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-
-                var keysToDetach = temporaryProperties.SelectMany(
-                        p => p.GetContainingKeys()
-                            .Where(k => ConfigurationSource.Convention.Overrides(k.GetConfigurationSource())))
-                    .Distinct().ToList();
-
-                List<RelationshipSnapshot> detachedRelationships = null;
-                foreach (var key in keysToDetach)
-                {
-                    foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
-                    {
-                        if (detachedRelationships == null)
-                        {
-                            detachedRelationships = new List<RelationshipSnapshot>();
-                        }
-
-                        detachedRelationships.Add(InternalEntityTypeBuilder.DetachRelationship(referencingForeignKey));
-                    }
-                }
-
-                var detachedKeys = InternalEntityTypeBuilder.DetachKeys(keysToDetach);
-
-                var detachedIndexes = InternalEntityTypeBuilder.DetachIndexes(
-                    temporaryProperties.SelectMany(p => p.GetContainingIndexes()).Distinct());
-
-                relationshipBuilder = relationshipBuilder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention);
-
-                if (detachedIndexes != null)
-                {
-                    foreach (var indexBuilderTuple in detachedIndexes)
-                    {
-                        indexBuilderTuple.Attach(indexBuilderTuple.Metadata.DeclaringEntityType.Builder);
-                    }
-                }
-
-                if (detachedKeys != null)
-                {
-                    foreach (var detachedKeyTuple in detachedKeys)
-                    {
-                        detachedKeyTuple.Item1.Attach(foreignKey.DeclaringEntityType.RootType().Builder, detachedKeyTuple.Item2);
-                    }
-                }
-
-                if (detachedRelationships != null)
-                {
-                    foreach (var detachedRelationship in detachedRelationships)
-                    {
-                        detachedRelationship.Attach();
-                    }
-                }
-
-                return batch.Run(relationshipBuilder);
-            }
-        }
-
-        private IReadOnlyList<Property> FindCandidateForeignKeyProperties(
-            ForeignKey foreignKey, bool onDependent, bool matchPk = false)
-        {
-            IReadOnlyList<Property> match;
+            IReadOnlyList<IConventionProperty> match;
             var navigation = onDependent
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;
@@ -367,23 +297,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return match;
         }
 
-        private static IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(
-            EntityType dependentEntityType, EntityType principalEntityType, IReadOnlyList<Property> propertiesToReference)
+        private static IReadOnlyList<IConventionProperty> GetCompatiblePrimaryKeyProperties(
+            IConventionEntityType dependentEntityType,
+            IConventionEntityType principalEntityType,
+            IReadOnlyList<IConventionProperty> propertiesToReference)
         {
             var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
-            return (dependentPkProperties != null)
+            return dependentPkProperties != null
                    && ForeignKey.AreCompatible(
                        propertiesToReference,
                        dependentPkProperties,
                        principalEntityType,
                        dependentEntityType,
-                       false)
+                       shouldThrow: false)
                 ? dependentPkProperties
                 : null;
         }
 
         private bool TryFindMatchingProperties(
-            ForeignKey foreignKey, string baseName, bool onDependent, bool matchPK, out IReadOnlyList<Property> match)
+            IConventionForeignKey foreignKey,
+            string baseName,
+            bool onDependent,
+            bool matchPk,
+            out IReadOnlyList<IConventionProperty> match)
         {
             match = null;
             var dependentEntityType = onDependent
@@ -401,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return false;
             }
 
-            var foreignKeyProperties = new Property[propertiesToReference.Count];
+            var foreignKeyProperties = new IConventionProperty[propertiesToReference.Count];
             var matchFound = true;
             for (var i = 0; i < propertiesToReference.Count; i++)
             {
@@ -444,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreignKeyProperties,
                 principalEntityType,
                 dependentEntityType,
-                false))
+                shouldThrow: false))
             {
                 if (propertiesToReference.All(
                     p => !p.IsShadowProperty()
@@ -479,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if (isKeyContainedInForeignKey
                     && key.IsPrimaryKey()
-                    && !matchPK)
+                    && !matchPk)
                 {
                     // Stop searching if match found, but is incompatible
                     return true;
@@ -490,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return true;
         }
 
-        private static Property TryGetProperty(EntityType entityType, string prefix, string suffix)
+        private static IConventionProperty TryGetProperty(IConventionEntityType entityType, string prefix, string suffix)
         {
             foreach (var property in entityType.GetProperties())
             {
@@ -507,55 +443,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a navigation is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
-            => DiscoverProperties(relationshipBuilder);
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            IConventionContext<IConventionNavigation> context)
+        {
+            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
+            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsDependentToPrincipal()));
+        }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type.
         /// </summary>
-        public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+        {
+            Process(propertyBuilder, context);
+            if (propertyBuilder.Metadata.Builder == null)
+            {
+                context.StopProcessing();
+            }
+        }
+
+        private void Process(IConventionPropertyBuilder propertyBuilder, IConventionContext context)
         {
             var property = propertyBuilder.Metadata;
             if (property.IsShadowProperty()
                 && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
             {
-                return propertyBuilder;
+                return;
             }
 
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
 
-            Apply(entityType);
-
-            return propertyBuilder;
+            Process(entityType, context);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type member is ignored.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The name of the ignored member. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeMemberIgnored(
+            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
         {
-            Apply(entityTypeBuilder.Metadata);
-            return true;
+            Process(entityTypeBuilder.Metadata, context);
         }
 
-        private void Apply(EntityType entityType)
+        private void Process(IConventionEntityType entityType, IConventionContext context)
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Concat(entityType.GetDerivedForeignKeys()).ToList())
             {
                 if (foreignKey.Builder != null)
                 {
-                    DiscoverProperties(foreignKey.Builder);
+                    DiscoverProperties(foreignKey.Builder, context);
                 }
             }
 
@@ -564,24 +513,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (foreignKey.Builder != null
                     && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
-                    DiscoverProperties(foreignKey.Builder);
+                    DiscoverProperties(foreignKey.Builder, context);
                 }
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the backing field for a property is changed.
         /// </summary>
-        public virtual bool Apply(InternalPropertyBuilder propertyBuilder, FieldInfo oldFieldInfo)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="newFieldInfo"> The new field. </param>
+        /// <param name="oldFieldInfo"> The old field. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyFieldChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            FieldInfo newFieldInfo,
+            FieldInfo oldFieldInfo,
+            IConventionContext<FieldInfo> context)
         {
-            Apply(propertyBuilder);
-            return true;
+            Process(propertyBuilder, context);
         }
 
-        bool IPropertyNullabilityChangedConvention.Apply(InternalPropertyBuilder propertyBuilder)
+        /// <summary>
+        ///     Called after the nullability for a property is changed.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyNullabilityChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             var nullable = propertyBuilder.Metadata.IsNullable;
             foreach (var containingForeignKey in propertyBuilder.Metadata.GetContainingForeignKeys())
@@ -593,24 +553,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                containingForeignKey.Builder.IsRequired(!nullable, ConfigurationSource.Convention);
+                containingForeignKey.Builder.IsRequired(!nullable);
             }
-
-            return true;
         }
 
-        InternalRelationshipBuilder IForeignKeyUniquenessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
-            => DiscoverProperties(relationshipBuilder);
+        /// <summary>
+        ///     Called after the uniqueness for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyUniquenessChanged(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
+            context.StopProcessingIfChanged(newRelationshipBuilder);
+        }
 
-        InternalRelationshipBuilder IForeignKeyRequirednessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <summary>
+        ///     Called after the requiredness for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRequirednessChanged(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
             var isRequired = relationshipBuilder.Metadata.IsRequired;
-            var model = relationshipBuilder.ModelBuilder.Metadata;
-            using (model.ConventionDispatcher.StartBatch())
+            using (var batch = context.DelayConventions())
             {
                 foreach (var property in relationshipBuilder.Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
                 {
-                    var requiredSet = property.Builder.IsRequired(isRequired, ConfigurationSource.Convention) != null;
+                    var requiredSet = property.Builder.IsRequired(isRequired) != null;
                     if (requiredSet
                         && isRequired != true)
                     {
@@ -618,49 +590,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                return DiscoverProperties(relationshipBuilder);
+                var newForeignKey = batch.Run(DiscoverProperties(relationshipBuilder, context).Metadata);
+                context.StopProcessingIfChanged(newForeignKey?.Builder);
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the foreign key properties or principal key are changed.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder,
-            IReadOnlyList<Property> oldDependentProperties,
-            Key oldPrincipalKey)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="oldDependentProperties"> The old foreign key properties. </param>
+        /// <param name="oldPrincipalKey"> The old principal key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyPropertiesChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<IConventionProperty> oldDependentProperties,
+            IConventionKey oldPrincipalKey,
+            IConventionContext<IConventionRelationshipBuilder> context)
         {
-            if (relationshipBuilder.Metadata.Properties == oldDependentProperties
-                || relationshipBuilder.Metadata.Builder == null)
+            if (relationshipBuilder.Metadata.Builder == null
+                || relationshipBuilder.Metadata.Properties == oldDependentProperties)
             {
-                return relationshipBuilder;
+                return;
             }
 
-            return Apply(relationshipBuilder);
+            ProcessForeignKeyAdded(relationshipBuilder, context);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the principal end of a foreign key is changed.
         /// </summary>
-        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyPrincipalEndChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            ProcessForeignKeyAdded(relationshipBuilder, context);
+        }
+
+        /// <summary>
+        ///     Called after a key is added to the entity type.
+        /// </summary>
+        /// <param name="keyBuilder"> The builder for the key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
             var key = keyBuilder.Metadata;
-            foreach (var foreignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList())
+            foreach (var foreignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredForeignKeys()).ToList())
             {
                 if (key.Properties.All(p => foreignKey.Properties.Contains(p))
                     && (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null))
                 {
-                    foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null, ConfigurationSource.Convention);
+                    foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>)null);
                 }
             }
-
-            return keyBuilder;
         }
 
         /// <summary>
@@ -669,43 +654,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
+        public virtual void ProcessKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
         {
-            var foreignKeys = key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList();
+            var foreignKeys = key.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
             foreach (var foreignKey in foreignKeys)
             {
                 if ((!foreignKey.IsUnique
                      || foreignKey.DeclaringEntityType.BaseType != null))
                 {
-                    DiscoverProperties(foreignKey.Builder);
+                    DiscoverProperties(foreignKey.Builder, context);
                 }
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the primary key for an entity type is changed.
         /// </summary>
-        bool IPrimaryKeyChangedConvention.Apply(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newPrimaryKey"> The new primary key. </param>
+        /// <param name="previousPrimaryKey"> The old primary key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypePrimaryKeyChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey newPrimaryKey,
+            IConventionKey previousPrimaryKey,
+            IConventionContext<IConventionKey> context)
         {
-            var foreignKeys = entityTypeBuilder.Metadata.GetDerivedForeignKeysInclusive().ToList();
+            if (newPrimaryKey != null && newPrimaryKey.Builder == null)
+            {
+                return;
+            }
+
+            var foreignKeys = entityTypeBuilder.Metadata.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
             foreach (var foreignKey in foreignKeys)
             {
                 if (foreignKey.IsUnique)
                 {
-                    DiscoverProperties(foreignKey.Builder);
+                    DiscoverProperties(foreignKey.Builder, context);
                 }
             }
 
-            var referencingForeignKeys = entityTypeBuilder.Metadata.GetDerivedReferencingForeignKeysInclusive().ToList();
+            var referencingForeignKeys = entityTypeBuilder.Metadata.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredReferencingForeignKeys()).ToList();
             foreach (var referencingForeignKey in referencingForeignKeys)
             {
-                DiscoverProperties(referencingForeignKey.Builder);
+                DiscoverProperties(referencingForeignKey.Builder, context);
             }
-
-            return true;
         }
 
         /// <summary>
@@ -714,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -724,7 +721,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
                     if (foreignKeyProperties != null)
                     {
-                        var conflictingForeignKey = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties)
+                        var conflictingForeignKey = foreignKey.DeclaringEntityType.FindForeignKeys(foreignKeyProperties).Concat(
+                                foreignKey.DeclaringEntityType.GetDerivedTypes()
+                                    .SelectMany(et => et.FindDeclaredForeignKeys(foreignKeyProperties)))
                             .FirstOrDefault(
                                 fk => fk != foreignKey
                                       && ConfigurationSource.Convention.Overrides(fk.GetPropertiesConfigurationSource()));
@@ -768,11 +767,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
-
-            return modelBuilder;
         }
 
-        private static bool HasUniquifiedProperties(ForeignKey foreignKey)
+        private static string GetPropertyBaseName(IConventionForeignKey foreignKey)
+            => foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName();
+
+        private static bool HasUniquifiedProperties(IConventionForeignKey foreignKey)
         {
             var fkBaseName = GetPropertyBaseName(foreignKey);
             for (var i = 0; i < foreignKey.Properties.Count; i++)

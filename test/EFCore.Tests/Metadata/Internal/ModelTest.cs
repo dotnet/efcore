@@ -162,7 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentOrderType, model.RemoveEntityType(
                     typeof(Order), nameof(Customer.Orders), customerType));
             Assert.Null(((EntityType)dependentOrderType).Builder);
-            Assert.Null(model.RemoveEntityType(dependentOrderType));
         }
 
         [Fact]

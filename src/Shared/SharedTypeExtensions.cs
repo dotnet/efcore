@@ -66,7 +66,7 @@ namespace System
                || type == typeof(sbyte);
 
         public static bool IsAnonymousType(this Type type)
-            => type.Name.StartsWith("<>")
+            => type.Name.StartsWith("<>", StringComparison.Ordinal)
                && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
                && type.Name.Contains("AnonymousType");
 
@@ -161,11 +161,11 @@ namespace System
             var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
 
             Type singleImplementation = null;
-            foreach (var impelementation in types)
+            foreach (var implementation in types)
             {
                 if (singleImplementation == null)
                 {
-                    singleImplementation = impelementation;
+                    singleImplementation = implementation;
                 }
                 else
                 {
@@ -226,7 +226,7 @@ namespace System
 
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
         {
-            types = types ?? Array.Empty<Type>();
+            types ??= Array.Empty<Type>();
 
             return type.GetTypeInfo().DeclaredConstructors
                 .SingleOrDefault(

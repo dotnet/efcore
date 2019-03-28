@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterName"> The parameter type. </param>
         /// <returns> The parameter binding, or null if none was found. </returns>
         ParameterBinding TryBindParameter(
-            [NotNull] IMutableEntityType entityType,
+            [NotNull] IEntityType entityType,
             [NotNull] Type parameterType,
             [NotNull] string parameterName);
     }

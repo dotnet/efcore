@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var conventionSet = new ConventionSet();
 
-            conventionSet.ModelBuiltConventions.Add(
+            conventionSet.ModelFinalizedConventions.Add(
                 new ValidatingConvention(
                     TestHelpers.CreateModelValidator(),
                     CreateValidationLogger(sensitiveDataLoggingEnabled)));

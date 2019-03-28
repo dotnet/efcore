@@ -99,23 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IConventionEntityType definingEntityType);
 
         /// <summary>
-        ///     Removes an entity type without a defining navigation from the model.
+        ///     Removes an entity type from the model.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be removed. </param>
-        /// <returns> The entity type that was removed. </returns>
-        IConventionEntityType RemoveEntityType([NotNull] string name);
-
-        /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
-        /// </summary>
-        /// <param name="name"> The name of the entity type to be removed. </param>
-        /// <param name="definingNavigationName"> The defining navigation. </param>
-        /// <param name="definingEntityType"> The defining entity type. </param>
-        /// <returns> The entity type that was removed. </returns>
-        IConventionEntityType RemoveEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType);
+        /// <param name="entityType"> The entity type to be removed. </param>
+        void RemoveEntityType([NotNull] IConventionEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -129,13 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         void AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Marks the given entity type as ignored.
-        /// </summary>
-        /// <param name="clrType"> The entity type to be ignored. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddIgnored([NotNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored entity type name.

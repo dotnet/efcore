@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
-            relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
+            RunConvention(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.Posts));
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
-            relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
+            RunConvention(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.Posts));
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
-            relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
+            RunConvention(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
-            relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
+            RunConvention(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
@@ -137,10 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
 
-            relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
+            navigation = RunConvention(relationshipBuilder, navigation);
 
-            Assert.Equal(nameof(Principal), relationshipBuilder.Metadata.DeclaringEntityType.DisplayName());
-            Assert.True(relationshipBuilder.Metadata.IsRequired);
+            Assert.Equal(nameof(Principal), navigation.ForeignKey.DeclaringEntityType.DisplayName());
+            Assert.True(navigation.ForeignKey.IsRequired);
 
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
@@ -177,6 +177,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(
                 CoreResources.LogNonNullableReferenceOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
+        }
+
+        private Navigation RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+        {
+            var context = new ConventionContext<IConventionNavigation>(
+                relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+            CreateNotNullNavigationConvention().ProcessNavigationAdded(relationshipBuilder, navigation, context);
+            return context.ShouldStopProcessing() ? (Navigation)context.Result : navigation;
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()

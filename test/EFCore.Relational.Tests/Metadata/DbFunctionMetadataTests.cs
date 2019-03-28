@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 #pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -488,12 +489,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private ModelBuilder GetModelBuilder()
         {
-            var conventionset = new ConventionSet();
+            var conventionSet = new ConventionSet();
 
-            conventionset.ModelAnnotationChangedConventions.Add(
+            conventionSet.ModelAnnotationChangedConventions.Add(
                 new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
-            return new ModelBuilder(conventionset);
+            return new ModelBuilder(conventionSet);
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Finds_one_service_property()
         {
-            var entityType = ApplyConvention<BlogOneService>();
+            var entityType = RunConvention<BlogOneService>();
 
             var serviceProperty = entityType.FindServiceProperty(nameof(BlogOneService.Loader));
             var binding = serviceProperty.ParameterBinding;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityType.Builder.Property(typeof(ILazyLoader), nameof(BlogOneService.Loader), ConfigurationSource.Explicit)
                 .HasConversion(typeof(string), ConfigurationSource.Explicit);
 
-            ApplyConvention(entityType);
+            RunConvention(entityType);
 
             Assert.NotNull(entityType.FindProperty(nameof(BlogOneService.Loader)));
             Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 model.AddEntityType(typeof(LazyLoader), ConfigurationSource.Explicit),
                 nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
 
-            ApplyConvention(entityType);
+            RunConvention(entityType);
 
             Assert.NotNull(entityType.FindNavigation(nameof(BlogOneService.Loader)));
             Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
@@ -62,13 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_find_duplicate_service_properties()
         {
-            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
-                (typeof(ITypeMappingSource), typeMappingSource));
-
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
-
-            convention.Apply(entityType.Builder);
+            var entityType = RunConvention<BlogDuplicateService>();
 
             Assert.Empty(entityType.GetServiceProperties());
 
@@ -76,45 +71,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 CoreStrings.AmbiguousServiceProperty(
                     nameof(BlogDuplicateService.ContextTwo), nameof(DbContext), nameof(BlogDuplicateService)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>().Apply(entityType.Model.Builder)).Message);
+                    () => Validate(entityType)).Message);
         }
 
         [Fact]
         public void Finds_service_property_duplicate_ignored()
         {
-            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
-                (typeof(ITypeMappingSource), typeMappingSource));
-
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
-
-            convention.Apply(entityType.Builder);
+            var entityType = RunConvention<BlogDuplicateService>();
 
             Assert.Empty(entityType.GetServiceProperties());
 
             entityType.Builder.Ignore(nameof(BlogDuplicateService.ContextTwo), ConfigurationSource.Convention);
 
-            convention.Apply(entityType.Builder, nameof(BlogDuplicateService.ContextTwo));
+            RunConvention(entityType, nameof(BlogDuplicateService.ContextTwo));
 
             Assert.NotNull(entityType.FindServiceProperty(nameof(BlogDuplicateService.ContextOne)));
 
-            convention.Apply(entityType.Model.Builder);
+            Validate(entityType);
         }
 
-        private static EntityType ApplyConvention<TEntity>()
-            => ApplyConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit));
+        private static void Validate(EntityType entityType)
+        {
+            var convention = CreateServicePropertyDiscoveryConvention();
+            convention.ProcessModelFinalized(entityType.Model.Builder,
+                new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
+        }
 
-        private static EntityType ApplyConvention(EntityType entityType)
+        private static void RunConvention(EntityType entityType, string ignoredMember)
+        {
+            var convention = CreateServicePropertyDiscoveryConvention();
+            convention.ProcessEntityTypeMemberIgnored(entityType.Builder, ignoredMember,
+                new ConventionContext<string>(entityType.Model.ConventionDispatcher));
+        }
+
+        private static EntityType RunConvention<TEntity>()
+            => RunConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit));
+
+        private static EntityType RunConvention(EntityType entityType)
         {
             entityType.AddProperty(nameof(Blog.Id), typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
-            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-            TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
-                    (typeof(ITypeMappingSource), typeMappingSource))
-                .Apply(entityType.Builder);
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityType.Model.ConventionDispatcher);
+            CreateServicePropertyDiscoveryConvention().ProcessEntityTypeAdded(entityType.Builder, context);
 
-            return entityType;
+            return context.ShouldStopProcessing() ? (EntityType)context.Result.Metadata : entityType;
+        }
+
+        private static ServicePropertyDiscoveryConvention CreateServicePropertyDiscoveryConvention()
+        {
+            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
+                (typeof(ITypeMappingSource), typeMappingSource));
+            return convention;
         }
 
         private class BlogOneService : Blog

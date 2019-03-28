@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore
     public static class ConventionPropertyExtensions
     {
         /// <summary>
-        ///     Finds the principal property by the given property is constrained assuming that
-        ///     the given property is part of a foreign key.
+        ///     Finds the first principal property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
-        /// <returns> The associated principal property, or <c>null</c> if none exists. </returns>
-        public static IConventionProperty FindPrincipal([NotNull] this IConventionProperty property)
-            => (IConventionProperty)((IProperty)property).FindPrincipal();
+        /// <returns> The first associated principal property, or <c>null</c> if none exists. </returns>
+        public static IConventionProperty FindFirstPrincipal([NotNull] this IConventionProperty property)
+            => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -38,6 +38,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IEnumerable<IConventionForeignKey> GetContainingForeignKeys([NotNull] this IConventionProperty property)
             => ((IProperty)property).GetContainingForeignKeys().Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Gets all indexes that use this property (including composite indexes in which this property
+        ///     is included).
+        /// </summary>
+        /// <param name="property"> The property to get indexes for. </param>
+        /// <returns>
+        ///     The indexes that use this property.
+        /// </returns>
+        public static IEnumerable<IConventionIndex> GetContainingIndexes([NotNull] this IConventionProperty property)
+            => ((Property)property).GetContainingIndexes();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -59,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The primary and alternate keys that use this property.
         /// </returns>
         public static IEnumerable<IConventionKey> GetContainingKeys([NotNull] this IConventionProperty property)
-            => ((IProperty)property).GetContainingKeys().Cast<IConventionKey>();
+            => ((Property)property).GetContainingKeys();
 
         /// <summary>
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '

@@ -235,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (key?.Properties.Count == 1)
             {
                 if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention(null).DiscoverKeyProperties(concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
+                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention(null).DiscoverKeyProperties(
+                        concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
                 {
                     return;
                 }

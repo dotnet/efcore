@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] MemberInfo navigationMemberInfo,
             [NotNull] IMutableForeignKey foreignKey)
-            : base(declaringEntityType, relatedEntityType, navigationProperty, foreignKey)
+            : base(declaringEntityType, relatedEntityType, navigationMemberInfo, foreignKey)
         {
         }
 

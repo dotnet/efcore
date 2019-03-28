@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
     public class RelationalMaxIdentifierLengthConvention : IModelInitializedConvention
     {
         /// <summary>
@@ -22,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalMaxIdentifierLengthConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        public RelationalMaxIdentifierLengthConvention(int maxIdentifierLength, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
+            MaxIdentifierLength = maxIdentifierLength;
             Logger = logger;
         }
 
@@ -41,29 +41,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalMaxIdentifierLengthConvention(int maxIdentifierLength)
-        {
-            MaxIdentifierLength = maxIdentifierLength;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual int MaxIdentifierLength { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a model is initialized.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelInitialized(
+            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             modelBuilder.Metadata.Builder.HasMaxIdentifierLength(MaxIdentifierLength);
-            return modelBuilder;
         }
     }
 }

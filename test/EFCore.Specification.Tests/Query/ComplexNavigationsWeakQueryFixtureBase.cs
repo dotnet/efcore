@@ -40,14 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ForeignKey level2Fk;
             var level2 = level1.Model.AddEntityType(typeof(Level2), nameof(Level1.OneToOne_Required_PK1), level1);
-            using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.StartBatch())
+            using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.DelayConventions())
             {
                 level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
                 level2Fk.IsUnique = true;
                 level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK1), ConfigurationSource.Explicit);
                 level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2), ConfigurationSource.Explicit);
                 level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
-                level2Fk = batch.Run(level2Fk);
+                level2Fk = (ForeignKey)batch.Run(level2Fk);
             }
 
             Configure(new OwnedNavigationBuilder<Level1, Level2>((EntityType)level1, level2Fk.DeclaringEntityType, level2Fk.Builder));
@@ -133,14 +133,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ForeignKey level3Fk;
             var level3 = level2.Model.AddEntityType(typeof(Level3), nameof(Level2.OneToOne_Required_PK2), level2);
-            using (var batch = ((Model)level2.Model).ConventionDispatcher.StartBatch())
+            using (var batch = ((Model)level2.Model).ConventionDispatcher.DelayConventions())
             {
                 level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
                 level3Fk.IsUnique = true;
                 level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK2), ConfigurationSource.Explicit);
                 level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3), ConfigurationSource.Explicit);
                 level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
-                level3Fk = batch.Run(level3Fk);
+                level3Fk = (ForeignKey)batch.Run(level3Fk);
             }
 
             Configure(new OwnedNavigationBuilder<Level2, Level3>((EntityType)level2, level3Fk.DeclaringEntityType, level3Fk.Builder));
@@ -184,14 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ForeignKey level4Fk;
             var level4 = level3.Model.AddEntityType(typeof(Level4), nameof(Level3.OneToOne_Required_PK3), level3);
-            using (var batch = ((Model)level3.Model).ConventionDispatcher.StartBatch())
+            using (var batch = ((Model)level3.Model).ConventionDispatcher.DelayConventions())
             {
                 level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
                 level4Fk.IsUnique = true;
                 level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK3), ConfigurationSource.Explicit);
                 level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4), ConfigurationSource.Explicit);
                 level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
-                level4Fk = batch.Run(level4Fk);
+                level4Fk = (ForeignKey)batch.Run(level4Fk);
             }
 
             Configure(new OwnedNavigationBuilder<Level3, Level4>((EntityType)level3, level4Fk.DeclaringEntityType, level4Fk.Builder));

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -1801,7 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model. </param>
         /// <param name="version"> The version. </param>
         /// <returns> True if the version could be retrieved. </returns>
-        protected virtual bool TryGetVersion(IModel model, out string version)
+        protected virtual bool TryGetVersion([CanBeNull] IModel model, out string version)
         {
             if (!(model?[CoreAnnotationNames.ProductVersion] is string versionString))
             {

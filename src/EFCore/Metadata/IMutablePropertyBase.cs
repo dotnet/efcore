@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -25,6 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the underlying CLR field for this property.
         ///     This may be <c>null</c> for shadow properties or if the backing field for the property is not known.
         /// </summary>
-        new FieldInfo FieldInfo { get; set; }
+        new FieldInfo FieldInfo { get; [param: CanBeNull] set; }
     }
 }

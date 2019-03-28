@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
 
-            using (Metadata.ConventionDispatcher.StartBatch())
+            using (Metadata.ConventionDispatcher.DelayConventions())
             {
                 if (shouldBeOwned == false
                     && (ShouldBeOwnedType(type)
@@ -166,10 +165,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    batch = ModelBuilder.Metadata.ConventionDispatcher.StartBatch();
+                    batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
                     entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(entityType);
 
-                    RemoveEntityType(entityType, configurationSource);
+                    HasNoEntityType(entityType, configurationSource);
                 }
 
                 if (clrType == null)
@@ -323,11 +322,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            using (Metadata.ConventionDispatcher.StartBatch())
+            using (Metadata.ConventionDispatcher.DelayConventions())
             {
                 foreach (var entityType in Metadata.GetEntityTypes(name).ToList())
                 {
-                    RemoveEntityType(entityType, configurationSource);
+                    HasNoEntityType(entityType, configurationSource);
 
                     if (entityType.HasClrType())
                     {
@@ -399,27 +398,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
+        public virtual InternalModelBuilder HasNoEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
         {
             var entityTypeConfigurationSource = entityType.GetConfigurationSource();
             if (!configurationSource.Overrides(entityTypeConfigurationSource))
             {
-                return false;
+                return null;
             }
 
-            using (Metadata.ConventionDispatcher.StartBatch())
+            using (Metadata.ConventionDispatcher.DelayConventions())
             {
                 var entityTypeBuilder = entityType.Builder;
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
-                    var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
-                    Debug.Assert(removed.HasValue);
+                    var removed = entityTypeBuilder.HasNoRelationship(foreignKey, configurationSource);
+                    Debug.Assert(removed != null);
                 }
 
                 foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
                 {
-                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
-                    Debug.Assert(removed.HasValue);
+                    var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                    Debug.Assert(removed != null);
                 }
 
                 foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
@@ -431,47 +430,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
                 {
-                    RemoveEntityType(definedType, configurationSource);
+                    HasNoEntityType(definedType, configurationSource);
                 }
 
                 Metadata.RemoveEntityType(entityType);
             }
 
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void RemoveEntityTypesUnreachableByNavigations(ConfigurationSource configurationSource)
-        {
-            var rootEntityTypes = GetRoots(configurationSource);
-            using (Metadata.ConventionDispatcher.StartBatch())
-            {
-                foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(rootEntityTypes))
-                {
-                    RemoveEntityType(orphan, configurationSource);
-                }
-            }
-        }
-
-        private IReadOnlyList<EntityType> GetRoots(ConfigurationSource configurationSource)
-        {
-            var roots = new List<EntityType>();
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var entityType in Metadata.GetEntityTypes())
-            {
-                var currentConfigurationSource = entityType.GetConfigurationSource();
-                if (currentConfigurationSource.Overrides(configurationSource))
-                {
-                    roots.Add(entityType);
-                }
-            }
-
-            return roots;
+            return this;
         }
 
         /// <summary>
@@ -582,6 +547,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         IConventionModelBuilder IConventionModelBuilder.Ignore(string name, bool fromDataAnnotation)
             => Ignore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionModelBuilder IConventionModelBuilder.HasNoEntityType(IConventionEntityType entityType, bool fromDataAnnotation)
+            => HasNoEntityType((EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         bool IConventionModelBuilder.CanIgnore(Type type, bool fromDataAnnotation)

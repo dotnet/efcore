@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -42,29 +42,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a navigation is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder,
-            Navigation navigation)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            IConventionContext<IConventionNavigation> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            var attributes = GetAttributes<TAttribute>(navigation.DeclaringEntityType, navigation.Name);
+            var attributes = GetAttributes<TAttribute>(navigation.DeclaringEntityType, navigation);
             foreach (var attribute in attributes)
             {
-                relationshipBuilder = Apply(relationshipBuilder, navigation, attribute);
-                if (relationshipBuilder == null)
+                ProcessNavigationAdded(relationshipBuilder, navigation, attribute, context);
+                if (((IReadableConventionContext)context).ShouldStopProcessing())
                 {
                     break;
                 }
             }
-
-            return relationshipBuilder;
         }
 
         /// <summary>
@@ -73,9 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public abstract InternalRelationshipBuilder Apply(
-            [NotNull] InternalRelationshipBuilder relationshipBuilder,
-            [NotNull] Navigation navigation, [NotNull] TAttribute attribute);
+        public abstract void ProcessNavigationAdded(
+            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+            [NotNull] IConventionNavigation navigation,
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<IConventionNavigation> context);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -84,21 +85,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] EntityType entityType, [NotNull] string propertyName)
+            [NotNull] IConventionEntityType entityType, [NotNull] IConventionNavigation navigation)
             where TCustomAttribute : Attribute
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyName, nameof(propertyName));
+            Check.NotNull(navigation, nameof(navigation));
 
-            if (!entityType.HasClrType())
+            var memberInfo = navigation.GetIdentifyingMemberInfo();
+            if (!entityType.HasClrType()
+                || memberInfo == null)
             {
                 return Enumerable.Empty<TCustomAttribute>();
             }
 
-            var property = entityType.GetRuntimeProperties().Find(propertyName);
-            return property != null
-                   && Attribute.IsDefined(property, typeof(TCustomAttribute), inherit: true)
-                ? property.GetCustomAttributes<TCustomAttribute>(true)
+            return Attribute.IsDefined(memberInfo, typeof(TCustomAttribute), inherit: true)
+                ? memberInfo.GetCustomAttributes<TCustomAttribute>(true)
                 : Enumerable.Empty<TCustomAttribute>();
         }
     }

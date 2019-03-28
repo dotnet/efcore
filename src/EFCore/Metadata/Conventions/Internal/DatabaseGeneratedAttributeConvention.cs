@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
     public class DatabaseGeneratedAttributeConvention : PropertyAttributeConvention<DatabaseGeneratedAttribute>
     {
         /// <summary>
@@ -36,8 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalPropertyBuilder Apply(
-            InternalPropertyBuilder propertyBuilder, DatabaseGeneratedAttribute attribute, MemberInfo clrMember)
+        protected override void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder,
+            DatabaseGeneratedAttribute attribute,
+            MemberInfo clrMember,
+            IConventionContext context)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -49,9 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         ? ValueGenerated.OnAddOrUpdate
                         : ValueGenerated.Never;
 
-            propertyBuilder.ValueGenerated(valueGenerated, ConfigurationSource.DataAnnotation);
-
-            return propertyBuilder;
+            propertyBuilder.ValueGenerated(valueGenerated, fromDataAnnotation: true);
         }
     }
 }

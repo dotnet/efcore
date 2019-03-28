@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.EntityTypeRemovedConventions, (DiscriminatorConvention)discriminatorConvention);
 
-            conventionSet.BaseEntityTypeChangedConventions.Add(storeKeyConvention);
-            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(storeKeyConvention);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(storeKeyConvention);
 

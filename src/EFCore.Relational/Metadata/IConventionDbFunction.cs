@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetFunctionName(string name, bool fromDataAnnotation = false);
+        void SetFunctionName([CanBeNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IDbFunction.FunctionName" />.
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetSchema(string schema, bool fromDataAnnotation = false);
+        void SetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IDbFunction.Schema" />.
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetTranslation(Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation = false);
+        void SetTranslation([CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IDbFunction.Translation" />.

@@ -75,23 +75,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the entity types for the given type.
+        ///     Gets the entity types matching the given type.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
             => model.AsModel().GetEntityTypes(type);
 
         /// <summary>
-        ///     Gets the entity types for the given name.
+        ///     Gets the entity types matching the given name.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<EntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
+        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
             => model.AsModel().GetEntityTypes(name);
 
         /// <summary>

@@ -1,8 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             Assert.Null(entityBuilderC.Metadata.BaseType);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
+            RunConvention(entityBuilderC);
 
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             Assert.Null(entityBuilderC.Metadata.BaseType);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
+            RunConvention(entityBuilderC);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
         }
@@ -44,9 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             entityBuilderC.HasBaseType(entityBuilderA.Metadata, ConfigurationSource.Convention);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
+            RunConvention(entityBuilderC);
 
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
+        }
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
         private class A

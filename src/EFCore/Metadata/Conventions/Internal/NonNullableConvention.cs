@@ -31,23 +31,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             // it produces. If the model is spread across more than one assembly, there will be multiple versions of this attribute,
             // so look for it by name, caching to avoid reflection on every check.
             // Note that this may change - if https://github.com/dotnet/corefx/issues/36222 is done we can remove all of this.
-
-            if (Attribute.GetCustomAttributes(memberInfo, true)?.FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is
-                Attribute attribute)
+            if (!(Attribute.GetCustomAttributes(memberInfo, true)
+                    .FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName)
+                is { } attribute))
             {
-                if (attribute.GetType() != _nullableAttrType)
-                {
-                    _nullableFlagsFieldInfo = attribute.GetType().GetField("NullableFlags");
-                    _nullableAttrType = attribute.GetType();
-                }
+                return false;
+            }
 
-                // For the interpretation of NullableFlags, see
-                // https://github.com/dotnet/roslyn/blob/master/docs/features/nullable-reference-types.md#annotations
-                if (_nullableFlagsFieldInfo?.GetValue(attribute) is byte[] flags
-                    && flags.FirstOrDefault() == 1)
-                {
-                    return true;
-                }
+            var attributeType = attribute.GetType();
+            if (attributeType != _nullableAttrType)
+            {
+                _nullableFlagsFieldInfo = attributeType.GetField("NullableFlags");
+                _nullableAttrType = attributeType;
+            }
+
+            // For the interpretation of NullableFlags, see
+            // https://github.com/dotnet/roslyn/blob/master/docs/features/nullable-reference-types.md#annotations
+            if (_nullableFlagsFieldInfo?.GetValue(attribute) is byte[] flags
+                && flags.FirstOrDefault() == 1)
+            {
+                return true;
             }
 
             return false;

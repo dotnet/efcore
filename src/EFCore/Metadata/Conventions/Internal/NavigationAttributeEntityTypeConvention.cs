@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract class NavigationAttributeEntityTypeConvention<TAttribute> :
+        NavigationAttributeNavigationConvention<TAttribute>,
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
-        INavigationAddedConvention,
-        IBaseTypeChangedConvention,
+        IEntityTypeBaseTypeChangedConvention,
         IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {
@@ -37,33 +38,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected NavigationAttributeEntityTypeConvention(
             [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            : base(logger)
         {
             Check.NotNull(memberClassifier, nameof(memberClassifier));
 
             _memberClassifier = memberClassifier;
-            Logger = logger;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type is added to the model.
         /// </summary>
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
             if (!entityType.HasClrType())
             {
-                return entityTypeBuilder;
+                return;
             }
 
             foreach (var navigationPropertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
@@ -77,27 +71,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(inherit: true);
                 foreach (var attribute in attributes)
                 {
-                    if (Apply(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute) == null)
+                    ProcessEntityTypeAdded(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute, context);
+                    if (((ConventionContext<IConventionEntityTypeBuilder>)context).ShouldStopProcessing())
                     {
-                        return null;
+                        return;
                     }
                 }
             }
-
-            return entityTypeBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type is ignored.
         /// </summary>
-        public virtual bool Apply(InternalModelBuilder modelBuilder, string name, Type type)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="name"> The name of the ignored entity type. </param>
+        /// <param name="type"> The ignored entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeIgnored(
+            IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
         {
             if (type == null)
             {
-                return true;
+                return;
             }
 
             foreach (var navigationPropertyInfo in type.GetRuntimeProperties().OrderBy(p => p.Name))
@@ -111,57 +106,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
                 foreach (var attribute in attributes)
                 {
-                    if (!Apply(modelBuilder, type, navigationPropertyInfo, targetClrType, attribute))
+                    ProcessEntityTypeIgnored(modelBuilder, type, navigationPropertyInfo, targetClrType, attribute, context);
+                    if (((ConventionContext<string>)context).ShouldStopProcessing())
                     {
-                        return false;
+                        return;
                     }
                 }
             }
-
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the base type of an entity type changes.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
-        {
-            var navigationPropertyInfo = navigation.GetIdentifyingMemberInfo();
-            if (navigationPropertyInfo == null
-                || !Attribute.IsDefined(navigationPropertyInfo, typeof(TAttribute), inherit: true))
-            {
-                return relationshipBuilder;
-            }
-
-            var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
-            foreach (var attribute in attributes)
-            {
-                relationshipBuilder = Apply(relationshipBuilder, navigation, attribute);
-                if (relationshipBuilder == null)
-                {
-                    return null;
-                }
-            }
-
-            return relationshipBuilder;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base entity type. </param>
+        /// <param name="oldBaseType"> The old base entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
         {
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType())
+            if (!entityType.HasClrType()
+                || entityTypeBuilder.Metadata.BaseType != newBaseType)
             {
-                return true;
+                return;
             }
 
             foreach (var navigationPropertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
@@ -175,47 +146,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
                 foreach (var attribute in attributes)
                 {
-                    if (!Apply(entityTypeBuilder, oldBaseType, navigationPropertyInfo, targetClrType, attribute))
+                    ProcessEntityTypeBaseTypeChanged(
+                        entityTypeBuilder, newBaseType, oldBaseType, navigationPropertyInfo, targetClrType, attribute, context);
+                    if (((ConventionContext<IConventionEntityType>)context).ShouldStopProcessing())
                     {
-                        return false;
+                        return;
                     }
                 }
             }
-
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type member is ignored.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The name of the ignored member. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeMemberIgnored(
+            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
         {
             var navigationPropertyInfo =
-                entityTypeBuilder.Metadata.GetRuntimeProperties()?.Find(ignoredMemberName);
+                entityTypeBuilder.Metadata.GetRuntimeProperties()?.Find(name);
             if (navigationPropertyInfo == null)
             {
-                return true;
+                return;
             }
 
             var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo);
             if (targetClrType == null)
             {
-                return true;
+                return;
             }
 
             var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
             foreach (var attribute in attributes)
             {
-                if (!ApplyIgnored(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute))
+                ProcessEntityTypeMemberIgnored(entityTypeBuilder, navigationPropertyInfo, targetClrType, attribute, context);
+                if (((ConventionContext<string>)context).ShouldStopProcessing())
                 {
-                    return false;
+                    return;
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -242,11 +213,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [NotNull] PropertyInfo navigationPropertyInfo,
+        public virtual void ProcessEntityTypeAdded(
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] MemberInfo navigationMemberInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute) => throw new NotImplementedException();
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -254,12 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Apply(
-            [NotNull] InternalModelBuilder modelBuilder,
+        public virtual void ProcessEntityTypeIgnored(
+            [NotNull] IConventionModelBuilder modelBuilder,
             [NotNull] Type type,
-            [NotNull] PropertyInfo navigationPropertyInfo,
+            [NotNull] MemberInfo navigationMemberInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute) => throw new NotImplementedException();
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<string> context)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -267,10 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            [NotNull] InternalRelationshipBuilder relationshipBuilder,
-            [NotNull] Navigation navigation,
-            [NotNull] TAttribute attribute) => throw new NotImplementedException();
+        public override void ProcessNavigationAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            TAttribute attribute,
+            IConventionContext<IConventionNavigation> context)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -278,12 +255,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Apply(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] EntityType oldBaseType,
-            [NotNull] PropertyInfo navigationPropertyInfo,
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            [CanBeNull] IConventionEntityType oldBaseType,
+            [NotNull] MemberInfo navigationMemberInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute) => throw new NotImplementedException();
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<IConventionEntityType> context)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -291,10 +271,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ApplyIgnored(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [NotNull] PropertyInfo navigationPropertyInfo,
+        public virtual void ProcessEntityTypeMemberIgnored(
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] MemberInfo navigationMemberInfo,
             [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute) => throw new NotImplementedException();
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<string> context)
+            => throw new NotImplementedException();
     }
 }

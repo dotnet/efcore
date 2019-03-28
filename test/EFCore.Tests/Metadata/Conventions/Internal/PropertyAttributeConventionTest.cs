@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
-            new ConcurrencyCheckAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
         }
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
-            new ConcurrencyCheckAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.False(propertyBuilder.Metadata.IsConcurrencyToken);
         }
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
-            new DatabaseGeneratedAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(ValueGenerated.OnAddOrUpdate, propertyBuilder.Metadata.ValueGenerated);
         }
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
-            new DatabaseGeneratedAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(ValueGenerated.Never, propertyBuilder.Metadata.ValueGenerated);
         }
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Id"
                 }, ConfigurationSource.Convention);
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Id"
                 }, ConfigurationSource.Explicit);
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
             Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
@@ -179,19 +179,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void KeyAttribute_throws_when_setting_composite_primary_key()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<B>();
-            var keyAttributeConvention = new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
 
             Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
 
             var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
             var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
-            keyAttributeConvention.Apply(idPropertyBuilder);
+            RunConvention(idPropertyBuilder);
 
             Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
             Assert.Equal("Id", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
 
-            keyAttributeConvention.Apply(myPrimaryKeyPropertyBuilder);
+            RunConvention(myPrimaryKeyPropertyBuilder);
 
             Assert.Equal(2, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
             Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
@@ -199,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => keyAttributeConvention.Apply(entityTypeBuilder.ModelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => Validate(entityTypeBuilder)).Message);
         }
 
         [Fact]
@@ -223,8 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
-                Assert.Throws<InvalidOperationException>(
-                        () => new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(derivedEntityTypeBuilder.ModelBuilder))
+                Assert.Throws<InvalidOperationException>(() => Validate(derivedEntityTypeBuilder))
                     .Message);
         }
 
@@ -242,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Name"
                 }, ConfigurationSource.Explicit);
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(derivedEntityTypeBuilder.ModelBuilder);
+            Validate(derivedEntityTypeBuilder);
 
             Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
         }
@@ -270,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
-            new MaxLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(10, propertyBuilder.Metadata.GetMaxLength());
         }
@@ -284,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
-            new MaxLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(100, propertyBuilder.Metadata.GetMaxLength());
         }
@@ -317,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
             entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Convention);
 
-            entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
+            RunConvention(entityTypeBuilder);
 
             Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
@@ -328,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
             entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Explicit);
 
-            entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
+            RunConvention(entityTypeBuilder);
 
             Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
@@ -349,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity<F>();
             entityTypeBuilder.Property<string>(nameof(F.IgnoredProperty));
 
-            // Because brining the property in by the fluent API overrides the annotation it has no effect
+            // Because bringing the property in by the fluent API overrides the annotation it has no effect
             Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
 
@@ -359,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<F>();
             entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Convention);
 
-            entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
+            RunConvention(entityTypeBuilder);
 
             Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
@@ -377,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
 
-            new RequiredPropertyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.False(propertyBuilder.Metadata.IsNullable);
         }
@@ -391,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
-            new RequiredPropertyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
@@ -427,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
-            new StringLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(20, propertyBuilder.Metadata.GetMaxLength());
         }
@@ -441,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
-            new StringLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(100, propertyBuilder.Metadata.GetMaxLength());
         }
@@ -478,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
-            new TimestampAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(ValueGenerated.OnAddOrUpdate, propertyBuilder.Metadata.ValueGenerated);
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
@@ -494,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
-            new TimestampAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal(ValueGenerated.Never, propertyBuilder.Metadata.ValueGenerated);
             Assert.False(propertyBuilder.Metadata.IsConcurrencyToken);
@@ -544,7 +542,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static ITypeMappingSource CreateTypeMapper()
+        private static void RunConvention(InternalPropertyBuilder propertyBuilder)
+        {
+            var context = new ConventionContext<IConventionPropertyBuilder>(
+                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            new ConcurrencyCheckAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new DatabaseGeneratedAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new MaxLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new RequiredPropertyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new StringLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new TimestampAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
+        }
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
+        }
+
+        private void Validate(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionModelBuilder>(
+                entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+        }
+
+        private ITypeMappingSource CreateTypeMapper()
             => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
 
         private class A

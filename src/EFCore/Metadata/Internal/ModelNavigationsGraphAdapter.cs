@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ModelNavigationsGraphAdapter : Graph<EntityType>
+    public class ModelNavigationsGraphAdapter : Graph<IConventionEntityType>
     {
-        private readonly Model _model;
+        private readonly IConventionModel _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ModelNavigationsGraphAdapter([NotNull] Model model)
+        public ModelNavigationsGraphAdapter([NotNull] IConventionModel model)
         {
             _model = model;
         }
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<EntityType> Vertices => _model.GetEntityTypes();
+        public override IEnumerable<IConventionEntityType> Vertices => _model.GetEntityTypes();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
+        public override IEnumerable<IConventionEntityType> GetOutgoingNeighbors(IConventionEntityType from)
             => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
                 .Union(from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
+        public override IEnumerable<IConventionEntityType> GetIncomingNeighbors(IConventionEntityType to)
             => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
                 .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
     }

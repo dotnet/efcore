@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="properties"> The value to set. </param>
-        public static void SetSqlServerIncludeProperties([NotNull] this IMutableIndex index, IReadOnlyList<string> properties)
+        public static void SetSqlServerIncludeProperties([NotNull] this IMutableIndex index, [NotNull] IReadOnlyList<string> properties)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties);
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <param name="properties"> The value to set. </param>
         public static void SetSqlServerIncludeProperties(
-            [NotNull] this IConventionIndex index, IReadOnlyList<string> properties, bool fromDataAnnotation = false)
+            [NotNull] this IConventionIndex index, [NotNull] IReadOnlyList<string> properties, bool fromDataAnnotation = false)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties,

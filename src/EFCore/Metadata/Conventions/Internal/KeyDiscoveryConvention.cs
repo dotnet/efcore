@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeAddedConvention,
         IPropertyAddedConvention,
         IKeyRemovedConvention,
-        IBaseTypeChangedConvention,
+        IEntityTypeBaseTypeChangedConvention,
         IPropertyFieldChangedConvention,
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
@@ -51,25 +52,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
+        private void TryConfigurePrimaryKey(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType != null
                 || entityType.IsKeyless
-                || !ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
+                || !entityTypeBuilder.CanSetPrimaryKey(null))
             {
-                return entityTypeBuilder;
+                return;
             }
 
-            List<Property> keyProperties = null;
+            List<IConventionProperty> keyProperties = null;
             var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
                              ?? entityType.FindOwnership();
             if (definingFk != null
@@ -88,11 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var candidateProperties = entityType.GetProperties().Where(
                     p => !p.IsShadowProperty()
                          || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                keyProperties = (List<Property>)DiscoverKeyProperties(entityType, candidateProperties);
+                keyProperties = (List<IConventionProperty>)DiscoverKeyProperties(entityType, candidateProperties);
                 if (keyProperties.Count > 1)
                 {
                     Logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
-                    return entityTypeBuilder;
+                    return;
                 }
             }
 
@@ -106,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         || entityType.FindPrimaryKey().Properties.Count == 1
                         || definingFk.Properties.Contains(shadowProperty))
                     {
-                        shadowProperty = entityTypeBuilder.CreateUniqueProperty("Id", typeof(int), isRequired: true);
+                        shadowProperty = ((InternalEntityTypeBuilder)entityTypeBuilder)
+                            .CreateUniqueProperty("Id", typeof(int), isRequired: true);
                     }
 
                     keyProperties.Clear();
@@ -121,10 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (keyProperties.Count > 0)
             {
-                entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
+                entityTypeBuilder.PrimaryKey(keyProperties);
             }
-
-            return entityTypeBuilder;
         }
 
         /// <summary>
@@ -133,8 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Property> DiscoverKeyProperties(
-            [NotNull] EntityType entityType, [NotNull] IReadOnlyList<Property> candidateProperties)
+        public virtual IEnumerable<IConventionProperty> DiscoverKeyProperties(
+            [NotNull] IConventionEntityType entityType,
+            [NotNull] IReadOnlyList<IConventionProperty> candidateProperties)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -153,40 +146,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type is added to the model.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
-            => Apply(entityTypeBuilder) != null;
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
+            => TryConfigurePrimaryKey(entityTypeBuilder);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the base type of an entity type changes.
         /// </summary>
-        public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base entity type. </param>
+        /// <param name="oldBaseType"> The old base entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            if (entityTypeBuilder.Metadata.BaseType != newBaseType)
+            {
+                return;
+            }
 
-            Apply(propertyBuilder.Metadata.DeclaringEntityType.Builder);
-
-            return propertyBuilder;
+            TryConfigurePrimaryKey(entityTypeBuilder);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type.
         /// </summary>
-        public virtual bool Apply(InternalPropertyBuilder propertyBuilder, FieldInfo oldFieldInfo)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
         {
-            Apply(propertyBuilder);
-            return true;
+            TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
         }
+
+        /// <summary>
+        ///     Called after the backing field for a property is changed.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="newFieldInfo"> The new field. </param>
+        /// <param name="oldFieldInfo"> The old field. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyFieldChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            FieldInfo newFieldInfo,
+            FieldInfo oldFieldInfo,
+            IConventionContext<FieldInfo> context)
+            => TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -194,76 +207,93 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
+        public virtual void ProcessKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
         {
             if (entityTypeBuilder.Metadata.FindPrimaryKey() == null)
             {
-                Apply(entityTypeBuilder);
+                TryConfigurePrimaryKey(entityTypeBuilder);
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
         {
             if (relationshipBuilder.Metadata.IsOwnership)
             {
-                Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+                TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
             }
-
-            return relationshipBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the foreign key properties or principal key are changed.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder,
-            IReadOnlyList<Property> oldDependentProperties,
-            Key oldPrincipalKey)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="oldDependentProperties"> The old foreign key properties. </param>
+        /// <param name="oldPrincipalKey"> The old principal key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyPropertiesChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<IConventionProperty> oldDependentProperties,
+            IConventionKey oldPrincipalKey,
+            IConventionContext<IConventionRelationshipBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (foreignKey.IsOwnership
                 && !foreignKey.Properties.SequenceEqual(oldDependentProperties)
                 && relationshipBuilder.Metadata.Builder != null)
             {
-                Apply(foreignKey.DeclaringEntityType.Builder);
+                TryConfigurePrimaryKey(foreignKey.DeclaringEntityType.Builder);
             }
-
-            return relationshipBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the ownership value for a foreign key is changed.
         /// </summary>
-        InternalRelationshipBuilder IForeignKeyOwnershipChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyOwnershipChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
         {
-            Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
-
-            return relationshipBuilder;
+            TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is removed.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="foreignKey"> The removed foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionForeignKey foreignKey,
+            IConventionContext<IConventionForeignKey> context)
         {
             if (foreignKey.IsOwnership)
             {
-                Apply(entityTypeBuilder);
+                TryConfigurePrimaryKey(entityTypeBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Called after the uniqueness for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyUniquenessChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            if (relationshipBuilder.Metadata.IsOwnership)
+            {
+                TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
             }
         }
     }

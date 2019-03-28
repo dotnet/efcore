@@ -1213,36 +1213,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
                 {
-                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
-                        {
-                            b1.Property<int>(""OrderId"")
-                                .ValueGeneratedOnAdd()
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                            b1.HasKey(""OrderId"");
-
-                            b1.ToTable(""Order"");
-
-                            b1.WithOwner()
-                                .HasForeignKey(""OrderId"");
-
-                            b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
-                                {
-                                    b2.Property<int>(""OrderInfoOrderId"")
-                                        .ValueGeneratedOnAdd()
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                                    b2.Property<string>(""City"");
-
-                                    b2.HasKey(""OrderInfoOrderId"");
-
-                                    b2.ToTable(""Order"");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey(""OrderInfoOrderId"");
-                                });
-                        });
-
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
                         {
                             b1.Property<int>(""OrderId"")
@@ -1300,6 +1270,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                                     b2.WithOwner()
                                         .HasForeignKey(""OrderDetailsOrderId"");
+                                });
+                        });
+
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderInfo"", ""OrderInfo"", b1 =>
+                        {
+                            b1.Property<int>(""OrderId"")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b1.HasKey(""OrderId"");
+
+                            b1.ToTable(""Order"");
+
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
+
+                            b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                                {
+                                    b2.Property<int>(""OrderInfoOrderId"")
+                                        .ValueGeneratedOnAdd()
+                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                    b2.Property<string>(""City"");
+
+                                    b2.HasKey(""OrderInfoOrderId"");
+
+                                    b2.ToTable(""Order"");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderInfoOrderId"");
                                 });
                         });
                 });"),

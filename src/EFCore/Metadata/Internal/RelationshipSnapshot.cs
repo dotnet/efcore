@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public RelationshipSnapshot(
             [NotNull] InternalRelationshipBuilder relationship,
-            [CanBeNull] EntityType.Snapshot weakEntityTypeSnapshot)
+            [CanBeNull] EntityType.Snapshot definedEntityTypeSnapshot)
         {
             Relationship = relationship;
-            WeakEntityTypeSnapshot = weakEntityTypeSnapshot;
+            DefinedEntityTypeSnapshot = definedEntityTypeSnapshot;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType.Snapshot WeakEntityTypeSnapshot { [DebuggerStepThrough] get; set; }
+        public virtual EntityType.Snapshot DefinedEntityTypeSnapshot { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Attach([CanBeNull] InternalEntityTypeBuilder entityTypeBuilder = null)
         {
-            entityTypeBuilder = entityTypeBuilder ?? Relationship.Metadata.DeclaringEntityType.Builder;
+            entityTypeBuilder ??= Relationship.Metadata.DeclaringEntityType.Builder;
             var newRelationship = Relationship.Attach(entityTypeBuilder);
 
             if (newRelationship != null)
             {
-                WeakEntityTypeSnapshot?.Attach(
+                DefinedEntityTypeSnapshot?.Attach(
                     newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
             }
 

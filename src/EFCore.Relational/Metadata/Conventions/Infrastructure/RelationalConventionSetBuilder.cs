@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(logger);
 
-            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
-            ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
@@ -75,15 +75,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var storeGenerationConvention = new StoreGenerationConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
-            conventionSet.BaseEntityTypeChangedConventions.Add(
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
             var sharedTableConvention = new SharedTableConvention(logger);
-            conventionSet.ModelBuiltConventions.Add(storeGenerationConvention);
-            conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
+            conventionSet.ModelFinalizedConventions.Add(storeGenerationConvention);
+            conventionSet.ModelFinalizedConventions.Add(sharedTableConvention);
 
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));
 

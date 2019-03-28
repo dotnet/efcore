@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    public readonly struct PropertyIdentity
+    public readonly struct MemberIdentity
     {
-        private readonly object _nameOrProperty;
+        private readonly object _nameOrMember;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public PropertyIdentity([NotNull] string name)
+        public MemberIdentity([NotNull] string name)
             : this((object)name)
         {
         }
@@ -37,15 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public PropertyIdentity([NotNull] MemberInfo property)
-            : this((object)property)
+        public MemberIdentity([NotNull] MemberInfo memberInfo)
+            : this((object)memberInfo)
         {
         }
 
         [DebuggerStepThrough]
-        private PropertyIdentity([CanBeNull] object nameOrProperty)
+        private MemberIdentity([CanBeNull] object nameOrMember)
         {
-            _nameOrProperty = nameOrProperty;
+            _nameOrMember = nameOrMember;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool IsNone() => _nameOrProperty == null;
+        public bool IsNone() => _nameOrMember == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,17 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly PropertyIdentity None = new PropertyIdentity((object)null);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static PropertyIdentity Create([CanBeNull] string name)
-            => name == null ? None : new PropertyIdentity(name);
+        public static readonly MemberIdentity None = new MemberIdentity((object)null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static PropertyIdentity Create([CanBeNull] MemberInfo property)
-            => property == null ? None : new PropertyIdentity(property);
+        public static MemberIdentity Create([CanBeNull] string name)
+            => name == null ? None : new MemberIdentity(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,7 +80,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyIdentity Create([CanBeNull] Navigation navigation)
+        [DebuggerStepThrough]
+        public static MemberIdentity Create([CanBeNull] MemberInfo property)
+            => property == null ? None : new MemberIdentity(property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static MemberIdentity Create([CanBeNull] Navigation navigation)
             => navigation?.GetIdentifyingMemberInfo() == null
                 ? Create(navigation?.Name)
                 : Create(navigation.GetIdentifyingMemberInfo());
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public string Name
         {
-            [DebuggerStepThrough] get => MemberInfo?.GetSimpleMemberName() ?? (string)_nameOrProperty;
+            [DebuggerStepThrough] get => MemberInfo?.GetSimpleMemberName() ?? (string)_nameOrMember;
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public MemberInfo MemberInfo
         {
-            [DebuggerStepThrough] get => _nameOrProperty as MemberInfo;
+            [DebuggerStepThrough] get => _nameOrMember as MemberInfo;
         }
 
         private string DebuggerDisplay()

@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The number of rows affected. </returns>
         public static int ExecuteSqlRaw(
             [NotNull] this DatabaseFacade databaseFacade,
-            string sql,
+            [NotNull] string sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlRaw(databaseFacade, sql, (IEnumerable<object>)parameters);
 
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The number of rows affected. </returns>
         public static int ExecuteSqlRaw(
             [NotNull] this DatabaseFacade databaseFacade,
-            string sql,
+            [NotNull] string sql,
             [NotNull] IEnumerable<object> parameters)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int> ExecuteSqlRawAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            string sql,
+            [NotNull] string sql,
             CancellationToken cancellationToken = default)
             => ExecuteSqlRawAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
 
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int> ExecuteSqlRawAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            string sql,
+            [NotNull] string sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlRawAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static async Task<int> ExecuteSqlRawAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            string sql,
+            [NotNull] string sql,
             [NotNull] IEnumerable<object> parameters,
             CancellationToken cancellationToken = default)
         {

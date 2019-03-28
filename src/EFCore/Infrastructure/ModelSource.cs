@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(validationLogger, nameof(validationLogger));
 
             var conventionSet = conventionSetBuilder.CreateConventionSet();
-            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, validationLogger));
+            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(validator, validationLogger));
 
             var modelBuilder = new ModelBuilder(conventionSet);
 

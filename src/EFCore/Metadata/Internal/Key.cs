@@ -105,6 +105,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
+        ///     Runs the conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -170,24 +181,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new DebugView<Key>(this, m => m.ToDebugString(false));
 
         /// <inheritdoc />
-        IReadOnlyList<IProperty> IKey.Properties => Properties;
+        IReadOnlyList<IProperty> IKey.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
 
         /// <inheritdoc />
-        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
 
         /// <inheritdoc />
-        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
+        IReadOnlyList<IMutableProperty> IMutableKey.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
 
         /// <inheritdoc />
-        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
 
         /// <inheritdoc />
-        IConventionKeyBuilder IConventionKey.Builder => Builder;
+        IConventionKeyBuilder IConventionKey.Builder
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
 
         /// <inheritdoc />
-        IReadOnlyList<IConventionProperty> IConventionKey.Properties => Properties;
+        IReadOnlyList<IConventionProperty> IConventionKey.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
 
         /// <inheritdoc />
-        IConventionEntityType IConventionKey.DeclaringEntityType => DeclaringEntityType;
+        IConventionEntityType IConventionKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
     }
 }

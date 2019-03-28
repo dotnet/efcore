@@ -4,7 +4,6 @@
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual EntityType FindClosestBaseType([NotNull] EntityType entityType)
+        protected virtual IConventionEntityType FindClosestBaseType([NotNull] IConventionEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(clrType, nameof(entityType.ClrType));
 
             var baseType = clrType.GetTypeInfo().BaseType;
-            EntityType baseEntityType = null;
+            IConventionEntityType baseEntityType = null;
 
             while (baseType != null
                    && baseEntityType == null)

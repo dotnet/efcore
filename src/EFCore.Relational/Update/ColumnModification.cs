@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds a modification affecting the same database value.
         /// </summary>
         /// <param name="modification"> The modification for the shared column. </param>
-        public virtual void AddSharedColumnModification(ColumnModification modification)
+        public virtual void AddSharedColumnModification([NotNull] ColumnModification modification)
         {
             if (_sharedColumnModifications == null)
             {

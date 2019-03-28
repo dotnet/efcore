@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -35,8 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder, Navigation navigation, RequiredAttribute attribute)
+        public override void ProcessNavigationAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            RequiredAttribute attribute,
+            IConventionContext<IConventionNavigation> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
@@ -44,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (navigation.IsCollection())
             {
-                return relationshipBuilder;
+                return;
             }
 
             if (!navigation.IsDependentToPrincipal())
@@ -52,35 +55,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var inverse = navigation.FindInverse();
                 if (inverse != null)
                 {
-                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse.Name);
+                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
                     if (attributes.Any())
                     {
                         Logger.RequiredAttributeOnBothNavigations(navigation, inverse);
-                        return relationshipBuilder;
+                        return;
                     }
                 }
 
                 if (!navigation.ForeignKey.IsUnique
                     || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
                 {
-                    return relationshipBuilder;
+                    return;
                 }
 
                 var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                     relationshipBuilder.Metadata.DeclaringEntityType,
-                    relationshipBuilder.Metadata.PrincipalEntityType,
-                    ConfigurationSource.Convention);
+                    relationshipBuilder.Metadata.PrincipalEntityType);
 
                 if (newRelationshipBuilder == null)
                 {
-                    return relationshipBuilder;
+                    return;
                 }
 
                 Logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 
-            return relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
+            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
+
+            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     <para>
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
-    ///         see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
+    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
     ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -87,23 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableEntityType definingEntityType);
 
         /// <summary>
-        ///     Removes an entity type without a defining navigation from the model.
+        ///     Removes an entity type from the model.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be removed. </param>
-        /// <returns> The entity type that was removed. </returns>
-        IMutableEntityType RemoveEntityType([NotNull] string name);
-
-        /// <summary>
-        ///     Removes an entity type with a defining navigation from the model.
-        /// </summary>
-        /// <param name="name"> The name of the entity type to be removed. </param>
-        /// <param name="definingNavigationName"> The defining navigation. </param>
-        /// <param name="definingEntityType"> The defining entity type. </param>
-        /// <returns> The entity type that was removed. </returns>
-        IMutableEntityType RemoveEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+        /// <param name="entityType"> The entity type to be removed. </param>
+        void RemoveEntityType([NotNull] IMutableEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.

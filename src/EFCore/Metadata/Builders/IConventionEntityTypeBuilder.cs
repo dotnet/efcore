@@ -174,6 +174,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionKeyBuilder HasKey([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Removes a primary or alternate key from this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that make up the key. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The key that was removed. </returns>
+        IConventionEntityTypeBuilder HasNoKey([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes a primary or alternate key from this entity type.
+        /// </summary>
+        /// <param name="key"> The key to be removed. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the key was removed,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoKey([NotNull] IConventionKey key, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
         /// </summary>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -195,6 +214,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes an index from this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that make up the index. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the index was removed or didn't exist,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoIndex([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes an index from this entity type.
+        /// </summary>
+        /// <param name="index"> The index to remove. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the index was removed,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoIndex([NotNull] IConventionIndex index, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures a relationship between this and the target entity type.
@@ -398,6 +439,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] MemberInfo navigationToTarget,
             [CanBeNull] MemberInfo inverseNavigation,
             bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes a relationship from this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the relationship was removed or didn't exist,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoRelationship(
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            [NotNull] IConventionKey principalKey,
+            [NotNull] IConventionEntityType principalEntityType,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes a relationship from this entity type.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key to be removed. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the relationship was removed,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoRelationship([NotNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanAddNavigation([NotNull] string navigationName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting

@@ -4,9 +4,9 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
@@ -40,13 +40,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an annotation is changed on an entity type.
         /// </summary>
-        public virtual Annotation Apply(
-            InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAnnotationChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation, IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.MemoryOptimized)
             {
@@ -56,45 +59,38 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                     key.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
 
-                foreach (var index in entityTypeBuilder.Metadata.GetDerivedIndexesInclusive())
+                foreach (var index in
+                    entityTypeBuilder.Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredIndexes()))
                 {
                     index.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
             }
-
-            return annotation;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a key is added to the entity type.
         /// </summary>
-        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
+        /// <param name="keyBuilder"> The builder for the key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
             if (keyBuilder.Metadata.DeclaringEntityType.GetSqlServerIsMemoryOptimized())
             {
                 keyBuilder.ForSqlServerIsClustered(false);
             }
-
-            return keyBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an index is added to the entity type.
         /// </summary>
-        public virtual InternalIndexBuilder Apply(InternalIndexBuilder indexBuilder)
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
             if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.GetSqlServerIsMemoryOptimized()))
             {
                 indexBuilder.ForSqlServerIsClustered(false);
             }
-
-            return indexBuilder;
         }
     }
 }

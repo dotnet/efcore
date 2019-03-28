@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -32,14 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, OwnedAttribute attribute)
+        protected override void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder, OwnedAttribute attribute,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             if (entityTypeBuilder.Metadata.HasClrType())
             {
-                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, ConfigurationSource.DataAnnotation);
+                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, fromDataAnnotation: true);
             }
-
-            return entityTypeBuilder.Metadata.Builder;
         }
     }
 }

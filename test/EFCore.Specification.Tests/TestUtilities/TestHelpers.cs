@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (!skipValidation)
             {
-                conventionSet.ModelBuiltConventions.Add(
+                conventionSet.ModelFinalizedConventions.Add(
                     new ValidatingConvention(
                         contextServices.GetService<IModelValidator>(),
                         logger));
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
 
-            conventionSet.ModelBuiltConventions.Add(
+            conventionSet.ModelFinalizedConventions.Add(
                 new ValidatingConvention(
                     CreateModelValidator(),
                     validationLogger));

@@ -256,8 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else
                 {
-                    Debug.Assert(false, "Unexpected operation type: " + operation.GetType());
                     leftovers.Add(operation);
+                    Debug.Assert(false, "Unexpected operation type: " + operation.GetType());
                 }
             }
 
@@ -706,6 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = clrType.GetTypeInfo().DeclaredProperties
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
+                Debug.Assert(clrType != null);
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
 
@@ -739,6 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var index = clrType.GetTypeInfo().DeclaredProperties
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
+                Debug.Assert(clrType != null);
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
 
@@ -1647,7 +1649,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            var targetKeys = target.EntityTypes.SelectMany(Metadata.Internal.EntityTypeExtensions.GetDeclaredKeys)
+            var targetKeys = target.EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredKeys)
                 .Where(k => k.IsPrimaryKey()).ToList();
             var keyMapping = new Dictionary<IEntityType,
                 Dictionary<IKey, List<(IProperty Property, ValueConverter SourceConverter, ValueConverter TargetConverter)>>>();

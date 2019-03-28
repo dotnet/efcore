@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -21,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
-            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(
-                propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
@@ -36,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             propertyBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
 
-            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(
-                propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
@@ -63,6 +62,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
             Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
+        }
+
+        private static void RunConvention(InternalPropertyBuilder propertyBuilder)
+        {
+            var context = new ConventionContext<IConventionPropertyBuilder>(
+                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()

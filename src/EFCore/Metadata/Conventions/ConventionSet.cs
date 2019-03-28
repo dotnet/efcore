@@ -11,10 +11,26 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     Base implementation for a set of conventions used to build a model. This base implementation is an empty set of conventions.
+    ///     Represents a set of conventions used to build a model.
     /// </summary>
     public class ConventionSet
     {
+        /// <summary>
+        ///     Conventions to run to setup the initial model.
+        /// </summary>
+        public virtual IList<IModelInitializedConvention> ModelInitializedConventions { get; } = new List<IModelInitializedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when model building is completed.
+        /// </summary>
+        public virtual IList<IModelFinalizedConvention> ModelFinalizedConventions { get; } = new List<IModelFinalizedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is set or removed on a model.
+        /// </summary>
+        public virtual IList<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; }
+            = new List<IModelAnnotationChangedConvention>();
+
         /// <summary>
         ///     Conventions to run when an entity type is added to the model.
         /// </summary>
@@ -33,25 +49,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when a property is ignored.
         /// </summary>
-        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } =
-            new List<IEntityTypeMemberIgnoredConvention>();
+        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; }
+            = new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
         ///     Conventions to run when the base entity type is changed.
         /// </summary>
-        public virtual IList<IBaseTypeChangedConvention> BaseEntityTypeChangedConventions { get; } = new List<IBaseTypeChangedConvention>();
+        public virtual IList<IEntityTypeBaseTypeChangedConvention> EntityTypeBaseTypeChangedConventions { get; }
+            = new List<IEntityTypeBaseTypeChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a primary key is changed.
+        /// </summary>
+        public virtual IList<IEntityTypePrimaryKeyChangedConvention> EntityTypePrimaryKeyChangedConventions { get; }
+            = new List<IEntityTypePrimaryKeyChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is set or removed on an entity type.
         /// </summary>
         public virtual IList<IEntityTypeAnnotationChangedConvention> EntityTypeAnnotationChangedConventions { get; }
             = new List<IEntityTypeAnnotationChangedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when an annotation is set or removed on a model.
-        /// </summary>
-        public virtual IList<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; }
-            = new List<IModelAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a foreign key is added.
@@ -64,67 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = new List<IForeignKeyRemovedConvention>();
 
         /// <summary>
-        ///     Conventions to run when a key is added.
-        /// </summary>
-        public virtual IList<IKeyAddedConvention> KeyAddedConventions { get; } = new List<IKeyAddedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when a key is removed.
-        /// </summary>
-        public virtual IList<IKeyRemovedConvention> KeyRemovedConventions { get; } = new List<IKeyRemovedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when a primary key is changed.
-        /// </summary>
-        public virtual IList<IPrimaryKeyChangedConvention> PrimaryKeyChangedConventions { get; } = new List<IPrimaryKeyChangedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when an index is added.
-        /// </summary>
-        public virtual IList<IIndexAddedConvention> IndexAddedConventions { get; } = new List<IIndexAddedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when an index is removed.
-        /// </summary>
-        public virtual IList<IIndexRemovedConvention> IndexRemovedConventions { get; } = new List<IIndexRemovedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when the uniqueness of an index is changed.
-        /// </summary>
-        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } =
-            new List<IIndexUniquenessChangedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when an annotation is changed on an index.
-        /// </summary>
-        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } =
-            new List<IIndexAnnotationChangedConvention>();
-
-        /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
         public virtual IList<IForeignKeyPrincipalEndChangedConvention> ForeignKeyPrincipalEndChangedConventions { get; }
             = new List<IForeignKeyPrincipalEndChangedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when model building is completed.
-        /// </summary>
-        public virtual IList<IModelBuiltConvention> ModelBuiltConventions { get; } = new List<IModelBuiltConvention>();
-
-        /// <summary>
-        ///     Conventions to run to setup the initial model.
-        /// </summary>
-        public virtual IList<IModelInitializedConvention> ModelInitializedConventions { get; } = new List<IModelInitializedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when a navigation property is added.
-        /// </summary>
-        public virtual IList<INavigationAddedConvention> NavigationAddedConventions { get; } = new List<INavigationAddedConvention>();
-
-        /// <summary>
-        ///     Conventions to run when a navigation property is removed.
-        /// </summary>
-        public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
 
         /// <summary>
         ///     Conventions to run when the properties or the principal key of a foreign key are changed.
@@ -149,6 +109,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; }
             = new List<IForeignKeyOwnershipChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is changed on a foreign key.
+        /// </summary>
+        public virtual IList<IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; } =
+            new List<IForeignKeyAnnotationChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a navigation property is added.
+        /// </summary>
+        public virtual IList<INavigationAddedConvention> NavigationAddedConventions { get; } = new List<INavigationAddedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a navigation property is removed.
+        /// </summary>
+        public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a key is added.
+        /// </summary>
+        public virtual IList<IKeyAddedConvention> KeyAddedConventions { get; } = new List<IKeyAddedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when a key is removed.
+        /// </summary>
+        public virtual IList<IKeyRemovedConvention> KeyRemovedConventions { get; } = new List<IKeyRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is changed on a key.
+        /// </summary>
+        public virtual IList<IKeyAnnotationChangedConvention> KeyAnnotationChangedConventions { get; } =
+            new List<IKeyAnnotationChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an index is added.
+        /// </summary>
+        public virtual IList<IIndexAddedConvention> IndexAddedConventions { get; } = new List<IIndexAddedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an index is removed.
+        /// </summary>
+        public virtual IList<IIndexRemovedConvention> IndexRemovedConventions { get; } = new List<IIndexRemovedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the uniqueness of an index is changed.
+        /// </summary>
+        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } =
+            new List<IIndexUniquenessChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when an annotation is changed on an index.
+        /// </summary>
+        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } =
+            new List<IIndexAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a property is added.
@@ -190,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var conventionSet = context.GetService<IConventionSetBuilder>().CreateConventionSet();
 
-            conventionSet.ModelBuiltConventions.Add(
+            conventionSet.ModelFinalizedConventions.Add(
                 new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return conventionSet;

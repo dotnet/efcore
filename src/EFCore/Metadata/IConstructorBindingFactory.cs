@@ -27,11 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="binding"> The binding, or null if none could be created. </param>
+        /// <param name="binding"> The binding, or <c>null</c> if <c>null</c> could be created. </param>
         /// <param name="failedBindings"> The parameters that could not be bound. </param>
-        /// <returns> True if a binding was created; false otherwise. </returns>
+        /// <returns> <c>true</c> if a binding was created; <c>false</c> otherwise. </returns>
+        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
         bool TryBindConstructor(
-            [NotNull] IMutableEntityType entityType,
+            [NotNull] IConventionEntityType entityType,
             [NotNull] ConstructorInfo constructor,
             [CanBeNull] out ConstructorBinding binding,
             [CanBeNull] out IEnumerable<ParameterInfo> failedBindings);

@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
             [NotNull] string navigationName)
             where TNewDependentEntity : class
-            => OwnsOneBuilder<TNewDependentEntity>(new PropertyIdentity(Check.NotNull(navigationName, nameof(navigationName))));
+            => OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(Check.NotNull(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     <para>
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsOneBuilder<TNewDependentEntity>(
-                new PropertyIdentity(
+                new MemberIdentity(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new PropertyIdentity(navigationName)));
+            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -319,23 +319,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
+            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetPropertyAccess())));
             return this;
         }
 
         private OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOneBuilder<TNewDependentEntity>(
-            PropertyIdentity navigation)
+            MemberIdentity navigation)
             where TNewDependentEntity : class
         {
             InternalRelationshipBuilder relationship;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = navigation.MemberInfo == null
                     ? DependentEntityType.Builder.HasOwnership(typeof(TNewDependentEntity), navigation.Name, ConfigurationSource.Explicit)
                     : DependentEntityType.Builder.HasOwnership(
                         typeof(TNewDependentEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship.Metadata).Builder;
+                relationship = (InternalRelationshipBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
             return new OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>(
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
             [NotNull] string navigationName)
             where TNewDependentEntity : class
-            => OwnsManyBuilder<TNewDependentEntity>(new PropertyIdentity(Check.NotNull(navigationName, nameof(navigationName))));
+            => OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(Check.NotNull(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     <para>
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsManyBuilder<TNewDependentEntity>(
-                new PropertyIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
+                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetPropertyAccess()));
 
         /// <summary>
         ///     <para>
@@ -431,9 +431,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new PropertyIdentity(navigationName)));
+                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
                 return this;
             }
         }
@@ -470,25 +470,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new PropertyIdentity(navigationExpression.GetPropertyAccess())));
+                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetPropertyAccess())));
                 return this;
             }
         }
 
-        private OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity> OwnsManyBuilder<TNewRelatedEntity>(PropertyIdentity navigation)
+        private OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity> OwnsManyBuilder<TNewRelatedEntity>(MemberIdentity navigation)
             where TNewRelatedEntity : class
         {
             InternalRelationshipBuilder relationship;
-            using (var batch = DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = navigation.MemberInfo == null
                     ? DependentEntityType.Builder.HasOwnership(typeof(TNewRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
                     : DependentEntityType.Builder.HasOwnership(
                         typeof(TNewRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship.Metadata).Builder;
+                relationship = (InternalRelationshipBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
             return new OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity>(

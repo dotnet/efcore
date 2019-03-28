@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ValidatingConvention : IModelBuiltConvention
+    public class ValidatingConvention : IModelFinalizedConvention
     {
         private readonly IModelValidator _validator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _logger;
@@ -32,16 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a model is finalized.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
-        {
-            _validator.Validate(modelBuilder.Metadata, _logger);
-
-            return modelBuilder;
-        }
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            => _validator.Validate(modelBuilder.Metadata, _logger);
     }
 }

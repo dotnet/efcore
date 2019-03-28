@@ -691,8 +691,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
-            if (((Property)property).GetValueGeneratedConfigurationSource().HasValue
-                && new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated((Property)property) != valueGenerated)
+            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource().HasValue
+                && new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated((IConventionProperty)property) != valueGenerated)
             {
                 string methodName;
                 switch (valueGenerated)

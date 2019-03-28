@@ -61,5 +61,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the backing field can be set for this property. </returns>
         bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
+        /// </summary>
+        /// <param name="parameterBinding"> The parameter binding. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionServicePropertyBuilder HasParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the <see cref="ServiceParameterBinding" /> can be set for this property.
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="parameterBinding"> The parameter binding. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the <see cref="ServiceParameterBinding" /> can be set for this property. </returns>
+        bool CanSetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
     }
 }

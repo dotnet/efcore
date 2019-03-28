@@ -9,13 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-// ReSharper disable StringEndsWithIsCultureSpecific
-// ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ApiConsistencyTestBase
@@ -61,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                    where !it.IsInterface
                    let ns = it.Namespace
                    where ns.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
-                         && !ns.Contains("Query.Pipeline")
+                         && !ns.Contains("Query.Pipeline", StringComparison.Ordinal)
                          && !ns.EndsWith(".Internal", StringComparison.Ordinal)
                          && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
                          && (it.GetConstructors().Length != 1
@@ -90,16 +87,16 @@ namespace Microsoft.EntityFrameworkCore
                    where type.GetTypeInfo().IsVisible
                          && !type.GetTypeInfo().IsSealed
                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                         && type.Namespace?.EndsWith(".Compiled") == false
+                         && type.Namespace?.EndsWith(".Compiled", StringComparison.Ordinal) == false
                          && ShouldHaveVirtualMethods(type)
                    from method in type.GetMethods(AnyInstance)
                    where method.DeclaringType == type
                          && !(method.IsVirtual && !method.IsFinal)
-                         && !method.Name.StartsWith("add_")
-                         && !method.Name.StartsWith("remove_")
+                         && !method.Name.StartsWith("add_", StringComparison.Ordinal)
+                         && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                          && method.Name != "GenerateCacheKeyCore"
-                         && !method.DeclaringType.Namespace.Contains("Query.Pipeline")
+                         && !method.DeclaringType.Namespace.Contains("Query.Pipeline", StringComparison.Ordinal)
                    select type.FullName + "." + method.Name)
                 .ToList();
 
@@ -117,13 +114,14 @@ namespace Microsoft.EntityFrameworkCore
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
-                                                      && type.Name == "IdentityShaper"
+                                                      && !type.Namespace.Contains("Internal", StringComparison.Ordinal)
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                        .Concat<MethodBase>(type.GetConstructors())
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                          && ShouldHaveNotNullAnnotation(method, type)
+                         && !method.DeclaringType.Namespace.Contains("Query", StringComparison.Ordinal)
                    where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                    from parameter in method.GetParameters()
@@ -216,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var missingSuffixMethods
                 = asyncMethods
-                    .Where(method => !method.Name.EndsWith("Async") && method.DeclaringType != null)
+                    .Where(method => !method.Name.EndsWith("Async", StringComparison.Ordinal) && method.DeclaringType != null)
                     .Select(method => method.DeclaringType.Name + "." + method.Name)
                     .Except(GetAsyncSuffixExceptions())
                     .ToList();
@@ -238,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var parameters = (
                     from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                    where !type.Namespace.Contains("Internal")
+                    where !type.Namespace.Contains("Internal", StringComparison.Ordinal)
                     from method in type.GetTypeInfo().DeclaredMethods
                     where !method.IsPrivate
                     from parameter in method.GetParameters()
@@ -249,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(
                 parameters.Count > 0,
-                "\r\n-- Prefixed bool parameteres --\r\n" + string.Join(Environment.NewLine, parameters));
+                "\r\n-- Prefixed bool parameters --\r\n" + string.Join(Environment.NewLine, parameters));
         }
 
         protected virtual IEnumerable<string> GetCancellationTokenExceptions() => Enumerable.Empty<string>();

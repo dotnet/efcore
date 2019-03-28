@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DiscriminatorConvention : IBaseTypeChangedConvention, IEntityTypeRemovedConvention
+    public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEntityTypeRemovedConvention
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,31 +38,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the base type of an entity type changes.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base entity type. </param>
+        /// <param name="oldBaseType"> The old base entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType != null
                 && oldBaseType.BaseType == null
-                && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
+                && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                ((IConventionEntityTypeBuilder)oldBaseType.Builder)?.HasNoDeclaredDiscriminator();
+                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
             }
 
-            IConventionEntityTypeBuilder conventionEntityTypeBuilder = entityTypeBuilder;
+            var conventionEntityTypeBuilder = entityTypeBuilder;
             var entityType = entityTypeBuilder.Metadata;
             var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
             IConventionDiscriminatorBuilder discriminator;
-            if (entityType.BaseType == null)
+            if (newBaseType == null)
             {
                 if (derivedEntityTypes.Count == 0)
                 {
                     conventionEntityTypeBuilder.HasNoDeclaredDiscriminator();
-                    return true;
+                    return;
                 }
 
                 discriminator = conventionEntityTypeBuilder.HasDiscriminator(typeof(string));
@@ -71,15 +76,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (conventionEntityTypeBuilder.HasNoDeclaredDiscriminator() == null)
                 {
-                    return true;
+                    return;
                 }
 
-                IConventionEntityTypeBuilder rootTypeBuilder = entityType.RootType().Builder;
+                var rootTypeBuilder = entityType.RootType().Builder;
                 discriminator = rootTypeBuilder?.HasDiscriminator(typeof(string));
 
-                if (entityType.BaseType.BaseType == null)
+                if (newBaseType.BaseType == null)
                 {
-                    discriminator?.HasValue(entityType.BaseType, entityType.BaseType.ShortName());
+                    discriminator?.HasValue(newBaseType, newBaseType.ShortName());
                 }
             }
 
@@ -88,27 +93,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 discriminator.HasValue(entityTypeBuilder.Metadata, entityTypeBuilder.Metadata.ShortName());
                 SetDefaultDiscriminatorValues(derivedEntityTypes, discriminator);
             }
-
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type is removed from the model.
         /// </summary>
-        public virtual bool Apply(InternalModelBuilder modelBuilder, EntityType type)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="entityType"> The removed entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeRemoved(
+            IConventionModelBuilder modelBuilder,
+            IConventionEntityType entityType,
+            IConventionContext<IConventionEntityType> context)
         {
-            var oldBaseType = type.BaseType;
+            var oldBaseType = entityType.BaseType;
             if (oldBaseType != null
                 && oldBaseType.BaseType == null
-                && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
+                && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                ((IConventionEntityTypeBuilder)oldBaseType.Builder)?.HasNoDeclaredDiscriminator();
+                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
             }
-
-            return true;
         }
 
         /// <summary>
@@ -118,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void SetDefaultDiscriminatorValues(
-            IEnumerable<EntityType> entityTypes, IConventionDiscriminatorBuilder discriminator)
+            IEnumerable<IConventionEntityType> entityTypes, IConventionDiscriminatorBuilder discriminator)
         {
             foreach (var entityType in entityTypes)
             {

@@ -3002,11 +3002,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         eb.Ignore(e => e.Nobs);
 
-                        eb.HasOne(c => c.Nob)
+                        var r = eb.HasOne(c => c.Nob)
                             .WithOne()
                             .HasForeignKey<Hob>("NobId");
 
+                        var req = r.Metadata.IsRequired;
+                        var t = r.Metadata.Properties.Single().ClrType;
+
                         eb.HasKey("NobId");
+
+                        req = r.Metadata.IsRequired;
 
                         eb.HasOne(c => c.Nob)
                             .WithOne()

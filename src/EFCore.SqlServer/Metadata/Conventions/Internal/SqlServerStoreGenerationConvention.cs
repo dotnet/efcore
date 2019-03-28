@@ -3,8 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -13,15 +14,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
 {
     public class SqlServerStoreGenerationConvention : StoreGenerationConvention
     {
-        public override Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        /// <summary>
+        ///     Called after an annotation is changed on a property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public override void ProcessPropertyAnnotationChanged(
+            IConventionPropertyBuilder propertyBuilder, string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
             if (annotation == null
                 || oldAnnotation?.Value != null)
             {
-                return annotation;
+                return;
             }
 
-            var configurationSource = ((IConventionAnnotation)annotation).GetConfigurationSource();
+            var configurationSource = annotation.GetConfigurationSource();
             var fromDataAnnotation = configurationSource != ConfigurationSource.Convention;
             switch (name)
             {
@@ -29,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                     if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasDefaultValue(null, fromDataAnnotation) != null)
                     {
-                        return null;
+                        context.StopProcessing();
+                        return;
                     }
 
                     break;
@@ -37,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                     if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) != null)
                     {
-                        return null;
+                        context.StopProcessing();
+                        return;
                     }
 
                     break;
@@ -45,24 +58,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                     if (propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
                         && propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) != null)
                     {
-                        return null;
+                        context.StopProcessing();
+                        return;
                     }
 
                     break;
                 case SqlServerAnnotationNames.ValueGenerationStrategy:
-                    if (propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
-                        | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
-                        | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                    if ((propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
+                         | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
+                         | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                        && propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) != null)
                     {
-                        return propertyBuilder.ForSqlServerHasValueGenerationStrategy(null, fromDataAnnotation) == null
-                            ? annotation
-                            : null;
+                        context.StopProcessing();
+                        return;
                     }
 
                     break;
             }
 
-            return base.Apply(propertyBuilder, name, annotation, oldAnnotation);
+            base.ProcessPropertyAnnotationChanged(propertyBuilder, name, annotation, oldAnnotation, context);
         }
 
         protected override void Validate(IConventionProperty property)

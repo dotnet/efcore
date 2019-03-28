@@ -413,8 +413,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameterValues"> The parameter values. </param>
         /// <returns> The created command. </returns>
         protected virtual DbCommand CreateCommand(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues)
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IReadOnlyDictionary<string, object> parameterValues)
         {
             var command = connection.DbConnection.CreateCommand();
 

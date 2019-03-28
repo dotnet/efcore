@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            RunConvention(modelBuilder);
 
             Assert.Equal(nameof(OneToOnePrincipal), modelBuilder.Metadata.GetEntityTypes().Single().DisplayName());
         }
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            RunConvention(modelBuilder);
 
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -59,9 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
             baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            RunConvention(modelBuilder);
 
             Assert.True(modelBuilder.Metadata.GetEntityTypes().All(e => !e.GetDeclaredForeignKeys().Any()));
+        }
+
+        private void RunConvention(InternalModelBuilder modelBuilder)
+        {
+            var context = new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher);
+
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessModelFinalized(modelBuilder, context);
         }
 
         private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()

@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotParameterized] string sql,
+            [NotNull] [NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
         {

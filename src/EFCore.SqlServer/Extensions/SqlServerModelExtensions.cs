@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="name"> The value to set. </param>
-        public static void SetSqlServerHiLoSequenceName([NotNull] this IMutableModel model, string name)
+        public static void SetSqlServerHiLoSequenceName([NotNull] this IMutableModel model, [CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetSqlServerHiLoSequenceName(
-            [NotNull] this IConventionModel model, string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="value"> The value to set. </param>
-        public static void SetSqlServerHiLoSequenceSchema([NotNull] this IMutableModel model, string value)
+        public static void SetSqlServerHiLoSequenceSchema([NotNull] this IMutableModel model, [CanBeNull] string value)
         {
             Check.NullButNotEmpty(value, nameof(value));
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetSqlServerHiLoSequenceSchema(
-            [NotNull] this IConventionModel model, string value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(value, nameof(value));
 

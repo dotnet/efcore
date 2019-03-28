@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 && conventionModel.IsOwned(targetType))
                             {
                                 throw new InvalidOperationException(
-                                    CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));
+                                    CoreStrings.AmbiguousOwnedNavigation(entityType.ClrType.ShortDisplayName(), targetType.ShortDisplayName()));
                             }
 
                             throw new InvalidOperationException(

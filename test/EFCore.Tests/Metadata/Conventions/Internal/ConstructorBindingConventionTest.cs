@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -760,7 +761,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityType.AddProperty("_FooBaar5", typeof(string));
             entityType.AddProperty("m_FooBaar6", typeof(string));
 
-            convention.Apply(((Model)entityType.Model).Builder);
+            var model = (Model)entityType.Model;
+            var context = new ConventionContext<IConventionModelBuilder>(model.ConventionDispatcher);
+
+            convention.ProcessModelFinalized(model.Builder, context);
 
             return (DirectConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }

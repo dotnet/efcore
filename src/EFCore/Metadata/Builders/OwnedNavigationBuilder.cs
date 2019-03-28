@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return _builder;
             }
 
-            set => _builder = value;
+            private set => _builder = value;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual T UpdateBuilder<T>(Func<T> configure)
+        protected virtual T UpdateBuilder<T>([NotNull] Func<T> configure)
         {
             var foreignKey = _builder.Metadata;
             var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
                 return this;
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
             InternalRelationshipBuilder relationship;
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
                     ? DependentEntityType.Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
                 return this;
@@ -543,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
             InternalRelationshipBuilder relationship;
-            using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
                     ? DependentEntityType.Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string navigationName)
+        protected virtual EntityType FindRelatedEntityType([NotNull] string relatedTypeName, [CanBeNull] string navigationName)
         {
             var relatedEntityType = DependentEntityType.FindInDefinitionPath(relatedTypeName);
             if (relatedEntityType != null)

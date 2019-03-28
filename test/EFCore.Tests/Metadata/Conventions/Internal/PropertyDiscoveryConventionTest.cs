@@ -4,9 +4,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -151,10 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
 
-            Assert.Same(
-                entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -212,11 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
 
-            Assert.Same(
-                entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                        new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
-                    .Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -235,16 +227,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
 
-            Assert.Same(
-                entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                        new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
-                    .Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
-        private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new PropertyDiscoveryConvention(TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
+                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
+
+            Assert.False(context.ShouldStopProcessing());
+        }
+
+        private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);

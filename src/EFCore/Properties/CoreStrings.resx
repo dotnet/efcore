@@ -166,7 +166,7 @@
     <value>Navigation property '{navigation}' on entity of type '{entityType}' cannot be loaded because the entity is not being tracked. Navigation properties can only be loaded for tracked entities.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
-    <value>The entity type '{entityType}' requires a primary key to be defined.</value>
+    <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call `HasNoKey()`.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
@@ -1152,5 +1152,20 @@
   </data>
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
+  </data>
+  <data name="ForeignKeyWrongType" xml:space="preserve">
+    <value>The foreign key {foreignKey} targeting the key {key} on '{principalType}' is defined on the entity type '{otherEntityType}', not '{entityType}'.</value>
+  </data>
+  <data name="IndexWrongType" xml:space="preserve">
+    <value>The index {index} is defined on the entity type '{otherEntityType}', not '{entityType}'.</value>
+  </data>
+  <data name="KeyWrongType" xml:space="preserve">
+    <value>The key {key} cis defined on the entity type '{otherEntityType}', not '{entityType}'.</value>
+  </data>
+  <data name="PropertyWrongType" xml:space="preserve">
+    <value>The specified property '{property}' is declared on the entity type '{otherEntityType}', not '{entityType}'.</value>
+  </data>
+  <data name="NoNavigation" xml:space="preserve">
+    <value>There is no navigation on entity type '{entityType}' associated with the foreign key {foreignKey}.</value>
   </data>
 </root>

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalPropertyBuilder Apply(
-            InternalPropertyBuilder propertyBuilder, ColumnAttribute attribute, MemberInfo clrMember)
+        protected override void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder, ColumnAttribute attribute, MemberInfo clrMember, IConventionContext context)
         {
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
@@ -46,8 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 propertyBuilder.HasColumnType(attribute.TypeName, fromDataAnnotation: true);
             }
-
-            return propertyBuilder;
         }
     }
 }

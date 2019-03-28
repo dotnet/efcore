@@ -24,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [DebuggerStepThrough]
         public static InternalRelationshipBuilder Run(
             [NotNull] this IConventionBatch batch, [NotNull] InternalRelationshipBuilder relationshipBuilder)
-            => batch.Run(relationshipBuilder.Metadata)?.Builder;
+            => (InternalRelationshipBuilder)batch.Run(relationshipBuilder.Metadata)?.Builder;
     }
 }

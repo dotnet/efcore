@@ -59,6 +59,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
+        ///     Called when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
+            => (Annotation)OnAnnotationSet(name, (IConventionAnnotation)annotation, (IConventionAnnotation)oldAnnotation);
+
+        /// <summary>
+        ///     Runs the corresponding conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected virtual IConventionAnnotation OnAnnotationSet(
+            [NotNull] string name,
+            [CanBeNull] IConventionAnnotation annotation,
+            [CanBeNull] IConventionAnnotation oldAnnotation)
+            => annotation;
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that

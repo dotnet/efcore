@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -40,11 +39,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public bool Applied { get; private set; }
 
-            public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
+            public void ProcessEntityTypeAdded(
+                IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
             {
                 Applied = true;
-
-                return entityTypeBuilder;
             }
         }
 

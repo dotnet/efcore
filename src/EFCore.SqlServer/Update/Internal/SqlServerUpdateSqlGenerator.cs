@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             var typeName = property.GetColumnType();
             if (typeName == null)
             {
-                var principalProperty = property.FindPrincipal();
+                var principalProperty = property.FindFirstPrincipal();
 
                 typeName = principalProperty?.GetColumnType()
                            ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;

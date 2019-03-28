@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -18,9 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Sets_discriminator_for_two_level_hierarchy()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
             Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
 
@@ -38,18 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
-            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
         }
 
         [Fact]
         public void Sets_discriminator_for_three_level_hierarchy()
         {
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
             Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             var derivedTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity), ConfigurationSource.Explicit);
             Assert.Same(derivedTypeBuilder, derivedTypeBuilder.HasBaseType(entityTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
@@ -65,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 derivedTypeBuilder.Metadata,
                 entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity).FullName, ConfigurationSource.Convention).Metadata);
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(derivedTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
@@ -76,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
 
             entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
+
+            RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);
 
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
             discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
@@ -90,13 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Uses_explicit_discriminator_if_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
             new EntityTypeBuilder(baseTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
@@ -111,13 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_nothing_if_explicit_discriminator_is_not_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
             new EntityTypeBuilder(baseTypeBuilder.Metadata).HasDiscriminator("T", typeof(int));
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
@@ -139,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);
 
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
+            RunConvention(entityTypeBuilder, null);
 
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
@@ -147,12 +143,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
-            Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
+
+            RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);
 
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.NotNull(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
+        }
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        {
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
+            var context = new ConventionContext<IConventionEntityType>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+            new DiscriminatorConvention(logger)
+                .ProcessEntityTypeBaseTypeChanged(
+                    entityTypeBuilder, entityTypeBuilder.Metadata.BaseType, oldBaseType, context);
+            Assert.False(context.ShouldStopProcessing());
         }
 
         private class EntityBase

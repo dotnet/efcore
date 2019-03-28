@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyUniquenessChangedConvention,
         IKeyAddedConvention,
         IKeyRemovedConvention,
-        IBaseTypeChangedConvention,
+        IEntityTypeBaseTypeChangedConvention,
         IIndexAddedConvention,
         IIndexRemovedConvention,
         IIndexUniquenessChangedConvention,
-        IModelBuiltConvention
+        IModelFinalizedConvention
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,40 +50,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyAdded(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
-
-            return relationshipBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is removed.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="foreignKey"> The removed foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder, IConventionForeignKey foreignKey,
+            IConventionContext<IConventionForeignKey> context)
         {
             OnForeignKeyRemoved(foreignKey.DeclaringEntityType, foreignKey.Properties);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the foreign key properties or principal key are changed.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(
-            InternalRelationshipBuilder relationshipBuilder,
-            IReadOnlyList<Property> oldDependentProperties,
-            Key oldPrincipalKey)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="oldDependentProperties"> The old foreign key properties. </param>
+        /// <param name="oldPrincipalKey"> The old principal key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyPropertiesChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<IConventionProperty> oldDependentProperties,
+            IConventionKey oldPrincipalKey,
+            IConventionContext<IConventionRelationshipBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
@@ -94,11 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
             }
-
-            return relationshipBuilder;
         }
 
-        private static void OnForeignKeyRemoved(EntityType declaringType, IReadOnlyList<Property> foreignKeyProperties)
+        private static void OnForeignKeyRemoved(IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
         {
             var index = declaringType.FindIndex(foreignKeyProperties);
             if (index == null)
@@ -112,31 +112,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (index.IsUnique
                     && otherForeignKeys.All(fk => !fk.IsUnique))
                 {
-                    index.Builder.IsUnique(false, ConfigurationSource.Convention);
+                    index.Builder.IsUnique(false);
                 }
 
                 return;
             }
 
-            index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
+            index.DeclaringEntityType.Builder.HasNoIndex(index);
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a key is added to the entity type.
         /// </summary>
-        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
+        /// <param name="keyBuilder"> The builder for the key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
             var key = keyBuilder.Metadata;
-            foreach (var index in key.DeclaringEntityType.GetDerivedIndexesInclusive()
+            foreach (var index in key.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredIndexes())
                 .Where(i => AreIndexedBy(i.Properties, i.IsUnique, key.Properties, true)).ToList())
             {
                 RemoveIndex(index);
             }
-
-            return keyBuilder;
         }
 
         /// <summary>
@@ -145,9 +143,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
+        public virtual void ProcessKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
         {
-            foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedForeignKeysInclusive()
+            foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredForeignKeys())
                 .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, coveringIndexUniqueness: true)))
             {
                 CreateIndex(otherForeignKey.Properties, otherForeignKey.IsUnique, otherForeignKey.DeclaringEntityType.Builder);
@@ -155,24 +155,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the base type of an entity type changes.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base entity type. </param>
+        /// <param name="oldBaseType"> The old base entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
         {
-            var baseType = entityTypeBuilder.Metadata.BaseType;
-            var baseKeys = baseType?.GetKeys().ToList();
-            var baseIndexes = baseType?.GetIndexes().ToList();
-            foreach (var foreignKey in entityTypeBuilder.Metadata.GetDerivedForeignKeysInclusive())
+            if (entityTypeBuilder.Metadata.BaseType != newBaseType)
+            {
+                return;
+            }
+
+            var baseKeys = newBaseType?.GetKeys().ToList();
+            var baseIndexes = newBaseType?.GetIndexes().ToList();
+            foreach (var foreignKey in entityTypeBuilder.Metadata.GetDeclaredForeignKeys()
+                .Concat(entityTypeBuilder.Metadata.GetDerivedForeignKeys()))
             {
                 var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
                 if (index == null)
                 {
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
-                else if (baseType != null)
+                else if (newBaseType != null)
                 {
                     var coveringKey = baseKeys.FirstOrDefault(
                         k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUniqueness: true));
@@ -191,37 +201,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
-
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an index is added to the entity type.
         /// </summary>
-        public virtual InternalIndexBuilder Apply(InternalIndexBuilder indexBuilder)
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
             var index = indexBuilder.Metadata;
-            foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
+            foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredIndexes())
                 .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
             {
                 RemoveIndex(otherIndex);
             }
-
-            return indexBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an index is removed.
         /// </summary>
-        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Index index)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="index"> The removed index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionIndex index,
+            IConventionContext<IConventionIndex> context)
         {
-            foreach (var foreignKey in index.DeclaringEntityType.GetDerivedForeignKeysInclusive()
+            foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
+                .SelectMany(t => t.GetDeclaredForeignKeys())
                 .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, index.IsUnique)))
             {
                 CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
@@ -229,12 +239,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the uniqueness for a foreign key is changed.
         /// </summary>
-        InternalRelationshipBuilder IForeignKeyUniquenessChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyUniquenessChanged(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -254,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (coveringKey != null)
                     {
                         RemoveIndex(index);
-                        return relationshipBuilder;
+                        return;
                     }
 
                     var coveringIndex = foreignKey.DeclaringEntityType.GetIndexes()
@@ -262,28 +272,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (coveringIndex != null)
                     {
                         RemoveIndex(index);
-                        return relationshipBuilder;
+                        return;
                     }
                 }
 
-                index.Builder.IsUnique(foreignKey.IsUnique, ConfigurationSource.Convention);
+                index.Builder.IsUnique(foreignKey.IsUnique);
             }
-
-            return relationshipBuilder;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the uniqueness for an index is changed.
         /// </summary>
-        bool IIndexUniquenessChangedConvention.Apply(InternalIndexBuilder indexBuilder)
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexUniquenessChanged(
+            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)
             {
-                foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
+                foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
+                    .SelectMany(t => t.GetDeclaredIndexes())
                     .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUniqueness: true))
                     .ToList())
                 {
@@ -292,14 +301,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                foreach (var foreignKey in index.DeclaringEntityType.GetDerivedForeignKeysInclusive()
+                foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
+                    .SelectMany(t => t.GetDeclaredForeignKeys())
                     .Where(fk => fk.IsUnique && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUniqueness: true)))
                 {
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -308,8 +316,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual Index CreateIndex(
-            [NotNull] IReadOnlyList<Property> properties, bool unique, [NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        protected virtual IConventionIndex CreateIndex(
+            [NotNull] IReadOnlyList<IConventionProperty> properties, bool unique, [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
@@ -327,10 +335,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            var indexBuilder = entityTypeBuilder.HasIndex(properties, ConfigurationSource.Convention);
+            var indexBuilder = entityTypeBuilder.HasIndex(properties);
             if (unique)
             {
-                indexBuilder?.IsUnique(true, ConfigurationSource.Convention);
+                indexBuilder?.IsUnique(true);
             }
 
             return indexBuilder?.Metadata;
@@ -343,29 +351,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual bool AreIndexedBy(
-            [NotNull] IReadOnlyList<Property> properties,
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
             bool unique,
-            [NotNull] IReadOnlyList<Property> coveringIndexProperties,
+            [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
             bool coveringIndexUniqueness)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
                || (unique && coveringIndexUniqueness && coveringIndexProperties.SequenceEqual(properties));
 
-        private static void RemoveIndex(Index index)
-            => index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
+        private static void RemoveIndex(IConventionIndex index)
+            => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a model is finalized.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Logger);
             if (definition.GetLogBehavior(Logger) == WarningBehavior.Ignore
                 && !Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                return modelBuilder;
+                return;
             }
 
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
@@ -397,8 +404,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
             }
-
-            return modelBuilder;
         }
     }
 }

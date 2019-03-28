@@ -466,6 +466,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
 
+                var dependentEntityType = dependentEntityBuilder.Metadata;
+                var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
+
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
                 principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
                     .HasForeignKey(
                         o => new
@@ -480,6 +485,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             c.AlternateKey
                         });
 
+                Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
+
                 derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
                     .HasForeignKey(
                         o => new
@@ -492,8 +499,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             c.Id
                         });
 
-                var dependentEntityType = dependentEntityBuilder.Metadata;
-                var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
                 var fk = dependentEntityType.GetForeignKeys().Single();
                 Assert.Equal(1, dependentEntityType.GetIndexes().Count());
                 Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);

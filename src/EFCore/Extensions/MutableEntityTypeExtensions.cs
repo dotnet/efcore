@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -19,97 +18,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableEntityTypeExtensions
     {
         /// <summary>
-        ///     Returns all derived types of the given <see cref="IMutableEntityType" />, including the type itself.
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Derived types. </returns>
-        public static IEnumerable<IMutableEntityType> GetDerivedTypesInclusive([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets all foreign keys declared on the given <see cref="IMutableEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return foreign keys declared on derived types.
-        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
-        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return foreign keys declared on derived types.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Declared foreign keys. </returns>
-        public static IEnumerable<IMutableForeignKey> GetDeclaredForeignKeys([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDeclaredForeignKeys().Cast<IMutableForeignKey>();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets all non-navigation properties declared on the given <see cref="IMutableEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return properties declared on derived types.
-        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="IMutableEntityType.GetProperties" /> to also return properties declared on derived types.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Declared non-navigation properties. </returns>
-        public static IEnumerable<IMutableProperty> GetDeclaredProperties([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDeclaredProperties().Cast<IMutableProperty>();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets all navigation properties declared on the given <see cref="IMutableEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return navigation properties declared on derived types.
-        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
-        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on derived types.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Declared navigation properties. </returns>
-        public static IEnumerable<IMutableNavigation> GetDeclaredNavigations([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDeclaredNavigations().Cast<IMutableNavigation>();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets all service properties declared on the given <see cref="IMutableEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return properties declared on derived types.
-        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="IMutableEntityType.GetServiceProperties" /> to also return properties declared on derived types.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Declared service properties. </returns>
-        public static IEnumerable<IMutableServiceProperty> GetDeclaredServiceProperties([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDeclaredServiceProperties().Cast<IMutableServiceProperty>();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets all indexes declared on the given <see cref="IMutableEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return indexes declared on derived types.
-        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
-        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return indexes declared on derived types.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> Declared indexes. </returns>
-        public static IEnumerable<IMutableIndex> GetDeclaredIndexes([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDeclaredIndexes().Cast<IMutableIndex>();
-
-        /// <summary>
-        ///     Gets all types in the model that derive from a given entity type.
-        /// </summary>
-        /// <param name="entityType"> The base type to find types that derive from. </param>
-        /// <returns> The derived types. </returns>
-        public static IEnumerable<IMutableEntityType> GetDerivedTypes([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetDerivedTypes().Cast<IMutableEntityType>();
-
-        /// <summary>
         ///     Gets the root base type for a given entity type.
         /// </summary>
         /// <param name="entityType"> The type to find the root of. </param>
@@ -120,7 +28,115 @@ namespace Microsoft.EntityFrameworkCore
             => (IMutableEntityType)((IEntityType)entityType).RootType();
 
         /// <summary>
-        ///     Sets the primary key for this entity.
+        ///     Gets all types in the model that derive from a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The base type to find types that derive from. </param>
+        /// <returns> The derived types. </returns>
+        public static IEnumerable<IMutableEntityType> GetDerivedTypes([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDerivedTypes();
+
+        /// <summary>
+        ///     Returns all derived types of the given <see cref="IMutableEntityType" />, including the type itself.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Derived types. </returns>
+        public static IEnumerable<IMutableEntityType> GetDerivedTypesInclusive([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDerivedTypesInclusive();
+
+        /// <summary>
+        ///     Gets all types in the model that directly derive from a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The base type to find types that derive from. </param>
+        /// <returns> The derived types. </returns>
+        public static IEnumerable<IMutableEntityType> GetDirectlyDerivedTypes([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDirectlyDerivedTypes();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all keys declared on the given <see cref="IEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return keys declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same key more than once.
+        ///         Use <see cref="IConventionEntityType.GetKeys" /> to also return keys declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared keys. </returns>
+        public static IEnumerable<IMutableKey> GetDeclaredKeys([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredKeys();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all non-navigation properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IMutableEntityType.GetProperties" /> to also return properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared non-navigation properties. </returns>
+        public static IEnumerable<IMutableProperty> GetDeclaredProperties([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all navigation properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return navigation properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
+        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared navigation properties. </returns>
+        public static IEnumerable<IMutableNavigation> GetDeclaredNavigations([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredNavigations();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all service properties declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="IMutableEntityType.GetServiceProperties" /> to also return properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared service properties. </returns>
+        public static IEnumerable<IMutableServiceProperty> GetDeclaredServiceProperties([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredServiceProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all indexes declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return indexes declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
+        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return indexes declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared indexes. </returns>
+        public static IEnumerable<IMutableIndex> GetDeclaredIndexes([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredIndexes();
+
+        /// <summary>
+        ///     Removes a property from this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="name"> The name of the property to remove. </param>
+        /// <returns> The property that was removed. </returns>
+        public static IMutableProperty RemoveProperty([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => ((EntityType)entityType).RemoveProperty(name);
+
+        /// <summary>
+        ///     Sets the primary key for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to set the key on. </param>
         /// <param name="property"> The primary key property. </param>
@@ -155,11 +171,47 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The newly created key. </returns>
         public static IMutableKey AddKey(
             [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+            => Check.NotNull(entityType, nameof(entityType)).AddKey(new[] { property });
 
-            return entityType.AddKey(new[] { property });
-        }
+        /// <summary>
+        ///     Removes a primary or alternate key from this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add remove the key from. </param>
+        /// <param name="properties"> The properties that make up the key. </param>
+        /// <returns> The key that was removed. </returns>
+        public static IMutableKey RemoveKey(
+            [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IMutableProperty> properties)
+            => ((EntityType)entityType).RemoveKey(properties);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return foreign keys declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to also return foreign keys declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Declared foreign keys. </returns>
+        public static IEnumerable<IMutableForeignKey> GetDeclaredForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredForeignKeys();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on the types derived from the given <see cref="IMutableEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return foreign keys declared on the given entity type itself.
+        ///         Use <see cref="IMutableEntityType.GetForeignKeys" /> to return foreign keys declared on this
+        ///         and base entity typed types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Derived foreign keys. </returns>
+        public static IEnumerable<IMutableForeignKey> GetDerivedForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDerivedForeignKeys();
 
         /// <summary>
         ///     Gets the foreign keys defined on the given property. Only foreign keys that are defined on exactly the specified
@@ -181,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IMutableForeignKey> FindForeignKeys(
             [NotNull] this IMutableEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
-            => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IMutableForeignKey>();
+            => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
@@ -208,12 +260,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        ///      Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
-        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
-        public static IMutableForeignKey FindOwnership([NotNull] this IMutableEntityType entityType)
-            => ((EntityType)entityType).FindOwnership();
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="properties"> The properties to find the foreign keys on. </param>
+        /// <returns> Declared foreign keys. </returns>
+        public static IEnumerable<IMutableForeignKey> FindDeclaredForeignKeys(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties)
+            => ((EntityType)entityType).FindDeclaredForeignKeys(properties);
+
+        /// <summary>
+        ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
+        ///     or a type it's derived from is the principal).
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the foreign keys for. </param>
+        /// <returns> The foreign keys that reference the given entity type. </returns>
+        public static IEnumerable<IMutableForeignKey> GetReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetReferencingForeignKeys();
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
@@ -221,11 +285,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys for. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
-        public static IEnumerable<IMutableForeignKey> GetReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetReferencingForeignKeys().Cast<IMutableForeignKey>();
+        public static IEnumerable<IMutableForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).GetDeclaredReferencingForeignKeys();
 
         /// <summary>
-        ///     Adds a new relationship to this entity.
+        ///     Adds a new relationship to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the foreign key to. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
@@ -248,28 +312,69 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns null if no navigation property is found.
+        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the navigation property on. </param>
-        /// <param name="propertyInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or null if none is found. </returns>
-        public static IMutableNavigation FindNavigation(
-            [NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return entityType.FindNavigation(propertyInfo.GetSimpleMemberName());
-        }
+        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        public static IMutableForeignKey FindOwnership([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns null if no navigation property is found.
+        ///     Removes a foreign key from this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to remove the foreign key from. </param>
+        /// <param name="properties"> The properties that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <returns> The foreign key that was removed. </returns>
+        public static IMutableForeignKey RemoveForeignKey(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<IMutableProperty> properties,
+            [NotNull] IMutableKey principalKey,
+            [NotNull] IMutableEntityType principalEntityType)
+            => ((EntityType)entityType).RemoveForeignKey(properties, principalKey, principalEntityType);
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the navigation property on. </param>
+        /// <param name="memberInfo"> The navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        public static IMutableNavigation FindNavigation(
+            [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
+            => Check.NotNull(entityType, nameof(entityType))
+                .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or null if none is found. </returns>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
         public static IMutableNavigation FindNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
-            => (IMutableNavigation)((IEntityType)entityType).FindNavigation(name);
+            => ((EntityType)entityType).FindNavigation(name);
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
+        ///     Returns <c>null</c> if no navigation property is found.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the navigation property on. </param>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        public static IMutableNavigation FindDeclaredNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
+
+        /// <summary>
+        ///     Returns the defining navigation if one exists or <c>null</c> otherwise.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the defining navigation for. </param>
+        /// <returns> The defining navigation if one exists or <c>null</c> otherwise. </returns>
+        public static IMutableNavigation FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
+            => (IMutableNavigation)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
         ///     Gets all navigation properties on the given entity type.
@@ -277,20 +382,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get navigation properties for. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
         public static IEnumerable<IMutableNavigation> GetNavigations([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).GetNavigations().Cast<IMutableNavigation>();
+        => ((EntityType)entityType).GetNavigations();
 
         /// <summary>
         ///     <para>
-        ///         Gets a property on the given entity type. Returns null if no property is found.
+        ///         Gets a property on the given entity type. Returns <c>null</c> if no property is found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(IMutableEntityType, PropertyInfo)" /> to find a navigation property.
+        ///         <see cref="FindNavigation(IMutableEntityType, MemberInfo)" /> to find a navigation property.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>
         /// <param name="propertyInfo"> The property on the entity class. </param>
-        /// <returns> The property, or null if none is found. </returns>
+        /// <returns> The property, or <c>null</c> if none is found. </returns>
         public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -300,7 +405,33 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Adds a property to this entity.
+        ///     <para>
+        ///         Finds matching properties on the given entity type. Returns <c>null</c> if any property is not found.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the properties on. </param>
+        /// <param name="propertyNames"> The property names. </param>
+        /// <returns> The properties, or <c>null</c> if any property is not found. </returns>
+        public static IReadOnlyList<IMutableProperty> FindProperties(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<string> propertyNames)
+            => ((EntityType)entityType).FindProperties(Check.NotNull(propertyNames, nameof(propertyNames)));
+
+        /// <summary>
+        ///     Finds a property declared on the type with the given name.
+        ///     Does not return properties defined on a base type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the property on. </param>
+        /// <param name="name"> The property name. </param>
+        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        public static IMutableProperty FindDeclaredProperty([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => ((EntityType)entityType).FindDeclaredProperty(name);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
@@ -328,18 +459,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Adds an index to this entity.
+        ///     Adds an index to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the index to. </param>
         /// <param name="property"> The property to be indexed. </param>
         /// <returns> The newly created index. </returns>
         public static IMutableIndex AddIndex(
             [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+            => Check.NotNull(entityType, nameof(entityType)).AddIndex(new[] { property });
 
-            return entityType.AddIndex(new[] { property });
-        }
+        /// <summary>
+        ///     Removes an index from this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to remove the index from. </param>
+        /// <param name="properties"> The properties that make up the index. </param>
+        /// <returns> The index that was removed. </returns>
+        public static IMutableIndex RemoveIndex(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IReadOnlyList<IMutableProperty> properties)
+            => ((EntityType)entityType).RemoveIndex(properties);
 
         /// <summary>
         ///     <para>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnName());
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
@@ -62,10 +63,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
+            RunConvention(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnName());
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
+        }
+
+        private void RunConvention(InternalPropertyBuilder propertyBuilder)
+        {
+            var context = new ConventionContext<IConventionPropertyBuilder>(
+                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>())
+                .ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()

@@ -65,7 +65,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterName"> The parameter name. </param>
         /// <returns> The binding. </returns>
         public override ParameterBinding Bind(
-            IMutableEntityType entityType,
+            IMutableEntityType entityType, Type parameterType, string parameterName)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(parameterType, nameof(parameterType));
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
+            var baseType = entityType;
+            do
+            {
+                baseType.SetNavigationAccessMode(PropertyAccessMode.Field);
+                baseType = baseType.BaseType;
+            }
+            while (baseType != null);
+
+            return Bind(entityType, parameterType);
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> The binding. </returns>
+        public override ParameterBinding Bind(
+            IConventionEntityType entityType,
             Type parameterType,
             string parameterName)
         {
@@ -81,7 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return parameterType == typeof(ILazyLoader)
+            return Bind(entityType, parameterType);
+        }
+
+        private static ParameterBinding Bind(IEntityType entityType, Type parameterType)
+            => parameterType == typeof(ILazyLoader)
                 ? new DependencyInjectionParameterBinding(
                     typeof(ILazyLoader),
                     typeof(ILazyLoader),
@@ -97,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         typeof(ILazyLoader),
                         _loadAsyncMethod,
                         entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name)));
-        }
 
         private static bool IsLazyLoader(Type type)
             => type == typeof(ILazyLoader);

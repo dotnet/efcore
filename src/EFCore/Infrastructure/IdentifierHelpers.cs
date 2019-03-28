@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static string Uniquify<TKey, TValue>(
             [NotNull] string currentIdentifier,
             [NotNull] IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
-            Func<string, TKey> keySelector,
+            [NotNull] Func<string, TKey> keySelector,
             int maxLength)
         {
             var finalIdentifier = Truncate(currentIdentifier, maxLength);

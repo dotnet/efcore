@@ -74,52 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IEntityType> GetDirectlyDerivedTypes([NotNull] this IEntityType entityType)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var derivedType in entityType.Model.GetEntityTypes())
-            {
-                if (derivedType.BaseType == entityType)
-                {
-                    yield return derivedType;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IForeignKey FindDeclaredOwnership([NotNull] this IEntityType entityType)
             => ((EntityType)entityType).FindDeclaredOwnership();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
-        {
-            if (!entityType.HasDefiningNavigation())
-            {
-                return null;
-            }
-
-            var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Navigation FindDefiningNavigation([NotNull] this EntityType entityType)
-            => (Navigation)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -416,33 +372,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Func<InternalEntityEntry, ISnapshot> GetRelationshipSnapshotFactory([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().RelationshipSnapshotFactory;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Func<InternalEntityEntry, ISnapshot> GetOriginalValuesFactory([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().OriginalValuesFactory;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Func<ValueBuffer, ISnapshot> GetShadowValuesFactory([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().ShadowValuesFactory;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().EmptyShadowValuesFactory;
 
@@ -489,25 +418,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IKey> GetDeclaredKeys([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDeclaredKeys();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IEntityType entityType)
-            => entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
-                .Where(fk => fk.PrincipalEntityType == entityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IEnumerable<INavigation> FindDerivedNavigations(
             [NotNull] this IEntityType entityType, [NotNull] string navigationName)
             => entityType.GetDerivedTypes().SelectMany(
@@ -521,26 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<Navigation> GetDerivedNavigations([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDerivedNavigations();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<Navigation> GetDerivedNavigationsInclusive([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDerivedNavigationsInclusive();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<IProperty> FindDerivedProperties(
-            [NotNull] this IEntityType entityType, [NotNull] string propertyName)
-            => entityType.GetDerivedTypes().SelectMany(
-                et => et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

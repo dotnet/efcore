@@ -55,15 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] MemberInfo navigationMemberInfo,
             [NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
-            CollectionProperty = navigationProperty;
-            CollectionName = navigationProperty?.GetSimpleMemberName();
+            CollectionMember = navigationMemberInfo;
+            CollectionName = navigationMemberInfo?.GetSimpleMemberName();
             Builder = ((ForeignKey)foreignKey).Builder;
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual PropertyInfo CollectionProperty { get; }
+        protected virtual MemberInfo CollectionMember { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
-            => WithOneBuilder(PropertyIdentity.Create(navigationName));
+            => WithOneBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,10 +154,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
-        private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
+        private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)
         {
             var foreignKey = Builder.Metadata;
             var referenceName = reference.Name;
@@ -180,13 +180,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return referenceName != null
                    && RelatedEntityType != foreignKey.DeclaringEntityType
-                ? reference.MemberInfo == null && CollectionProperty == null
+                ? reference.MemberInfo == null && CollectionMember == null
                     ? Builder.HasNavigations(
                         reference.Name, CollectionName,
                         (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
                         ConfigurationSource.Explicit)
                     : Builder.HasNavigations(
-                        reference.MemberInfo, CollectionProperty,
+                        reference.MemberInfo, CollectionMember,
                         (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
                         ConfigurationSource.Explicit)
                 : reference.MemberInfo == null

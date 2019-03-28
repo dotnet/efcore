@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -35,18 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalPropertyBuilder Apply(
-            InternalPropertyBuilder propertyBuilder, MaxLengthAttribute attribute, MemberInfo clrMember)
+        protected override void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder, MaxLengthAttribute attribute, MemberInfo clrMember, IConventionContext context)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
             if (attribute.Length > 0)
             {
-                propertyBuilder.HasMaxLength(attribute.Length, ConfigurationSource.DataAnnotation);
+                propertyBuilder.HasMaxLength(attribute.Length, fromDataAnnotation: true);
             }
-
-            return propertyBuilder;
         }
     }
 }

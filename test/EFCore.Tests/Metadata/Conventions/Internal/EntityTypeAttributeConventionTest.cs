@@ -1,9 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
 
-            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder);
+            RunConvention(entityBuilder);
 
             Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
-            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder);
+            RunConvention(entityBuilder);
 
             Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -51,6 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         #endregion
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
+        }
 
         [NotMapped]
         private class A

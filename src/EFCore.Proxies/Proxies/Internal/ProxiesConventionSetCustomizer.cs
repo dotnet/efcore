@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
         {
-            conventionSet.ModelBuiltConventions.Add(
+            conventionSet.ModelFinalizedConventions.Add(
                 new ProxyBindingRewriter(
                     _lazyLoaderParameterBindingFactoryDependencies,
                     _proxyFactory,

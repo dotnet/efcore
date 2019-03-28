@@ -4,10 +4,10 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
 
-            Assert.Same(entityBuilder, CreateKeyDiscoveryConvention().Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.Null(key);
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
             var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation);
 
-            Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
+            RunConvention(propertyBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
             var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
 
-            Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
+            RunConvention(propertyBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.Null(key);
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void DiscoverKeyProperties_discovers_id()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithId>();
-
-            Assert.Same(entityBuilder, CreateKeyDiscoveryConvention().Apply(entityBuilder));
+            
+            RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithTypeId>();
 
-            Assert.Same(entityBuilder, CreateKeyDiscoveryConvention().Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithIdAndTypeId>();
 
-            Assert.Same(entityBuilder, CreateKeyDiscoveryConvention().Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithMultipleIds>();
 
-            Assert.Same(entityBuilder, CreateKeyDiscoveryConvention().Apply(entityBuilder));
+            RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.Null(key);
@@ -135,6 +135,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         public ListLoggerFactory ListLoggerFactory { get; }
             = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(
+                entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            CreateKeyDiscoveryConvention().ProcessEntityTypeAdded(entityTypeBuilder, context);
+        }
+
+        private void RunConvention(InternalPropertyBuilder propertyBuilder)
+        {
+            var context = new ConventionContext<IConventionPropertyBuilder>(
+                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            CreateKeyDiscoveryConvention().ProcessPropertyAdded(propertyBuilder, context);
+        }
 
         private KeyDiscoveryConvention CreateKeyDiscoveryConvention() => new KeyDiscoveryConvention(CreateLogger());
 
@@ -156,10 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(modelBuilder.Metadata.ConventionDispatcher);
             new PropertyDiscoveryConvention(
                     TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
                     new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
-                .Apply(entityBuilder);
+                .ProcessEntityTypeAdded(entityBuilder, context);
 
             return entityBuilder;
         }

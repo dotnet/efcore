@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -232,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            Cleanup(modelBuilder);
             Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
@@ -255,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            Cleanup(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -279,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
+            Cleanup(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -339,6 +340,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
+        }
+
+        private static void Cleanup(InternalModelBuilder modelBuilder)
+        {
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessModelFinalized(modelBuilder,
+                    new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)

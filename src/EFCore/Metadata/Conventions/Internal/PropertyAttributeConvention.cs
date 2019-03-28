@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -39,40 +40,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type.
         /// </summary>
-        public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var memberInfo = propertyBuilder.Metadata.GetIdentifyingMemberInfo();
             if (memberInfo == null)
             {
-                return propertyBuilder;
+                return;
             }
 
+            Process(propertyBuilder, memberInfo, (IReadableConventionContext)context);
+        }
+
+        /// <summary>
+        ///     Called after the backing field for a property is changed.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="newFieldInfo"> The new field. </param>
+        /// <param name="oldFieldInfo"> The old field. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyFieldChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            FieldInfo newFieldInfo,
+            FieldInfo oldFieldInfo,
+            IConventionContext<FieldInfo> context)
+        {
+            if (newFieldInfo != null
+                && propertyBuilder.Metadata.PropertyInfo == null)
+            {
+                Process(propertyBuilder, newFieldInfo, (IReadableConventionContext)context);
+            }
+        }
+
+        private void Process(IConventionPropertyBuilder propertyBuilder, MemberInfo memberInfo, IReadableConventionContext context)
+        {
             if (!Attribute.IsDefined(memberInfo, typeof(TAttribute), inherit: true))
             {
-                return propertyBuilder;
+                return;
             }
 
             var attributes = memberInfo.GetCustomAttributes<TAttribute>(inherit: true);
-            if (attributes != null)
+
+            foreach (var attribute in attributes)
             {
-                foreach (var attribute in attributes)
+                ProcessPropertyAdded(propertyBuilder, attribute, memberInfo, context);
+                if (context.ShouldStopProcessing())
                 {
-                    propertyBuilder = Apply(propertyBuilder, attribute, memberInfo);
-                    if (propertyBuilder == null)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
-
-            return propertyBuilder;
         }
 
         /// <summary>
@@ -81,19 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Apply(InternalPropertyBuilder propertyBuilder, FieldInfo oldFieldInfo)
-        {
-            Apply(propertyBuilder);
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public abstract InternalPropertyBuilder Apply(
-            [NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute, [NotNull] MemberInfo clrMember);
+        protected abstract void ProcessPropertyAdded(
+            [NotNull] IConventionPropertyBuilder propertyBuilder,
+            [NotNull] TAttribute attribute,
+            [NotNull] MemberInfo clrMember,
+            [NotNull] IConventionContext context);
     }
 }

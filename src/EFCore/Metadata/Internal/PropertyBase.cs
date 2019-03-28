@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            OnFieldInfoSet(oldFieldInfo);
+            OnFieldInfoSet(fieldInfo, oldFieldInfo);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
             [NotNull] Type propertyType,
-            [NotNull] Type entityClrType,
+            [CanBeNull] Type entityClrType,
             [CanBeNull] string propertyName,
             bool shouldThrow)
         {
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo oldFieldInfo)
+        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
         {
         }
 

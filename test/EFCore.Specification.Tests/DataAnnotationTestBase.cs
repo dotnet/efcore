@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var conventionSet = conventionSetBuilder.CreateConventionSet();
 
-            conventionSet.ModelBuiltConventions.Add(
+            conventionSet.ModelFinalizedConventions.Add(
                 new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return new ModelBuilder(conventionSet);

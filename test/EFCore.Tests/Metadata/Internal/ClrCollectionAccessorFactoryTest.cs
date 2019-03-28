@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             AccessorTest("FullPropNoField", e => e.FullPropNoField, initializeCollections: false);
         }
 
-        private static void AccessorTest(
+        private void AccessorTest(
             string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader, bool initializeCollections = true)
         {
             var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation(navigationName));
@@ -252,8 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
-                .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
+            RunConvention(navigation);
 
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
@@ -398,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
-        private static IMutableNavigation CreateNavigation(string navigationName)
+        private IMutableNavigation CreateNavigation(string navigationName)
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
@@ -411,10 +409,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = foreignKey.HasPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
-                .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
+            RunConvention(navigation);
 
             return navigation;
+        }
+
+        private void RunConvention(IMutableNavigation navigation)
+        {
+            var foreignKey = navigation.ForeignKey;
+            var context = new ConventionContext<IConventionNavigation>(
+                ((ForeignKey)foreignKey).DeclaringEntityType.Model.ConventionDispatcher);
+
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessNavigationAdded(((ForeignKey)foreignKey).Builder, (Navigation)navigation, context);
         }
 
         private class MyEntity

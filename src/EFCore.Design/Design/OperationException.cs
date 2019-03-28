@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="info"> The serialization info. </param>
         /// <param name="context"> The streaming context being used. </param>
-        public OperationException(SerializationInfo info, StreamingContext context)
+        public OperationException([NotNull] SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

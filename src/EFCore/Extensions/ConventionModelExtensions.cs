@@ -42,6 +42,44 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
+        ///     Removes an entity type without a defining navigation from the model.
+        /// </summary>
+        /// <param name="model"> The model to remove the entity type from. </param>
+        /// <param name="name"> The name of the entity type to be removed. </param>
+        /// <returns> The entity type that was removed. </returns>
+        public static IConventionEntityType RemoveEntityType(
+            [NotNull] this IConventionModel model,
+            [NotNull] string name)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(name, nameof(name));
+
+            return ((Model)model).RemoveEntityType(name);
+        }
+
+        /// <summary>
+        ///     Removes an entity type with a defining navigation from the model.
+        /// </summary>
+        /// <param name="model"> The model to remove the entity type from. </param>
+        /// <param name="name"> The name of the entity type to be removed. </param>
+        /// <param name="definingNavigationName"> The defining navigation. </param>
+        /// <param name="definingEntityType"> The defining entity type. </param>
+        /// <returns> The entity type that was removed. </returns>
+        public static IConventionEntityType RemoveEntityType(
+            [NotNull] this IConventionModel model,
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] IConventionEntityType definingEntityType)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(definingNavigationName, nameof(definingNavigationName));
+            Check.NotNull(definingEntityType, nameof(definingEntityType));
+
+            return ((Model)model).RemoveEntityType(name);
+        }
+
+        /// <summary>
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="model"> The model to remove the entity type from. </param>
@@ -52,20 +90,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
 
-            return model.AsModel().RemoveEntityType(type);
+            return ((Model)model).RemoveEntityType(type);
         }
-
-        /// <summary>
-        ///     Removes an entity type from the model.
-        /// </summary>
-        /// <param name="model"> The model to remove the entity type from. </param>
-        /// <param name="entityType"> The entity type to be removed. </param>
-        /// <returns> The entity type that was removed. </returns>
-        public static IConventionEntityType RemoveEntityType(
-            [NotNull] this IConventionModel model,
-            [NotNull] IConventionEntityType entityType)
-            => Check.NotNull(model, nameof(model)).AsModel().RemoveEntityType(
-                (EntityType)Check.NotNull(entityType, nameof(entityType)));
 
         /// <summary>
         ///     Removes an entity type with a defining navigation from the model.
@@ -80,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType)
-            => Check.NotNull(model, nameof(model)).AsModel().RemoveEntityType(
+            => Check.NotNull((Model)model, nameof(model)).RemoveEntityType(
                 Check.NotNull(type, nameof(type)),
                 Check.NotNull(definingNavigationName, nameof(definingNavigationName)),
                 (EntityType)Check.NotNull(definingEntityType, nameof(definingEntityType)));
@@ -96,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
             [CanBeNull] Func<IConventionEntityType, bool> condition = null)
-            => Check.NotNull(model, nameof(model)).AsModel()
+            => Check.NotNull((Model)model, nameof(model))
                 .FindLeastDerivedEntityTypes(type, condition);
 
         /// <summary>
@@ -117,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false)
-            => Check.NotNull(model, nameof(model)).AsModel()
+            => Check.NotNull((Model)model, nameof(model))
                 .SetPropertyAccessMode(
                     propertyAccessMode,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -141,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
-            => Check.NotNull(model, nameof(model)).AsModel()
+            => Check.NotNull((Model)model, nameof(model))
                 .SetChangeTrackingStrategy(
                     changeTrackingStrategy,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -155,18 +181,17 @@ namespace Microsoft.EntityFrameworkCore
             => model.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns a value indicating whether the entity types matching the given name should be configured
+        ///     Returns a value indicating whether the entity types using the given type should be configured
         ///     as owned types when discovered.
         /// </summary>
-        /// <param name="model"> The model to get the value from. </param>
-        /// <param name="clrType"> The type of the entity type that might be owned. </param>
+        /// <param name="model"> The model. </param>
+        /// <param name="clrType"> The type of the entity type that could be owned. </param>
         /// <returns>
-        ///     <c>true</c> if a matching entity type should be configured as owned when discovered,
-        ///     <c>false</c> otherwise.
+        ///     <c>true</c> if the given type name is marked as owned,
+        ///     <c>null</c> otherwise.
         /// </returns>
         public static bool IsOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
-            => Check.NotNull(model, nameof(model)).AsModel().IsOwned(
-                Check.NotNull(clrType, nameof(clrType)));
+            => model.FindIsOwnedConfigurationSource(clrType) != null;
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured
@@ -178,8 +203,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The configuration source if the given type name is marked as owned,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static ConfigurationSource? GetIsOwnedConfigurationSource([NotNull] this IConventionModel model, [NotNull] Type clrType)
-            => Check.NotNull(model, nameof(model)).AsModel().GetIsOwnedConfigurationSource(
+        public static ConfigurationSource? FindIsOwnedConfigurationSource([NotNull] this IConventionModel model, [NotNull] Type clrType)
+            => Check.NotNull((Model)model, nameof(model)).FindIsOwnedConfigurationSource(
                 Check.NotNull(clrType, nameof(clrType)));
 
         /// <summary>
@@ -190,9 +215,42 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clrType"> The type of the entity type that should be owned. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void AddOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
-            => Check.NotNull(model, nameof(model)).AsModel().AddOwned(
+            => Check.NotNull((Model)model, nameof(model)).AddOwned(
                 Check.NotNull(clrType, nameof(clrType)),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Indicates whether the given entity type name is ignored.
+        /// </summary>
+        /// <param name="model"> The model to check for ignored type. </param>
+        /// <param name="name"> The name of the entity type that could be ignored. </param>
+        /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
+        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] string name)
+            => model.FindIgnoredConfigurationSource(name) != null;
+
+        /// <summary>
+        ///     Indicates whether the given entity type is ignored.
+        /// </summary>
+        /// <param name="model"> The model to check for ignored type. </param>
+        /// <param name="type"> The entity type that might be ignored. </param>
+        /// <returns> <c>true</c> if the given entity type is ignored. </returns>
+        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] Type type)
+            => Check.NotNull((Model)model, nameof(model)).IsIgnored(
+                Check.NotNull(type, nameof(type)));
+
+        /// <summary>
+        ///     Indicates whether the given entity type is ignored.
+        /// </summary>
+        /// <param name="model"> The model to check for ignored type. </param>
+        /// <param name="type"> The entity type that might be ignored. </param>
+        /// <returns>
+        ///     The configuration source if the given entity type is ignored,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static ConfigurationSource? FindIgnoredConfigurationSource(
+            [NotNull] this IConventionModel model, [NotNull] Type type)
+            => Check.NotNull((Model)model, nameof(model)).FindIgnoredConfigurationSource(
+                Check.NotNull(type, nameof(type)));
 
         /// <summary>
         ///     Removes the given owned type, indicating that when discovered matching entity types
@@ -200,9 +258,19 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to remove the owned type name from. </param>
         /// <param name="clrType"> The type of the entity type that should not be owned. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void RemoveOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
-            => Check.NotNull(model, nameof(model)).AsModel().RemoveOwned(
+        public static void RemoveOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
+            => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Marks the given entity type as ignored.
+        /// </summary>
+        /// <param name="model"> The model to add the ignored type to. </param>
+        /// <param name="clrType"> The entity type to be ignored. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void AddIgnored([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
+            => Check.NotNull((Model)model, nameof(model)).AddIgnored(
+                Check.NotNull(clrType, nameof(clrType)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

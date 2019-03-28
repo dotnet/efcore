@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The sequence name to use. </param>
-        public static void SetSqlServerHiLoSequenceName([NotNull] this IMutableProperty property, string name)
+        public static void SetSqlServerHiLoSequenceName([NotNull] this IMutableProperty property, [CanBeNull] string name)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
                 Check.NullButNotEmpty(name, nameof(name)));
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The sequence name to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetSqlServerHiLoSequenceName(
-            [NotNull] this IConventionProperty property, string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="schema"> The schema to use. </param>
-        public static void SetSqlServerHiLoSequenceSchema([NotNull] this IMutableProperty property, string schema)
+        public static void SetSqlServerHiLoSequenceSchema([NotNull] this IMutableProperty property, [CanBeNull] string schema)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
                 Check.NullButNotEmpty(schema, nameof(schema)));
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetSqlServerHiLoSequenceSchema(
-            [NotNull] this IConventionProperty property, string schema, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property, [CanBeNull] string schema, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
                 Check.NullButNotEmpty(schema, nameof(schema)),
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> <c>true</c> if compatible. </returns>
-        public static bool IsCompatibleWithValueGeneration(IProperty property)
+        public static bool IsCompatibleWithValueGeneration([NotNull] IProperty property)
         {
             var type = property.ClrType;
 

@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public virtual EntityEntry FindEntry(object entity)
+        public virtual EntityEntry FindEntry([NotNull] object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual InternalEntityEntry GetInternalTargetEntry(object entity)
+        protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
                || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
                   ? null

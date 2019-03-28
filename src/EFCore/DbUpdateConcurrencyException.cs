@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="info"> The serialization info. </param>
         /// <param name="context"> The streaming context being used. </param>
-        public DbUpdateConcurrencyException(SerializationInfo info, StreamingContext context)
+        public DbUpdateConcurrencyException([NotNull] SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

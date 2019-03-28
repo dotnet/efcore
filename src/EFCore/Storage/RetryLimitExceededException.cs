@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="info"> The serialization info. </param>
         /// <param name="context"> The streaming context being used. </param>
-        public RetryLimitExceededException(SerializationInfo info, StreamingContext context)
+        public RetryLimitExceededException([NotNull] SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

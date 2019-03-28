@@ -4,7 +4,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -34,14 +34,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, NotMappedAttribute attribute)
+        protected override void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            NotMappedAttribute attribute,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
-            return entityTypeBuilder.ModelBuilder.Ignore(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation) != null
-                ? null
-                : entityTypeBuilder;
+            if (entityTypeBuilder.ModelBuilder.Ignore(entityTypeBuilder.Metadata.Name, fromDataAnnotation: true) != null)
+            {
+                context.StopProcessing();
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
+            RunConvention(entityBuilder);
 
             Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
@@ -47,10 +48,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
+            RunConvention(entityBuilder);
 
             Assert.Equal("ExplicitName", entityBuilder.Metadata.GetTableName());
             Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
+        }
+
+        private static void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()

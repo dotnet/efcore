@@ -145,6 +145,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
+        ///     Runs the conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -260,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] string name,
             ConfigurationSource configurationSource)
-            => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: true);
+            => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] MemberInfo property,
             ConfigurationSource configurationSource)
-            => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: true);
+            => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -307,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] string name,
             ConfigurationSource configurationSource)
-            => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: false);
+            => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -318,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] MemberInfo property,
             ConfigurationSource configurationSource)
-            => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: false);
+            => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -344,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         private Navigation Navigation(
-            PropertyIdentity? propertyIdentity,
+            MemberIdentity? propertyIdentity,
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
         {
@@ -441,8 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigation != null)
             {
-                var builder = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation);
-                navigation = pointsToPrincipal ? builder?.Metadata.DependentToPrincipal : builder?.Metadata.PrincipalToDependent;
+                navigation = (Navigation)DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation);
             }
 
             return navigation ?? oldNavigation;
@@ -481,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return isChanging
-                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
+                ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
                 : this;
         }
 
@@ -537,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return oldRequired != IsRequired
-                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)?.Metadata
+                ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)?.Metadata
                 : this;
         }
 
@@ -655,8 +665,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return isChanging
-                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata
-                : (this);
+                ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata
+                : this;
         }
 
         private static bool DefaultIsOwnership => false;
@@ -684,15 +694,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> FindNavigationsFrom([NotNull] EntityType entityType)
-            => ((IForeignKey)this).FindNavigationsFrom(entityType).Cast<Navigation>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsFromInHierarchy([NotNull] EntityType entityType)
             => ((IForeignKey)this).FindNavigationsFromInHierarchy(entityType).Cast<Navigation>();
 
@@ -711,35 +712,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> FindNavigationsToInHierarchy([NotNull] EntityType entityType)
-            => ((IForeignKey)this).FindNavigationsToInHierarchy(entityType).Cast<Navigation>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual EntityType ResolveOtherEntityTypeInHierarchy([NotNull] EntityType entityType)
-            => (EntityType)((IForeignKey)this).ResolveOtherEntityTypeInHierarchy(entityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual EntityType ResolveOtherEntityType([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveOtherEntityType(entityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
-            => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
         /// <summary>
@@ -759,104 +733,141 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
 
+        /// <inheritdoc />
         IReadOnlyList<IProperty> IForeignKey.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
 
+        /// <inheritdoc />
         IKey IForeignKey.PrincipalKey
         {
             [DebuggerStepThrough] get => PrincipalKey;
         }
 
+        /// <inheritdoc />
         IEntityType IForeignKey.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
+        /// <inheritdoc />
         IEntityType IForeignKey.PrincipalEntityType
         {
             [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
+        /// <inheritdoc />
         INavigation IForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
+        /// <inheritdoc />
         INavigation IForeignKey.PrincipalToDependent
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
+        /// <inheritdoc />
         IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
 
+        /// <inheritdoc />
         IMutableKey IMutableForeignKey.PrincipalKey
         {
             [DebuggerStepThrough] get => PrincipalKey;
         }
 
+        /// <inheritdoc />
         IMutableEntityType IMutableForeignKey.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
+        /// <inheritdoc />
         IMutableEntityType IMutableForeignKey.PrincipalEntityType
         {
             [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.PrincipalToDependent
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
+        /// <inheritdoc />
         void IMutableForeignKey.SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey)
             => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) =>
             HasDependentToPrincipal(name, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) =>
             HasDependentToPrincipal(property, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) =>
             HasPrincipalToDependent(name, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(MemberInfo property) =>
             HasPrincipalToDependent(property, ConfigurationSource.Explicit);
 
-        IConventionEntityType IConventionForeignKey.DeclaringEntityType => DeclaringEntityType;
-        IConventionEntityType IConventionForeignKey.PrincipalEntityType => PrincipalEntityType;
+        /// <inheritdoc />
+        IConventionEntityType IConventionForeignKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
 
+        /// <inheritdoc />
+        IConventionEntityType IConventionForeignKey.PrincipalEntityType
+        {
+            [DebuggerStepThrough]
+            get => PrincipalEntityType;
+        }
+
+        /// <inheritdoc />
         IConventionKey IConventionForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough] get => PrincipalKey;
+            [DebuggerStepThrough]
+            get => PrincipalKey;
         }
 
+        /// <inheritdoc />
         IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough] get => DependentToPrincipal;
+            [DebuggerStepThrough]
+            get => DependentToPrincipal;
         }
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough] get => PrincipalToDependent;
+            [DebuggerStepThrough]
+            get => PrincipalToDependent;
         }
 
+        /// <inheritdoc />
         void IConventionForeignKey.SetProperties(
             IReadOnlyList<IConventionProperty> properties,
             IConventionKey principalKey,
@@ -865,27 +876,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (IReadOnlyList<Property>)properties, (Key)principalKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
             => HasDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(MemberInfo property, bool fromDataAnnotation)
             => HasDependentToPrincipal(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(string name, bool fromDataAnnotation)
             => HasPrincipalToDependent(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(MemberInfo property, bool fromDataAnnotation)
             => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         void IConventionForeignKey.SetIsUnique(bool? unique, bool fromDataAnnotation)
             => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         void IConventionForeignKey.SetIsRequired(bool? required, bool fromDataAnnotation)
             => SetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         void IConventionForeignKey.SetIsOwnership(bool? ownership, bool fromDataAnnotation)
             => SetIsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         void IConventionForeignKey.SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => SetDeleteBehavior(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -1025,10 +1044,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] IReadOnlyList<Property> principalProperties,
-            [NotNull] IReadOnlyList<Property> dependentProperties,
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            [NotNull] IReadOnlyList<IProperty> principalProperties,
+            [NotNull] IReadOnlyList<IProperty> dependentProperties,
+            [NotNull] IEntityType principalEntityType,
+            [NotNull] IEntityType dependentEntityType,
             bool shouldThrow)
         {
             Check.NotNull(principalProperties, nameof(principalProperties));

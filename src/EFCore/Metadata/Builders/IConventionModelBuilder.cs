@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder Entity(string name, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder Entity([NotNull] string name, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder Entity(Type type, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder Entity([NotNull] Type type, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type with defining navigation.
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="type"> The entity type to be removed from the model. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same <see cref="IConventionModelBuilder" /> instance so that additional configuration calls can be chained
+        ///     The same builder instance so that additional configuration calls can be chained
         ///     if the given entity type was ignored, <c>null</c> otherwise.
         /// </returns>
         IConventionModelBuilder Ignore([NotNull] Type type, bool fromDataAnnotation = false);
@@ -139,10 +139,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given entity type name was ignored. </returns>
         /// <returns>
-        ///     The same <see cref="IConventionModelBuilder" /> instance so that additional configuration calls can be chained
-        ///     if the given entity type name was ignored, <c>null</c> otherwise.
+        ///     The same builder instance if the given entity type name was ignored, <c>null</c> otherwise.
         /// </returns>
         IConventionModelBuilder Ignore([NotNull] string typeName, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes the given entity type from the model.
+        /// </summary>
+        /// <param name="entityType"> The entity type to be removed from the model. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the given entity type was removed, <c>null</c> otherwise.
+        /// </returns>
+        IConventionModelBuilder HasNoEntityType([NotNull] IConventionEntityType entityType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given entity type can be ignored from the current configuration source
@@ -167,8 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same <see cref="IConventionModelBuilder" /> instance so that additional configuration calls can be chained,
-        ///     if the configuration was successful, <c>null</c> otherwise.
+        ///     The same builder instance if the configuration was successful, <c>null</c> otherwise.
         /// </returns>
         IConventionModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
 
@@ -194,8 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this model. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same <see cref="IConventionModelBuilder" /> instance so that additional configuration calls can be chained
-        ///     if the configuration was successful, <c>null</c> otherwise.
+        ///     The same builder instance if the configuration was successful, <c>null</c> otherwise.
         /// </returns>
         IConventionModelBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 

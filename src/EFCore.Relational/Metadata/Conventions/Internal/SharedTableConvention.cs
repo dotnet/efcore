@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SharedTableConvention : IModelBuiltConvention
+    public class SharedTableConvention : IModelFinalizedConvention
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,22 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a model is finalized.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
-            var tables = new Dictionary<(string, string), List<EntityType>>();
+            var tables = new Dictionary<(string, string), List<IConventionEntityType>>();
 
             TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
 
-            var columns = new Dictionary<string, Property>(StringComparer.Ordinal);
-            var keys = new Dictionary<string, Key>(StringComparer.Ordinal);
-            var foreignKeys = new Dictionary<string, ForeignKey>(StringComparer.Ordinal);
-            var indexes = new Dictionary<string, Index>(StringComparer.Ordinal);
+            var columns = new Dictionary<string, IConventionProperty>(StringComparer.Ordinal);
+            var keys = new Dictionary<string, IConventionKey>(StringComparer.Ordinal);
+            var foreignKeys = new Dictionary<string, IConventionForeignKey>(StringComparer.Ordinal);
+            var indexes = new Dictionary<string, IConventionIndex>(StringComparer.Ordinal);
             foreach (var entityTypes in tables.Values)
             {
                 columns.Clear();
@@ -71,12 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     TryUniquifyIndexNames(entityType, indexes, maxLength);
                 }
             }
-
-            return modelBuilder;
         }
 
         private static void TryUniquifyTableNames(
-            Model model, Dictionary<(string, string), List<EntityType>> tables, int maxLength)
+            IConventionModel model, Dictionary<(string, string), List<IConventionEntityType>> tables, int maxLength)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -88,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
-                    entityTypes = new List<EntityType>();
+                    entityTypes = new List<IConventionEntityType>();
                     tables[tableName] = entityTypes;
                 }
 
@@ -104,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                             if (entityType.Builder.ToTable(uniqueName) != null)
                             {
-                                tables[(tableName.Schema, uniqueName)] = new List<EntityType>
+                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
                                 {
                                     entityType
                                 };
@@ -122,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 if (otherEntityType.Builder.ToTable(uniqueName) != null)
                                 {
                                     entityTypes.Remove(otherEntityType);
-                                    tables[(tableName.Schema, uniqueName)] = new List<EntityType>
+                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
                                     {
                                         otherEntityType
                                     };
@@ -136,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private static bool ShouldUniquify(EntityType entityType, ICollection<EntityType> entityTypes)
+        private static bool ShouldUniquify(IConventionEntityType entityType, ICollection<IConventionEntityType> entityTypes)
         {
             var rootType = entityType.RootType();
             var pkProperty = entityType.FindPrimaryKey().Properties[0];
@@ -163,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return true;
         }
 
-        private static void TryUniquifyColumnNames(EntityType entityType, Dictionary<string, Property> properties, int maxLength)
+        private static void TryUniquifyColumnNames(IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
@@ -207,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify(
-            Property property, string columnName, Dictionary<string, Property> properties, bool usePrefix, int maxLength)
+            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix, int maxLength)
         {
             if (property.Builder.CanSetColumnName(null))
             {
@@ -229,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private static void TryUniquifyKeyNames(EntityType entityType, Dictionary<string, Key> keys, int maxLength)
+        private static void TryUniquifyKeyNames(IConventionEntityType entityType, Dictionary<string, IConventionKey> keys, int maxLength)
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
@@ -263,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-            Key key, string keyName, Dictionary<string, T> keys, int maxLength)
+            IConventionKey key, string keyName, Dictionary<string, T> keys, int maxLength)
         {
             if (key.Builder.CanSetName(null))
             {
@@ -275,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private static void TryUniquifyIndexNames(EntityType entityType, Dictionary<string, Index> indexes, int maxLength)
+        private static void TryUniquifyIndexNames(IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
@@ -319,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-            Index index, string indexName, Dictionary<string, T> indexes, int maxLength)
+            IConventionIndex index, string indexName, Dictionary<string, T> indexes, int maxLength)
         {
             if (index.Builder.CanSetName(null))
             {
@@ -331,7 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private static void TryUniquifyForeignKeyNames(EntityType entityType, Dictionary<string, ForeignKey> foreignKeys, int maxLength)
+        private static void TryUniquifyForeignKeyNames(
+            IConventionEntityType entityType, Dictionary<string, IConventionForeignKey> foreignKeys, int maxLength)
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
@@ -377,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-            ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
+            IConventionForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
         {
             if (foreignKey.Builder.CanSetConstraintName(null))
             {

@@ -558,9 +558,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Owned<Whoopper>();
                 modelBuilder.Owned<Moostard>();
                 modelBuilder.Entity<ToastedBun>();
+                modelBuilder.Ignore<Tomato>();
 
                 Assert.Equal(
-                    CoreStrings.AmbiguousOwnedNavigation(nameof(Moostard), nameof(Whoopper)),
+                    CoreStrings.AmbiguousOwnedNavigation(nameof(Whoopper), nameof(Moostard)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 

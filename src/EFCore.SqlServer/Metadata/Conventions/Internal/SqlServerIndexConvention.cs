@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerIndexConvention :
-        IBaseTypeChangedConvention,
+        IEntityTypeBaseTypeChangedConvention,
         IIndexAddedConvention,
         IIndexUniquenessChangedConvention,
         IIndexAnnotationChangedConvention,
@@ -53,74 +53,96 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after the base type of an entity type changes.
         /// </summary>
-        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base entity type. </param>
+        /// <param name="oldBaseType"> The old base entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType == null
-                || entityTypeBuilder.Metadata.BaseType == null)
+                || newBaseType == null)
             {
                 foreach (var index in entityTypeBuilder.Metadata.GetDeclaredIndexes())
                 {
                     SetIndexFilter(index.Builder);
                 }
             }
-
-            return true;
-        }
-
-        InternalIndexBuilder IIndexAddedConvention.Apply(InternalIndexBuilder indexBuilder)
-            => SetIndexFilter(indexBuilder);
-
-        bool IIndexUniquenessChangedConvention.Apply(InternalIndexBuilder indexBuilder)
-        {
-            SetIndexFilter(indexBuilder);
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an index is added to the entity type.
         /// </summary>
-        public virtual bool Apply(InternalPropertyBuilder propertyBuilder)
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexAdded(
+            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            => SetIndexFilter(indexBuilder);
+
+        /// <summary>
+        ///     Called after the uniqueness for an index is changed.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexUniquenessChanged(
+            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            => SetIndexFilter(indexBuilder);
+
+        /// <summary>
+        ///     Called after the nullability for a property is changed.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyNullabilityChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
             {
                 SetIndexFilter(index.Builder);
             }
-
-            return true;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an annotation is changed on an index.
         /// </summary>
-        public virtual Annotation Apply(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        /// <param name="indexBuilder"> The builder for the index. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessIndexAnnotationChanged(
+            IConventionIndexBuilder indexBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.Clustered)
             {
                 SetIndexFilter(indexBuilder);
             }
-
-            return annotation;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an annotation is changed on a property.
         /// </summary>
-        public virtual Annotation Apply(
-            InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyAnnotationChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
             if (name == RelationalAnnotationNames.ColumnName)
             {
@@ -129,11 +151,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                     SetIndexFilter(index.Builder, columnNameChanged: true);
                 }
             }
-
-            return annotation;
         }
 
-        private InternalIndexBuilder SetIndexFilter(InternalIndexBuilder indexBuilder, bool columnNameChanged = false)
+        private IConventionIndexBuilder SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
         {
             // TODO: compare with a cached filter to avoid overriding if it was set by a different convention
             var index = indexBuilder.Metadata;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -19,12 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityBuilderB.Metadata.BaseType);
             Assert.Null(entityBuilderC.Metadata.BaseType);
 
-            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderA);
+            RunConvention(entityBuilderA);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
             Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
 
-            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderB);
+            RunConvention(entityBuilderB);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             entityBuilderC.HasBaseType(entityBuilderB.Metadata, ConfigurationSource.DataAnnotation);
 
-            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderA);
+            RunConvention(entityBuilderA);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
@@ -53,9 +54,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             entityBuilderC.HasBaseType(entityBuilderA.Metadata, ConfigurationSource.Convention);
 
-            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderB);
+            RunConvention(entityBuilderB);
 
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
+        }
+
+        private static void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+                .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
         private class A

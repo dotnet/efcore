@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="clrType"> The <see cref="Type" /> of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetClrType(Type clrType, bool fromDataAnnotation = false);
+        void SetClrType([CanBeNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ISequence.ClrType" />.

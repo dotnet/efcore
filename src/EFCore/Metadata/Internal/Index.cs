@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -129,12 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 UpdateIsUniqueConfigurationSource(configurationSource);
             }
 
-            if (isChanging)
-            {
-                DeclaringEntityType.Model.ConventionDispatcher.OnIndexUniquenessChanged(Builder);
-            }
-
-            return this;
+            return isChanging
+                ? (Index)DeclaringEntityType.Model.ConventionDispatcher.OnIndexUniquenessChanged(Builder)?.Metadata
+                : this;
         }
 
         private static bool DefaultIsUnique => false;
@@ -157,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
             => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnIndexAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>

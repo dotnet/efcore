@@ -4,7 +4,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -33,7 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, TableAttribute attribute)
+        protected override void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            TableAttribute attribute,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             if (!string.IsNullOrWhiteSpace(attribute.Schema))
             {
@@ -44,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 entityTypeBuilder.ToTable(attribute.Name, fromDataAnnotation: true);
             }
-
-            return entityTypeBuilder;
         }
     }
 }

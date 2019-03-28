@@ -115,11 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
-        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
-        {
-            Check.NotNull(types, nameof(types));
-
-            return types
+        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions([NotNull] IReadOnlyList<TypeMaterializationInfo> types)
+        => Check.NotNull(types, nameof(types))
                 .Select(
                     (mi, i) =>
                         CreateGetValueExpression(
@@ -128,7 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             mi,
                             Dependencies.CoreOptions.AreDetailedErrorsEnabled,
                             box: false)).ToArray();
-        }
 
         private static Func<DbDataReader, object[]> CreateArrayInitializer(CacheKey cacheKey, bool detailedErrorsEnabled)
             => Expression.Lambda<Func<DbDataReader, object[]>>(

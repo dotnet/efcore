@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionPropertyBuilder ForSqliteHasDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            string dimension,
+            [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
         {
             if (propertyBuilder.ForSqliteCanSetDimension(dimension, fromDataAnnotation))
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the given value can be set as the dimension for the column. </returns>
         public static bool ForSqliteCanSetDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            string dimension,
+            [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
             => Check.NotNull(propertyBuilder, nameof(propertyBuilder)).CanSetAnnotation(
                 SqliteAnnotationNames.Srid,

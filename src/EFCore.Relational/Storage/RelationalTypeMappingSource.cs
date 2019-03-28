@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="scale"> The scale parsed from the type name, or <c>null</c> if none was specified. </param>
         /// <returns> The provider-specific relational type name, with any facets removed. </returns>
         protected virtual string ParseStoreTypeName(
-            string storeTypeName,
+            [CanBeNull] string storeTypeName,
             out bool? unicode,
             out int? size,
             out int? precision,

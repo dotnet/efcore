@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -35,18 +35,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyAdded(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
-            relationshipBuilder.OnDelete(
-                TargetDeleteBehavior(relationshipBuilder.Metadata),
-                ConfigurationSource.Convention);
+            var newRelationshipBuilder = relationshipBuilder.OnDelete(TargetDeleteBehavior(relationshipBuilder.Metadata));
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder);
+            }
+        }
 
-            return relationshipBuilder;
+        /// <summary>
+        ///     Called after the requiredness for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRequirednessChanged(
+            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            ProcessForeignKeyAdded(relationshipBuilder, context);
         }
 
         /// <summary>
@@ -55,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual DeleteBehavior TargetDeleteBehavior([NotNull] ForeignKey foreignKey)
+        protected virtual DeleteBehavior TargetDeleteBehavior([NotNull] IConventionForeignKey foreignKey)
             => foreignKey.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
     }
 }

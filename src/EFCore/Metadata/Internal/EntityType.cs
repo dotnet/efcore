@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -247,13 +246,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HasBaseType(
-            [CanBeNull] EntityType entityType,
+            [CanBeNull] EntityType newBaseType,
             ConfigurationSource configurationSource)
         {
-            if (_baseType == entityType)
+            Debug.Assert(Builder != null);
+
+            if (_baseType == newBaseType)
             {
                 UpdateBaseTypeConfigurationSource(configurationSource);
-                entityType?.UpdateConfigurationSource(configurationSource);
+                newBaseType?.UpdateConfigurationSource(configurationSource);
                 return;
             }
 
@@ -267,38 +268,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _baseType?._directlyDerivedTypes.Remove(this);
             _baseType = null;
 
-            if (entityType != null)
+            if (newBaseType != null)
             {
                 if (this.HasClrType())
                 {
-                    if (!entityType.HasClrType())
+                    if (!newBaseType.HasClrType())
                     {
-                        throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), entityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
 
-                    if (!entityType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    if (!newBaseType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NotAssignableClrBaseType(
-                                this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(),
-                                entityType.ClrType.ShortDisplayName()));
+                                this.DisplayName(), newBaseType.DisplayName(), ClrType.ShortDisplayName(),
+                                newBaseType.ClrType.ShortDisplayName()));
                     }
 
-                    if (entityType.HasDefiningNavigation())
+                    if (newBaseType.HasDefiningNavigation())
                     {
-                        throw new InvalidOperationException(CoreStrings.WeakBaseType(this.DisplayName(), entityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.WeakBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
                 }
 
                 if (!this.HasClrType()
-                    && entityType.HasClrType())
+                    && newBaseType.HasClrType())
                 {
-                    throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this.DisplayName(), entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this.DisplayName(), newBaseType.DisplayName()));
                 }
 
-                if (entityType.InheritsFrom(this))
+                if (newBaseType.InheritsFrom(this))
                 {
-                    throw new InvalidOperationException(CoreStrings.CircularInheritance(this.DisplayName(), entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.CircularInheritance(this.DisplayName(), newBaseType.DisplayName()));
                 }
 
                 if (_keys.Count > 0)
@@ -311,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotBeKeyless(this.DisplayName()));
                 }
 
-                var propertyCollisions = entityType.GetProperties()
+                var propertyCollisions = newBaseType.GetProperties()
                     .Select(p => p.Name)
                     .SelectMany(FindDerivedPropertiesInclusive)
                     .ToList();
@@ -319,18 +320,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (propertyCollisions.Count > 0)
                 {
                     var derivedProperty = propertyCollisions.First();
-                    var baseProperty = entityType.FindProperty(derivedProperty.Name);
+                    var baseProperty = newBaseType.FindProperty(derivedProperty.Name);
                     throw new InvalidOperationException(
                         CoreStrings.DuplicatePropertiesOnBase(
                             this.DisplayName(),
-                            entityType.DisplayName(),
+                            newBaseType.DisplayName(),
                             derivedProperty.DeclaringEntityType.DisplayName(),
                             derivedProperty.Name,
                             baseProperty.DeclaringEntityType.DisplayName(),
                             baseProperty.Name));
                 }
 
-                var navigationCollisions = entityType.GetNavigations()
+                var navigationCollisions = newBaseType.GetNavigations()
                     .Select(p => p.Name)
                     .SelectMany(FindNavigationsInHierarchy)
                     .ToList();
@@ -339,19 +340,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.DuplicateNavigationsOnBase(
                             this.DisplayName(),
-                            entityType.DisplayName(),
+                            newBaseType.DisplayName(),
                             string.Join(", ", navigationCollisions.Select(p => p.Name))));
                 }
 
-                _baseType = entityType;
+                _baseType = newBaseType;
                 _baseType._directlyDerivedTypes.Add(this);
             }
 
             PropertyMetadataChanged();
             UpdateBaseTypeConfigurationSource(configurationSource);
-            entityType?.UpdateConfigurationSource(configurationSource);
+            newBaseType?.UpdateConfigurationSource(configurationSource);
 
-            Model.ConventionDispatcher.OnBaseEntityTypeChanged(Builder, originalBaseType);
+            Model.ConventionDispatcher.OnEntityTypeBaseTypeChanged(Builder, newBaseType, originalBaseType);
         }
 
         /// <summary>
@@ -468,28 +469,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => this.ToDebugString();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void ClearCaches()
-        {
-            base.ClearCaches();
-
-            RemoveAnnotation(RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName);
-            RemoveAnnotation(RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName);
-            RemoveAnnotation(InversePropertyAttributeConvention.InverseNavigationsAnnotationName);
-        }
-
-        /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
         /// </summary>
         /// <param name="name"> The key of the set annotation. </param>
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
             => Model.ConventionDispatcher.OnEntityTypeAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -530,6 +517,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
+            Debug.Assert(Builder != null);
+
             if (_baseType != null)
             {
                 throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(this.DisplayName(), RootType().DisplayName()));
@@ -563,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldPrimaryKey != null)
             {
-                foreach (var property in _primaryKey.Properties)
+                foreach (var property in oldPrimaryKey.Properties)
                 {
                     _properties.Remove(property.Name);
                     property.PrimaryKey = null;
@@ -600,12 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             PropertyMetadataChanged();
-            if (Builder != null)
-            {
-                Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, oldPrimaryKey);
-            }
-
-            return _primaryKey;
+            return (Key)Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, newKey, oldPrimaryKey);
         }
 
         /// <summary>
@@ -753,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.Keys == null)
                 {
-                    property.Keys = new List<IKey>
+                    property.Keys = new List<Key>
                     {
                         key
                     };
@@ -766,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            return Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
+            return (Key)Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -820,7 +804,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // ReSharper disable once MethodOverloadWithOptionalParameter
         public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -831,8 +814,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveKey(key);
         }
 
-        private Key RemoveKey([NotNull] Key key)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Key RemoveKey([NotNull] Key key)
         {
+            Debug.Assert(Builder != null);
+            if (key.DeclaringEntityType != this)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.KeyWrongType(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), this.DisplayName()));
+            }
+
             CheckKeyNotInUse(key);
 
             if (_primaryKey == key)
@@ -841,7 +837,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _primaryKeyConfigurationSource = null;
             }
 
-            _keys.Remove(key.Properties);
+            var removed = _keys.Remove(key.Properties);
+            Debug.Assert(removed);
             key.Builder = null;
 
             foreach (var property in key.Properties)
@@ -858,12 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            if (Builder != null)
-            {
-                Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
-            }
-
-            return key;
+            return (Key)Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
         }
 
         private void CheckKeyNotInUse(Key key)
@@ -939,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            return Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
+            return (ForeignKey)Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -948,13 +940,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool OnForeignKeyUpdating(ForeignKey foreignKey)
+        public virtual void OnForeignKeyUpdating(ForeignKey foreignKey)
         {
             var removed = _foreignKeys.Remove(foreignKey);
-            if (!removed)
-            {
-                return false;
-            }
+            Debug.Assert(removed);
 
             foreach (var property in foreignKey.Properties)
             {
@@ -972,7 +961,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert(removed);
             removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
             Debug.Assert(removed);
-            return true;
         }
 
         /// <summary>
@@ -990,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.ForeignKeys == null)
                 {
-                    property.ForeignKeys = new List<IForeignKey>
+                    property.ForeignKeys = new List<ForeignKey>
                     {
                         foreignKey
                     };
@@ -1135,15 +1123,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> GetDerivedForeignKeysInclusive()
-            => GetDeclaredForeignKeys().Concat(GetDerivedForeignKeys());
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
             => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
 
@@ -1260,6 +1239,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
+            if (foreignKey.DeclaringEntityType != this)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ForeignKeyWrongType(
+                        foreignKey.Properties.Format(),
+                        foreignKey.PrincipalKey.Properties.Format(),
+                        foreignKey.PrincipalEntityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        this.DisplayName()));
+            }
+
             if (foreignKey.DependentToPrincipal != null)
             {
                 foreignKey.DeclaringEntityType.RemoveNavigation(foreignKey.DependentToPrincipal.Name);
@@ -1270,11 +1260,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
             }
 
-            var removed = OnForeignKeyUpdating(foreignKey);
-            if (!removed)
-            {
-                return null;
-            }
+            OnForeignKeyUpdating(foreignKey);
 
             foreignKey.Builder = null;
 
@@ -1331,15 +1317,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeys()
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys());
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeysInclusive()
-            => GetDeclaredReferencingForeignKeys().Concat(GetDerivedReferencingForeignKeys());
-
         private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
         #endregion
@@ -1360,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return AddNavigation(new PropertyIdentity(name), foreignKey, pointsToPrincipal);
+            return AddNavigation(new MemberIdentity(name), foreignKey, pointsToPrincipal);
         }
 
         /// <summary>
@@ -1377,10 +1354,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(navigationProperty, nameof(navigationProperty));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return AddNavigation(new PropertyIdentity(navigationProperty), foreignKey, pointsToPrincipal);
+            return AddNavigation(new MemberIdentity(navigationProperty), foreignKey, pointsToPrincipal);
         }
 
-        private Navigation AddNavigation(PropertyIdentity propertyIdentity, ForeignKey foreignKey, bool pointsToPrincipal)
+        private Navigation AddNavigation(MemberIdentity propertyIdentity, ForeignKey foreignKey, bool pointsToPrincipal)
         {
             var name = propertyIdentity.Name;
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
@@ -1618,7 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (property.Indexes == null)
                 {
-                    property.Indexes = new List<IIndex>
+                    property.Indexes = new List<Index>
                     {
                         index
                     };
@@ -1629,7 +1606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
+            return (Index)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -1682,15 +1659,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> GetDerivedIndexesInclusive()
-            => GetDeclaredIndexes().Concat(GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes()));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<IProperty> properties)
             => _indexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
                 ? index
@@ -1730,9 +1698,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveIndex(index);
         }
 
-        private Index RemoveIndex(Index index)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Index RemoveIndex(Index index)
         {
-            _indexes.Remove(index.Properties);
+            if (!_indexes.Remove(index.Properties))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IndexWrongType(index.Properties.Format(), index.DeclaringEntityType.DisplayName(), this.DisplayName()));
+            }
+
             index.Builder = null;
 
             foreach (var property in index.Properties)
@@ -1848,6 +1827,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource)
         {
+            Debug.Assert(Builder != null);
+
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
             {
@@ -1891,7 +1872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _properties.Add(property.Name, property);
             PropertyMetadataChanged();
 
-            return Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
+            return (Property)Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -1968,6 +1949,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IReadOnlyList<Property> FindProperties([NotNull] IReadOnlyList<string> propertyNames)
+        {
+            var properties = new List<Property>(propertyNames.Count);
+            foreach (var propertyName in propertyNames)
+            {
+                var property = FindProperty(propertyName);
+                if (property == null)
+                {
+                    return null;
+                }
+                properties.Add(property);
+            }
+
+            return properties;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual Property RemoveProperty([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -1978,11 +1981,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveProperty(property);
         }
 
-        private Property RemoveProperty(Property property)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Property RemoveProperty(Property property)
         {
+            if (property.DeclaringEntityType != this)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.PropertyWrongType(
+                        property.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        this.DisplayName()));
+            }
+
             CheckPropertyNotInUse(property);
 
-            _properties.Remove(property.Name);
+            var removed = _properties.Remove(property.Name);
+            Debug.Assert(removed);
             property.Builder = null;
 
             PropertyMetadataChanged();
@@ -2616,7 +2635,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableKey> IMutableEntityType.GetKeys() => GetKeys();
 
         /// <inheritdoc />
-        IMutableKey IMutableEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
+        void IMutableEntityType.RemoveKey(IMutableKey key) => RemoveKey((Key)key);
 
         /// <inheritdoc />
         IMutableForeignKey IMutableEntityType.AddForeignKey(
@@ -2646,9 +2665,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys() => GetForeignKeys();
 
         /// <inheritdoc />
-        IMutableForeignKey IMutableEntityType.RemoveForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
-            => RemoveForeignKey(properties, principalKey, principalEntityType);
+        void IMutableEntityType.RemoveForeignKey(IMutableForeignKey foreignKey)
+            => RemoveForeignKey((ForeignKey)foreignKey);
 
         /// <inheritdoc />
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
@@ -2669,8 +2687,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes() => GetIndexes();
 
         /// <inheritdoc />
-        IMutableIndex IMutableEntityType.RemoveIndex(IReadOnlyList<IProperty> properties)
-            => RemoveIndex(properties);
+        void IMutableEntityType.RemoveIndex(IMutableIndex index) => RemoveIndex((Index)index);
 
         /// <inheritdoc />
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
@@ -2697,7 +2714,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
 
         /// <inheritdoc />
-        IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
+        void IMutableEntityType.RemoveProperty(IMutableProperty property) => RemoveProperty((Property)property);
 
         /// <inheritdoc />
         IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo)
@@ -2721,13 +2738,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
 
         /// <inheritdoc />
-        IConventionEntityTypeBuilder IConventionEntityType.Builder => Builder;
+        IConventionEntityTypeBuilder IConventionEntityType.Builder
+        {
+            [DebuggerStepThrough] get => Builder;
+        }
 
         /// <inheritdoc />
-        IConventionModel IConventionEntityType.Model => Model;
+        IConventionModel IConventionEntityType.Model
+        {
+            [DebuggerStepThrough] get => Model;
+        }
 
         /// <inheritdoc />
-        IConventionEntityType IConventionEntityType.BaseType => BaseType;
+        IConventionEntityType IConventionEntityType.BaseType
+        {
+            [DebuggerStepThrough] get => BaseType;
+        }
 
         /// <inheritdoc />
         void IConventionEntityType.HasBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
@@ -2783,14 +2809,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionServiceProperty IConventionEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
 
         /// <inheritdoc />
-        IConventionProperty IConventionEntityType.RemoveProperty(string name) => RemoveProperty(name);
+        void IConventionEntityType.RemoveProperty(IConventionProperty property) => RemoveProperty((Property)property);
 
         /// <inheritdoc />
         IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
             => AddServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        IConventionIndex IConventionEntityType.RemoveIndex(IReadOnlyList<IProperty> properties) => RemoveIndex(properties);
+        void IConventionEntityType.RemoveIndex(IConventionIndex index) => RemoveIndex((Index)index);
 
         /// <inheritdoc />
         IConventionProperty IConventionEntityType.AddProperty(
@@ -2815,9 +2841,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        IConventionForeignKey IConventionEntityType.RemoveForeignKey(
-            IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
-            => RemoveForeignKey(properties, principalKey, principalEntityType);
+        void IConventionEntityType.RemoveForeignKey(IConventionForeignKey foreignKey)
+            => RemoveForeignKey((ForeignKey)foreignKey);
 
         /// <inheritdoc />
         IConventionIndex IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
@@ -2826,7 +2851,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        IConventionKey IConventionEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
+        void IConventionEntityType.RemoveKey(IConventionKey key) => RemoveKey((Key)key);
 
         /// <inheritdoc />
         IConventionForeignKey IConventionEntityType.AddForeignKey(
@@ -2973,6 +2998,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var ignoredMember in EntityType.GetIgnoredMembers())
                 {
+                    // ReSharper disable once PossibleInvalidOperationException
                     entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredConfigurationSource(ignoredMember).Value);
                 }
 

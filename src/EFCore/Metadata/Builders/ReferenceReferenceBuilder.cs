@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
-            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            [NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
             => HasForeignKeyBuilder(
                 dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         dependentEntityTypeName));
             }
 
-            using (var batch = dependentEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = dependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 var builder = Builder.HasEntityTypes(
                     GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
-            [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
+            [NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
             => HasPrincipalKeyBuilder(
                 principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         principalEntityTypeName));
             }
 
-            using (var batch = principalEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = principalEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 var builder = Builder.HasEntityTypes(
                     principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);

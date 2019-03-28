@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<IKey> GetKeys()
-            => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredKeys)
+            => EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredKeys)
                 .Distinct((x, y) => x.GetName() == y.GetName());
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ICheckConstraint> GetCheckConstraints()
-            => EntityTypes.SelectMany(e => CheckConstraint.GetCheckConstraints(e))
+            => EntityTypes.SelectMany(CheckConstraint.GetCheckConstraints)
                 .Distinct((x, y) => x.Name == y.Name);
 
         /// <summary>

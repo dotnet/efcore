@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ConstructorBindingConvention : IModelBuiltConvention
+    public class ConstructorBindingConvention : IModelFinalizedConvention
     {
         private readonly IConstructorBindingFactory _bindingFactory;
 
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -132,15 +133,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     entityType.Builder.HasAnnotation(
                         CoreAnnotationNames.ConstructorBinding,
-                        foundBindings[0],
-                        ConfigurationSource.Convention);
+                        foundBindings[0]);
                 }
             }
-
-            return modelBuilder;
         }
 
-        private static string FormatConstructorString(EntityType entityType, ConstructorBinding binding)
+        private static string FormatConstructorString(IEntityType entityType, ConstructorBinding binding)
             => entityType.ClrType.ShortDisplayName() +
                "(" + string.Join(", ", binding.ParameterBindings.Select(b => b.ParameterType.ShortDisplayName())) + ")";
     }

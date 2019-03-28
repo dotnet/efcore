@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Issue#11266 This type is being used by provider code. Do not break.
     public class RelationalDbFunctionConvention : IModelAnnotationChangedConvention
     {
         /// <summary>
@@ -42,12 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an annotation is changed on an model.
         /// </summary>
-        public virtual Annotation Apply(InternalModelBuilder modelBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelAnnotationChanged(
+            IConventionModelBuilder modelBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(name, nameof(name));
@@ -56,22 +61,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && annotation?.Value != null
                 && oldAnnotation == null)
             {
-                ApplyCustomizations(modelBuilder, name, annotation);
+                ProcessDbFunctionAdded(new DbFunctionBuilder((IMutableDbFunction)annotation.Value), context);
             }
-
-            return annotation;
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called when an <see cref="IMutableDbFunction"/> is added to the model.
         /// </summary>
-        protected virtual void ApplyCustomizations(
-            [NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [NotNull] Annotation annotation)
+        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IMutableDbFunction"/>. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        protected virtual void ProcessDbFunctionAdded(
+            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
         {
-            var dbFunctionBuilder = (IConventionDbFunctionBuilder)new DbFunctionBuilder((IMutableDbFunction)annotation.Value);
             var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
             var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
 

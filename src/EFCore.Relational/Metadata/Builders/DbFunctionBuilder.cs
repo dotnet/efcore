@@ -121,6 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <inheritdoc />
+        IConventionDbFunction IConventionDbFunctionBuilder.Metadata => _function;
+
+        /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
         {

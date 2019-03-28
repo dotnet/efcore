@@ -53,15 +53,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(logger);
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
-            conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(128));
+            conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(128, logger));
 
             ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(logger);
-            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(logger);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
 
-            ReplaceConvention(conventionSet.PrimaryKeyChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
@@ -71,9 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper, logger);
 
-            conventionSet.BaseEntityTypeChangedConventions.Add(sqlServerIndexConvention);
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.ModelBuiltConventions.Add(valueGenerationStrategyConvention);
+            conventionSet.ModelFinalizedConventions.Add(valueGenerationStrategyConvention);
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention(logger));
 
-            ReplaceConvention(conventionSet.ModelBuiltConventions, storeGenerationConvention);
+            ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
 
             return conventionSet;
         }

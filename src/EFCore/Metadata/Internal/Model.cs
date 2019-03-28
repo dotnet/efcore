@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -185,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _entityTypes.Add(entityTypeName, entityType);
             }
 
-            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+            return (EntityType)ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -737,7 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsOwned([NotNull] Type clrType)
-            => GetIsOwnedConfigurationSource(clrType) != null;
+            => FindIsOwnedConfigurationSource(clrType) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -745,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsOwnedConfigurationSource([NotNull] Type clrType)
+        public virtual ConfigurationSource? FindIsOwnedConfigurationSource([NotNull] Type clrType)
         {
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
@@ -831,7 +830,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override Annotation OnAnnotationSet(string name, Annotation annotation, Annotation oldAnnotation)
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
             => ConventionDispatcher.OnModelAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -842,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IModel FinalizeModel()
         {
-            var finalModel = ConventionDispatcher.OnModelBuilt(Builder)?.Metadata;
+            var finalModel = (Model)ConventionDispatcher.OnModelFinalized(Builder)?.Metadata;
             if (finalModel != null)
             {
                 finalModel.ConventionDispatcher = null;
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type, ConfigurationSource.Explicit);
 
         /// <inheritdoc />
-        IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
+        void IMutableModel.RemoveEntityType(IMutableEntityType entityType) => RemoveEntityType((EntityType)entityType);
 
         /// <inheritdoc />
         IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
@@ -900,11 +900,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string definingNavigationName,
             IMutableEntityType definingEntityType)
             => AddEntityType(type, definingNavigationName, (EntityType)definingEntityType, ConfigurationSource.Explicit);
-
-        /// <inheritdoc />
-        IMutableEntityType IMutableModel.RemoveEntityType(
-            string name, string definingNavigationName, IMutableEntityType definingEntityType)
-            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         /// <inheritdoc />
         IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
@@ -947,12 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        IConventionEntityType IConventionModel.RemoveEntityType(string name) => RemoveEntityType(name);
-
-        /// <inheritdoc />
-        IConventionEntityType IConventionModel.RemoveEntityType(
-            string name, string definingNavigationName, IConventionEntityType definingEntityType)
-            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+        void IConventionModel.RemoveEntityType(IConventionEntityType entityType) => RemoveEntityType((EntityType)entityType);
 
         /// <inheritdoc />
         IEnumerable<IConventionEntityType> IConventionModel.GetEntityTypes() => GetEntityTypes();
@@ -960,9 +950,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         void IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <inheritdoc />
-        void IConventionModel.AddIgnored(Type clrType, bool fromDataAnnotation)
-            => AddIgnored(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

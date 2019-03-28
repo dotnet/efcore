@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="property"> The property to set. </param>
         /// <param name="value"> The value to set. </param>
-        void SetOriginalValue(IProperty property, object value);
+        void SetOriginalValue([NotNull] IProperty property, [CanBeNull] object value);
 
         /// <summary>
         ///     Marks the given property as modified.
         /// </summary>
         /// <param name="property"> The property to mark as modified. </param>
-        void SetPropertyModified(IProperty property);
+        void SetPropertyModified([NotNull] IProperty property);
 
         /// <summary>
         ///     The type of entity to be saved to the database.

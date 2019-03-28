@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsOneBuilder(in TypeIdentity ownedType, string navigationName)
         {
             InternalRelationshipBuilder relationship;
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            using (Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
                     ? Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private OwnedNavigationBuilder OwnsManyBuilder(in TypeIdentity ownedType, string navigationName)
         {
             InternalRelationshipBuilder relationship;
-            using (Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            using (Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = ownedType.Type == null
                     ? Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
@@ -654,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
 
             InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = relatedEntityType.Builder
                     .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
@@ -750,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
 
             InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
             {
                 relationship = relatedEntityType.Builder
                     .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string navigationName)
+        protected virtual EntityType FindRelatedEntityType([NotNull] string relatedTypeName, [CanBeNull] string navigationName)
             => (navigationName == null
                    ? null
                    : Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata))

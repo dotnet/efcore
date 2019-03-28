@@ -300,11 +300,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdge(vertexOne, vertexThree, edgeTwo);
             graph.AddEdge(vertexTwo, vertexThree, edgeThree);
 
-            Assert.Equal(2, graph.GetOutgoingNeighbours(vertexOne).Count());
-            Assert.Equal(2, graph.GetOutgoingNeighbours(vertexOne).Intersect(new[] { vertexTwo, vertexThree }).Count());
+            Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Count());
+            Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Intersect(new[] { vertexTwo, vertexThree }).Count());
 
-            Assert.Equal(2, graph.GetIncomingNeighbours(vertexThree).Count());
-            Assert.Equal(2, graph.GetIncomingNeighbours(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
+            Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Count());
+            Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
         }
 
         [Fact]
@@ -892,11 +892,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Assert.Equal(
                 new[] { entityTypeC },
-                graph.GetOutgoingNeighbours(entityTypeA));
+                graph.GetOutgoingNeighbors(entityTypeA));
 
             Assert.Equal(
                 new[] { entityTypeA },
-                graph.GetOutgoingNeighbours(entityTypeB));
+                graph.GetOutgoingNeighbors(entityTypeB));
 
             Assert.Equal(
                 new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (required == false)
             {
-                using (Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+                using (Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
                 {
                     foreach (var key in Metadata.GetContainingKeys().ToList())
                     {
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), key.Properties.Format()));
                         }
 
-                        var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
-                        Debug.Assert(removed.HasValue);
+                        var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);
+                        Debug.Assert(removed != null);
                     }
 
                     Metadata.SetIsNullable(true, configurationSource);
@@ -670,7 +670,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IConventionProperty IConventionPropertyBuilder.Metadata => Metadata;
+        IConventionProperty IConventionPropertyBuilder.Metadata
+        {
+            [DebuggerStepThrough] get => Metadata;
+        }
 
         /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.IsRequired(bool? required, bool fromDataAnnotation)

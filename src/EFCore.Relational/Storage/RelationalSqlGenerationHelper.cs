@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string EscapeIdentifier(string identifier)
+        public virtual string EscapeIdentifier([NotNull] string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="identifier">The identifier to be escaped.</param>
-        public virtual void EscapeIdentifier(StringBuilder builder, string identifier)
+        public virtual void EscapeIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 

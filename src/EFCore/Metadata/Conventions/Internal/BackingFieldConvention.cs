@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -40,59 +41,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type.
         /// </summary>
-        public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessPropertyAdded(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
-            Apply(propertyBuilder.Metadata);
-
-            return propertyBuilder;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
-        {
-            Apply(navigation);
-
-            return relationshipBuilder;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void Apply([NotNull] PropertyBase propertyBase)
-        {
-            if (ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+            var field = GetFieldToSet(propertyBuilder.Metadata);
+            if (field != null)
             {
-                var type = propertyBase.DeclaringType.ClrType;
-                while (type != null)
-                {
-                    var fieldInfo = TryMatchFieldName(
-                        propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
-                    if (fieldInfo != null
-                        && (propertyBase.PropertyInfo != null || propertyBase.Name == fieldInfo.GetSimpleMemberName()))
-                    {
-                        propertyBase.SetField(fieldInfo, ConfigurationSource.Convention);
-                        return;
-                    }
-
-                    type = type.GetTypeInfo().BaseType;
-                }
+                propertyBuilder.HasField(field);
             }
         }
 
-        private static FieldInfo TryMatchFieldName(Model model, Type entityClrType, Type propertyType, string propertyName)
+        /// <summary>
+        ///     Called after a navigation is added to the entity type.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            IConventionContext<IConventionNavigation> context)
+        {
+            var field = GetFieldToSet(navigation);
+            if (field != null)
+            {
+                relationshipBuilder.HasField(field, navigation.IsDependentToPrincipal());
+            }
+        }
+
+        private FieldInfo GetFieldToSet(IConventionPropertyBase propertyBase)
+        {
+            if (propertyBase == null
+                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+            {
+                return null;
+            }
+
+            var type = propertyBase.DeclaringType.ClrType;
+            while (type != null)
+            {
+                var fieldInfo = TryMatchFieldName(
+                    propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
+                if (fieldInfo != null
+                    && (propertyBase.PropertyInfo != null || propertyBase.Name == fieldInfo.GetSimpleMemberName()))
+                {
+                    return fieldInfo;
+                }
+
+                type = type.GetTypeInfo().BaseType;
+            }
+
+            return null;
+        }
+
+        private static FieldInfo TryMatchFieldName(IConventionModel model, Type entityClrType, Type propertyType, string propertyName)
         {
             IReadOnlyDictionary<string, FieldInfo> fields;
             var entityType = model.FindEntityType(entityClrType);
@@ -163,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var newMatch = typeInfo == null
                         ? currentValue.Value
-                        : (IsConvertable(typeInfo, currentValue.Value)
+                        : (IsConvertible(typeInfo, currentValue.Value)
                             ? currentValue.Value
                             : null);
 
@@ -223,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private static bool IsConvertable(TypeInfo typeInfo, FieldInfo fieldInfo)
+        private static bool IsConvertible(TypeInfo typeInfo, FieldInfo fieldInfo)
         {
             var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
 

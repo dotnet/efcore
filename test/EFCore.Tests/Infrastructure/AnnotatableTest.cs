@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("Bar", annotation.Value);
             Assert.Equal("Bar", annotatable["Foo"]);
             Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
-
-            Assert.Same(annotation, annotatable.GetOrAddAnnotation("Foo", "Baz"));
 
             Assert.Equal(new[] { annotation }, annotatable.GetAnnotations().ToArray());
 
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Can_get_and_set_model_annotations()
         {
             var annotatable = new Annotatable();
-            var annotation = annotatable.GetOrAddAnnotation("Foo", "Bar");
+            var annotation = annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.NotNull(annotation);
             Assert.Same(annotation, annotatable.FindAnnotation("Foo"));

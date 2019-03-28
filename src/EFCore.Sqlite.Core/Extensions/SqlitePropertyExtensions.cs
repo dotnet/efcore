@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="value"> The dimension. </param>
-        public static void SetSqliteDimension([NotNull] this IMutableProperty property, string value)
+        public static void SetSqliteDimension([NotNull] this IMutableProperty property, [CanBeNull] string value)
             => property.SetOrRemoveAnnotation(SqliteAnnotationNames.Dimension, value);
 
         /// <summary>
@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The dimension. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSqliteDimension([NotNull] this IConventionProperty property, string value, bool fromDataAnnotation = false)
+        public static void SetSqliteDimension(
+            [NotNull] this IConventionProperty property, [CanBeNull] string value, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(SqliteAnnotationNames.Dimension, value, fromDataAnnotation);
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The function being configured.
         /// </summary>
-        IMutableDbFunction Metadata { get; }
+        IConventionDbFunction Metadata { get; }
 
         /// <summary>
         ///     Sets the name of the database function.

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public ReferenceNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] MemberInfo navigationMemberInfo,
             [NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
@@ -66,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
-            ReferenceProperty = navigationProperty;
-            ReferenceName = navigationProperty?.GetSimpleMemberName();
+            ReferenceMember = navigationMemberInfo;
+            ReferenceName = navigationMemberInfo?.GetSimpleMemberName();
             Builder = ((ForeignKey)foreignKey).Builder;
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual PropertyInfo ReferenceProperty { [DebuggerStepThrough] get; }
+        protected virtual MemberInfo ReferenceMember { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string navigationName)
-            => WithManyBuilder(PropertyIdentity.Create(navigationName));
+            => WithManyBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,10 +152,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithManyBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+            => WithManyBuilder(MemberIdentity.Create(navigationMemberInfo));
 
-        private InternalRelationshipBuilder WithManyBuilder(PropertyIdentity collection)
+        private InternalRelationshipBuilder WithManyBuilder(MemberIdentity collection)
         {
             var builder = Builder.HasEntityTypes(
                 (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
@@ -179,12 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return RelatedEntityType != foreignKey.PrincipalEntityType
-                ? collection.MemberInfo == null && ReferenceProperty == null
+                ? collection.MemberInfo == null && ReferenceMember == null
                     ? builder.HasNavigations(
                         ReferenceName, collection.Name,
                         (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                     : builder.HasNavigations(
-                        ReferenceProperty, collection.MemberInfo,
+                        ReferenceMember, collection.MemberInfo,
                         (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                 : collection.MemberInfo != null
                     ? builder.HasNavigation(
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
-            => WithOneBuilder(PropertyIdentity.Create(navigationName));
+            => WithOneBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -235,10 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+            => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
-        private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
+        private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)
         {
             var referenceName = reference.Name;
             if (!Builder.Metadata.IsUnique
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ThrowForConflictingNavigation(Builder.Metadata, referenceName, false);
             }
 
-            using (var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
             {
                 var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
                 var foreignKey = builder.Metadata;
@@ -288,24 +288,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     && pointsToPrincipal
                     && RelatedEntityType != foreignKey.DeclaringEntityType)
                 {
-                    builder = referenceProperty == null && ReferenceProperty == null
+                    builder = referenceProperty == null && ReferenceMember == null
                         ? builder.HasNavigations(
                             referenceName, ReferenceName,
                             (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)
                         : builder.HasNavigations(
-                            referenceProperty, ReferenceProperty,
+                            referenceProperty, ReferenceMember,
                             (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit);
                 }
                 else if (referenceName != null
                          && !pointsToPrincipal
                          && RelatedEntityType != foreignKey.PrincipalEntityType)
                 {
-                    builder = referenceProperty == null && ReferenceProperty == null
+                    builder = referenceProperty == null && ReferenceMember == null
                         ? builder.HasNavigations(
                             ReferenceName, referenceName,
                             (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                         : builder.HasNavigations(
-                            ReferenceProperty, referenceProperty,
+                            ReferenceMember, referenceProperty,
                             (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
                 }
                 else
