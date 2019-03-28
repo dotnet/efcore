@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Transactions;
 using Xunit;
 
@@ -75,9 +76,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (useTransaction)
             {
+                var listener = new DistributedTransactionListener();
+                var transactionDisposed = new ManualResetEventSlim();
                 var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10));
+                transaction.TransactionCompleted += (_, __) => transactionDisposed.Set();
+
                 return new CompositeDisposable(
-                    new DistributedTransactionListener(),
+                    listener,
+                    new BlockingDisposable(transactionDisposed),
                     transaction,
                     new TransactionScope(transaction, TimeSpan.FromMinutes(10), TransactionScopeAsyncFlowOption.Enabled));
             }
@@ -132,6 +138,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     throw new AggregateException(exceptions);
                 }
+            }
+        }
+
+        private class BlockingDisposable : IDisposable
+        {
+            private readonly ManualResetEventSlim _signal;
+
+            public BlockingDisposable(ManualResetEventSlim signal)
+            {
+                _signal = signal;
+            }
+
+            public void Dispose()
+            {
+                _signal.Wait(TimeSpan.FromMinutes(10));
+                _signal.Dispose();
             }
         }
     }
