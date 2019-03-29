@@ -23,13 +23,21 @@ jobs:
       helixRepo: aspnet/EntityFrameworkCore
       jobs:
         - job: Windows
+          # HACK: Work around dotnet/arcade#1175
+          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+            timeoutInMinutes: 0
           pool:
-            vmImage: win1803
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: NetCorePublic-Int-Pool
+              queue: BuildPool.Windows.10.Amd64.VS2019.BT.Open
+            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              name: NetCoreInternal-Int-Pool
+              queue: BuildPool.Windows.10.Amd64.VS2019.BT
           container:
             image: microsoft/mssql-server-windows-developer
             options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12!
           variables:
-            - Test__SqlServer__DefaultConnection: Data Source=(local);User ID=sa;Password=Password12!
+            - Test__SqlServer__DefaultConnection: User ID=sa;Password=Password12!
             - Test__SqlServer__SupportsMemoryOptimized: true
             - Test__SqlServer__SupportsHiddenColumns: true
             - _InternalBuildArgs: ''
@@ -70,16 +78,19 @@ jobs:
 
         - job: Linux
           pool:
-            vmImage: ubuntu-16.04
+            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+              name: NetCorePublic-Int-Pool
+              queue: BuildPool.Ubuntu.1604.Amd64.Open
+            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              name: NetCoreInternal-Int-Pool
+              queue: BuildPool.Ubuntu.1604.Amd64
           container:
             image: mcr.microsoft.com/mssql/server
-            options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12!
+            options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12! -e MSSQL_PID=Express
           variables:
-            - Test__SqlServer__DefaultConnection: Data Source=127.0.0.1;User ID=sa;Password=Password12!
-            - Test__SqlServer__SupportsMemoryOptimized: true
-            - Test__SqlServer__SupportsHiddenColumns: true
+            - Test__SqlServer__DefaultConnection: Data Source=.\SQLEXPRESS;User ID=sa;Password=Password12!
           steps:
-            - bash: apt-get install -y libsqlite3-mod-spatialite
+            - bash: /usr/bin/sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
