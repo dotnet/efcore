@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>
@@ -31,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringNumberConverter(
             [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
             [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
@@ -72,9 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                         typeof(TNumber).IsNullableType()
                             ? (Expression)Expression.Convert(parsedVariable, typeof(TNumber))
                             : parsedVariable,
-#nullable disable // https://github.com/dotnet/roslyn/issues/30953
                         Expression.Constant(default(TNumber), typeof(TNumber)))),
-#nullable enable
                 param);
         }
 
@@ -82,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected static new Expression<Func<TNumber, string?>> ToString()
+        protected static new Expression<Func<TNumber, string>> ToString()
         {
             var type = typeof(TNumber).UnwrapNullableType();
 

@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -111,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         protected sealed class MessageExtractingLogger : ILogger
         {
-            private string? _message;
+            private string _message;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

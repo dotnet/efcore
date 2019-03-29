@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual TEntity? Find(object[]? keyValues)
+        public virtual TEntity Find(object[] keyValues)
         {
             return keyValues == null || keyValues.Any(v => v == null)
                 ? null
@@ -65,46 +63,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        object? IEntityFinder.Find(object[]? keyValues)
+        object IEntityFinder.Find(object[] keyValues)
             => Find(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<TEntity?> FindAsync(object[]? keyValues, CancellationToken cancellationToken = default)
+        public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
             if (keyValues == null || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<TEntity?>(null);
+                return Task.FromResult<TEntity>(null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
-#nullable disable // https://github.com/dotnet/roslyn/issues/33010
             return tracked != null
                 ? Task.FromResult(tracked)
                 : _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
-#nullable enable
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<object?> IEntityFinder.FindAsync(object[]? keyValues, CancellationToken cancellationToken)
+        Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
             if (keyValues == null || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<object?>(null);
+                return Task.FromResult<object>(null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
-#nullable disable // https://github.com/dotnet/roslyn/issues/33010
             return tracked != null
                 ? Task.FromResult((object)tracked)
                 : _queryRoot.FirstOrDefaultAsync(
                     BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
-#nullable enable
         }
 
         /// <summary>
@@ -179,22 +173,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual object[]? GetDatabaseValues(InternalEntityEntry entry)
+        public virtual object[] GetDatabaseValues(InternalEntityEntry entry)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefault();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-#pragma warning disable RCS1210 // Return Task.FromResult instead of returning null.
-#nullable disable // https://github.com/dotnet/roslyn/issues/33010
         public virtual Task<object[]> GetDatabaseValuesAsync(
             InternalEntityEntry entry, CancellationToken cancellationToken = default)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
-#nullable enable
-#pragma warning restore RCS1210 // Return Task.FromResult instead of returning null.
 
-        private IQueryable<object[]>? GetDatabaseValuesQuery(InternalEntityEntry entry)
+        private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
             var properties = entityType.FindPrimaryKey().Properties;
@@ -225,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
-        private static object[]? GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
             var properties = navigation.IsDependentToPrincipal()
                 ? navigation.ForeignKey.Properties
@@ -251,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 
-        private TEntity? FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
+        private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
             var key = _model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
             keyProperties = key.Properties;
