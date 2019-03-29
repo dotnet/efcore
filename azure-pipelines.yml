@@ -110,7 +110,7 @@ jobs:
               displayName: Start SQL Server
               inputs:
                 command: run
-                qualifyImageName: mcr.microsoft.com/mssql/server
+                imageName: mcr.microsoft.com/mssql/server
                 ports: '1433:1433'
                 envVars: |
                   ACCEPT_EULA=Y
