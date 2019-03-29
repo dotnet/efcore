@@ -34,7 +34,7 @@ jobs:
               name: NetCoreInternal-Int-Pool
               queue: BuildPool.Windows.10.Amd64.VS2017
           variables:
-            - Test__SqlServer__DefaultConnection: Data Source=(local);User ID=sa;Password=Password12!
+            - Test__SqlServer__DefaultConnection: 'Data Source=(local);User ID=sa;Password=Password12!'
             - Test__SqlServer__SupportsMemoryOptimized: true
             - Test__SqlServer__SupportsHiddenColumns: true
             - _InternalBuildArgs: ''
@@ -90,7 +90,7 @@ jobs:
             image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
             options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12! -e MSSQL_PID=Developer
           variables:
-            - Test__SqlServer__DefaultConnection: Data Source=(local);User ID=sa;Password=Password12!
+            - Test__SqlServer__DefaultConnection: 'Data Source=(local);User ID=sa;Password=Password12!'
             - Test__SqlServer__SupportsMemoryOptimized: true
             - Test__SqlServer__SupportsHiddenColumns: true
           steps:
