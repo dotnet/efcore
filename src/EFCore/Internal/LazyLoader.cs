@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class LazyLoader : ILazyLoader
     {
         private bool _disposed;
-        private IDictionary<string, bool>? _loadedStates;
+        private IDictionary<string, bool> _loadedStates;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -114,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private bool ShouldLoad(object entity, string navigationName,
-            [NotNullWhenTrue] out NavigationEntry? navigationEntry)
+            [NotNullWhenTrue] out NavigationEntry navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)

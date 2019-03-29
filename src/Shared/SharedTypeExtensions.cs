@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace System
 {
@@ -149,11 +147,11 @@ namespace System
             return sequenceType;
         }
 
-        public static Type? TryGetSequenceType(this Type type)
+        public static Type TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
 
-        public static Type? TryGetElementType(this Type type, Type interfaceOrBaseType)
+        public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
             if (type.GetTypeInfo().IsGenericTypeDefinition)
             {
@@ -162,7 +160,7 @@ namespace System
 
             var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
 
-            Type? singleImplementation = null;
+            Type singleImplementation = null;
             foreach (var impelementation in types)
             {
                 if (singleImplementation == null)
@@ -299,7 +297,7 @@ namespace System
 #pragma warning restore IDE0034 // Simplify 'default' expression
         };
 
-        public static object? GetDefaultValue(this Type type)
+        public static object GetDefaultValue(this Type type)
         {
             if (!type.GetTypeInfo().IsValueType)
             {

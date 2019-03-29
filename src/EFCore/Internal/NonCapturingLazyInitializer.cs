@@ -5,8 +5,6 @@ using System;
 using System.Threading;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull] ref TValue? target,
+            [CanBeNull] ref TValue target,
             [CanBeNull] TParam param,
             [NotNull] Func<TParam, TValue> valueFactory)
             where TValue : class
@@ -41,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue EnsureInitialized<TParam1, TParam2, TValue>(
-            [CanBeNull] ref TValue? target,
+            [CanBeNull] ref TValue target,
             [CanBeNull] TParam1 param1,
             [CanBeNull] TParam2 param2,
             [NotNull] Func<TParam1, TParam2, TValue> valueFactory)
@@ -63,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue EnsureInitialized<TValue>(
-            [CanBeNull] ref TValue? target,
+            [CanBeNull] ref TValue target,
             [NotNull] TValue value)
             where TValue : class
         {
@@ -83,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull] ref TValue? target,
+            [CanBeNull] ref TValue target,
             [CanBeNull] TParam param,
             [NotNull] Action<TParam> valueFactory)
             where TValue : class

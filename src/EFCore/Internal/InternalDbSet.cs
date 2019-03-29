@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -31,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         where TEntity : class
     {
         private readonly DbContext _context;
-        private IEntityType? _entityType;
-        private EntityQueryable<TEntity>? _entityQueryable;
-        private LocalView<TEntity>? _localView;
+        private IEntityType _entityType;
+        private EntityQueryable<TEntity> _entityQueryable;
+        private LocalView<TEntity> _localView;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -128,21 +126,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override TEntity? Find(params object[]? keyValues)
+        public override TEntity Find(params object[] keyValues)
             => Finder.Find(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<TEntity?> FindAsync(params object[]? keyValues)
+        public override Task<TEntity> FindAsync(params object[] keyValues)
             => Finder.FindAsync(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<TEntity?> FindAsync(object[]? keyValues, CancellationToken cancellationToken)
+        public override Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken)
             => Finder.FindAsync(keyValues, cancellationToken);
 
         /// <summary>

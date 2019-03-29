@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -63,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<DbContextOptionsBuilder>? optionsAction = null,
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
@@ -110,14 +108,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<DbContextOptionsBuilder>? optionsAction = null,
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContextImplementation : DbContext, TContextService
             => AddDbContext<TContextService, TContextImplementation>(
                 serviceCollection,
                 optionsAction == null
-                    ? (Action<IServiceProvider, DbContextOptionsBuilder>?)null
+                    ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
                     : (p, b) => optionsAction?.Invoke(b), contextLifetime, optionsLifetime);
 
         /// <summary>
@@ -358,7 +356,7 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContextService : class
             => AddDbContext<TContextService, TContextImplementation>(
                 serviceCollection,
-                (Action<IServiceProvider, DbContextOptionsBuilder>?)null,
+                (Action<IServiceProvider, DbContextOptionsBuilder>)null,
                 contextLifetime,
                 optionsLifetime);
 
@@ -477,7 +475,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContextImplementation : DbContext, TContextService
@@ -503,7 +501,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void AddCoreServices<TContextImplementation>(
             IServiceCollection serviceCollection,
-            Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             ServiceLifetime optionsLifetime)
             where TContextImplementation : DbContext
         {
@@ -522,7 +520,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
             [NotNull] IServiceProvider applicationServiceProvider,
-            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction)
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
             var builder = new DbContextOptionsBuilder<TContext>(

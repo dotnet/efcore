@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -21,12 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToNumberConverter(
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-#nullable disable // https://github.com/dotnet/roslyn/issues/30953
                 ToNumber(),
                 ToString(),
-#nullable enable
                 _defaultHints.With(mappingHints))
         {
         }

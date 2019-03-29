@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>

@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -40,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         protected ValueConverter(
             [NotNull] LambdaExpression convertToProviderExpression,
             [NotNull] LambdaExpression convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
         {
             Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
             Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
@@ -54,13 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when writing data to the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public abstract Func<object?, object?> ConvertToProvider { get; }
+        public abstract Func<object, object> ConvertToProvider { get; }
 
         /// <summary>
         ///     Gets the function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public abstract Func<object?, object?> ConvertFromProvider { get; }
+        public abstract Func<object, object> ConvertFromProvider { get; }
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,
@@ -90,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
-        public virtual ConverterMappingHints? MappingHints { get; }
+        public virtual ConverterMappingHints MappingHints { get; }
 
         /// <summary>
         ///     Checks that the type used with a value converter is supported by that converter and throws if not.
@@ -127,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="secondConverter"> The second converter. </param>
         /// <returns> The composed converter. </returns>
         public virtual ValueConverter ComposeWith(
-            [CanBeNull] ValueConverter? secondConverter)
+            [CanBeNull] ValueConverter secondConverter)
         {
             if (secondConverter == null)
             {
