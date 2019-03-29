@@ -57,9 +57,9 @@ jobs:
                 command: run
                 imageName: microsoft/mssql-server-windows-developer
                 ports: '1433:1433'
-                envVars:
-                  ACCEPT_EULA: Y
-                  SA_PASSWORD: Password12!
+                envVars: |
+                  ACCEPT_EULA=Y
+                  SA_PASSWORD=Password12!
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
             - task: PublishBuildArtifacts@1
