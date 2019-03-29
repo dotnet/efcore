@@ -23,16 +23,11 @@ jobs:
       helixRepo: aspnet/EntityFrameworkCore
       jobs:
         - job: Windows
-          # HACK: Work around dotnet/arcade#1175
-          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-            timeoutInMinutes: 0
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCorePublic-Int-Pool
-              queue: BuildPool.Windows.10.Amd64.VS2017.Open
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: NetCoreInternal-Int-Pool
-              queue: BuildPool.Windows.10.Amd64.VS2017
+            vmImage: win1803
+          container:
+            image: microsoft/mssql-server-windows-developer
+            options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12!
           variables:
             - Test__SqlServer__DefaultConnection: Data Source=(local);User ID=sa;Password=Password12!
             - Test__SqlServer__SupportsMemoryOptimized: true
@@ -51,15 +46,6 @@ jobs:
             - script: "echo ##vso[build.addbuildtag]release-candidate"
               condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
               displayName: 'Set CI tags'
-            - task: Docker@1
-              displayName: Start SQL Server
-              inputs:
-                command: run
-                imageName: microsoft/mssql-server-windows-developer
-                ports: '1433:1433'
-                envVars: |
-                  ACCEPT_EULA=Y
-                  SA_PASSWORD=Password12!
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
             - task: PublishBuildArtifacts@1
@@ -86,14 +72,14 @@ jobs:
           pool:
             vmImage: ubuntu-16.04
           container:
-            image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
-            options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12! -e MSSQL_PID=Developer
+            image: mcr.microsoft.com/mssql/server
+            options: -e ACCEPT_EULA=Y -e SA_PASSWORD=Password12!
           variables:
-            - Test__SqlServer__DefaultConnection: Data Source=(local);User ID=sa;Password=Password12!
+            - Test__SqlServer__DefaultConnection: Data Source=127.0.0.1;User ID=sa;Password=Password12!
             - Test__SqlServer__SupportsMemoryOptimized: true
             - Test__SqlServer__SupportsHiddenColumns: true
           steps:
-            - bash: sudo apt-get install -y libsqlite3-mod-spatialite
+            - bash: apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
