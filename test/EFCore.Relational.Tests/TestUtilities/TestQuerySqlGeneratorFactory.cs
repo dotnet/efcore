@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 
@@ -15,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override IQuerySqlGenerator CreateDefault(
-            SelectExpression selectExpression,
-            DiagnosticsLoggers loggers)
-            => new TestQuerySqlGenerator(Dependencies, selectExpression, loggers);
+            SelectExpression selectExpression)
+            => new TestQuerySqlGenerator(Dependencies, selectExpression);
     }
 }

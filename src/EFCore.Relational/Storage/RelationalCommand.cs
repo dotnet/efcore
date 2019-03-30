@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -46,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
-
             Dependencies = dependencies;
-            Logger = dependencies.Logger;
             CommandText = commandText;
             Parameters = parameters;
         }
@@ -57,11 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Command building dependencies.
         /// </summary>
         protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     The logger used for command events.
-        /// </summary>
-        protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
         ///     Gets the command text to be executed.
@@ -78,14 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <returns> The number of rows affected. </returns>
         public virtual int ExecuteNonQuery(
             IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues)
+            IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             => (int)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteNonQuery,
-                parameterValues);
+                parameterValues,
+                logger);
 
 
         /// <summary>
@@ -93,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
@@ -100,11 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteNonQuery,
                 parameterValues,
+                logger,
                 cancellationToken).Cast<object, int>();
 
         /// <summary>
@@ -112,20 +110,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <returns> The result of the command. </returns>
         public virtual object ExecuteScalar(
             IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues)
+            IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteScalar,
-                parameterValues);
+                parameterValues,
+                logger);
 
         /// <summary>
         ///     Asynchronously executes the command with a single scalar result.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
@@ -133,11 +135,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteScalar,
                 parameterValues,
+                logger,
                 cancellationToken);
 
         /// <summary>
@@ -145,20 +149,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <returns> The result of the command. </returns>
         public virtual RelationalDataReader ExecuteReader(
             IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues)
+            IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             => (RelationalDataReader)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
-                parameterValues);
+                parameterValues,
+                logger);
 
         /// <summary>
         ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
         /// <param name="parameterValues"> The values for the parameters. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
@@ -166,11 +174,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
                 parameterValues,
+                logger,
                 cancellationToken).Cast<object, RelationalDataReader>();
 
         /// <summary>
@@ -179,11 +189,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection to use. </param>
         /// <param name="executeMethod"> The method type. </param>
         /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <returns> The result of the execution. </returns>
         protected virtual object Execute(
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues)
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -196,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            Logger.CommandExecuting(
+            logger?.CommandExecuting(
                 dbCommand,
                 executeMethod,
                 commandId,
@@ -230,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 dbCommand,
                                 dbCommand.ExecuteReader(),
                                 commandId,
-                                Logger);
+                                logger);
                         readerOpen = true;
 
                         break;
@@ -241,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                 }
 
-                Logger.CommandExecuted(
+                logger?.CommandExecuted(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -253,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception exception)
             {
-                Logger.CommandError(
+                logger?.CommandError(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -284,12 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="connection"> The connection to use. </param>
         /// <param name="executeMethod"> The method type. </param>
         /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of the execution. </returns>
         protected virtual async Task<object> ExecuteAsync(
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(connection, nameof(connection));
@@ -303,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            Logger.CommandExecuting(
+            logger?.CommandExecuting(
                 dbCommand,
                 executeMethod,
                 commandId,
@@ -336,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             dbCommand,
                             await dbCommand.ExecuteReaderAsync(cancellationToken),
                             commandId,
-                            Logger);
+                            logger);
                         readerOpen = true;
 
                         break;
@@ -347,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     }
                 }
 
-                Logger.CommandExecuted(
+                logger?.CommandExecuted(
                     dbCommand,
                     executeMethod,
                     commandId,
@@ -359,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception exception)
             {
-                Logger.CommandError(
+                logger?.CommandError(
                     dbCommand,
                     executeMethod,
                     commandId,

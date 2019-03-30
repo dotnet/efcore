@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var relationalCommand
                             = _shaperCommandContext
-                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                                .GetRelationalCommand(_relationalQueryContext.ParameterValues, _relationalQueryContext);
 
                         await _relationalQueryContext.Connection
                             .RegisterBufferableAsync(this, cancellationToken);
@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             = await relationalCommand.ExecuteReaderAsync(
                                 _relationalQueryContext.Connection,
                                 _relationalQueryContext.ParameterValues,
+                                _relationalQueryContext.CommandLogger,
                                 cancellationToken);
                     }
                     catch

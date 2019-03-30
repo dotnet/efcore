@@ -206,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
             using (concurrencyDetector.EnterCriticalSection())
             {
@@ -217,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore
                     .RelationalCommand
                     .ExecuteNonQuery(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues);
+                        rawSqlCommand.ParameterValues,
+                        logger);
             }
         }
 
@@ -364,6 +366,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
             using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
             {
@@ -376,6 +379,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ExecuteNonQueryAsync(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
                         rawSqlCommand.ParameterValues,
+                        logger,
                         cancellationToken);
             }
         }
@@ -476,6 +480,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
             using (concurrencyDetector.EnterCriticalSection())
             {
@@ -487,7 +492,8 @@ namespace Microsoft.EntityFrameworkCore
                     .RelationalCommand
                     .ExecuteNonQuery(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues);
+                        rawSqlCommand.ParameterValues,
+                        logger);
             }
         }
 
@@ -624,6 +630,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
             using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
             {
@@ -636,6 +643,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ExecuteNonQueryAsync(
                         databaseFacade.GetRelationalService<IRelationalConnection>(),
                         rawSqlCommand.ParameterValues,
+                        logger,
                         cancellationToken);
             }
         }

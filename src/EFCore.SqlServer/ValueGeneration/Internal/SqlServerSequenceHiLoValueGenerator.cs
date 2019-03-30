@@ -6,11 +6,11 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
         private readonly ISequence _sequence;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,17 +35,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
-            [NotNull] ISqlServerConnection connection)
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
             : base(generatorState)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-            Check.NotNull(connection, nameof(connection));
-
             _sequence = generatorState.Sequence;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _sqlGenerator = sqlGenerator;
             _connection = connection;
+            _commandLogger = commandLogger;
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             => (long)Convert.ChangeType(
                 _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
-                    .ExecuteScalar(_connection),
+                    .ExecuteScalar(_connection, null, _commandLogger),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             => (long)Convert.ChangeType(
                 await _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
-                    .ExecuteScalarAsync(_connection, cancellationToken: cancellationToken),
+                    .ExecuteScalarAsync(_connection, null, _commandLogger, cancellationToken: cancellationToken),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 

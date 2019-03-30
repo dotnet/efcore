@@ -104,14 +104,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var relationalCommand
                             = _shaperCommandContext
-                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                                .GetRelationalCommand(_relationalQueryContext.ParameterValues, _relationalQueryContext);
 
                         _relationalQueryContext.Connection.RegisterBufferable(this);
 
                         _dataReader
                             = relationalCommand.ExecuteReader(
                                 _relationalQueryContext.Connection,
-                                _relationalQueryContext.ParameterValues);
+                                _relationalQueryContext.ParameterValues,
+                                _relationalQueryContext.CommandLogger);
                     }
                     catch
                     {

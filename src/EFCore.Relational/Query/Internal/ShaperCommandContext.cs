@@ -123,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IRelationalCommand GetRelationalCommand(
-            [NotNull] IReadOnlyDictionary<string, object> parameters)
+            [NotNull] IReadOnlyDictionary<string, object> parameters,
+            [NotNull] RelationalQueryContext relationalQueryContext)
         {
             var key = new CommandCacheKey(parameters);
 
@@ -134,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var generator = QuerySqlGeneratorFactory();
 
-            relationalCommand = generator.GenerateSql(CommandBuilderFactory, parameters);
+            relationalCommand = generator.GenerateSql(CommandBuilderFactory, parameters, relationalQueryContext.QueryLogger);
 
             if (generator.IsCacheable)
             {

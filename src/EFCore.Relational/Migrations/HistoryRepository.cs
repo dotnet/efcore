@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
                && InterpretExistsResult(
-                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(Dependencies.Connection));
+                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(Dependencies.Connection, null,  Dependencies.CommandLogger));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
                && InterpretExistsResult(
                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                       Dependencies.Connection, cancellationToken: cancellationToken));
+                       Dependencies.Connection, null, Dependencies.CommandLogger, cancellationToken: cancellationToken));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = command.ExecuteReader(Dependencies.Connection))
+                using (var reader = command.ExecuteReader(Dependencies.Connection, null, Dependencies.CommandLogger))
                 {
                     while (reader.Read())
                     {
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, cancellationToken: cancellationToken))
+                using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, null, Dependencies.CommandLogger, cancellationToken: cancellationToken))
                 {
                     while (await reader.ReadAsync(cancellationToken))
                     {

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -187,11 +186,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     public override RelationalDataReader ExecuteReader(
-                        IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                        IRelationalConnection connection,
+                        IReadOnlyDictionary<string, object> parameterValues,
+                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
                     {
                         var command = connection.DbConnection.CreateCommand();
                         command.CommandText = CommandText;
-                        return new BadDataRelationalDataReader(command, _values, Logger);
+                        return new BadDataRelationalDataReader(command, _values, logger);
                     }
 
                     private class BadDataRelationalDataReader : RelationalDataReader
@@ -407,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection)
-                    .AddScoped<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>();
+                    .AddSingleton<IRelationalCommandBuilderFactory, BadDataCommandBuilderFactory>();
         }
     }
 }

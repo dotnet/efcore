@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -36,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
-        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
+
+        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping =
+            new Dictionary<MemberInfo, Expression>();
+
         private readonly List<Expression> _starProjection = new List<Expression>();
         private readonly List<Expression> _groupBy = new List<Expression>();
 
@@ -68,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _queryCompilationContext = queryCompilationContext;
 
             Dependencies = dependencies;
-            Loggers = new DiagnosticsLoggers(dependencies.QueryLogger, dependencies.CommandLogger);
         }
 
         /// <summary>
@@ -98,11 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 _queryCompilationContext = null;
             }
         }
-
-        /// <summary>
-        ///     Loggers to use.
-        /// </summary>
-        protected virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Dependencies used to create a <see cref="SelectExpression" />
@@ -1464,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The new default query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateDefaultQuerySqlGenerator()
-            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this, Loggers);
+            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this);
 
         /// <summary>
         ///     Creates the FromSql query SQL generator.
@@ -1478,7 +1474,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string sql,
             [NotNull] Expression arguments)
             => Dependencies.QuerySqlGeneratorFactory
-                .CreateFromSql(this, sql, arguments, Loggers);
+                .CreateFromSql(this, sql, arguments);
 
         /// <summary>
         ///     Convert this object into a string representation.
@@ -1488,7 +1484,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public override string ToString()
             => CreateDefaultQuerySqlGenerator()
-                .GenerateSql(Dependencies.CommandBuilderFactory, new Dictionary<string, object>())
+                .GenerateSql(Dependencies.CommandBuilderFactory, new Dictionary<string, object>(), null)
                 .CommandText;
     }
 }

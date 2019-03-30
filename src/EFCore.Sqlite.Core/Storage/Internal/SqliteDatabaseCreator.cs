@@ -50,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         public override void Create()
         {
             Dependencies.Connection.Open();
-            _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';").ExecuteNonQuery(Dependencies.Connection);
+
+            _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
+                .ExecuteNonQuery(Dependencies.Connection, null, Dependencies.CommandLogger);
+
             Dependencies.Connection.Close();
         }
 
@@ -83,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             var count = (long)_rawSqlCommandBuilder
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
-                .ExecuteScalar(Dependencies.Connection);
+                .ExecuteScalar(Dependencies.Connection, null, Dependencies.CommandLogger);
 
             return count != 0;
         }

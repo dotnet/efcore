@@ -98,7 +98,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool HasTables()
-            => Dependencies.ExecutionStrategyFactory.Create().Execute(_connection, connection => (int)CreateHasTablesCommand().ExecuteScalar(connection) != 0);
+            => Dependencies.ExecutionStrategyFactory
+                .Create()
+                .Execute(
+                    _connection,
+                    connection => (int)CreateHasTablesCommand()
+                                      .ExecuteScalar(
+                                          connection,
+                                          null,
+                                          Dependencies.CommandLogger) != 0);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -107,7 +115,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
-                async (connection, ct) => (int)await CreateHasTablesCommand().ExecuteScalarAsync(connection, cancellationToken: ct) != 0, cancellationToken);
+                async (connection, ct) => (int)await CreateHasTablesCommand()
+                                              .ExecuteScalarAsync(
+                                                  connection,
+                                                  null,
+                                                  Dependencies.CommandLogger,
+                                                  cancellationToken: ct) != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder

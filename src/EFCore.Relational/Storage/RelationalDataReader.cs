@@ -49,12 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
-            Check.NotNull(logger, nameof(logger));
 
             _connection = connection;
             _command = command;
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _reader.Close(); // can throw
 
-                    _logger.DataReaderDisposing(
+                    _logger?.DataReaderDisposing(
                         _connection,
                         _command,
                         _reader,

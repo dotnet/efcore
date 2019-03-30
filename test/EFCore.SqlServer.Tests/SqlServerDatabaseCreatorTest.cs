@@ -261,35 +261,47 @@ namespace Microsoft.EntityFrameworkCore
 
             public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
 
-            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public int ExecuteNonQuery(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 return 0;
             }
 
             public Task<int> ExecuteNonQueryAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public RelationalDataReader ExecuteReader(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 throw new NotImplementedException();
             }
 
             public Task<RelationalDataReader> ExecuteReaderAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public object ExecuteScalar(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 throw new NotImplementedException();
             }
 
             public Task<object> ExecuteScalarAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();

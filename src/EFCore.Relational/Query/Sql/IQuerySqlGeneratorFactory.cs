@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,13 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     Creates the default SQL generator.
         /// </summary>
         /// <param name="selectExpression"> The select expression. </param>
-        /// <param name="loggers"> Some loggers. </param>
         /// <returns>
         ///     The default SQL generator.
         /// </returns>
         IQuerySqlGenerator CreateDefault(
-            [NotNull] SelectExpression selectExpression,
-            DiagnosticsLoggers loggers);
+            [NotNull] SelectExpression selectExpression);
 
         /// <summary>
         ///     Creates a FromSql SQL generator.
@@ -39,14 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="selectExpression"> The select expression. </param>
         /// <param name="sql"> The SQL. </param>
         /// <param name="arguments"> The arguments. </param>
-        /// <param name="loggers"> Some loggers. </param>
         /// <returns>
         ///     The FromSql SQL generator.
         /// </returns>
         IQuerySqlGenerator CreateFromSql(
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
-            [NotNull] Expression arguments,
-            DiagnosticsLoggers loggers);
+            [NotNull] Expression arguments);
     }
 }

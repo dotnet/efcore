@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     stringBuilder.IncrementIndent();
 
                     var querySqlGenerator = shaperCommandContext.QuerySqlGeneratorFactory();
-                    var sql = querySqlGenerator.GenerateSql(shaperCommandContext.CommandBuilderFactory, new Dictionary<string, object>()).CommandText;
+                    var sql = querySqlGenerator.GenerateSql(shaperCommandContext.CommandBuilderFactory, new Dictionary<string, object>(), null).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                     for (var i = 0; i < lines.Length; i++)

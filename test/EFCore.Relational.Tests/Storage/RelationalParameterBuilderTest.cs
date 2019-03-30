@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(
-                    typeMapper,
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()));
+                    typeMapper));
 
             parameterBuilder.AddParameter(
                 "InvariantName",
@@ -50,8 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(
-                    typeMapper,
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()));
+                    typeMapper));
 
             parameterBuilder.AddParameter(
                 "InvariantName",
@@ -85,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(
-                    typeMapper,
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()));
+                    typeMapper));
 
             parameterBuilder.AddParameter(
                 "InvariantName",
@@ -113,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(
-                    typeMapper,
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()));
+                    typeMapper));
 
             parameterBuilder.AddCompositeParameter(
                 "CompositeInvariant",
@@ -150,8 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(
-                    typeMapper,
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()));
+                    typeMapper));
 
             parameterBuilder.AddCompositeParameter(
                 "CompositeInvariant",

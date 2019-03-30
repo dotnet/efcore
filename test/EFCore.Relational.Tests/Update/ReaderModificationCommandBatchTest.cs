@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
@@ -585,8 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 return new ModificationCommandBatchFactoryDependencies(
                     new RelationalCommandBuilderFactory(
                         new RelationalCommandBuilderDependencies(
-                            typeMappingSource,
-                            logger)),
+                            typeMappingSource)),
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(

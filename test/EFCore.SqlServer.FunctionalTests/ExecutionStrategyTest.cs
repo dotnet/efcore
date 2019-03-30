@@ -584,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.AddServices(serviceCollection)
                     .AddSingleton<IRelationalTransactionFactory, TestRelationalTransactionFactory>()
                     .AddScoped<ISqlServerConnection, TestSqlServerConnection>()
-                    .AddScoped<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>();
+                    .AddSingleton<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>();
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

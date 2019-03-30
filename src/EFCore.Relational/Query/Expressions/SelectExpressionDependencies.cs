@@ -51,37 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="commandBuilderFactory"> The command builder factory. </param>
-        /// <param name="commandLogger"> The commandLogger. </param>
-        /// <param name="queryLogger"> The commandLogger. </param>
         public SelectExpressionDependencies(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(commandLogger, nameof(commandLogger));
-            Check.NotNull(queryLogger, nameof(queryLogger));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
             TypeMappingSource = typeMappingSource;
             CommandBuilderFactory = commandBuilderFactory;
-            CommandLogger = commandLogger;
-            QueryLogger = queryLogger;
         }
-        
-        /// <summary>
-        ///     The command Logger.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
-        
-        /// <summary>
-        ///     The query Logger.
-        /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; }
 
         /// <summary>
         ///     The query SQL generator factory.
@@ -104,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="querySqlGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            => new SelectExpressionDependencies(querySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, CommandLogger, QueryLogger);
+            => new SelectExpressionDependencies(querySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -112,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, typeMappingSource, CommandBuilderFactory, CommandLogger, QueryLogger);
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, typeMappingSource, CommandBuilderFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -120,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
-            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, commandLogger, QueryLogger);
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -128,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="queryLogger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
-            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory, CommandLogger, queryLogger);
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, CommandBuilderFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -136,6 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public SelectExpressionDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
-            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, commandBuilderFactory, CommandLogger, QueryLogger);
+            => new SelectExpressionDependencies(QuerySqlGeneratorFactory, TypeMappingSource, commandBuilderFactory);
     }
 }
