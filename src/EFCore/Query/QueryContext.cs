@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -62,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The state manager.
         /// </value>
-        public virtual IStateManager StateManager => Dependencies.StateManager;
+        public virtual IStateManager StateManager
+            => Dependencies.StateManager;
 
         /// <summary>
         ///     The query provider.
@@ -70,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query provider.
         /// </value>
-        public virtual IQueryProvider QueryProvider => Dependencies.QueryProvider;
+        public virtual IQueryProvider QueryProvider
+            => Dependencies.QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.
@@ -78,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The concurrency detector.
         /// </value>
-        public virtual IConcurrencyDetector ConcurrencyDetector => Dependencies.ConcurrencyDetector;
+        public virtual IConcurrencyDetector ConcurrencyDetector
+            => Dependencies.ConcurrencyDetector;
 
         /// <summary>
         ///     Gets or sets the cancellation token.
@@ -87,6 +91,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The cancellation token.
         /// </value>
         public virtual CancellationToken CancellationToken { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the cancellation token.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token.
+        /// </value>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger
+            => Dependencies.CommandLogger;
+
+        /// <summary>
+        ///     Gets or sets the cancellation token.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token.
+        /// </value>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger
+            => Dependencies.QueryLogger;
 
         /// <summary>
         ///     The parameter values.

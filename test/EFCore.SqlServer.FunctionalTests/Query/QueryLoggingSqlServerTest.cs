@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -172,6 +171,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
+        }
+
+        [Fact]
+        public void SelectExpression_does_not_use_an_old_logger()
+        {
+            DbContextOptions CreateOptions(ListLoggerFactory listLoggerFactory)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder();
+                Fixture.TestStore.AddProviderOptions(optionsBuilder);
+                optionsBuilder.UseLoggerFactory(listLoggerFactory);
+                return optionsBuilder.Options;
+            }
+
+            var loggerFactory1 = new ListLoggerFactory();
+
+            using (var context = new NorthwindRelationalContext(CreateOptions(loggerFactory1)))
+            {
+                var _ = context.Customers.ToList();
+            }
+
+            Assert.Equal(1, loggerFactory1.Log.Count(e => e.Id == RelationalEventId.CommandExecuted));
+
+            var loggerFactory2 = new ListLoggerFactory();
+
+            using (var context = new NorthwindRelationalContext(CreateOptions(loggerFactory2)))
+            {
+                var _ = context.Customers.ToList();
+            }
+
+            Assert.Equal(1, loggerFactory1.Log.Count(e => e.Id == RelationalEventId.CommandExecuted));
+            Assert.Equal(1, loggerFactory2.Log.Count(e => e.Id == RelationalEventId.CommandExecuted));
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();

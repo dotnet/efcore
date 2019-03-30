@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
         /// <param name="sqlGenerationHelper"> The <see cref="ISqlGenerationHelper" /> to be used. </param>
         /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
+        /// <param name="commandLogger"> The command logger. </param>
         public RelationalDatabaseCreatorDependencies(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
@@ -65,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
@@ -74,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
+            Check.NotNull(commandLogger, nameof(commandLogger));
 
             Model = model;
             Connection = connection;
@@ -82,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             MigrationCommandExecutor = migrationCommandExecutor;
             SqlGenerationHelper = sqlGenerationHelper;
             ExecutionStrategyFactory = executionStrategyFactory;
+            CommandLogger = commandLogger;
         }
 
         /// <summary>
@@ -120,6 +125,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
+        ///     The command logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="model"> A replacement for the current dependency of this type. </param>
@@ -132,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -147,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -162,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -177,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 migrationsSqlGenerator,
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -192,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 migrationCommandExecutor,
                 SqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -207,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
                 sqlGenerationHelper,
-                ExecutionStrategyFactory);
+                ExecutionStrategyFactory,
+                CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -222,6 +238,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
-                executionStrategyFactory);
+                executionStrategyFactory,
+                CommandLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                SqlGenerationHelper,
+                ExecutionStrategyFactory,
+                commandLogger);
     }
 }

@@ -23,20 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private static RawSqlCommandBuilder CreateBuilder()
         {
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
-
             return new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        logger)),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 new RelationalSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(
-                    new ParameterNameGeneratorDependencies()),
-                logger);
+                    new ParameterNameGeneratorDependencies()));
         }
 
         [Fact]

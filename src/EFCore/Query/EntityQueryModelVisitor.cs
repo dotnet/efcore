@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+            var logger = QueryCompilationContext.Logger;
 
             using (logger.Logger.BeginScope(this))
             {
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+            var logger = QueryCompilationContext.Logger;
 
             using (logger.Logger.BeginScope(this))
             {
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
                     _expression,
                     Expression.Constant(QueryCompilationContext.ContextType),
-                    Expression.Constant(QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()),
+                    Expression.Constant(QueryCompilationContext.Logger),
                     QueryContextParameter);
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var logger = QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+            var logger = QueryCompilationContext.Logger;
 
             queryModel.TransformExpressions(
                 new DuplicateQueryModelIdentifyingExpressionVisitor(_queryCompilationContext).Visit);
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                QueryCompilationContext.Logger
                     .QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
             }
         }

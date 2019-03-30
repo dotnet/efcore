@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -48,12 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var relationalCommand
                     = shaperCommandContext
-                        .GetRelationalCommand(relationalQueryContext.ParameterValues);
+                        .GetRelationalCommand(relationalQueryContext.ParameterValues, relationalQueryContext);
 
                 dataReader
                     = relationalCommand.ExecuteReader(
                         relationalQueryContext.Connection,
-                        relationalQueryContext.ParameterValues);
+                        relationalQueryContext.ParameterValues,
+                        relationalQueryContext.CommandLogger);
             }
             catch
             {

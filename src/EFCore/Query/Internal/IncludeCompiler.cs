@@ -12,9 +12,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
@@ -123,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void LogIgnoredIncludes()
         {
-            var logger = _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>();
+            var logger = _queryCompilationContext.Logger;
 
             foreach (var includeResultOperator in _includeResultOperators.Where(iro => !iro.IsImplicitLoad))
             {
@@ -185,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     continue;
                 }
 
-                _queryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
+                _queryCompilationContext.Logger
                     .NavigationIncluded(includeResultOperator);
 
                 _includeResultOperators.Remove(includeResultOperator);

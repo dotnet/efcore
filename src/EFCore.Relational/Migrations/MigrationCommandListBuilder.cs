@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             if (_commandBuilder.CommandTextLength != 0)
             {
-                _commands.Add(new MigrationCommand(_commandBuilder.Build(), suppressTransaction));
+                _commands.Add(new MigrationCommand(_commandBuilder.Build(), _dependencies.Logger, suppressTransaction));
                 _commandBuilder = _dependencies.CommandBuilderFactory.Create();
             }
 

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -43,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var dependencies = new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
 
             var commandBuilder = new RelationalCommandBuilder(dependencies);
             return commandBuilder;

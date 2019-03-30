@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
@@ -130,8 +129,7 @@ Statement3
                 new MigrationsSqlGeneratorDependencies(
                     new RelationalCommandBuilderFactory(
                         new RelationalCommandBuilderDependencies(
-                            typeMappingSource,
-                            logger)),
+                            typeMappingSource)),
                     new FakeSqlGenerator(
                         new UpdateSqlGeneratorDependencies(
                             generationHelper,

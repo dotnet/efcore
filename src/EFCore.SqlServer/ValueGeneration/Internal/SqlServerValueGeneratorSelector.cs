@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
         private readonly ISqlServerConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -38,16 +40,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             [NotNull] ValueGeneratorSelectorDependencies dependencies,
             [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
             : base(dependencies)
         {
-            Check.NotNull(sequenceFactory, nameof(sequenceFactory));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-
             _sequenceFactory = sequenceFactory;
             _connection = connection;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
+            _commandLogger = commandLogger;
         }
 
         /// <summary>
@@ -71,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                     property,
                     Cache.GetOrAddSequenceState(property, _connection),
                     _connection,
-                    _rawSqlCommandBuilder)
+                    _rawSqlCommandBuilder,
+                    _commandLogger)
                 : base.Select(property, entityType);
         }
 

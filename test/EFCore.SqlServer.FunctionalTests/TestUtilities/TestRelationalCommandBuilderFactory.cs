@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -101,11 +102,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IReadOnlyList<IRelationalParameter> Parameters => _realRelationalCommand.Parameters;
 
             public int ExecuteNonQuery(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQuery(connection, parameterValues);
+                var result = _realRelationalCommand.ExecuteNonQuery(connection, parameterValues, logger);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -117,11 +120,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public Task<int> ExecuteNonQueryAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQueryAsync(connection, parameterValues, cancellationToken);
+                var result = _realRelationalCommand.ExecuteNonQueryAsync(connection, parameterValues, logger, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -132,11 +136,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public object ExecuteScalar(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteScalar(connection, parameterValues);
+                var result = _realRelationalCommand.ExecuteScalar(connection, parameterValues, logger);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -148,11 +154,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<object> ExecuteScalarAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteScalarAsync(connection, parameterValues, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteScalarAsync(connection, parameterValues, logger, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -163,11 +170,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             public RelationalDataReader ExecuteReader(
-                IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteReader(connection, parameterValues);
+                var result = _realRelationalCommand.ExecuteReader(connection, parameterValues, logger);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -180,11 +189,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = new CancellationToken())
             {
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteReaderAsync(connection, parameterValues, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteReaderAsync(connection, parameterValues, logger, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();

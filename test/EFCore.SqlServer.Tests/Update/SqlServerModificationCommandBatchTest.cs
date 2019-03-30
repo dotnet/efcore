@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 new ModificationCommandBatchFactoryDependencies(
                     new RelationalCommandBuilderFactory(
                         new RelationalCommandBuilderDependencies(
-                            typeMapper,
-                            logger)),
+                            typeMapper)),
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
                     new SqlServerUpdateSqlGenerator(

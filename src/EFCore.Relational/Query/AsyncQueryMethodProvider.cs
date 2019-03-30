@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -107,12 +106,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var relationalCommand
                                 = _shaperCommandContext
-                                    .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                                    .GetRelationalCommand(_relationalQueryContext.ParameterValues, _relationalQueryContext);
 
                             _dataReader
                                 = await relationalCommand.ExecuteReaderAsync(
                                     _relationalQueryContext.Connection,
-                                    _relationalQueryContext.ParameterValues, cancellationToken);
+                                    _relationalQueryContext.ParameterValues,
+                                    _relationalQueryContext.CommandLogger,
+                                    cancellationToken);
                         }
                         catch
                         {

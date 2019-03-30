@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var translatedExpression = _methodCallTranslator.Translate(
                         boundExpression,
                         compilationContext.Model,
-                        compilationContext.Loggers.GetLogger<DbLoggerCategory.Query>());
+                        compilationContext.Logger);
 
                     if (translatedExpression != null)
                     {
@@ -970,19 +970,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 var referencedQuerySource = subQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
 
+                var queryCompilationContext = _queryModelVisitor.QueryCompilationContext;
+
                 if (referencedQuerySource == null
                     || _inProjection
-                    || !_queryModelVisitor.QueryCompilationContext
+                    || !queryCompilationContext
                         .QuerySourceRequiresMaterialization(referencedQuerySource))
                 {
                     var subQueryModelVisitor
-                        = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
+                        = (RelationalQueryModelVisitor)queryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
                     if (expression.QueryModel.MainFromClause.FromExpression is QuerySourceReferenceExpression groupQsre
                         && groupQsre.Type.IsGrouping())
                     {
-                        var targetExpression = _queryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                        var targetExpression = queryCompilationContext.QuerySourceMapping
                             .GetExpression(groupQsre.ReferencedQuerySource);
 
                         if (targetExpression.Type == typeof(ValueBuffer))
@@ -990,14 +992,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             var outerSelectExpression = _targetSelectExpression.Clone();
                             subQueryModelVisitor.AddQuery(subQueryModel.MainFromClause, outerSelectExpression);
 
-                            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(
+                            queryCompilationContext.AddOrUpdateMapping(
                                 groupQsre.ReferencedQuerySource,
                                 Expression.Parameter(
                                     typeof(IEnumerable<>).MakeGenericType(typeof(ValueBuffer))));
 
                             subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(
+                            queryCompilationContext.AddOrUpdateMapping(
                                 groupQsre.ReferencedQuerySource,
                                 targetExpression);
 

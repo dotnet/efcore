@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
 
             Model = dependencies.Model;
-            Loggers = new DiagnosticsLoggers(dependencies.Logger);
+            Logger = dependencies.Logger;
 
             _entityQueryModelVisitorFactory = dependencies.EntityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = dependencies.RequiresMaterializationExpressionVisitorFactory;
@@ -133,12 +133,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IModel Model { get; }
 
         /// <summary>
-        ///     Gets the loggers.
+        ///     Gets the logger.
         /// </summary>
         /// <value>
-        ///     The loggers.
+        ///     The logger.
         /// </value>
-        public virtual DiagnosticsLoggers Loggers { get; }
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     Gets the LINQ operator provider.

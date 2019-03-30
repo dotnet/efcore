@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private ReducingExpressionVisitor _reducingExpressionVisitor;
         private BooleanExpressionTranslatingVisitor _booleanExpressionTranslatingVisitor;
         private InExpressionValuesExpandingVisitor _inExpressionValuesExpandingVisitor;
+        private IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         private bool _valueConverterWarningsEnabled;
 
@@ -68,22 +69,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="selectExpression"> The select expression. </param>
-        /// <param name="loggers"> Some loggers. </param>
         protected DefaultQuerySqlGenerator(
             [NotNull] QuerySqlGeneratorDependencies dependencies,
-            [NotNull] SelectExpression selectExpression,
-            DiagnosticsLoggers loggers)
+            [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(loggers, nameof(loggers));
 
             Dependencies = dependencies;
             SelectExpression = selectExpression;
-            Loggers = loggers;
         }
-
-        public virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Whether or not the generated SQL could have out-of-order projection columns.
@@ -132,30 +127,45 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="logger"> The query logger. </param>
         /// <returns>
         ///     A relational command.
         /// </returns>
         public virtual IRelationalCommand GenerateSql(
             IRelationalCommandBuilderFactory commandBuilderFactory,
-            IReadOnlyDictionary<string, object> parameterValues)
+            IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _relationalCommandBuilder = commandBuilderFactory.Create();
+            try
+            {
+                _logger = logger;
+                _relationalCommandBuilder = commandBuilderFactory.Create();
 
-            _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
+                _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
 
-            _parametersValues = parameterValues;
-            _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
-            _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
+                _parametersValues = parameterValues;
+                _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
+                _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
 
-            IsCacheable = true;
+                IsCacheable = true;
 
-            GenerateTagsHeaderComment();
+                GenerateTagsHeaderComment();
 
-            Visit(SelectExpression);
+                Visit(SelectExpression);
 
-            return _relationalCommandBuilder.Build();
+                return _relationalCommandBuilder.Build();
+            }
+            finally
+            {
+                _logger = null;
+                _relationalCommandBuilder = null;
+                _parameterNameGenerator = null;
+                _parametersValues = null;
+                _nullComparisonTransformingVisitor = null;
+                _inExpressionValuesExpandingVisitor = null;
+            }
         }
 
         /// <summary>
@@ -1665,8 +1675,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (_valueConverterWarningsEnabled
                 && typeMapping.Converter != null)
             {
-                Loggers.GetLogger<DbLoggerCategory.Query>()
-                    .ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
+                _logger?.ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
             }
         }
 
