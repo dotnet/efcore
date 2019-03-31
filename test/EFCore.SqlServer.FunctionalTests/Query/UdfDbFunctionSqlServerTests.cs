@@ -744,7 +744,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
             {
                 base.Seed(context);
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[CustomerOrderCount] (@customerId int)
                                                     returns int
                                                     as
@@ -752,7 +752,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                         return (select count(id) from orders where customerId = @customerId);
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function[dbo].[StarValue] (@starCount int, @value nvarchar(max))
                                                     returns nvarchar(max)
                                                         as
@@ -760,7 +760,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                     return replicate('*', @starCount) + @value
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function[dbo].[DollarValue] (@starCount int, @value nvarchar(max))
                                                     returns nvarchar(max)
                                                         as
@@ -768,7 +768,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                     return replicate('$', @starCount) + @value
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[GetReportingPeriodStartDate] (@period int)
                                                     returns DateTime
                                                     as
@@ -776,7 +776,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                         return '1998-01-01'
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[GetCustomerWithMostOrdersAfterDate] (@searchDate Date)
                                                     returns int
                                                     as
@@ -788,7 +788,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                                 order by count(id) desc)
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[IsTopCustomer] (@customerId int)
                                                     returns bit
                                                     as
@@ -799,7 +799,7 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
                                                         return 0
                                                     end");
 
-                context.Database.ExecuteRawSql(
+                context.Database.ExecuteSqlRaw(
                     @"create function [dbo].[IdentityString] (@customerName nvarchar(max))
                                                     returns nvarchar(max)
                                                     as

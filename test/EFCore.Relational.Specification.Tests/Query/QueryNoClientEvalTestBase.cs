@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .FromRawSql(NormalizeDelimetersInRawString("select * from [Customers]"))
+                            .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
                             .Where(c => c.IsLondon)
                             .ToList()).Message);
             }
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = context.Customers
-                        .FromRawSql(NormalizeDelimetersInRawString("select * from [Customers]"))
+                        .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
                         .ToList();
 
                 Assert.Equal(91, customers.Count);

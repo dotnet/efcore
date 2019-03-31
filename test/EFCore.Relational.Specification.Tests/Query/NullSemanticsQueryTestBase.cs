@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(useRelationalNulls: true))
             {
                 var actual = context.Entities1
-                    .FromRawSql(NormalizeDelimetersInRawString("SELECT * FROM [Entities1]"))
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Entities1]"))
                     .Where(c => c.StringA == c.StringB)
                     .ToArray();
 
