@@ -2664,7 +2664,7 @@ WHERE [w].[Val] = 1");
                     context.Widgets.AddRange(w1, w2, w3);
                     context.SaveChanges();
 
-                    context.Database.ExecuteRawSql(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION foo.AddOne (@num int)
                                                             RETURNS int
                                                                 AS
@@ -2672,7 +2672,7 @@ WHERE [w].[Val] = 1");
                                                                 return @num + 1 ;
                                                             END");
 
-                    context.Database.ExecuteRawSql(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION dbo.AddTwo (@num int)
                                                             RETURNS int
                                                                 AS
@@ -2746,7 +2746,7 @@ WHERE [w].[Val] = 1");
 
                     Assert.Equal(0, valueParam.Value);
 
-                    var blogs = context.Blogs.FromRawSql(
+                    var blogs = context.Blogs.FromSqlRaw(
                             "[dbo].[GetPersonAndVoteCount]  @id, @Value out",
                             new SqlParameter
                             {
@@ -2768,7 +2768,7 @@ WHERE [w].[Val] = 1");
                 () => new MyContext9277(_options),
                 context =>
                 {
-                    context.Database.ExecuteRawSql(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE PROCEDURE [dbo].[GetPersonAndVoteCount]
  (
     @id int,
@@ -5261,7 +5261,7 @@ ORDER BY [t0].[Id]");
                     .HasNoKey()
                     .ToQuery(
                         () => Set<OrderSummary13346>()
-                            .FromRawSql("SELECT o.Amount From Orders AS o"));
+                            .FromSqlRaw("SELECT o.Amount From Orders AS o"));
             }
         }
 

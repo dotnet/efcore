@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
-                    context.Database.ExecuteRawSql
+                    context.Database.ExecuteSqlRaw
                     (
                         @"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
@@ -695,9 +695,9 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                 {
                     context.GetService<IRelationalDatabaseCreator>().CreateTables();
 
-                    context.Database.ExecuteRawSql("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
 
-                    context.Database.ExecuteRawSql(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
 BEGIN
@@ -706,7 +706,7 @@ BEGIN
     RETURN @FullName
 END");
 
-                    context.Database.ExecuteRawSql("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
                 }
 
                 try
@@ -763,8 +763,8 @@ END");
                 {
                     using (var context = new BlogContextComputedColumn(testStore.Name))
                     {
-                        context.Database.ExecuteRawSql("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
-                        context.Database.ExecuteRawSql("DROP FUNCTION [dbo].[GetFullName];");
+                        context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                        context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
                     }
                 }
             }
