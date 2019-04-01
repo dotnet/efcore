@@ -1,9 +1,24 @@
+resources:
+  containers:
+    - container: mssql
+      image: mcr.microsoft.com/mssql/server
+      env:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=Password12!
+      ports: 1433
+
 variables:
   - name: _BuildConfig
     value: Release
   - name: _TeamName
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+    value: true
+  - name: Test__SqlServer__DefaultConnection
+    value: Data Source=mssql;User ID=sa;Password=Password12!
+  - name: Test__SqlServer__SupportsMemoryOptimized
+    value: true
+  - name: Test__SqlServer__SupportsHiddenColumns
     value: true
 
 trigger:
@@ -35,9 +50,6 @@ jobs:
               queue: BuildPool.Windows.10.Amd64.VS2017
           variables:
             - _InternalBuildArgs: ''
-            - Test__SqlServer__DefaultConnection: Data Source=mssql;User ID=sa;Password=Password12!
-            - Test__SqlServer__SupportsMemoryOptimized: true
-            - Test__SqlServer__SupportsHiddenColumns: true
             - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
               - group: DotNet-Blob-Feed
               - _SignType: real
@@ -62,12 +74,7 @@ jobs:
                 artifactType: Container
                 parallel: true
           services:
-            mssql:
-              image: mcr.microsoft.com/mssql/server
-              env:
-              - ACCEPT_EULA=Y
-              - SA_PASSWORD=Password12!
-              ports: 1433
+            mssql: mssql
 
         - job: macOS
           pool:
@@ -79,6 +86,8 @@ jobs:
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
               name: Build
               continueOnError: true
+          services:
+            mssql: mssql
 
         - job: Linux
           pool:
@@ -89,3 +98,5 @@ jobs:
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               name: Build
+          services:
+            mssql: mssql
