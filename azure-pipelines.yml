@@ -5,7 +5,8 @@ resources:
       env:
         ACCEPT_EULA: Y
         SA_PASSWORD: Password12!
-      ports: 1433
+      ports:
+        - 1433
 
 variables:
   - name: _BuildConfig
