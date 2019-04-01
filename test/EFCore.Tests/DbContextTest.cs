@@ -862,8 +862,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
             var expectedMethodCount = 41;

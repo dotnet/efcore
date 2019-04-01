@@ -48,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
             Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesTest(
-                (c, e) => Task.FromResult(categoryAdder(c, e)),
-                (c, e) => Task.FromResult(productAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
                 expectedState);
 
         private static async Task TrackEntitiesTest(
-            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
-            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
@@ -244,14 +244,14 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
             Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesDefaultValueTest(
-                (c, e) => Task.FromResult(categoryAdder(c, e)),
-                (c, e) => Task.FromResult(productAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
                 expectedState);
 
         // Issue #3890
         private static async Task TrackEntitiesDefaultValueTest(
-            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
-            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
@@ -444,13 +444,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, EntityEntry> categoryAdder,
             Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
             => TrackEntitiesTestNonGeneric(
-                (c, e) => Task.FromResult(categoryAdder(c, e)),
-                (c, e) => Task.FromResult(productAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
                 expectedState);
 
         private static async Task TrackEntitiesTestNonGeneric(
-            Func<DbContext, object, Task<EntityEntry>> categoryAdder,
-            Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
+            Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
+            Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
@@ -640,14 +640,14 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, EntityEntry> categoryAdder,
             Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
             => TrackEntitiesDefaultValuesTestNonGeneric(
-                (c, e) => Task.FromResult(categoryAdder(c, e)),
-                (c, e) => Task.FromResult(productAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
                 expectedState);
 
         // Issue #3890
         private static async Task TrackEntitiesDefaultValuesTestNonGeneric(
-            Func<DbContext, object, Task<EntityEntry>> categoryAdder,
-            Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
+            Func<DbContext, object, ValueTask<EntityEntry>> categoryAdder,
+            Func<DbContext, object, ValueTask<EntityEntry>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
@@ -936,13 +936,13 @@ namespace Microsoft.EntityFrameworkCore
                 (c, e) =>
                 {
                     action(c, e);
-                    return Task.FromResult(0);
+                    return new ValueTask<EntityEntry>();
                 },
                 initialState,
                 expectedState);
 
         private async Task ChangeStateWithMethod(
-            Func<DbContext, object, Task> action,
+            Func<DbContext, object, ValueTask<EntityEntry>> action,
             EntityState initialState,
             EntityState expectedState)
         {

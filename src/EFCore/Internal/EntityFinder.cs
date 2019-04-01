@@ -70,35 +70,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
+        public virtual ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
             if (keyValues == null || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<TEntity>(null);
+                return new ValueTask<TEntity>((TEntity)null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
-                ? Task.FromResult(tracked)
-                : _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
+                ? new ValueTask<TEntity>(tracked)
+                : new ValueTask<TEntity>(_queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
+        ValueTask<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
             if (keyValues == null || keyValues.Any(v => v == null))
             {
-                return Task.FromResult<object>(null);
+                return new ValueTask<object>((object)null);
             }
 
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
-                ? Task.FromResult((object)tracked)
-                : _queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
+                ? new ValueTask<object>(tracked)
+                : new ValueTask<object>(_queryRoot.FirstOrDefaultAsync(
+                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>

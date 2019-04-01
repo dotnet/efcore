@@ -133,14 +133,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<TEntity> FindAsync(params object[] keyValues)
+        public override ValueTask<TEntity> FindAsync(params object[] keyValues)
             => Finder.FindAsync(keyValues);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken)
+        public override ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken)
             => Finder.FindAsync(keyValues, cancellationToken);
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Task<EntityEntry<TEntity>> AddAsync(
+        public override ValueTask<EntityEntry<TEntity>> AddAsync(
             TEntity entity,
             CancellationToken cancellationToken = default)
             => _context.AddAsync(entity, cancellationToken);

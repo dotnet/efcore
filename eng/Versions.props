@@ -10,6 +10,7 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
+    <SystemThreadingTasksExtensionsVersion>4.5.2</SystemThreadingTasksExtensionsVersion>
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <MicrosoftAzureCosmosPackageVersion>3.0.0.1-preview</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>

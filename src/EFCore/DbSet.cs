@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync([CanBeNull] params object[] keyValues) => throw new NotImplementedException();
+        public virtual ValueTask<TEntity> FindAsync([CanBeNull] params object[] keyValues) => throw new NotImplementedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual Task<EntityEntry<TEntity>> AddAsync(
+        public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default) => throw new NotImplementedException();
 

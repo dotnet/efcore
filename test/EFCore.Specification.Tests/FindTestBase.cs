@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues)
             where TEntity : class;
 
-        protected abstract Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
+        protected abstract ValueTask<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
             where TEntity : class;
 
         [Fact]
@@ -409,7 +409,9 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 88
                     }).Entity;
 
-                Assert.Same(entity, await FindAsync<IntKey>(context, 88));
+                var valueTask = FindAsync<IntKey>(context, 88);
+                Assert.True(valueTask.IsCompleted);
+                Assert.Same(entity, await valueTask);
             }
         }
 
@@ -714,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.FindNotCompositeKey("IntKey", 2),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, 77, 88))).Message);
+                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, 77, 88).AsTask())).Message);
             }
         }
 
@@ -725,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77))).Message);
+                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77).AsTask())).Message);
             }
         }
 
@@ -736,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, "77"))).Message);
+                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, "77").AsTask())).Message);
             }
         }
 
@@ -747,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77, 88))).Message);
+                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77, 88).AsTask())).Message);
             }
         }
 
@@ -758,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.InvalidSetType(nameof(Random)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77))).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
             }
         }
 

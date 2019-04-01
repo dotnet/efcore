@@ -196,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = TargetDir,
                     References =
                     {
+                        BuildReference.ByName("System.Threading.Tasks.Extensions", true),
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
