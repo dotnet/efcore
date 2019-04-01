@@ -121,9 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var task1 = context.Customers.FindAsync("ALFKI");
-                var task2 = context.Customers.FindAsync("ANATR");
-                var task3 = context.Customers.FindAsync("FISSA");
+                var task1 = context.Customers.FindAsync("ALFKI").AsTask();
+                var task2 = context.Customers.FindAsync("ANATR").AsTask();
+                var task3 = context.Customers.FindAsync("FISSA").AsTask();
 
                 var tasks = await Task.WhenAll(task1, task2, task3);
 

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact(Skip = "#12138")]
         public virtual Task Find_logs_concurrent_access_async()
         {
-            return ConcurrencyDetectorTest(c => c.Products.FindAsync(1));
+            return ConcurrencyDetectorTest(c => c.Products.FindAsync(1).AsTask());
         }
 
         [Fact]
