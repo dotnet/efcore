@@ -19,6 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Update
     public interface IUpdateEntry
     {
         /// <summary>
+        ///     Sets the original value of the given property.
+        /// </summary>
+        /// <param name="property"> The property to set. </param>
+        /// <param name="value"> The value to set. </param>
+        void SetOriginalValue(IProperty property, object value);
+
+        /// <summary>
+        ///     Marks the given property as modified.
+        /// </summary>
+        /// <param name="property"> The property to mark as modified. </param>
+        void SetPropertyModified(IProperty property);
+
+        /// <summary>
         ///     The type of entity to be saved to the database.
         /// </summary>
         IEntityType EntityType { get; }
@@ -26,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The state of the entity to be saved.
         /// </summary>
-        EntityState EntityState { get; }
+        EntityState EntityState { get; set; }
 
         /// <summary>
         ///     The other entry that has the same key values, if one exists.

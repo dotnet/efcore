@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var stateManager = entry.StateManager;
             var ownership = entry.EntityType.FindOwnership();
-            var principal = stateManager.GetPrincipal(entry, ownership);
+            var principal = stateManager.FindPrincipal(entry, ownership);
             if (principal == null)
             {
                 if (_sensitiveLoggingEnabled)

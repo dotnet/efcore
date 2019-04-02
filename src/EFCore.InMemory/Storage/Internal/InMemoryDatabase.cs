@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
@@ -36,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
         private readonly IInMemoryStore _store;
+        private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
 
         /// <summary>
@@ -48,14 +48,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             [NotNull] DatabaseDependencies dependencies,
             [NotNull] IInMemoryStoreCache storeCache,
             [NotNull] IDbContextOptions options,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
             Check.NotNull(storeCache, nameof(storeCache));
             Check.NotNull(options, nameof(options));
+            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
             Check.NotNull(updateLogger, nameof(updateLogger));
 
             _store = storeCache.GetStore(options);
+            _updateAdapterFactory = updateAdapterFactory;
             _updateLogger = updateLogger;
         }
 
@@ -93,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool EnsureDatabaseCreated(StateManagerDependencies stateManagerDependencies)
-            => _store.EnsureCreated(Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies)), _updateLogger);
+        public virtual bool EnsureDatabaseCreated()
+            => _store.EnsureCreated(_updateAdapterFactory, _updateLogger);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -55,10 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The number of state entries persisted to the database. </returns>
         public override int SaveChanges(
             IList<IUpdateEntry> entries)
-            => RelationalDependencies.BatchExecutor.Execute(
+        {
+            Check.NotNull(entries, nameof(entries));
+
+            return RelationalDependencies.BatchExecutor.Execute(
                 RelationalDependencies.BatchPreparer.BatchCommands(
-                    Check.NotNull(entries, nameof(entries))),
+                    entries,
+                    Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection);
+        }
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -72,10 +77,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default)
-            => RelationalDependencies.BatchExecutor.ExecuteAsync(
+        {
+            Check.NotNull(entries, nameof(entries));
+
+            return RelationalDependencies.BatchExecutor.ExecuteAsync(
                 RelationalDependencies.BatchPreparer.BatchCommands(
-                    Check.NotNull(entries, nameof(entries))),
+                    entries,
+                    Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection,
                 cancellationToken);
+        }
     }
 }

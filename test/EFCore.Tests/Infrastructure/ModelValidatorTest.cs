@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(modelBuilder.Model);
 
-            var data = modelBuilder.Model.GetEntityTypes().Single().GetData();
+            var data = modelBuilder.Model.GetEntityTypes().Single().GetSeedData();
             Assert.Equal(-1, data.First().Values.Single());
             Assert.Equal(-2, data.Last().Values.Single());
         }

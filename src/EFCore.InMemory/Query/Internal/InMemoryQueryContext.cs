@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public InMemoryQueryContext(
             [NotNull] QueryContextDependencies dependencies,
+            // Internal code: see #15096
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IInMemoryStore store)
             : base(dependencies, queryBufferFactory)

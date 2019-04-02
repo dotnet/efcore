@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,6 +13,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
@@ -832,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new SqlServerMigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
-                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<IUpdateAdapterFactory>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());
         }
 

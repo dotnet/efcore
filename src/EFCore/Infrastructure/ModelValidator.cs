@@ -625,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 IIdentityMap identityMap = null;
-                foreach (var seedDatum in entityType.GetData())
+                foreach (var seedDatum in entityType.GetSeedData())
                 {
                     foreach (var property in entityType.GetProperties())
                     {

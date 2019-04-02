@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
                     Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().Relational().Name);
-                    Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetData().Single().Values);
+                    Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetSeedData().Single().Values);
 
                     var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
                         .ForeignKey;
@@ -1052,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Id", owned1index2.Properties[0].Name);
                     Assert.False(owned1index2.IsUnique);
                     Assert.Null(owned1index2.Relational().Filter);
-                    Assert.Equal(new object[] { 1, -1 }, ownedType1.GetData().Single().Values);
+                    Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
                     Assert.Equal(nameof(EntityWithOneProperty), ownedType1.Relational().TableName);
 
                     var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
@@ -3092,7 +3092,7 @@ namespace RootNamespace
 }
 ",
                 o => Assert.Collection(
-                    o.GetEntityTypes().SelectMany(e => e.GetData()),
+                    o.GetEntityTypes().SelectMany(e => e.GetSeedData()),
                     seed =>
                     {
                         Assert.Equal(42, seed["Id"]);

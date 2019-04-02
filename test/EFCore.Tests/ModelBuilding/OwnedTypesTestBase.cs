@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(chainedOwnership.IsUnique);
                 Assert.Equal(nameof(OrderDetails.OrderId), chainedOwned.FindPrimaryKey().Properties.Single().Name);
                 Assert.Empty(chainedOwned.GetIndexes());
-                Assert.Equal(-1, chainedOwned.GetData().Single()[nameof(OrderDetails.OrderId)]);
+                Assert.Equal(-1, chainedOwned.GetSeedData().Single()[nameof(OrderDetails.OrderId)]);
                 Assert.Equal(nameof(OrderDetails.OrderId), chainedOwnership.Properties.Single().Name);
                 Assert.Equal(nameof(OrderDetails.Order), chainedOwnership.DependentToPrincipal.Name);
 
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
                 Assert.Equal(1, ownership.DeclaringEntityType.GetForeignKeys().Count());
-                var seedData = owned.GetData().Single();
+                var seedData = owned.GetSeedData().Single();
                 Assert.Equal(-2, seedData[nameof(Order.OrderId)]);
                 Assert.Equal(-1, seedData[nameof(Order.CustomerId)]);
                 var chainedOwnership = owned.FindNavigation(nameof(Order.Products)).ForeignKey;

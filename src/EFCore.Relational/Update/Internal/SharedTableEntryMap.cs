@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class SharedTableEntryMap<TValue>
     {
-        private readonly IStateManager _stateManager;
+        private readonly IUpdateAdapter _updateAdapter;
         private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
         private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _dependents;
         private readonly string _name;
@@ -27,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly SharedTableEntryValueFactory<TValue> _createElement;
         private readonly IComparer<IUpdateEntry> _comparer;
 
-        private readonly Dictionary<InternalEntityEntry, TValue> _entryValueMap
-            = new Dictionary<InternalEntityEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap
+            = new Dictionary<IUpdateEntry, TValue>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SharedTableEntryMap(
-            [NotNull] IStateManager stateManager,
+            [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals,
             [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> dependents,
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] SharedTableEntryValueFactory<TValue> createElement)
         {
-            _stateManager = stateManager;
+            _updateAdapter = updateAdapter;
             _principals = principals;
             _dependents = dependents;
             _name = name;
@@ -60,7 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Dictionary<(string Schema, string Name), SharedTableEntryMapFactory<TValue>>
-            CreateSharedTableEntryMapFactories([NotNull] IModel model, [NotNull] IStateManager stateManager)
+            CreateSharedTableEntryMapFactories(
+                [NotNull] IModel model,
+                [NotNull] IUpdateAdapter updateAdapter)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, stateManager, tableMapping.Key.TableName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public static SharedTableEntryMapFactory<TValue> CreateSharedTableEntryMapFactory(
             [NotNull] IReadOnlyList<IEntityType> entityTypes,
-            [NotNull] IStateManager stateManager,
+            [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] string tableName,
             [NotNull] string schema)
         {
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             return createElement => new SharedTableEntryMap<TValue>(
-                stateManager,
+                updateAdapter,
                 principals,
                 dependents,
                 tableName,
@@ -189,12 +190,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual IReadOnlyList<IEntityType> GetDependents([NotNull] IEntityType entityType) => _dependents[entityType];
 
-        private InternalEntityEntry GetMainEntry(IUpdateEntry entry)
+        private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
             var entityType = entry.EntityType.RootType();
             if (_principals[entityType].Count == 0)
             {
-                return (InternalEntityEntry)entry;
+                return entry;
             }
 
             foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
@@ -202,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 if (foreignKey.PrincipalKey.IsPrimaryKey()
                     && _principals.ContainsKey(foreignKey.PrincipalEntityType))
                 {
-                    var principalEntry = _stateManager.GetPrincipal((InternalEntityEntry)entry, foreignKey);
+                    var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
                     if (principalEntry != null)
                     {
                         return GetMainEntry(principalEntry);
@@ -210,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
             }
 
-            return (InternalEntityEntry)entry;
+            return entry;
         }
 
         /// <summary>
@@ -219,15 +220,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<InternalEntityEntry> GetAllEntries([NotNull] IUpdateEntry entry)
+        public virtual IReadOnlyList<IUpdateEntry> GetAllEntries([NotNull] IUpdateEntry entry)
         {
-            var entries = new List<InternalEntityEntry>();
+            var entries = new List<IUpdateEntry>();
             AddAllDependentsInclusive(GetMainEntry(entry), entries);
 
             return entries;
         }
 
-        private void AddAllDependentsInclusive(InternalEntityEntry entry, List<InternalEntityEntry> entries)
+        private void AddAllDependentsInclusive(IUpdateEntry entry, List<IUpdateEntry> entries)
         {
             entries.Add(entry);
             foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
@@ -236,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     && foreignKey.IsUnique
                     && _dependents.ContainsKey(foreignKey.DeclaringEntityType))
                 {
-                    var dependentEntry = _stateManager.GetDependents(entry, foreignKey).SingleOrDefault();
+                    var dependentEntry = _updateAdapter.GetDependents(entry, foreignKey).SingleOrDefault();
                     if (dependentEntry != null)
                     {
                         AddAllDependentsInclusive(dependentEntry, entries);

@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -50,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static readonly Type[] _constraintOperationTypes = { typeof(AddForeignKeyOperation), typeof(CreateIndexOperation) };
 
-        private IStateManager _sourceStateManager;
-        private IStateManager _targetStateManager;
+        private IUpdateAdapter _sourceUpdateAdapter;
+        private IUpdateAdapter _targetUpdateAdapter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,18 +62,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IChangeDetector changeDetector,
-            [NotNull] StateManagerDependencies stateManagerDependencies,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
-            Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies));
+            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
             Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
 
             TypeMappingSource = typeMappingSource;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
-            StateManagerDependencies = stateManagerDependencies;
+            UpdateAdapterFactory = updateAdapterFactory;
             CommandBatchPreparerDependencies = commandBatchPreparerDependencies;
         }
 
@@ -100,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual StateManagerDependencies StateManagerDependencies { get; }
+        protected virtual IUpdateAdapterFactory UpdateAdapterFactory { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1514,33 +1513,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             if (target == null)
             {
-                _targetStateManager = null;
+                _targetUpdateAdapter = null;
                 return;
             }
 
-            _targetStateManager = new StateManager(StateManagerDependencies.With(target));
+            _targetUpdateAdapter = UpdateAdapterFactory.Create(target);
 
             foreach (var targetEntityType in target.GetEntityTypes())
             {
-                foreach (var targetSeed in targetEntityType.GetData())
+                foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetStateManager.CreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
+                    _targetUpdateAdapter
+                        .CreateEntry(targetSeed, targetEntityType)
+                        .EntityState = EntityState.Added;
                 }
             }
 
             if (source == null)
             {
-                _sourceStateManager = null;
+                _sourceUpdateAdapter = null;
                 return;
             }
 
-            _sourceStateManager = new StateManager(StateManagerDependencies.With(source));
+            _sourceUpdateAdapter = UpdateAdapterFactory.Create(source);
 
             foreach (var sourceEntityType in source.GetEntityTypes())
             {
-                foreach (var sourceSeed in sourceEntityType.GetData())
+                foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Added);
+                    _sourceUpdateAdapter
+                        .CreateEntry(sourceSeed, sourceEntityType)
+                        .EntityState = EntityState.Added;
                 }
             }
         }
@@ -1560,18 +1563,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(target, nameof(target));
             Check.NotNull(diffContext, nameof(diffContext));
 
-            var targetTableEntryMappingMap = SharedTableEntryMap<List<InternalEntityEntry>>.CreateSharedTableEntryMapFactory(
+            var targetTableEntryMappingMap = SharedTableEntryMap<List<IUpdateEntry>>.CreateSharedTableEntryMapFactory(
                     target.EntityTypes,
-                    _targetStateManager,
+                    _targetUpdateAdapter,
                     target.Name,
                     target.Schema)
-                ((t, s, c) => new List<InternalEntityEntry>());
+                ((t, s, c) => new List<IUpdateEntry>());
 
             foreach (var targetEntityType in target.EntityTypes)
             {
-                foreach (var targetSeed in targetEntityType.GetData())
+                foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    var targetEntry = GetEntry(targetSeed, targetEntityType, _targetStateManager);
+                    var targetEntry = GetEntry(targetSeed, targetEntityType, _targetUpdateAdapter);
                     var targetEntries = targetTableEntryMappingMap.GetOrAddValue(targetEntry);
                     targetEntries.Add(targetEntry);
                 }
@@ -1622,16 +1625,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var sourceTableEntryMappingMap = SharedTableEntryMap<EntryMapping>.CreateSharedTableEntryMapFactory(
                     source.EntityTypes,
-                    _sourceStateManager,
+                    _sourceUpdateAdapter,
                     source.Name,
                     source.Schema)
                 ((t, s, c) => new EntryMapping());
 
             foreach (var sourceEntityType in source.EntityTypes)
             {
-                foreach (var sourceSeed in sourceEntityType.GetData())
+                foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceStateManager);
+                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
                     var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry);
                     entryMapping.SourceEntries.Add(sourceEntry);
 
@@ -1670,7 +1673,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             }
                         }
 
-                        var entry = _targetStateManager.TryGetEntry(targetKey, targetKeyValues);
+                        var entry = _targetUpdateAdapter.TryGetEntry(targetKey, targetKeyValues);
                         if (entry == null)
                         {
                             continue;
@@ -1691,7 +1694,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 }
                             }
 
-                            targetEntry.SetEntityState(EntityState.Unchanged);
+                            targetEntry.EntityState = EntityState.Unchanged;
                         }
 
                         if (entryMapping.RecreateRow)
@@ -1773,26 +1776,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     foreach (var targetEntry in entryMapping.TargetEntries)
                     {
-                        targetEntry.SetEntityState(EntityState.Added);
+                        targetEntry.EntityState = EntityState.Added;
                     }
 
                     foreach (var sourceEntry in entryMapping.SourceEntries)
                     {
-                        sourceEntry.SetEntityState(EntityState.Deleted);
+                        sourceEntry.EntityState = EntityState.Deleted;
                     }
                 }
                 else
                 {
                     foreach (var sourceEntry in entryMapping.SourceEntries)
                     {
-                        sourceEntry.SetEntityState(EntityState.Detached);
+                        sourceEntry.EntityState = EntityState.Detached;
                     }
                 }
             }
         }
 
-        private static InternalEntityEntry GetEntry(
-            IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
+        private static IUpdateEntry GetEntry(
+            IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IUpdateAdapter updateAdapter)
         {
             var key = sourceEntityType.FindPrimaryKey();
             var keyValues = new object[key.Properties.Count];
@@ -1801,7 +1804,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 keyValues[i] = sourceSeed[key.Properties[i].Name];
             }
 
-            return stateManager.TryGetEntry(key, keyValues);
+            return updateAdapter.TryGetEntry(key, keyValues);
         }
 
         /// <summary>
@@ -1812,31 +1815,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> GetDataOperations()
         {
-            if (_sourceStateManager != null)
+            if (_sourceUpdateAdapter != null)
             {
-                foreach (var sourceEntry in _sourceStateManager.ToListForState(added: true))
+                foreach (var sourceEntry in _sourceUpdateAdapter.Entries.Where(e => e.EntityState == EntityState.Added).ToList())
                 {
-                    sourceEntry.SetEntityState(EntityState.Detached);
+                    sourceEntry.EntityState = EntityState.Detached;
                 }
             }
 
-            foreach (var stateManager in new[] { _sourceStateManager, _targetStateManager })
+            foreach (var updateAdapter in new[] { _sourceUpdateAdapter, _targetUpdateAdapter })
             {
-                if (stateManager == null)
+                if (updateAdapter == null)
                 {
                     continue;
                 }
 
-                ChangeDetector.DetectChanges(stateManager);
-                var entries = stateManager.GetEntriesToSave();
+                updateAdapter.DetectChanges();
+                var entries = updateAdapter.GetEntriesToSave();
                 if (entries == null
                     || entries.Count == 0)
                 {
                     continue;
                 }
 
-                var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
-                    .BatchCommands(entries);
+                var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies)
+                    .BatchCommands(entries, updateAdapter);
 
                 foreach (var commandBatch in commandBatches)
                 {
@@ -2112,8 +2115,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class EntryMapping
         {
-            public HashSet<InternalEntityEntry> SourceEntries { get; } = new HashSet<InternalEntityEntry>();
-            public HashSet<InternalEntityEntry> TargetEntries { get; } = new HashSet<InternalEntityEntry>();
+            public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
+            public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
             public bool RecreateRow { get; set; }
         }
 

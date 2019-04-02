@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         GenerateRelationships(builderName, entityType, stringBuilder);
                     }
 
-                    GenerateData(builderName, entityType.GetProperties(), entityType.GetData(providerValues: true), stringBuilder);
+                    GenerateData(builderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
                 }
 
                 stringBuilder

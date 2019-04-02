@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
-                var data = customer.GetData();
+                var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
@@ -1311,7 +1311,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
-                var data = customer.GetData();
+                var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First().Values.Single());
                 Assert.Equal(-2, data.Last().Values.Single());
