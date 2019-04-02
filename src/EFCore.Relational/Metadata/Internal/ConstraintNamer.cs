@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
-                return sharedTablePrincipalPrimaryKeyProperty.GetContainingPrimaryKey().Relational().Name;
+                return sharedTablePrincipalPrimaryKeyProperty.FindContainingPrimaryKey().Relational().Name;
             }
 
             var builder = new StringBuilder();

@@ -8,7 +8,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -69,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var fieldInfo = TryMatchFieldName(
                         propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
-                    if (fieldInfo != null)
+                    if (fieldInfo != null
+                        && (propertyBase.PropertyInfo != null || propertyBase.Name == fieldInfo.GetSimpleMemberName()))
                     {
                         propertyBase.SetField(fieldInfo, ConfigurationSource.Convention);
                         return;

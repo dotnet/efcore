@@ -1277,7 +1277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
                 "EntityType mismatch");
 
-            var navigationProperty = propertyIdentity.Property;
+            var navigationProperty = propertyIdentity.MemberInfo
+                ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             if (ClrType != null)
             {
                 Navigation.IsCompatible(
@@ -1289,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     shouldThrow: true);
             }
 
-            var navigation = new Navigation(name, propertyIdentity.Property as PropertyInfo, propertyIdentity.Property as FieldInfo, foreignKey);
+            var navigation = new Navigation(name, navigationProperty as PropertyInfo, navigationProperty as FieldInfo, foreignKey);
 
             _navigations.Add(name, navigation);
 
@@ -1600,8 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 propertyType,
                 ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 configurationSource,
-                typeConfigurationSource,
-                isIndexedProperty: false);
+                typeConfigurationSource);
         }
 
         /// <summary>
@@ -1631,8 +1631,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 memberInfo.GetMemberType(),
                 memberInfo,
                 configurationSource,
-                configurationSource,
-                isIndexedProperty: false);
+                configurationSource);
         }
 
         /// <summary>
@@ -1649,19 +1648,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
 
-            var indexerProperty = this.EFIndexerProperty();
-            if (indexerProperty == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NoIndexer(name, this.DisplayName()));
-            }
-
             return AddProperty(
                 name,
                 propertyType,
-                indexerProperty,
+                this.GetIndexerProperty(),
                 configurationSource,
-                typeConfigurationSource,
-                isIndexedProperty: true);
+                typeConfigurationSource);
         }
 
         private Property AddProperty(
@@ -1669,8 +1661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type propertyType,
             MemberInfo memberInfo,
             ConfigurationSource configurationSource,
-            ConfigurationSource? typeConfigurationSource,
-            bool isIndexedProperty)
+            ConfigurationSource? typeConfigurationSource)
         {
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
@@ -1694,8 +1685,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 if (memberInfo != null
-                    && !isIndexedProperty
-                    && propertyType != memberInfo.GetMemberType())
+                    && propertyType != memberInfo.GetMemberType()
+                    && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyWrongClrType(
@@ -1932,7 +1923,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
-
             var name = memberInfo.GetSimpleMemberName();
 
             var duplicateMember = FindMembersInHierarchy(name).FirstOrDefault();
@@ -2015,13 +2005,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ServiceProperty> FindServicePropertiesInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ServiceProperty GetOrAddServiceProperty([NotNull] MemberInfo memberInfo)
-            => FindServiceProperty(memberInfo.GetSimpleMemberName()) ?? AddServiceProperty(memberInfo);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

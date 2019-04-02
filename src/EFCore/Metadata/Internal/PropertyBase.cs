@@ -132,6 +132,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 IsCompatible(fieldInfo, ClrType, DeclaringType.ClrType, Name, shouldThrow: true);
             }
 
+            if (PropertyInfo == null
+                && fieldInfo?.GetSimpleMemberName() != Name)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.FieldNameMismatch(fieldInfo?.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
+            }
+
             UpdateFieldInfoConfigurationSource(configurationSource);
 
             var oldFieldInfo = FieldInfo;
@@ -155,6 +162,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Debug.Assert(propertyName != null || !shouldThrow);
 
+            if (entityClrType == null
+                || !fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityClrType.GetTypeInfo()))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType.ShortDisplayName()));
+                }
+
+                return false;
+            }
+
             var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
             if (!fieldTypeInfo.IsAssignableFrom(propertyType.GetTypeInfo())
                 && !propertyType.GetTypeInfo().IsAssignableFrom(fieldTypeInfo))
@@ -168,17 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             entityClrType.ShortDisplayName(),
                             propertyName,
                             propertyType.ShortDisplayName()));
-                }
-
-                return false;
-            }
-
-            if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityClrType.GetTypeInfo()))
-            {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType.ShortDisplayName()));
                 }
 
                 return false;

@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constructorExpression)
                 };
 
-            var indexerPropertyInfo = entityType.EFIndexerProperty();
+            var indexerPropertyInfo = entityType.FindIndexerProperty();
 
             foreach (var property in properties)
             {

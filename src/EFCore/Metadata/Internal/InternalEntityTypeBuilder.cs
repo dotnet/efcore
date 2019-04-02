@@ -1879,7 +1879,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToTarget != null
                 || inverseNavigation != null);
 
-            var navigationProperty = navigationToTarget?.Property;
+            var navigationProperty = navigationToTarget?.MemberInfo;
             if (inverseNavigation == null
                 && navigationProperty?.GetMemberType().GetTypeInfo().IsAssignableFrom(
                     targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()) == false)
@@ -2022,7 +2022,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         navigationToTarget = inverseNavigation;
                         inverseNavigation = navigation;
 
-                        navigationProperty = navigationToTarget?.Property;
+                        navigationProperty = navigationToTarget?.MemberInfo;
 
                         newRelationship = targetEntityTypeBuilder.CreateForeignKey(
                             this,
@@ -2047,7 +2047,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                var inverseProperty = inverseNavigation?.Property;
+                var inverseProperty = inverseNavigation?.MemberInfo;
                 if (inverseNavigation == null)
                 {
                     relationship = navigationProperty != null

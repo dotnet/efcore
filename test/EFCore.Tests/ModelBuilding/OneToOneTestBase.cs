@@ -3932,11 +3932,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Alpha>();
 
                 modelBuilder.Entity<Quarks>(
-                    b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("ForUp").IsRequired());
+                    b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("_forUp").IsRequired());
 
                 var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks)).GetForeignKeys().Single().Properties.Single();
-                Assert.Equal("ForUp", fkProperty.Name);
-                Assert.Equal(typeof(int?), fkProperty.ClrType);
+                Assert.Equal("_forUp", fkProperty.Name);
+                Assert.Equal(typeof(int), fkProperty.ClrType);
                 Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
             }
 

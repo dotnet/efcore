@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var sharedTablePrincipalPrimaryKeyProperty = Key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
                 if (sharedTablePrincipalPrimaryKeyProperty != null)
                 {
-                    return sharedTablePrincipalPrimaryKeyProperty.GetContainingPrimaryKey().SqlServer().IsClustered;
+                    return sharedTablePrincipalPrimaryKeyProperty.FindContainingPrimaryKey().SqlServer().IsClustered;
                 }
 
                 return null;

@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationToPrincipalName = navigationToPrincipal?.Name;
             if (navigationToPrincipalName != null
-                && navigationToPrincipal.Value.Property == null
+                && navigationToPrincipal.Value.MemberInfo == null
                 && dependentEntityType.HasClrType())
             {
                 var navigationProperty = Navigation.GetClrMember(navigationToPrincipalName, dependentEntityType, principalEntityType, shouldThrow);
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationToDependentName = navigationToDependent?.Name;
             if (navigationToDependentName != null
-                && navigationToDependent.Value.Property == null
+                && navigationToDependent.Value.MemberInfo == null
                 && principalEntityType.HasClrType())
             {
                 var navigationProperty = Navigation.GetClrMember(navigationToDependentName, principalEntityType, dependentEntityType, shouldThrow);
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Metadata.HasPrincipalToDependent((string)null, configurationSource.Value);
                         }
 
-                        var navigationProperty = navigationToPrincipal.Value.Property;
+                        var navigationProperty = navigationToPrincipal.Value.MemberInfo;
                         if (navigationToPrincipalName != null)
                         {
                             Metadata.DeclaringEntityType.Unignore(navigationToPrincipalName);
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (navigationToDependent != null)
                     {
-                        var navigationProperty = navigationToDependent.Value.Property;
+                        var navigationProperty = navigationToDependent.Value.MemberInfo;
                         if (navigationToDependentName != null)
                         {
                             Metadata.PrincipalEntityType.Unignore(navigationToDependentName);
@@ -594,8 +594,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var navigationToPrincipalProperty = navigationToPrincipal?.Property;
-            var navigationToDependentProperty = navigationToDependent?.Property;
+            var navigationToPrincipalProperty = navigationToPrincipal?.MemberInfo;
+            var navigationToDependentProperty = navigationToDependent?.MemberInfo;
 
             // ReSharper disable once InlineOutVariableDeclaration
             bool? invertedShouldBeUnique = null;
@@ -1749,18 +1749,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
             Debug.Assert(
                 navigationToPrincipal?.Name == null
-                || navigationToPrincipal.Value.Property != null
+                || navigationToPrincipal.Value.MemberInfo != null
                 || !dependentEntityTypeBuilder.Metadata.HasClrType());
             Debug.Assert(
                 navigationToDependent?.Name == null
-                || navigationToDependent.Value.Property != null
+                || navigationToDependent.Value.MemberInfo != null
                 || !principalEntityTypeBuilder.Metadata.HasClrType());
             Debug.Assert(
                 AreCompatible(
                     principalEntityTypeBuilder.Metadata,
                     dependentEntityTypeBuilder.Metadata,
-                    navigationToPrincipal?.Property,
-                    navigationToDependent?.Property,
+                    navigationToPrincipal?.MemberInfo,
+                    navigationToDependent?.MemberInfo,
                     dependentProperties?.Count > 0 ? dependentProperties : null,
                     principalProperties?.Count > 0 ? principalProperties : null,
                     isUnique,

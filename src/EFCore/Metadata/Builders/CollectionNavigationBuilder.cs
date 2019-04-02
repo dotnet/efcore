@@ -164,12 +164,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return referenceName != null
                    && RelatedEntityType != foreignKey.DeclaringEntityType
-                ? reference.Property == null && CollectionProperty == null
+                ? reference.MemberInfo == null && CollectionProperty == null
                     ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                    : Builder.Navigations(reference.Property, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                : reference.Property == null
+                    : Builder.Navigations(reference.MemberInfo, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                : reference.MemberInfo == null
                     ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
-                    : Builder.DependentToPrincipal(reference.Property, ConfigurationSource.Explicit);
+                    : Builder.DependentToPrincipal(reference.MemberInfo, ConfigurationSource.Explicit);
         }
 
         #region Hidden System.Object members

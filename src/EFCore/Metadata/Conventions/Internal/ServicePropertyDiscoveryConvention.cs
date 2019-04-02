@@ -151,10 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var otherMember = duplicateServiceProperties.First();
-                var factory = _parameterBindingFactories.FindFactory(type, otherMember.GetSimpleMemberName());
+                var otherName = otherMember.GetSimpleMemberName();
+                var factory = _parameterBindingFactories.FindFactory(type, otherName);
                 entityType.Builder.ServiceProperty(otherMember, ConfigurationSource.Convention)?.SetParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, type, otherMember.GetSimpleMemberName()),
-                    ConfigurationSource.Convention);
+                    (ServiceParameterBinding)factory.Bind(entityType, type, otherName), ConfigurationSource.Convention);
                 duplicateMap.Remove(type);
                 if (duplicateMap.Count == 0)
                 {
