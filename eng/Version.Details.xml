@@ -13,10 +13,6 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>0f69b0e84163197c6b493b797f87dc242f42d6ca</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.0-preview4.19202.2">
-      <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>0f69b0e84163197c6b493b797f87dc242f42d6ca</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview4.19202.2">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>0f69b0e84163197c6b493b797f87dc242f42d6ca</Sha>
