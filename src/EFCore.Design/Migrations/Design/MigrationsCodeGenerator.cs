@@ -223,6 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ChangeTrackingStrategy,
+                CoreAnnotationNames.BeforeSaveBehavior,
+                CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,

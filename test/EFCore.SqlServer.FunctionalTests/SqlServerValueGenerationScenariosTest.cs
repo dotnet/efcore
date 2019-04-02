@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Blog>()
                     .Property(e => e.CreatedOn)
                     .HasDefaultValueSql("getdate()")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -618,8 +618,8 @@ namespace Microsoft.EntityFrameworkCore
                     .HasComputedColumnSql("FirstName + ' ' + LastName")
                     .Metadata;
 
-                property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -681,7 +681,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                 modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
                     .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
-                    .Metadata.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -1082,7 +1082,7 @@ END");
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 

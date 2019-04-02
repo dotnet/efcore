@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -117,6 +118,60 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IEnumerable<IMutableKey> GetContainingKeys([NotNull] this IMutableProperty property)
             => ((IProperty)property).GetContainingKeys().Cast<IMutableKey>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets a value indicating whether or not this property can be modified before the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a value is assigned to this property when it is in
+        ///         the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
+        ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="beforeSaveBehavior">
+        ///     A value indicating whether or not this property can be modified before the entity is saved to the database.
+        /// </param>
+        public static void SetBeforeSaveBehavior([NotNull] this IMutableProperty property, PropertySaveBehavior? beforeSaveBehavior)
+            => property[CoreAnnotationNames.BeforeSaveBehavior] = beforeSaveBehavior;
+
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets a value indicating whether or not this property can be modified after the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
+        ///         property value of an entity that already exists in the database will be ignored.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="afterSaveBehavior">
+        ///     A value indicating whether or not this property can be modified after the entity is saved to the database.
+        /// </param>
+        public static void SetAfterSaveBehavior([NotNull] this IMutableProperty property, PropertySaveBehavior? afterSaveBehavior)
+        {
+            if (afterSaveBehavior != null)
+            {
+                var errorMessage = property.CheckAfterSaveBehavior(afterSaveBehavior.Value);
+                if (errorMessage != null)
+                {
+                    throw new InvalidOperationException(errorMessage);
+                }
+            }
+
+            property[CoreAnnotationNames.AfterSaveBehavior] = afterSaveBehavior;
+        }
 
         /// <summary>
         ///     Sets the type that the property value will be converted to before being sent to the database provider.

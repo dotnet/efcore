@@ -614,10 +614,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.FindProperty("Up").IsShadowProperty);
-                Assert.False(entityType.FindProperty("Down").IsShadowProperty);
-                Assert.True(entityType.FindProperty("Gluon").IsShadowProperty);
-                Assert.True(entityType.FindProperty("Photon").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Up").IsShadowProperty());
+                Assert.False(entityType.FindProperty("Down").IsShadowProperty());
+                Assert.True(entityType.FindProperty("Gluon").IsShadowProperty());
+                Assert.True(entityType.FindProperty("Photon").IsShadowProperty());
 
                 Assert.Equal(-1, entityType.FindProperty("Up").GetShadowIndex());
                 Assert.Equal(-1, entityType.FindProperty("Down").GetShadowIndex());

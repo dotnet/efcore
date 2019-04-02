@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var foreignKeyProperties = foreignKey.Properties;
                 var relatedType = navigation.GetTargetType().ClrType;
 
-                if (primaryKeyProperties.Any(p => p.IsShadowProperty)
-                    || foreignKeyProperties.Any(p => p.IsShadowProperty))
+                if (primaryKeyProperties.Any(p => p.IsShadowProperty())
+                    || foreignKeyProperties.Any(p => p.IsShadowProperty()))
                 {
                     return
                         Expression.Default(

@@ -1049,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (Metadata.PrincipalToDependent?.IsShadowProperty == false
+            if (Metadata.PrincipalToDependent?.IsShadowProperty() == false
                 && !Navigation.IsCompatible(
                     Metadata.PrincipalToDependent.GetIdentifyingMemberInfo(),
                     Metadata.PrincipalEntityType.ClrType,
@@ -1594,7 +1594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (Metadata.GetPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
                     && Metadata.Properties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                                                    && p.IsShadowProperty))
+                                                    && p.IsShadowProperty()))
                 {
                     oldNameDependentProperties = Metadata.Properties;
                 }
@@ -2342,7 +2342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // Issue #214
             var temporaryProperties = dependentProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                     && p.IsShadowProperty).ToList();
+                     && p.IsShadowProperty()).ToList();
             var tempIndex = temporaryProperties?.Count > 0
                             && dependentEntityType.FindIndex(temporaryProperties) == null
                 ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention).Metadata
@@ -2350,7 +2350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var temporaryKeyProperties = principalProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                     && p.IsShadowProperty).ToList();
+                     && p.IsShadowProperty()).ToList();
             var keyTempIndex = temporaryKeyProperties?.Count > 0
                                && principalEntityType.FindIndex(temporaryKeyProperties) == null
                 ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention).Metadata

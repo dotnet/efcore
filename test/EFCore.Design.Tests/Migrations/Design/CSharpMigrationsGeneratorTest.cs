@@ -55,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
+                CoreAnnotationNames.BeforeSaveBehavior,
+                CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.ProviderClrType,
                 CoreAnnotationNames.EagerLoaded,
                 RelationalAnnotationNames.ColumnName,

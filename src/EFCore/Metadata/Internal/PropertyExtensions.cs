@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -180,6 +181,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static string CheckAfterSaveBehavior([NotNull] this IProperty property, PropertySaveBehavior behavior)
+        {
+            if (behavior != PropertySaveBehavior.Throw
+                && property.IsKey())
+            {
+                return CoreStrings.KeyPropertyMustBeReadOnly(property.Name, property.DeclaringEntityType.DisplayName());
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string ToDebugString([NotNull] this IProperty property, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
@@ -205,12 +221,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(property.ClrType.ShortDisplayName()).Append(")");
 
-            if (property.IsShadowProperty)
+            if (property.IsShadowProperty())
             {
                 builder.Append(" Shadow");
             }
 
-            if (property.IsIndexedProperty)
+            if (property.IsIndexedProperty())
             {
                 builder.Append(" Indexed");
             }
@@ -246,14 +262,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Concurrency");
             }
 
-            if (property.BeforeSaveBehavior != PropertySaveBehavior.Save)
+            if (property.GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
             {
-                builder.Append(" BeforeSave:").Append(property.BeforeSaveBehavior);
+                builder.Append(" BeforeSave:").Append(property.GetBeforeSaveBehavior());
             }
 
-            if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
+            if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
             {
-                builder.Append(" AfterSave:").Append(property.AfterSaveBehavior);
+                builder.Append(" AfterSave:").Append(property.GetAfterSaveBehavior());
             }
 
             if (property.ValueGenerated != ValueGenerated.Never)

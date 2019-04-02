@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (propertyBase.IsShadowProperty)
+                if (propertyBase.IsShadowProperty())
                 {
                     arguments[i] = CreateSnapshotValueExpression(
                         CreateReadShadowValueExpression(parameter, propertyBase),
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                if (propertyBase.IsIndexedProperty)
+                if (propertyBase.IsIndexedProperty())
                 {
                     var indexerAccessExpression = (Expression)Expression.MakeIndex(
                         entityVariable,

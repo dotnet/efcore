@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (obj.GetType() == EntityType.ClrType)
             {
-                foreach (var property in Properties.Where(p => !p.IsShadowProperty))
+                foreach (var property in Properties.Where(p => !p.IsShadowProperty()))
                 {
                     SetValueInternal(property, ((Property)property).Getter.GetClrValue(obj));
                 }

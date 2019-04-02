@@ -81,6 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string StructuralValueComparer = "StructuralValueComparer";
 
         /// <summary>
+        ///     Indicates the <see cref="PropertySaveBehavior"/> for a property after the entity is saved to the database.
+        /// </summary>
+        public const string AfterSaveBehavior = "AfterSaveBehavior";
+
+        /// <summary>
+        ///     Indicates the <see cref="PropertySaveBehavior"/> for a property before the entity is saved to the database.
+        /// </summary>
+        public const string BeforeSaveBehavior = "BeforeSaveBehavior";
+
+        /// <summary>
         ///     Indicates the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
         public const string QueryFilter = "QueryFilter";

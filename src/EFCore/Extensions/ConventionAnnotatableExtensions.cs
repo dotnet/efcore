@@ -29,5 +29,29 @@ namespace Microsoft.EntityFrameworkCore
                 annotatable.AddAnnotation(annotation.Name, annotation.Value, fromDataAnnotation);
             }
         }
+
+        /// <summary>
+        ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists. Removes the existing annotation if <c>null</c> is supplied.
+        /// </summary>
+        /// <param name="annotatable"> The object to set the annotation for. </param>
+        /// <param name="name"> The name of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetOrRemoveAnnotation(
+            [NotNull] this IConventionAnnotatable annotatable,
+            [NotNull] string name,
+            [CanBeNull] object value,
+            bool fromDataAnnotation = false)
+        {
+            if (value == null)
+            {
+                annotatable.RemoveAnnotation(name);
+            }
+            else
+            {
+                annotatable.SetAnnotation(name, value, fromDataAnnotation);
+            }
+        }
     }
 }

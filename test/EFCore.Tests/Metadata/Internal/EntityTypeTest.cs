@@ -484,23 +484,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetAfterSaveBehavior());
 
             nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.GetAfterSaveBehavior());
 
-            nameProperty.BeforeSaveBehavior = PropertySaveBehavior.Save;
+            nameProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Save);
 
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.GetAfterSaveBehavior());
 
-            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Save;
+            nameProperty.SetAfterSaveBehavior(PropertySaveBehavior.Save);
 
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetAfterSaveBehavior());
         }
 
         [Fact]
@@ -510,23 +510,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(Customer));
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetAfterSaveBehavior());
 
             nameProperty.ValueGenerated = ValueGenerated.OnUpdate;
 
-            Assert.Equal(PropertySaveBehavior.Save, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.GetAfterSaveBehavior());
 
-            nameProperty.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+            nameProperty.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
 
-            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Ignore, nameProperty.GetAfterSaveBehavior());
 
-            nameProperty.AfterSaveBehavior = PropertySaveBehavior.Throw;
+            nameProperty.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
 
-            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.BeforeSaveBehavior);
-            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.AfterSaveBehavior);
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetBeforeSaveBehavior());
+            Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetAfterSaveBehavior());
         }
 
         [Fact]
@@ -1295,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property1 = entityType.AddProperty("Id", typeof(int));
 
-            Assert.False(property1.IsShadowProperty);
+            Assert.False(property1.IsShadowProperty());
             Assert.Equal("Id", property1.Name);
             Assert.Same(typeof(int), property1.ClrType);
             Assert.False(((IProperty)property1).IsConcurrencyToken);
@@ -1327,25 +1327,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var idProperty = entityType.AddProperty("Id", typeof(int));
 
-            Assert.False(idProperty.IsShadowProperty);
+            Assert.False(idProperty.IsShadowProperty());
             Assert.Equal("Id", idProperty.Name);
             Assert.Same(typeof(int), idProperty.ClrType);
             Assert.Same(entityType, idProperty.DeclaringEntityType);
 
             Assert.Same(idProperty, entityType.GetOrAddProperty(Customer.IdProperty));
             Assert.Same(idProperty, entityType.FindProperty("Id"));
-            Assert.False(idProperty.IsShadowProperty);
+            Assert.False(idProperty.IsShadowProperty());
 
             var nameProperty = entityType.AddProperty("Name");
 
-            Assert.False(((IProperty)nameProperty).IsShadowProperty);
+            Assert.False(((IProperty)nameProperty).IsShadowProperty());
             Assert.Equal("Name", nameProperty.Name);
             Assert.Same(typeof(string), nameProperty.ClrType);
             Assert.Same(entityType, nameProperty.DeclaringEntityType);
 
             Assert.Same(nameProperty, entityType.GetOrAddProperty(Customer.NameProperty));
             Assert.Same(nameProperty, entityType.FindProperty("Name"));
-            Assert.False(nameProperty.IsShadowProperty);
+            Assert.False(nameProperty.IsShadowProperty());
 
             Assert.True(new[] { idProperty, nameProperty }.SequenceEqual(entityType.GetProperties()));
         }
@@ -1358,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property = entityType.AddProperty("Raisin");
 
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
             Assert.Equal("Raisin", property.Name);
             Assert.Same(typeof(string), property.ClrType);
             Assert.Same(entityType, property.DeclaringEntityType);
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property = entityType.AddProperty("_date");
 
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
             Assert.Equal("_date", property.Name);
             Assert.Same(typeof(string), property.ClrType);
             Assert.Same(entityType, property.DeclaringEntityType);
@@ -1601,9 +1601,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddProperty(Customer.IdProperty);
             entityType.AddProperty("Mane_", typeof(int));
 
-            Assert.False(entityType.FindProperty("Name").IsShadowProperty);
-            Assert.False(entityType.FindProperty("Id").IsShadowProperty);
-            Assert.True(entityType.FindProperty("Mane_").IsShadowProperty);
+            Assert.False(entityType.FindProperty("Name").IsShadowProperty());
+            Assert.False(entityType.FindProperty("Id").IsShadowProperty());
+            Assert.True(entityType.FindProperty("Mane_").IsShadowProperty());
         }
 
         [Fact]

@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
 
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = principalType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
 
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
                 var fkProperty = (IProperty)newFk.Properties.Single();
 
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 

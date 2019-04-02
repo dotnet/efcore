@@ -264,9 +264,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool BeforeSave(PropertySaveBehavior? behavior, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetBeforeSaveBehaviorConfigurationSource())
-                || Metadata.BeforeSaveBehavior == behavior)
+                || Metadata.GetBeforeSaveBehavior() == behavior)
             {
-                Metadata.SetBeforeSaveBehavior(behavior, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    Metadata.SetBeforeSaveBehavior(behavior);
+                }
+                else
+                {
+                    Metadata.SetBeforeSaveBehavior(behavior, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return true;
             }
@@ -281,9 +288,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool AfterSave(PropertySaveBehavior? behavior, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetAfterSaveBehaviorConfigurationSource())
-                || Metadata.AfterSaveBehavior == behavior)
+                || Metadata.GetAfterSaveBehavior() == behavior)
             {
-                Metadata.SetAfterSaveBehavior(behavior, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    Metadata.SetAfterSaveBehavior(behavior);
+                }
+                else
+                {
+                    Metadata.SetAfterSaveBehavior(behavior, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return true;
             }
@@ -349,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldBeforeSaveBehaviorConfigurationSource.HasValue)
             {
                 newPropertyBuilder.BeforeSave(
-                    Metadata.BeforeSaveBehavior,
+                    Metadata.GetBeforeSaveBehavior(),
                     oldBeforeSaveBehaviorConfigurationSource.Value);
             }
 
@@ -357,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldAfterSaveBehaviorConfigurationSource.HasValue)
             {
                 newPropertyBuilder.AfterSave(
-                    Metadata.AfterSaveBehavior,
+                    Metadata.GetAfterSaveBehavior(),
                     oldAfterSaveBehaviorConfigurationSource.Value);
             }
 

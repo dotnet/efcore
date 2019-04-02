@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
                 clonedProperty.ValueGenerated = property.ValueGenerated;
-                clonedProperty.BeforeSaveBehavior = property.BeforeSaveBehavior;
-                clonedProperty.AfterSaveBehavior = property.AfterSaveBehavior;
+                clonedProperty.SetBeforeSaveBehavior(property.GetBeforeSaveBehavior());
+                clonedProperty.SetAfterSaveBehavior(property.GetAfterSaveBehavior());
                 property.GetAnnotations().ForEach(annotation => clonedProperty[annotation.Name] = annotation.Value);
             }
         }

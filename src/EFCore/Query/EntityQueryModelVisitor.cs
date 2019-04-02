@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var expression = targetMethodCallExpression.Arguments[0];
                     if (HasParameterRoot(expression)
-                        && !property.IsShadowProperty)
+                        && !property.IsShadowProperty())
                     {
                         return Expression.Call(
                             _getValueFromEntityMethodInfo.MakeGenericMethod(propertyType),

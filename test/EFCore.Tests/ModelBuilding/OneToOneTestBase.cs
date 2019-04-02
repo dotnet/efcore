@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Customer));
                 var principalProperty = principalType.FindProperty("AlternateKey");
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
-                var expectedDependentProperties = dependentType.GetProperties().Where(p => !p.IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.GetProperties().Where(p => !p.IsShadowProperty()).ToList();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -3199,7 +3199,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Nob));
                 var fk = dependentType.GetNavigations().First().ForeignKey;
                 Assert.Same(fk, principalType.GetNavigations().First().ForeignKey);
-                Assert.True(fk.Properties.All(p => p.IsShadowProperty));
+                Assert.True(fk.Properties.All(p => p.IsShadowProperty()));
 
                 Assert.Equal(
                     CoreStrings.AmbiguousOneToOneRelationship(
@@ -4377,7 +4377,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
                 Assert.True(fk.IsUnique);
                 Assert.Null(fk.DependentToPrincipal);
-                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.False(fk.Properties.Single().IsShadowProperty());
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 

@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            property.SetAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
         }
 
         /// <summary>

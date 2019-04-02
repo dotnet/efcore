@@ -245,9 +245,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         if (adding)
                         {
-                            writeValue = property.BeforeSaveBehavior == PropertySaveBehavior.Save;
+                            writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                         }
-                        else if (updating && property.AfterSaveBehavior == PropertySaveBehavior.Save)
+                        else if (updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                         {
                             writeValue = columnPropagator == null
                                 ? entry.IsModified(property)

@@ -46,14 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public bool IsShadowProperty { get; }
-            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
-            public PropertySaveBehavior BeforeSaveBehavior { get; }
-            public PropertySaveBehavior AfterSaveBehavior { get; }
-            public bool IsReadOnlyBeforeSave { get; }
-            public bool IsReadOnlyAfterSave { get; }
             public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }
             public bool IsConcurrencyToken { get; }
@@ -154,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty(nameof(Entity.Name), typeof(string));
 
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
         }
 
         [Fact]

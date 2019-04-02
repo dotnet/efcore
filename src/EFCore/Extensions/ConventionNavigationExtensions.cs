@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            navigation.SetAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
+            navigation.SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
         }
 
         /// <summary>

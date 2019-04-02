@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
-            public bool IsShadowProperty { get; }
-            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; }
             public bool IsEagerLoaded { get; }

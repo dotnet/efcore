@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     indexMap[property.GetIndex()] = projectionAdder(property, selectExpression);
 
-                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty();
                 }
 
                 if (shadowPropertyExists)

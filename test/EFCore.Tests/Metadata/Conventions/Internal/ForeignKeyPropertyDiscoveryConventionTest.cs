@@ -920,7 +920,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(fk, DependentType.Metadata.GetForeignKeys().Single());
             Assert.Null(fk.GetPropertiesConfigurationSource());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
-            Assert.True(fk.Properties.Single().IsShadowProperty);
+            Assert.True(fk.Properties.Single().IsShadowProperty());
             Assert.False(fk.IsUnique);
 
             var property = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var fk = relationshipBuilder.Metadata;
             Assert.Same(fk, PrincipalType.Metadata.GetForeignKeys().Single());
-            Assert.True(fk.Properties.Single().IsShadowProperty);
+            Assert.True(fk.Properties.Single().IsShadowProperty());
             Assert.Null(fk.GetPropertiesConfigurationSource());
             Assert.Same(fk.DeclaringEntityType, PrincipalType.Metadata);
             Assert.Same(fk.PrincipalEntityType, DependentType.Metadata);
