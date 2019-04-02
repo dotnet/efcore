@@ -68,8 +68,4 @@ Microsoft.EntityFrameworkCore.DbSet
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Update\Internal\" />
-  </ItemGroup>
-
 </Project>

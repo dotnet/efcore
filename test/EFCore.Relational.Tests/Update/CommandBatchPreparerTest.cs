@@ -34,7 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -77,7 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Modified);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -120,7 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -153,6 +165,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             entry.SetEntityState(EntityState.Added);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var relatedEntry = stateManager.GetOrCreateEntry(
                 new RelatedFakeEntity
                 {
@@ -160,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             relatedEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }, modelData).ToArray();
 
             Assert.Equal(
                 new[] { entry, relatedEntry },
@@ -181,6 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             entry.SetEntityState(EntityState.Added);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var relatedEntry = stateManager.GetOrCreateEntry(
                 new RelatedFakeEntity
                 {
@@ -188,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             relatedEntry.SetEntityState(EntityState.Modified);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, entry }, modelData).ToArray();
 
             Assert.Equal(
                 new[] { entry, relatedEntry },
@@ -216,7 +236,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             secondEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondEntry, firstEntry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondEntry, firstEntry }, modelData).ToArray();
 
             Assert.Equal(
                 new[] { firstEntry, secondEntry },
@@ -254,7 +278,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             relatedEntry.SetEntityState(EntityState.Modified);
             relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }, modelData).ToArray();
 
             Assert.Equal(
                 new[] { newParent, relatedEntry, previousParent },
@@ -291,7 +319,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             newChild.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { newChild, previousChild }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { newChild, previousChild }, modelData).ToArray();
 
             Assert.Equal(
                 new[] { previousChild, newChild },
@@ -344,8 +376,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             newChildEntity.SetEntityState(EntityState.Added);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var sortedEntities = CreateCommandBatchPreparer()
-                .BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity })
+                .BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity }, modelData)
                 .Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()).ToArray();
 
             Assert.Equal(
@@ -379,7 +415,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
 
-            var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedEntry, entry });
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedEntry, entry }, modelData);
 
             using (var commandBatchesEnumerator = commandBatches.GetEnumerator())
             {
@@ -426,8 +466,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var sortedEntities = CreateCommandBatchPreparer()
-                .BatchCommands(new[] { fakeEntry, fakeEntry2, relatedFakeEntry })
+                .BatchCommands(new[] { fakeEntry, fakeEntry2, relatedFakeEntry }, modelData)
                 .Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()).ToArray();
 
             Assert.Equal(
@@ -480,6 +524,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
                 : "FakeEntity [Added] <- ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <- ForeignKey { 'RelatedId' } FakeEntity [Added]";
@@ -487,8 +535,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(
                 CoreStrings.CircularDependency(expectedCycle),
                 Assert.Throws<InvalidOperationException>(
-                    () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
-                        .BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray()).Message);
+                    () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging)
+                        .BatchCommands(new[] { fakeEntry, relatedFakeEntry }, modelData).ToArray()).Message);
         }
 
         [InlineData(true)]
@@ -526,6 +574,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <- Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
                 : "FakeEntity [Added] <- ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <- ForeignKey { 'RelatedId' } FakeEntity [Modified] <- Index { 'UniqueValue' } FakeEntity [Added]";
@@ -533,8 +585,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(
                 CoreStrings.CircularDependency(expectedCycle),
                 Assert.Throws<InvalidOperationException>(
-                    () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
-                        .BatchCommands(new[] { fakeEntry, relatedFakeEntry, fakeEntry2 }).ToArray()).Message);
+                    () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging)
+                        .BatchCommands(new[] { fakeEntry, relatedFakeEntry, fakeEntry2 }, modelData).ToArray()).Message);
         }
 
         [InlineData(true)]
@@ -570,6 +622,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             anotherFakeEntry.SetEntityState(EntityState.Deleted);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <- RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <- FakeEntity { 'Id': 1 } [Deleted]"
                 : "FakeEntity [Deleted] ForeignKey { 'RelatedId' } <- RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <- FakeEntity [Deleted]";
@@ -577,9 +633,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(
                 CoreStrings.CircularDependency(expectedCycle),
                 Assert.Throws<InvalidOperationException>(
-                    () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging).BatchCommands(
+                    () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: sensitiveLogging).BatchCommands(
                         // Order is important for this test. Entry which is not part of cycle but tail should come first.
-                        new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray()).Message);
+                        new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }, modelData).ToArray()).Message);
         }
 
         [Fact]
@@ -606,8 +662,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
-            var batches = CreateCommandBatchPreparer(stateManager: stateManager)
-                .BatchCommands(new[] { fakeEntry, fakeEntry2 }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var batches = CreateCommandBatchPreparer(updateAdapter: modelData)
+                .BatchCommands(new[] { fakeEntry, fakeEntry2 }, modelData).ToArray();
 
             Assert.Equal(2, batches.Length);
         }
@@ -632,7 +692,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { firstEntry, secondEntry })
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
+                .BatchCommands(new[] { firstEntry, secondEntry }, modelData)
                 .ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -687,7 +752,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Modified);
 
-            var commandBatches = CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { entry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
+                .BatchCommands(new[] { entry }, modelData)
+                .ToArray();
+
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -746,8 +818,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = CreateCommandBatchPreparer(stateManager: stateManager)
-                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
+                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -799,6 +875,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             if (sensitiveLogging)
             {
                 Assert.Equal(
@@ -806,8 +886,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(RelatedFakeEntity), "{Id: 42}", EntityState.Deleted,
                         nameof(FakeEntity), "{Id: 42}", EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
             }
             else
             {
@@ -816,8 +896,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(RelatedFakeEntity), EntityState.Deleted,
                         nameof(FakeEntity), EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
             }
         }
 
@@ -856,6 +936,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 new EntityEntry<RelatedFakeEntity>(secondEntry).Property(e => e.RelatedId).OriginalValue = 2;
             }
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             if (useCurrentValues)
             {
                 if (sensitiveLogging)
@@ -865,8 +949,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                              nameof(FakeEntity), nameof(RelatedFakeEntity),
                              "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
                 }
                 else
                 {
@@ -875,8 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
                 }
             }
             else
@@ -888,8 +972,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(FakeEntity), nameof(RelatedFakeEntity),
                             "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
                 }
                 else
                 {
@@ -898,8 +982,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                              nameof(FakeEntity), nameof(RelatedFakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
                 }
             }
         }
@@ -928,14 +1012,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             if (sensitiveLogging)
             {
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatchSensitive(
                         nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), "{Id: 42}", state),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry }).ToArray()).Message);
+                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                            .BatchCommands(new[] { firstEntry }, modelData).ToArray()).Message);
             }
             else
             {
@@ -943,8 +1031,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatch(
                         nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
             }
         }
 
@@ -969,9 +1057,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             };
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
-            
-            var batches = CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
+            var batches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
             Assert.Equal(1, batches.Length);
         }
@@ -1001,6 +1093,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
+            var modelData = new UpdateAdapter(
+                stateManager,
+                stateManager.Context.GetDependencies().ChangeDetector);
+
             if (sensitiveLogging)
             {
                 Assert.Equal(
@@ -1008,8 +1104,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "{Id: 42}", state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
             }
             else
             {
@@ -1018,8 +1114,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
+                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
             }
         }
 
@@ -1028,15 +1124,12 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         public ICommandBatchPreparer CreateCommandBatchPreparer(
             IModificationCommandBatchFactory modificationCommandBatchFactory = null,
-            IStateManager stateManager = null,
+            IUpdateAdapter updateAdapter = null,
             bool sensitiveLogging = false)
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory
                 ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
-
-            stateManager = stateManager
-                           ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IStateManager>();
 
             var loggingOptions = new LoggingOptions();
             if (sensitiveLogging)
@@ -1050,7 +1143,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                     new ModificationCommandComparer(),
                     new KeyValueIndexFactorySource(),
-                    () => stateManager,
                     loggingOptions,
                     new FakeDiagnosticsLogger<DbLoggerCategory.Update>(),
                     new DbContextOptionsBuilder().Options));

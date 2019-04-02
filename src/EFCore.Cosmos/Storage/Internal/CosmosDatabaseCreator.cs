@@ -4,47 +4,52 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
         private readonly CosmosClientWrapper _cosmosClient;
-        private readonly StateManagerDependencies _stateManagerDependencies;
+        private readonly IModel _model;
+        private readonly IUpdateAdapterFactory _updateAdapterFactory;
+        private readonly IDatabase _database;
 
         public CosmosDatabaseCreator(
             CosmosClientWrapper cosmosClient,
-            StateManagerDependencies stateManagerDependencies)
+            IModel model,
+            IUpdateAdapterFactory updateAdapterFactory,
+            IDatabase database)
         {
             _cosmosClient = cosmosClient;
-            _stateManagerDependencies = stateManagerDependencies;
+            _model = model;
+            _updateAdapterFactory = updateAdapterFactory;
+            _database = database;
         }
 
         public bool EnsureCreated()
         {
             var created = _cosmosClient.CreateDatabaseIfNotExists();
-            foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+            foreach (var entityType in _model.GetEntityTypes())
             {
                 created |= _cosmosClient.CreateContainerIfNotExists(entityType.Cosmos().ContainerName, "__partitionKey");
             }
 
             if (created)
             {
-                var stateManager = new StateManager(_stateManagerDependencies);
-                foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+                var updateAdapter = _updateAdapterFactory.Create();
+                foreach (var entityType in _model.GetEntityTypes())
                 {
-                    foreach (var targetSeed in entityType.GetData())
+                    foreach (var targetSeed in entityType.GetSeedData())
                     {
-                        var entry = stateManager.CreateEntry(targetSeed, entityType);
-                        entry.SetEntityState(EntityState.Added);
+                        var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                        entry.EntityState = EntityState.Added;
                     }
                 }
 
-                stateManager.SaveChanges(acceptAllChangesOnSuccess: false);
+                _database.SaveChanges(updateAdapter.GetEntriesToSave());
             }
 
             return created;
@@ -53,24 +58,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
-            foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+            foreach (var entityType in _model.GetEntityTypes())
             {
                 created |= await _cosmosClient.CreateContainerIfNotExistsAsync(entityType.Cosmos().ContainerName, "__partitionKey", cancellationToken);
             }
 
             if (created)
             {
-                var stateManager = new StateManager(_stateManagerDependencies);
-                foreach (var entityType in _stateManagerDependencies.Model.GetEntityTypes())
+                var updateAdapter = _updateAdapterFactory.Create();
+                foreach (var entityType in _model.GetEntityTypes())
                 {
-                    foreach (var targetSeed in entityType.GetData())
+                    foreach (var targetSeed in entityType.GetSeedData())
                     {
-                        var entry = stateManager.CreateEntry(targetSeed, entityType);
-                        entry.SetEntityState(EntityState.Added);
+                        var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                        entry.EntityState = EntityState.Added;
                     }
                 }
 
-                await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                await _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
             }
 
             return created;

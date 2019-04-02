@@ -3,11 +3,10 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -55,9 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             optionsBuilder.UseInMemoryDatabase(nameof(InMemoryDatabaseCreatorTest));
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
-            var model = CreateModel();
-            return new InMemoryDatabaseCreator(
-                contextServices.GetRequiredService<StateManagerDependencies>().With(model));
+            return new InMemoryDatabaseCreator(contextServices.GetRequiredService<IDatabase>());
         }
 
         [Fact]

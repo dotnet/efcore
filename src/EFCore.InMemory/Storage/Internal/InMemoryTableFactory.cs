@@ -5,10 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -19,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
+    public class InMemoryTableFactory
+        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
+        : ChangeTracking.Internal.IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -56,6 +56,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         [UsedImplicitly]
         private static Func<IInMemoryTable> CreateFactory<TKey>(IKey key, bool sensitiveLoggingEnabled)
-            => () => new InMemoryTable<TKey>(key.GetPrincipalKeyValueFactory<TKey>(), sensitiveLoggingEnabled);
+            => () => new InMemoryTable<TKey>(
+                // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
+                EntityFrameworkCore.Metadata.Internal.KeyExtensions.GetPrincipalKeyValueFactory<TKey>(key),
+                sensitiveLoggingEnabled);
     }
 }

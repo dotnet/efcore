@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         // Navigation points to dependent and is 1:1. Find the principal that previously pointed to that
                         // dependent and null out its navigation property. A.k.a. reference stealing.
                         // However, if the reference is already set to point to something else, then don't change it.
-                        var victimPrincipalEntry = stateManager.GetPrincipal(newTargetEntry, foreignKey);
+                        var victimPrincipalEntry = stateManager.FindPrincipal(newTargetEntry, foreignKey);
                         if (victimPrincipalEntry != null
                             && victimPrincipalEntry != entry
                             && ReferenceEquals(victimPrincipalEntry[navigation], newTargetEntry.Entity))
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // For a dependent added to the collection, remove it from the collection of
                         // the principal entity that it was previously part of
-                        var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
+                        var oldPrincipalEntry = stateManager.FindPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
                         if (oldPrincipalEntry != null
                             && oldPrincipalEntry != entry)
                         {
@@ -328,9 +328,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var foreignKey in containingForeignKeys)
                 {
-                    var newPrincipalEntry = stateManager.GetPrincipal(entry, foreignKey)
-                                            ?? stateManager.GetPrincipalUsingPreStoreGeneratedValues(entry, foreignKey);
-                    var oldPrincipalEntry = stateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
+                    var newPrincipalEntry = stateManager.FindPrincipal(entry, foreignKey)
+                                            ?? stateManager.FindPrincipalUsingPreStoreGeneratedValues(entry, foreignKey);
+                    var oldPrincipalEntry = stateManager.FindPrincipalUsingRelationshipSnapshot(entry, foreignKey);
 
                     var principalToDependent = foreignKey.PrincipalToDependent;
                     if (principalToDependent != null)
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var principalToDependent = foreignKey.PrincipalToDependent;
                 if (principalToDependent != null)
                 {
-                    var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    var principalEntry = stateManager.FindPrincipal(entry, foreignKey);
                     if (principalEntry != null
                         && principalEntry.EntityState != EntityState.Deleted)
                     {
@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (handledForeignKeys?.Contains(foreignKey) != true)
                 {
-                    var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                    var principalEntry = stateManager.FindPrincipal(entry, foreignKey);
                     if (principalEntry != null)
                     {
                         // Set navigation to principal based on FK properties
@@ -875,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentProperties = foreignKey.Properties;
             var hasOnlyKeyProperties = true;
 
-            var currentPrincipal = dependentEntry.StateManager.GetPrincipal(dependentEntry, foreignKey);
+            var currentPrincipal = dependentEntry.StateManager.FindPrincipal(dependentEntry, foreignKey);
             if (currentPrincipal != null
                 && currentPrincipal != principalEntry)
             {

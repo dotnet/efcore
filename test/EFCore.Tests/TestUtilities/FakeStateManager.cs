@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -122,13 +120,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) =>
             throw new NotImplementedException();
 
-        public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
+        public InternalEntityEntry FindPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
+        public InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
+        public InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
         public DbContext Context => new DbContext(new DbContextOptionsBuilder()
@@ -136,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             .UseInMemoryDatabase("D")
             .Options);
 
+        public IModel Model => throw new NotImplementedException();
         public event EventHandler<EntityTrackedEventArgs> Tracked;
         public void OnTracked(InternalEntityEntry internalEntityEntry, bool fromQuery) => Tracked?.Invoke(null, null);
         public event EventHandler<EntityStateChangedEventArgs> StateChanged;

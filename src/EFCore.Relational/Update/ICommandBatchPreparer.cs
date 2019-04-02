@@ -29,7 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     list of <see cref="IUpdateEntry" />s.
         /// </summary>
         /// <param name="entries"> The entries that represent the entities to be modified. </param>
+        /// <param name="modelData"> The model data. </param>
         /// <returns> The list of batches to execute. </returns>
-        IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IList<IUpdateEntry> entries);
+        IEnumerable<ModificationCommandBatch> BatchCommands(
+            [NotNull] IList<IUpdateEntry> entries,
+            [NotNull] IUpdateAdapter modelData);
     }
 }

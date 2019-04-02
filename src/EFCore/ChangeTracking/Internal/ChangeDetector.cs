@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                 {
-                    var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey);
+                    var principalEntry = entry.StateManager.FindPrincipal(entry, foreignKey);
 
                     if (principalEntry != null
                         && !visited.Contains(principalEntry))

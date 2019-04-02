@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
@@ -50,17 +49,15 @@ namespace Microsoft.EntityFrameworkCore
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-            var model = CreateModel();
             var store = CreateStore(serviceProvider);
-            var stateManager = CreateContextServices(serviceProvider).GetRequiredService<StateManagerDependencies>().With(model);
 
-            Assert.True(store.EnsureDatabaseCreated(stateManager));
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
+            Assert.True(store.EnsureDatabaseCreated());
+            Assert.False(store.EnsureDatabaseCreated());
+            Assert.False(store.EnsureDatabaseCreated());
 
             store = CreateStore(serviceProvider);
 
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
+            Assert.False(store.EnsureDatabaseCreated());
         }
 
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider)

@@ -5,14 +5,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -82,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool EnsureCreated(
-            StateManagerDependencies stateManagerDependencies,
+            IUpdateAdapterFactory updateAdapterFactory,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             lock (_lock)
@@ -93,14 +89,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     // ReSharper disable once AssignmentIsFullyDiscarded
                     _tables = CreateTables();
 
-                    var stateManager = new StateManager(stateManagerDependencies);
+                    var updateAdapter = updateAdapterFactory.Create();
                     var entries = new List<IUpdateEntry>();
-                    foreach (var entityType in stateManagerDependencies.Model.GetEntityTypes())
+                    foreach (var entityType in updateAdapter.Model.GetEntityTypes())
                     {
-                        foreach (var targetSeed in entityType.GetData())
+                        foreach (var targetSeed in entityType.GetSeedData())
                         {
-                            var entry = stateManager.CreateEntry(targetSeed, entityType);
-                            entry.SetEntityState(EntityState.Added);
+                            var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                            entry.EntityState = EntityState.Added;
                             entries.Add(entry);
                         }
                     }
