@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// <summary>
     ///     Extension methods for <see cref="IProperty" /> for relational database metadata.
     /// </summary>
-    public static class PropertyExtensions
+    public static class RelationalPropertyExtensions
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

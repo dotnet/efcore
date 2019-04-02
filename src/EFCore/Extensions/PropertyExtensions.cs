@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -64,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     when throwing exceptions about keys, indexes, etc. that use the properties.
         /// </summary>
         /// <param name="properties"> The properties to format. </param>
-        /// <param name="includeTypes"> If true, then type names are included in the string. The default is false. </param>
+        /// <param name="includeTypes"> If <c>true</c>, then type names are included in the string. The default is <c>false</c>. </param>
         /// <returns> The string representation. </returns>
         public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
             => "{"
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     True if the property is used as a foreign key, otherwise false.
+        ///     <c>true</c> if the property is used as a foreign key, otherwise <c>false</c>.
         /// </returns>
         public static bool IsForeignKey([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().ForeignKeys != null;
@@ -126,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     True if the property is used as an index, otherwise false.
+        ///     <c>true</c> if the property is used as an index, otherwise <c>false</c>.
         /// </returns>
         public static bool IsIndex([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
@@ -136,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     True if the property is used as the primary key, otherwise false.
+        ///     <c>true</c> if the property is used as the primary key, otherwise <c>false</c>.
         /// </returns>
         public static bool IsPrimaryKey([NotNull] this IProperty property)
             => GetContainingPrimaryKey(property) != null;
@@ -147,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     True if the property is part of a key, otherwise false.
+        ///     <c>true</c> if the property is part of a key, otherwise <c>false</c>.
         /// </returns>
         public static bool IsKey([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().Keys != null;
@@ -206,6 +207,51 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The provider type, or <c>null</c> if none has been set. </returns>
         public static Type GetProviderClrType([NotNull] this IProperty property)
             => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a value indicating whether or not this property can be modified before the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a value is assigned to this property when it is in
+        ///         the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
+        ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
+            => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.BeforeSaveBehavior]
+                ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
+                    ? PropertySaveBehavior.Ignore
+                    : PropertySaveBehavior.Save);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a value indicating whether or not this property can be modified after the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
+        ///         property value of an entity that already exists in the database will be ignored.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
+            => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.AfterSaveBehavior]
+                ?? (property.IsKey()
+                    ? PropertySaveBehavior.Throw
+                    : property.ValueGenerated.ForUpdate()
+                        ? PropertySaveBehavior.Ignore
+                        : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     Gets the custom <see cref="ValueConverter" /> set for this property.

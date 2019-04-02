@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(errorMessage);
             }
 
-            entityType.SetAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(errorMessage);
             }
 
-            entityType.SetAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, fromDataAnnotation);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType.SetAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, fromDataAnnotation);
         }
 
         /// <summary>

@@ -57,10 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(relationshipBuilder);
             var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
             Assert.Equal("TempId", pkProperty.Name);
-            Assert.True(pkProperty.IsShadowProperty);
+            Assert.True(pkProperty.IsShadowProperty());
             var fkProperty = relationshipBuilder.Metadata.Properties.Single();
             Assert.Equal(nameof(Customer) + pkProperty.Name, fkProperty.Name);
-            Assert.True(fkProperty.IsShadowProperty);
+            Assert.True(fkProperty.IsShadowProperty());
         }
 
         [Fact]
@@ -81,10 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(relationshipBuilder);
             var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
             Assert.Equal("CustomerId", pkProperty.Name);
-            Assert.True(pkProperty.IsShadowProperty);
+            Assert.True(pkProperty.IsShadowProperty());
             var fkProperty = relationshipBuilder.Metadata.Properties.Single();
             Assert.Equal("CustomerId1", fkProperty.Name);
-            Assert.True(fkProperty.IsShadowProperty);
+            Assert.True(fkProperty.IsShadowProperty());
         }
 
         [Fact]
@@ -106,10 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(relationshipBuilder);
             var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
             Assert.Equal("CustomerId", pkProperty.Name);
-            Assert.True(pkProperty.IsShadowProperty);
+            Assert.True(pkProperty.IsShadowProperty());
             var fkProperty = relationshipBuilder.Metadata.Properties.Single();
             Assert.Equal("CustomerId1", fkProperty.Name);
-            Assert.True(fkProperty.IsShadowProperty);
+            Assert.True(fkProperty.IsShadowProperty());
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
             Assert.NotNull(shadowProperty);
-            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.True(((IProperty)shadowProperty).IsShadowProperty());
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 customerEntityBuilder.Metadata.Name, new[] { "ShadowCustomerId" }, ConfigurationSource.Convention);
 
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
-            Assert.True(shadowProperty.IsShadowProperty);
+            Assert.True(shadowProperty.IsShadowProperty());
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
 
             Assert.Null(customerEntityBuilder.Metadata.FindPrimaryKey());
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
             Assert.NotNull(shadowProperty);
-            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.True(((IProperty)shadowProperty).IsShadowProperty());
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 

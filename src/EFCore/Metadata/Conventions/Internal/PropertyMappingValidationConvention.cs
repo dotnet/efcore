@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(
-                    p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty)
+                    p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()) || !p.IsShadowProperty())
                          && !IsMappedPrimitiveProperty(p));
 
                 if (unmappedProperty != null)

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "<Foo>k__BackingField";
             var property = CreateProperty<AutoProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<FullProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<ReadOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "<Foo>k__BackingField";
             var property = CreateProperty<ReadOnlyAutoProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<ReadOnlyFieldProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<WriteOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<FieldOnly>(field, field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<FieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<ReadOnlyFieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_full_props_with_field_not_found()
         {
             var property = CreateProperty<FullPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, Property, Property, Property);
             MemberInfoTest(
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_read_only_props_with_field_not_found()
         {
             var property = CreateProperty<ReadOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
             MemberInfoTest(
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_write_only_props_with_field_not_found()
         {
             var property = CreateProperty<WriteOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
             MemberInfoTest(
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<PrivateSetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<PrivateGetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);

@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private FieldInfo _fieldInfo;
         private ConfigurationSource? _fieldInfoConfigurationSource;
-        private readonly bool _isIndexedProperty;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -42,8 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
-            _isIndexedProperty = propertyInfo != null
-                                 && propertyInfo.IsEFIndexerProperty();
         }
 
         /// <summary>
@@ -57,21 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract TypeBase DeclaringType { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsShadowProperty
-        {
-            [DebuggerStepThrough] get => this.GetIdentifyingMemberInfo() == null;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual bool IsIndexedProperty => _isIndexedProperty;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -267,17 +249,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertyGetter Getter => _isIndexedProperty
-            ? NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new IndexedPropertyGetterFactory().Create(p))
-            : NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+        public virtual IClrPropertyGetter Getter =>
+            NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this,
+                p => p.IsIndexedProperty() ? new IndexedPropertyGetterFactory().Create(p) : new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IClrPropertySetter Setter => _isIndexedProperty
-            ? NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new IndexedPropertySetterFactory().Create(p))
-            : NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+        public virtual IClrPropertySetter Setter =>
+            NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this,
+                p => p.IsIndexedProperty() ? new IndexedPropertySetterFactory().Create(p) : new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = principalType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
 
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
 
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId1", fkProperty.Name);
-                Assert.True(fkProperty.IsShadowProperty);
+                Assert.True(fkProperty.IsShadowProperty());
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
@@ -1472,7 +1472,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
                 AssertEqual(expectedPrincipalProperties.Select(p => p.Name), principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(expectedDependentProperties, dependentType.GetProperties());
+                AssertEqual(expectedDependentProperties, dependentType.GetProperties(), new PropertyComparer(compareAnnotations: false));
                 Assert.Empty(principalType.GetForeignKeys());
 
                 var primaryPrincipalKey = principalType.FindPrimaryKey();
@@ -2527,7 +2527,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(thetasFk.DependentToPrincipal);
                 Assert.False(thetasFk.IsUnique);
                 Assert.Equal("Id", thetasFk.Properties.Single().Name);
-                Assert.True(thetasFk.Properties.Single().IsShadowProperty);
+                Assert.True(thetasFk.Properties.Single().IsShadowProperty());
 
                 var alphaFk = model.FindEntityType(typeof(Theta)).FindNavigation(nameof(Theta.Alpha)).ForeignKey;
                 Assert.Null(alphaFk.PrincipalToDependent);
@@ -2565,7 +2565,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
                 Assert.False(fk.IsUnique);
                 Assert.Null(fk.PrincipalToDependent);
-                Assert.True(fk.Properties.Single().IsShadowProperty);
+                Assert.True(fk.Properties.Single().IsShadowProperty());
             }
 
             [Fact]
@@ -2592,7 +2592,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
                 Assert.False(fk.IsUnique);
                 Assert.Null(fk.PrincipalToDependent);
-                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.False(fk.Properties.Single().IsShadowProperty());
                 Assert.Equal(OneToOneDependentEntity.NavigationMatchingProperty.Name, fk.Properties.Single().Name);
             }
 
@@ -2620,7 +2620,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
                 Assert.False(fk.IsUnique);
                 Assert.Null(fk.PrincipalToDependent);
-                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.False(fk.Properties.Single().IsShadowProperty());
                 Assert.Equal(OneToOneDependentEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 
@@ -2643,7 +2643,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
                 Assert.False(fk.IsUnique);
                 Assert.Null(fk.PrincipalToDependent);
-                Assert.True(fk.Properties.Single().IsShadowProperty);
+                Assert.True(fk.Properties.Single().IsShadowProperty());
             }
 
             [Fact]

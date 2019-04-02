@@ -34,7 +34,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ConventionAnnotation SetAnnotation(
             [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
-            => (ConventionAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource));
+        {
+            var oldAnnotation = FindAnnotation(name);
+            if (oldAnnotation != null)
+            {
+                if (Equals(oldAnnotation.Value, value))
+                {
+                    oldAnnotation.UpdateConfigurationSource(configurationSource);
+                    return oldAnnotation;
+                }
+
+                configurationSource = configurationSource.Max(oldAnnotation.GetConfigurationSource());
+            }
+
+            return (ConventionAnnotation)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource), oldAnnotation);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

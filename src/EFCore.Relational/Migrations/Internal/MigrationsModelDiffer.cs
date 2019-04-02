@@ -1599,7 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             foreach (var targetProperty in targetEntry.EntityType.GetProperties())
                             {
-                                if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
+                                if (targetProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                                 {
                                     targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
                                 }
@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 }
                             }
 
-                            if (targetProperty.AfterSaveBehavior != PropertySaveBehavior.Save)
+                            if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                             {
                                 entryMapping.RecreateRow = true;
                                 break;

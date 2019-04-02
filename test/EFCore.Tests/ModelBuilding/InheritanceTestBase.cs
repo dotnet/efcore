@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, dependentEntityType.GetIndexes().Count());
                 Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
 
-                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+                AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());

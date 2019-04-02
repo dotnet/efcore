@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // Hot path; do not use LINQ
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
+                    if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                     {
                         _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
                     }
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.IsShadowProperty)
+                if (property.IsShadowProperty())
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
                 }
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty);
+            Debug.Assert(!propertyBase.IsShadowProperty());
 
             return ((PropertyBase)propertyBase).Getter.GetClrValue(Entity);
         }
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual bool PropertyHasDefaultValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty);
+            Debug.Assert(!propertyBase.IsShadowProperty());
 
             return ((PropertyBase)propertyBase).Getter.HasDefaultValue(Entity);
         }
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty);
+            Debug.Assert(!propertyBase.IsShadowProperty());
 
             ((PropertyBase)propertyBase).Setter.SetClrValue(Entity, value);
         }
@@ -679,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual object GetOrCreateCollection([NotNull] INavigation navigation)
         {
-            Debug.Assert(!navigation.IsShadowProperty);
+            Debug.Assert(!navigation.IsShadowProperty());
 
             return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity);
         }
@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool CollectionContains([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty);
+            Debug.Assert(!navigation.IsShadowProperty());
 
             return ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
         }
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool AddToCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty);
+            Debug.Assert(!navigation.IsShadowProperty());
 
             return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity);
         }
@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty);
+            Debug.Assert(!navigation.IsShadowProperty());
 
             return ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
         }
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (property.BeforeSaveBehavior == PropertySaveBehavior.Throw
+                    if (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Throw
                         && !HasTemporaryValue(property)
                         && !HasDefaultValue(property))
                     {
@@ -1145,7 +1145,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (property.AfterSaveBehavior == PropertySaveBehavior.Throw
+                    if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
                         && IsModified(property))
                     {
                         throw new InvalidOperationException(
@@ -1287,12 +1287,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsStoreGenerated(IProperty property)
             => (property.ValueGenerated.ForAdd()
                 && EntityState == EntityState.Added
-                && (property.BeforeSaveBehavior == PropertySaveBehavior.Ignore
+                && (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))
                || (property.ValueGenerated.ForUpdate()
                    && EntityState == EntityState.Modified
-                   && (property.AfterSaveBehavior == PropertySaveBehavior.Ignore
+                   && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                        || !IsModified(property)));
 
         /// <summary>

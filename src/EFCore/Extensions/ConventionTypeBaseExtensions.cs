@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType.SetAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType.SetAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, fromDataAnnotation);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, fromDataAnnotation);
         }
 
         /// <summary>

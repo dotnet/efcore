@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(model, nameof(model));
 
-            model.SetAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
+            model.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(model, nameof(model));
 
-            model.SetAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
+            model.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
         }
 
         /// <summary>

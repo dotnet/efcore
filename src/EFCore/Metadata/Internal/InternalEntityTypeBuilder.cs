@@ -1541,7 +1541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             foreach (var property in properties.ToList())
             {
-                if (property?.IsShadowProperty == true)
+                if (property?.IsShadowProperty() == true)
                 {
                     RemovePropertyIfUnused(property);
                 }
@@ -2508,7 +2508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             shouldThrow: false))
                         {
                             if (dependentProperties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                                    && p.IsShadowProperty))
+                                    && p.IsShadowProperty()))
                             {
                                 var detachedProperties = DetachProperties(dependentProperties);
                                 GetOrCreateProperties(dependentProperties.Select(p => p.Name).ToList(), configurationSource, principalKey.Properties, isRequired ?? false);
@@ -2693,7 +2693,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
                             if (currentProperty != null)
                             {
-                                if (currentProperty.IsShadowProperty
+                                if (currentProperty.IsShadowProperty()
                                     && currentProperty.ClrType != clrType
                                     && isRequired)
                                 {

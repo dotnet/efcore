@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var indexes = new PropertyIndexes(
                     index: index++,
                     originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
-                    shadowIndex: property.IsShadowProperty ? shadowIndex++ : -1,
+                    shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
                     relationshipIndex: property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var indexes = new PropertyIndexes(
                     index: navigationIndex++,
                     originalValueIndex: -1,
-                    shadowIndex: navigation.IsShadowProperty ? shadowIndex++ : -1,
+                    shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
                     relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (string.IsNullOrEmpty(propertyName))
             {
                 foreach (var property in entityType.GetProperties()
-                    .Where(p => p.AfterSaveBehavior == PropertySaveBehavior.Save))
+                    .Where(p => p.GetAfterSaveBehavior() == PropertySaveBehavior.Save))
                 {
                     yield return property;
                 }

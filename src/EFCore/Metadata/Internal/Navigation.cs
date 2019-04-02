@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IClrCollectionAccessor CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _collectionAccessor, this, n =>
-                    !n.IsCollection() || n.IsShadowProperty
+                    !n.IsCollection() || n.IsShadowProperty()
                         ? null
                         : new ClrCollectionAccessorFactory().Create(n));
 

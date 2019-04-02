@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreach (var fkProperty in foreignKey.Properties)
                         {
                             if (ConfigurationSource.Convention.Overrides(fkProperty.GetTypeConfigurationSource())
-                                && fkProperty.IsShadowProperty
+                                && fkProperty.IsShadowProperty()
                                 && fkProperty.ClrType.IsNullableType() == foreignKey.IsRequired
                                 && fkProperty.GetContainingForeignKeys().All(otherFk => otherFk.IsRequired == foreignKey.IsRequired))
                             {
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 var temporaryProperties = foreignKey.Properties.Where(
-                    p => p.IsShadowProperty
+                    p => p.IsShadowProperty()
                         && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
                 var keysToDetach = temporaryProperties.SelectMany(
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 false))
             {
                 if (propertiesToReference.All(
-                    p => !p.IsShadowProperty
+                    p => !p.IsShadowProperty()
                          || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
                     Logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var property in entityType.GetProperties())
             {
-                if ((!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                if ((!property.IsShadowProperty() || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
                     && property.Name.Length == prefix.Length + suffix.Length
                     && property.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                     && property.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
         {
             var property = propertyBuilder.Metadata;
-            if (property.IsShadowProperty
+            if (property.IsShadowProperty()
                 && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
             {
                 return propertyBuilder;

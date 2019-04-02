@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Modified);
 
             Assert.False(entry.IsModified(keyProperty));
-            Assert.NotEqual(nonKeyProperty.IsShadowProperty, entry.IsModified(nonKeyProperty));
+            Assert.NotEqual(nonKeyProperty.IsShadowProperty(), entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Unchanged, true);
 

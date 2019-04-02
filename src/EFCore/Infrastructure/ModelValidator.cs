@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
-                    if (key.Properties.Any(p => p.IsShadowProperty)
+                    if (key.Properties.Any(p => p.IsShadowProperty())
                         && key is Key concreteKey
                         && ConfigurationSource.Convention.Overrides(concreteKey.GetConfigurationSource())
                         && !key.IsPrimaryKey())
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .GetDeclaredProperties()
                         .Cast<IPropertyBase>()
                         .Concat(entityType.GetDeclaredNavigations())
-                        .Where(p => !p.IsShadowProperty));
+                        .Where(p => !p.IsShadowProperty()));
 
                 var constructorBinding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    if (property.IsShadowProperty)
+                    if (property.IsShadowProperty())
                     {
                         modelLogger.ShadowPropertyCreated(property);
                     }

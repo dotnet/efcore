@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
-            => !propertyBase.IsShadowProperty
+            => !propertyBase.IsShadowProperty()
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
 
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override bool PropertyHasDefaultValue(IPropertyBase propertyBase)
-            => !propertyBase.IsShadowProperty
+            => !propertyBase.IsShadowProperty()
                 ? base.PropertyHasDefaultValue(propertyBase)
                 : propertyBase.ClrType.IsDefaultValue(_shadowValues[propertyBase.GetShadowIndex()]);
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
-            if (!propertyBase.IsShadowProperty)
+            if (!propertyBase.IsShadowProperty())
             {
                 base.WritePropertyValue(propertyBase, value);
             }
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override object GetOrCreateCollection(INavigation navigation)
-            => navigation.IsShadowProperty
+            => navigation.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigation)
                 : base.GetOrCreateCollection(navigation);
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool CollectionContains(INavigation navigation, InternalEntityEntry value)
-            => navigation.IsShadowProperty
+            => navigation.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigation).Contains(value.Entity)
                 : base.CollectionContains(navigation, value);
 
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override bool AddToCollection(INavigation navigation, InternalEntityEntry value)
         {
-            if (!navigation.IsShadowProperty)
+            if (!navigation.IsShadowProperty())
             {
                 return base.AddToCollection(navigation, value);
             }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override bool RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
-            => navigation.IsShadowProperty
+            => navigation.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigation).Remove(value.Entity)
                 : base.RemoveFromCollection(navigation, value);
     }

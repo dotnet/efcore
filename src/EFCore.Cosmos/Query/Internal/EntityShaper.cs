@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     indexMap[property.GetIndex()] = propertyIndex;
 
-                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty();
                 }
 
                 if (shadowPropertyExists)

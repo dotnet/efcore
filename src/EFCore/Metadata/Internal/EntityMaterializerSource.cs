@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Concat(
                         entityType
                             .GetProperties()
-                            .Where(p => !p.IsShadowProperty)));
+                            .Where(p => !p.IsShadowProperty())));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             indexMap?[property.GetIndex()] ?? property.GetIndex());
 
                 blockExpressions.Add(
-                    property.IsIndexedProperty
+                    property.IsIndexedProperty()
                         ? Expression.Assign(
                             Expression.MakeIndex(
                                 instanceVariable,

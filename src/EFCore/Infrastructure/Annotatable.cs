@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
             }
 
-            SetAnnotation(name, annotation);
+            SetAnnotation(name, annotation, null);
 
             return annotation;
         }
@@ -74,7 +74,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         public virtual void SetAnnotation(string name, object value)
-            => SetAnnotation(name, CreateAnnotation(name, value));
+        {
+            var oldAnnotation = FindAnnotation(name);
+            if (oldAnnotation != null
+                   && Equals(oldAnnotation.Value, value))
+            {
+                return;
+            }
+
+            SetAnnotation(name, CreateAnnotation(name, value), oldAnnotation);
+        }
 
         /// <summary>
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
@@ -82,17 +91,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be set. </param>
+        /// <param name="oldAnotation"> The annotation bwing replaced. </param>
         /// <returns> The annotation that was set. </returns>
-        protected virtual Annotation SetAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        protected virtual Annotation SetAnnotation(
+            [NotNull] string name,
+            [NotNull] Annotation annotation,
+            [NotNull] Annotation oldAnotation)
         {
-            var oldAnnotation = FindAnnotation(name);
-
             _annotations.Value[name] = annotation;
 
-            return oldAnnotation != null
-                   && Equals(oldAnnotation.Value, annotation.Value)
-                ? annotation
-                : OnAnnotationSet(name, annotation, oldAnnotation);
+            return OnAnnotationSet(name, annotation, oldAnotation);
         }
 
         /// <summary>
@@ -180,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
                 else
                 {
-                    SetAnnotation(name, CreateAnnotation(name, value));
+                    SetAnnotation(name, value);
                 }
             }
         }

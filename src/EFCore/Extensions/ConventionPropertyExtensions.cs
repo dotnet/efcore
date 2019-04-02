@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(property, nameof(property));
             Check.NotNull(valueGeneratorFactory, nameof(valueGeneratorFactory));
 
-            property.SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, valueGeneratorFactory, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactory, valueGeneratorFactory, fromDataAnnotation);
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
-            property.SetAnnotation(CoreAnnotationNames.MaxLength, maxLength, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, fromDataAnnotation);
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            property.SetAnnotation(CoreAnnotationNames.Unicode, unicode, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.Unicode, unicode, fromDataAnnotation);
         }
 
         /// <summary>
@@ -156,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionProperty property,
             [CanBeNull] Type providerClrType,
             bool fromDataAnnotation = false)
-            => property.SetAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, fromDataAnnotation);
+            => property.SetOrRemoveAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, fromDataAnnotation);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetProviderClrType" />.
@@ -165,6 +166,82 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetProviderClrType" />. </returns>
         public static ConfigurationSource? GetProviderClrTypeConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets a value indicating whether or not this property can be modified before the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a value is assigned to this property when it is in
+        ///         the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
+        ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="beforeSaveBehavior">
+        ///     A value indicating whether or not this property can be modified before the entity is
+        ///     saved to the database. <c>null</c> to reset to default.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetBeforeSaveBehavior(
+            [NotNull] this IConventionProperty property, PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false)
+            => property.SetOrRemoveAnnotation(CoreAnnotationNames.BeforeSaveBehavior, beforeSaveBehavior, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetBeforeSaveBehavior" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetBeforeSaveBehavior" />. </returns>
+        public static ConfigurationSource? GetBeforeSaveBehaviorConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.BeforeSaveBehavior)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets a value indicating whether or not this property can be modified after the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
+        ///         property value of an entity that already exists in the database will be ignored.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="afterSaveBehavior">
+        ///     Sets a value indicating whether or not this property can be modified after the entity is
+        ///     saved to the database. <c>null</c> to reset to default.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetAfterSaveBehavior(
+            [NotNull] this IConventionProperty property, PropertySaveBehavior? afterSaveBehavior, bool fromDataAnnotation = false)
+        {
+            if (afterSaveBehavior != null)
+            {
+                var errorMessage = property.CheckAfterSaveBehavior(afterSaveBehavior.Value);
+                if (errorMessage != null)
+                {
+                    throw new InvalidOperationException(errorMessage);
+                }
+            }
+
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.AfterSaveBehavior, afterSaveBehavior, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetAfterSaveBehavior" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetAfterSaveBehavior" />. </returns>
+        public static ConfigurationSource? GetAfterSaveBehaviorConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.AfterSaveBehavior)?.GetConfigurationSource();
 
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
@@ -188,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore
                         property.ClrType.ShortDisplayName()));
             }
 
-            property.SetAnnotation(CoreAnnotationNames.ValueConverter, converter, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverter, converter, fromDataAnnotation);
         }
 
         /// <summary>
@@ -212,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckComparerType(property, comparer);
 
-            property.SetAnnotation(CoreAnnotationNames.ValueComparer, comparer, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueComparer, comparer, fromDataAnnotation);
         }
 
         /// <summary>
@@ -236,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckComparerType(property, comparer);
 
-            property.SetAnnotation(CoreAnnotationNames.KeyValueComparer, comparer, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.KeyValueComparer, comparer, fromDataAnnotation);
         }
 
         /// <summary>
@@ -260,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckComparerType(property, comparer);
 
-            property.SetAnnotation(CoreAnnotationNames.StructuralValueComparer, comparer, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(CoreAnnotationNames.StructuralValueComparer, comparer, fromDataAnnotation);
         }
 
         /// <summary>
