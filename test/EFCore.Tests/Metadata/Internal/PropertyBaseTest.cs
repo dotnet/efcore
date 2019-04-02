@@ -143,28 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Get_MemberInfos_for_field_only_named_props()
-        {
-            const string field = "_foo";
-            var property = CreateProperty<FieldOnly>(field);
-            Assert.False(property.IsShadowProperty());
-
-            MemberInfoTest(property, null, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, field);
-            MemberInfoTest(
-                property, PropertyAccessMode.Property, NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field),
-                NoProperty<FieldOnly>(field));
-            MemberInfoTest(property, PropertyAccessMode.PreferField, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.PreferFieldDuringConstruction, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.PreferProperty, field, field, field);
-        }
-
-        [Fact]
         public void Get_MemberInfos_for_read_only_field_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<ReadOnlyFieldOnly>(field);
+            var property = CreateProperty<ReadOnlyFieldOnly>(field, field);
             Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
@@ -820,9 +802,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public virtual void Field_only_properties_can_have_field_cleared()
-            => Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FieldOnly)).AddProperty("Foo", typeof(int)), null, "_foo");
+        public virtual void Field_only_properties_throws_when_field_cleared()
+        {
+            var propertyBase = new Model().AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
+
+            Assert.Equal(CoreStrings.FieldNameMismatch(null, nameof(FieldOnly), "_foo"),
+                Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
+        }
 
         [Fact]
         public virtual void Navigations_can_have_field_cleared()
@@ -867,6 +853,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
+        }
+
+        [Fact]
+        public virtual void Setting_fieldInfo_for_shadow_property_throws()
+        {
+            IMutableModel model = new Model();
+
+            var entityType = model.AddEntityType(typeof(FullProp));
+            var property = entityType.AddProperty("shadow", typeof(int));
+
+            Assert.Equal(CoreStrings.FieldNameMismatch("_foo", nameof(FullProp), "shadow"),
+                Assert.Throws<InvalidOperationException>(() => property.SetField("_foo")).Message);
         }
 
         private class AutoProp

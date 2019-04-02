@@ -902,12 +902,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
 
-Assert.Equal(
-                CoreStrings.DerivedEntityTypeKey(typeof(SpecialOrder).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        derivedEntityBuilder.HasKey(
-                            new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation)).Message);
+            Assert.Equal(CoreStrings.DerivedEntityTypeKey(typeof(SpecialOrder).Name, typeof(Order).Name),
+                         Assert.Throws<InvalidOperationException>(() =>
+                             derivedEntityBuilder.HasKey(
+                                 new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation)).Message);
         }
 
         [Fact]

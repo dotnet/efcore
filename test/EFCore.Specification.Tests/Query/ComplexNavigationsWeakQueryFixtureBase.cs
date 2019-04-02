@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.StartBatch())
             {
                 level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
+                level2Fk.IsUnique = true;
                 level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK1));
                 level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2));
-                level2Fk.IsUnique = true;
                 level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level2Fk = batch.Run(level2Fk);
             }
@@ -135,9 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var batch = ((Model)level2.Model).ConventionDispatcher.StartBatch())
             {
                 level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
+                level3Fk.IsUnique = true;
                 level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK2));
                 level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3));
-                level3Fk.IsUnique = true;
                 level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level3Fk = batch.Run(level3Fk);
             }
@@ -186,9 +186,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var batch = ((Model)level3.Model).ConventionDispatcher.StartBatch())
             {
                 level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
+                level4Fk.IsUnique = true;
                 level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK3));
                 level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4));
-                level4Fk.IsUnique = true;
                 level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level4Fk = batch.Run(level4Fk);
             }

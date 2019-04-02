@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Navigation navigation = null;
-            var property = propertyIdentity?.Property;
+            var property = propertyIdentity?.MemberInfo;
             if (property != null)
             {
                 navigation = pointsToPrincipal

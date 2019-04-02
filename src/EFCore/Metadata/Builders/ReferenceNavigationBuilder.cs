@@ -162,11 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return RelatedEntityType != foreignKey.PrincipalEntityType
-                ? collection.Property == null && ReferenceProperty == null
+                ? collection.MemberInfo == null && ReferenceProperty == null
                     ? builder.Navigations(ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                    : builder.Navigations(ReferenceProperty, collection.Property, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                : collection.Property != null
-                    ? builder.PrincipalToDependent(collection.Property, ConfigurationSource.Explicit)
+                    : builder.Navigations(ReferenceProperty, collection.MemberInfo, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                : collection.MemberInfo != null
+                    ? builder.PrincipalToDependent(collection.MemberInfo, ConfigurationSource.Explicit)
                     : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
                 }
 
-                var referenceProperty = reference.Property;
+                var referenceProperty = reference.MemberInfo;
                 if (referenceName != null
                     && pointsToPrincipal
                     && RelatedEntityType != foreignKey.DeclaringEntityType)

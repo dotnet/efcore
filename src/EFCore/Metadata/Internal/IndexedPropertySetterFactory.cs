@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!propertyInfo.IsEFIndexerProperty())
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NoIndexer(propertyBase.Name, propertyBase.DeclaringType.DisplayName()));
+                    CoreStrings.NoIndexer(propertyBase.DeclaringType.DisplayName()));
             }
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");

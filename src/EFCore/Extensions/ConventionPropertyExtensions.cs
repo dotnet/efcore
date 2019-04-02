@@ -133,8 +133,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or null if it is not part of the primary key.
         /// </returns>
-        public static IConventionKey GetContainingPrimaryKey([NotNull] this IConventionProperty property)
-            => (IConventionKey)((IProperty)property).GetContainingPrimaryKey();
+        public static IConventionKey FindContainingPrimaryKey([NotNull] this IConventionProperty property)
+            => (IConventionKey)((IProperty)property).FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property

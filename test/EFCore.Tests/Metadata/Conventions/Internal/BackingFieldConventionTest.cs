@@ -4,7 +4,6 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -44,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
 
         [Fact]
-        public void Underscpre_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
+        public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
 
         [Fact]
-        public void Underscpre_matching_field_is_used_as_next_preference()
+        public void Underscore_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Money", "_Money");
 
         [Fact]
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => FieldMatchTest<TheDarkSideOfTheMoon>("UsAndThem", "m_usAndThem");
 
         [Fact]
-        public void M_underscpre_camel_case_matching_field_is_used_as_next_preference()
+        public void M_Underscore_camel_case_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("AnyColourYouLike", "m_anyColourYouLike");
 
         [Fact]
@@ -82,40 +81,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             => FieldMatchTest<TheDarkerSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
         [Fact]
-        public void Camel_case_matching_field_is_used_as_next_preference_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("Breathe", "breathe");
+        public void Camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("Breathe", null);
 
         [Fact]
         public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("OnTheRun", "_onTheRun");
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("OnTheRun", null);
 
         [Fact]
-        public void Underscore_camel_case_matching_field_is_used_as_next_preference_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("Time", "_time");
+        public void Underscore_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("Time", null);
 
         [Fact]
         public void Underscpre_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("TheGreatGigInTheSky", null);
 
         [Fact]
-        public void Underscpre_matching_field_is_used_as_next_preference_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("Money", "_Money");
+        public void Underscpre_matching_field_is_not_used_as_next_preference_for_field_only()
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("Money", null);
 
         [Fact]
         public void Underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("UsAndThem", "m_usAndThem");
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("UsAndThem", null);
 
         [Fact]
-        public void M_underscpre_camel_case_matching_field_is_used_as_next_preference_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("AnyColourYouLike", "m_anyColourYouLike");
+        public void M_underscpre_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("AnyColourYouLike", null);
 
         [Fact]
         public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("BrainDamage", "m_BrainDamage");
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("BrainDamage", null);
 
         [Fact]
-        public void M_underscore_matching_field_is_used_as_next_preference_for_field_only()
-            => FieldMatchTest<TheDarkerSideOfTheMoon>("Eclipse", "m_Eclipse");
+        public void M_underscore_matching_field_is_not_used_as_next_preference_for_field_only()
+            => FieldMatchTest<TheDarkerSideOfTheMoon>("Eclipse", null);
 
         [Fact]
         public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
@@ -327,7 +326,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 set { m_Eclipse = value; }
             }
         }
-
         private class TheDarkerSideOfTheMoon
         {
             private readonly string m_SpeakToMe;

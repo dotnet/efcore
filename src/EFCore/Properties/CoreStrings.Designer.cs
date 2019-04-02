@@ -1885,12 +1885,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
+        ///     An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
         /// </summary>
-        public static string NoIndexer([CanBeNull] object property, [CanBeNull] object entity)
+        public static string NoIndexer([CanBeNull] object entity)
             => string.Format(
-                GetString("NoIndexer", nameof(property), nameof(entity)),
-                property, entity);
+                GetString("NoIndexer", nameof(entity)),
+                entity);
 
         /// <summary>
         ///     cannot bind '{failedBinds}' in '{parameters}'
@@ -1995,6 +1995,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("TrackingTypeMismatch", nameof(runtimeEntityType), nameof(entityType)),
                 runtimeEntityType, entityType);
+
+        /// <summary>
+        ///     The specified field '{field}' cannot be used for the property '{entityType}.{property}' because it does not match the property name.
+        /// </summary>
+        public static string FieldNameMismatch([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("FieldNameMismatch", nameof(field), nameof(entityType), nameof(property)),
+                field, entityType, property);
 
         private static string GetString(string name, params string[] formatterNames)
         {

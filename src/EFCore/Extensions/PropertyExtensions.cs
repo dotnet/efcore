@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -140,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <c>true</c> if the property is used as the primary key, otherwise <c>false</c>.
         /// </returns>
         public static bool IsPrimaryKey([NotNull] this IProperty property)
-            => GetContainingPrimaryKey(property) != null;
+            => FindContainingPrimaryKey(property) != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as part of a primary or alternate key
@@ -185,7 +184,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
         /// </returns>
+        [Obsolete("Use FindContainingPrimaryKey()")]
         public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
+            => property.FindContainingPrimaryKey();
+
+        /// <summary>
+        ///     Gets the primary key that uses this property (including a composite primary key in which this property
+        ///     is included).
+        /// </summary>
+        /// <param name="property"> The property to get primary key for. </param>
+        /// <returns>
+        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
+        /// </returns>
+        public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().PrimaryKey;
 
         /// <summary>
