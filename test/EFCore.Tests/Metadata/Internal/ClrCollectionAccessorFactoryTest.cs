@@ -239,12 +239,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_accessor_always_creates_collections_that_use_reference_equality_comparer()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
             var otherType = model.AddEntityType(typeof(MyEntityWithCustomComparer));
-            var foreignKey = otherType.GetOrAddForeignKey(
+            var foreignKey = otherType.AddForeignKey(
                 otherType.AddProperty("MyEntityId", typeof(int)),
-                entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
+                entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
             var navigation = foreignKey.HasPrincipalToDependent(
@@ -252,7 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(foreignKey.Builder, navigation);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>())
+                .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
 
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
@@ -397,20 +398,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
         }
 
-        private static Navigation CreateNavigation(string navigationName)
+        private static IMutableNavigation CreateNavigation(string navigationName)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
             var otherType = model.AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(
+            var foreignKey = otherType.AddForeignKey(
                 otherType.AddProperty("MyEntityId", typeof(int)),
-                entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
+                entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
             var navigation = foreignKey.HasPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(foreignKey.Builder, navigation);
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>())
+                .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
 
             return navigation;
         }

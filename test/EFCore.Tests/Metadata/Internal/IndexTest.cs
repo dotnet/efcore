@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -15,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_index_from_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            var index = entityType.AddIndex(new[] { property1, property2 }, ConfigurationSource.Convention);
+            var index = entityType.AddIndex(new[] { property1, property2 });
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.False(index.IsUnique);
@@ -29,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_unique_index_from_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             var index = entityType.AddIndex(new[] { property1, property2 });
             index.IsUnique = true;
@@ -43,8 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Constructor_validates_properties_from_same_entity()
         {
-            var property1 = new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
-            var property2 = new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
+            var model = CreateModel();
+            var property1 = model.AddEntityType(typeof(Customer)).AddProperty(Customer.IdProperty);
+            var property2 = model.AddEntityType(typeof(Order)).AddProperty(Order.IdProperty);
 
             Assert.Equal(
                 CoreStrings.IndexPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", typeof(Customer).Name),
@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => property1.DeclaringEntityType.AddIndex(new[] { property1, property2 })).Message);
         }
 
+        private static IMutableModel CreateModel() => new Model();
         private class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");

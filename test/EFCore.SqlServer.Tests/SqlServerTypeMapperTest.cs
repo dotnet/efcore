@@ -647,7 +647,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_unrecognized_property_types()
         {
-            var property = new Model().AddEntityType("Entity1").AddProperty("Strange", typeof(object));
+            var property = new Model().AddEntityType("Entity1")
+                .AddProperty("Strange", typeof(object), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var ex = Assert.Throws<InvalidOperationException>(() => CreateTypeMapper().GetMapping(property));
             Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1", "Strange", "object"), ex.Message);
         }

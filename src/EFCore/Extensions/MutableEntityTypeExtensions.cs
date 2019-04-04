@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.AsEntityType().AddProperty(propertyInfo);
+            return entityType.AsEntityType().AddProperty(propertyInfo, ConfigurationSource.Explicit);
         }
 
         /// <summary>

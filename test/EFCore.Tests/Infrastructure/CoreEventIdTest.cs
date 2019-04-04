@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = new Property(
                 "A", typeof(int), propertyInfo, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherEntityType = new EntityType(typeof(object), entityType.Model, ConfigurationSource.Convention);
-            var otherProperty = otherEntityType.AddProperty("A", typeof(int), ConfigurationSource.Convention);
+            var otherProperty = otherEntityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);

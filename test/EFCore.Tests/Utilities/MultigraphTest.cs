@@ -72,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public int P2 { get; set; }
         }
 
-        private class EntityTypeGraph : Multigraph<EntityType, IForeignKey>
+        private class EntityTypeGraph : Multigraph<IEntityType, IForeignKey>
         {
-            public void Populate(params EntityType[] entityTypes)
+            public void Populate(params IEntityType[] entityTypes)
             {
                 AddVertices(entityTypes);
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }
             }
 
-            protected override string ToString(EntityType vertex) => vertex.DisplayName();
+            protected override string ToString(IEntityType vertex) => vertex.DisplayName();
         }
 
         #endregion
@@ -812,20 +812,20 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_simple()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -838,20 +838,20 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_reverse()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -864,20 +864,20 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_preserves_graph()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -906,21 +906,21 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_tree()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> B, A -> C, C -> B
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -933,16 +933,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_no_edges()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A B C
             var graph = new EntityTypeGraph();
@@ -956,14 +956,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_self_ref()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
             var property = entityTypeA.AddProperty("Id", typeof(int));
-            entityTypeA.GetOrSetPrimaryKey(property);
+            entityTypeA.SetPrimaryKey(property);
 
             // A -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA);
@@ -976,20 +976,20 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_circular_direct()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C, A -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -1002,21 +1002,21 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_circular_transitive()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -1029,32 +1029,32 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_two_cycles()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             var entityTypeD = model.AddEntityType(typeof(D));
-            entityTypeD.GetOrSetPrimaryKey(entityTypeD.AddProperty("Id", typeof(int)));
+            entityTypeD.SetPrimaryKey(entityTypeD.AddProperty("Id", typeof(int)));
 
             var entityTypeE = model.AddEntityType(typeof(E));
-            entityTypeE.GetOrSetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
+            entityTypeE.SetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             // A -> E -> D -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
-            entityTypeD.GetOrAddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
-            entityTypeE.GetOrAddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
+            entityTypeD.AddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
+            entityTypeE.AddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -1067,21 +1067,21 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [Fact]
         public void BatchingTopologicalSort_sorts_leafy_cycle()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var entityTypeA = model.AddEntityType(typeof(A));
-            entityTypeA.GetOrSetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
+            entityTypeA.SetPrimaryKey(entityTypeA.AddProperty("Id", typeof(int)));
 
             var entityTypeB = model.AddEntityType(typeof(B));
-            entityTypeB.GetOrSetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
+            entityTypeB.SetPrimaryKey(entityTypeB.AddProperty("Id", typeof(int)));
 
             var entityTypeC = model.AddEntityType(typeof(C));
-            entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
+            entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> C -> A
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -1090,5 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 CoreStrings.CircularDependency(nameof(C) + " -> " + nameof(B) + " -> " + nameof(C)),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
+
+        private static IMutableModel CreateModel() => new Model();
     }
 }

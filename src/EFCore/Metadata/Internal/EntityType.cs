@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsKeyless
         {
             get => RootType()._isKeyless ?? false;
-            set => _isKeyless = value;
+            set => HasNoKey(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasNoKey(
             bool? keyless,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             if (_isKeyless == keyless)
             {
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void HasBaseType(
             [CanBeNull] EntityType entityType,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             if (_baseType == entityType)
             {
@@ -449,8 +449,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Key SetPrimaryKey([CanBeNull] Property property)
-            => SetPrimaryKey(property == null ? null : new[] { property });
+        public virtual Key SetPrimaryKey([CanBeNull] Property property, ConfigurationSource configurationSource)
+            => SetPrimaryKey(property == null ? null : new[] { property }, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Key SetPrimaryKey(
             [CanBeNull] IReadOnlyList<Property> properties,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             if (_baseType != null)
             {
@@ -476,12 +476,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Key newKey = null;
             if (!propertiesNullOrEmpty)
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                newKey = GetOrAddKey(properties);
-                if (oldPrimaryKey == newKey)
+                newKey = FindKey(properties);
+                if (oldPrimaryKey != null
+                    && oldPrimaryKey == newKey)
                 {
                     UpdatePrimaryKeyConfigurationSource(configurationSource);
+                    newKey.UpdateConfigurationSource(configurationSource);
                     return newKey;
+                }
+
+                if (newKey == null)
+                {
+                    newKey = AddKey(properties, configurationSource);
                 }
             }
 
@@ -531,20 +537,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return _primaryKey;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Key GetOrSetPrimaryKey([NotNull] Property property)
-            => GetOrSetPrimaryKey(new[] { property });
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Key GetOrSetPrimaryKey([NotNull] IReadOnlyList<Property> properties)
-            => FindPrimaryKey(properties) ?? SetPrimaryKey(properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -603,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Key AddKey([NotNull] Property property, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual Key AddKey([NotNull] Property property, ConfigurationSource configurationSource)
             => AddKey(new[] { property }, configurationSource);
 
         /// <summary>
@@ -612,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Key AddKey(
             [NotNull] IReadOnlyList<Property> properties,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -689,21 +681,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Key GetOrAddKey([NotNull] Property property)
-            => GetOrAddKey(new[] { property });
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Key GetOrAddKey([NotNull] IReadOnlyList<Property> properties)
-            => FindKey(properties)
-               ?? AddKey(properties);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public virtual Key FindKey([NotNull] IProperty property) => FindKey(new[] { property });
 
         /// <summary>
@@ -754,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_primaryKey == key)
             {
-                SetPrimaryKey((IReadOnlyList<Property>)null);
+                SetPrimaryKey((IReadOnlyList<Property>)null, ConfigurationSource.Explicit);
                 _primaryKeyConfigurationSource = null;
             }
 
@@ -811,8 +788,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Property property,
             [NotNull] Key principalKey,
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-            => AddForeignKey(new[] { property }, principalKey, principalEntityType, configurationSource);
+            ConfigurationSource? componentConfigurationSource,
+            ConfigurationSource configurationSource)
+            => AddForeignKey(new[] { property }, principalKey, principalEntityType, componentConfigurationSource, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -822,7 +800,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource? configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource? componentConfigurationSource,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -870,13 +849,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalEntityType.DisplayName()));
             }
 
-            var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType, configurationSource ?? ConfigurationSource.Convention);
-            if (configurationSource.HasValue)
+            var foreignKey = new ForeignKey(
+                properties, principalKey, this, principalEntityType, configurationSource);
+            principalEntityType.UpdateConfigurationSource(configurationSource);
+            if (componentConfigurationSource.HasValue)
             {
-                principalEntityType.UpdateConfigurationSource(configurationSource.Value);
-                foreignKey.UpdatePropertiesConfigurationSource(configurationSource.Value);
-                foreignKey.UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
-                foreignKey.UpdatePrincipalEndConfigurationSource(configurationSource.Value);
+                foreignKey.UpdatePropertiesConfigurationSource(componentConfigurationSource.Value);
+                foreignKey.UpdatePrincipalKeyConfigurationSource(componentConfigurationSource.Value);
+                foreignKey.UpdatePrincipalEndConfigurationSource(componentConfigurationSource.Value);
             }
 
             if (principalEntityType.Model != Model)
@@ -935,24 +915,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return foreignKey;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] Property property, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
-            => GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
-
-        // Note: this will return an existing foreign key even if it doesn't have the same referenced key
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
-            => FindForeignKey(properties, principalKey, principalEntityType)
-               ?? AddForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1402,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Index AddIndex(
             [NotNull] Property property,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => AddIndex(new[] { property }, configurationSource);
 
         /// <summary>
@@ -1411,7 +1373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Index AddIndex(
             [NotNull] IReadOnlyList<Property> properties,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -1460,20 +1422,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Index GetOrAddIndex([NotNull] Property property)
-            => GetOrAddIndex(new[] { property });
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Index GetOrAddIndex([NotNull] IReadOnlyList<Property> properties)
-            => FindIndex(properties) ?? AddIndex(properties);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1589,10 +1537,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Property AddProperty(
             [NotNull] string name,
-            [CanBeNull] Type propertyType = null,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            [CanBeNull] Type propertyType,
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
 
@@ -1610,7 +1557,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Property AddProperty(
             [NotNull] MemberInfo memberInfo,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
 
@@ -1641,9 +1588,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddIndexedProperty(
             [NotNull] string name,
             [NotNull] Type propertyType,
-            ConfigurationSource? typeConfigurationSource = ConfigurationSource.Explicit,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
@@ -1706,20 +1652,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
-            => FindProperty(propertyInfo) ?? AddProperty(propertyInfo);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Property GetOrAddProperty([NotNull] string name, [CanBeNull] Type propertyType)
-            => FindProperty(name) ?? AddProperty(name, propertyType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1920,7 +1852,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ServiceProperty AddServiceProperty(
             [NotNull] MemberInfo memberInfo,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(memberInfo, nameof(memberInfo));
             var name = memberInfo.GetSimpleMemberName();
@@ -2185,7 +2117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableEntityType.BaseType
         {
             get => _baseType;
-            set => HasBaseType((EntityType)value);
+            set => HasBaseType((EntityType)value, ConfigurationSource.Explicit);
         }
 
         IEntityType IEntityType.DefiningEntityType
@@ -2195,7 +2127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
-            => SetPrimaryKey(properties?.Cast<Property>().ToList());
+            => SetPrimaryKey(properties?.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
@@ -2204,7 +2136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableKey IMutableEntityType.FindPrimaryKey() => FindPrimaryKey();
 
         IMutableKey IMutableEntityType.AddKey(IReadOnlyList<IMutableProperty> properties)
-            => AddKey(properties.Cast<Property>().ToList());
+            => AddKey(properties.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IKey IEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
@@ -2218,7 +2150,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IMutableForeignKey IMutableEntityType.AddForeignKey(
             IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
-            => AddForeignKey(properties.Cast<Property>().ToList(), (Key)principalKey, (EntityType)principalEntityType);
+            => AddForeignKey(
+                properties.Cast<Property>().ToList(),
+                (Key)principalKey,
+                (EntityType)principalEntityType,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IMutableForeignKey IMutableEntityType.FindForeignKey(
@@ -2237,7 +2174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
-            => AddIndex(properties.Cast<Property>().ToList());
+            => AddIndex(properties.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IIndex IEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
@@ -2251,9 +2188,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableIndex IMutableEntityType.RemoveIndex(IReadOnlyList<IProperty> properties)
             => RemoveIndex(properties);
 
-        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType) => AddProperty(name, propertyType);
+        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
+            => AddProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
-        IMutableProperty IMutableEntityType.AddIndexedProperty(string name, Type propertyType) => AddIndexedProperty(name, propertyType);
+        IMutableProperty IMutableEntityType.AddIndexedProperty(string name, Type propertyType)
+            => AddIndexedProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IProperty IEntityType.FindProperty(string name) => FindProperty(name);
@@ -2269,7 +2208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
-        IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo) => AddServiceProperty(memberInfo);
+        IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo)
+            => AddServiceProperty(memberInfo, ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]
         IServiceProperty IEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
@@ -2353,11 +2293,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<IConventionProperty> properties,
             IConventionKey principalKey,
             IConventionEntityType principalEntityType,
+            bool setComponentConfigurationSource,
             bool fromDataAnnotation)
             => AddForeignKey(
                 properties.Cast<Property>().ToList(),
                 (Key)principalKey,
                 (EntityType)principalEntityType,
+                setComponentConfigurationSource
+                    ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                    : (ConfigurationSource?)null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionKey IConventionEntityType.AddKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)

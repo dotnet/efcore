@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_key_from_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
-            property2.IsNullable = false;
+            var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            property2.SetIsNullable(false);
 
-            var key = entityType.AddKey(new[] { property1, property2 }, ConfigurationSource.Convention);
+            var key = entityType.AddKey(new[] { property1, property2 });
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(key.Properties));
             Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
@@ -50,16 +50,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Validates_properties_from_same_entity()
         {
-            var entityType1 = new Model().AddEntityType(typeof(Customer));
-            var entityType2 = new Model().AddEntityType(typeof(Order));
-            var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType2.GetOrAddProperty(Order.NameProperty);
+            var model = CreateModel();
+            var entityType1 = model.AddEntityType(typeof(Customer));
+            var entityType2 = model.AddEntityType(typeof(Order));
+            var property1 = entityType1.AddProperty(Customer.IdProperty);
+            var property2 = entityType2.AddProperty(Order.NameProperty);
 
             Assert.Equal(
                 CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType1.AddKey(new[] { property1, property2 })).Message);
         }
+
+        private static IMutableModel CreateModel() => new Model();
 
         private class Customer
         {

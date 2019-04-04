@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the dependent type. Passing null will result in there being
+        ///     The name of the navigation property on the dependent type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -150,12 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="property">
-        ///     The navigation property on the dependent type. Passing null will result in there being
+        ///     The navigation property on the dependent type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasDependentToPrincipal([CanBeNull] PropertyInfo property, bool fromDataAnnotation = false);
+        IConventionNavigation HasDependentToPrincipal([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.DependentToPrincipal" />.
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the principal type. Passing null will result in there being
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -178,12 +178,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="property">
-        ///     The name of the navigation property on the principal type. Passing null will result in there being
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created navigation property. </returns>
-        IConventionNavigation HasPrincipalToDependent([CanBeNull] PropertyInfo property, bool fromDataAnnotation = false);
+        IConventionNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.PrincipalToDependent" />.

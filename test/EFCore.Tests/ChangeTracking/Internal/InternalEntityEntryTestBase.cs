@@ -1395,7 +1395,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .GetRequiredService<IStateManager>()
                 .StartTrackingFromQuery(entityType, entity, valueBuffer, new HashSet<IForeignKey>());
 
-        protected virtual Model BuildModel()
+        protected virtual IMutableModel BuildModel()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;

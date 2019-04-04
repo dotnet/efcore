@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalShadowEntityEntryTest : InternalEntityEntryTestBase
     {
-        protected override Model BuildModel()
+        protected override IMutableModel BuildModel()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;

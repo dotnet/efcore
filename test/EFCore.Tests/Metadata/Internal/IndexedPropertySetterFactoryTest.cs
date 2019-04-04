@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_is_returned_for_indexed_property()
         {
-            var entityType = new Model().AddEntityType(typeof(IndexedClass));
-            var idProperty = entityType.AddProperty("Id", typeof(int));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(IndexedClass));
+            entityType.AddProperty("Id", typeof(int));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
             var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
 

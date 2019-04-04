@@ -29,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>
+        ///     Returns the configuration source for this index.
+        /// </summary>
+        /// <returns> The configuration source. </returns>
+        ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
         ///     Sets a value indicating whether the values assigned to the index properties are unique.
         /// </summary>
         /// <param name="unique"> A value indicating whether the values assigned to the index properties are unique. </param>

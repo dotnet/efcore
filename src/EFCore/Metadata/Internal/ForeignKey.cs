@@ -694,14 +694,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
-
-        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(PropertyInfo property) => HasDependentToPrincipal(property);
-
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) => HasDependentToPrincipal(property);
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
-        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(PropertyInfo property) => HasPrincipalToDependent(property);
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(MemberInfo property) => HasPrincipalToDependent(property);
 
         IConventionEntityType IConventionForeignKey.DeclaringEntityType => DeclaringEntityType;
-
         IConventionEntityType IConventionForeignKey.PrincipalEntityType => PrincipalEntityType;
 
         IConventionKey IConventionForeignKey.PrincipalKey
@@ -727,13 +724,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
             => HasDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(PropertyInfo property, bool fromDataAnnotation)
+        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(MemberInfo property, bool fromDataAnnotation)
             => HasDependentToPrincipal(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(string name, bool fromDataAnnotation)
             => HasPrincipalToDependent(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(PropertyInfo property, bool fromDataAnnotation)
+        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(MemberInfo property, bool fromDataAnnotation)
             => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         void IConventionForeignKey.SetIsUnique(bool? unique, bool fromDataAnnotation)

@@ -626,7 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                var result = entityBuilder.Metadata.AddProperty(shadowPropertyName, typeof(int));
+                var result = entityBuilder.Metadata.AddProperty(
+                    shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1598,6 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     entityBuilder.Property("OrderId1", typeof(int), ConfigurationSource.Convention).Metadata,
                     entityBuilder.Metadata.FindPrimaryKey(),
                     entityBuilder.Metadata,
+                    ConfigurationSource.Convention,
                     ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
@@ -1661,7 +1663,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var foreignKey = entityBuilder.Metadata.AddForeignKey(
                 new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
                 entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
-                entityBuilder.Metadata);
+                entityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 

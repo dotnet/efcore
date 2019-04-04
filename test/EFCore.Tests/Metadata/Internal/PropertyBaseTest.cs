@@ -641,9 +641,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static string NoGetterColl<TEntity>()
             => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
-        private static Property CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+        private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
             entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
             var property = entityType.AddProperty(propertyName, typeof(int));
@@ -651,10 +651,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return property;
         }
 
-        private static Navigation CreateReferenceNavigation<TEntity>(
+        private static IMutableNavigation CreateReferenceNavigation<TEntity>(
             string fieldName, string navigationName = Reference)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
@@ -664,10 +664,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
-        private static Navigation CreateCollectionNavigation<TEntity>(
+        private static IMutableNavigation CreateCollectionNavigation<TEntity>(
             string fieldName, string navigationName = Collection)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
@@ -798,13 +798,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
 
             Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
+                ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
         }
 
         [Fact]
         public virtual void Field_only_properties_throws_when_field_cleared()
         {
-            var propertyBase = new Model().AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
+            var propertyBase = ((IMutableModel)new Model()).AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
 
             Assert.Equal(CoreStrings.FieldNameMismatch(null, nameof(FieldOnly), "_foo"),
                 Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
@@ -813,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public virtual void Navigations_can_have_field_cleared()
         {
-            var entityType = new Model().AddEntityType(typeof(FullProp));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
@@ -824,31 +824,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
-        private void Properties_can_have_field_cleared_test(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
+        private void Properties_can_have_field_cleared_test(IMutablePropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
         {
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
+            propertyBase.SetField(fieldName);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField((string)null, ConfigurationSource.Explicit);
+            propertyBase.SetField(null);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(fieldInfo, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = fieldInfo;
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField((FieldInfo)null, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = null;
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);

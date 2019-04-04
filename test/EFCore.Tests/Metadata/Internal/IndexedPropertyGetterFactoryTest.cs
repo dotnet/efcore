@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_getter_is_returned_for_indexed_property()
         {
-            var entityType = new Model().AddEntityType(typeof(IndexedClass));
-            var idProperty = entityType.AddProperty("Id", typeof(int));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(IndexedClass));
+            entityType.AddProperty("Id", typeof(int));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
             var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
 
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Exception_is_returned_for_indexed_property_without_indexer()
         {
-            var entityType = new Model().AddEntityType(typeof(NonIndexedClass));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(NonIndexedClass));
             var idProperty = entityType.AddProperty("Id", typeof(int));
             Assert.Throws<InvalidOperationException>(
                 () => entityType.AddIndexedProperty("PropA", typeof(string)));

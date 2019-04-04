@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -14,11 +15,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var customerType = model.AddEntityType(typeof(Customer));
             var property1 = customerType.AddProperty("Id", typeof(int));
-            customerType.GetOrSetPrimaryKey(property1);
+            customerType.SetPrimaryKey(property1);
             customerType.AddProperty("Name", typeof(string));
 
             var optionsBuilder = new DbContextOptionsBuilder()

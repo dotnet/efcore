@@ -58,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public virtual void Passes_on_shadow_primary_key_created_by_convention_in_dependent_type()
         {
-            var model = (Model)CreateConventionlessModelBuilder().Model;
+            var model = (IConventionModel)CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(A));
-            var keyProperty = entityType.AddProperty("Key", typeof(int), ConfigurationSource.Convention);
+            var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.SetPrimaryKey(keyProperty);
 
             VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
