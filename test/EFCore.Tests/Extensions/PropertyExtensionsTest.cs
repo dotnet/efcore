@@ -278,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             public Product Product { get; set; }
         }
 
-        private static Model CreateModel() => new Model();
+        private static IMutableModel CreateModel() => new Model();
 
-        private IModel BuildModel()
+        private IMutableModel BuildModel()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 

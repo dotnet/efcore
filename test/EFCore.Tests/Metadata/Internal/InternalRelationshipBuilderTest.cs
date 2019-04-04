@@ -125,7 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     orderEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
                 },
                 customerKeyBuilder.Metadata,
-                customerEntityBuilder.Metadata);
+                customerEntityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
 
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPropertiesConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalKeyConfigurationSource());
@@ -378,7 +380,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     orderEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
                 },
                 customerKeyBuilder.Metadata,
-                customerEntityBuilder.Metadata);
+                customerEntityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
             foreignKey.IsUnique = true;
 
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsUniqueConfigurationSource());
@@ -461,7 +465,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var fk = orderEntityBuilder.Metadata.AddForeignKey(
                 new[] { customerIdProperty, customerUniqueProperty },
                 pk,
-                customerEntityBuilder.Metadata);
+                customerEntityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
             fk.IsRequired = true;
 
             Assert.Equal(ConfigurationSource.Explicit, fk.GetIsRequiredConfigurationSource());
@@ -681,7 +687,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Explicit).Metadata
                 },
                 principalEntityBuilder.Metadata.FindPrimaryKey(),
-                principalEntityBuilder.Metadata);
+                principalEntityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
             existingForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
             existingForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
             Assert.Equal(ConfigurationSource.Explicit, existingForeignKey.GetDependentToPrincipalConfigurationSource());

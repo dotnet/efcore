@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -256,11 +255,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.IdProperty);
-            entityType.AddProperty("IdShadow", typeof(int));
+            entityType.AddProperty("IdShadow", typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
             entityType.AddProperty(SomeEntity.FooProperty);
-            entityType.AddProperty("FooShadow", typeof(string));
+            entityType.AddProperty("FooShadow", typeof(string), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
             entityType.AddProperty(SomeEntity.GooProperty);
-            entityType.AddProperty("GooShadow", typeof(Guid));
+            entityType.AddProperty("GooShadow", typeof(Guid), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 

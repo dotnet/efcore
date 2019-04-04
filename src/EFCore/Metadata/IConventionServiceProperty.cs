@@ -19,5 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the type that this property belongs to.
         /// </summary>
         new IConventionEntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     Returns the configuration source for this property.
+        /// </summary>
+        /// <returns> The configuration source. </returns>
+        ConfigurationSource GetConfigurationSource();
     }
 }

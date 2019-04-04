@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -748,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var convention = TestServiceFactory.Instance.Create<ConstructorBindingConvention>();
 
-            var entityType = new Model().AddEntityType(typeof(TEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
             entityType.AddProperty(nameof(Blog.Title), typeof(string));
             entityType.AddProperty(nameof(Blog._content), typeof(string));
@@ -761,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityType.AddProperty("_FooBaar5", typeof(string));
             entityType.AddProperty("m_FooBaar6", typeof(string));
 
-            convention.Apply(entityType.Model.Builder);
+            convention.Apply(((Model)entityType.Model).Builder);
 
             return (DirectConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }

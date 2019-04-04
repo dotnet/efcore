@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static EntityType ApplyConvention(EntityType entityType)
         {
-            entityType.AddProperty(nameof(Blog.Id), typeof(int));
+            entityType.AddProperty(nameof(Blog.Id), typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
             var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
             TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(

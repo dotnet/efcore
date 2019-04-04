@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
-            var model = new Model();
+            var model = CreateModel();
             var entityType = model.AddEntityType("RedHook");
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
-            var model = new Model();
+            var model = CreateModel();
             var entityType = model.AddEntityType(typeof(RedHook));
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
         {
-            var model = new Model();
+            var model = CreateModel();
             var entityType = model.AddEntityType(typeof(RedHook));
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Spanner", typeof(string));
@@ -76,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
+
+        private static IMutableModel CreateModel() => new Model();
 
         private class RedHook
         {

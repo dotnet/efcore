@@ -110,12 +110,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
+        /// <param name="setComponentConfigurationSource">
+        ///     Indicates whether the configuration source should be set for the properties, principal key and principal end.
+        /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created foreign key. </returns>
         IConventionForeignKey AddForeignKey(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             [NotNull] IConventionKey principalKey,
             [NotNull] IConventionEntityType principalEntityType,
+            bool setComponentConfigurationSource = true,
             bool fromDataAnnotation = false);
 
         /// <summary>

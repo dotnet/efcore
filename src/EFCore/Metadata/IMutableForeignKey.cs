@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the dependent type. Passing null will result in there being
+        ///     The name of the navigation property on the dependent type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly created navigation property. </returns>
@@ -90,17 +90,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="property">
-        ///     The navigation property on the dependent type. Passing null will result in there being
+        ///     The navigation property on the dependent type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly created navigation property. </returns>
-        IMutableNavigation HasDependentToPrincipal([CanBeNull] PropertyInfo property);
+        IMutableNavigation HasDependentToPrincipal([CanBeNull] MemberInfo property);
 
         /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the principal type. Passing null will result in there being
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly created navigation property. </returns>
@@ -110,10 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="property">
-        ///     The name of the navigation property on the principal type. Passing null will result in there being
+        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly created navigation property. </returns>
-        IMutableNavigation HasPrincipalToDependent([CanBeNull] PropertyInfo property);
+        IMutableNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property);
     }
 }

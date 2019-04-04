@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Name = "Kool"
                 }, needsDetectChanges: false);
 
-        protected override Model BuildModel()
+        protected override IMutableModel BuildModel()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;

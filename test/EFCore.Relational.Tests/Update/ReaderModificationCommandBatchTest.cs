@@ -510,14 +510,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
-            entityType.GetOrSetPrimaryKey(key);
+            entityType.SetPrimaryKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
             nonKey.Relational().ColumnName = "Col2";

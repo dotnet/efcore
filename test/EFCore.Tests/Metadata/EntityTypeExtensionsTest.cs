@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_get_all_properties_and_navigations()
         {
-            var entityType = new Model().AddEntityType(nameof(SelfRef));
-            var pk = entityType.GetOrSetPrimaryKey(entityType.AddProperty(nameof(SelfRef.Id), typeof(int)));
+            var entityType = CreateModel().AddEntityType(nameof(SelfRef));
+            var pk = entityType.SetPrimaryKey(entityType.AddProperty(nameof(SelfRef.Id), typeof(int)));
             var fkProp = entityType.AddProperty(nameof(SelfRef.SelfRefId), typeof(int?));
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, pk, entityType);
@@ -30,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_get_referencing_foreign_keys()
         {
-            var model = new Model();
-            var entityType = model.AddEntityType("Customer");
+            var entityType = CreateModel().AddEntityType("Customer");
             var idProperty = entityType.AddProperty("id", typeof(int));
             var fkProperty = entityType.AddProperty("fk", typeof(int));
             var fk = entityType.AddForeignKey(fkProperty, entityType.SetPrimaryKey(idProperty), entityType);
@@ -42,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_get_root_type()
         {
-            var model = new Model();
+            var model = CreateModel();
             var a = model.AddEntityType("A");
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
-            b.HasBaseType(a);
-            c.HasBaseType(b);
+            b.BaseType = a;
+            c.BaseType = b;
 
             Assert.Same(a, a.RootType());
             Assert.Same(a, b.RootType());
@@ -57,16 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_get_derived_types()
         {
-            var model = new Model();
+            var model = CreateModel();
             var a = model.AddEntityType("A");
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
             var d = model.AddEntityType("D");
-            b.HasBaseType(a);
-            c.HasBaseType(b);
-            d.HasBaseType(a);
+            b.BaseType = a;
+            c.BaseType = b;
+            d.BaseType = a;
 
-            Assert.Equal(new[] { b, d, c }, a.GetDerivedTypes().ToArray());
+            Assert.Equal(new[] { b, c, d }, a.GetDerivedTypes().ToArray());
             Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
             Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
         }
@@ -74,14 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_determine_whether_IsAssignableFrom()
         {
-            var model = new Model();
+            var model = CreateModel();
             var a = model.AddEntityType("A");
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
             var d = model.AddEntityType("D");
-            b.HasBaseType(a);
-            c.HasBaseType(b);
-            d.HasBaseType(a);
+            b.BaseType = a;
+            c.BaseType = b;
+            d.BaseType = a;
 
             Assert.True(a.IsAssignableFrom(a));
             Assert.True(a.IsAssignableFrom(b));
@@ -94,12 +93,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void Can_get_proper_table_name_for_generic_entityType()
         {
-            var entityType = new Model().AddEntityType(typeof(A<int>));
+            var entityType = CreateModel().AddEntityType(typeof(A<int>));
 
             Assert.Equal(
                 "A<int>",
                 entityType.DisplayName());
         }
+
+        private static IMutableModel CreateModel() => new Model();
 
         private class A<T>
         {

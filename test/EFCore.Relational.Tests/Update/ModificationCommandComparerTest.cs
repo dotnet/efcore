@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Fact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var key = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(key);
+            entityType.SetPrimaryKey(key);
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[key] = 1;
@@ -152,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -164,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var keyProperty = entityType.AddProperty("Id", typeof(T));
             keyProperty.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(keyProperty);
+            entityType.SetPrimaryKey(keyProperty);
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[keyProperty] = value1;

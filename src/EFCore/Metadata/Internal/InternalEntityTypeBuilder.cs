@@ -2559,8 +2559,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
                 }
 
-                var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null);
-                foreignKey.UpdateConfigurationSource(configurationSource);
+                var foreignKey = Metadata.AddForeignKey(
+                    dependentProperties, principalKey, principalType, componentConfigurationSource: null, configurationSource);
                 if (isRequired.HasValue
                     && foreignKey.IsRequired == isRequired.Value)
                 {
