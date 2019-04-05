@@ -3100,7 +3100,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Customer));
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(principalType.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
-                Assert.Equal(typeof(int), fk.Properties.Single().ClrType);
+                Assert.False(fk.IsRequired);
+                Assert.Equal(typeof(int?), fk.Properties.Single().ClrType);
             }
 
             [Fact]
@@ -3585,8 +3586,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = dependentType.GetForeignKeys().Single();
 
                 Assert.True(fk.IsRequired);
-                Assert.False(fkProperty1.IsNullable);
-                Assert.False(fkProperty2.IsNullable);
+                Assert.True(fkProperty1.IsNullable);
+                Assert.True(fkProperty2.IsNullable);
                 AssertEqual(new[] { fkProperty1, fkProperty2 }, fk.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }

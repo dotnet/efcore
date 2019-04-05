@@ -266,14 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.Overrides(Metadata.GetBeforeSaveBehaviorConfigurationSource())
                 || Metadata.GetBeforeSaveBehavior() == behavior)
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    Metadata.SetBeforeSaveBehavior(behavior);
-                }
-                else
-                {
-                    Metadata.SetBeforeSaveBehavior(behavior, configurationSource == ConfigurationSource.DataAnnotation);
-                }
+                Metadata.SetBeforeSaveBehavior(behavior, configurationSource);
 
                 return true;
             }
@@ -290,14 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (configurationSource.Overrides(Metadata.GetAfterSaveBehaviorConfigurationSource())
                 || Metadata.GetAfterSaveBehavior() == behavior)
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    Metadata.SetAfterSaveBehavior(behavior);
-                }
-                else
-                {
-                    Metadata.SetAfterSaveBehavior(behavior, configurationSource == ConfigurationSource.DataAnnotation);
-                }
+                Metadata.SetAfterSaveBehavior(behavior, configurationSource);
 
                 return true;
             }

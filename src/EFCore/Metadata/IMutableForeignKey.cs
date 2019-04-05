@@ -77,6 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableNavigation PrincipalToDependent { get; }
 
         /// <summary>
+        ///     Sets the foreign key properties and that target principal key.
+        /// </summary>
+        /// <param name="properties"> Foreign key properties in the dependent entity. </param>
+        /// <param name="principalKey"> The primary or alternate key to target. </param>
+        void SetProperties([NotNull] IReadOnlyList<IMutableProperty> properties, [NotNull] IMutableKey principalKey);
+
+        /// <summary>
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="name">

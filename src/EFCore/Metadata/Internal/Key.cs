@@ -64,9 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalKeyBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] [param: CanBeNull] set;
         }
 
         /// <summary>

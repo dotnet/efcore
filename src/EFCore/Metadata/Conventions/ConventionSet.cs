@@ -100,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
-        public virtual IList<IPrincipalEndChangedConvention> PrincipalEndChangedConventions { get; } = new List<IPrincipalEndChangedConvention>();
+        public virtual IList<IForeignKeyPrincipalEndChangedConvention> ForeignKeyPrincipalEndChangedConventions { get; }
+            = new List<IForeignKeyPrincipalEndChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when model building is completed.
@@ -123,19 +124,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
 
         /// <summary>
-        ///     Conventions to run when the uniqueness of a foreign key is changed.
+        ///     Conventions to run when the properties or the principal key of a foreign key are changed.
         /// </summary>
-        public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = new List<IForeignKeyUniquenessChangedConvention>();
+        public virtual IList<IForeignKeyPropertiesChangedConvention> ForeignKeyPropertiesChangedConventions { get; }
+            = new List<IForeignKeyPropertiesChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the uniqueness of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = new List<IForeignKeyRequirednessChangedConvention>();
+        public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; }
+            = new List<IForeignKeyUniquenessChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the requiredness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; }
+            = new List<IForeignKeyRequirednessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the ownership of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = new List<IForeignKeyOwnershipChangedConvention>();
+        public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; }
+            = new List<IForeignKeyOwnershipChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a property is added.
@@ -145,18 +155,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the nullability of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = new List<IPropertyNullabilityChangedConvention>();
+        public virtual IList<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; }
+            = new List<IPropertyNullabilityChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the field of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } =
-            new List<IPropertyFieldChangedConvention>();
+        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; }
+            = new List<IPropertyFieldChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is changed on a property.
         /// </summary>
-        public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = new List<IPropertyAnnotationChangedConvention>();
+        public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; }
+            = new List<IPropertyAnnotationChangedConvention>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

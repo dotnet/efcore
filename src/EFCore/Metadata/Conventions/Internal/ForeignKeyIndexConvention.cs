@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class ForeignKeyIndexConvention :
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
+        IForeignKeyPropertiesChangedConvention,
         IForeignKeyUniquenessChangedConvention,
         IKeyAddedConvention,
         IKeyRemovedConvention,
@@ -60,13 +61,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
+            OnForeignKeyRemoved(foreignKey.DeclaringEntityType, foreignKey.Properties);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Apply(
+            InternalRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<Property> oldDependentProperties,
+            Key oldPrincipalKey)
+        {
+            var foreignKey = relationshipBuilder.Metadata;
+            if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
+            {
+                OnForeignKeyRemoved(foreignKey.DeclaringEntityType, oldDependentProperties);
+                if (relationshipBuilder.Metadata.Builder != null)
+                {
+                    CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
+                }
+            }
+
+            return relationshipBuilder;
+        }
+
+        private static void OnForeignKeyRemoved(EntityType declaringType, IReadOnlyList<Property> foreignKeyProperties)
+        {
+            var index = declaringType.FindIndex(foreignKeyProperties);
             if (index == null)
             {
                 return;
             }
 
-            var otherForeignKeys = foreignKey.DeclaringEntityType.FindForeignKeys(foreignKey.Properties).ToList();
+            var otherForeignKeys = declaringType.FindForeignKeys(foreignKeyProperties).ToList();
             if (otherForeignKeys.Count != 0)
             {
                 if (index.IsUnique

@@ -181,21 +181,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string CheckAfterSaveBehavior([NotNull] this IProperty property, PropertySaveBehavior behavior)
-        {
-            if (behavior != PropertySaveBehavior.Throw
-                && property.IsKey())
-            {
-                return CoreStrings.KeyPropertyMustBeReadOnly(property.Name, property.DeclaringEntityType.DisplayName());
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static string ToDebugString([NotNull] this IProperty property, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();

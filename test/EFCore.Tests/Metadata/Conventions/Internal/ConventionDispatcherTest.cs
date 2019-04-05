@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1702,6 +1703,77 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnForeignKeyPropertiesChangedConvention_calls_apply_on_conventions_in_order(bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new ForeignKeyPropertiesChangedConvention(terminate: false);
+            var convention2 = new ForeignKeyPropertiesChangedConvention(terminate: true);
+            var convention3 = new ForeignKeyPropertiesChangedConvention(terminate: false);
+            conventions.ForeignKeyPropertiesChangedConventions.Add(convention1);
+            conventions.ForeignKeyPropertiesChangedConventions.Add(convention2);
+            conventions.ForeignKeyPropertiesChangedConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var foreignKey = entityBuilder.Metadata.AddForeignKey(
+                new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
+                entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
+                entityBuilder.Metadata,
+                ConfigurationSource.Explicit,
+                ConfigurationSource.Explicit);
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
+
+            foreignKey.SetProperties(
+                new[] { entityBuilder.Property("FK2", typeof(int), ConfigurationSource.Convention).Metadata },
+                foreignKey.PrincipalKey,
+                ConfigurationSource.Convention);
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { "FK" }, convention1.Calls);
+            Assert.Equal(new[] { "FK" }, convention2.Calls);
+            //Assert.Empty(convention3.Calls); //TODO: See issue#8811
+        }
+
+        private class ForeignKeyPropertiesChangedConvention : IForeignKeyPropertiesChangedConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<object> Calls = new List<object>();
+
+            public ForeignKeyPropertiesChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
+            {
+            }
+
+            public InternalRelationshipBuilder Apply(
+                InternalRelationshipBuilder relationshipBuilder,
+                IReadOnlyList<Property> oldDependentProperties,
+                Key oldPrincipalKey)
+            {
+                Assert.NotNull(relationshipBuilder.Metadata.Builder);
+                Assert.NotNull(oldDependentProperties);
+                Assert.NotNull(oldPrincipalKey);
+
+                Calls.Add(oldDependentProperties.First().Name);
+
+                return _terminate ? null : relationshipBuilder;
+            }
+        }
+
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -2160,15 +2232,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false)]
         [InlineData(true)]
         [Theory]
-        public void OnPrincipalEndChanged_calls_apply_on_conventions_in_order(bool useScope)
+        public void OnForeignKeyPrincipalEndChanged_calls_apply_on_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
 
             var convention1 = new PrincipalEndChangedConvention(terminate: false);
             var convention2 = new PrincipalEndChangedConvention(terminate: true);
             var convention3 = new PrincipalEndChangedConvention(terminate: false);
-            conventions.PrincipalEndChangedConventions.Add(convention1);
-            conventions.PrincipalEndChangedConventions.Add(convention2);
+            conventions.ForeignKeyPrincipalEndChangedConventions.Add(convention1);
+            conventions.ForeignKeyPrincipalEndChangedConventions.Add(convention2);
             //conventions.PrincipalEndChangedConventions.Add(convention3); //TODO: See issue#8811
 
             var builder = new InternalModelBuilder(new Model(conventions));
@@ -2203,6 +2275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
+            relationship.Metadata.SetPrincipalEndConfigurationSource(null);
             relationship = relationship.HasForeignKey(Array.Empty<string>(), ConfigurationSource.Convention);
             Assert.NotNull(relationship);
 
@@ -2258,7 +2331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(convention3.Calls);
         }
 
-        private class PrincipalEndChangedConvention : IPrincipalEndChangedConvention
+        private class PrincipalEndChangedConvention : IForeignKeyPrincipalEndChangedConvention
         {
             private readonly bool _terminate;
             public readonly List<object> Calls = new List<object>();

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -250,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { Order.IdProperty.Name },
                 ConfigurationSource.Convention);
 
-            Assert.Equal(2, derivedEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Equal(1, derivedEntityBuilder.Metadata.GetForeignKeys().Count());
             Assert.Equal(1, entityBuilder.Metadata.GetForeignKeys().Count());
 
             var foreignKeyBuilder = entityBuilder.HasForeignKey(
@@ -259,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 primaryKey,
                 ConfigurationSource.Convention);
 
-            Assert.Equal(2, entityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Equal(1, entityBuilder.Metadata.GetForeignKeys().Count());
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredForeignKeys());
             Assert.Equal(ConfigurationSource.DataAnnotation, foreignKeyBuilder.Metadata.GetConfigurationSource());
             Assert.True(foreignKeyBuilder.Metadata.IsUnique);
@@ -2399,7 +2398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Convention)
                 .PrincipalToDependent(Customer.NotCollectionOrdersProperty.Name, ConfigurationSource.Convention)
                 .HasForeignKey(new[] { fkProperty }, ConfigurationSource.Convention)
-                .HasPrincipalKey(key.Properties, ConfigurationSource.Convention);
+                ?.HasPrincipalKey(key.Properties, ConfigurationSource.Convention);
 
             var navigationFk = customerEntityBuilder.Metadata.GetNavigations().Single().ForeignKey;
             Assert.Same(navigationFk, orderEntityBuilder.Metadata.GetNavigations().Single().ForeignKey);

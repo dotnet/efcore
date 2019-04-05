@@ -1783,14 +1783,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("TransactionsNotSupported");
 
         /// <summary>
-        ///     Unable to create a foreign key with the keyless type '{entityType}' as the principal type. Only entity types with keys are allowed as foreign key principal types.
-        /// </summary>
-        public static string KeylessTypeCannotBePrincipal([CanBeNull] object entityType)
-            => string.Format(
-                GetString("KeylessTypeCannotBePrincipal", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     Unable to track an instance of type '{type}' because it does not have a primary key. Only entity types with primary keys may be tracked.
         /// </summary>
         public static string KeylessTypeTracked([CanBeNull] object type)

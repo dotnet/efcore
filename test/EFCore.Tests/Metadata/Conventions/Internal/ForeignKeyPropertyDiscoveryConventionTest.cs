@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
 
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
 
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             Assert.NotEqual(DependentEntity.IDProperty.Name, DependentType.Metadata.FindPrimaryKey().Properties.Single().Name);
 
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var fk = (IForeignKey)DependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
@@ -711,7 +711,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var fk = (IForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
 
             var newFk = newRelationshipBuilder.Metadata;
             Assert.Equal(2, DependentType.Metadata.GetForeignKeys().Count());
@@ -928,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(property, convention.Apply(property));
 
             var newFk = DependentType.Metadata.GetForeignKeys().Single();
-            Assert.NotSame(fk, newFk);
+            Assert.Same(fk, newFk);
             Assert.Equal(property.Metadata, newFk.Properties.Single());
 
             convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
@@ -980,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
             var newRelationshipBuilder = convention.Apply(relationshipBuilder);
-            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
             var otherRelationshipBuilder = DependentType.Relationship(
                 PrincipalType,

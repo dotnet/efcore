@@ -215,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The base entity type. </param>
         /// <param name="derivedType"> The entity type to check if it derives from <paramref name="entityType" />. </param>
         /// <returns>
-        ///     True if <paramref name="derivedType" /> derives from (or is the same as) <paramref name="entityType" />, otherwise false.
+        ///     <c>true</c> if <paramref name="derivedType" /> derives from (or is the same as) <paramref name="entityType" />,
+        ///     otherwise <c>false</c>.
         /// </returns>
         public static bool IsAssignableFrom([NotNull] this IEntityType entityType, [NotNull] IEntityType derivedType)
         {
@@ -234,6 +235,28 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return false;
+        }
+
+        /// <summary>
+        ///     Determines if an entity type derives from (but is not the same as) a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The derived entity type. </param>
+        /// <param name="baseType"> The entity type to check if it is a base type of <paramref name="entityType" />. </param>
+        /// <returns>
+        ///     <c>true</c> if <paramref name="entityType" /> derives from (but is not the same as) <paramref name="baseType" />,
+        ///     otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsStrictlyDerivedFrom([NotNull] this IEntityType entityType, [NotNull] IEntityType baseType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(baseType, nameof(baseType));
+
+            if (entityType == baseType)
+            {
+                return false;
+            }
+
+            return baseType.IsAssignableFrom(entityType);
         }
 
         /// <summary>

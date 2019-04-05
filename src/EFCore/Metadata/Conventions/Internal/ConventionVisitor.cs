@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node) => node;
             public virtual OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node) => node;
             public virtual OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node) => node;
+            public virtual OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node) => node;
             public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node) => node;
             public virtual OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node) => node;
             public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node) => node;
@@ -182,6 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
+            public override OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node)
+            {
+                Dispatcher._immediateConventionScope.OnForeignKeyPropertiesChanged(
+                    node.RelationshipBuilder, node.OldDependentProperties, node.OldPrincipalKey);
+                return null;
+            }
+
             public override OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyUniquenessChanged(node.RelationshipBuilder);
@@ -202,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPrincipalEndChanged(node.RelationshipBuilder);
+                Dispatcher._immediateConventionScope.OnForeignKeyPrincipalEndChanged(node.RelationshipBuilder);
                 return null;
             }
 
