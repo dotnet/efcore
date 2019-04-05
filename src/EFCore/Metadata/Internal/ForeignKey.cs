@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
-        private bool? _isRequired;
+        private bool _isRequired;
         private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
@@ -51,21 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            if (principalEntityType.IsKeyless)
-            {
-                throw new InvalidOperationException(CoreStrings.KeylessTypeCannotBePrincipal(principalEntityType.DisplayName()));
-            }
+            Validate(dependentProperties, principalKey, dependentEntityType, principalEntityType);
 
             Properties = dependentProperties;
             PrincipalKey = principalKey;
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
             _configurationSource = configurationSource;
-            _isRequired = !dependentProperties.Any(p => p.IsNullable);
+            _isRequired = DefaultIsRequired;
 
-            AreCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: true);
-
-            if (!principalEntityType.GetKeys().Contains(principalKey))
+            if (principalEntityType.FindKey(principalKey.Properties) != principalKey)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
@@ -80,13 +75,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IReadOnlyList<Property> Properties { [DebuggerStepThrough] get; }
+        public virtual IReadOnlyList<Property> Properties { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Key PrincipalKey { [DebuggerStepThrough] get; }
+        public virtual Key PrincipalKey { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -126,6 +121,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             DeclaringEntityType.UpdateConfigurationSource(configurationSource);
             PrincipalEntityType.UpdateConfigurationSource(configurationSource);
+        }
+
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void SetProperties(
+            IReadOnlyList<Property> properties, Key principalKey, ConfigurationSource? configurationSource)
+        {
+            Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
+
+            var oldProperties = Properties;
+            var oldPrincipalKey = PrincipalKey;
+
+            DeclaringEntityType.OnForeignKeyUpdating(this);
+
+            Properties = properties;
+            PrincipalKey = principalKey;
+
+            DeclaringEntityType.OnForeignKeyUpdated(this);
+
+            if (configurationSource != null)
+            {
+                UpdatePropertiesConfigurationSource(configurationSource.Value);
+                UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
+            }
+
+            DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyPropertiesChanged(Builder, oldProperties, oldPrincipalKey);
         }
 
         /// <summary>
@@ -424,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsRequired
         {
-            get => _isRequired ?? DefaultIsRequired;
+            get => _isRequired;
             set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
@@ -434,8 +458,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey SetIsRequired(bool? required, ConfigurationSource configurationSource)
         {
-            var isChanging = required != IsRequired;
-            _isRequired = required;
+            var oldRequired = IsRequired;
+            _isRequired = required ?? DefaultIsRequired;
 
             if (required == null)
             {
@@ -446,13 +470,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 UpdateIsRequiredConfigurationSource(configurationSource);
             }
 
-            return isChanging
+            return oldRequired != IsRequired
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)?.Metadata
                 : this;
         }
 
-        private bool DefaultIsRequired
-            => false;
+        private bool DefaultIsRequired => !Properties.Any(p => p.IsNullable);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -693,6 +716,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
+        void IMutableForeignKey.SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey)
+            => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey, ConfigurationSource.Explicit);
+
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) => HasDependentToPrincipal(property);
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
@@ -720,6 +746,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             [DebuggerStepThrough] get => PrincipalToDependent;
         }
+
+        void IConventionForeignKey.SetProperties(
+            IReadOnlyList<IConventionProperty> properties,
+            IConventionKey principalKey,
+            bool fromDataAnnotation)
+            => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
             => HasDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -750,6 +783,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override string ToString() => this.ToDebugString();
+
+        private void Validate(
+            IReadOnlyList<Property> properties,
+            Key principalKey,
+            EntityType declaringEntityType,
+            EntityType principalEntityType)
+        {
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var property = properties[i];
+                for (var j = i + 1; j < properties.Count; j++)
+                {
+                    if (property == properties[j])
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                    }
+                }
+
+                var actualProperty = declaringEntityType.FindProperty(property.Name);
+                if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
+                    || property.Builder == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(
+                        properties.Format(), declaringEntityType.DisplayName()));
+                }
+            }
+
+            AreCompatible(
+                principalEntityType,
+                dependentEntityType: declaringEntityType,
+                navigationToPrincipal: null,
+                navigationToDependent: null,
+                dependentProperties: properties,
+                principalProperties: principalKey.Properties,
+                unique: null,
+                shouldThrow: true);
+
+            var duplicateForeignKey = declaringEntityType.FindForeignKeysInHierarchy(
+                properties, principalKey, principalEntityType).FirstOrDefault();
+            if (duplicateForeignKey != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateForeignKey(
+                        properties.Format(),
+                        declaringEntityType.DisplayName(),
+                        duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                        principalKey.Properties.Format(),
+                        principalEntityType.DisplayName()));
+            }
+
+            if (principalEntityType.Model != declaringEntityType.Model)
+            {
+                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(
+                    declaringEntityType.DisplayName(), principalEntityType.DisplayName()));
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

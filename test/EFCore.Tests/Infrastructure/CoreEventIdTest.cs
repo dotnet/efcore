@@ -26,9 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
-            var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
-            var property = new Property(
-                "A", typeof(int), propertyInfo, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var entityType = new Model(new ConventionSet()).AddEntityType(typeof(object), ConfigurationSource.Convention);
+            var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherEntityType = new EntityType(typeof(object), entityType.Model, ConfigurationSource.Convention);
             var otherProperty = otherEntityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);

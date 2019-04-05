@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A value indicating whether or not this property can be modified before the entity is saved to the database.
         /// </param>
         public static void SetBeforeSaveBehavior([NotNull] this IMutableProperty property, PropertySaveBehavior? beforeSaveBehavior)
-            => property[CoreAnnotationNames.BeforeSaveBehavior] = beforeSaveBehavior;
+            => property.AsProperty().SetBeforeSaveBehavior(beforeSaveBehavior, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     <para>
@@ -172,18 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A value indicating whether or not this property can be modified after the entity is saved to the database.
         /// </param>
         public static void SetAfterSaveBehavior([NotNull] this IMutableProperty property, PropertySaveBehavior? afterSaveBehavior)
-        {
-            if (afterSaveBehavior != null)
-            {
-                var errorMessage = property.CheckAfterSaveBehavior(afterSaveBehavior.Value);
-                if (errorMessage != null)
-                {
-                    throw new InvalidOperationException(errorMessage);
-                }
-            }
-
-            property[CoreAnnotationNames.AfterSaveBehavior] = afterSaveBehavior;
-        }
+            => property.AsProperty().SetAfterSaveBehavior(afterSaveBehavior, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the type that the property value will be converted to before being sent to the database provider.

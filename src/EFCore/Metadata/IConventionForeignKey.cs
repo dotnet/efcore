@@ -60,6 +60,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
+        ///     Sets the foreign key properties and that target principal key.
+        /// </summary>
+        /// <param name="properties"> Foreign key properties in the dependent entity. </param>
+        /// <param name="principalKey"> The primary or alternate key to target. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        void SetProperties(
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            [NotNull] IConventionKey principalKey,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Returns the configuration source for <see cref="IForeignKey.Properties" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IForeignKey.Properties" />. </returns>

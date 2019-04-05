@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IPropertyFieldChangedConvention,
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
+        IForeignKeyPropertiesChangedConvention,
         IForeignKeyUniquenessChangedConvention,
         IForeignKeyOwnershipChangedConvention
     {
@@ -192,6 +193,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (relationshipBuilder.Metadata.IsOwnership)
             {
                 Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+            }
+
+            return relationshipBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Apply(
+            InternalRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<Property> oldDependentProperties,
+            Key oldPrincipalKey)
+        {
+            var foreignKey = relationshipBuilder.Metadata;
+            if (foreignKey.IsOwnership
+                && !foreignKey.Properties.SequenceEqual(oldDependentProperties)
+                && relationshipBuilder.Metadata.Builder != null)
+            {
+                Apply(foreignKey.DeclaringEntityType.Builder);
             }
 
             return relationshipBuilder;

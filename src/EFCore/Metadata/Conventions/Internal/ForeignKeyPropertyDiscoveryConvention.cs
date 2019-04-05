@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention,
         IPropertyNullabilityChangedConvention,
         IPropertyFieldChangedConvention,
-        IPrincipalEndChangedConvention,
+        IForeignKeyPropertiesChangedConvention,
+        IForeignKeyPrincipalEndChangedConvention,
         IForeignKeyUniquenessChangedConvention,
         IForeignKeyRequirednessChangedConvention,
         IKeyAddedConvention,
@@ -598,6 +599,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 return DiscoverProperties(relationshipBuilder);
             }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Apply(
+            InternalRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<Property> oldDependentProperties,
+            Key oldPrincipalKey)
+        {
+            if (relationshipBuilder.Metadata.Properties == oldDependentProperties
+                || relationshipBuilder.Metadata.Builder == null)
+            {
+                return relationshipBuilder;
+            }
+
+            return Apply(relationshipBuilder);
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -214,6 +215,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void OnForeignKeyPropertiesChanged(
+            [NotNull] InternalRelationshipBuilder relationshipBuilder,
+            [NotNull] IReadOnlyList<Property> oldDependentProperties,
+            [NotNull] Key oldPrincipalKey)
+            => _scope.OnForeignKeyPropertiesChanged(
+                Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)),
+                Check.NotNull(oldDependentProperties, nameof(oldDependentProperties)),
+                Check.NotNull(oldPrincipalKey, nameof(oldPrincipalKey)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             => _scope.OnForeignKeyUniquenessChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
@@ -235,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder OnPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
-            => _scope.OnPrincipalEndChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
+        public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            => _scope.OnForeignKeyPrincipalEndChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

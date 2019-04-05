@@ -190,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetBeforeSaveBehavior(
             [NotNull] this IConventionProperty property, PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(CoreAnnotationNames.BeforeSaveBehavior, beforeSaveBehavior, fromDataAnnotation);
+            => property.AsProperty().SetBeforeSaveBehavior(
+                beforeSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetBeforeSaveBehavior" />.
@@ -222,18 +223,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetAfterSaveBehavior(
             [NotNull] this IConventionProperty property, PropertySaveBehavior? afterSaveBehavior, bool fromDataAnnotation = false)
-        {
-            if (afterSaveBehavior != null)
-            {
-                var errorMessage = property.CheckAfterSaveBehavior(afterSaveBehavior.Value);
-                if (errorMessage != null)
-                {
-                    throw new InvalidOperationException(errorMessage);
-                }
-            }
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.AfterSaveBehavior, afterSaveBehavior, fromDataAnnotation);
-        }
+            => property.AsProperty().SetAfterSaveBehavior(
+                afterSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetAfterSaveBehavior" />.

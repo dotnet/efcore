@@ -651,7 +651,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateKey(properties.Format(), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateKey(
+                    properties.Format(), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties, configurationSource);
@@ -808,49 +809,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            for (var i = 0; i < properties.Count; i++)
-            {
-                var property = properties[i];
-                for (var j = i + 1; j < properties.Count; j++)
-                {
-                    if (property == properties[j])
-                    {
-                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
-                    }
-                }
-
-                var actualProperty = FindProperty(property.Name);
-                if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
-                    || property.Builder == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(properties.Format(), this.DisplayName()));
-                }
-            }
-
-            ForeignKey.AreCompatible(
-                principalEntityType,
-                dependentEntityType: this,
-                navigationToPrincipal: null,
-                navigationToDependent: null,
-                dependentProperties: properties,
-                principalProperties: principalKey.Properties,
-                unique: null,
-                shouldThrow: true);
-
-            var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();
-            if (duplicateForeignKey != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DuplicateForeignKey(
-                        properties.Format(),
-                        this.DisplayName(),
-                        duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                        principalKey.Properties.Format(),
-                        principalEntityType.DisplayName()));
-            }
-
             var foreignKey = new ForeignKey(
                 properties, principalKey, this, principalEntityType, configurationSource);
+
             principalEntityType.UpdateConfigurationSource(configurationSource);
             if (componentConfigurationSource.HasValue)
             {
@@ -859,14 +820,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.UpdatePrincipalEndConfigurationSource(componentConfigurationSource.Value);
             }
 
-            if (principalEntityType.Model != Model)
+            OnForeignKeyUpdated(foreignKey);
+
+            PropertyMetadataChanged();
+
+            return Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool OnForeignKeyUpdating(ForeignKey foreignKey)
+        {
+            var removed = _foreignKeys.Remove(foreignKey);
+            if (!removed)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(this.DisplayName(), principalEntityType.DisplayName()));
+                return false;
             }
 
-            _foreignKeys.Add(foreignKey);
+            foreach (var property in foreignKey.Properties)
+            {
+                if (property.ForeignKeys != null)
+                {
+                    property.ForeignKeys.Remove(foreignKey);
+                    if (property.ForeignKeys.Count == 0)
+                    {
+                        property.ForeignKeys = null;
+                    }
+                }
+            }
 
-            foreach (var property in properties)
+            removed = foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
+            Debug.Assert(removed);
+            removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
+            Debug.Assert(removed);
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void OnForeignKeyUpdated(ForeignKey foreignKey)
+        {
+            var added = _foreignKeys.Add(foreignKey);
+            Debug.Assert(added);
+
+            foreach (var property in foreignKey.Properties)
             {
                 if (property.ForeignKeys == null)
                 {
@@ -881,6 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
+            var principalKey = foreignKey.PrincipalKey;
             if (principalKey.ReferencingForeignKeys == null)
             {
                 principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
@@ -890,10 +892,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
+                added = principalKey.ReferencingForeignKeys.Add(foreignKey);
                 Debug.Assert(added);
             }
 
+            var principalEntityType = foreignKey.PrincipalEntityType;
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
             {
                 principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance)
@@ -903,17 +906,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
                 Debug.Assert(added);
             }
-
-            PropertyMetadataChanged();
-
-            var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
-
-            foreignKey = builder?.Metadata;
-
-            return foreignKey;
         }
 
         /// <summary>
@@ -1015,10 +1010,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            return FindDeclaredForeignKeys(properties).SingleOrDefault(
-                fk =>
-                    PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties)
-                    && StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name));
+            foreach (var fk in FindDeclaredForeignKeys(properties))
+            {
+                if (PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties)
+                    && StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name))
+                {
+                    return fk;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1076,7 +1077,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveForeignKey(foreignKey);
         }
 
-        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
             if (foreignKey.DependentToPrincipal != null)
             {
@@ -1088,52 +1093,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
             }
 
-            var removed = _foreignKeys.Remove(foreignKey);
-            foreignKey.Builder = null;
-
-            foreach (var property in foreignKey.Properties)
+            var removed = OnForeignKeyUpdating(foreignKey);
+            if (!removed)
             {
-                if (property.ForeignKeys != null)
-                {
-                    property.ForeignKeys.Remove(foreignKey);
-                    if (property.ForeignKeys.Count == 0)
-                    {
-                        property.ForeignKeys = null;
-                    }
-                }
+                return null;
             }
 
-            foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-            foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
+            foreignKey.Builder = null;
 
             PropertyMetadataChanged();
 
-            if (removed)
+            if (foreignKey.DependentToPrincipal != null)
             {
-                if (foreignKey.DependentToPrincipal != null)
-                {
-                    Model.ConventionDispatcher.OnNavigationRemoved(
-                        Builder,
-                        foreignKey.PrincipalEntityType.Builder,
-                        foreignKey.DependentToPrincipal.Name,
-                        foreignKey.DependentToPrincipal.GetIdentifyingMemberInfo());
-                }
-
-                if (foreignKey.PrincipalToDependent != null)
-                {
-                    Model.ConventionDispatcher.OnNavigationRemoved(
-                        foreignKey.PrincipalEntityType.Builder,
-                        Builder,
-                        foreignKey.PrincipalToDependent.Name,
-                        foreignKey.PrincipalToDependent.GetIdentifyingMemberInfo());
-                }
-
-                Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
-
-                return foreignKey;
+                Model.ConventionDispatcher.OnNavigationRemoved(
+                    Builder,
+                    foreignKey.PrincipalEntityType.Builder,
+                    foreignKey.DependentToPrincipal.Name,
+                    foreignKey.DependentToPrincipal.GetIdentifyingMemberInfo());
             }
 
-            return null;
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                Model.ConventionDispatcher.OnNavigationRemoved(
+                    foreignKey.PrincipalEntityType.Builder,
+                    Builder,
+                    foreignKey.PrincipalToDependent.Name,
+                    foreignKey.PrincipalToDependent.GetIdentifyingMemberInfo());
+            }
+
+            Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
+
+            return foreignKey;
         }
 
         /// <summary>

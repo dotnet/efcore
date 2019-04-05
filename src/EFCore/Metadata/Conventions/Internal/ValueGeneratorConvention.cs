@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -18,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IPrimaryKeyChangedConvention,
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
+        IForeignKeyPropertiesChangedConvention,
         IBaseTypeChangedConvention
     {
         /// <summary>
@@ -55,7 +57,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            foreach (var property in foreignKey.Properties)
+            OnForeignKeyRemoved(foreignKey.Properties);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder Apply(
+            InternalRelationshipBuilder relationshipBuilder,
+            IReadOnlyList<Property> oldDependentProperties,
+            Key oldPrincipalKey)
+        {
+            var foreignKey = relationshipBuilder.Metadata;
+            if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
+            {
+                OnForeignKeyRemoved(oldDependentProperties);
+
+                if (relationshipBuilder.Metadata.Builder != null)
+                {
+                    foreach (var property in foreignKey.Properties)
+                    {
+                        property.Builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
+                    }
+                }
+            }
+
+            return relationshipBuilder;
+        }
+
+        private void OnForeignKeyRemoved(IReadOnlyList<Property> foreignKeyProperties)
+        {
+            foreach (var property in foreignKeyProperties)
             {
                 var pk = property.PrimaryKey;
                 if (pk == null)
