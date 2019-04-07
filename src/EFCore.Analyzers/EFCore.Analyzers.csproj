@@ -19,29 +19,16 @@
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
 
-  <Target Name="PopulateNuspec" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
-
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->
       <IncludeSymbols>true</IncludeSymbols>
-
-      <NuspecProperties>
-        id=$(PackageId);
-        version=$(PackageVersion);
-        authors=$(Authors);
-        description=$(Description);
-        tags=$(PackageTags.Replace(';', ' '));
-        licenseUrl=$(PackageLicenseUrl);
-        projectUrl=$(PackageProjectUrl);
-        iconUrl=$(PackageIconUrl);
-        repositoryUrl=$(RepositoryUrl);
-        repositoryCommit=$(RepositoryCommit);
-        copyright=$(Copyright);
-
-        OutputBinary=$(OutputPath)$(AssemblyName).dll;
-        OutputSymbol=$(OutputPath)$(AssemblyName).pdb;
-      </NuspecProperties>
     </PropertyGroup>
+
+    <ItemGroup>
+      <NuspecProperty Include="OutputBinary=$(OutputPath)$(AssemblyName).dll" />
+      <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
+    </ItemGroup>
   </Target>
 
 </Project>
