@@ -18,6 +18,7 @@ EF Core is an object-relational mapper (O/RM) that enables .NET developers to wo
 
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
 For a complete list, see https://docs.microsoft.com/ef/core/providers/.
+Information about how to use nightly builds can be found [here](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md)
 
 Provider               | Package name                              | Stable                      | Nightly (master branch)
 -----------------------|-------------------------------------------|-----------------------------|-------------------------
