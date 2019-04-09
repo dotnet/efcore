@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private bool ShouldLoad(object entity, string navigationName,
-            [NotNullWhenTrue] out NavigationEntry navigationEntry)
+            out NavigationEntry navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)
