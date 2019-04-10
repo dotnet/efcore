@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
                     x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
+                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+                    x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
             }
         }
 
@@ -163,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore
                     await history.GetAppliedMigrationsAsync(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
                     x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
+                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+                    x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
             }
         }
 

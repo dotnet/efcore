@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -100,6 +101,24 @@ namespace Microsoft.EntityFrameworkCore
             protected override void Down(MigrationBuilder migrationBuilder)
             {
             }
+        }
+
+        [DbContext(typeof(MigrationsContext))]
+        [Migration("00000000000004_Migration4")]
+        private class Migration4 : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+                => migrationBuilder.CreateTable(
+                    "Table2",
+                    x => new
+                    {
+                        Id = x.Column<int>(),
+                        Baz = x.Column<string>(defaultValue: "first" + Environment.NewLine + "second" + Environment.NewLine + "third"),
+                        Quz = x.Column<string>(defaultValue: "1" + Environment.NewLine + "2")
+                    });
+
+            protected override void Down(MigrationBuilder migrationBuilder)
+                => migrationBuilder.DropTable("Table2");
         }
     }
 }

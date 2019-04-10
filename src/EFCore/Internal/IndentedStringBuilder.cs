@@ -97,11 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IndentedStringBuilder AppendLines([NotNull] object o, bool skipFinalNewline = false)
+        public virtual IndentedStringBuilder AppendLines([NotNull] object o, bool skipFinalNewline = false, bool isSql = false)
         {
             using (var reader = new StringReader(o.ToString()))
             {
                 var first = true;
+                var quoteCount = 0;
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -116,8 +117,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     if (line.Length != 0)
                     {
+                        if (isSql)
+                        {
+                            _indentPending = quoteCount % 2 != 1;
+                        }
                         Append(line);
                     }
+
+                    quoteCount += line.Split('\'').Length - 1;
                 }
             }
 

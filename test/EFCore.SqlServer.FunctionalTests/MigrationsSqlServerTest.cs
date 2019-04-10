@@ -117,6 +117,22 @@ VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 
 GO
 
+CREATE TABLE [Table2] (
+    [Id] int NOT NULL,
+    [Baz] nvarchar(max) NOT NULL DEFAULT N'first
+second
+third',
+    [Quz] nvarchar(max) NOT NULL DEFAULT N'1
+2'
+);
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000004_Migration4', N'7.0.0-test');
+
+GO
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -228,6 +244,28 @@ IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'0000
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000004_Migration4')
+BEGIN
+    CREATE TABLE [Table2] (
+        [Id] int NOT NULL,
+        [Baz] nvarchar(max) NOT NULL DEFAULT N'first
+second
+third',
+        [Quz] nvarchar(max) NOT NULL DEFAULT N'1
+2'
+    );
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000004_Migration4')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 END;
 
 GO

@@ -74,6 +74,18 @@ VALUES ('00000000000002_Migration2', '7.0.0-test');
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
 
+CREATE TABLE ""Table2"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Baz"" TEXT NOT NULL DEFAULT 'first
+second
+third',
+    ""Quz"" TEXT NOT NULL DEFAULT '1
+2'
+);
+
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000004_Migration4', '7.0.0-test');
+
 ",
                 Sql,
                 ignoreLineEndingDifferences: true);

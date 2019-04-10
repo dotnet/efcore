@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
                         using (builder.Indent())
                         {
-                            builder.AppendLines(command.CommandText);
+                            builder.AppendLines(command.CommandText, isSql: true);
                         }
 
                         builder.AppendLine(_historyRepository.GetEndIfScript());
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
                         using (builder.Indent())
                         {
-                            builder.AppendLines(command.CommandText);
+                            builder.AppendLines(command.CommandText, isSql: true);
                         }
 
                         builder.AppendLine(_historyRepository.GetEndIfScript());
