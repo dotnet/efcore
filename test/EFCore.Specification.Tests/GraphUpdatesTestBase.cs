@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Authentication.ExtendedProtection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -34,12 +33,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, CascadeTiming.Immediate)]
         [InlineData(true, CascadeTiming.Never)]
         [InlineData(true, null)]
-        public virtual DbUpdateException New_FK_is_not_cleared_on_old_dependent_delete(
+        public virtual void New_FK_is_not_cleared_on_old_dependent_delete(
             bool loadNewParent,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var childId = 0;
             int? newFk = 0;
@@ -63,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -87,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         Assert.Null(context.Set<Optional1>().Find(removedId));
 
@@ -107,8 +105,6 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -116,11 +112,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual DbUpdateException Optional_One_to_one_relationships_are_one_to_one(
+        public virtual void Optional_One_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
@@ -130,10 +124,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     root.OptionalSingle = new OptionalSingle1();
 
-                    updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -141,11 +133,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual DbUpdateException Required_One_to_one_relationships_are_one_to_one(
+        public virtual void Required_One_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
@@ -155,10 +145,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     root.RequiredSingle = new RequiredSingle1();
 
-                    updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -166,11 +154,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual DbUpdateException Optional_One_to_one_with_AK_relationships_are_one_to_one(
+        public virtual void Optional_One_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
@@ -180,10 +166,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     root.OptionalSingleAk = new OptionalSingleAk1();
 
-                    updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -191,11 +175,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(null)]
-        public virtual DbUpdateException Required_One_to_one_with_AK_relationships_are_one_to_one(
+        public virtual void Required_One_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
@@ -205,10 +187,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     root.RequiredSingleAk = new RequiredSingleAk1();
 
-                    updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-
-            return updateException;
         }
 
         [Theory]
@@ -779,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore
                         removed1.Parent = null;
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         Action testCode;
@@ -832,7 +812,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredGraph(context);
@@ -1086,12 +1067,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), null)]
         [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), null)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), null)]
-        public virtual DbUpdateException Save_required_one_to_one_changed_by_reference(
+        public virtual void Save_required_one_to_one_changed_by_reference(
             ChangeMechanism changeMechanism,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             // This test is a bit strange because the relationships are PK<->PK, which means
             // that an existing entity has to be deleted and then a new entity created that has
             // the same key as the existing entry. In other words it is a new incarnation of the same
@@ -1126,9 +1105,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     root.RequiredSingle = null;
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -1137,7 +1116,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredGraph(context);
 
@@ -1178,7 +1158,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var loadedRoot = LoadRequiredGraph(context);
 
@@ -1187,8 +1168,6 @@ namespace Microsoft.EntityFrameworkCore
                         AssertNavigations(loadedRoot);
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -1353,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore
                         new1dd.MoreDerivedRootId = root.Id;
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -1409,7 +1388,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredNonPkGraph(context);
@@ -1535,12 +1515,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)ChangeMechanism.Principal, null)]
         [InlineData((int)ChangeMechanism.Dependent, null)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), null)]
-        public virtual DbUpdateException Sever_required_one_to_one(
+        public virtual void Sever_required_one_to_one(
             ChangeMechanism changeMechanism,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             Root root = null;
             RequiredSingle1 old1 = null;
             RequiredSingle2 old2 = null;
@@ -1573,9 +1551,9 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -1590,7 +1568,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var loadedRoot = LoadRequiredGraph(context);
 
@@ -1601,8 +1580,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2.Id));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -1650,7 +1627,7 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -1687,7 +1664,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredNonPkGraph(context);
@@ -3122,7 +3100,7 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -3161,7 +3139,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredAkGraph(context);
@@ -3691,7 +3670,7 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -3739,7 +3718,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredAkGraph(context);
@@ -3930,7 +3910,7 @@ namespace Microsoft.EntityFrameworkCore
                         new1dd.MoreDerivedRootId = root.AlternateId;
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -3986,7 +3966,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredNonPkAkGraph(context);
@@ -4155,7 +4136,7 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -4195,7 +4176,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredAkGraph(context);
@@ -4255,7 +4237,7 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    if (Fixture.ForceRestrict
+                    if (Fixture.ForceClientNoAction
                         || deleteOrphansTiming == CascadeTiming.Never)
                     {
                         var testCode = deleteOrphansTiming == CascadeTiming.Immediate
@@ -4294,7 +4276,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades
                         && deleteOrphansTiming != CascadeTiming.Never)
                     {
                         var loadedRoot = LoadRequiredNonPkAkGraph(context);
@@ -4745,12 +4728,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_are_cascade_deleted(
+        public virtual void Required_many_to_one_dependents_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -4782,12 +4763,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == (Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Deleted)));
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted)));
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -4814,7 +4795,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredGraph(context);
@@ -4826,8 +4807,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -4905,12 +4884,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_are_orphaned(
+        public virtual void Optional_many_to_one_dependents_are_orphaned(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -4942,12 +4919,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.True(orphaned.All(e => context.Entry(e).State == (Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Modified)));
+                        Assert.True(orphaned.All(e => context.Entry(e).State == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -4970,7 +4947,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalGraph(context);
 
@@ -4981,8 +4958,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5060,12 +5035,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_are_orphaned(
+        public virtual void Optional_one_to_one_are_orphaned(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -5093,12 +5066,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.Equal(Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Modified, context.Entry(orphaned).State);
+                        Assert.Equal(Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified, context.Entry(orphaned).State);
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -5120,7 +5093,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalGraph(context);
 
@@ -5130,8 +5103,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(1, context.Set<OptionalSingle2>().Count(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5204,12 +5175,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_are_cascade_deleted(
+        public virtual void Required_one_to_one_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -5237,12 +5206,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.Equal(Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
+                        Assert.Equal(Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -5268,7 +5237,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredGraph(context);
@@ -5279,8 +5248,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5353,12 +5320,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_are_cascade_deleted(
+        public virtual void Required_non_PK_one_to_one_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -5386,12 +5351,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.Equal(Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
+                        Assert.Equal(Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -5417,7 +5382,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredNonPkGraph(context);
@@ -5428,8 +5393,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5502,12 +5465,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_with_alternate_key_are_orphaned(
+        public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -5537,14 +5498,14 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.True(orphaned.All(e => context.Entry(e).State == (Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Modified)));
+                        Assert.True(orphaned.All(e => context.Entry(e).State == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -5567,7 +5528,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalAkGraph(context);
 
@@ -5578,8 +5539,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(orphanedIds.Count, context.Set<OptionalAk2>().Count(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5593,12 +5552,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted(
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -5635,7 +5592,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        if (Fixture.ForceRestrict)
+                        if (Fixture.ForceClientNoAction)
                         {
                             Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
                             Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Unchanged));
@@ -5648,9 +5605,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -5678,7 +5635,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredAkGraph(context);
@@ -5691,8 +5648,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5706,12 +5661,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_with_alternate_key_are_orphaned(
+        public virtual void Optional_one_to_one_with_alternate_key_are_orphaned(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -5743,7 +5696,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        if (Fixture.ForceRestrict)
+                        if (Fixture.ForceClientNoAction)
                         {
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
@@ -5755,9 +5708,9 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -5781,7 +5734,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalAkGraph(context);
 
@@ -5792,8 +5745,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(1, context.Set<OptionalSingleComposite2>().Count(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5807,12 +5758,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_deleted(
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -5844,7 +5793,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        if (Fixture.ForceRestrict)
+                        if (Fixture.ForceClientNoAction)
                         {
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
@@ -5856,9 +5805,9 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -5886,7 +5835,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredAkGraph(context);
@@ -5898,8 +5847,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -5913,12 +5860,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -5946,12 +5891,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.ChangeTracker.CascadeChanges();
 
-                        Assert.Equal(Fixture.ForceRestrict ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
+                        Assert.Equal(Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted, context.Entry(orphaned).State);
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -5977,7 +5922,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredNonPkAkGraph(context);
@@ -5988,8 +5933,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6003,12 +5946,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_are_cascade_deleted_in_store(
+        public virtual void Required_many_to_one_dependents_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -6042,9 +5983,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6066,7 +6008,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredGraph(context);
 
@@ -6077,8 +6020,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6092,12 +6033,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_are_cascade_deleted_in_store(
+        public virtual void Required_one_to_one_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -6128,9 +6067,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6151,7 +6091,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredGraph(context);
 
@@ -6161,8 +6102,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6176,12 +6115,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_are_cascade_deleted_in_store(
+        public virtual void Required_non_PK_one_to_one_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -6212,9 +6149,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6235,7 +6173,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredNonPkGraph(context);
 
@@ -6245,8 +6184,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6260,12 +6197,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -6300,9 +6235,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6325,7 +6261,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredAkGraph(context);
 
@@ -6337,8 +6274,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6352,12 +6287,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -6390,9 +6323,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6414,7 +6348,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredAkGraph(context);
 
@@ -6425,8 +6360,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6440,12 +6373,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -6476,9 +6407,10 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction
+                        || Fixture.NoStoreCascades)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6499,7 +6431,8 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction
+                        && !Fixture.NoStoreCascades)
                     {
                         var root = LoadRequiredNonPkAkGraph(context);
 
@@ -6509,8 +6442,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6524,12 +6455,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_are_orphaned_in_store(
+        public virtual void Optional_many_to_one_dependents_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -6563,9 +6492,9 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6590,7 +6519,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalGraph(context);
 
@@ -6604,8 +6533,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(orphaned.All(e => e.ParentId == null));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6619,12 +6546,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_are_orphaned_in_store(
+        public virtual void Optional_one_to_one_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -6655,9 +6580,9 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6678,7 +6603,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalGraph(context);
 
@@ -6688,8 +6613,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Null(context.Set<OptionalSingle2>().Single(e => e.Id == orphanedId).BackId);
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6703,12 +6626,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+        public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -6748,9 +6669,9 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6779,7 +6700,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalAkGraph(context);
 
@@ -6797,8 +6718,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(orphanedC.All(e => e.ParentId == null));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6812,12 +6731,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_with_alternate_key_are_orphaned_in_store(
+        public virtual void Optional_one_to_one_with_alternate_key_are_orphaned_in_store(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -6854,9 +6771,9 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.CascadeChanges();
                     }
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -6878,7 +6795,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         var root = LoadOptionalAkGraph(context);
 
@@ -6889,8 +6806,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Null(context.Set<OptionalSingleComposite2>().Single(e => e.Id == orphanedIdC).BackId);
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -6904,12 +6819,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_are_cascade_deleted_starting_detached(
+        public virtual void Required_many_to_one_dependents_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             Root root = null;
@@ -6947,7 +6860,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -6955,9 +6868,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -6978,7 +6891,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRequiredGraph(context);
@@ -6990,8 +6903,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7005,12 +6916,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_are_orphaned_starting_detached(
+        public virtual void Optional_many_to_one_dependents_are_orphaned_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             Root root = null;
@@ -7048,16 +6957,16 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Modified
                         : EntityState.Unchanged;
 
                     Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -7074,7 +6983,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         root = LoadOptionalGraph(context);
 
@@ -7085,8 +6994,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7100,12 +7007,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_are_orphaned_starting_detached(
+        public virtual void Optional_one_to_one_are_orphaned_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
@@ -7136,7 +7041,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Modified
                         : EntityState.Unchanged;
 
@@ -7144,9 +7049,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -7163,7 +7068,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         root = LoadOptionalGraph(context);
 
@@ -7173,8 +7078,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(1, context.Set<OptionalSingle2>().Count(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7188,12 +7091,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_are_cascade_deleted_starting_detached(
+        public virtual void Required_one_to_one_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
@@ -7224,7 +7125,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -7232,9 +7133,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7256,7 +7157,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => root = LoadRequiredGraph(context),
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         Assert.Null(root.RequiredSingle);
@@ -7265,8 +7166,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7280,12 +7179,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_are_cascade_deleted_starting_detached(
+        public virtual void Required_non_PK_one_to_one_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
@@ -7316,7 +7213,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -7324,9 +7221,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7347,7 +7244,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRequiredNonPkGraph(context);
@@ -7358,8 +7255,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7373,12 +7268,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached(
+        public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -7421,7 +7314,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Modified
                         : EntityState.Unchanged;
 
@@ -7430,9 +7323,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -7450,7 +7343,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         root = LoadOptionalAkGraph(context);
 
@@ -7462,8 +7355,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(orphanedIdCs.Count, context.Set<OptionalComposite2>().Count(e => orphanedIdCs.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7477,12 +7368,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -7524,7 +7413,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -7533,9 +7422,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7557,7 +7446,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRequiredAkGraph(context);
@@ -7570,8 +7459,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7585,12 +7472,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Optional_one_to_one_with_alternate_key_are_orphaned_starting_detached(
+        public virtual void Optional_one_to_one_with_alternate_key_are_orphaned_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -7625,7 +7510,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Modified
                         : EntityState.Unchanged;
 
@@ -7634,9 +7519,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else
                     {
@@ -7654,7 +7539,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict)
+                    if (!Fixture.ForceClientNoAction)
                     {
                         root = LoadOptionalAkGraph(context);
 
@@ -7665,8 +7550,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(1, context.Set<OptionalSingleComposite2>().Count(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7680,12 +7563,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached(
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -7720,7 +7601,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -7729,9 +7610,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7753,7 +7634,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRequiredAkGraph(context);
@@ -7765,8 +7646,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7780,12 +7659,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached(
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
@@ -7816,7 +7693,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Deleted
                         : EntityState.Unchanged;
 
@@ -7824,9 +7701,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7847,7 +7724,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRequiredNonPkAkGraph(context);
@@ -7858,8 +7735,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7873,12 +7748,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_are_cascade_detached_when_Added(
+        public virtual void Required_many_to_one_dependents_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
 
@@ -7926,7 +7799,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((cascadeDeleteTiming == CascadeTiming.Immediate
                          || cascadeDeleteTiming == null)
-                        && !Fixture.ForceRestrict)
+                        && !Fixture.ForceClientNoAction)
                     {
                         Assert.Equal(EntityState.Detached, context.Entry(added).State);
                         Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Deleted));
@@ -7939,9 +7812,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -7963,7 +7836,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredGraph(context);
@@ -7975,8 +7848,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -7990,12 +7861,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_are_cascade_detached_when_Added(
+        public virtual void Required_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -8011,9 +7880,16 @@ namespace Microsoft.EntityFrameworkCore
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
-                    orphanedId = orphaned.Id;
 
-                    context.Entry(orphaned).State = EntityState.Added;
+                    // Since we're pretending this isn't in the database, make it really not in the database
+                    context.Entry(orphaned).State = EntityState.Deleted;
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                    removed.Single = orphaned;
+                    context.ChangeTracker.DetectChanges();
+                    orphanedId = orphaned.Id;
 
                     Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                     Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
@@ -8031,7 +7907,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Detached
                         : EntityState.Added;
 
@@ -8039,9 +7915,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -8062,7 +7938,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredGraph(context);
@@ -8073,8 +7949,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -8088,12 +7962,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+        public virtual void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -8109,9 +7981,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
-                    orphanedId = orphaned.Id;
 
+                    // Since we're pretending this isn't in the database, make it really not in the database
+                    context.Entry(orphaned).State = EntityState.Deleted;
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                    removed.Single = orphaned;
+                    context.ChangeTracker.DetectChanges();
                     context.Entry(orphaned).State = EntityState.Added;
+                    orphanedId = orphaned.Id;
 
                     Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                     Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
@@ -8129,7 +8009,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Detached
                         : EntityState.Added;
 
@@ -8137,9 +8017,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -8160,7 +8040,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredNonPkGraph(context);
@@ -8171,8 +8051,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -8186,12 +8064,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
@@ -8249,7 +8125,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     if ((cascadeDeleteTiming == CascadeTiming.Immediate
                          || cascadeDeleteTiming == null)
-                        && !Fixture.ForceRestrict)
+                        && !Fixture.ForceClientNoAction)
                     {
                         Assert.Equal(EntityState.Detached, context.Entry(added).State);
                         Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
@@ -8266,9 +8142,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -8292,7 +8168,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredAkGraph(context);
@@ -8305,8 +8181,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -8320,12 +8194,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
             var orphanedIdC = 0;
@@ -8339,15 +8211,26 @@ namespace Microsoft.EntityFrameworkCore
                     var root = LoadRequiredAkGraph(context);
 
                     var removed = root.RequiredSingleAk;
-
                     removedId = removed.Id;
+
                     var orphaned = removed.Single;
                     var orphanedC = removed.SingleComposite;
-                    orphanedId = orphaned.Id;
-                    orphanedIdC = orphanedC.Id;
 
+                    // Since we're pretending these aren't in the database, make them really not in the database
+                    context.Entry(orphaned).State = EntityState.Deleted;
+                    context.Entry(orphanedC).State = EntityState.Deleted;
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+                    Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                    removed.Single = orphaned;
+                    removed.SingleComposite = orphanedC;
+                    context.ChangeTracker.DetectChanges();
                     context.Entry(orphaned).State = EntityState.Added;
                     context.Entry(orphanedC).State = EntityState.Added;
+                    orphanedId = orphaned.Id;
+                    orphanedIdC = orphanedC.Id;
 
                     Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                     Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
@@ -8367,7 +8250,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Detached
                         : EntityState.Added;
 
@@ -8376,9 +8259,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -8400,7 +8283,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredAkGraph(context);
@@ -8412,8 +8295,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]
@@ -8427,12 +8308,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
         [InlineData(null, null)]
-        public virtual DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming? cascadeDeleteTiming,
             CascadeTiming? deleteOrphansTiming)
         {
-            DbUpdateException updateException = null;
-
             var removedId = 0;
             var orphanedId = 0;
 
@@ -8448,9 +8327,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
-                    orphanedId = orphaned.Id;
 
+                    // Since we're pretending this isn't in the database, make it really not in the database
+                    context.Entry(orphaned).State = EntityState.Deleted;
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                    removed.Single = orphaned;
+                    context.ChangeTracker.DetectChanges();
                     context.Entry(orphaned).State = EntityState.Added;
+                    orphanedId = orphaned.Id;
 
                     Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
                     Assert.Equal(EntityState.Added, context.Entry(orphaned).State);
@@ -8468,7 +8355,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
                                          || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceRestrict
+                                        && !Fixture.ForceClientNoAction
                         ? EntityState.Detached
                         : EntityState.Added;
 
@@ -8476,9 +8363,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                    if (Fixture.ForceRestrict)
+                    if (Fixture.ForceClientNoAction)
                     {
-                        updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                     else if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
@@ -8499,7 +8386,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    if (!Fixture.ForceRestrict
+                    if (!Fixture.ForceClientNoAction
                         && cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRequiredNonPkAkGraph(context);
@@ -8510,8 +8397,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                     }
                 });
-
-            return updateException;
         }
 
         [ConditionalTheory]

@@ -1000,11 +1000,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached
-                        && fk.DeleteBehavior != DeleteBehavior.Restrict
+                        && fk.DeleteBehavior != DeleteBehavior.ClientNoAction
                         && (dependent.EntityState == EntityState.Added
                             || KeysEqual(entry, fk, dependent)))
                     {
-                        if (fk.DeleteBehavior == DeleteBehavior.Cascade
+                        if ((fk.DeleteBehavior == DeleteBehavior.Cascade
+                             || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
                             var cascadeState = dependent.EntityState == EntityState.Added
