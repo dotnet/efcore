@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Extensions
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IConventionTypeBase" />.
+    /// </summary>
     public static class ConventionTypeBaseExtensions
     {
         /// <summary>
