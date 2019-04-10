@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Fact]
+        // #13579
+        // [Fact]
         public virtual void Can_update_owner_with_dependents()
         {
             using (CreateTestStore())
