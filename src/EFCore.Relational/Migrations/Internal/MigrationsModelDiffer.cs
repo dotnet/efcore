@@ -2061,11 +2061,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => TypeMappingSource.GetMapping(property).Converter;
 
         private static ReferentialAction ToReferentialAction(DeleteBehavior deleteBehavior)
-            => deleteBehavior == DeleteBehavior.Cascade
-                ? ReferentialAction.Cascade
-                : deleteBehavior == DeleteBehavior.SetNull
-                    ? ReferentialAction.SetNull
-                    : ReferentialAction.Restrict;
+        {
+            switch (deleteBehavior)
+            {
+                case DeleteBehavior.SetNull:
+                    return ReferentialAction.SetNull;
+                case DeleteBehavior.Cascade:
+                    return ReferentialAction.Cascade;
+                case DeleteBehavior.NoAction:
+                case DeleteBehavior.ClientNoAction:
+                    return ReferentialAction.NoAction;
+                default:
+                    return ReferentialAction.Restrict;
+            }
+        }
 
         private static object[,] ToMultidimensionalArray(IReadOnlyList<object> values)
         {

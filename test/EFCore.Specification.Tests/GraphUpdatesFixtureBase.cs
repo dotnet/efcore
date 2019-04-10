@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "GraphUpdatesChangedTest";
             public readonly Guid RootAK = Guid.NewGuid();
-            public virtual bool ForceRestrict => false;
+            public virtual bool ForceClientNoAction => false;
+            public virtual bool NoStoreCascades => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
