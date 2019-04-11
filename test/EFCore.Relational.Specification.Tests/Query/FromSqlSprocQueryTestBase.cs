@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void From_sql_queryable_stored_procedure_with_include_throws()
         {
             using (var context = CreateContext())

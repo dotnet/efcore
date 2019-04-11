@@ -2293,6 +2293,38 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override async Task AssertAverage<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+        {
+            using (var context = _contextCreator())
+            {
+                var actual = isAsync
+                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).AverageAsync()
+                    : actualQuery(SetExtractor.Set<TItem1>(context)).Average();
+
+                var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average();
+
+                if (asserter == null)
+                {
+                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
+                }
+
+                if (asserter != null)
+                {
+                    asserter(expected, actual);
+                }
+                else
+                {
+                    Assert.Equal(expected, actual);
+                }
+
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        public override async Task AssertAverage<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<long>> expectedQuery,
             Action<object, object> asserter = null,

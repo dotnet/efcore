@@ -8,7 +8,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
+    // issue #15318
+    internal class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
     {
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)

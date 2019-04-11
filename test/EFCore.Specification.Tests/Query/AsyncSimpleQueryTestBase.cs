@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #15043")]
         public virtual async Task ToArray_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())

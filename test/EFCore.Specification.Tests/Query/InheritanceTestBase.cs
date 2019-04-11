@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Can_include_animals()
         {
             using (var context = CreateContext())
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Can_include_prey()
         {
             using (var context = CreateContext())

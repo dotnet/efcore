@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore
             public string DerivedData { get; set; }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             ExecuteWithStrategyInTransaction(
