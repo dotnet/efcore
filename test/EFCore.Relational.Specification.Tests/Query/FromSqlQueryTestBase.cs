@@ -656,7 +656,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -669,7 +669,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
@@ -811,7 +811,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void FromSqlRaw_with_SelectMany_and_include()
         {
             using (var context = CreateContext())
@@ -844,7 +844,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void FromSqlRaw_with_join_and_include()
         {
             using (var context = CreateContext())

@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public async Task Original_concurrency_token_value_is_used_when_replacing_owned_instance()
         {
             using (var c = CreateF1Context())
