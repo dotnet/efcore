@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
@@ -27,92 +24,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the given property is part of a foreign key.
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
-        /// <returns> The associated principal property, or null if none exists. </returns>
+        /// <returns> The associated principal property, or <c>null</c> if none exists. </returns>
         public static IConventionProperty FindPrincipal([NotNull] this IConventionProperty property)
             => (IConventionProperty)((IProperty)property).FindPrincipal();
-
-        /// <summary>
-        ///     <para>
-        ///         Sets the factory to use for generating values for this property, or null to clear any previously set factory.
-        ///     </para>
-        ///     <para>
-        ///         Setting null does not disable value generation for this property, it just clears any generator explicitly
-        ///         configured for this property. The database provider may still have a value generator for the property type.
-        ///     </para>
-        /// </summary>
-        /// <param name="property"> The property to set the value generator for. </param>
-        /// <param name="valueGeneratorFactory">
-        ///     A factory that will be used to create the value generator, or null to
-        ///     clear any previously set factory.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetValueGeneratorFactory(
-            [NotNull] this IConventionProperty property,
-            [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
-            bool fromDataAnnotation = false)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(valueGeneratorFactory, nameof(valueGeneratorFactory));
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactory, valueGeneratorFactory, fromDataAnnotation);
-        }
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="PropertyExtensions.GetValueGeneratorFactory" />.
-        /// </summary>
-        /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="PropertyExtensions.GetValueGeneratorFactory" />. </returns>
-        public static ConfigurationSource? GetValueGeneratorFactoryConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactory)?.GetConfigurationSource();
-
-        /// <summary>
-        ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
-        ///     then this is the maximum number of characters.
-        /// </summary>
-        /// <param name="property"> The property to set the maximum length of. </param>
-        /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetMaxLength([NotNull] this IConventionProperty property, int? maxLength, bool fromDataAnnotation = false)
-        {
-            Check.NotNull(property, nameof(property));
-
-            if (maxLength != null
-                && maxLength < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxLength));
-            }
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, fromDataAnnotation);
-        }
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="PropertyExtensions.GetMaxLength" />.
-        /// </summary>
-        /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="PropertyExtensions.GetMaxLength" />. </returns>
-        public static ConfigurationSource? GetMaxLengthConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.MaxLength)?.GetConfigurationSource();
-
-        /// <summary>
-        ///     Sets a value indicating whether or not this property can persist Unicode characters.
-        /// </summary>
-        /// <param name="property"> The property to set the value for. </param>
-        /// <param name="unicode"> True if the property accepts Unicode characters, false if it does not, null to clear the setting. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void IsUnicode([NotNull] this IConventionProperty property, bool? unicode, bool fromDataAnnotation = false)
-        {
-            Check.NotNull(property, nameof(property));
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.Unicode, unicode, fromDataAnnotation);
-        }
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="PropertyExtensions.IsUnicode" />.
-        /// </summary>
-        /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="PropertyExtensions.IsUnicode" />. </returns>
-        public static ConfigurationSource? GetIsUnicodeConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.Unicode)?.GetConfigurationSource();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -148,28 +62,47 @@ namespace Microsoft.EntityFrameworkCore
             => ((IProperty)property).GetContainingKeys().Cast<IConventionKey>();
 
         /// <summary>
-        ///     Sets the type that the property value will be converted to before being sent to the database provider.
+        ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
+        ///     then this is the maximum number of characters.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="providerClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
+        /// <param name="property"> The property to set the maximum length of. </param>
+        /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetProviderClrType(
-            [NotNull] this IConventionProperty property,
-            [CanBeNull] Type providerClrType,
-            bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, fromDataAnnotation);
+        public static void SetMaxLength([NotNull] this IConventionProperty property, int? maxLength, bool fromDataAnnotation = false)
+            => property.AsProperty().SetMaxLength(
+                maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="PropertyExtensions.GetProviderClrType" />.
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetMaxLength" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="PropertyExtensions.GetProviderClrType" />. </returns>
-        public static ConfigurationSource? GetProviderClrTypeConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetMaxLength" />. </returns>
+        public static ConfigurationSource? GetMaxLengthConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.MaxLength)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets a value indicating whether this property can persist Unicode characters.
+        /// </summary>
+        /// <param name="property"> The property to set the value for. </param>
+        /// <param name="unicode">
+        ///     <c>true</c> if the property accepts Unicode characters, <c>false</c> if it does not, <c>null</c> to clear the setting.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetIsUnicode([NotNull] this IConventionProperty property, bool? unicode, bool fromDataAnnotation = false)
+            => property.AsProperty().SetIsUnicode(
+                unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.IsUnicode" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.IsUnicode" />. </returns>
+        public static ConfigurationSource? GetIsUnicodeConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Unicode)?.GetConfigurationSource();
 
         /// <summary>
         ///     <para>
-        ///         Sets a value indicating whether or not this property can be modified before the entity is
+        ///         Sets a value indicating whether this property can be modified before the entity is
         ///         saved to the database.
         ///     </para>
         ///     <para>
@@ -184,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="beforeSaveBehavior">
-        ///     A value indicating whether or not this property can be modified before the entity is
+        ///     A value indicating whether this property can be modified before the entity is
         ///     saved to the database. <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -203,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets a value indicating whether or not this property can be modified after the entity is
+        ///         Sets a value indicating whether this property can be modified after the entity is
         ///         saved to the database.
         ///     </para>
         ///     <para>
@@ -217,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="afterSaveBehavior">
-        ///     Sets a value indicating whether or not this property can be modified after the entity is
+        ///     Sets a value indicating whether this property can be modified after the entity is
         ///     saved to the database. <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -235,6 +168,36 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(CoreAnnotationNames.AfterSaveBehavior)?.GetConfigurationSource();
 
         /// <summary>
+        ///     <para>
+        ///         Sets the factory to use for generating values for this property, or <c>null</c> to clear any previously set factory.
+        ///     </para>
+        ///     <para>
+        ///         Setting <c>null</c> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property to set the value generator for. </param>
+        /// <param name="valueGeneratorFactory">
+        ///     A factory that will be used to create the value generator, or <c>null</c> to
+        ///     clear any previously set factory.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetValueGeneratorFactory(
+            [NotNull] this IConventionProperty property,
+            [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
+            bool fromDataAnnotation = false)
+            => property.AsProperty().SetValueGeneratorFactory(
+                valueGeneratorFactory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetValueGeneratorFactory" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetValueGeneratorFactory" />. </returns>
+        public static ConfigurationSource? GetValueGeneratorFactoryConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.ValueGeneratorFactory)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -244,20 +207,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueConverter converter,
             bool fromDataAnnotation = false)
-        {
-            if (converter != null
-                && converter.ModelClrType.UnwrapNullableType() != property.ClrType.UnwrapNullableType())
-            {
-                throw new ArgumentException(
-                    CoreStrings.ConverterPropertyMismatch(
-                        converter.ModelClrType.ShortDisplayName(),
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        property.ClrType.ShortDisplayName()));
-            }
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverter, converter, fromDataAnnotation);
-        }
+            => property.AsProperty().SetValueConverter(
+                converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetValueConverter" />.
@@ -266,6 +217,27 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetValueConverter" />. </returns>
         public static ConfigurationSource? GetValueConverterConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.ValueConverter)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the type that the property value will be converted to before being sent to the database provider.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="providerClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetProviderClrType(
+            [NotNull] this IConventionProperty property,
+            [CanBeNull] Type providerClrType,
+            bool fromDataAnnotation = false)
+            => property.AsProperty().SetProviderClrType(
+                providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetProviderClrType" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetProviderClrType" />. </returns>
+        public static ConfigurationSource? GetProviderClrTypeConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
@@ -277,11 +249,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-        {
-            CheckComparerType(property, comparer);
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.ValueComparer, comparer, fromDataAnnotation);
-        }
+            => property.AsProperty().SetValueComparer(
+                comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetValueComparer" />.
@@ -301,11 +270,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-        {
-            CheckComparerType(property, comparer);
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.KeyValueComparer, comparer, fromDataAnnotation);
-        }
+            => property.AsProperty().SetKeyValueComparer(
+                comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetKeyValueComparer" />.
@@ -325,11 +291,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
-        {
-            CheckComparerType(property, comparer);
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.StructuralValueComparer, comparer, fromDataAnnotation);
-        }
+            => property.AsProperty().SetStructuralValueComparer(
+                comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />.
@@ -338,19 +301,5 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />. </returns>
         public static ConfigurationSource? GetStructuralValueComparerConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.StructuralValueComparer)?.GetConfigurationSource();
-
-        private static void CheckComparerType(IConventionProperty property, ValueComparer comparer)
-        {
-            if (comparer != null
-                && comparer.Type != property.ClrType)
-            {
-                throw new ArgumentException(
-                    CoreStrings.ComparerPropertyMismatch(
-                        comparer.Type.ShortDisplayName(),
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        property.ClrType.ShortDisplayName()));
-            }
-        }
     }
 }

@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -32,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IServiceProperty serviceProperty, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IServiceProperty serviceProperty, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static ServiceProperty AsServiceProperty([NotNull] this IServiceProperty serviceProperty, [NotNull] [CallerMemberName] string methodName = "")
+        public static ServiceProperty AsServiceProperty(
+            [NotNull] this IServiceProperty serviceProperty, [NotNull] [CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IServiceProperty, ServiceProperty>(serviceProperty, methodName);
     }
 }

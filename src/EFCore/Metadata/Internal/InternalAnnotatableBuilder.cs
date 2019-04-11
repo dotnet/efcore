@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -12,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class InternalMetadataBuilder
+    [DebuggerDisplay("{" + nameof(Metadata) + ",nq}")]
+    public abstract class InternalAnnotatableBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected InternalMetadataBuilder([NotNull] ConventionAnnotatable metadata)
+        protected InternalAnnotatableBuilder([NotNull] ConventionAnnotatable metadata)
         {
             Metadata = metadata;
         }
@@ -47,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasAnnotation(
+        public virtual InternalAnnotatableBuilder HasAnnotation(
             [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
             => HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
 
-        private bool HasAnnotation(
+        private InternalAnnotatableBuilder HasAnnotation(
             string name, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
@@ -60,23 +62,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (Equals(existingAnnotation.Value, value))
                 {
                     existingAnnotation.UpdateConfigurationSource(configurationSource);
-                    return true;
+                    return this;
                 }
 
                 if (!CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource))
                 {
-                    return false;
+                    return null;
                 }
 
                 Metadata.SetAnnotation(name, value, configurationSource);
 
-                return true;
+                return this;
             }
 
             Metadata.AddAnnotation(name, value, configurationSource);
 
-            return true;
+            return this;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalAnnotatableBuilder SetOrRemoveAnnotation(
+            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            => value == null
+                ? RemoveAnnotation(name, configurationSource)
+                : HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,9 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetAnnotation([NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
-            return existingAnnotation != null
-                ? CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true)
-                : true;
+            return existingAnnotation == null
+                   || CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true);
         }
 
         private static bool CanSetAnnotationValue(
@@ -101,10 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var existingConfigurationSource = annotation.GetConfigurationSource();
-            return !configurationSource.Overrides(existingConfigurationSource)
-                   || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource)
-                ? false
-                : true;
+            return configurationSource.Overrides(existingConfigurationSource)
+                   && (configurationSource != existingConfigurationSource
+                       || canOverrideSameSource);
         }
 
         /// <summary>
@@ -113,15 +125,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual InternalAnnotatableBuilder RemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
         {
             if (!CanSetAnnotation(name, null, configurationSource))
             {
-                return false;
+                return null;
             }
 
             Metadata.RemoveAnnotation(name);
-            return true;
+            return this;
         }
 
         /// <summary>
@@ -129,6 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanRemoveAnnotation(string name, ConfigurationSource configurationSource)
+            => CanSetAnnotation(name, null, configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void MergeAnnotationsFrom([NotNull] ConventionAnnotatable annotatable)
             => MergeAnnotationsFrom(annotatable, ConfigurationSource.Explicit);
@@ -156,5 +175,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
         }
+
+        IConventionModelBuilder IConventionAnnotatableBuilder.ModelBuilder => ModelBuilder;
+
+        IConventionAnnotatable IConventionAnnotatableBuilder.Metadata => Metadata;
+
+        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.HasAnnotation(string name, object value, bool fromDataAnnotation)
+            => HasAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.SetOrRemoveAnnotation(
+            string name, object value, bool fromDataAnnotation)
+            => SetOrRemoveAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        bool IConventionAnnotatableBuilder.CanSetAnnotation(string name, object value, bool fromDataAnnotation)
+            => CanSetAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionAnnotatableBuilder IConventionAnnotatableBuilder.RemoveAnnotation(string name, bool fromDataAnnotation)
+            => RemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        bool IConventionAnnotatableBuilder.CanRemoveAnnotation(string name, bool fromDataAnnotation)
+            => CanRemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

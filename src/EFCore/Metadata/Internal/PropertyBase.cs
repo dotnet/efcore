@@ -173,6 +173,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
             [NotNull] Type propertyType,
@@ -290,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IClrPropertyGetter Getter =>
-            NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this,
+            NonCapturingLazyInitializer.EnsureInitialized(
+                ref _getter, this,
                 p => p.IsIndexedProperty() ? new IndexedPropertyGetterFactory().Create(p) : new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
@@ -300,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IClrPropertySetter Setter =>
-            NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this,
+            NonCapturingLazyInitializer.EnsureInitialized(
+                ref _setter, this,
                 p => p.IsIndexedProperty() ? new IndexedPropertySetterFactory().Create(p) : new ClrPropertySetterFactory().Create(p));
 
         /// <summary>

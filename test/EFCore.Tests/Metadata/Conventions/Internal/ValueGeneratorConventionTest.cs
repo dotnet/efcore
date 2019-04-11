@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -112,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             referencedEntityBuilder.Property(properties[1], ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(new[] { properties[1] }, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -144,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -205,8 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.True(keyProperties[0].RequiresValueGenerator());
 
-            var foreignKeyBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var foreignKeyBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -239,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.True(keyProperties[0].RequiresValueGenerator());
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -444,8 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(ValueGenerated.OnAdd, ((IProperty)property).ValueGenerated);
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
@@ -474,8 +474,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 

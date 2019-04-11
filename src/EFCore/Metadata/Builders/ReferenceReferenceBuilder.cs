@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (var batch = dependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                var builder = Builder.RelatedEntityTypes(
+                var builder = Builder.HasEntityTypes(
                     GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
                 builder = hasForeignKey(builder, dependentEntityType);
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (var batch = principalEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                var builder = Builder.RelatedEntityTypes(
+                var builder = Builder.HasEntityTypes(
                     principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
                 builder = hasPrincipalKey(builder);
 
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -370,12 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new ReferenceReferenceBuilder(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

@@ -3,14 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -137,7 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalEntityTypeBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough] [param: CanBeNull] set;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
         }
 
         /// <summary>
@@ -196,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_baseType != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.DerivedEntityTypeHasNoKey(this.DisplayName(), RootType().DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.DerivedEntityTypeHasNoKey(this.DisplayName(), RootType().DisplayName()));
                 }
 
                 if (_keys.Any())
@@ -272,7 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (!entityType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                     {
-                        throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(), entityType.ClrType.ShortDisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.NotAssignableClrBaseType(
+                                this.DisplayName(), entityType.DisplayName(), ClrType.ShortDisplayName(),
+                                entityType.ClrType.ShortDisplayName()));
                     }
 
                     if (entityType.HasDefiningNavigation())
@@ -719,8 +728,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateKey(
-                    properties.Format(), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateKey(
+                        properties.Format(), this.DisplayName(), key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties, configurationSource);
@@ -1340,7 +1350,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(name, this.DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                    CoreStrings.ConflictingPropertyOrNavigation(
+                        name, this.DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var duplicateProperty = FindPropertiesInHierarchy(name).Cast<PropertyBase>()
@@ -1362,7 +1373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "EntityType mismatch");
 
             var navigationProperty = propertyIdentity.MemberInfo
-                ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                                     ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             if (ClrType != null)
             {
                 Navigation.IsCompatible(
@@ -1545,7 +1556,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
             if (duplicateIndex != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties, this, configurationSource);
@@ -2208,11 +2220,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override ConfigurationSource? FindIgnoredMemberConfigurationSource(string name)
+        public override ConfigurationSource? FindIgnoredConfigurationSource(string name)
         {
-            var ignoredSource = FindDeclaredIgnoredMemberConfigurationSource(name);
+            var ignoredSource = FindDeclaredIgnoredConfigurationSource(name);
 
-            return BaseType == null ? ignoredSource : BaseType.FindIgnoredMemberConfigurationSource(name).Max(ignoredSource);
+            return BaseType == null ? ignoredSource : BaseType.FindIgnoredConfigurationSource(name).Max(ignoredSource);
         }
 
         /// <summary>
@@ -2320,30 +2332,135 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #endregion
 
+        #region Annotations
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetChangeTrackingStrategy(
+            ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
+        {
+            if (changeTrackingStrategy != null)
+            {
+                var errorMessage = CheckChangeTrackingStrategy(changeTrackingStrategy.Value);
+                if (errorMessage != null)
+                {
+                    throw new InvalidOperationException(errorMessage);
+                }
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string CheckChangeTrackingStrategy(ChangeTrackingStrategy value)
+        {
+            if (ClrType != null)
+            {
+                if (value != ChangeTrackingStrategy.Snapshot
+                    && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
+                }
+
+                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetQueryFilter([CanBeNull] LambdaExpression queryFilter, ConfigurationSource configurationSource)
+        {
+            var errorMessage = CheckQueryFilter(queryFilter);
+            if (errorMessage != null)
+            {
+                throw new InvalidOperationException(errorMessage);
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string CheckQueryFilter([CanBeNull] LambdaExpression queryFilter)
+        {
+            if (queryFilter != null
+                && (queryFilter.Parameters.Count != 1
+                    || queryFilter.Parameters[0].Type != ClrType
+                    || queryFilter.ReturnType != typeof(bool)))
+            {
+                return CoreStrings.BadFilterExpression(queryFilter, this.DisplayName(), ClrType);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetDefiningQuery([CanBeNull] LambdaExpression definingQuery, ConfigurationSource configurationSource)
+        {
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource);
+        }
+
+        #endregion
+
         #region Explicit interface implementations
 
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IMutableModel IMutableEntityType.Model
         {
-            [DebuggerStepThrough]
-            get => Model;
+            [DebuggerStepThrough] get => Model;
         }
 
         IEntityType IEntityType.BaseType
         {
-            [DebuggerStepThrough]
-            get => _baseType;
+            [DebuggerStepThrough] get => _baseType;
         }
 
         IMutableEntityType IMutableEntityType.BaseType
@@ -2354,8 +2471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IEntityType IEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough]
-            get => DefiningEntityType;
+            [DebuggerStepThrough] get => DefiningEntityType;
         }
 
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
@@ -2453,11 +2569,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties() => GetServiceProperties();
         IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
 
+        IConventionEntityTypeBuilder IConventionEntityType.Builder => Builder;
         IConventionModel IConventionEntityType.Model => Model;
         IConventionEntityType IConventionEntityType.BaseType => BaseType;
 
         void IConventionEntityType.HasBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
-            => HasBaseType((EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation:ConfigurationSource.Convention);
+            => HasBaseType(
+                (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         void IConventionEntityType.HasNoKey(bool? keyless, bool fromDataAnnotation)
             => HasNoKey(keyless, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -2659,7 +2777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var ignoredMember in EntityType.GetIgnoredMembers())
                 {
-                    entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember).Value);
+                    entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredConfigurationSource(ignoredMember).Value);
                 }
 
                 Properties.Attach(entityTypeBuilder);

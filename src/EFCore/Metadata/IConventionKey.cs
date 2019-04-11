@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -16,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionKey : IConventionAnnotatable, IKey
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this key.
+        /// </summary>
+        IConventionKeyBuilder Builder { get; }
+
         /// <summary>
         ///     Gets the properties that make up the key.
         /// </summary>

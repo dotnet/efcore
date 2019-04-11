@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void SetOrRemoveAnnotation(
-           [NotNull] this ConventionAnnotatable annotatable,
-           [NotNull] string name,
-           [CanBeNull] object value,
-           ConfigurationSource configurationSource)
+            [NotNull] this ConventionAnnotatable annotatable,
+            [NotNull] string name,
+            [CanBeNull] object value,
+            ConfigurationSource configurationSource)
         {
             if (value == null)
             {

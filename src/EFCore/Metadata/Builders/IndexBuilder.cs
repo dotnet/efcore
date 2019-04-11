@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring an <see cref="Index" />.
+    ///         Provides a simple API for configuring an <see cref="IMutableIndex" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API

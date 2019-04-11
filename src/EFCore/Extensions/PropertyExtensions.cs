@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class PropertyExtensions
     {
         /// <summary>
-        ///    Returns the <see cref="CoreTypeMapping"/> for the given property.
+        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
@@ -57,58 +57,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return null;
-        }
-
-        /// <summary>
-        ///     Creates a formatted string representation of the given properties such as is useful
-        ///     when throwing exceptions about keys, indexes, etc. that use the properties.
-        /// </summary>
-        /// <param name="properties"> The properties to format. </param>
-        /// <param name="includeTypes"> If <c>true</c>, then type names are included in the string. The default is <c>false</c>. </param>
-        /// <returns> The string representation. </returns>
-        public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
-            => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(
-                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
-               + "}";
-
-        /// <summary>
-        ///     Gets the factory that has been set to generate values for this property, if any.
-        /// </summary>
-        /// <param name="property"> The property to get the value generator factory for. </param>
-        /// <returns> The factory, or <c>null</c> if no factory has been set. </returns>
-        public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return (Func<IProperty, IEntityType, ValueGenerator>)property[CoreAnnotationNames.ValueGeneratorFactory];
-        }
-
-        /// <summary>
-        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
-        ///     then this is the maximum number of characters.
-        /// </summary>
-        /// <param name="property"> The property to get the maximum length of. </param>
-        /// <returns> The maximum length, or <c>null</c> if none if defined. </returns>
-        public static int? GetMaxLength([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return (int?)property[CoreAnnotationNames.MaxLength];
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether or not the property can persist Unicode characters.
-        /// </summary>
-        /// <param name="property"> The property to get the Unicode setting for. </param>
-        /// <returns> The Unicode setting, or <c>null</c> if none if defined. </returns>
-        public static bool? IsUnicode([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return (bool?)property[CoreAnnotationNames.Unicode];
         }
 
         /// <summary>
@@ -212,12 +160,29 @@ namespace Microsoft.EntityFrameworkCore
                ?? Enumerable.Empty<IKey>();
 
         /// <summary>
-        ///     Gets the type that the property value will be converted to before being sent to the database provider.
+        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
+        ///     then this is the maximum number of characters.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The provider type, or <c>null</c> if none has been set. </returns>
-        public static Type GetProviderClrType([NotNull] this IProperty property)
-            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
+        /// <param name="property"> The property to get the maximum length of. </param>
+        /// <returns> The maximum length, or <c>null</c> if none if defined. </returns>
+        public static int? GetMaxLength([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[CoreAnnotationNames.MaxLength];
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether or not the property can persist Unicode characters.
+        /// </summary>
+        /// <param name="property"> The property to get the Unicode setting for. </param>
+        /// <returns> The Unicode setting, or <c>null</c> if none if defined. </returns>
+        public static bool? IsUnicode([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (bool?)property[CoreAnnotationNames.Unicode];
+        }
 
         /// <summary>
         ///     <para>
@@ -237,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.BeforeSaveBehavior]
-                ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                    ? PropertySaveBehavior.Ignore
-                    : PropertySaveBehavior.Save);
+               ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
+                   ? PropertySaveBehavior.Ignore
+                   : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     <para>
@@ -258,11 +223,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.AfterSaveBehavior]
-                ?? (property.IsKey()
-                    ? PropertySaveBehavior.Throw
-                    : property.ValueGenerated.ForUpdate()
-                        ? PropertySaveBehavior.Ignore
-                        : PropertySaveBehavior.Save);
+               ?? (property.IsKey()
+                   ? PropertySaveBehavior.Throw
+                   : property.ValueGenerated.ForUpdate()
+                       ? PropertySaveBehavior.Ignore
+                       : PropertySaveBehavior.Save);
+
+        /// <summary>
+        ///     Gets the factory that has been set to generate values for this property, if any.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator factory for. </param>
+        /// <returns> The factory, or <c>null</c> if no factory has been set. </returns>
+        public static Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory([NotNull] this IProperty property)
+            => (Func<IProperty, IEntityType, ValueGenerator>)
+                Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueGeneratorFactory];
 
         /// <summary>
         ///     Gets the custom <see cref="ValueConverter" /> set for this property.
@@ -271,6 +245,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The converter, or <c>null</c> if none has been set. </returns>
         public static ValueConverter GetValueConverter([NotNull] this IProperty property)
             => (ValueConverter)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
+
+        /// <summary>
+        ///     Gets the type that the property value will be converted to before being sent to the database provider.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The provider type, or <c>null</c> if none has been set. </returns>
+        public static Type GetProviderClrType([NotNull] this IProperty property)
+            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> for this property, or <c>null</c> if none is set.
@@ -295,5 +277,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
             => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
+
+        /// <summary>
+        ///     Creates a formatted string representation of the given properties such as is useful
+        ///     when throwing exceptions about keys, indexes, etc. that use the properties.
+        /// </summary>
+        /// <param name="properties"> The properties to format. </param>
+        /// <param name="includeTypes"> If <c>true</c>, then type names are included in the string. The default is <c>false</c>. </param>
+        /// <returns> The string representation. </returns>
+        public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
+            => "{"
+               + string.Join(
+                   ", ",
+                   properties.Select(
+                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+               + "}";
     }
 }

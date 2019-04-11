@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -36,18 +36,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.
         /// </summary>
-        /// <param name="navigation"> The navigation property to set whether it should be eager loaded for. </param>.
+        /// <param name="navigation"> The navigation property to set whether it should be eager loaded. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void IsEagerLoaded(
+        public static void SetIsEagerLoaded(
             [NotNull] this IConventionNavigation navigation,
             bool? eagerLoaded,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            navigation.SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
-        }
+            => navigation.AsNavigation().SetIsEagerLoaded(
+                eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="NavigationExtensions.IsEagerLoaded" />.

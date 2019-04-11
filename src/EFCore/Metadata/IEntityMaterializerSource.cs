@@ -11,31 +11,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Defines a source for generating <see cref="Expression"/> trees that read values from
-    ///         a <see cref="ValueBuffer"/> or creates entity instances.
+    ///         Defines a source for generating <see cref="Expression" /> trees that read values from
+    ///         a <see cref="ValueBuffer" /> or creates entity instances.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public interface IEntityMaterializerSource
     {
         /// <summary>
         ///     <para>
-        ///         Creates an <see cref="Expression"/> tree representing reading a value from a <see cref="ValueBuffer"/>
+        ///         Creates an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer"/>. </param>
+        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
         /// <param name="type"> The type to read. </param>
         /// <param name="index"> The index in the buffer to read from. </param>
         /// <returns> An expression to read the value. </returns>
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Creates an <see cref="Expression"/> tree representing creating an entity instance.
+        ///         Creates an <see cref="Expression" /> tree representing creating an entity instance.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally

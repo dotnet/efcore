@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -408,9 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract TestHelpers TestHelpers { get; }
 
-        private EntityType GetDuckType()
+        private IMutableEntityType GetDuckType()
         {
-            var entityType = new Model().AddEntityType(typeof(Duck));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Duck));
             var id = entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Id)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Name)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Quacks)));

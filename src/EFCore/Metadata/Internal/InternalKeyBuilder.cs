@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -13,9 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [DebuggerDisplay("{Metadata,nq}")]
-    // Issue#11266 This type is being used by provider code. Do not break.
-    public class InternalKeyBuilder : InternalMetadataItemBuilder<Key>
+    public class InternalKeyBuilder : InternalModelItemBuilder<Key>, IConventionKeyBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,5 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return newKeyBuilder;
         }
+
+        IConventionKey IConventionKeyBuilder.Metadata => Metadata;
     }
 }

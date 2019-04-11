@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsUnique(bool? unique, ConfigurationSource configurationSource)
+        public virtual Index SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
@@ -132,6 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 DeclaringEntityType.Model.ConventionDispatcher.OnIndexUniquenessChanged(Builder);
             }
+
+            return this;
         }
 
         private static bool DefaultIsUnique => false;
@@ -173,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
         IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
 
-
+        IConventionIndexBuilder IConventionIndex.Builder => Builder;
         IReadOnlyList<IConventionProperty> IConventionIndex.Properties => Properties;
         IConventionEntityType IConventionIndex.DeclaringEntityType => DeclaringEntityType;
 

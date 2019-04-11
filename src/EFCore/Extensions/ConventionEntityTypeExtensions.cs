@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -350,6 +349,37 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
+        ///         in this model.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual entity types can override this access mode, and individual properties of
+        ///         entity types can override the access mode set on the entity type. The value set here will
+        ///         be used for any property for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the access mode for. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetPropertyAccessMode(
+            [NotNull] this IConventionEntityType entityType,
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation = false)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetPropertyAccessMode(
+                    propertyAccessMode,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="ModelExtensions.GetPropertyAccessMode" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the access mode for. </param>
+        /// <returns> The configuration source for <see cref="ModelExtensions.GetPropertyAccessMode" />. </returns>
+        public static ConfigurationSource? GetPropertyAccessModeConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
@@ -358,19 +388,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetChangeTrackingStrategy(
             [NotNull] this IConventionEntityType entityType,
-            ChangeTrackingStrategy changeTrackingStrategy,
+            ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
-            if (errorMessage != null)
-            {
-                throw new InvalidOperationException(errorMessage);
-            }
-
-            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetChangeTrackingStrategy(
+                    changeTrackingStrategy,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetChangeTrackingStrategy" />.
@@ -381,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
 
         /// <summary>
-        ///    Sets the LINQ expression filter automatically applied to queries for this entity type.
+        ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to set the query filter for. </param>
         /// <param name="queryFilter"> The LINQ expression filter. </param>
@@ -390,17 +413,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression queryFilter,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var errorMessage = entityType.CheckQueryFilter(queryFilter);
-            if (errorMessage != null)
-            {
-                throw new InvalidOperationException(errorMessage);
-            }
-
-            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, fromDataAnnotation);
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetQueryFilter(
+                    queryFilter,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetQueryFilter" />.
@@ -420,11 +436,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, fromDataAnnotation);
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetDefiningQuery(
+                    definingQuery,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />.

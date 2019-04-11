@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Convention);
             principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
             dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(
-                principalEntityBuilder, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
 
             new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var modelBuilder = principalEntityBuilder.ModelBuilder;
             var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(
-                principalEntityBuilder, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
 
             new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
             dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention);
-            principalEntityBuilder.Relationship(dependentEntityBuilder, ConfigurationSource.Convention);
-            principalEntityBuilder.Relationship(dependentEntityBuilder, ConfigurationSource.Convention);
-            baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
-            baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+            principalEntityBuilder.HasRelationship(dependentEntityBuilder.Metadata, ConfigurationSource.Convention);
+            principalEntityBuilder.HasRelationship(dependentEntityBuilder.Metadata, ConfigurationSource.Convention);
+            baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
+            baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
             new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 

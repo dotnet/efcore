@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -126,9 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey([NotNull] params string[] keyPropertyNames)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
+            [NotNull] params string[] keyPropertyNames)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
-        ///         A lambda expression representing the reference key property(s) (<c>blog => blog.BlogId</c>).
+        ///         A lambda expression representing the referenced key property(s) (<c>blog => blog.BlogId</c>).
         ///     </para>
         ///     <para>
         ///         If the principal key is made up of multiple properties then specify an anonymous type including the
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -183,13 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

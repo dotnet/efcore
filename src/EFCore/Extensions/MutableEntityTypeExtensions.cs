@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -101,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> Declared indexes. </returns>
         public static IEnumerable<IMutableIndex> GetDeclaredIndexes([NotNull] this IMutableEntityType entityType)
             => ((IEntityType)entityType).GetDeclaredIndexes().Cast<IMutableIndex>();
-
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -336,6 +334,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
+        ///         in this model.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual entity types can override this access mode, and individual properties of
+        ///         entity types can override the access mode set on the entity type. The value set here will
+        ///         be used for any property for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the access mode for. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
+        public static void SetPropertyAccessMode(
+            [NotNull] this IConventionEntityType entityType,
+            PropertyAccessMode? propertyAccessMode)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+
+        /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
@@ -343,38 +360,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="changeTrackingStrategy"> The strategy to use. </param>
         public static void SetChangeTrackingStrategy(
             [NotNull] this IMutableEntityType entityType,
-            ChangeTrackingStrategy changeTrackingStrategy)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
-            if (errorMessage != null)
-            {
-                throw new InvalidOperationException(errorMessage);
-            }
-
-            entityType[CoreAnnotationNames.ChangeTrackingStrategy] = changeTrackingStrategy;
-        }
+            ChangeTrackingStrategy? changeTrackingStrategy)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///    Sets the LINQ expression filter automatically applied to queries for this entity type.
+        ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to set the query filter for. </param>
         /// <param name="queryFilter"> The LINQ expression filter. </param>
         public static void SetQueryFilter(
             [NotNull] this IMutableEntityType entityType,
             [CanBeNull] LambdaExpression queryFilter)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var errorMessage = entityType.CheckQueryFilter(queryFilter);
-            if (errorMessage != null)
-            {
-                throw new InvalidOperationException(errorMessage);
-            }
-
-            entityType[CoreAnnotationNames.QueryFilter] = queryFilter;
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetQueryFilter(queryFilter, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the LINQ query used as the default source for queries of this type.
@@ -384,10 +383,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetDefiningQuery(
             [NotNull] this IMutableEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType[CoreAnnotationNames.DefiningQuery] = definingQuery;
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetDefiningQuery(definingQuery, ConfigurationSource.Explicit);
     }
 }

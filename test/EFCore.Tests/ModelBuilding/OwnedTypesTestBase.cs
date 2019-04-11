@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -604,10 +603,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(Order)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(SpecialOrder)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(Customer)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(SpecialCustomer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Order)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialOrder)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Customer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
             }
 
             [Fact]
@@ -652,10 +651,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(Order)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(SpecialOrder)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(Customer)));
-                Assert.Null(model.FindIgnoredTypeConfigurationSource(typeof(SpecialCustomer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Order)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialOrder)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Customer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
             }
 
             [Fact]

@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -74,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalKeyBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough] [param: CanBeNull] set;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
         }
 
         /// <summary>
@@ -155,6 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
         IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
 
+        IConventionKeyBuilder IConventionKey.Builder => Builder;
         IReadOnlyList<IConventionProperty> IConventionKey.Properties => Properties;
         IConventionEntityType IConventionKey.DeclaringEntityType => DeclaringEntityType;
 

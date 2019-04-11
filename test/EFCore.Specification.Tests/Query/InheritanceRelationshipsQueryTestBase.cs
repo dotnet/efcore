@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships;
 using Xunit;
 
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query = context.DerivedEntities.Include(e => e.BaseSelfRerefenceOnDerived);
+                var query = context.DerivedEntities.Include(e => e.BaseSelfReferenceOnDerived);
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);

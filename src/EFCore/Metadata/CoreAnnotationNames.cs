@@ -26,22 +26,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ProductVersion = "ProductVersion";
 
         /// <summary>
-        ///     The name of annotations that specify a <see cref="ValueGeneration.ValueGeneratorFactory"/> to use.
+        ///     The name of annotations that specify a <see cref="ValueGeneration.ValueGeneratorFactory" /> to use.
         /// </summary>
         public const string ValueGeneratorFactory = "ValueGeneratorFactory";
 
         /// <summary>
-        ///     Indicates the <see cref="EntityFrameworkCore.PropertyAccessMode"/> for the annotated item.
+        ///     Indicates the <see cref="EntityFrameworkCore.PropertyAccessMode" /> for the annotated item.
         /// </summary>
         public const string PropertyAccessMode = "PropertyAccessMode";
 
         /// <summary>
-        ///     Indicates the special <see cref="EntityFrameworkCore.PropertyAccessMode"/> for annotated navigation properties.
+        ///     Indicates the special <see cref="EntityFrameworkCore.PropertyAccessMode" /> for annotated navigation properties.
         /// </summary>
         public const string NavigationAccessMode = "NavigationAccessMode";
 
         /// <summary>
-        ///     Indicates the <see cref="EntityFrameworkCore.ChangeTrackingStrategy"/> used for entities in the model.
+        ///     Indicates the <see cref="EntityFrameworkCore.ChangeTrackingStrategy" /> used for entities in the model.
         /// </summary>
         public const string ChangeTrackingStrategy = "ChangeTrackingStrategy";
 
@@ -51,42 +51,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string OwnedTypes = "OwnedTypes";
 
         /// <summary>
-        ///     Indicates the <see cref="Internal.ConstructorBinding"/> to use for the annotated item.
+        ///     Indicates the <see cref="Internal.ConstructorBinding" /> to use for the annotated item.
         /// </summary>
         public const string ConstructorBinding = "ConstructorBinding";
 
         /// <summary>
-        ///     Indicates the <see cref="Storage.CoreTypeMapping"/> to use for the annotated item.
+        ///     Indicates the <see cref="Storage.CoreTypeMapping" /> to use for the annotated item.
         /// </summary>
         public const string TypeMapping = "TypeMapping";
 
         /// <summary>
-        ///     Indicates the <see cref="Storage.CoreTypeMapping"/> to use for the annotated item.
+        ///     Indicates the <see cref="Storage.CoreTypeMapping" /> to use for the annotated item.
         /// </summary>
         public const string ValueConverter = "ValueConverter";
 
         /// <summary>
-        ///     Indicates the <see cref="ChangeTracking.ValueComparer"/> to use for the annotated item.
+        ///     Indicates the <see cref="ChangeTracking.ValueComparer" /> to use for the annotated item.
         /// </summary>
         public const string ValueComparer = "ValueComparer";
 
         /// <summary>
-        ///     Indicates the <see cref="ChangeTracking.ValueComparer"/> to use for the annotated item when used as a key.
+        ///     Indicates the <see cref="ChangeTracking.ValueComparer" /> to use for the annotated item when used as a key.
         /// </summary>
         public const string KeyValueComparer = "KeyValueComparer";
 
         /// <summary>
-        ///     Indicates the <see cref="ChangeTracking.ValueComparer"/> when structural, as opposed to reference, comparison is required.
+        ///     Indicates the <see cref="ChangeTracking.ValueComparer" /> when structural, as opposed to reference, comparison is required.
         /// </summary>
         public const string StructuralValueComparer = "StructuralValueComparer";
 
         /// <summary>
-        ///     Indicates the <see cref="PropertySaveBehavior"/> for a property after the entity is saved to the database.
+        ///     Indicates the <see cref="PropertySaveBehavior" /> for a property after the entity is saved to the database.
         /// </summary>
         public const string AfterSaveBehavior = "AfterSaveBehavior";
 
         /// <summary>
-        ///     Indicates the <see cref="PropertySaveBehavior"/> for a property before the entity is saved to the database.
+        ///     Indicates the <see cref="PropertySaveBehavior" /> for a property before the entity is saved to the database.
         /// </summary>
         public const string BeforeSaveBehavior = "BeforeSaveBehavior";
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string EagerLoaded = "EagerLoaded";
 
         /// <summary>
-        ///     Indicates the <see cref="System.Type"/> used by the provider for the annotated item.
+        ///     Indicates the <see cref="System.Type" /> used by the provider for the annotated item.
         /// </summary>
         public const string ProviderClrType = "ProviderClrType";
     }

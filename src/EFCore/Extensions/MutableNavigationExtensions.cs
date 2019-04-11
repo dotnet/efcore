@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -36,13 +36,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.
         /// </summary>
-        /// <param name="navigation"> The navigation property to set whether it should be eager loaded for. </param>.
+        /// <param name="navigation"> The navigation property to set whether it should be eager loaded for. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         public static void SetIsEagerLoaded([NotNull] this IMutableNavigation navigation, bool? eagerLoaded)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            navigation[CoreAnnotationNames.EagerLoaded] = eagerLoaded;
-        }
+            => navigation.AsNavigation().SetIsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
     }
 }

@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
     ///         see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
-    ///         <see cref="DbContext"/>.
+    ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>

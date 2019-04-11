@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(BlogDetails.Blog),
                 nameof(Blog.BlogDetails),
                 ConfigurationSource.Convention);
@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(BlogDetails.Blog),
                 nameof(Blog.BlogDetails),
                 ConfigurationSource.Explicit);
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Post.Blog),
                 nameof(Blog.Posts),
                 ConfigurationSource.Convention);
@@ -126,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Post.Blog),
                 nameof(Blog.Posts),
                 ConfigurationSource.Convention);
@@ -152,8 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependents),
                 ConfigurationSource.Convention);
@@ -174,12 +174,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     nameof(Dependent.Principal),
                     nameof(Principal.Dependent),
                     ConfigurationSource.Convention)
-                .RelatedEntityTypes
+                .HasEntityTypes
                     (principalEntityTypeBuilder.Metadata, dependentEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
             var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
@@ -198,8 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependent),
                 ConfigurationSource.Convention);
@@ -262,8 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependents),
                 ConfigurationSource.Convention);
@@ -294,8 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependents),
                 ConfigurationSource.Explicit);
@@ -321,8 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(
                 typeof(AmbiguousPrincipal), ConfigurationSource.Convention);
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(AmbiguousDependent.AmbiguousPrincipal),
                 nameof(AmbiguousPrincipal.Dependent),
                 ConfigurationSource.Convention);
@@ -369,8 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     typeof(Dependent), nameof(Principal.Dependents), principalEntityTypeBuilder.Metadata, ConfigurationSource.Convention)
                 .Builder;
 
-            dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependents),
                 ConfigurationSource.Convention);
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
 
-            var dependentEntityTypeBuilder = principalEntityTypeBuilder.Owns(
+            var dependentEntityTypeBuilder = principalEntityTypeBuilder.HasOwnership(
                 typeof(Dependent),
                 nameof(Principal.Dependents),
                 ConfigurationSource.Convention).Metadata.DeclaringEntityType.Builder;
@@ -493,8 +493,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "Principal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -520,8 +520,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "Principal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -547,8 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "Principal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -574,8 +574,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "AnotherPrincipal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -606,8 +606,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "AnotherPrincipal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -633,8 +633,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(PrincipalField), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "AnotherPrincipalField",
                     "DependentField",
                     ConfigurationSource.Convention)
@@ -660,8 +660,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Dependent), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "Dependent",
                     "AnotherPrincipal",
                     ConfigurationSource.Convention)
@@ -691,8 +691,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                    principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                    principalEntityTypeBuilder.Metadata,
                     "CompositePrincipal",
                     "Dependent",
                     ConfigurationSource.Convention)
@@ -722,8 +722,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 "Principal",
                 null,
                 ConfigurationSource.Convention);
@@ -740,8 +740,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 "Principal",
                 null,
                 ConfigurationSource.Convention);
@@ -758,8 +758,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 "Principal",
                 null,
                 ConfigurationSource.Convention);
@@ -776,8 +776,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 "One",
                 null,
                 ConfigurationSource.Convention);
@@ -794,8 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(
                 typeof(InvertedPrincipal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
-                principalEntityTypeBuilder,
+            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
+                principalEntityTypeBuilder.Metadata,
                 null,
                 nameof(InvertedPrincipal.Dependents),
                 ConfigurationSource.Convention);

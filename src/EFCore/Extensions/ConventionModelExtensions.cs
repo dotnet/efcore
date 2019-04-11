@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -85,6 +86,20 @@ namespace Microsoft.EntityFrameworkCore
                 (EntityType)Check.NotNull(definingEntityType, nameof(definingEntityType)));
 
         /// <summary>
+        ///     Returns the entity types corresponding to the least derived types from the given.
+        /// </summary>
+        /// <param name="model"> The model to find the entity types in. </param>
+        /// <param name="type"> The base type. </param>
+        /// <param name="condition"> An optional condition for filtering entity types. </param>
+        /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
+        public static IReadOnlyList<IConventionEntityType> FindLeastDerivedEntityTypes(
+            [NotNull] this IConventionModel model,
+            [NotNull] Type type,
+            [CanBeNull] Func<IConventionEntityType, bool> condition = null)
+            => Check.NotNull(model, nameof(model)).AsModel()
+                .FindLeastDerivedEntityTypes(type, condition);
+
+        /// <summary>
         ///     <para>
         ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
         ///         in this model.
@@ -102,11 +117,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(model, nameof(model));
-
-            model.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
-        }
+            => Check.NotNull(model, nameof(model)).AsModel()
+                .SetPropertyAccessMode(
+                    propertyAccessMode,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ModelExtensions.GetPropertyAccessMode" />.
@@ -127,11 +141,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionModel model,
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(model, nameof(model));
-
-            model.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, fromDataAnnotation);
-        }
+            => Check.NotNull(model, nameof(model)).AsModel()
+                .SetChangeTrackingStrategy(
+                    changeTrackingStrategy,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ModelExtensions.GetChangeTrackingStrategy" />.
@@ -140,5 +153,41 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="ModelExtensions.GetChangeTrackingStrategy" />. </returns>
         public static ConfigurationSource? GetChangeTrackingStrategyConfigurationSource([NotNull] this IConventionModel model)
             => model.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns a value indicating whether the entity types matching the given name should be configured
+        ///     as owned types when discovered.
+        /// </summary>
+        /// <param name="model"> The model to get the value from. </param>
+        /// <param name="clrType"> The type of the entity type that might be owned. </param>
+        /// <returns>
+        ///     <c>true</c> if a matching entity type should be configured as owned when discovered,
+        ///     <c>false</c> otherwise.
+        /// </returns>
+        public static bool ShouldBeOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
+            => Check.NotNull(model, nameof(model)).AsModel().ShouldBeOwned(
+                Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Marks the given entity type as owned, indicating that when discovered matching entity types
+        ///     should be configured as owned.
+        /// </summary>
+        /// <param name="model"> The model to add the owned type to. </param>
+        /// <param name="clrType"> The type of the entity type that should be owned. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void AddOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
+            => Check.NotNull(model, nameof(model)).AsModel().AddOwned(
+                Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Removes the given owned type, indicating that when discovered matching entity types
+        ///     should not be configured as owned.
+        /// </summary>
+        /// <param name="model"> The model to remove the owned type name from. </param>
+        /// <param name="clrType"> The type of the entity type that should not be owned. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void RemoveOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
+            => Check.NotNull(model, nameof(model)).AsModel().RemoveOwned(
+                Check.NotNull(clrType, nameof(clrType)));
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -89,7 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalServicePropertyBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough] [param: CanBeNull] set;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
         }
 
         /// <summary>
@@ -151,7 +154,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _parameterBindingConfigurationSource = configurationSource.Max(_parameterBindingConfigurationSource);
 
         IEntityType IServiceProperty.DeclaringEntityType => DeclaringEntityType;
+
         IMutableEntityType IMutableServiceProperty.DeclaringEntityType => DeclaringEntityType;
+
+        IConventionServicePropertyBuilder IConventionServiceProperty.Builder => Builder;
         IConventionEntityType IConventionServiceProperty.DeclaringEntityType => DeclaringEntityType;
 
         /// <summary>

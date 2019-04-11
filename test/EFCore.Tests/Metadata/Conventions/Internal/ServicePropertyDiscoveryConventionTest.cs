@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_find_service_property_configured_as_property()
         {
-            var entityType = new Model().AddEntityType(typeof(BlogOneService));
+            var entityType = new Model().AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
             entityType.Builder.Property(nameof(BlogOneService.Loader), typeof(ILazyLoader), ConfigurationSource.Explicit)
                 .HasConversion(typeof(string), ConfigurationSource.Explicit);
 
@@ -48,9 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_not_find_service_property_configured_as_navigation()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(BlogOneService));
-            entityType.Builder.Navigation(
-                model.AddEntityType(typeof(LazyLoader)).Builder, nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
+            var entityType = model.AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
+            entityType.Builder.HasRelationship(
+                model.AddEntityType(typeof(LazyLoader), ConfigurationSource.Explicit),
+                nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
 
             ApplyConvention(entityType);
 
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
                 (typeof(ITypeMappingSource), typeMappingSource));
 
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
+            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
 
             convention.Apply(entityType.Builder);
 
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
                 (typeof(ITypeMappingSource), typeMappingSource));
 
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
+            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
 
             convention.Apply(entityType.Builder);
 
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static EntityType ApplyConvention<TEntity>()
-            => ApplyConvention(new Model().AddEntityType(typeof(TEntity)));
+            => ApplyConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit));
 
         private static EntityType ApplyConvention(EntityType entityType)
         {

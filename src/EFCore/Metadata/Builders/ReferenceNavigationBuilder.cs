@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private InternalRelationshipBuilder WithManyBuilder(PropertyIdentity collection)
         {
-            var builder = Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
+            var builder = Builder.HasEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
             var collectionName = collection.Name;
             if (builder.Metadata.IsUnique
                 && builder.Metadata.PrincipalToDependent != null
@@ -179,11 +179,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return RelatedEntityType != foreignKey.PrincipalEntityType
                 ? collection.MemberInfo == null && ReferenceProperty == null
-                    ? builder.Navigations(ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                    : builder.Navigations(ReferenceProperty, collection.MemberInfo, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                    ? builder.HasNavigations(
+                        ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                    : builder.HasNavigations(
+                        ReferenceProperty, collection.MemberInfo, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
                 : collection.MemberInfo != null
-                    ? builder.PrincipalToDependent(collection.MemberInfo, ConfigurationSource.Explicit)
-                    : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
+                    ? builder.HasNavigation(
+                        collection.MemberInfo,
+                        pointsToPrincipal: false,
+                        ConfigurationSource.Explicit)
+                    : builder.HasNavigation(
+                        collection.Name,
+                        pointsToPrincipal: false,
+                        ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -278,9 +286,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     && RelatedEntityType != foreignKey.DeclaringEntityType)
                 {
                     builder = referenceProperty == null && ReferenceProperty == null
-                        ? builder.Navigations(
+                        ? builder.HasNavigations(
                             referenceName, ReferenceName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                        : builder.Navigations(
+                        : builder.HasNavigations(
                             referenceProperty, ReferenceProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
                 }
                 else if (referenceName != null
@@ -288,24 +296,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                          && RelatedEntityType != foreignKey.PrincipalEntityType)
                 {
                     builder = referenceProperty == null && ReferenceProperty == null
-                        ? builder.Navigations(
+                        ? builder.HasNavigations(
                             ReferenceName, referenceName, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                        : builder.Navigations(
+                        : builder.HasNavigations(
                             ReferenceProperty, referenceProperty, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
                 }
                 else
                 {
                     if (referenceProperty != null)
                     {
-                        builder = pointsToPrincipal
-                            ? builder.DependentToPrincipal(referenceProperty, ConfigurationSource.Explicit)
-                            : builder.PrincipalToDependent(referenceProperty, ConfigurationSource.Explicit);
+                        builder = builder.HasNavigation(
+                            referenceProperty,
+                            pointsToPrincipal,
+                            ConfigurationSource.Explicit);
                     }
                     else
                     {
-                        builder = pointsToPrincipal
-                            ? builder.DependentToPrincipal(referenceName, ConfigurationSource.Explicit)
-                            : builder.PrincipalToDependent(referenceName, ConfigurationSource.Explicit);
+                        builder = builder.HasNavigation(
+                            referenceName,
+                            pointsToPrincipal,
+                            ConfigurationSource.Explicit);
                     }
                 }
 

@@ -38,10 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, ConfigurationSource.DataAnnotation);
             }
-            else
-            {
-                entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation);
-            }
 
             return entityTypeBuilder.Metadata.Builder;
         }

@@ -4,6 +4,7 @@
 using System.Reflection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalIndexBuilderTest
@@ -14,12 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalIndexBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.IsUnique(true, ConfigurationSource.Convention));
-            Assert.True(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.IsUnique(true, ConfigurationSource.Convention));
+            Assert.NotNull(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
 
             Assert.False(metadata.IsUnique);
 
-            Assert.False(builder.IsUnique(true, ConfigurationSource.Convention));
+            Assert.Null(builder.IsUnique(true, ConfigurationSource.Convention));
 
             Assert.False(metadata.IsUnique);
         }
@@ -32,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             metadata.IsUnique = true;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetConfigurationSource());
-            Assert.True(builder.IsUnique(true, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.IsUnique(true, ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.IsUnique);
 
-            Assert.True(builder.IsUnique(false, ConfigurationSource.Explicit));
+            Assert.NotNull(builder.IsUnique(false, ConfigurationSource.Explicit));
 
             Assert.False(metadata.IsUnique);
         }

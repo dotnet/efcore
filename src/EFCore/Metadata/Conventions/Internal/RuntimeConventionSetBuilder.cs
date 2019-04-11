@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
-    ///         are allowed. This means that each <see cref="DbContext"/> instance will use its own
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
     ///         set of instances of this service.
     ///         The implementations may depend on other services registered with any lifetime.
     ///         The implementations do not need to be thread-safe.

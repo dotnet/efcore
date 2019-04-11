@@ -44,10 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
         public static void SetPropertyAccessMode(
             [NotNull] this IMutablePropertyBase property, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(property, nameof(property));
-
-            property[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
-        }
+            => Check.NotNull(property, nameof(property)).AsPropertyBase()
+                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
     }
 }

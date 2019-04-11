@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -116,7 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalRelationshipBuilder Builder
         {
             [DebuggerStepThrough] get;
-            [DebuggerStepThrough] [param: CanBeNull] set;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
         }
 
         /// <summary>
@@ -140,7 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             DeclaringEntityType.UpdateConfigurationSource(configurationSource);
             PrincipalEntityType.UpdateConfigurationSource(configurationSource);
         }
-
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -257,8 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] string name,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
@@ -269,8 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] MemberInfo property,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
@@ -306,8 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] string name,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
@@ -318,8 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] MemberInfo property,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
@@ -589,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetDeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetDeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
         {
             _deleteBehavior = deleteBehavior;
 
@@ -601,6 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 UpdateDeleteBehaviorConfigurationSource(configurationSource);
             }
+
+            return this;
         }
 
         private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.ClientSetNull;
@@ -766,32 +766,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IKey IForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough]
-            get => PrincipalKey;
+            [DebuggerStepThrough] get => PrincipalKey;
         }
 
         IEntityType IForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         IEntityType IForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough]
-            get => PrincipalEntityType;
+            [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
         INavigation IForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough]
-            get => DependentToPrincipal;
+            [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
         INavigation IForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough]
-            get => PrincipalToDependent;
+            [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
         IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
@@ -827,10 +822,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         void IMutableForeignKey.SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey)
             => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey, ConfigurationSource.Explicit);
 
-        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
-        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) => HasDependentToPrincipal(property);
-        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
-        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(MemberInfo property) => HasPrincipalToDependent(property);
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) =>
+            HasDependentToPrincipal(name, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) =>
+            HasDependentToPrincipal(property, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) =>
+            HasPrincipalToDependent(name, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(MemberInfo property) =>
+            HasPrincipalToDependent(property, ConfigurationSource.Explicit);
 
         IConventionEntityType IConventionForeignKey.DeclaringEntityType => DeclaringEntityType;
         IConventionEntityType IConventionForeignKey.PrincipalEntityType => PrincipalEntityType;
@@ -859,7 +861,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<IConventionProperty> properties,
             IConventionKey principalKey,
             bool fromDataAnnotation)
-            => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey,
+            => SetProperties(
+                (IReadOnlyList<Property>)properties, (Key)principalKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
@@ -915,8 +918,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
                     || property.Builder == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(
-                        properties.Format(), declaringEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.ForeignKeyPropertiesWrongEntity(
+                            properties.Format(), declaringEntityType.DisplayName()));
                 }
             }
 
@@ -945,8 +949,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (principalEntityType.Model != declaringEntityType.Model)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(
-                    declaringEntityType.DisplayName(), principalEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeModelMismatch(
+                        declaringEntityType.DisplayName(), principalEntityType.DisplayName()));
             }
         }
 
@@ -1066,10 +1071,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static bool ArePropertyCountsEqual(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+        private static bool ArePropertyCountsEqual(
+            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Count == dependentProperties.Count;
 
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+        private static bool ArePropertyTypesCompatible(
+            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
@@ -1081,5 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<ForeignKey> DebugView
             => new DebugView<ForeignKey>(this, m => m.ToDebugString(false));
+
+        IConventionRelationshipBuilder IConventionForeignKey.Builder => Builder;
     }
 }

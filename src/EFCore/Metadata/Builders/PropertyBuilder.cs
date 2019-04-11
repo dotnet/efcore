@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring a <see cref="Property" />.
+    ///         Provides a simple API for configuring a <see cref="IMutableProperty" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures whether this property must have a value assigned or whether null is a valid value.
+        ///     Configures whether this property must have a value assigned or <c>null</c> is a valid value.
         ///     A property can only be configured as non-required if it is based on a CLR type that can be
-        ///     assigned null.
+        ///     assigned <c>null</c>.
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -97,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the property as capable of persisting unicode characters or not.
+        ///     Configures whether the property as capable of persisting unicode characters.
         ///     Can only be set on <see cref="string" /> properties.
         /// </summary>
-        /// <param name="unicode"> A value indicating whether the property can contain unicode characters or not. </param>
+        /// <param name="unicode"> A value indicating whether the property can contain unicode characters. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder IsUnicode(bool unicode = true)
         {
@@ -135,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
         ///         A single instance of this type will be created and used to generate values for this property in all
@@ -146,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         usually handled automatically by the database provider.
         ///     </para>
         /// </summary>
+        /// <typeparam name="TGenerator"> A type that inherits from <see cref="ValueGenerator" />. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder HasValueGenerator<TGenerator>()
             where TGenerator : ValueGenerator
@@ -162,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
         ///         A single instance of this type will be created and used to generate values for this property in all
@@ -177,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         configured for this property. The database provider may still have a value generator for the property type.
         ///     </para>
         /// </summary>
-        /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" /> </param>
+        /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder HasValueGenerator([CanBeNull] Type valueGeneratorType)
         {
@@ -194,7 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (null for string, 0 for int, Guid.Empty for Guid, etc.).
+        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
         ///         This factory will be invoked once to create a single instance of the value generator, and

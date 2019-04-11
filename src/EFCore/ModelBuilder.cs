@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         By default, the backing field, if one is found by convention or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
-        ///         Properties are used for all other accesses.  Calling this method will change that behavior
+        ///         Properties are used for all other accesses. Calling this method will change that behavior
         ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
         /// </summary>
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-        ///     processing happens automatically when using OnModelCreating; this method allows it to be run
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating"/>; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <returns>

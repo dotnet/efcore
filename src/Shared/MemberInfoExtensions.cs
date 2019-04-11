@@ -62,7 +62,7 @@ namespace System.Reflection
             var declaringType = targetMethod.DeclaringType;
             if (declaringType == interfaceType
                 || declaringType.IsInterface
-                || !declaringType.GetInterfaces().Any(i => i == interfaceType))
+                || declaringType.GetInterfaces().All(i => i != interfaceType))
             {
                 return targetMethod;
             }

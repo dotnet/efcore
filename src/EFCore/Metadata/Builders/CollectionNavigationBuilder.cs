@@ -181,11 +181,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return referenceName != null
                    && RelatedEntityType != foreignKey.DeclaringEntityType
                 ? reference.MemberInfo == null && CollectionProperty == null
-                    ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
-                    : Builder.Navigations(reference.MemberInfo, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                    ? Builder.HasNavigations(
+                        reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                    : Builder.HasNavigations(
+                        reference.MemberInfo, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
                 : reference.MemberInfo == null
-                    ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
-                    : Builder.DependentToPrincipal(reference.MemberInfo, ConfigurationSource.Explicit);
+                    ? Builder.HasNavigation(
+                        reference.Name,
+                        pointsToPrincipal: true,
+                        ConfigurationSource.Explicit)
+                    : Builder.HasNavigation(
+                        reference.MemberInfo,
+                        pointsToPrincipal: true,
+                        ConfigurationSource.Explicit);
         }
 
         #region Hidden System.Object members
@@ -203,6 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);
 
         /// <summary>
@@ -210,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode() => base.GetHashCode();
 
         #endregion

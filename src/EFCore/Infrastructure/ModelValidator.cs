@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                var errorMessage = entityType.CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
+                var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
                 if (errorMessage != null)
                 {
                     throw new InvalidOperationException(errorMessage);
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 ownership.PrincipalEntityType.DisplayName()));
                     }
                 }
-                else if (entityType.HasClrType() ? model.ShouldBeOwnedType(entityType.ClrType) : model.ShouldBeOwnedType(entityType.Name))
+                else if (entityType.HasClrType() && ((IMutableModel)model).ShouldBeOwned(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.OwnerlessOwnedType(entityType.DisplayName()));
                 }

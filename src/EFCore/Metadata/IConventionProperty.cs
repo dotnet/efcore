@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -14,6 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionProperty : IProperty, IConventionPropertyBase
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this property.
+        /// </summary>
+        IConventionPropertyBuilder Builder { get; }
+
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>
@@ -79,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <c>null</c> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        new void IsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
+        void SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IProperty.IsConcurrencyToken" />.

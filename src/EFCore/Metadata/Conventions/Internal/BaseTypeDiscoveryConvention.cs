@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (clrType == null
                 || entityType.HasDefiningNavigation()
                 || entityType.FindDeclaredOwnership() != null
-                || entityType.Model.ShouldBeOwnedType(entityType.Model.GetDisplayName(clrType)))
+                || entityType.Model.ShouldBeOwned(clrType))
             {
                 return entityTypeBuilder;
             }

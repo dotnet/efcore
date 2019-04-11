@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
         ///     annotation with the specified name already exists.
         /// </summary>
-        /// <param name="name"> The name of the annotation to be added. </param>
+        /// <param name="name"> The name of the annotation to be set. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         void SetAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionAnnotation FindAnnotation([NotNull] string name);
 
         /// <summary>
-        ///     Removes the given annotation from this object.
+        ///     Removes the annotation with the given name from this object.
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>

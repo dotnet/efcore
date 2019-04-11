@@ -283,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+        public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged(
+            [NotNull] InternalRelationshipBuilder relationshipBuilder)
             => _scope.OnForeignKeyRequirednessChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
         /// <summary>
@@ -301,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+        public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged(
+            [NotNull] InternalRelationshipBuilder relationshipBuilder)
             => _scope.OnForeignKeyPrincipalEndChanged(Check.NotNull(relationshipBuilder, nameof(relationshipBuilder)));
 
         /// <summary>

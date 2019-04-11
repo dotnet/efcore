@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -31,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionModel Model { get; }
 
         /// <summary>
+        ///     Gets the builder that can be used to configure this entity type.
+        /// </summary>
+        IConventionEntityTypeBuilder Builder { get; }
+
+        /// <summary>
         ///     Gets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         new IConventionEntityType BaseType { get; }
@@ -42,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsKeyless { get; }
 
         /// <summary>
-        /// Sets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
+        ///     Sets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         /// <param name="entityType"> The base entity type.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

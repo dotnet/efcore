@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when a property is ignored.
         /// </summary>
-        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();
+        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } =
+            new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
         ///     Conventions to run when the base entity type is changed.
@@ -90,12 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the uniqueness of an index is changed.
         /// </summary>
-        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } = new List<IIndexUniquenessChangedConvention>();
+        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } =
+            new List<IIndexUniquenessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is changed on an index.
         /// </summary>
-        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } = new List<IIndexAnnotationChangedConvention>();
+        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } =
+            new List<IIndexAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.

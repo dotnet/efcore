@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class InternalMetadataItemBuilder<TMetadata> : InternalMetadataBuilder<TMetadata>
+    public abstract class InternalAnnotatableBuilder<TMetadata> : InternalAnnotatableBuilder
         where TMetadata : ConventionAnnotatable
     {
         /// <summary>
@@ -21,10 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected InternalMetadataItemBuilder([NotNull] TMetadata metadata, [NotNull] InternalModelBuilder modelBuilder)
+        protected InternalAnnotatableBuilder([NotNull] TMetadata metadata)
             : base(metadata)
         {
-            ModelBuilder = modelBuilder;
         }
 
         /// <summary>
@@ -33,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override InternalModelBuilder ModelBuilder { [DebuggerStepThrough] get; }
+        public new virtual TMetadata Metadata
+        {
+            [DebuggerStepThrough] get => (TMetadata)base.Metadata;
+        }
     }
 }

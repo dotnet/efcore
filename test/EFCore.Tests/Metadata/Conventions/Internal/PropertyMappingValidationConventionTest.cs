@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             var referencedEntityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
-            entityTypeBuilder.Relationship(referencedEntityTypeBuilder, "Navigation", null, ConfigurationSource.Convention);
+            entityTypeBuilder.HasRelationship(referencedEntityTypeBuilder.Metadata, "Navigation", null, ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
         }
@@ -155,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(ExplicitNavigationEntity), ConfigurationSource.Convention);
             var referencedEntityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
-            entityTypeBuilder.Relationship(referencedEntityTypeBuilder, "Navigation", null, ConfigurationSource.Convention);
+            entityTypeBuilder.HasRelationship(
+                referencedEntityTypeBuilder.Metadata, "Navigation", null, ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
         }

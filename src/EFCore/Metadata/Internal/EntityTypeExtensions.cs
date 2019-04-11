@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -612,33 +610,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string CheckChangeTrackingStrategy([NotNull] this IEntityType entityType, ChangeTrackingStrategy value)
-        {
-            if (entityType.ClrType != null)
-            {
-                if (value != ChangeTrackingStrategy.Snapshot
-                    && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
-                {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanged));
-                }
-
-                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
-                {
-                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanging));
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IEnumerable<IPropertyBase> GetNotificationProperties(
             [NotNull] this IEntityType entityType, [CanBeNull] string propertyName)
         {
@@ -710,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Properties: ");
                     foreach (var property in properties)
                     {
-                        builder.AppendLine().Append(property.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(property.ToDebugString(false, indent: indent + "    "));
                     }
                 }
 
@@ -804,25 +775,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return property;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static string CheckQueryFilter([NotNull] this IEntityType entityType, [CanBeNull] LambdaExpression queryFilter)
-        {
-            if (queryFilter != null
-                && (queryFilter.Parameters.Count != 1
-                    || queryFilter.Parameters[0].Type != entityType.ClrType
-                    || queryFilter.ReturnType != typeof(bool)))
-            {
-                return CoreStrings.BadFilterExpression(queryFilter, entityType.DisplayName(), entityType.ClrType);
-            }
-
-            return null;
         }
 
         /// <summary>

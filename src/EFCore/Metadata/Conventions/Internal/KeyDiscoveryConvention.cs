@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             List<Property> keyProperties = null;
             var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                ?? entityType.FindOwnership();
+                             ?? entityType.FindOwnership();
             if (definingFk != null
                 && definingFk.DeclaringEntityType != entityType)
             {
@@ -139,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase)).ToList();
+            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
+                .ToList();
             if (keyProperties.Count == 0)
             {
                 var entityTypeName = entityType.ShortName();

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -46,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Set_throws_for_weak_types()
         {
             var model = new Model(new ConventionSet());
-            var question = model.AddEntityType(typeof(Question));
-            model.AddEntityType(typeof(User), nameof(Question.Author), question);
+            var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
+            model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
@@ -267,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
-            var model = new Model();
+            IConventionModel model = new Model();
             model.AddEntityType(typeof(TheGu));
 
             using (var context = new EarlyLearningCenter(

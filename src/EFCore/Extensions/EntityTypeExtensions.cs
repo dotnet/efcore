@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class EntityTypeExtensions
     {
         /// <summary>
-        ///    Checks if this entity type represents an abstract type.
+        ///     Checks if this entity type represents an abstract type.
         /// </summary>
         /// <param name="type"> The entity type. </param>
         /// <returns> True if the type is abstract, false otherwise. </returns>
@@ -460,16 +460,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///    Gets the data stored in the model for the given entity type.
+        ///     Gets the data stored in the model for the given entity type.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="providerValues"> If true, then provider values are used. </param>
         /// <returns> The data. </returns>
-        public static IEnumerable<IDictionary<string, object>> GetSeedData([NotNull] this IEntityType entityType, bool providerValues = false)
+        public static IEnumerable<IDictionary<string, object>> GetSeedData(
+            [NotNull] this IEntityType entityType, bool providerValues = false)
             => entityType.AsEntityType().GetSeedData(providerValues);
 
         /// <summary>
-        ///    Gets the LINQ expression filter automatically applied to queries for this entity type.
+        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the query filter for. </param>
         /// <returns> The LINQ expression filter. </returns>

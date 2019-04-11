@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <c>blog => blog.Url</c>).
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        public virtual PropertyBuilder<TProperty> Property<TProperty>(
+            [NotNull] Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(
                 DependentEntityType.Builder.Property(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
@@ -92,15 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
-        ///     from the owned entity type that were added by convention.
+        ///     or navigations from the owned entity type that were added by convention.
         /// </summary>
-        /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
+        /// <param name="propertyName"> The name of the property to be removed from the entity type. </param>
         public new virtual OwnedNavigationBuilder<TEntity, TDependentEntity> Ignore([NotNull] string propertyName)
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)base.Ignore(propertyName);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
-        ///     from the owned entity type that were added by convention.
+        ///     or navigations from the owned entity type that were added by convention.
         /// </summary>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be ignored
@@ -154,7 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 PrincipalEntityType,
                 DependentEntityType,
-                Builder.DependentToPrincipal(ownerReference, ConfigurationSource.Explicit));
+                Builder.HasNavigation(
+                    ownerReference,
+                    pointsToPrincipal: true,
+                    ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -178,7 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new OwnershipBuilder<TEntity, TDependentEntity>(
                 PrincipalEntityType,
                 DependentEntityType,
-                Builder.DependentToPrincipal(referenceExpression?.GetPropertyAccess(), ConfigurationSource.Explicit));
+                Builder.HasNavigation(
+                    referenceExpression?.GetPropertyAccess(),
+                    pointsToPrincipal: true,
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -312,15 +319,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOneBuilder<TNewDependentEntity>(PropertyIdentity navigation)
+        private OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOneBuilder<TNewDependentEntity>(
+            PropertyIdentity navigation)
             where TNewDependentEntity : class
         {
             InternalRelationshipBuilder relationship;
             using (var batch = DependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = navigation.MemberInfo == null
-                    ? DependentEntityType.Builder.Owns(typeof(TNewDependentEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.Owns(typeof(TNewDependentEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+                    ? DependentEntityType.Builder.HasOwnership(typeof(TNewDependentEntity), navigation.Name, ConfigurationSource.Explicit)
+                    : DependentEntityType.Builder.HasOwnership(
+                        typeof(TNewDependentEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship.Metadata).Builder;
             }
@@ -471,8 +480,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = DependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = navigation.MemberInfo == null
-                    ? DependentEntityType.Builder.Owns(typeof(TNewRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.Owns(typeof(TNewRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+                    ? DependentEntityType.Builder.HasOwnership(typeof(TNewRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
+                    : DependentEntityType.Builder.HasOwnership(
+                        typeof(TNewRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship.Metadata).Builder;
             }
@@ -519,8 +529,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType,
                 relatedEntityType,
                 navigationName,
-                DependentEntityType.Builder.Navigation(
-                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
+                DependentEntityType.Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: DependentEntityType == relatedEntityType));
         }
 
@@ -563,8 +573,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType,
                 relatedEntityType,
                 navigation,
-                DependentEntityType.Builder.Navigation(
-                    relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
+                DependentEntityType.Builder.HasRelationship(
+                    relatedEntityType, navigation, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: DependentEntityType == relatedEntityType));
         }
 

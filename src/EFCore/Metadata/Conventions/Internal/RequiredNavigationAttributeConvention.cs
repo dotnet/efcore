@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return relationshipBuilder;
                 }
 
-                var newRelationshipBuilder = relationshipBuilder.RelatedEntityTypes(
+                var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                     relationshipBuilder.Metadata.DeclaringEntityType,
                     relationshipBuilder.Metadata.PrincipalEntityType,
                     ConfigurationSource.Convention);

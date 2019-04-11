@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -18,5 +21,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the model that this type belongs to.
         /// </summary>
         new IMutableModel Model { get; }
+
+        /// <summary>
+        ///     Marks the given member name as ignored, preventing conventions from adding a matching property
+        ///     or navigation to the type.
+        /// </summary>
+        /// <param name="name"> The name of the member to be ignored. </param>
+        void AddIgnored([NotNull] string name);
+
+        /// <summary>
+        ///     Removes the ignored member name.
+        /// </summary>
+        /// <param name="name"> The name of the member to be removed. </param>
+        void RemoveIgnored([NotNull] string name);
+
+        /// <summary>
+        ///     Indicates whether the given member name is ignored.
+        /// </summary>
+        /// <param name="name"> The name of the member that might be ignored. </param>
+        /// <returns> <c>true</c> if the given member name is ignored. </returns>
+        bool IsIgnored([NotNull] string name);
+
+        /// <summary>
+        ///     Gets all the ignored members.
+        /// </summary>
+        /// <returns> The list of ignored member names. </returns>
+        IReadOnlyList<string> GetIgnoredMembers();
     }
 }

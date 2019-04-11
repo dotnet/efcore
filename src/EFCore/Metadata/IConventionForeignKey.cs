@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -19,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionForeignKey : IForeignKey, IConventionAnnotatable
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this foreign key.
+        /// </summary>
+        IConventionRelationshipBuilder Builder { get; }
+
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.
         /// </summary>
@@ -119,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets a value indicating whether this relationship defines an ownership.
         ///     If <c>true</c>, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
-        /// <param name="ownership"> A value indicating whether this relationship defines an ownership.</param>
+        /// <param name="ownership"> A value indicating whether this relationship defines an ownership. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         void SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);
 

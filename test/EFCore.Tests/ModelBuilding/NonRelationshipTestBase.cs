@@ -849,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         Assert.Equal(
                             CoreStrings.ConverterPropertyMismatch("string", "Quarks", "Up", "int"),
-                            Assert.Throws<ArgumentException>(
+                            Assert.Throws<InvalidOperationException>(
                                 () => b.Property(e => e.Up).HasConversion(
                                     new StringToBytesConverter(Encoding.UTF8))).Message);
                     });

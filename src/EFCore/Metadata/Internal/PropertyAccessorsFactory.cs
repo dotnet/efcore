@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     currentValueExpression = Expression.MakeIndex(
                         convertedExpression,
                         propertyBase.PropertyInfo,
-                        new [] { Expression.Constant(propertyBase.Name) });
+                        new[] { Expression.Constant(propertyBase.Name) });
                 }
                 else
                 {

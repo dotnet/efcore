@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
+            var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
             Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasConstraintName("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().ConstraintName);

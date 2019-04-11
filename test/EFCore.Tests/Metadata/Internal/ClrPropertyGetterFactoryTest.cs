@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.AddProperty("Id", typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
 
             Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var fuelProperty = entityType.AddProperty("Fuel", typeof(Fuel), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
+            var fuelProperty = entityType.AddProperty("Fuel", typeof(Fuel));
 
             Assert.Equal(
                 new Fuel(1.0),

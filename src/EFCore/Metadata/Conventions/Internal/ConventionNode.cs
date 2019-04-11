@@ -101,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public virtual bool OnEntityTypeIgnored([NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
+            public virtual bool OnEntityTypeIgnored(
+                [NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
             {
                 Add(new OnEntityTypeIgnoredNode(modelBuilder, name, type));
                 return true;
@@ -219,25 +220,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyUniquenessChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyRequirednessChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnPrincipalEndChangedNode(relationshipBuilder));
                 return relationshipBuilder;
@@ -1034,7 +1039,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private class OnIndexAnnotationChangedNode : ConventionNode
         {
-            public OnIndexAnnotationChangedNode(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+            public OnIndexAnnotationChangedNode(
+                InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
             {
                 IndexBuilder = indexBuilder;
                 Name = name;
@@ -1089,9 +1095,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private class OnForeignKeyPropertiesChangedNode : ConventionNode
         {
             public OnForeignKeyPropertiesChangedNode(
-                 InternalRelationshipBuilder relationshipBuilder,
-                 IReadOnlyList<Property> oldDependentProperties,
-                 Key oldPrincipalKey)
+                InternalRelationshipBuilder relationshipBuilder,
+                IReadOnlyList<Property> oldDependentProperties,
+                Key oldPrincipalKey)
             {
                 RelationshipBuilder = relationshipBuilder;
                 OldDependentProperties = oldDependentProperties;

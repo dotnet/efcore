@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -205,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (invertConfigurationSource != null)
             {
-                newRelationshipBuilder = newRelationshipBuilder.RelatedEntityTypes(
+                newRelationshipBuilder = newRelationshipBuilder.HasEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, invertConfigurationSource.Value);
             }
             else
@@ -250,11 +249,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            relationshipBuilder = relationshipBuilder.PrincipalToDependent((string)null, ConfigurationSource.DataAnnotation);
+            relationshipBuilder = relationshipBuilder.HasNavigation(
+                (string)null,
+                pointsToPrincipal: false,
+                ConfigurationSource.DataAnnotation);
             return relationshipBuilder == null
                 ? null
-                : foreignKey.PrincipalEntityType.Builder.Relationship(
-                      foreignKey.DeclaringEntityType.Builder,
+                : foreignKey.PrincipalEntityType.Builder.HasRelationship(
+                      foreignKey.DeclaringEntityType,
                       principalToDependentNavigationName,
                       null,
                       ConfigurationSource.DataAnnotation) == null

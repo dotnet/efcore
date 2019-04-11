@@ -52,11 +52,9 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionPropertyBase property,
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(property, nameof(property));
-
-            property.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation);
-        }
+            => Check.NotNull(property, nameof(property)).AsPropertyBase()
+                .SetPropertyAccessMode(
+                    propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="PropertyBaseExtensions.GetPropertyAccessMode" />.

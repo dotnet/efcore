@@ -241,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static void SetDuplicateServiceProperties(
             InternalEntityTypeBuilder entityTypeBuilder,
             Dictionary<Type, HashSet<MemberInfo>> duplicateServiceProperties)
-            => entityTypeBuilder.HasAnnotation(DuplicateServicePropertiesAnnotationName, duplicateServiceProperties, ConfigurationSource.Convention);
+            => entityTypeBuilder.HasAnnotation(
+                DuplicateServicePropertiesAnnotationName, duplicateServiceProperties, ConfigurationSource.Convention);
     }
 }

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -15,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionServiceProperty : IServiceProperty, IConventionPropertyBase
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this service property.
+        /// </summary>
+        IConventionServicePropertyBuilder Builder { get; }
+
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>

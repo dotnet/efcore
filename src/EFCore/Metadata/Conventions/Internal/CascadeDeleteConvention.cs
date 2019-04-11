@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            relationshipBuilder.DeleteBehavior(
+            relationshipBuilder.OnDelete(
                 TargetDeleteBehavior(relationshipBuilder.Metadata),
                 ConfigurationSource.Convention);
 

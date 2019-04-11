@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -203,7 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IProperty property, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IProperty property,
+            bool singleLine = true,
+            bool includeIndexes = false,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -299,14 +302,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            var indexes = property.GetPropertyIndexes();
-            if (indexes != null)
+            if (includeIndexes)
             {
-                builder.Append(" ").Append(indexes.Index);
-                builder.Append(" ").Append(indexes.OriginalValueIndex);
-                builder.Append(" ").Append(indexes.RelationshipIndex);
-                builder.Append(" ").Append(indexes.ShadowIndex);
-                builder.Append(" ").Append(indexes.StoreGenerationIndex);
+                var indexes = property.GetPropertyIndexes();
+                if (indexes != null)
+                {
+                    builder.Append(" ").Append(indexes.Index);
+                    builder.Append(" ").Append(indexes.OriginalValueIndex);
+                    builder.Append(" ").Append(indexes.RelationshipIndex);
+                    builder.Append(" ").Append(indexes.ShadowIndex);
+                    builder.Append(" ").Append(indexes.StoreGenerationIndex);
+                }
             }
 
             if (!singleLine)

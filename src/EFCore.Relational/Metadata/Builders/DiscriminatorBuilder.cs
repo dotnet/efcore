@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)AnnotationsBuilder.MetadataBuilder;
+        protected virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)AnnotationsBuilder.GetInfrastructure();
 
         /// <summary>
         ///     Configures the default discriminator value to use.
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual DiscriminatorBuilder HasValue([NotNull] Type entityType, [CanBeNull] object value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
-                        entityType, AnnotationsBuilder.ConfigurationSource, owned: null);
+                        entityType, AnnotationsBuilder.ConfigurationSource, shouldBeOwned: null);
 
             return HasValue(entityTypeBuilder, value);
         }
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual DiscriminatorBuilder HasValue([NotNull] string entityTypeName, [CanBeNull] object value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
-                        entityTypeName, AnnotationsBuilder.ConfigurationSource, owned: null);
+                        entityTypeName, AnnotationsBuilder.ConfigurationSource, shouldBeOwned: null);
 
             return HasValue(entityTypeBuilder, value);
         }

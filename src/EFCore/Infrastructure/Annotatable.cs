@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
             }
 
-            SetAnnotation(name, annotation, null);
+            SetAnnotation(name, annotation, oldAnnotation: null);
 
             return annotation;
         }
@@ -90,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be set. </param>
-        /// <param name="oldAnotation"> The annotation bwing replaced. </param>
+        /// <param name="oldAnnotation"> The annotation being replaced. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation SetAnnotation(
             [NotNull] string name,
             [NotNull] Annotation annotation,
-            [NotNull] Annotation oldAnotation)
+            [CanBeNull] Annotation oldAnnotation)
         {
             if (_annotations == null)
             {
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             _annotations[name] = annotation;
 
-            return OnAnnotationSet(name, annotation, oldAnotation);
+            return OnAnnotationSet(name, annotation, oldAnnotation);
         }
 
         /// <summary>

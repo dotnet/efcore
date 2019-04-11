@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         newFields[field.Name] = field;
                     }
                 }
+
                 fields = newFields;
             }
             else

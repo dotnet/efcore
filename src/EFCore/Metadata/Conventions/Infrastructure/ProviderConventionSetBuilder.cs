@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet"/>
-    ///         for the current database provider. This is combined with <see cref="IConventionSetCustomizer"/>
-    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder"/>
+    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet" />
+    ///         for the current database provider. This is combined with <see cref="IConventionSetCustomizer" />
+    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder" />
     ///         service.
     ///     </para>
     ///     <para>
@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>

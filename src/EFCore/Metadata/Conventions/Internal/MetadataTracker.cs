@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class MetadataTracker : IReferenceRoot<ForeignKey>
     {
-        private Dictionary<ForeignKey, Reference<ForeignKey>> _trackedForeignKeys = new Dictionary<ForeignKey, Reference<ForeignKey>>();
+        private readonly Dictionary<ForeignKey, Reference<ForeignKey>> _trackedForeignKeys =
+            new Dictionary<ForeignKey, Reference<ForeignKey>>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

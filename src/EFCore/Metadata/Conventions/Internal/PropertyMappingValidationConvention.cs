@@ -8,7 +8,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var isTargetWeakOrOwned
                         = targetType != null
                           && (modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType)
-                              || modelBuilder.Metadata.ShouldBeOwnedType(targetType));
+                              || modelBuilder.Metadata.ShouldBeOwned(targetType));
 
                     if (targetType?.IsValidEntityType() == true
                         && (isTargetWeakOrOwned
@@ -140,8 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                         || (entityType.DefiningEntityType.ClrType.Equals(targetType)
                                             && targetSequenceType == null)))))
                         {
-                            if (modelBuilder.Metadata.ShouldBeOwnedType(entityType.ClrType)
-                                && modelBuilder.Metadata.ShouldBeOwnedType(targetType))
+                            if (modelBuilder.Metadata.ShouldBeOwned(entityType.ClrType)
+                                && modelBuilder.Metadata.ShouldBeOwned(targetType))
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));
