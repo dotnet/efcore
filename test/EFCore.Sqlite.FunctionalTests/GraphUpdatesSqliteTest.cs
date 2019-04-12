@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
-{
+{ 
     public abstract class GraphUpdatesSqliteTest
     {
         public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class SnapshotNotifications
+        // issue #15318
+        internal class SnapshotNotifications
             : GraphUpdatesSqliteTestBase<SnapshotNotifications.SnapshotNotificationsFixture>
         {
             public SnapshotNotifications(SnapshotNotificationsFixture fixture, ITestOutputHelper testOutputHelper)
@@ -60,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangedNotifications
+        // issue #15318
+        internal class ChangedNotifications
             : GraphUpdatesSqliteTestBase<ChangedNotifications.ChangedNotificationsFixture>
         {
             public ChangedNotifications(ChangedNotificationsFixture fixture)
@@ -81,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangedChangingNotifications
+        // issue #15318
+        internal class ChangedChangingNotifications
             : GraphUpdatesSqliteTestBase<ChangedChangingNotifications.ChangedChangingNotificationsFixture>
         {
             public ChangedChangingNotifications(ChangedChangingNotificationsFixture fixture)
@@ -102,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class FullWithOriginalsNotifications
+        // issue #15318
+        internal class FullWithOriginalsNotifications
             : GraphUpdatesSqliteTestBase<FullWithOriginalsNotifications.FullWithOriginalsNotificationsFixture>
         {
             public FullWithOriginalsNotifications(FullWithOriginalsNotificationsFixture fixture)

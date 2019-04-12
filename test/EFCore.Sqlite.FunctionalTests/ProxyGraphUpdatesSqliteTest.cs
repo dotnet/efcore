@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class LazyLoading : ProxyGraphUpdatesSqliteTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture>
+        // issue #15318
+        internal class LazyLoading : ProxyGraphUpdatesSqliteTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingSqliteFixture fixture)
                 : base(fixture)
