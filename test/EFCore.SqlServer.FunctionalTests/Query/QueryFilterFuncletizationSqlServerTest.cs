@@ -6,7 +6,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryFilterFuncletizationSqlServerTest
+    // issue #15264
+    internal class QueryFilterFuncletizationSqlServerTest
         : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationSqlServerTest.QueryFilterFuncletizationSqlServerFixture>
     {
         public QueryFilterFuncletizationSqlServerTest(

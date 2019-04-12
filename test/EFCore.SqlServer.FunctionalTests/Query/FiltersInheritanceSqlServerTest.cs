@@ -5,7 +5,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceSqlServerTest : FiltersInheritanceTestBase<FiltersInheritanceSqlServerFixture>
+    // issue #15264
+    internal class FiltersInheritanceSqlServerTest : FiltersInheritanceTestBase<FiltersInheritanceSqlServerFixture>
     {
         public FiltersInheritanceSqlServerTest(FiltersInheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

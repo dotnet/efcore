@@ -27,6 +27,11 @@
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
+  
+  <!-- HACK: Work around #15093 -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
+  </PropertyGroup>
 
   <!-- HACK: Work around dotnet/arcade#1373 -->
   <PropertyGroup>

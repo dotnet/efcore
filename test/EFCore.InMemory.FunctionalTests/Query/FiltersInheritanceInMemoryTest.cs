@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceInMemoryTest : FiltersInheritanceTestBase<FiltersInheritanceInMemoryFixture>
+    // issue #15264
+    internal class FiltersInheritanceInMemoryTest : FiltersInheritanceTestBase<FiltersInheritanceInMemoryFixture>
     {
         public FiltersInheritanceInMemoryTest(FiltersInheritanceInMemoryFixture fixture)
             : base(fixture)

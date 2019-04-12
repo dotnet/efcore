@@ -12,8 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public static class RelationalInternalMetadataBuilderExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalModelBuilderAnnotations Relational(
             [NotNull] this InternalModelBuilder builder,
@@ -21,8 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalModelBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyBuilderAnnotations Relational(
             [NotNull] this InternalPropertyBuilder builder,
@@ -30,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalPropertyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalEntityTypeBuilderAnnotations Relational(
             [NotNull] this InternalEntityTypeBuilder builder,
@@ -39,8 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalKeyBuilderAnnotations Relational(
             [NotNull] this InternalKeyBuilder builder,
@@ -48,8 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalKeyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalIndexBuilderAnnotations Relational(
             [NotNull] this InternalIndexBuilder builder,
@@ -57,8 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new RelationalIndexBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalForeignKeyBuilderAnnotations Relational(
             [NotNull] this InternalRelationshipBuilder builder,

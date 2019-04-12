@@ -1786,6 +1786,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => ids.Any(li => li.Equals(c.CustomerID))),
@@ -1802,6 +1803,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => ids.Any(li => Equals(li, c.CustomerID))),
@@ -1818,6 +1820,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => li == c.CustomerID)),
@@ -1834,6 +1837,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => ids.All(li => li != c.CustomerID)),
@@ -1850,6 +1854,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => ids.All(li => !li.Equals(c.CustomerID))),
@@ -1866,6 +1871,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => ids.All(li => !Equals(li, c.CustomerID))),
@@ -1882,6 +1888,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ALFKI",
                 "ANATR"
             };
+
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
