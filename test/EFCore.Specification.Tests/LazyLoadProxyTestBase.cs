@@ -756,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
         [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
         [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
@@ -808,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
@@ -955,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "issue #15318")]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -1698,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1713,7 +1713,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1728,7 +1728,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public virtual void Lazy_load_reference_to_dependent_for_no_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1785,7 +1785,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1812,7 +1812,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1827,7 +1827,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1888,7 +1888,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

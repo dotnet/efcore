@@ -14,7 +14,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             typeof(FunkyDataQueryTestBase<>),
             typeof(OptimisticConcurrencyTestBase<>),
-            typeof(StoreGeneratedTestBase<>)
+            typeof(StoreGeneratedTestBase<>),
+            typeof(LoadTestBase<>),                        // issue #15318
+            typeof(GraphUpdatesTestBase<>),                // issue #15318
+            typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
+            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
+            typeof(FiltersInheritanceTestBase<>),          // issue #15264
+            typeof(FiltersTestBase<>),                     // issue #15264
+            typeof(OwnedQueryTestBase<>)                  // issue #15285
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

@@ -28,8 +28,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSequenceHiLoValueGenerator(
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -47,8 +49,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override long GetNewLowValue()
             => (long)Convert.ChangeType(
@@ -59,8 +63,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                 CultureInfo.InvariantCulture);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override async Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default)
             => (long)Convert.ChangeType(
@@ -71,8 +77,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                 CultureInfo.InvariantCulture);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override bool GeneratesTemporaryValues => false;
     }

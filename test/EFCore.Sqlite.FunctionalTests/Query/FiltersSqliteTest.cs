@@ -5,7 +5,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersSqliteTest : FiltersTestBase<NorthwindQuerySqliteFixture<NorthwindFiltersCustomizer>>
+    // issue #15264
+    internal class FiltersSqliteTest : FiltersTestBase<NorthwindQuerySqliteFixture<NorthwindFiltersCustomizer>>
     {
         public FiltersSqliteTest(NorthwindQuerySqliteFixture<NorthwindFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

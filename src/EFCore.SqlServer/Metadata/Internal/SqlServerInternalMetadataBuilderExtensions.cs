@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
     public static class SqlServerInternalMetadataBuilderExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlServerModelBuilderAnnotations SqlServer(
             [NotNull] this InternalModelBuilder builder,
@@ -23,8 +25,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             => new SqlServerModelBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlServerPropertyBuilderAnnotations SqlServer(
             [NotNull] this InternalPropertyBuilder builder,
@@ -32,8 +36,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             => new SqlServerPropertyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlServerEntityTypeBuilderAnnotations SqlServer(
             [NotNull] this InternalEntityTypeBuilder builder,
@@ -41,8 +47,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             => new SqlServerEntityTypeBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlServerKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalKeyBuilder builder,
@@ -50,8 +58,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             => new SqlServerKeyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlServerIndexBuilderAnnotations SqlServer(
             [NotNull] this InternalIndexBuilder builder,
@@ -59,8 +69,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             => new SqlServerIndexBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalForeignKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalRelationshipBuilder builder,
