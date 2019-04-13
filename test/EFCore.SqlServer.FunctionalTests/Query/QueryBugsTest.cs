@@ -356,7 +356,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bugs925_926
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -1744,7 +1744,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1762,7 +1762,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -2417,7 +2417,7 @@ WHERE [c].[Id] IN (
 
         #region Bug9202/9210
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Include_collection_for_entity_with_owned_type_works()
         {
             using (CreateDatabase9202())
@@ -2463,7 +2463,7 @@ ORDER BY [t2].[Id]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Include_collection_for_entity_with_owned_type_works_string()
         {
             using (CreateDatabase9202())
@@ -2825,7 +2825,7 @@ BEGIN
 
         #region Bug9038
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
@@ -2844,7 +2844,7 @@ BEGIN
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public async Task Include_optional_reference_collection_another_collection()
         {
             using (CreateDatabase9038())
@@ -2987,7 +2987,7 @@ BEGIN
 
         #region Bug9735
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
         public virtual void Repro9735()
         {
@@ -3328,7 +3328,7 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
 
         #region Bug10635
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public void Include_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
@@ -3370,7 +3370,7 @@ ORDER BY [t].[Id]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15043")]
         public void Correlated_collection_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
@@ -3487,7 +3487,7 @@ ORDER BY [t].[Id]");
 
         #region Bug10168
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Row_number_paging_with_owned_type()
         {
             using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
@@ -3585,7 +3585,7 @@ WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__
 
         #region Bug10301
 
-        [Fact]
+        [Fact(Skip = "issue #15364")]
         public virtual void MultiContext_query_filter_test()
         {
             using (CreateDatabase10301())
@@ -3765,7 +3765,7 @@ WHERE [b].[IsTwo] IN (CAST(1 AS bit), CAST(0 AS bit))");
 
         #region Bug11818_11831
 
-        [Fact]
+        [Fact(Skip = "issue #15249")]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
             using (CreateDatabase11818())
@@ -3803,7 +3803,7 @@ GROUP BY [t].[Name]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15249")]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_2()
         {
             using (CreateDatabase11818())
@@ -5096,7 +5096,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [Fact]
+        [Fact(Skip = "issue #15043")]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())

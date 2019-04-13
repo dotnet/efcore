@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoadSqliteTest : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>
+    // issue #15318
+    internal class LoadSqliteTest : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>
     {
         public LoadSqliteTest(LoadSqliteFixture fixture)
             : base(fixture)

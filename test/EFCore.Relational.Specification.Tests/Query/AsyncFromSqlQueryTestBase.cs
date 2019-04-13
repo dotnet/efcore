@@ -303,7 +303,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -316,7 +316,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
@@ -361,7 +361,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Include_does_not_close_user_opened_connection_for_empty_result()
         {
             Fixture.TestStore.CloseConnection();
@@ -391,7 +391,7 @@ FROM [Customers]"))
             Fixture.TestStore.OpenConnection();
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();
@@ -691,7 +691,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task From_sql_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -704,7 +704,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task From_sql_queryable_simple_composed_include()
         {
             using (var context = CreateContext())

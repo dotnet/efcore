@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public void Can_set_reference_twice()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public void Can_include_on_loaded_entity()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))

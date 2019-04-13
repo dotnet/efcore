@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore
             => typeof(ComplianceTestBase).Assembly.ExportedTypes.Where(t => t.Name.Contains("TestBase"));
 
         private static bool Implements(Type type, Type interfaceOrBaseType)
-            => interfaceOrBaseType.IsGenericTypeDefinition
+            => (type.IsPublic || type.IsNestedPublic) &&
+               interfaceOrBaseType.IsGenericTypeDefinition
                 ? GetGenericTypeImplementations(type, interfaceOrBaseType).Any()
                 : interfaceOrBaseType.IsAssignableFrom(type);
 

@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoadInMemoryTest : LoadTestBase<LoadInMemoryTest.LoadInMemoryFixture>
+    //issue #15318
+    internal class LoadInMemoryTest : LoadTestBase<LoadInMemoryTest.LoadInMemoryFixture>
     {
         public LoadInMemoryTest(LoadInMemoryFixture fixture)
             : base(fixture)

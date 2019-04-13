@@ -34,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
@@ -477,6 +479,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
+        /// <summary>
+        ///     Generates a SQL fragment for a computed column definition for the given column metadata.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="name"> The column name. </param>
+        /// <param name="operation"> The column metadata. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void ComputedColumnDefinition(
             string schema,
             string table,

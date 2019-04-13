@@ -902,6 +902,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual Task AssertAverage<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Action<object, object> asserter = null)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, isAsync);
+
+        protected virtual Task AssertAverage<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<long>> query,
             Action<object, object> asserter = null)
             where TItem1 : class
