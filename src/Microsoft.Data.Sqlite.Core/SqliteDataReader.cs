@@ -588,7 +588,7 @@ namespace Microsoft.Data.Sqlite
                 var schemaRow = schemaTable.NewRow();
                 schemaRow[ColumnName] = GetName(i);
                 schemaRow[ColumnOrdinal] = i;
-                schemaRow[ColumnSize] = DBNull.Value;
+                schemaRow[ColumnSize] = -1;
                 schemaRow[NumericPrecision] = DBNull.Value;
                 schemaRow[NumericScale] = DBNull.Value;
                 schemaRow[BaseServerName] = _command.Connection.DataSource;

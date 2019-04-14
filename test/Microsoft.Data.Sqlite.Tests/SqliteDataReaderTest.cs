@@ -1394,7 +1394,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("LastName", schema.Rows[0]["ColumnName"]);
                     Assert.Equal(0, schema.Rows[0]["ColumnOrdinal"]);
-                    Assert.Equal(DBNull.Value, schema.Rows[0]["ColumnSize"]);
+                    Assert.Equal(-1, schema.Rows[0]["ColumnSize"]);
                     Assert.Equal(DBNull.Value, schema.Rows[0]["NumericPrecision"]);
                     Assert.Equal(DBNull.Value, schema.Rows[0]["NumericScale"]);
                     Assert.False((bool)schema.Rows[0]["IsUnique"]);
@@ -1414,7 +1414,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("ID", schema.Rows[1]["ColumnName"]);
                     Assert.Equal(1, schema.Rows[1]["ColumnOrdinal"]);
-                    Assert.Equal(DBNull.Value, schema.Rows[1]["ColumnSize"]);
+                    Assert.Equal(-1, schema.Rows[1]["ColumnSize"]);
                     Assert.Equal(DBNull.Value, schema.Rows[1]["NumericPrecision"]);
                     Assert.Equal(DBNull.Value, schema.Rows[1]["NumericScale"]);
                     Assert.False((bool)schema.Rows[1]["IsUnique"]);
@@ -1434,7 +1434,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("Code", schema.Rows[2]["ColumnName"]);
                     Assert.Equal(2, schema.Rows[2]["ColumnOrdinal"]);
-                    Assert.Equal(DBNull.Value, schema.Rows[2]["ColumnSize"]);
+                    Assert.Equal(-1, schema.Rows[2]["ColumnSize"]);
                     Assert.Equal(DBNull.Value, schema.Rows[2]["NumericPrecision"]);
                     Assert.Equal(DBNull.Value, schema.Rows[2]["NumericScale"]);
                     Assert.True((bool)schema.Rows[2]["IsUnique"]);
@@ -1454,7 +1454,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("IncID", schema.Rows[3]["ColumnName"]);
                     Assert.Equal(3, schema.Rows[3]["ColumnOrdinal"]);
-                    Assert.Equal(DBNull.Value, schema.Rows[3]["ColumnSize"]);
+                    Assert.Equal(-1, schema.Rows[3]["ColumnSize"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["NumericPrecision"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["NumericScale"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["IsUnique"]);
