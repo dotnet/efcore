@@ -616,6 +616,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class;
 
         public abstract Task AssertAverage<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+            where TItem1 : class;
+
+        public abstract Task AssertAverage<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<long>> expectedQuery,
             Action<object, object> asserter = null,

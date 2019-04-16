@@ -5,6 +5,10 @@ variables:
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: true
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _DotNetArtifactsCategory
+    value: ENTITYFRAMEWORKCORE
 
 trigger:
   - master
@@ -18,6 +22,7 @@ jobs:
       enableMicrobuild: true
       enablePublishBuildArtifacts: true
       enablePublishBuildAssets: true
+      enablePublishUsingPipelines: $(_PublishUsingPipelines)
       enablePublishTestResults: true
       enableTelemetry: true
       helixRepo: aspnet/EntityFrameworkCore
@@ -37,7 +42,7 @@ jobs:
               - _SignType: real
               - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
               - _DotNetPublishToBlobFeed: true
-              - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+              - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
           steps:
             - script: "echo ##vso[build.addbuildtag]daily-build"
               condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
@@ -79,11 +84,18 @@ jobs:
         - job: macOS
           pool:
             vmImage: macOS-10.13
+          variables:
+            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI', 'PullRequest')) }}:
+              - _CosmosConnection: https://ef-nightly-test.documents.azure.com:443/
+              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
+              env:
+                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnection)
+                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
               continueOnError: true
 

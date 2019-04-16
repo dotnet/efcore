@@ -9,7 +9,8 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersSqlServerTest : FiltersTestBase<NorthwindQuerySqlServerFixture<NorthwindFiltersCustomizer>>
+    //issue #15264
+    internal class FiltersSqlServerTest : FiltersTestBase<NorthwindQuerySqlServerFixture<NorthwindFiltersCustomizer>>
     {
         public FiltersSqlServerTest(NorthwindQuerySqlServerFixture<NorthwindFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -223,7 +224,7 @@ INNER JOIN (
 WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = N'')) AND ([t0].[Discount] < CAST(10 AS real))");
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #15264")]
         public void FromSql_is_composed()
         {
             using (var context = CreateContext())

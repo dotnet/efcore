@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void Throws_when_select_many()
         {
             using (var context = CreateContext())

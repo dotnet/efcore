@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery()
         {
             using (var context = CreateContext())
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
         {
             using (var context = CreateContext())
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning()
         {
             using (var context = CreateContext())
