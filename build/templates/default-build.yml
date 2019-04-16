@@ -3,6 +3,8 @@
 # Description: Defines a build phase for invoking build.sh/cmd
 #
 # Parameters:
+#   poolName: string
+#       The name of the Azure DevOps agent pool to use.
 #   agentOs: string
 #       Used in templates to define variables which are OS specific. Typically from the set { Windows, Linux, macOS }
 #   configuration: string
@@ -41,10 +43,10 @@ jobs:
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
       vmImage: ubuntu-16.04
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
-      ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+      ${{ if eq(variables['System.TeamProject'], 'public') }}:
         name: NetCorePublic-Int-Pool
         queue: BuildPool.Windows.10.Amd64.VS2017.Open
-      ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+      ${{ if ne(variables['System.TeamProject'], 'public') }}:
         name: NetCoreInternal-Int-Pool
         queue: BuildPool.Windows.10.Amd64.VS2017
   variables:
@@ -52,9 +54,10 @@ jobs:
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}
-    ${{ if or(ne(parameters.codeSign, 'true'), ne(variables['System.TeamProject'], 'internal')) }}:
+    VSTS_OVERWRITE_TEMP: false # Workaround for https://github.com/dotnet/core-eng/issues/2812
+    ${{ if or(ne(parameters.codeSign, 'true'), ne(variables['System.TeamProject'], 'internal'), eq(variables['Build.Reason'], 'PullRequest')) }}:
       _SignType:
-    ${{ if and(eq(parameters.codeSign, 'true'), eq(variables['System.TeamProject'], 'internal')) }}:
+    ${{ if and(eq(parameters.codeSign, 'true'), eq(variables['System.TeamProject'], 'internal'), ne(variables['Build.Reason'], 'PullRequest')) }}:
       TeamName: AspNetCore
       _SignType: real
   steps:
