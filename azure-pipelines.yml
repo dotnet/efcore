@@ -29,10 +29,10 @@ jobs:
       jobs:
         - job: Windows
           pool:
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+            ${{ if eq(variables['System.TeamProject'], 'public') }}:
               name: NetCorePublic-Int-Pool
               queue: BuildPool.Windows.10.Amd64.VS2017.Open
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+            ${{ if ne(variables['System.TeamProject'], 'public') }}:
               name: NetCoreInternal-Int-Pool
               queue: BuildPool.Windows.10.Amd64.VS2017
           variables:
