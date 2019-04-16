@@ -316,7 +316,6 @@ WHERE [c.Animals].[Discriminator] IN (N'Kiwi', N'Eagle')
 ORDER BY [t].[Name], [t].[Id]");
         }
 
-#if !Test20
         public override void Can_use_of_type_kiwi_where_north_on_derived_property()
         {
             base.Can_use_of_type_kiwi_where_north_on_derived_property();
@@ -336,7 +335,6 @@ WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = CAST(0 AS tinyint))")
 FROM [Animal] AS [x]
 WHERE ([x].[Discriminator] = N'Kiwi') AND ([x].[FoundOn] = CAST(1 AS tinyint))");
         }
-#endif
 
         public override void Discriminator_used_when_projection_over_derived_type()
         {
@@ -419,7 +417,6 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
 
         public override void Byte_enum_value_constant_used_in_projection()
         {
-#if !Test20
             base.Byte_enum_value_constant_used_in_projection();
 
             AssertSql(
@@ -429,7 +426,6 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
 END
 FROM [Animal] AS [k]
 WHERE [k].[Discriminator] = N'Kiwi'");
-#endif
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

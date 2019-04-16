@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var connection = new FakeRelationalConnection(
                 CreateOptions((FakeRelationalOptionsExtension)new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
 
-            var loggerFactory = new ListLoggerFactory(new List<(LogLevel, EventId, string)>());
+            var loggerFactory = new ListLoggerFactory();
 
             var transaction = new RelationalTransaction(
                 connection,
@@ -52,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private class NonRelationalTransaction : IDbContextTransaction
         {
-            public virtual Guid TransactionId { get; } = Guid.NewGuid();
+            public Guid TransactionId { get; } = Guid.NewGuid();
 
             public void Commit()
             {

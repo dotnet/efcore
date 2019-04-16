@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     new List<ParameterBinding>
                     {
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
-                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo))),
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     }
                 );
 
@@ -313,7 +313,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public static SomeEntity Factory(int id, Guid? goo)
-                => new SomeEntity(id, goo) { FactoryUsed = true };
+                => new SomeEntity(id, goo)
+                {
+                    FactoryUsed = true
+                };
 
             public static SomeEntity GeneralFactory(object[] constructorArguments)
             {
@@ -323,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public bool FactoryUsed { get; set; }
-            public bool ParameterizedConstructorUsed { get; set; }
+            public bool ParameterizedConstructorUsed { get; }
             public bool IdSetterCalled { get; set; }
             public bool GooSetterCalled { get; set; }
 
@@ -370,13 +373,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
             public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
 
-#pragma warning disable 649
+#pragma warning disable 649, IDE0044 // Add readonly modifier
             private int _id;
             private string _foo;
             private Guid? _goo;
             private SomeEnum _enum;
             private SomeEnum? _maybeEnum;
-#pragma warning restore 649
+#pragma warning restore 649, IDE0044 // Add readonly modifier
 
             public int Id => _id;
             public string Foo => _foo;

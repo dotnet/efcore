@@ -3,15 +3,14 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NullSemanticsQueryRelationalFixture : SharedStoreFixtureBase<NullSemanticsContext>
     {
         protected override string StoreName { get; } = "NullSemanticsQueryTest";
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

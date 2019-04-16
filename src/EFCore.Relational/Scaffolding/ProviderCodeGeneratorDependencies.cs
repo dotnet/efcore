@@ -1,6 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -35,9 +39,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        // ReSharper disable once EmptyConstructor
-        public ProviderCodeGeneratorDependencies()
+        /// <param name="plugins"> The plugins. </param>
+        public ProviderCodeGeneratorDependencies([NotNull] IEnumerable<IProviderCodeGeneratorPlugin> plugins)
         {
+            Check.NotNull(plugins, nameof(plugins));
+
+            Plugins = plugins;
         }
+
+        /// <summary>
+        ///     Gets the plugins.
+        /// </summary>
+        public IEnumerable<IProviderCodeGeneratorPlugin> Plugins { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ProviderCodeGeneratorDependencies With([NotNull] IEnumerable<IProviderCodeGeneratorPlugin> plugins)
+            => new ProviderCodeGeneratorDependencies(plugins);
     }
 }

@@ -68,20 +68,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public DateTime ETA
             {
-                get { return _eta; }
-                set { SetWithNotify(value, ref _eta); }
+                get => _eta;
+                set => SetWithNotify(value, ref _eta);
             }
 
             public int SupplierId
             {
-                get { return _supplierId; }
-                set { SetWithNotify(value, ref _supplierId); }
+                get => _supplierId;
+                set => SetWithNotify(value, ref _supplierId);
             }
 
             public virtual ISupplier Supplier
             {
-                get { return _supplier; }
-                set { SetWithNotify(value, ref _supplier); }
+                get => _supplier;
+                set => SetWithNotify(value, ref _supplier);
             }
         }
 
@@ -92,14 +92,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public byte[] Code
             {
-                get { return _code; }
-                set { SetWithNotify(value, ref _code); }
+                get => _code;
+                set => SetWithNotify(value, ref _code);
             }
 
             public string RegisteredTo
             {
-                get { return _registeredTo; }
-                set { SetWithNotify(value, ref _registeredTo); }
+                get => _registeredTo;
+                set => SetWithNotify(value, ref _registeredTo);
             }
         }
 
@@ -119,38 +119,38 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public byte[] Code
             {
-                get { return _code; }
-                set { SetWithNotify(value, ref _code); }
+                get => _code;
+                set => SetWithNotify(value, ref _code);
             }
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public string Text
             {
-                get { return _text; }
-                set { SetWithNotify(value, ref _text); }
+                get => _text;
+                set => SetWithNotify(value, ref _text);
             }
 
             public virtual IProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
 
             public virtual ICollection<IIncorrectScan> BadScans
             {
-                get { return _badScans; }
-                set { SetWithNotify(value, ref _badScans); }
+                get => _badScans;
+                set => SetWithNotify(value, ref _badScans);
             }
 
             public virtual IBarcodeDetail Detail
             {
-                get { return _detail; }
-                set { SetWithNotify(value, ref _detail); }
+                get => _detail;
+                set => SetWithNotify(value, ref _detail);
             }
         }
 
@@ -166,44 +166,44 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ComplaintId
             {
-                get { return _complaintId; }
-                set { SetWithNotify(value, ref _complaintId); }
+                get => _complaintId;
+                set => SetWithNotify(value, ref _complaintId);
             }
 
             public int AlternateId
             {
-                get { return _alternateId; }
-                set { SetWithNotify(value, ref _alternateId); }
+                get => _alternateId;
+                set => SetWithNotify(value, ref _alternateId);
             }
 
             public int? CustomerId
             {
-                get { return _customerId; }
-                set { SetWithNotify(value, ref _customerId); }
+                get => _customerId;
+                set => SetWithNotify(value, ref _customerId);
             }
 
             public DateTime Logged
             {
-                get { return _logged; }
-                set { SetWithNotify(value, ref _logged); }
+                get => _logged;
+                set => SetWithNotify(value, ref _logged);
             }
 
             public string Details
             {
-                get { return _details; }
-                set { SetWithNotify(value, ref _details); }
+                get => _details;
+                set => SetWithNotify(value, ref _details);
             }
 
             public virtual ICustomer Customer
             {
-                get { return _customer; }
-                set { SetWithNotify(value, ref _customer); }
+                get => _customer;
+                set => SetWithNotify(value, ref _customer);
             }
 
             public virtual IResolution Resolution
             {
-                get { return _resolution; }
-                set { SetWithNotify(value, ref _resolution); }
+                get => _resolution;
+                set => SetWithNotify(value, ref _resolution);
             }
         }
 
@@ -225,50 +225,50 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ComputerDetailId
             {
-                get { return _computerDetailId; }
-                set { SetWithNotify(value, ref _computerDetailId); }
+                get => _computerDetailId;
+                set => SetWithNotify(value, ref _computerDetailId);
             }
 
             public string Manufacturer
             {
-                get { return _manufacturer; }
-                set { SetWithNotify(value, ref _manufacturer); }
+                get => _manufacturer;
+                set => SetWithNotify(value, ref _manufacturer);
             }
 
             public string Model
             {
-                get { return _model; }
-                set { SetWithNotify(value, ref _model); }
+                get => _model;
+                set => SetWithNotify(value, ref _model);
             }
 
             public string Serial
             {
-                get { return _serial; }
-                set { SetWithNotify(value, ref _serial); }
+                get => _serial;
+                set => SetWithNotify(value, ref _serial);
             }
 
             public string Specifications
             {
-                get { return _specifications; }
-                set { SetWithNotify(value, ref _specifications); }
+                get => _specifications;
+                set => SetWithNotify(value, ref _specifications);
             }
 
             public DateTime PurchaseDate
             {
-                get { return _purchaseDate; }
-                set { SetWithNotify(value, ref _purchaseDate); }
+                get => _purchaseDate;
+                set => SetWithNotify(value, ref _purchaseDate);
             }
 
             public IDimensions Dimensions
             {
-                get { return _dimensions; }
-                set { SetWithNotify(value, ref _dimensions); }
+                get => _dimensions;
+                set => SetWithNotify(value, ref _dimensions);
             }
 
             public virtual IComputer Computer
             {
-                get { return _computer; }
-                set { SetWithNotify(value, ref _computer); }
+                get => _computer;
+                set => SetWithNotify(value, ref _computer);
             }
         }
 
@@ -280,20 +280,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ComputerId
             {
-                get { return _computerId; }
-                set { SetWithNotify(value, ref _computerId); }
+                get => _computerId;
+                set => SetWithNotify(value, ref _computerId);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public virtual IComputerDetail ComputerDetail
             {
-                get { return _computerDetail; }
-                set { SetWithNotify(value, ref _computerDetail); }
+                get => _computerDetail;
+                set => SetWithNotify(value, ref _computerDetail);
             }
         }
 
@@ -304,14 +304,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Token
             {
-                get { return _token; }
-                set { SetWithNotify(value, ref _token); }
+                get => _token;
+                set => SetWithNotify(value, ref _token);
             }
 
             public DateTime? QueriedDateTime
             {
-                get { return _queriedDateTime; }
-                set { SetWithNotify(value, ref _queriedDateTime); }
+                get => _queriedDateTime;
+                set => SetWithNotify(value, ref _queriedDateTime);
             }
         }
 
@@ -331,26 +331,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Email
             {
-                get { return _email; }
-                set { SetWithNotify(value, ref _email); }
+                get => _email;
+                set => SetWithNotify(value, ref _email);
             }
 
             public IPhone HomePhone
             {
-                get { return _homePhone; }
-                set { SetWithNotify(value, ref _homePhone); }
+                get => _homePhone;
+                set => SetWithNotify(value, ref _homePhone);
             }
 
             public IPhone WorkPhone
             {
-                get { return _workPhone; }
-                set { SetWithNotify(value, ref _workPhone); }
+                get => _workPhone;
+                set => SetWithNotify(value, ref _workPhone);
             }
 
             public IPhone MobilePhone
             {
-                get { return _mobilePhone; }
-                set { SetWithNotify(value, ref _mobilePhone); }
+                get => _mobilePhone;
+                set => SetWithNotify(value, ref _mobilePhone);
             }
         }
 
@@ -361,14 +361,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int CustomerInfoId
             {
-                get { return _customerInfoId; }
-                set { SetWithNotify(value, ref _customerInfoId); }
+                get => _customerInfoId;
+                set => SetWithNotify(value, ref _customerInfoId);
             }
 
             public string Information
             {
-                get { return _information; }
-                set { SetWithNotify(value, ref _information); }
+                get => _information;
+                set => SetWithNotify(value, ref _information);
             }
         }
 
@@ -380,20 +380,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public decimal Width
             {
-                get { return _width; }
-                set { SetWithNotify(value, ref _width); }
+                get => _width;
+                set => SetWithNotify(value, ref _width);
             }
 
             public decimal Height
             {
-                get { return _height; }
-                set { SetWithNotify(value, ref _height); }
+                get => _height;
+                set => SetWithNotify(value, ref _height);
             }
 
             public decimal Depth
             {
-                get { return _depth; }
-                set { SetWithNotify(value, ref _depth); }
+                get => _depth;
+                set => SetWithNotify(value, ref _depth);
             }
         }
 
@@ -405,20 +405,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public DateTime Discontinued
             {
-                get { return _discontinued; }
-                set { _discontinued = value; }
+                get => _discontinued;
+                set => _discontinued = value;
             }
 
             public int? ReplacementProductId
             {
-                get { return _replacementProductId; }
-                set { _replacementProductId = value; }
+                get => _replacementProductId;
+                set => _replacementProductId = value;
             }
 
             public virtual IProduct ReplacedBy
             {
-                get { return _replacedBy; }
-                set { _replacedBy = value; }
+                get => _replacedBy;
+                set => _replacedBy = value;
             }
         }
 
@@ -430,20 +430,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public DateTime BirthDate
             {
-                get { return _birthDate; }
-                set { SetWithNotify(value, ref _birthDate); }
+                get => _birthDate;
+                set => SetWithNotify(value, ref _birthDate);
             }
 
             public virtual ILicense License
             {
-                get { return _license; }
-                set { SetWithNotify(value, ref _license); }
+                get => _license;
+                set => SetWithNotify(value, ref _license);
             }
         }
 
@@ -459,44 +459,44 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int IncorrectScanId
             {
-                get { return _incorrectScanId; }
-                set { SetWithNotify(value, ref _incorrectScanId); }
+                get => _incorrectScanId;
+                set => SetWithNotify(value, ref _incorrectScanId);
             }
 
             public byte[] ExpectedCode
             {
-                get { return _expectedCode; }
-                set { SetWithNotify(value, ref _expectedCode); }
+                get => _expectedCode;
+                set => SetWithNotify(value, ref _expectedCode);
             }
 
             public byte[] ActualCode
             {
-                get { return _actualCode; }
-                set { SetWithNotify(value, ref _actualCode); }
+                get => _actualCode;
+                set => SetWithNotify(value, ref _actualCode);
             }
 
             public DateTime ScanDate
             {
-                get { return _scanDate; }
-                set { SetWithNotify(value, ref _scanDate); }
+                get => _scanDate;
+                set => SetWithNotify(value, ref _scanDate);
             }
 
             public string Details
             {
-                get { return _details; }
-                set { SetWithNotify(value, ref _details); }
+                get => _details;
+                set => SetWithNotify(value, ref _details);
             }
 
             public virtual IBarcode ExpectedBarcode
             {
-                get { return _expectedBarcode; }
-                set { SetWithNotify(value, ref _expectedBarcode); }
+                get => _expectedBarcode;
+                set => SetWithNotify(value, ref _expectedBarcode);
             }
 
             public virtual IBarcode ActualBarcode
             {
-                get { return _actualBarcode; }
-                set { SetWithNotify(value, ref _actualBarcode); }
+                get => _actualBarcode;
+                set => SetWithNotify(value, ref _actualBarcode);
             }
         }
 
@@ -510,32 +510,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public DateTime LoggedIn
             {
-                get { return _loggedIn; }
-                set { SetWithNotify(value, ref _loggedIn); }
+                get => _loggedIn;
+                set => SetWithNotify(value, ref _loggedIn);
             }
 
             public DateTime? LoggedOut
             {
-                get { return _loggedOut; }
-                set { SetWithNotify(value, ref _loggedOut); }
+                get => _loggedOut;
+                set => SetWithNotify(value, ref _loggedOut);
             }
 
             public string SmartcardUsername
             {
-                get { return _smartcardUsername; }
-                set { SetWithNotify(value, ref _smartcardUsername); }
+                get => _smartcardUsername;
+                set => SetWithNotify(value, ref _smartcardUsername);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
         }
 
@@ -556,44 +556,44 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public string LicenseNumber
             {
-                get { return _licenseNumber; }
-                set { SetWithNotify(value, ref _licenseNumber); }
+                get => _licenseNumber;
+                set => SetWithNotify(value, ref _licenseNumber);
             }
 
             public string LicenseClass
             {
-                get { return _licenseClass; }
-                set { SetWithNotify(value, ref _licenseClass); }
+                get => _licenseClass;
+                set => SetWithNotify(value, ref _licenseClass);
             }
 
             public string Restrictions
             {
-                get { return _restrictions; }
-                set { SetWithNotify(value, ref _restrictions); }
+                get => _restrictions;
+                set => SetWithNotify(value, ref _restrictions);
             }
 
             public DateTime ExpirationDate
             {
-                get { return _expirationDate; }
-                set { SetWithNotify(value, ref _expirationDate); }
+                get => _expirationDate;
+                set => SetWithNotify(value, ref _expirationDate);
             }
 
             public LicenseState? State
             {
-                get { return _state; }
-                set { SetWithNotify(value, ref _state); }
+                get => _state;
+                set => SetWithNotify(value, ref _state);
             }
 
             public virtual IDriver Driver
             {
-                get { return _driver; }
-                set { SetWithNotify(value, ref _driver); }
+                get => _driver;
+                set => SetWithNotify(value, ref _driver);
             }
         }
 
@@ -611,56 +611,56 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int MessageId
             {
-                get { return _messageId; }
-                set { SetWithNotify(value, ref _messageId); }
+                get => _messageId;
+                set => SetWithNotify(value, ref _messageId);
             }
 
             public string FromUsername
             {
-                get { return _fromUsername; }
-                set { SetWithNotify(value, ref _fromUsername); }
+                get => _fromUsername;
+                set => SetWithNotify(value, ref _fromUsername);
             }
 
             public string ToUsername
             {
-                get { return _toUsername; }
-                set { SetWithNotify(value, ref _toUsername); }
+                get => _toUsername;
+                set => SetWithNotify(value, ref _toUsername);
             }
 
             public DateTime Sent
             {
-                get { return _sent; }
-                set { SetWithNotify(value, ref _sent); }
+                get => _sent;
+                set => SetWithNotify(value, ref _sent);
             }
 
             public string Subject
             {
-                get { return _subject; }
-                set { SetWithNotify(value, ref _subject); }
+                get => _subject;
+                set => SetWithNotify(value, ref _subject);
             }
 
             public string Body
             {
-                get { return _body; }
-                set { SetWithNotify(value, ref _body); }
+                get => _body;
+                set => SetWithNotify(value, ref _body);
             }
 
             public bool IsRead
             {
-                get { return _isRead; }
-                set { SetWithNotify(value, ref _isRead); }
+                get => _isRead;
+                set => SetWithNotify(value, ref _isRead);
             }
 
             public virtual ILogin Sender
             {
-                get { return _sender; }
-                set { SetWithNotify(value, ref _sender); }
+                get => _sender;
+                set => SetWithNotify(value, ref _sender);
             }
 
             public virtual ILogin Recipient
             {
-                get { return _recipient; }
-                set { SetWithNotify(value, ref _recipient); }
+                get => _recipient;
+                set => SetWithNotify(value, ref _recipient);
             }
         }
 
@@ -680,38 +680,38 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int OrderId
             {
-                get { return _orderId; }
-                set { SetWithNotify(value, ref _orderId); }
+                get => _orderId;
+                set => SetWithNotify(value, ref _orderId);
             }
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public int Quantity
             {
-                get { return _quantity; }
-                set { SetWithNotify(value, ref _quantity); }
+                get => _quantity;
+                set => SetWithNotify(value, ref _quantity);
             }
 
             public string ConcurrencyToken
             {
-                get { return _concurrencyToken; }
-                set { SetWithNotify(value, ref _concurrencyToken); }
+                get => _concurrencyToken;
+                set => SetWithNotify(value, ref _concurrencyToken);
             }
 
             public virtual IAnOrder Order
             {
-                get { return _order; }
-                set { SetWithNotify(value, ref _order); }
+                get => _order;
+                set => SetWithNotify(value, ref _order);
             }
 
             public virtual IProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
         }
 
@@ -740,56 +740,56 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int AnOrderId
             {
-                get { return _anOrderId; }
-                set { SetWithNotify(value, ref _anOrderId); }
+                get => _anOrderId;
+                set => SetWithNotify(value, ref _anOrderId);
             }
 
             public int AlternateId
             {
-                get { return _alternateId; }
-                set { SetWithNotify(value, ref _alternateId); }
+                get => _alternateId;
+                set => SetWithNotify(value, ref _alternateId);
             }
 
             public int? CustomerId
             {
-                get { return _customerId; }
-                set { SetWithNotify(value, ref _customerId); }
+                get => _customerId;
+                set => SetWithNotify(value, ref _customerId);
             }
 
             public IConcurrencyInfo Concurrency
             {
-                get { return _concurrency; }
-                set { SetWithNotify(value, ref _concurrency); }
+                get => _concurrency;
+                set => SetWithNotify(value, ref _concurrency);
             }
 
             public virtual ICustomer Customer
             {
-                get { return _customer; }
-                set { SetWithNotify(value, ref _customer); }
+                get => _customer;
+                set => SetWithNotify(value, ref _customer);
             }
 
             public virtual ICollection<IOrderLine> OrderLines
             {
-                get { return _orderLines; }
-                set { SetWithNotify(value, ref _orderLines); }
+                get => _orderLines;
+                set => SetWithNotify(value, ref _orderLines);
             }
 
             public virtual ICollection<IOrderNote> Notes
             {
-                get { return _notes; }
-                set { SetWithNotify(value, ref _notes); }
+                get => _notes;
+                set => SetWithNotify(value, ref _notes);
             }
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
         }
 
@@ -802,26 +802,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int NoteId
             {
-                get { return _noteId; }
-                set { SetWithNotify(value, ref _noteId); }
+                get => _noteId;
+                set => SetWithNotify(value, ref _noteId);
             }
 
             public string Note
             {
-                get { return _note; }
-                set { SetWithNotify(value, ref _note); }
+                get => _note;
+                set => SetWithNotify(value, ref _note);
             }
 
             public int OrderId
             {
-                get { return _orderId; }
-                set { SetWithNotify(value, ref _orderId); }
+                get => _orderId;
+                set => SetWithNotify(value, ref _orderId);
             }
 
             public virtual IAnOrder Order
             {
-                get { return _order; }
-                set { SetWithNotify(value, ref _order); }
+                get => _order;
+                set => SetWithNotify(value, ref _order);
             }
         }
 
@@ -834,26 +834,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int OrderId
             {
-                get { return _orderId; }
-                set { SetWithNotify(value, ref _orderId); }
+                get => _orderId;
+                set => SetWithNotify(value, ref _orderId);
             }
 
             public string CheckedBy
             {
-                get { return _checkedBy; }
-                set { SetWithNotify(value, ref _checkedBy); }
+                get => _checkedBy;
+                set => SetWithNotify(value, ref _checkedBy);
             }
 
             public DateTime CheckedDateTime
             {
-                get { return _checkedDateTime; }
-                set { SetWithNotify(value, ref _checkedDateTime); }
+                get => _checkedDateTime;
+                set => SetWithNotify(value, ref _checkedDateTime);
             }
 
             public virtual IAnOrder Order
             {
-                get { return _order; }
-                set { SetWithNotify(value, ref _order); }
+                get => _order;
+                set => SetWithNotify(value, ref _order);
             }
         }
 
@@ -867,32 +867,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int PageViewId
             {
-                get { return _pageViewId; }
-                set { SetWithNotify(value, ref _pageViewId); }
+                get => _pageViewId;
+                set => SetWithNotify(value, ref _pageViewId);
             }
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public DateTime Viewed
             {
-                get { return _viewed; }
-                set { SetWithNotify(value, ref _viewed); }
+                get => _viewed;
+                set => SetWithNotify(value, ref _viewed);
             }
 
             public string PageUrl
             {
-                get { return _pageUrl; }
-                set { SetWithNotify(value, ref _pageUrl); }
+                get => _pageUrl;
+                set => SetWithNotify(value, ref _pageUrl);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
         }
 
@@ -906,32 +906,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ResetNo
             {
-                get { return _resetNo; }
-                set { SetWithNotify(value, ref _resetNo); }
+                get => _resetNo;
+                set => SetWithNotify(value, ref _resetNo);
             }
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public string TempPassword
             {
-                get { return _tempPassword; }
-                set { SetWithNotify(value, ref _tempPassword); }
+                get => _tempPassword;
+                set => SetWithNotify(value, ref _tempPassword);
             }
 
             public string EmailedTo
             {
-                get { return _emailedTo; }
-                set { SetWithNotify(value, ref _emailedTo); }
+                get => _emailedTo;
+                set => SetWithNotify(value, ref _emailedTo);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
         }
 
@@ -943,20 +943,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public string Details
             {
-                get { return _details; }
-                set { SetWithNotify(value, ref _details); }
+                get => _details;
+                set => SetWithNotify(value, ref _details);
             }
 
             public virtual IProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
         }
 
@@ -992,74 +992,74 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public string Description
             {
-                get { return _description; }
-                set { SetWithNotify(value, ref _description); }
+                get => _description;
+                set => SetWithNotify(value, ref _description);
             }
 
             public string BaseConcurrency
             {
-                get { return _baseConcurrency; }
-                set { SetWithNotify(value, ref _baseConcurrency); }
+                get => _baseConcurrency;
+                set => SetWithNotify(value, ref _baseConcurrency);
             }
 
             public IDimensions Dimensions
             {
-                get { return _dimensions; }
-                set { SetWithNotify(value, ref _dimensions); }
+                get => _dimensions;
+                set => SetWithNotify(value, ref _dimensions);
             }
 
             public IConcurrencyInfo ComplexConcurrency
             {
-                get { return _complexConcurrency; }
-                set { SetWithNotify(value, ref _complexConcurrency); }
+                get => _complexConcurrency;
+                set => SetWithNotify(value, ref _complexConcurrency);
             }
 
             public IAuditInfo NestedComplexConcurrency
             {
-                get { return _nestedComplexConcurrency; }
-                set { SetWithNotify(value, ref _nestedComplexConcurrency); }
+                get => _nestedComplexConcurrency;
+                set => SetWithNotify(value, ref _nestedComplexConcurrency);
             }
 
             public virtual ICollection<ISupplier> Suppliers
             {
-                get { return _suppliers; }
-                set { SetWithNotify(value, ref _suppliers); }
+                get => _suppliers;
+                set => SetWithNotify(value, ref _suppliers);
             }
 
             public virtual ICollection<IDiscontinuedProduct> Replaces
             {
-                get { return _replaces; }
-                set { SetWithNotify(value, ref _replaces); }
+                get => _replaces;
+                set => SetWithNotify(value, ref _replaces);
             }
 
             public virtual IProductDetail Detail
             {
-                get { return _detail; }
-                set { SetWithNotify(value, ref _detail); }
+                get => _detail;
+                set => SetWithNotify(value, ref _detail);
             }
 
             public virtual ICollection<IProductReview> Reviews
             {
-                get { return _reviews; }
-                set { SetWithNotify(value, ref _reviews); }
+                get => _reviews;
+                set => SetWithNotify(value, ref _reviews);
             }
 
             public virtual ICollection<IProductPhoto> Photos
             {
-                get { return _photos; }
-                set { SetWithNotify(value, ref _photos); }
+                get => _photos;
+                set => SetWithNotify(value, ref _photos);
             }
 
             public virtual ICollection<IBarcode> Barcodes
             {
-                get { return _barcodes; }
-                set { SetWithNotify(value, ref _barcodes); }
+                get => _barcodes;
+                set => SetWithNotify(value, ref _barcodes);
             }
         }
 
@@ -1070,14 +1070,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public virtual IProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
         }
 
@@ -1095,26 +1095,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public int PhotoId
             {
-                get { return _photoId; }
-                set { SetWithNotify(value, ref _photoId); }
+                get => _photoId;
+                set => SetWithNotify(value, ref _photoId);
             }
 
             public byte[] Photo
             {
-                get { return _photo; }
-                set { SetWithNotify(value, ref _photo); }
+                get => _photo;
+                set => SetWithNotify(value, ref _photo);
             }
 
             public virtual ICollection<IProductWebFeature> Features
             {
-                get { return _features; }
-                set { SetWithNotify(value, ref _features); }
+                get => _features;
+                set => SetWithNotify(value, ref _features);
             }
         }
 
@@ -1133,32 +1133,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public int ReviewId
             {
-                get { return _reviewId; }
-                set { SetWithNotify(value, ref _reviewId); }
+                get => _reviewId;
+                set => SetWithNotify(value, ref _reviewId);
             }
 
             public string Review
             {
-                get { return _review; }
-                set { SetWithNotify(value, ref _review); }
+                get => _review;
+                set => SetWithNotify(value, ref _review);
             }
 
             public virtual IProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
 
             public virtual ICollection<IProductWebFeature> Features
             {
-                get { return _features; }
-                set { SetWithNotify(value, ref _features); }
+                get => _features;
+                set => SetWithNotify(value, ref _features);
             }
         }
 
@@ -1174,44 +1174,44 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int FeatureId
             {
-                get { return _featureId; }
-                set { SetWithNotify(value, ref _featureId); }
+                get => _featureId;
+                set => SetWithNotify(value, ref _featureId);
             }
 
             public int? ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public int? PhotoId
             {
-                get { return _photoId; }
-                set { SetWithNotify(value, ref _photoId); }
+                get => _photoId;
+                set => SetWithNotify(value, ref _photoId);
             }
 
             public int ReviewId
             {
-                get { return _reviewId; }
-                set { SetWithNotify(value, ref _reviewId); }
+                get => _reviewId;
+                set => SetWithNotify(value, ref _reviewId);
             }
 
             public string Heading
             {
-                get { return _heading; }
-                set { SetWithNotify(value, ref _heading); }
+                get => _heading;
+                set => SetWithNotify(value, ref _heading);
             }
 
             public virtual IProductReview Review
             {
-                get { return _review; }
-                set { SetWithNotify(value, ref _review); }
+                get => _review;
+                set => SetWithNotify(value, ref _review);
             }
 
             public virtual IProductPhoto Photo
             {
-                get { return _photo; }
-                set { SetWithNotify(value, ref _photo); }
+                get => _photo;
+                set => SetWithNotify(value, ref _photo);
             }
         }
 
@@ -1223,20 +1223,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int ResolutionId
             {
-                get { return _resolutionId; }
-                set { SetWithNotify(value, ref _resolutionId); }
+                get => _resolutionId;
+                set => SetWithNotify(value, ref _resolutionId);
             }
 
             public string Details
             {
-                get { return _details; }
-                set { SetWithNotify(value, ref _details); }
+                get => _details;
+                set => SetWithNotify(value, ref _details);
             }
 
             public virtual IComplaint Complaint
             {
-                get { return _complaint; }
-                set { SetWithNotify(value, ref _complaint); }
+                get => _complaint;
+                set => SetWithNotify(value, ref _complaint);
             }
         }
 
@@ -1249,26 +1249,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Serial
             {
-                get { return _serial; }
-                set { SetWithNotify(value, ref _serial); }
+                get => _serial;
+                set => SetWithNotify(value, ref _serial);
             }
 
             public DateTime Issued
             {
-                get { return _issued; }
-                set { SetWithNotify(value, ref _issued); }
+                get => _issued;
+                set => SetWithNotify(value, ref _issued);
             }
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
         }
 
@@ -1282,32 +1282,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public string CardSerial
             {
-                get { return _cardSerial; }
-                set { SetWithNotify(value, ref _cardSerial); }
+                get => _cardSerial;
+                set => SetWithNotify(value, ref _cardSerial);
             }
 
             public DateTime Issued
             {
-                get { return _issued; }
-                set { SetWithNotify(value, ref _issued); }
+                get => _issued;
+                set => SetWithNotify(value, ref _issued);
             }
 
             public virtual ILogin Login
             {
-                get { return _login; }
-                set { SetWithNotify(value, ref _login); }
+                get => _login;
+                set => SetWithNotify(value, ref _login);
             }
 
             public virtual ILastLogin LastLogin
             {
-                get { return _lastLogin; }
-                set { SetWithNotify(value, ref _lastLogin); }
+                get => _lastLogin;
+                set => SetWithNotify(value, ref _lastLogin);
             }
         }
 
@@ -1320,26 +1320,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int SupplierInfoId
             {
-                get { return _supplierInfoId; }
-                set { SetWithNotify(value, ref _supplierInfoId); }
+                get => _supplierInfoId;
+                set => SetWithNotify(value, ref _supplierInfoId);
             }
 
             public string Information
             {
-                get { return _information; }
-                set { SetWithNotify(value, ref _information); }
+                get => _information;
+                set => SetWithNotify(value, ref _information);
             }
 
             public int SupplierId
             {
-                get { return _supplierId; }
-                set { SetWithNotify(value, ref _supplierId); }
+                get => _supplierId;
+                set => SetWithNotify(value, ref _supplierId);
             }
 
             public virtual ISupplier Supplier
             {
-                get { return _supplier; }
-                set { SetWithNotify(value, ref _supplier); }
+                get => _supplier;
+                set => SetWithNotify(value, ref _supplier);
             }
         }
 
@@ -1350,14 +1350,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int SupplierId
             {
-                get { return _supplierId; }
-                set { SetWithNotify(value, ref _supplierId); }
+                get => _supplierId;
+                set => SetWithNotify(value, ref _supplierId);
             }
 
             public byte[] Logo
             {
-                get { return _logo; }
-                set { SetWithNotify(value, ref _logo); }
+                get => _logo;
+                set => SetWithNotify(value, ref _logo);
             }
         }
 
@@ -1377,32 +1377,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int SupplierId
             {
-                get { return _supplierId; }
-                set { SetWithNotify(value, ref _supplierId); }
+                get => _supplierId;
+                set => SetWithNotify(value, ref _supplierId);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public virtual ICollection<IProduct> Products
             {
-                get { return _products; }
-                set { SetWithNotify(value, ref _products); }
+                get => _products;
+                set => SetWithNotify(value, ref _products);
             }
 
             public virtual ICollection<IBackOrderLine> BackOrderLines
             {
-                get { return _backOrderLines; }
-                set { SetWithNotify(value, ref _backOrderLines); }
+                get => _backOrderLines;
+                set => SetWithNotify(value, ref _backOrderLines);
             }
 
             public virtual ISupplierLogo Logo
             {
-                get { return _logo; }
-                set { SetWithNotify(value, ref _logo); }
+                get => _logo;
+                set => SetWithNotify(value, ref _logo);
             }
         }
 
@@ -1414,20 +1414,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int SuspiciousActivityId
             {
-                get { return _suspiciousActivityId; }
-                set { SetWithNotify(value, ref _suspiciousActivityId); }
+                get => _suspiciousActivityId;
+                set => SetWithNotify(value, ref _suspiciousActivityId);
             }
 
             public string Activity
             {
-                get { return _activity; }
-                set { SetWithNotify(value, ref _activity); }
+                get => _activity;
+                set => SetWithNotify(value, ref _activity);
             }
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
         }
 
@@ -1445,20 +1445,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public DateTime ModifiedDate
             {
-                get { return _modifiedDate; }
-                set { SetWithNotify(value, ref _modifiedDate); }
+                get => _modifiedDate;
+                set => SetWithNotify(value, ref _modifiedDate);
             }
 
             public string ModifiedBy
             {
-                get { return _modifiedBy; }
-                set { SetWithNotify(value, ref _modifiedBy); }
+                get => _modifiedBy;
+                set => SetWithNotify(value, ref _modifiedBy);
             }
 
             public IConcurrencyInfo Concurrency
             {
-                get { return _concurrency; }
-                set { SetWithNotify(value, ref _concurrency); }
+                get => _concurrency;
+                set => SetWithNotify(value, ref _concurrency);
             }
         }
 
@@ -1489,62 +1489,62 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public int CustomerId
             {
-                get { return _customerId; }
-                set { SetWithNotify(value, ref _customerId); }
+                get => _customerId;
+                set => SetWithNotify(value, ref _customerId);
             }
 
             public int? HusbandId
             {
-                get { return _husbandId; }
-                set { SetWithNotify(value, ref _husbandId); }
+                get => _husbandId;
+                set => SetWithNotify(value, ref _husbandId);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public IContactDetails ContactInfo
             {
-                get { return _contactInfo; }
-                set { SetWithNotify(value, ref _contactInfo); }
+                get => _contactInfo;
+                set => SetWithNotify(value, ref _contactInfo);
             }
 
             public IAuditInfo Auditing
             {
-                get { return _auditing; }
-                set { SetWithNotify(value, ref _auditing); }
+                get => _auditing;
+                set => SetWithNotify(value, ref _auditing);
             }
 
             public virtual ICollection<IAnOrder> Orders
             {
-                get { return _orders; }
-                set { SetWithNotify(value, ref _orders); }
+                get => _orders;
+                set => SetWithNotify(value, ref _orders);
             }
 
             public virtual ICollection<ILogin> Logins
             {
-                get { return _logins; }
-                set { SetWithNotify(value, ref _logins); }
+                get => _logins;
+                set => SetWithNotify(value, ref _logins);
             }
 
             public virtual ICustomer Husband
             {
-                get { return _husband; }
-                set { SetWithNotify(value, ref _husband); }
+                get => _husband;
+                set => SetWithNotify(value, ref _husband);
             }
 
             public virtual ICustomer Wife
             {
-                get { return _wife; }
-                set { SetWithNotify(value, ref _wife); }
+                get => _wife;
+                set => SetWithNotify(value, ref _wife);
             }
 
             public virtual ICustomerInfo Info
             {
-                get { return _info; }
-                set { SetWithNotify(value, ref _info); }
+                get => _info;
+                set => SetWithNotify(value, ref _info);
             }
         }
 
@@ -1568,50 +1568,50 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string Username
             {
-                get { return _username; }
-                set { SetWithNotify(value, ref _username); }
+                get => _username;
+                set => SetWithNotify(value, ref _username);
             }
 
             public string AlternateUsername
             {
-                get { return _alternateUsername; }
-                set { SetWithNotify(value, ref _alternateUsername); }
+                get => _alternateUsername;
+                set => SetWithNotify(value, ref _alternateUsername);
             }
 
             public int CustomerId
             {
-                get { return _customerId; }
-                set { SetWithNotify(value, ref _customerId); }
+                get => _customerId;
+                set => SetWithNotify(value, ref _customerId);
             }
 
             public virtual ICustomer Customer
             {
-                get { return _customer; }
-                set { SetWithNotify(value, ref _customer); }
+                get => _customer;
+                set => SetWithNotify(value, ref _customer);
             }
 
             public virtual ILastLogin LastLogin
             {
-                get { return _lastLogin; }
-                set { SetWithNotify(value, ref _lastLogin); }
+                get => _lastLogin;
+                set => SetWithNotify(value, ref _lastLogin);
             }
 
             public virtual ICollection<IMessage> SentMessages
             {
-                get { return _sentMessages; }
-                set { SetWithNotify(value, ref _sentMessages); }
+                get => _sentMessages;
+                set => SetWithNotify(value, ref _sentMessages);
             }
 
             public virtual ICollection<IMessage> ReceivedMessages
             {
-                get { return _receivedMessages; }
-                set { SetWithNotify(value, ref _receivedMessages); }
+                get => _receivedMessages;
+                set => SetWithNotify(value, ref _receivedMessages);
             }
 
             public virtual ICollection<IAnOrder> Orders
             {
-                get { return _orders; }
-                set { SetWithNotify(value, ref _orders); }
+                get => _orders;
+                set => SetWithNotify(value, ref _orders);
             }
         }
 
@@ -1628,20 +1628,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public string PhoneNumber
             {
-                get { return _phoneNumber; }
-                set { SetWithNotify(value, ref _phoneNumber); }
+                get => _phoneNumber;
+                set => SetWithNotify(value, ref _phoneNumber);
             }
 
             public string Extension
             {
-                get { return _extension; }
-                set { SetWithNotify(value, ref _extension); }
+                get => _extension;
+                set => SetWithNotify(value, ref _extension);
             }
 
             public PhoneType PhoneType
             {
-                get { return _phoneType; }
-                set { SetWithNotify(value, ref _phoneType); }
+                get => _phoneType;
+                set => SetWithNotify(value, ref _phoneType);
             }
         }
     }

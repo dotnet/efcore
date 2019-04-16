@@ -176,13 +176,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            if (!overwriteFiles && existingFiles.Count != 0)
+            if (!overwriteFiles
+                && existingFiles.Count != 0)
             {
                 throw new OperationException(
                     DesignStrings.ExistingFiles(
                         outputDir,
                         string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, existingFiles)));
             }
+
             if (readOnlyFiles.Count != 0)
             {
                 throw new OperationException(

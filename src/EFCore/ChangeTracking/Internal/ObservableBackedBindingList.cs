@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _addNewInstance = default;
                 _addingNewInstance = false;
             }
+
             base.CancelNew(itemIndex);
         }
 
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 RemoveFromObservableCollection(entity);
             }
+
             base.ClearItems();
         }
 
@@ -92,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _addNewInstance = default;
                 _addingNewInstance = false;
             }
+
             base.EndNew(itemIndex);
         }
 
@@ -126,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 RemoveFromObservableCollection(base[index]);
             }
+
             base.RemoveItem(index);
         }
 
@@ -153,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     RemoveFromObservableCollection(entity);
                 }
+
                 AddToObservableCollection(item);
             }
         }

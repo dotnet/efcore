@@ -1,9 +1,10 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CascadeDeleteOrphan,
             SaveChangesStarting,
             SaveChangesCompleted,
+            OptimisticConcurrencyException,
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
@@ -75,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             NavigationLazyLoading,
             ContextDisposed,
             DetachedLazyLoadingWarning,
+            ServiceProviderDebugInfo,
 
             // Model events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -91,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ForeignKeyAttributesOnBothPropertiesWarning,
             ForeignKeyAttributesOnBothNavigationsWarning,
             ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
+            RedundantForeignKeyWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -315,6 +319,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ContextInitialized = MakeInfraId(Id.ContextInitialized);
+
+        /// <summary>
+        ///     <para>
+        ///         Provides debug information for why a new internal service provider was created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ServiceProviderDebugInfoEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ServiceProviderDebugInfo = MakeInfraId(Id.ServiceProviderDebugInfo);
 
         /// <summary>
         ///     <para>
@@ -570,6 +587,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning =
             MakeModelId(Id.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         The configured <see cref="IForeignKey" /> is redundant.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RedundantForeignKeyWarning = MakeModelId(Id.RedundantForeignKeyWarning);
+
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);
 
@@ -660,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An entity is being tracked by the <see cref="DbContext"/>.
+        ///         An entity is being tracked by the <see cref="DbContext" />.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
@@ -674,8 +705,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An entity tracked by the <see cref="DbContext"/> is changing from one
-        ///         <see cref="EntityState"/> to another.
+        ///         An entity tracked by the <see cref="DbContext" /> is changing from one
+        ///         <see cref="EntityState" /> to another.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
@@ -732,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads started.
+        ///         <see cref="DbContext.SaveChanges()" /> or one of its overloads started.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
@@ -746,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads has completed.
+        ///         <see cref="DbContext.SaveChanges()" /> or one of its overloads has completed.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
@@ -760,7 +791,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         The <see cref="DbContext"/> is being disposed.
+        ///         An <see cref="OptimisticConcurrencyException"/> was thrown during the call to
+        ///         <see cref="DbContext.SaveChanges()" />
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextErrorEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptimisticConcurrencyException = MakeUpdateId(Id.OptimisticConcurrencyException);
+
+        /// <summary>
+        ///     <para>
+        ///         The <see cref="DbContext" /> is being disposed.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.

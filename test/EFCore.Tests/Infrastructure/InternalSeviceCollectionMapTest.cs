@@ -87,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 Assert.Same(context, ((FakeService)context.GetService<IFakeService>()).Context);
                 Assert.NotSame(service, context.GetService<IFakeService>());
             }
+
             return service;
         }
 

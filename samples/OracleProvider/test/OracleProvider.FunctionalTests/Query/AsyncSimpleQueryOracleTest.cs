@@ -18,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncSimpleQueryOracleTest : AsyncSimpleQueryTestBase<NorthwindQueryOracleFixture<NoopModelCustomizer>>
     {
-        private static readonly string _eol = Environment.NewLine;
-
         // ReSharper disable once UnusedParameter.Local
         public AsyncSimpleQueryOracleTest(NorthwindQueryOracleFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -35,37 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        public override Task Query_with_nav()
+        [Fact(Skip = "Issue #13029")]
+        public Task Single_Predicate_Cancellation()
         {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_query_where_navigation()
-        {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_query_where_navigation_multi_level()
-        {
-            // TODO: #10680
-
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public override async Task SelectMany_simple2()
-        {
-            await base.SelectMany_simple2();
-        }
-
-        [Fact]
-        public async Task Single_Predicate_Cancellation()
-        {
-            await Assert.ThrowsAsync<TaskCanceledException>(
+            return Assert.ThrowsAsync<OperationCanceledException>(
                 async () =>
                     await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
@@ -126,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 await context.Customers.ForEachAsync(
-                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
+                    c => context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList());
             }
         }
 
@@ -172,10 +143,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
-        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection(bool isAsync)
         {
-            await AssertQuery<Order>(
+            return AssertQuery<Order>(
+                isAsync,
                 os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
                 elementSorter: e => e.City + " " + e.Count);
         }

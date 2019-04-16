@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         public void Dispose() => _context.Dispose();
     }

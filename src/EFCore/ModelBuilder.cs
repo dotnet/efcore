@@ -1,10 +1,13 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -38,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(conventions, nameof(conventions));
 
             _builder = new InternalModelBuilder(new Model(conventions));
+
+            _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
         }
 
         /// <summary>
@@ -197,9 +202,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the query type. </returns>
         public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
             where TQuery : class
-        {
-            return new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery), ConfigurationSource.Explicit));
-        }
+            => new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given query type in the model.
@@ -332,6 +335,58 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" /> instances that are defined in provided assembly.
+        /// </summary>
+        /// <param name="assembly"> The assembly to scan. </param>
+        /// <param name="predicate"> Optional predicate to filter types within the assembly. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder ApplyConfigurationsFromAssembly(Assembly assembly, Func<Type, bool> predicate = null)
+        {
+            var applyEntityConfigurationMethod = typeof(ModelBuilder)
+                .GetMethods()
+                .Single(
+                    e => e.Name == nameof(ApplyConfiguration)
+                         && e.ContainsGenericParameters
+                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+            var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
+                e => e.Name == nameof(ApplyConfiguration)
+                     && e.ContainsGenericParameters
+                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
+            foreach (var type in assembly.GetConstructibleTypes())
+            {
+                // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
+                if (type.GetConstructor(Type.EmptyTypes) == null
+                    || (!predicate?.Invoke(type) ?? false))
+                {
+                    continue;
+                }
+
+                foreach (var @interface in type.GetInterfaces())
+                {
+                    if (!@interface.IsGenericType)
+                    {
+                        continue;
+                    }
+
+                    if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
+                    {
+                        var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    }
+                    else if (@interface.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>))
+                    {
+                        var target = applyQueryConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///     Marks an entity type as owned. All references to this type will be configured as
         ///     separate owned type instances.
         /// </summary>
@@ -393,6 +448,21 @@ namespace Microsoft.EntityFrameworkCore
             Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
             return this;
+        }
+
+        /// <summary>
+        ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
+        ///     processing happens automatically when using OnModelCreating; this method allows it to be run
+        ///     explicitly in cases where the automatic execution is not possible.
+        /// </summary>
+        /// <returns>
+        ///     The finalized <see cref="IModel"/>.
+        /// </returns>
+        public virtual IModel FinalizeModel()
+        {
+            Builder.Metadata.Validate();
+
+            return Model;
         }
 
         private InternalModelBuilder Builder => this.GetInfrastructure();

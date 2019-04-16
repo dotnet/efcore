@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -56,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     chosenPrincipal = principalEntry;
                 }
             }
+
             return chosenPrincipal;
         }
 
@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var property in ((EntityType)entry.EntityType).GetProperties())
             {
-                if (property.IsForeignKey() && entry.HasDefaultValue(property))
+                if (property.IsForeignKey()
+                    && entry.HasDefaultValue(property))
                 {
                     yield return property;
                 }
@@ -137,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var property in ((EntityType)entry.EntityType).GetProperties())
             {
-                if (property.RequiresValueGenerator() && entry.HasDefaultValue(property))
+                if (property.RequiresValueGenerator()
+                    && entry.HasDefaultValue(property))
                 {
                     yield return property;
                 }

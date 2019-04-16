@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -133,18 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((LikeExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((LikeExpression)obj);
         }
-
         private bool Equals(LikeExpression other)
-            => Equals(Match, other.Match)
-               && Equals(Pattern, other.Pattern)
-               && Equals(EscapeChar, other.EscapeChar);
+            => ExpressionEqualityComparer.Instance.Equals(Match, other.Match)
+               && ExpressionEqualityComparer.Instance.Equals(Pattern, other.Pattern)
+               && ExpressionEqualityComparer.Instance.Equals(EscapeChar, other.EscapeChar);
 
         /// <summary>
         ///     Returns a hash code for this object.

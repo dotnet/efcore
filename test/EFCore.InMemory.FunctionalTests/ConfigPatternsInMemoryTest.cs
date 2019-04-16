@@ -17,7 +17,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new ImplicitServicesAndConfigBlogContext())
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 context.SaveChanges();
             }
 
@@ -51,7 +55,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 context.SaveChanges();
             }
 
@@ -88,7 +96,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 context.SaveChanges();
             }
 
@@ -134,7 +146,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ExplicitServicesAndConfigBlogContext(optionsBuilder.Options))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 context.SaveChanges();
             }
 
@@ -169,13 +185,17 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () =>
+                    {
+                        using (var context = new NoServicesAndNoConfigBlogContext())
                         {
-                            using (var context = new NoServicesAndNoConfigBlogContext())
-                            {
-                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                                context.SaveChanges();
-                            }
-                        }).Message);
+                            context.Blogs.Add(
+                                new Blog
+                                {
+                                    Name = "The Waffle Cart"
+                                });
+                            context.SaveChanges();
+                        }
+                    }).Message);
         }
 
         private class NoServicesAndNoConfigBlogContext : DbContext
@@ -194,13 +214,17 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () =>
+                    {
+                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
                         {
-                            using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
-                            {
-                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                                context.SaveChanges();
-                            }
-                        }).Message);
+                            context.Blogs.Add(
+                                new Blog
+                                {
+                                    Name = "The Waffle Cart"
+                                });
+                            context.SaveChanges();
+                        }
+                    }).Message);
         }
 
         private class ImplicitConfigButNoServicesBlogContext : DbContext
@@ -246,7 +270,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -303,7 +331,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -354,7 +386,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -417,7 +453,11 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "The Waffle Cart"
+                    });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -443,7 +483,11 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
+                _context.Accounts.Add(
+                    new Account
+                    {
+                        Name = "Eeky Bear"
+                    });
                 _context.SaveChanges();
 
                 var account = _context.Accounts.SingleOrDefault();

@@ -31,6 +31,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override string TypedTrueLiteral => "1";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override string TypedFalseLiteral => "0";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string GenerateOperator(Expression expression)
             => expression.NodeType == ExpressionType.Add && expression.Type == typeof(string)
                 ? " || "

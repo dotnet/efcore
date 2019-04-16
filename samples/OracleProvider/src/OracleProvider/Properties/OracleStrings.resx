@@ -136,7 +136,7 @@
     <value>An exception has been raised that is likely due to a transient failure.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the Oracle column type that can accomadate all the values using 'ForOracleHasColumnType()'.</value>
+    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the Oracle column type that can accommodate all the values using 'ForOracleHasColumnType()'.</value>
     <comment>Warning OracleEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
@@ -132,6 +133,7 @@ namespace Microsoft.Data.Sqlite
 
             var rc = raw.sqlite3_step(_stmt);
             SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+            _record.Clear();
 
             _done = rc == raw.SQLITE_DONE;
 
@@ -403,6 +405,14 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The actual number of characters read.</returns>
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
             => _record.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
+
+        /// <summary>
+        ///     Retrieves data as a Stream.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The returned object.</returns>
+        public override Stream GetStream(int ordinal)
+            => _record.GetStream(ordinal);
 
         /// <summary>
         ///     Gets the value of the specified column.

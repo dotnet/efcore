@@ -12,8 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#pragma warning disable 1574
-#pragma warning disable CS0419 // Ambiguous reference in cref attribute
+#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -58,7 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo);
+        protected virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        {
+            foreach (var plugin in RelationalDependencies.Plugins)
+            {
+                var typeMapping = plugin.FindMapping(mappingInfo);
+                if (typeMapping != null)
+                {
+                    return typeMapping;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
@@ -66,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///    Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
+        ///     Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
@@ -96,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             providerClrType = providerType.UnwrapNullableType();
                         }
                     }
+
                     if (customConverter == null)
                     {
                         var converter = principal.GetValueConverter();

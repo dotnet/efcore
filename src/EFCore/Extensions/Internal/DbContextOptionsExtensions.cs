@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 builder.Append(extension.LogFragment);
             }
+
             var fragment = builder.ToString();
 
             return string.IsNullOrWhiteSpace(fragment) ? "None" : fragment;

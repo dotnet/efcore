@@ -75,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual FieldInfo FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] [param: CanBeNull] set => SetFieldInfo(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (FieldInfo?.Name == fieldName)
+            if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
                 SetFieldInfo(FieldInfo, configurationSource);
                 return;
@@ -176,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             propertyName,
                             propertyType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
@@ -186,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType.ShortDisplayName()));
                 }
+
                 return false;
             }
 
@@ -201,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _indexes, this,
                 property =>
-                    {
-                        var _ = (property.DeclaringType as EntityType)?.Counts;
-                    });
+                {
+                    var _ = (property.DeclaringType as EntityType)?.Counts;
+                });
 
             [param: CanBeNull]
             set

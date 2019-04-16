@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -45,6 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="csharpHelper"> The C# helper. </param>
         public CSharpMigrationOperationGeneratorDependencies([NotNull] ICSharpHelper csharpHelper)
         {
+            Check.NotNull(csharpHelper, nameof(csharpHelper));
+
             CSharpHelper = csharpHelper;
         }
 

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static ExpressionEqualityComparer Instance => InnerExpressionEqualityComparer.Instance;
+        public static ExpressionEqualityComparer Instance { get; } = new ExpressionEqualityComparer();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -229,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     {
                                         hashCode += (hashCode * 397) ^ GetHashCode(memberListBinding.Initializers[j].Arguments);
                                     }
+
                                     break;
                                 default:
                                     throw new NotImplementedException();
@@ -309,6 +310,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
+        {
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
+            if (x.Count() != y.Count())
+            {
+                return false;
+            }
+
+            var comparer = new ExpressionComparer();
+
+            return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
+        }
 
         private sealed class ExpressionComparer
         {
@@ -401,10 +423,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
                     case ExpressionType.Extension:
                         return CompareExtension(a, b);
+                    case ExpressionType.Default:
+                        return CompareDefault((DefaultExpression)a, (DefaultExpression)b);    
                     default:
                         throw new NotImplementedException();
                 }
             }
+
+            private bool CompareDefault(DefaultExpression a, DefaultExpression b)
+                => a.Type == b.Type;
 
             private bool CompareUnary(UnaryExpression a, UnaryExpression b)
                 => Equals(a.Method, b.Method)
@@ -441,14 +468,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
-                if (a.IsEntityQueryable()
+                return a.IsEntityQueryable()
                     && b.IsEntityQueryable()
-                    && a.Value.GetType() == b.Value.GetType())
-                {
-                    return true;
-                }
-
-                return Equals(a.Value, b.Value);
+                    && a.Value.GetType() == b.Value.GetType()
+                    ? true
+                    : Equals(a.Value, b.Value);
             }
 
             private bool CompareParameter(ParameterExpression a, ParameterExpression b)
@@ -752,15 +776,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
             }
-        }
-
-        private sealed class InnerExpressionEqualityComparer
-        {
-            static InnerExpressionEqualityComparer()
-            {
-            }
-
-            internal static readonly ExpressionEqualityComparer Instance = new ExpressionEqualityComparer();
         }
     }
 }

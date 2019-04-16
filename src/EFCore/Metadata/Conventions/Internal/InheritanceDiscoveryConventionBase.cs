@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 baseEntityType = entityType.Model.FindEntityType(baseType);
                 baseType = baseType.GetTypeInfo().BaseType;
             }
+
             return baseEntityType;
         }
     }

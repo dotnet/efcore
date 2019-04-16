@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var operation = new MockOperation(handler);
                 var error = new ArgumentOutOfRangeException("Needs to be about 20% more cool.");
 
-                operation.Execute(() => { throw error; });
+                operation.Execute(() => throw error);
 
                 Assert.Equal(error.GetType().FullName, handler.ErrorType);
                 Assert.Equal(error.Message, handler.ErrorMessage);

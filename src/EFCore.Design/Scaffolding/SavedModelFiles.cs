@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     public class SavedModelFiles
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SavedModelFiles"/> class.
+        ///     Initializes a new instance of the <see cref="SavedModelFiles" /> class.
         /// </summary>
-        /// <param name="contextFile">The path of the file containing the <see cref="DbContext"/>.</param>
+        /// <param name="contextFile">The path of the file containing the <see cref="DbContext" />.</param>
         /// <param name="additionalFiles">The paths of additional files used by the model.</param>
         public SavedModelFiles([NotNull] string contextFile, [NotNull] IEnumerable<string> additionalFiles)
         {
@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         /// <summary>
-        ///     Gets or sets the path of the file containing the <see cref="DbContext"/>.
+        ///     Gets or sets the path of the file containing the <see cref="DbContext" />.
         /// </summary>
-        /// <value> The path of the file containing the <see cref="DbContext"/>. </value>
+        /// <value> The path of the file containing the <see cref="DbContext" />. </value>
         public virtual string ContextFile { get; }
 
         /// <summary>

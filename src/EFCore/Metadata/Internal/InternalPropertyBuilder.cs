@@ -33,26 +33,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool IsRequired(bool? isRequired, ConfigurationSource configurationSource)
+        {
+            if (isRequired.HasValue)
+            {
+                return IsRequired(isRequired.Value, configurationSource);
+            }
+
+            if (configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource()))
+            {
+                Metadata.SetIsNullable(null, configurationSource);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsRequired(bool isRequired, ConfigurationSource configurationSource)
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
                 if (!isRequired)
                 {
-                    foreach (var key in Metadata.GetContainingKeys().ToList())
+                    using (Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
                     {
-                        if (configurationSource == ConfigurationSource.Explicit
-                            && key.GetConfigurationSource() == ConfigurationSource.Explicit)
+                        foreach (var key in Metadata.GetContainingKeys().ToList())
                         {
-                            throw new InvalidOperationException(
-                                CoreStrings.KeyPropertyCannotBeNullable(Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), Property.Format(key.Properties)));
+                            if (configurationSource == ConfigurationSource.Explicit
+                                && key.GetConfigurationSource() == ConfigurationSource.Explicit)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.KeyPropertyCannotBeNullable(Metadata.Name, Metadata.DeclaringEntityType.DisplayName(), Property.Format(key.Properties)));
+                            }
+
+                            var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
+                            Debug.Assert(removed.HasValue);
                         }
 
-                        var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
-                        Debug.Assert(removed.HasValue);
+                        Metadata.SetIsNullable(true, configurationSource);
                     }
                 }
-                Metadata.SetIsNullable(!isRequired, configurationSource);
+                else
+                {
+                    Metadata.SetIsNullable(false, configurationSource);
+                }
 
                 return true;
             }
@@ -66,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource? configurationSource)
             => ((Metadata.IsNullable == !isRequired)
-                || (configurationSource.HasValue &&
-                    configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource())))
+                || (configurationSource.HasValue
+                    && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource())))
                && (isRequired
                    || Metadata.ClrType.IsNullableType()
                    || (configurationSource == ConfigurationSource.Explicit)); // let it throw for Explicit
@@ -106,17 +134,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return HasValueGenerator(
                 (_, __)
                     =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
-                        }
-                    }, configurationSource);
+                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                    }
+                }, configurationSource);
         }
 
         /// <summary>
@@ -134,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
-            if (Metadata.FieldInfo?.Name == fieldName)
+            if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName)
             {
                 Metadata.SetField(fieldName, configurationSource);
                 return true;
@@ -194,11 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (valueConverter != null
                 && valueConverter.ModelClrType.UnwrapNullableType() != Metadata.ClrType.UnwrapNullableType())
             {
-                throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
-                    valueConverter.ModelClrType.ShortDisplayName(),
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.Name,
-                    Metadata.ClrType.ShortDisplayName()));
+                throw new ArgumentException(
+                    CoreStrings.ConverterPropertyMismatch(
+                        valueConverter.ModelClrType.ShortDisplayName(),
+                        Metadata.DeclaringEntityType.DisplayName(),
+                        Metadata.Name,
+                        Metadata.ClrType.ShortDisplayName()));
             }
 
             return HasAnnotation(CoreAnnotationNames.ValueConverter, valueConverter, configurationSource);

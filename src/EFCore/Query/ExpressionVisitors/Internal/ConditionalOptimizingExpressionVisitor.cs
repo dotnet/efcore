@@ -64,13 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            if (conditionalExpression.IsNullPropagationCandidate(out var testExpression, out var resultExpression)
-                && _nullCheckRewriteTester.CanRewriteNullCheck(testExpression, resultExpression))
-            {
-                return new NullConditionalExpression(testExpression, resultExpression);
-            }
-
-            return base.VisitConditional(conditionalExpression);
+            return conditionalExpression.IsNullPropagationCandidate(out var testExpression, out var resultExpression)
+                && _nullCheckRewriteTester.CanRewriteNullCheck(testExpression, resultExpression)
+                ? new NullConditionalExpression(testExpression, resultExpression)
+                : base.VisitConditional(conditionalExpression);
         }
 
         private class NullCheckRewriteTester

@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryFilterFuncletizationContext : DbContext
     {
         public static int AdminId = 1;
+
         public QueryFilterFuncletizationContext(DbContextOptions options)
             : base(options)
         {
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static void SetDependentFilter(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<DependentSetFilter>()
-                .HasQueryFilter(p => context.Set<PrincipalSetFilter>().Any(b => b.Id == p.PrincipalSetFilterId));
+                .HasQueryFilter(p => context.Set<MultiContextFilter>().Any(b => b.BossId == p.PrincipalSetFilterId));
         }
 
         #region EntityTypeConfigs
@@ -102,7 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Context = context;
             }
+
             public QueryFilterFuncletizationContext Context { get; }
+
             public void Configure(EntityTypeBuilder<EntityTypeConfigurationFieldFilter> builder)
             {
                 builder.HasQueryFilter(e => e.IsEnabled == Context.Field);
@@ -112,10 +116,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public class PropertyConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationPropertyFilter>
         {
             private readonly QueryFilterFuncletizationContext _context;
+
             public PropertyConfiguration(QueryFilterFuncletizationContext context)
             {
                 _context = context;
             }
+
             public void Configure(EntityTypeBuilder<EntityTypeConfigurationPropertyFilter> builder)
             {
                 builder.HasQueryFilter(e => e.IsEnabled == _context.Property);
@@ -128,7 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Wrapper = wrapper;
             }
+
             public DbContextWrapper Wrapper { get; }
+
             public void Configure(EntityTypeBuilder<EntityTypeConfigurationMethodCallFilter> builder)
             {
                 builder.HasQueryFilter(e => e.Tenant == Wrapper.Context.GetId());
@@ -138,10 +146,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public class PropertyChainConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationPropertyChainFilter>
         {
             private readonly DbContextWrapper _wrapper;
+
             public PropertyChainConfiguration(DbContextWrapper wrapper)
             {
                 _wrapper = wrapper;
             }
+
             public void Configure(EntityTypeBuilder<EntityTypeConfigurationPropertyChainFilter> builder)
             {
                 builder.HasQueryFilter(e => e.IsEnabled == _wrapper.Context.IndirectionFlag.Enabled);
@@ -153,55 +163,206 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static void SeedData(QueryFilterFuncletizationContext context)
         {
             context.AddRange(
-                new FieldFilter { IsEnabled = true },
-                new FieldFilter { IsEnabled = false },
-                new PropertyFilter { IsEnabled = true },
-                new PropertyFilter { IsEnabled = false },
-                new MethodCallFilter { Tenant = 1 },
-                new MethodCallFilter { Tenant = 2 },
-                new ListFilter { Tenant = 1 },
-                new ListFilter { Tenant = 2 },
-                new ListFilter { Tenant = 3 },
-                new ListFilter { Tenant = 4 },
-                new PropertyChainFilter { IsEnabled = true },
-                new PropertyChainFilter { IsEnabled = false },
-                new PropertyMethodCallFilter { Tenant = 1 },
-                new PropertyMethodCallFilter { Tenant = 2 },
-                new MethodCallChainFilter { Tenant = 1 },
-                new MethodCallChainFilter { Tenant = 2 },
-                new ComplexFilter { IsEnabled = true },
-                new ComplexFilter { IsEnabled = false },
-                new ShortCircuitFilter { IsDeleted = false, IsModerated = false },
-                new ShortCircuitFilter { IsDeleted = true, IsModerated = false },
-                new ShortCircuitFilter { IsDeleted = false, IsModerated = true },
-                new ShortCircuitFilter { IsDeleted = true, IsModerated = true },
-                new DbContextStaticMemberFilter { UserId = 1 },
-                new DbContextStaticMemberFilter { UserId = 2 },
-                new DbContextStaticMemberFilter { UserId = 3 },
-                new StaticMemberFilter { IsEnabled = true },
-                new StaticMemberFilter { IsEnabled = false },
-                new LocalVariableFilter { IsEnabled = true },
-                new LocalVariableFilter { IsEnabled = false },
-                new EntityTypeConfigurationFieldFilter { IsEnabled = true },
-                new EntityTypeConfigurationFieldFilter { IsEnabled = false },
-                new EntityTypeConfigurationPropertyFilter { IsEnabled = true },
-                new EntityTypeConfigurationPropertyFilter { IsEnabled = false },
-                new EntityTypeConfigurationMethodCallFilter { Tenant = 1 },
-                new EntityTypeConfigurationMethodCallFilter { Tenant = 2 },
-                new EntityTypeConfigurationPropertyChainFilter { IsEnabled = true },
-                new EntityTypeConfigurationPropertyChainFilter { IsEnabled = false },
-                new LocalMethodFilter { IsEnabled = true },
-                new LocalMethodFilter { IsEnabled = false },
-                new LocalMethodParamsFilter { IsEnabled = true },
-                new LocalMethodParamsFilter { IsEnabled = false },
-                new RemoteMethodParamsFilter { Tenant = 1 },
-                new RemoteMethodParamsFilter { Tenant = 2 },
-                new ExtensionBuilderFilter { IsEnabled = true },
-                new ExtensionBuilderFilter { IsEnabled = false },
-                new ExtensionContextFilter { IsEnabled = true },
-                new ExtensionContextFilter { IsEnabled = false },
-                new ParameterFilter { Tenant = 1 },
-                new ParameterFilter { Tenant = 2 },
+                new FieldFilter
+                {
+                    IsEnabled = true
+                },
+                new FieldFilter
+                {
+                    IsEnabled = false
+                },
+                new PropertyFilter
+                {
+                    IsEnabled = true
+                },
+                new PropertyFilter
+                {
+                    IsEnabled = false
+                },
+                new MethodCallFilter
+                {
+                    Tenant = 1
+                },
+                new MethodCallFilter
+                {
+                    Tenant = 2
+                },
+                new ListFilter
+                {
+                    Tenant = 1
+                },
+                new ListFilter
+                {
+                    Tenant = 2
+                },
+                new ListFilter
+                {
+                    Tenant = 3
+                },
+                new ListFilter
+                {
+                    Tenant = 4
+                },
+                new PropertyChainFilter
+                {
+                    IsEnabled = true
+                },
+                new PropertyChainFilter
+                {
+                    IsEnabled = false
+                },
+                new PropertyMethodCallFilter
+                {
+                    Tenant = 1
+                },
+                new PropertyMethodCallFilter
+                {
+                    Tenant = 2
+                },
+                new MethodCallChainFilter
+                {
+                    Tenant = 1
+                },
+                new MethodCallChainFilter
+                {
+                    Tenant = 2
+                },
+                new ComplexFilter
+                {
+                    IsEnabled = true
+                },
+                new ComplexFilter
+                {
+                    IsEnabled = false
+                },
+                new ShortCircuitFilter
+                {
+                    IsDeleted = false,
+                    IsModerated = false
+                },
+                new ShortCircuitFilter
+                {
+                    IsDeleted = true,
+                    IsModerated = false
+                },
+                new ShortCircuitFilter
+                {
+                    IsDeleted = false,
+                    IsModerated = true
+                },
+                new ShortCircuitFilter
+                {
+                    IsDeleted = true,
+                    IsModerated = true
+                },
+                new DbContextStaticMemberFilter
+                {
+                    UserId = 1
+                },
+                new DbContextStaticMemberFilter
+                {
+                    UserId = 2
+                },
+                new DbContextStaticMemberFilter
+                {
+                    UserId = 3
+                },
+                new StaticMemberFilter
+                {
+                    IsEnabled = true
+                },
+                new StaticMemberFilter
+                {
+                    IsEnabled = false
+                },
+                new LocalVariableFilter
+                {
+                    IsEnabled = true
+                },
+                new LocalVariableFilter
+                {
+                    IsEnabled = false
+                },
+                new EntityTypeConfigurationFieldFilter
+                {
+                    IsEnabled = true
+                },
+                new EntityTypeConfigurationFieldFilter
+                {
+                    IsEnabled = false
+                },
+                new EntityTypeConfigurationPropertyFilter
+                {
+                    IsEnabled = true
+                },
+                new EntityTypeConfigurationPropertyFilter
+                {
+                    IsEnabled = false
+                },
+                new EntityTypeConfigurationMethodCallFilter
+                {
+                    Tenant = 1
+                },
+                new EntityTypeConfigurationMethodCallFilter
+                {
+                    Tenant = 2
+                },
+                new EntityTypeConfigurationPropertyChainFilter
+                {
+                    IsEnabled = true
+                },
+                new EntityTypeConfigurationPropertyChainFilter
+                {
+                    IsEnabled = false
+                },
+                new LocalMethodFilter
+                {
+                    IsEnabled = true
+                },
+                new LocalMethodFilter
+                {
+                    IsEnabled = false
+                },
+                new LocalMethodParamsFilter
+                {
+                    IsEnabled = true
+                },
+                new LocalMethodParamsFilter
+                {
+                    IsEnabled = false
+                },
+                new RemoteMethodParamsFilter
+                {
+                    Tenant = 1
+                },
+                new RemoteMethodParamsFilter
+                {
+                    Tenant = 2
+                },
+                new ExtensionBuilderFilter
+                {
+                    IsEnabled = true
+                },
+                new ExtensionBuilderFilter
+                {
+                    IsEnabled = false
+                },
+                new ExtensionContextFilter
+                {
+                    IsEnabled = true
+                },
+                new ExtensionContextFilter
+                {
+                    IsEnabled = false
+                },
+                new ParameterFilter
+                {
+                    Tenant = 1
+                },
+                new ParameterFilter
+                {
+                    Tenant = 2
+                },
                 new PrincipalSetFilter
                 {
                     Dependents = new List<DependentSetFilter>
@@ -211,12 +372,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 new PrincipalSetFilter(),
-                new MultiContextFilter { BossId = 1, IsEnabled = true},
-                new MultiContextFilter { BossId = 1, IsEnabled = false},
-                new MultiContextFilter { BossId = 1, IsEnabled = true},
-                new MultiContextFilter { BossId = 2, IsEnabled = true},
-                new MultiContextFilter { BossId = 2, IsEnabled = false}
-                );
+                new MultiContextFilter
+                {
+                    BossId = 1,
+                    IsEnabled = true
+                },
+                new MultiContextFilter
+                {
+                    BossId = 1,
+                    IsEnabled = false
+                },
+                new MultiContextFilter
+                {
+                    BossId = 1,
+                    IsEnabled = true
+                },
+                new MultiContextFilter
+                {
+                    BossId = 2,
+                    IsEnabled = true
+                },
+                new MultiContextFilter
+                {
+                    BossId = 2,
+                    IsEnabled = false
+                }
+            );
 
             context.SaveChanges();
         }
@@ -230,6 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Context = context;
         }
+
         public QueryFilterFuncletizationContext Context { get; }
     }
 
@@ -247,6 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             builder.HasQueryFilter(e => e.IsEnabled == wrapper.Context.IndirectionFlag.Enabled);
         }
     }
+
     public class Indirection
     {
         public bool Enabled { get; set; }
@@ -400,6 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public int Id { get; set; }
         public bool IsEnabled { get; set; }
     }
+
     public class ParameterFilter
     {
         public int Id { get; set; }
@@ -409,6 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class PrincipalSetFilter
     {
         public int Id { get; set; }
+        public bool Filler { get; set; }
         public ICollection<DependentSetFilter> Dependents { get; set; }
     }
 

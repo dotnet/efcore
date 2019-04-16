@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Entity<TMessage>().Property(e => e.MessageId).UseSqlServerIdentityColumn();
 
                 builder.Entity<TProduct>()
-                    .OwnsOne(c => (TDimensions)c.Dimensions, db =>
+                    .OwnsOne(
+                        c => (TDimensions)c.Dimensions, db =>
                         {
                             db.Property(d => d.Depth).HasColumnType("decimal(18,2)");
                             db.Property(d => d.Width).HasColumnType("decimal(18,2)");
@@ -40,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Entity<TProductReview>().Property(e => e.ReviewId).UseSqlServerIdentityColumn();
 
                 builder.Entity<TComputerDetail>()
-                    .OwnsOne(c => (TDimensions)c.Dimensions, db =>
+                    .OwnsOne(
+                        c => (TDimensions)c.Dimensions, db =>
                         {
                             db.Property(d => d.Depth).HasColumnType("decimal(18,2)");
                             db.Property(d => d.Width).HasColumnType("decimal(18,2)");

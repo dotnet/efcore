@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -75,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void Enum_to_integer_converter_throws_for_bad_types()
+        public void Enum_to_string_converter_throws_for_bad_types()
         {
             Assert.Equal(
                 CoreStrings.ConverterBadType(
-                    typeof(EnumToStringConverter<Guid>).ShortDisplayName(),
+                    typeof(StringEnumConverter<Guid, string, Guid>).ShortDisplayName(),
                     "Guid",
                     "enum types"),
                 Assert.Throws<InvalidOperationException>(

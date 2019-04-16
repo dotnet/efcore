@@ -127,7 +127,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             modelBuilder.Entity<TSuspiciousActivity>();
             modelBuilder.Entity<TLastLogin>().HasKey(e => e.Username);
-            modelBuilder.Entity<TMessage>().HasKey(e => new { e.MessageId, e.FromUsername });
+            modelBuilder.Entity<TMessage>().HasKey(
+                e => new
+                {
+                    e.MessageId,
+                    e.FromUsername
+                });
 
             modelBuilder.Entity<TOrderNote>().HasKey(e => e.NoteId);
 
@@ -141,161 +146,201 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             modelBuilder.Entity<TAnOrder>(
                 b =>
-                    {
-                        b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
-                            .HasForeignKey(e => e.OrderId);
+                {
+                    b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
+                        .HasForeignKey(e => e.OrderId);
 
-                        b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
-                            .HasPrincipalKey(e => e.AlternateId);
+                    b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
+                        .HasPrincipalKey(e => e.AlternateId);
 
-                        b.OwnsOne(e => (TConcurrencyInfo)e.Concurrency).Property(c => c.Token).IsConcurrencyToken();
-                    });
+                    b.OwnsOne(e => (TConcurrencyInfo)e.Concurrency).Property(c => c.Token).IsConcurrencyToken();
+                });
 
             modelBuilder.Entity<TOrderQualityCheck>(
                 b =>
-                    {
-                        b.HasKey(e => e.OrderId);
+                {
+                    b.HasKey(e => e.OrderId);
 
-                        b.HasOne(e => (TAnOrder)e.Order).WithOne()
-                            .HasForeignKey<TOrderQualityCheck>(e => e.OrderId)
-                            .HasPrincipalKey<TAnOrder>(e => e.AlternateId);
-                    });
+                    b.HasOne(e => (TAnOrder)e.Order).WithOne()
+                        .HasForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                        .HasPrincipalKey<TAnOrder>(e => e.AlternateId);
+                });
 
             modelBuilder.Entity<TProduct>(
                 b =>
-                    {
-                        b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
-                        b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
-                        b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
-                        b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
-                            .HasForeignKey<TProductDetail>(e => e.ProductId);
+                {
+                    b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
+                    b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
+                    b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
+                    b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
+                        .HasForeignKey<TProductDetail>(e => e.ProductId);
 
-                        b.OwnsOne(e => (TConcurrencyInfo)e.ComplexConcurrency).Property(c => c.Token).IsConcurrencyToken();
+                    b.OwnsOne(e => (TConcurrencyInfo)e.ComplexConcurrency).Property(c => c.Token).IsConcurrencyToken();
 
-                        b.OwnsOne(
-                            e => (TAuditInfo)e.NestedComplexConcurrency,
-                            ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+                    b.OwnsOne(
+                        e => (TAuditInfo)e.NestedComplexConcurrency,
+                        ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
 
-                        b.OwnsOne(e => (TDimensions)e.Dimensions);
+                    b.OwnsOne(e => (TDimensions)e.Dimensions);
 
-                        b.Ignore(e => e.Suppliers);
-                    });
+                    b.Ignore(e => e.Suppliers);
+                });
 
             modelBuilder.Entity<TOrderLine>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.OrderId, e.ProductId });
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.OrderId,
+                            e.ProductId
+                        });
 
-                        b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
-                    });
+                    b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
+                });
 
             modelBuilder.Entity<TSupplier>(
                 b =>
-                    {
-                        b.HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
-                        b.Ignore(e => e.Products);
-                    });
+                {
+                    b.HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
+                    b.Ignore(e => e.Products);
+                });
 
             modelBuilder.Entity<TCustomer>(
                 b =>
-                    {
-                        b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
-                        b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
-                        b.HasOne(e => (TCustomerInfo)e.Info).WithOne().HasForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
+                {
+                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
+                    b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
+                    b.HasOne(e => (TCustomerInfo)e.Info).WithOne().HasForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
 
-                        b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
-                            .HasForeignKey<TCustomer>(e => e.HusbandId);
+                    b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
+                        .HasForeignKey<TCustomer>(e => e.HusbandId);
 
-                        b.OwnsOne(
-                            e => (TAuditInfo)e.Auditing,
-                            ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
-                        b.OwnsOne(
-                            e => (TContactDetails)e.ContactInfo,
-                            cb =>
-                                {
-                                    cb.OwnsOne(c => (TPhone)c.HomePhone);
-                                    cb.OwnsOne(c => (TPhone)c.MobilePhone);
-                                    cb.OwnsOne(c => (TPhone)c.WorkPhone);
-                                });
-                    });
+                    b.OwnsOne(
+                        e => (TAuditInfo)e.Auditing,
+                        ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+                    b.OwnsOne(
+                        e => (TContactDetails)e.ContactInfo,
+                        cb =>
+                        {
+                            cb.OwnsOne(c => (TPhone)c.HomePhone);
+                            cb.OwnsOne(c => (TPhone)c.MobilePhone);
+                            cb.OwnsOne(c => (TPhone)c.WorkPhone);
+                        });
+                });
 
             modelBuilder.Entity<TComplaint>(
                 b =>
-                    {
-                        b.HasOne(e => (TCustomer)e.Customer)
-                            .WithMany()
-                            .HasForeignKey(e => e.CustomerId);
+                {
+                    b.HasOne(e => (TCustomer)e.Customer)
+                        .WithMany()
+                        .HasForeignKey(e => e.CustomerId);
 
-                        b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
-                            .HasPrincipalKey<TComplaint>(e => e.AlternateId);
-                    });
+                    b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
+                        .HasPrincipalKey<TComplaint>(e => e.AlternateId);
+                });
 
             modelBuilder.Entity<TProductPhoto>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.PhotoId, e.ProductId });
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.PhotoId,
+                            e.ProductId
+                        });
 
-                        b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
-                            .HasForeignKey(e => new { e.PhotoId, e.ProductId })
-                            .HasPrincipalKey(e => new { e.PhotoId, e.ProductId });
-                    });
+                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
+                        .HasForeignKey(
+                            e => new
+                            {
+                                e.PhotoId,
+                                e.ProductId
+                            })
+                        .HasPrincipalKey(
+                            e => new
+                            {
+                                e.PhotoId,
+                                e.ProductId
+                            });
+                });
 
             modelBuilder.Entity<TProductReview>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.ReviewId, e.ProductId });
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.ReviewId,
+                            e.ProductId
+                        });
 
-                        b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
-                            .HasForeignKey(e => new { e.ReviewId, e.ProductId })
-                            .HasPrincipalKey(e => new { e.ReviewId, e.ProductId });
-                    });
+                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
+                        .HasForeignKey(
+                            e => new
+                            {
+                                e.ReviewId,
+                                e.ProductId
+                            })
+                        .HasPrincipalKey(
+                            e => new
+                            {
+                                e.ReviewId,
+                                e.ProductId
+                            });
+                });
 
             modelBuilder.Entity<TLogin>(
                 b =>
-                    {
-                        var key = b.HasKey(e => e.Username);
+                {
+                    var key = b.HasKey(e => e.Username);
 
-                        b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
-                            .HasForeignKey(e => e.FromUsername);
+                    b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
+                        .HasForeignKey(e => e.FromUsername);
 
-                        b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
-                            .HasForeignKey(e => e.ToUsername);
+                    b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
+                        .HasForeignKey(e => e.ToUsername);
 
-                        b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
-                            .HasForeignKey(e => e.Username);
+                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
+                        .HasForeignKey(e => e.Username);
 
-                        var entityType = b.Metadata;
-                        var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
-                        activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
+                    var entityType = b.Metadata;
+                    var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
+                    activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
 
-                        b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
-                            .HasForeignKey<TLastLogin>(e => e.Username);
-                    });
+                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
+                        .HasForeignKey<TLastLogin>(e => e.Username);
+                });
 
             modelBuilder.Entity<TPasswordReset>(
                 b =>
-                    {
-                        b.HasKey(e => new { e.ResetNo, e.Username });
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.ResetNo,
+                            e.Username
+                        });
 
-                        b.HasOne(e => (TLogin)e.Login).WithMany()
-                            .HasForeignKey(e => e.Username)
-                            .HasPrincipalKey(e => e.AlternateUsername);
-                    });
+                    b.HasOne(e => (TLogin)e.Login).WithMany()
+                        .HasForeignKey(e => e.Username)
+                        .HasPrincipalKey(e => e.AlternateUsername);
+                });
 
             modelBuilder.Entity<TPageView>().HasOne(e => (TLogin)e.Login).WithMany()
                 .HasForeignKey(e => e.Username);
 
             modelBuilder.Entity<TBarcode>(
                 b =>
-                    {
-                        b.HasKey(e => e.Code);
+                {
+                    b.HasKey(e => e.Code);
 
-                        b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
-                            .HasForeignKey(e => e.ExpectedCode);
+                    b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
+                        .HasForeignKey(e => e.ExpectedCode);
 
-                        b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
-                            .HasForeignKey<TBarcodeDetail>(e => e.Code);
-                    });
+                    b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
+                        .HasForeignKey<TBarcodeDetail>(e => e.Code);
+                });
 
             modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode).WithMany()
                 .HasForeignKey(e => e.ActualCode);
@@ -309,31 +354,31 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             modelBuilder.Entity<TDriver>(
                 b =>
-                    {
-                        b.HasKey(e => e.Name);
-                        b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
-                            .HasPrincipalKey<TDriver>(e => e.Name);
-                    });
+                {
+                    b.HasKey(e => e.Name);
+                    b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
+                        .HasPrincipalKey<TDriver>(e => e.Name);
+                });
 
             modelBuilder.Entity<TSmartCard>(
                 b =>
-                    {
-                        b.HasKey(e => e.Username);
+                {
+                    b.HasKey(e => e.Username);
 
-                        b.HasOne(e => (TLogin)e.Login).WithOne()
-                            .HasForeignKey<TSmartCard>(e => e.Username);
+                    b.HasOne(e => (TLogin)e.Login).WithOne()
+                        .HasForeignKey<TSmartCard>(e => e.Username);
 
-                        b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
-                            .HasForeignKey<TLastLogin>(e => e.SmartcardUsername);
-                    });
+                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
+                        .HasForeignKey<TLastLogin>(e => e.SmartcardUsername);
+                });
 
             modelBuilder.Entity<TRsaToken>(
                 b =>
-                    {
-                        b.HasKey(e => e.Serial);
-                        b.HasOne(e => (TLogin)e.Login).WithOne()
-                            .HasForeignKey<TRsaToken>(e => e.Username);
-                    });
+                {
+                    b.HasKey(e => e.Serial);
+                    b.HasOne(e => (TLogin)e.Login).WithOne()
+                        .HasForeignKey<TRsaToken>(e => e.Username);
+                });
 
             // TODO: Many-to-many
             //modelBuilder.Entity<TSupplier>().ForeignKeys(fk => fk.HasForeignKey<TProduct>(e => e.SupplierId));
@@ -356,26 +401,101 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public override void SeedUsingFKs()
         {
-            var customer0 = Add(new TCustomer { Name = "Eeky Bear" }).Entity;
-            var customer1 = Add(new TCustomer { Name = "Sheila Koalie" }).Entity;
-            var customer3 = Add(new TCustomer { Name = "Tarquin Tiger" }).Entity;
+            var customer0 = Add(
+                new TCustomer
+                {
+                    Name = "Eeky Bear"
+                }).Entity;
+            var customer1 = Add(
+                new TCustomer
+                {
+                    Name = "Sheila Koalie"
+                }).Entity;
+            var customer3 = Add(
+                new TCustomer
+                {
+                    Name = "Tarquin Tiger"
+                }).Entity;
 
-            var customer2 = Add(new TCustomer { Name = "Sue Pandy", HusbandId = customer0.CustomerId }).Entity;
+            var customer2 = Add(
+                new TCustomer
+                {
+                    Name = "Sue Pandy",
+                    HusbandId = customer0.CustomerId
+                }).Entity;
 
-            var product1 = Add(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" }).Entity;
-            var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
-            var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
+            var product1 = Add(
+                new TProduct
+                {
+                    Description = "Mrs Koalie's Famous Waffles",
+                    BaseConcurrency = "Pounds Sterling"
+                }).Entity;
+            var product2 = Add(
+                new TProduct
+                {
+                    Description = "Chocolate Donuts",
+                    BaseConcurrency = "US Dollars"
+                }).Entity;
+            var product3 = Add(
+                new TProduct
+                {
+                    Description = "Assorted Dog Treats",
+                    BaseConcurrency = "Stuffy Money"
+                }).Entity;
 
-            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
-            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
-            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
+            product1.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 3,
+                Height = 0.5M
+            };
+            product2.Dimensions = new TDimensions
+            {
+                Depth = 2,
+                Width = 2,
+                Height = 1
+            };
+            product3.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 1,
+                Height = 4
+            };
 
-            var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, ProductId = product1.ProductId, Text = "Barcode 1 2 3 4" }).Entity;
-            var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, ProductId = product2.ProductId, Text = "Barcode 2 2 3 4" }).Entity;
-            var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, ProductId = product3.ProductId, Text = "Barcode 3 2 3 4" }).Entity;
+            var barcode1 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 1, 2, 3, 4 },
+                    ProductId = product1.ProductId,
+                    Text = "Barcode 1 2 3 4"
+                }).Entity;
+            var barcode2 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 2, 2, 3, 4 },
+                    ProductId = product2.ProductId,
+                    Text = "Barcode 2 2 3 4"
+                }).Entity;
+            var barcode3 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 3, 2, 3, 4 },
+                    ProductId = product3.ProductId,
+                    Text = "Barcode 3 2 3 4"
+                }).Entity;
 
-            var barcodeDetails1 = Add(new TBarcodeDetail { Code = barcode1.Code, RegisteredTo = "Eeky Bear" }).Entity;
-            var barcodeDetails2 = Add(new TBarcodeDetail { Code = barcode2.Code, RegisteredTo = "Trent" }).Entity;
+            var barcodeDetails1 = Add(
+                new TBarcodeDetail
+                {
+                    Code = barcode1.Code,
+                    RegisteredTo = "Eeky Bear"
+                }).Entity;
+            var barcodeDetails2 = Add(
+                new TBarcodeDetail
+                {
+                    Code = barcode2.Code,
+                    RegisteredTo = "Trent"
+                }).Entity;
 
             var incorrectScan1 = Add(
                 new TIncorrectScan
@@ -420,19 +540,76 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Details = "Destroyed all coffee in Redmond area."
                 }).Entity;
 
-            var login1 = Add(new TLogin { CustomerId = customer1.CustomerId, Username = "MrsKoalie73", AlternateUsername = "Sheila" }).Entity;
-            var login2 = Add(new TLogin { CustomerId = customer2.CustomerId, Username = "MrsBossyPants", AlternateUsername = "Sue" }).Entity;
-            var login3 = Add(new TLogin { CustomerId = customer3.CustomerId, Username = "TheStripedMenace", AlternateUsername = "Tarquin" }).Entity;
+            var login1 = Add(
+                new TLogin
+                {
+                    CustomerId = customer1.CustomerId,
+                    Username = "MrsKoalie73",
+                    AlternateUsername = "Sheila"
+                }).Entity;
+            var login2 = Add(
+                new TLogin
+                {
+                    CustomerId = customer2.CustomerId,
+                    Username = "MrsBossyPants",
+                    AlternateUsername = "Sue"
+                }).Entity;
+            var login3 = Add(
+                new TLogin
+                {
+                    CustomerId = customer3.CustomerId,
+                    Username = "TheStripedMenace",
+                    AlternateUsername = "Tarquin"
+                }).Entity;
 
-            var suspiciousActivity1 = Add(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username }).Entity;
-            var suspiciousActivity2 = Add(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username }).Entity;
-            var suspiciousActivity3 = Add(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username }).Entity;
+            var suspiciousActivity1 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Pig prints on keyboard",
+                    Username = login3.Username
+                }).Entity;
+            var suspiciousActivity2 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Crumbs in the cupboard",
+                    Username = login3.Username
+                }).Entity;
+            var suspiciousActivity3 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Donuts gone missing",
+                    Username = login3.Username
+                }).Entity;
 
-            var rsaToken1 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Username = login1.Username }).Entity;
-            var rsaToken2 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Username = login2.Username }).Entity;
+            var rsaToken1 = Add(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "1234",
+                    Username = login1.Username
+                }).Entity;
+            var rsaToken2 = Add(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "2234",
+                    Username = login2.Username
+                }).Entity;
 
-            var smartCard1 = Add(new TSmartCard { Username = login1.Username, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued }).Entity;
-            var smartCard2 = Add(new TSmartCard { Username = login2.Username, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued }).Entity;
+            var smartCard1 = Add(
+                new TSmartCard
+                {
+                    Username = login1.Username,
+                    CardSerial = rsaToken1.Serial,
+                    Issued = rsaToken1.Issued
+                }).Entity;
+            var smartCard2 = Add(
+                new TSmartCard
+                {
+                    Username = login2.Username,
+                    CardSerial = rsaToken2.Serial,
+                    Issued = rsaToken2.Issued
+                }).Entity;
 
             var reset1 = Add(
                 new TPasswordReset
@@ -443,9 +620,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Username = login3.AlternateUsername
                 }).Entity;
 
-            var pageView1 = Add(new TPageView { PageUrl = "somePage1", Username = login1.Username, Viewed = DateTime.Now }).Entity;
-            var pageView2 = Add(new TPageView { PageUrl = "somePage2", Username = login1.Username, Viewed = DateTime.Now }).Entity;
-            var pageView3 = Add(new TPageView { PageUrl = "somePage3", Username = login1.Username, Viewed = DateTime.Now }).Entity;
+            var pageView1 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage1",
+                    Username = login1.Username,
+                    Viewed = DateTime.Now
+                }).Entity;
+            var pageView2 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage2",
+                    Username = login1.Username,
+                    Viewed = DateTime.Now
+                }).Entity;
+            var pageView3 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage3",
+                    Username = login1.Username,
+                    Viewed = DateTime.Now
+                }).Entity;
 
             var lastLogin1 = Add(
                 new TLastLogin
@@ -495,35 +690,162 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Sent = DateTime.Now
                 }).Entity;
 
-            var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username, AlternateId = 77 }).Entity;
-            var order2 = Add(new TAnOrder { CustomerId = customer2.CustomerId, Username = login2.Username, AlternateId = 78 }).Entity;
-            var order3 = Add(new TAnOrder { CustomerId = customer3.CustomerId, Username = login3.Username, AlternateId = 79 }).Entity;
+            var order1 = Add(
+                new TAnOrder
+                {
+                    CustomerId = customer1.CustomerId,
+                    Username = login1.Username,
+                    AlternateId = 77
+                }).Entity;
+            var order2 = Add(
+                new TAnOrder
+                {
+                    CustomerId = customer2.CustomerId,
+                    Username = login2.Username,
+                    AlternateId = 78
+                }).Entity;
+            var order3 = Add(
+                new TAnOrder
+                {
+                    CustomerId = customer3.CustomerId,
+                    Username = login3.Username,
+                    AlternateId = 79
+                }).Entity;
 
-            var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", OrderId = order1.AlternateId }).Entity;
-            var orderNote2 = Add(new TOrderNote { Note = "And donuts!", OrderId = order1.AlternateId }).Entity;
-            var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", OrderId = order1.AlternateId }).Entity;
+            var orderNote1 = Add(
+                new TOrderNote
+                {
+                    Note = "Must have tea!",
+                    OrderId = order1.AlternateId
+                }).Entity;
+            var orderNote2 = Add(
+                new TOrderNote
+                {
+                    Note = "And donuts!",
+                    OrderId = order1.AlternateId
+                }).Entity;
+            var orderNote3 = Add(
+                new TOrderNote
+                {
+                    Note = "But no coffee. :-(",
+                    OrderId = order1.AlternateId
+                }).Entity;
 
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck1 = Add(
+                new TOrderQualityCheck
+                {
+                    OrderId = order1.AlternateId,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
+            var orderQualityCheck2 = Add(
+                new TOrderQualityCheck
+                {
+                    OrderId = order2.AlternateId,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
+            var orderQualityCheck3 = Add(
+                new TOrderQualityCheck
+                {
+                    OrderId = order3.AlternateId,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
 
-            var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Quantity = 7 }).Entity;
-            var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Quantity = 1 }).Entity;
-            var orderLine3 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product3.ProductId, Quantity = 2 }).Entity;
-            var orderLine4 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product2.ProductId, Quantity = 3 }).Entity;
-            var orderLine5 = Add(new TOrderLine { OrderId = order2.AnOrderId, ProductId = product1.ProductId, Quantity = 4 }).Entity;
-            var orderLine6 = Add(new TOrderLine { OrderId = order3.AnOrderId, ProductId = product2.ProductId, Quantity = 5 }).Entity;
+            var orderLine1 = Add(
+                new TOrderLine
+                {
+                    OrderId = order1.AnOrderId,
+                    ProductId = product1.ProductId,
+                    Quantity = 7
+                }).Entity;
+            var orderLine2 = Add(
+                new TOrderLine
+                {
+                    OrderId = order1.AnOrderId,
+                    ProductId = product2.ProductId,
+                    Quantity = 1
+                }).Entity;
+            var orderLine3 = Add(
+                new TOrderLine
+                {
+                    OrderId = order2.AnOrderId,
+                    ProductId = product3.ProductId,
+                    Quantity = 2
+                }).Entity;
+            var orderLine4 = Add(
+                new TOrderLine
+                {
+                    OrderId = order2.AnOrderId,
+                    ProductId = product2.ProductId,
+                    Quantity = 3
+                }).Entity;
+            var orderLine5 = Add(
+                new TOrderLine
+                {
+                    OrderId = order2.AnOrderId,
+                    ProductId = product1.ProductId,
+                    Quantity = 4
+                }).Entity;
+            var orderLine6 = Add(
+                new TOrderLine
+                {
+                    OrderId = order3.AnOrderId,
+                    ProductId = product2.ProductId,
+                    Quantity = 5
+                }).Entity;
 
-            var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", ProductId = product1.ProductId }).Entity;
-            var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", ProductId = product2.ProductId }).Entity;
+            var productDetail1 = Add(
+                new TProductDetail
+                {
+                    Details = "A Waffle Cart specialty!",
+                    ProductId = product1.ProductId
+                }).Entity;
+            var productDetail2 = Add(
+                new TProductDetail
+                {
+                    Details = "Eeky Bear's favorite!",
+                    ProductId = product2.ProductId
+                }).Entity;
 
-            var productReview1 = Add(new TProductReview { ProductId = product1.ProductId, Review = "Better than Tarqies!" }).Entity;
-            var productReview2 = Add(new TProductReview { ProductId = product1.ProductId, Review = "Good with maple syrup." }).Entity;
-            var productReview3 = Add(new TProductReview { ProductId = product2.ProductId, Review = "Eeky says yes!" }).Entity;
+            var productReview1 = Add(
+                new TProductReview
+                {
+                    ProductId = product1.ProductId,
+                    Review = "Better than Tarqies!"
+                }).Entity;
+            var productReview2 = Add(
+                new TProductReview
+                {
+                    ProductId = product1.ProductId,
+                    Review = "Good with maple syrup."
+                }).Entity;
+            var productReview3 = Add(
+                new TProductReview
+                {
+                    ProductId = product2.ProductId,
+                    Review = "Eeky says yes!"
+                }).Entity;
 
-            var productPhoto1 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } }).Entity;
-            var productPhoto2 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } }).Entity;
-            var productPhoto3 = Add(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } }).Entity;
+            var productPhoto1 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 101, 102 }
+                }).Entity;
+            var productPhoto2 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 103, 104 }
+                }).Entity;
+            var productPhoto3 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product3.ProductId,
+                    Photo = new byte[] { 105, 106 }
+                }).Entity;
 
             var productWebFeature1 = Add(
                 new TProductWebFeature
@@ -542,20 +864,66 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     ReviewId = productReview3.ReviewId
                 }).Entity;
 
-            var supplier1 = Add(new TSupplier { Name = "Trading As Trent" }).Entity;
-            var supplier2 = Add(new TSupplier { Name = "Ants By Boris" }).Entity;
+            var supplier1 = Add(
+                new TSupplier
+                {
+                    Name = "Trading As Trent"
+                }).Entity;
+            var supplier2 = Add(
+                new TSupplier
+                {
+                    Name = "Ants By Boris"
+                }).Entity;
 
-            var supplierLogo1 = Add(new TSupplierLogo { SupplierId = supplier1.SupplierId, Logo = new byte[] { 201, 202 } }).Entity;
+            var supplierLogo1 = Add(
+                new TSupplierLogo
+                {
+                    SupplierId = supplier1.SupplierId,
+                    Logo = new byte[] { 201, 202 }
+                }).Entity;
 
-            var supplierInfo1 = Add(new TSupplierInfo { SupplierId = supplier1.SupplierId, Information = "Seems a bit dodgy." }).Entity;
-            var supplierInfo2 = Add(new TSupplierInfo { SupplierId = supplier1.SupplierId, Information = "Orange fur?" }).Entity;
-            var supplierInfo3 = Add(new TSupplierInfo { SupplierId = supplier2.SupplierId, Information = "Very expensive!" }).Entity;
+            var supplierInfo1 = Add(
+                new TSupplierInfo
+                {
+                    SupplierId = supplier1.SupplierId,
+                    Information = "Seems a bit dodgy."
+                }).Entity;
+            var supplierInfo2 = Add(
+                new TSupplierInfo
+                {
+                    SupplierId = supplier1.SupplierId,
+                    Information = "Orange fur?"
+                }).Entity;
+            var supplierInfo3 = Add(
+                new TSupplierInfo
+                {
+                    SupplierId = supplier2.SupplierId,
+                    Information = "Very expensive!"
+                }).Entity;
 
-            var customerInfo1 = Add(new TCustomerInfo { CustomerInfoId = customer1.CustomerId, Information = "Really likes tea." }).Entity;
-            var customerInfo2 = Add(new TCustomerInfo { CustomerInfoId = customer2.CustomerId, Information = "Mrs Bossy Pants!" }).Entity;
+            var customerInfo1 = Add(
+                new TCustomerInfo
+                {
+                    CustomerInfoId = customer1.CustomerId,
+                    Information = "Really likes tea."
+                }).Entity;
+            var customerInfo2 = Add(
+                new TCustomerInfo
+                {
+                    CustomerInfoId = customer2.CustomerId,
+                    Information = "Mrs Bossy Pants!"
+                }).Entity;
 
-            var computer1 = Add(new TComputer { Name = "markash420" }).Entity;
-            var computer2 = Add(new TComputer { Name = "unicorns420" }).Entity;
+            var computer1 = Add(
+                new TComputer
+                {
+                    Name = "markash420"
+                }).Entity;
+            var computer2 = Add(
+                new TComputer
+                {
+                    Name = "unicorns420"
+                }).Entity;
 
             var computerDetail1 = Add(
                 new TComputerDetail
@@ -579,8 +947,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Specifications = "It's not a Dell!"
                 }).Entity;
 
-            var driver1 = Add(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" }).Entity;
-            var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" }).Entity;
+            var driver1 = Add(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2006, 9, 19),
+                    Name = "Eeky Bear"
+                }).Entity;
+            var driver2 = Add(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2007, 9, 19),
+                    Name = "Splash Bear"
+                }).Entity;
 
             var license1 = Add(
                 new TLicense
@@ -609,27 +987,92 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs)
         {
-            var customer0 = Add(new TCustomer { Name = "Eeky Bear" }).Entity;
-            var customer1 = Add(new TCustomer { Name = "Sheila Koalie" }).Entity;
-            var customer3 = Add(new TCustomer { Name = "Tarquin Tiger" }).Entity;
+            var customer0 = Add(
+                new TCustomer
+                {
+                    Name = "Eeky Bear"
+                }).Entity;
+            var customer1 = Add(
+                new TCustomer
+                {
+                    Name = "Sheila Koalie"
+                }).Entity;
+            var customer3 = Add(
+                new TCustomer
+                {
+                    Name = "Tarquin Tiger"
+                }).Entity;
 
-            var customer2 = Add(new TCustomer { Name = "Sue Pandy", Husband = dependentNavs ? customer0 : null }).Entity;
+            var customer2 = Add(
+                new TCustomer
+                {
+                    Name = "Sue Pandy",
+                    Husband = dependentNavs ? customer0 : null
+                }).Entity;
             if (principalNavs)
             {
                 customer0.Wife = customer2;
             }
 
-            var product1 = Add(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" }).Entity;
-            var product2 = Add(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
-            var product3 = Add(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
+            var product1 = Add(
+                new TProduct
+                {
+                    Description = "Mrs Koalie's Famous Waffles",
+                    BaseConcurrency = "Pounds Sterling"
+                }).Entity;
+            var product2 = Add(
+                new TProduct
+                {
+                    Description = "Chocolate Donuts",
+                    BaseConcurrency = "US Dollars"
+                }).Entity;
+            var product3 = Add(
+                new TProduct
+                {
+                    Description = "Assorted Dog Treats",
+                    BaseConcurrency = "Stuffy Money"
+                }).Entity;
 
-            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
-            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
-            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
+            product1.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 3,
+                Height = 0.5M
+            };
+            product2.Dimensions = new TDimensions
+            {
+                Depth = 2,
+                Width = 2,
+                Height = 1
+            };
+            product3.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 1,
+                Height = 4
+            };
 
-            var barcode1 = Add(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Product = dependentNavs ? product1 : null, Text = "Barcode 1 2 3 4" }).Entity;
-            var barcode2 = Add(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Product = dependentNavs ? product2 : null, Text = "Barcode 2 2 3 4" }).Entity;
-            var barcode3 = Add(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Product = dependentNavs ? product3 : null, Text = "Barcode 3 2 3 4" }).Entity;
+            var barcode1 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 1, 2, 3, 4 },
+                    Product = dependentNavs ? product1 : null,
+                    Text = "Barcode 1 2 3 4"
+                }).Entity;
+            var barcode2 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 2, 2, 3, 4 },
+                    Product = dependentNavs ? product2 : null,
+                    Text = "Barcode 2 2 3 4"
+                }).Entity;
+            var barcode3 = Add(
+                new TBarcode
+                {
+                    Code = new byte[] { 3, 2, 3, 4 },
+                    Product = dependentNavs ? product3 : null,
+                    Text = "Barcode 3 2 3 4"
+                }).Entity;
             if (principalNavs)
             {
                 product1.InitializeCollections();
@@ -640,8 +1083,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 product3.Barcodes.Add(barcode3);
             }
 
-            var barcodeDetails1 = Add(new TBarcodeDetail { Code = barcode1.Code, RegisteredTo = "Eeky Bear" }).Entity;
-            var barcodeDetails2 = Add(new TBarcodeDetail { Code = barcode2.Code, RegisteredTo = "Trent" }).Entity;
+            var barcodeDetails1 = Add(
+                new TBarcodeDetail
+                {
+                    Code = barcode1.Code,
+                    RegisteredTo = "Eeky Bear"
+                }).Entity;
+            var barcodeDetails2 = Add(
+                new TBarcodeDetail
+                {
+                    Code = barcode2.Code,
+                    RegisteredTo = "Trent"
+                }).Entity;
             if (principalNavs)
             {
                 barcode1.Detail = barcodeDetails1;
@@ -694,15 +1147,38 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 }).Entity;
 
-            var resolution = Add(new TResolution { Complaint = dependentNavs ? complaint2 : null, Details = "Destroyed all coffee in Redmond area." }).Entity;
+            var resolution = Add(
+                new TResolution
+                {
+                    Complaint = dependentNavs ? complaint2 : null,
+                    Details = "Destroyed all coffee in Redmond area."
+                }).Entity;
             if (principalNavs)
             {
                 complaint2.Resolution = resolution;
             }
 
-            var login1 = Add(new TLogin { Customer = dependentNavs ? customer1 : null, Username = "MrsKoalie73", AlternateUsername = "Sheila" }).Entity;
-            var login2 = Add(new TLogin { Customer = dependentNavs ? customer2 : null, Username = "MrsBossyPants", AlternateUsername = "Sue" }).Entity;
-            var login3 = Add(new TLogin { Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace", AlternateUsername = "Tarquin" }).Entity;
+            var login1 = Add(
+                new TLogin
+                {
+                    Customer = dependentNavs ? customer1 : null,
+                    Username = "MrsKoalie73",
+                    AlternateUsername = "Sheila"
+                }).Entity;
+            var login2 = Add(
+                new TLogin
+                {
+                    Customer = dependentNavs ? customer2 : null,
+                    Username = "MrsBossyPants",
+                    AlternateUsername = "Sue"
+                }).Entity;
+            var login3 = Add(
+                new TLogin
+                {
+                    Customer = dependentNavs ? customer3 : null,
+                    Username = "TheStripedMenace",
+                    AlternateUsername = "Tarquin"
+                }).Entity;
             if (principalNavs)
             {
                 customer1.InitializeCollections();
@@ -713,15 +1189,54 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 customer3.Logins.Add(login3);
             }
 
-            var suspiciousActivity1 = Add(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username }).Entity;
-            var suspiciousActivity2 = Add(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username }).Entity;
-            var suspiciousActivity3 = Add(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username }).Entity;
+            var suspiciousActivity1 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Pig prints on keyboard",
+                    Username = login3.Username
+                }).Entity;
+            var suspiciousActivity2 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Crumbs in the cupboard",
+                    Username = login3.Username
+                }).Entity;
+            var suspiciousActivity3 = Add(
+                new TSuspiciousActivity
+                {
+                    Activity = "Donuts gone missing",
+                    Username = login3.Username
+                }).Entity;
 
-            var rsaToken1 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 }).Entity;
-            var rsaToken2 = Add(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 }).Entity;
+            var rsaToken1 = Add(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "1234",
+                    Login = login1
+                }).Entity;
+            var rsaToken2 = Add(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "2234",
+                    Login = login2
+                }).Entity;
 
-            var smartCard1 = Add(new TSmartCard { Login = login1, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued }).Entity;
-            var smartCard2 = Add(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued }).Entity;
+            var smartCard1 = Add(
+                new TSmartCard
+                {
+                    Login = login1,
+                    CardSerial = rsaToken1.Serial,
+                    Issued = rsaToken1.Issued
+                }).Entity;
+            var smartCard2 = Add(
+                new TSmartCard
+                {
+                    Login = login2,
+                    CardSerial = rsaToken2.Serial,
+                    Issued = rsaToken2.Issued
+                }).Entity;
 
             var reset1 = Add(
                 new TPasswordReset
@@ -732,9 +1247,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Login = login3
                 }).Entity;
 
-            var pageView1 = Add(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now }).Entity;
-            var pageView2 = Add(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now }).Entity;
-            var pageView3 = Add(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now }).Entity;
+            var pageView1 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage1",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                }).Entity;
+            var pageView2 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage2",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                }).Entity;
+            var pageView3 = Add(
+                new TPageView
+                {
+                    PageUrl = "somePage3",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                }).Entity;
 
             var lastLogin1 = Add(
                 new TLastLogin
@@ -814,9 +1347,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 login2.ReceivedMessages.Add(message3);
             }
 
-            var order1 = Add(new TAnOrder { Customer = dependentNavs ? customer1 : null, Login = dependentNavs ? login1 : null, AlternateId = 77 }).Entity;
-            var order2 = Add(new TAnOrder { Customer = dependentNavs ? customer2 : null, Login = dependentNavs ? login2 : null, AlternateId = 78 }).Entity;
-            var order3 = Add(new TAnOrder { Customer = dependentNavs ? customer3 : null, Login = dependentNavs ? login3 : null, AlternateId = 79 }).Entity;
+            var order1 = Add(
+                new TAnOrder
+                {
+                    Customer = dependentNavs ? customer1 : null,
+                    Login = dependentNavs ? login1 : null,
+                    AlternateId = 77
+                }).Entity;
+            var order2 = Add(
+                new TAnOrder
+                {
+                    Customer = dependentNavs ? customer2 : null,
+                    Login = dependentNavs ? login2 : null,
+                    AlternateId = 78
+                }).Entity;
+            var order3 = Add(
+                new TAnOrder
+                {
+                    Customer = dependentNavs ? customer3 : null,
+                    Login = dependentNavs ? login3 : null,
+                    AlternateId = 79
+                }).Entity;
             if (principalNavs)
             {
                 customer1.Orders.Add(order1);
@@ -828,9 +1379,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 login3.Orders.Add(order3);
             }
 
-            var orderNote1 = Add(new TOrderNote { Note = "Must have tea!", Order = dependentNavs ? order1 : null }).Entity;
-            var orderNote2 = Add(new TOrderNote { Note = "And donuts!", Order = dependentNavs ? order1 : null }).Entity;
-            var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null }).Entity;
+            var orderNote1 = Add(
+                new TOrderNote
+                {
+                    Note = "Must have tea!",
+                    Order = dependentNavs ? order1 : null
+                }).Entity;
+            var orderNote2 = Add(
+                new TOrderNote
+                {
+                    Note = "And donuts!",
+                    Order = dependentNavs ? order1 : null
+                }).Entity;
+            var orderNote3 = Add(
+                new TOrderNote
+                {
+                    Note = "But no coffee. :-(",
+                    Order = dependentNavs ? order1 : null
+                }).Entity;
             if (principalNavs)
             {
                 order1.InitializeCollections();
@@ -839,16 +1405,70 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 order1.Notes.Add(orderNote3);
             }
 
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck1 = Add(
+                new TOrderQualityCheck
+                {
+                    Order = order1,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
+            var orderQualityCheck2 = Add(
+                new TOrderQualityCheck
+                {
+                    Order = order2,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
+            var orderQualityCheck3 = Add(
+                new TOrderQualityCheck
+                {
+                    Order = order3,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                }).Entity;
 
-            var orderLine1 = Add(new TOrderLine { Order = order1, Product = product1, Quantity = 7 }).Entity;
-            var orderLine2 = Add(new TOrderLine { Order = order1, Product = product2, Quantity = 1 }).Entity;
-            var orderLine3 = Add(new TOrderLine { Order = order2, Product = product3, Quantity = 2 }).Entity;
-            var orderLine4 = Add(new TOrderLine { Order = order2, Product = product2, Quantity = 3 }).Entity;
-            var orderLine5 = Add(new TOrderLine { Order = order2, Product = product1, Quantity = 4 }).Entity;
-            var orderLine6 = Add(new TOrderLine { Order = order3, Product = product2, Quantity = 5 }).Entity;
+            var orderLine1 = Add(
+                new TOrderLine
+                {
+                    Order = order1,
+                    Product = product1,
+                    Quantity = 7
+                }).Entity;
+            var orderLine2 = Add(
+                new TOrderLine
+                {
+                    Order = order1,
+                    Product = product2,
+                    Quantity = 1
+                }).Entity;
+            var orderLine3 = Add(
+                new TOrderLine
+                {
+                    Order = order2,
+                    Product = product3,
+                    Quantity = 2
+                }).Entity;
+            var orderLine4 = Add(
+                new TOrderLine
+                {
+                    Order = order2,
+                    Product = product2,
+                    Quantity = 3
+                }).Entity;
+            var orderLine5 = Add(
+                new TOrderLine
+                {
+                    Order = order2,
+                    Product = product1,
+                    Quantity = 4
+                }).Entity;
+            var orderLine6 = Add(
+                new TOrderLine
+                {
+                    Order = order3,
+                    Product = product2,
+                    Quantity = 5
+                }).Entity;
             if (principalNavs)
             {
                 order1.OrderLines.Add(orderLine1);
@@ -861,17 +1481,42 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 order3.OrderLines.Add(orderLine6);
             }
 
-            var productDetail1 = Add(new TProductDetail { Details = "A Waffle Cart specialty!", Product = product1 }).Entity;
-            var productDetail2 = Add(new TProductDetail { Details = "Eeky Bear's favorite!", Product = product2 }).Entity;
+            var productDetail1 = Add(
+                new TProductDetail
+                {
+                    Details = "A Waffle Cart specialty!",
+                    Product = product1
+                }).Entity;
+            var productDetail2 = Add(
+                new TProductDetail
+                {
+                    Details = "Eeky Bear's favorite!",
+                    Product = product2
+                }).Entity;
             if (principalNavs)
             {
                 product1.Detail = productDetail1;
                 product2.Detail = productDetail2;
             }
 
-            var productReview1 = Add(new TProductReview { Product = dependentNavs ? product1 : null, Review = "Better than Tarqies!" }).Entity;
-            var productReview2 = Add(new TProductReview { Product = dependentNavs ? product1 : null, Review = "Good with maple syrup." }).Entity;
-            var productReview3 = Add(new TProductReview { Product = dependentNavs ? product2 : null, Review = "Eeky says yes!" }).Entity;
+            var productReview1 = Add(
+                new TProductReview
+                {
+                    Product = dependentNavs ? product1 : null,
+                    Review = "Better than Tarqies!"
+                }).Entity;
+            var productReview2 = Add(
+                new TProductReview
+                {
+                    Product = dependentNavs ? product1 : null,
+                    Review = "Good with maple syrup."
+                }).Entity;
+            var productReview3 = Add(
+                new TProductReview
+                {
+                    Product = dependentNavs ? product2 : null,
+                    Review = "Eeky says yes!"
+                }).Entity;
             if (principalNavs)
             {
                 product1.Reviews.Add(productReview1);
@@ -879,9 +1524,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 product2.Reviews.Add(productReview3);
             }
 
-            var productPhoto1 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } }).Entity;
-            var productPhoto2 = Add(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } }).Entity;
-            var productPhoto3 = Add(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } }).Entity;
+            var productPhoto1 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 101, 102 }
+                }).Entity;
+            var productPhoto2 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 103, 104 }
+                }).Entity;
+            var productPhoto3 = Add(
+                new TProductPhoto
+                {
+                    ProductId = product3.ProductId,
+                    Photo = new byte[] { 105, 106 }
+                }).Entity;
             if (principalNavs)
             {
                 product1.Photos.Add(productPhoto1);
@@ -918,29 +1578,75 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 productReview3.Features.Add(productWebFeature2);
             }
 
-            var supplier1 = Add(new TSupplier { Name = "Trading As Trent" }).Entity;
-            var supplier2 = Add(new TSupplier { Name = "Ants By Boris" }).Entity;
+            var supplier1 = Add(
+                new TSupplier
+                {
+                    Name = "Trading As Trent"
+                }).Entity;
+            var supplier2 = Add(
+                new TSupplier
+                {
+                    Name = "Ants By Boris"
+                }).Entity;
 
-            var supplierLogo1 = Add(new TSupplierLogo { SupplierId = !principalNavs ? supplier1.SupplierId : 0, Logo = new byte[] { 201, 202 } }).Entity;
+            var supplierLogo1 = Add(
+                new TSupplierLogo
+                {
+                    SupplierId = !principalNavs ? supplier1.SupplierId : 0,
+                    Logo = new byte[] { 201, 202 }
+                }).Entity;
             if (principalNavs)
             {
                 supplier1.Logo = supplierLogo1;
             }
 
-            var supplierInfo1 = Add(new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." }).Entity;
-            var supplierInfo2 = Add(new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" }).Entity;
-            var supplierInfo3 = Add(new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" }).Entity;
+            var supplierInfo1 = Add(
+                new TSupplierInfo
+                {
+                    Supplier = supplier1,
+                    Information = "Seems a bit dodgy."
+                }).Entity;
+            var supplierInfo2 = Add(
+                new TSupplierInfo
+                {
+                    Supplier = supplier1,
+                    Information = "Orange fur?"
+                }).Entity;
+            var supplierInfo3 = Add(
+                new TSupplierInfo
+                {
+                    Supplier = supplier2,
+                    Information = "Very expensive!"
+                }).Entity;
 
-            var customerInfo1 = Add(new TCustomerInfo { CustomerInfoId = customer1.CustomerId, Information = "Really likes tea." }).Entity;
-            var customerInfo2 = Add(new TCustomerInfo { CustomerInfoId = customer2.CustomerId, Information = "Mrs Bossy Pants!" }).Entity;
+            var customerInfo1 = Add(
+                new TCustomerInfo
+                {
+                    CustomerInfoId = customer1.CustomerId,
+                    Information = "Really likes tea."
+                }).Entity;
+            var customerInfo2 = Add(
+                new TCustomerInfo
+                {
+                    CustomerInfoId = customer2.CustomerId,
+                    Information = "Mrs Bossy Pants!"
+                }).Entity;
             if (principalNavs)
             {
                 customer1.Info = customerInfo1;
                 customer2.Info = customerInfo2;
             }
 
-            var computer1 = Add(new TComputer { Name = "markash420" }).Entity;
-            var computer2 = Add(new TComputer { Name = "unicorns420" }).Entity;
+            var computer1 = Add(
+                new TComputer
+                {
+                    Name = "markash420"
+                }).Entity;
+            var computer2 = Add(
+                new TComputer
+                {
+                    Name = "unicorns420"
+                }).Entity;
 
             var computerDetail1 = Add(
                 new TComputerDetail
@@ -972,8 +1678,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 computer2.ComputerDetail = computerDetail2;
             }
 
-            var driver1 = Add(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" }).Entity;
-            var driver2 = Add(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" }).Entity;
+            var driver1 = Add(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2006, 9, 19),
+                    Name = "Eeky Bear"
+                }).Entity;
+            var driver2 = Add(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2007, 9, 19),
+                    Name = "Splash Bear"
+                }).Entity;
 
             var license1 = Add(
                 new TLicense
@@ -1017,22 +1733,84 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 toAdd[i] = new List<object>();
             }
 
-            var customer0 = toAdd[0].AddEx(new TCustomer { Name = "Eeky Bear" });
-            var customer1 = toAdd[0].AddEx(new TCustomer { Name = "Sheila Koalie" });
-            var customer3 = toAdd[0].AddEx(new TCustomer { Name = "Tarquin Tiger" });
-            var customer2 = toAdd[0].AddEx(new TCustomer { Name = "Sue Pandy", Husband = customer0 });
+            var customer0 = toAdd[0].AddEx(
+                new TCustomer
+                {
+                    Name = "Eeky Bear"
+                });
+            var customer1 = toAdd[0].AddEx(
+                new TCustomer
+                {
+                    Name = "Sheila Koalie"
+                });
+            var customer3 = toAdd[0].AddEx(
+                new TCustomer
+                {
+                    Name = "Tarquin Tiger"
+                });
+            var customer2 = toAdd[0].AddEx(
+                new TCustomer
+                {
+                    Name = "Sue Pandy",
+                    Husband = customer0
+                });
 
-            var product1 = toAdd[0].AddEx(new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
-            var product2 = toAdd[0].AddEx(new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
-            var product3 = toAdd[0].AddEx(new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
+            var product1 = toAdd[0].AddEx(
+                new TProduct
+                {
+                    Description = "Mrs Koalie's Famous Waffles",
+                    BaseConcurrency = "Pounds Sterling"
+                });
+            var product2 = toAdd[0].AddEx(
+                new TProduct
+                {
+                    Description = "Chocolate Donuts",
+                    BaseConcurrency = "US Dollars"
+                });
+            var product3 = toAdd[0].AddEx(
+                new TProduct
+                {
+                    Description = "Assorted Dog Treats",
+                    BaseConcurrency = "Stuffy Money"
+                });
 
-            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
-            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
-            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
+            product1.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 3,
+                Height = 0.5M
+            };
+            product2.Dimensions = new TDimensions
+            {
+                Depth = 2,
+                Width = 2,
+                Height = 1
+            };
+            product3.Dimensions = new TDimensions
+            {
+                Depth = 3,
+                Width = 1,
+                Height = 4
+            };
 
-            var barcode1 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Text = "Barcode 1 2 3 4" });
-            var barcode2 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });
-            var barcode3 = toAdd[1].AddEx(new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Text = "Barcode 3 2 3 4" });
+            var barcode1 = toAdd[1].AddEx(
+                new TBarcode
+                {
+                    Code = new byte[] { 1, 2, 3, 4 },
+                    Text = "Barcode 1 2 3 4"
+                });
+            var barcode2 = toAdd[1].AddEx(
+                new TBarcode
+                {
+                    Code = new byte[] { 2, 2, 3, 4 },
+                    Text = "Barcode 2 2 3 4"
+                });
+            var barcode3 = toAdd[1].AddEx(
+                new TBarcode
+                {
+                    Code = new byte[] { 3, 2, 3, 4 },
+                    Text = "Barcode 3 2 3 4"
+                });
 
             product1.InitializeCollections();
             product1.Barcodes.Add(barcode1);
@@ -1041,8 +1819,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             product3.InitializeCollections();
             product3.Barcodes.Add(barcode3);
 
-            var barcodeDetails1 = toAdd[1].AddEx(new TBarcodeDetail { RegisteredTo = "Eeky Bear" });
-            var barcodeDetails2 = toAdd[1].AddEx(new TBarcodeDetail { RegisteredTo = "Trent" });
+            var barcodeDetails1 = toAdd[1].AddEx(
+                new TBarcodeDetail
+                {
+                    RegisteredTo = "Eeky Bear"
+                });
+            var barcodeDetails2 = toAdd[1].AddEx(
+                new TBarcodeDetail
+                {
+                    RegisteredTo = "Trent"
+                });
 
             barcode1.Detail = barcodeDetails1;
             barcode2.Detail = barcodeDetails2;
@@ -1085,12 +1871,31 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Logged = new DateTime(2014, 5, 28, 19, 22, 26)
                 });
 
-            var resolution = toAdd[2].AddEx(new TResolution { Details = "Destroyed all coffee in Redmond area." });
+            var resolution = toAdd[2].AddEx(
+                new TResolution
+                {
+                    Details = "Destroyed all coffee in Redmond area."
+                });
             complaint2.Resolution = resolution;
 
-            var login1 = toAdd[1].AddEx(new TLogin { Username = "MrsKoalie73", AlternateUsername = "Sheila" });
-            var login2 = toAdd[1].AddEx(new TLogin { Username = "MrsBossyPants", AlternateUsername = "Sue" });
-            var login3 = toAdd[1].AddEx(new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
+            var login1 = toAdd[1].AddEx(
+                new TLogin
+                {
+                    Username = "MrsKoalie73",
+                    AlternateUsername = "Sheila"
+                });
+            var login2 = toAdd[1].AddEx(
+                new TLogin
+                {
+                    Username = "MrsBossyPants",
+                    AlternateUsername = "Sue"
+                });
+            var login3 = toAdd[1].AddEx(
+                new TLogin
+                {
+                    Username = "TheStripedMenace",
+                    AlternateUsername = "Tarquin"
+                });
 
             customer1.InitializeCollections();
             customer1.Logins.Add(login1);
@@ -1099,15 +1904,54 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             customer3.InitializeCollections();
             customer3.Logins.Add(login3);
 
-            var suspiciousActivity1 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Pig prints on keyboard", Username = login3.Username });
-            var suspiciousActivity2 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Crumbs in the cupboard", Username = login3.Username });
-            var suspiciousActivity3 = toAdd[2].AddEx(new TSuspiciousActivity { Activity = "Donuts gone missing", Username = login3.Username });
+            var suspiciousActivity1 = toAdd[2].AddEx(
+                new TSuspiciousActivity
+                {
+                    Activity = "Pig prints on keyboard",
+                    Username = login3.Username
+                });
+            var suspiciousActivity2 = toAdd[2].AddEx(
+                new TSuspiciousActivity
+                {
+                    Activity = "Crumbs in the cupboard",
+                    Username = login3.Username
+                });
+            var suspiciousActivity3 = toAdd[2].AddEx(
+                new TSuspiciousActivity
+                {
+                    Activity = "Donuts gone missing",
+                    Username = login3.Username
+                });
 
-            var rsaToken1 = toAdd[2].AddEx(new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 });
-            var rsaToken2 = toAdd[2].AddEx(new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 });
+            var rsaToken1 = toAdd[2].AddEx(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "1234",
+                    Login = login1
+                });
+            var rsaToken2 = toAdd[2].AddEx(
+                new TRsaToken
+                {
+                    Issued = DateTime.Now,
+                    Serial = "2234",
+                    Login = login2
+                });
 
-            var smartCard1 = toAdd[2].AddEx(new TSmartCard { Login = login1, CardSerial = rsaToken1.Serial, Issued = rsaToken1.Issued });
-            var smartCard2 = toAdd[2].AddEx(new TSmartCard { Login = login2, CardSerial = rsaToken2.Serial, Issued = rsaToken2.Issued });
+            var smartCard1 = toAdd[2].AddEx(
+                new TSmartCard
+                {
+                    Login = login1,
+                    CardSerial = rsaToken1.Serial,
+                    Issued = rsaToken1.Issued
+                });
+            var smartCard2 = toAdd[2].AddEx(
+                new TSmartCard
+                {
+                    Login = login2,
+                    CardSerial = rsaToken2.Serial,
+                    Issued = rsaToken2.Issued
+                });
 
             var reset1 = toAdd[2].AddEx(
                 new TPasswordReset
@@ -1118,9 +1962,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     Login = login3
                 });
 
-            var pageView1 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
-            var pageView2 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
-            var pageView3 = toAdd[1].AddEx(new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
+            var pageView1 = toAdd[1].AddEx(
+                new TPageView
+                {
+                    PageUrl = "somePage1",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                });
+            var pageView2 = toAdd[1].AddEx(
+                new TPageView
+                {
+                    PageUrl = "somePage2",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                });
+            var pageView3 = toAdd[1].AddEx(
+                new TPageView
+                {
+                    PageUrl = "somePage3",
+                    Login = login1,
+                    Viewed = DateTime.Now
+                });
 
             var lastLogin1 = toAdd[2].AddEx(
                 new TLastLogin
@@ -1180,9 +2042,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             login1.SentMessages.Add(message3);
             login2.ReceivedMessages.Add(message3);
 
-            var order1 = toAdd[2].AddEx(new TAnOrder { Customer = customer1, Login = login1, AlternateId = 77 });
-            var order2 = toAdd[2].AddEx(new TAnOrder { Customer = customer2, Login = login2, AlternateId = 78 });
-            var order3 = toAdd[2].AddEx(new TAnOrder { Customer = customer3, Login = login3, AlternateId = 79 });
+            var order1 = toAdd[2].AddEx(
+                new TAnOrder
+                {
+                    Customer = customer1,
+                    Login = login1,
+                    AlternateId = 77
+                });
+            var order2 = toAdd[2].AddEx(
+                new TAnOrder
+                {
+                    Customer = customer2,
+                    Login = login2,
+                    AlternateId = 78
+                });
+            var order3 = toAdd[2].AddEx(
+                new TAnOrder
+                {
+                    Customer = customer3,
+                    Login = login3,
+                    AlternateId = 79
+                });
 
             customer1.Orders.Add(order1);
             customer2.Orders.Add(order2);
@@ -1193,25 +2073,85 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             login3.InitializeCollections();
             login3.Orders.Add(order3);
 
-            var orderNote1 = toAdd[2].AddEx(new TOrderNote { Note = "Must have tea!" });
-            var orderNote2 = toAdd[2].AddEx(new TOrderNote { Note = "And donuts!" });
-            var orderNote3 = toAdd[2].AddEx(new TOrderNote { Note = "But no coffee. :-(" });
+            var orderNote1 = toAdd[2].AddEx(
+                new TOrderNote
+                {
+                    Note = "Must have tea!"
+                });
+            var orderNote2 = toAdd[2].AddEx(
+                new TOrderNote
+                {
+                    Note = "And donuts!"
+                });
+            var orderNote3 = toAdd[2].AddEx(
+                new TOrderNote
+                {
+                    Note = "But no coffee. :-("
+                });
 
             order1.InitializeCollections();
             order1.Notes.Add(orderNote1);
             order1.Notes.Add(orderNote2);
             order1.Notes.Add(orderNote3);
 
-            var orderQualityCheck1 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
-            var orderQualityCheck2 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
-            var orderQualityCheck3 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
+            var orderQualityCheck1 = toAdd[2].AddEx(
+                new TOrderQualityCheck
+                {
+                    Order = order1,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                });
+            var orderQualityCheck2 = toAdd[2].AddEx(
+                new TOrderQualityCheck
+                {
+                    Order = order2,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                });
+            var orderQualityCheck3 = toAdd[2].AddEx(
+                new TOrderQualityCheck
+                {
+                    Order = order3,
+                    CheckedBy = "Eeky Bear",
+                    CheckedDateTime = DateTime.Now
+                });
 
-            var orderLine1 = toAdd[3].AddEx(new TOrderLine { Product = product1, Quantity = 7 });
-            var orderLine2 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 1 });
-            var orderLine3 = toAdd[3].AddEx(new TOrderLine { Product = product3, Quantity = 2 });
-            var orderLine4 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 3 });
-            var orderLine5 = toAdd[3].AddEx(new TOrderLine { Product = product1, Quantity = 4 });
-            var orderLine6 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 5 });
+            var orderLine1 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product1,
+                    Quantity = 7
+                });
+            var orderLine2 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product2,
+                    Quantity = 1
+                });
+            var orderLine3 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product3,
+                    Quantity = 2
+                });
+            var orderLine4 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product2,
+                    Quantity = 3
+                });
+            var orderLine5 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product1,
+                    Quantity = 4
+                });
+            var orderLine6 = toAdd[3].AddEx(
+                new TOrderLine
+                {
+                    Product = product2,
+                    Quantity = 5
+                });
 
             order1.OrderLines.Add(orderLine1);
             order1.OrderLines.Add(orderLine2);
@@ -1222,23 +2162,58 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             order3.InitializeCollections();
             order3.OrderLines.Add(orderLine6);
 
-            var productDetail1 = toAdd[0].AddEx(new TProductDetail { Details = "A Waffle Cart specialty!" });
-            var productDetail2 = toAdd[0].AddEx(new TProductDetail { Details = "Eeky Bear's favorite!" });
+            var productDetail1 = toAdd[0].AddEx(
+                new TProductDetail
+                {
+                    Details = "A Waffle Cart specialty!"
+                });
+            var productDetail2 = toAdd[0].AddEx(
+                new TProductDetail
+                {
+                    Details = "Eeky Bear's favorite!"
+                });
 
             product1.Detail = productDetail1;
             product2.Detail = productDetail2;
 
-            var productReview1 = toAdd[0].AddEx(new TProductReview { Review = "Better than Tarqies!" });
-            var productReview2 = toAdd[0].AddEx(new TProductReview { Review = "Good with maple syrup." });
-            var productReview3 = toAdd[0].AddEx(new TProductReview { Review = "Eeky says yes!" });
+            var productReview1 = toAdd[0].AddEx(
+                new TProductReview
+                {
+                    Review = "Better than Tarqies!"
+                });
+            var productReview2 = toAdd[0].AddEx(
+                new TProductReview
+                {
+                    Review = "Good with maple syrup."
+                });
+            var productReview3 = toAdd[0].AddEx(
+                new TProductReview
+                {
+                    Review = "Eeky says yes!"
+                });
 
             product1.Reviews.Add(productReview1);
             product1.Reviews.Add(productReview2);
             product2.Reviews.Add(productReview3);
 
-            var productPhoto1 = toAdd[0].AddEx(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 101, 102 } });
-            var productPhoto2 = toAdd[0].AddEx(new TProductPhoto { ProductId = product1.ProductId, Photo = new byte[] { 103, 104 } });
-            var productPhoto3 = toAdd[0].AddEx(new TProductPhoto { ProductId = product3.ProductId, Photo = new byte[] { 105, 106 } });
+            var productPhoto1 = toAdd[0].AddEx(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 101, 102 }
+                });
+            var productPhoto2 = toAdd[0].AddEx(
+                new TProductPhoto
+                {
+                    ProductId = product1.ProductId,
+                    Photo = new byte[] { 103, 104 }
+                });
+            var productPhoto3 = toAdd[0].AddEx(
+                new TProductPhoto
+                {
+                    ProductId = product3.ProductId,
+                    Photo = new byte[] { 105, 106 }
+                });
 
             product1.Photos.Add(productPhoto1);
             product1.Photos.Add(productPhoto2);
@@ -1266,25 +2241,68 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             productReview3.InitializeCollections();
             productReview3.Features.Add(productWebFeature2);
 
-            var supplier1 = toAdd[0].AddEx(new TSupplier { Name = "Trading As Trent" });
-            var supplier2 = toAdd[0].AddEx(new TSupplier { Name = "Ants By Boris" });
+            var supplier1 = toAdd[0].AddEx(
+                new TSupplier
+                {
+                    Name = "Trading As Trent"
+                });
+            var supplier2 = toAdd[0].AddEx(
+                new TSupplier
+                {
+                    Name = "Ants By Boris"
+                });
 
-            var supplierLogo1 = toAdd[0].AddEx(new TSupplierLogo { Logo = new byte[] { 201, 202 } });
+            var supplierLogo1 = toAdd[0].AddEx(
+                new TSupplierLogo
+                {
+                    Logo = new byte[] { 201, 202 }
+                });
 
             supplier1.Logo = supplierLogo1;
 
-            var supplierInfo1 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." });
-            var supplierInfo2 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" });
-            var supplierInfo3 = toAdd[0].AddEx(new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" });
+            var supplierInfo1 = toAdd[0].AddEx(
+                new TSupplierInfo
+                {
+                    Supplier = supplier1,
+                    Information = "Seems a bit dodgy."
+                });
+            var supplierInfo2 = toAdd[0].AddEx(
+                new TSupplierInfo
+                {
+                    Supplier = supplier1,
+                    Information = "Orange fur?"
+                });
+            var supplierInfo3 = toAdd[0].AddEx(
+                new TSupplierInfo
+                {
+                    Supplier = supplier2,
+                    Information = "Very expensive!"
+                });
 
-            var customerInfo1 = toAdd[0].AddEx(new TCustomerInfo { Information = "Really likes tea." });
-            var customerInfo2 = toAdd[0].AddEx(new TCustomerInfo { Information = "Mrs Bossy Pants!" });
+            var customerInfo1 = toAdd[0].AddEx(
+                new TCustomerInfo
+                {
+                    Information = "Really likes tea."
+                });
+            var customerInfo2 = toAdd[0].AddEx(
+                new TCustomerInfo
+                {
+                    Information = "Mrs Bossy Pants!"
+                });
 
             customer1.Info = customerInfo1;
             customer2.Info = customerInfo2;
 
-            var computer1 = toAdd[0].AddEx(new TComputer { Name = "markash420" });
-            var computer2 = toAdd[0].AddEx(new TComputer { Name = "unicorns420" });
+            var computer1 = toAdd[0].AddEx(
+                new TComputer
+                {
+                    Name = "markash420"
+                });
+            var computer2 = toAdd[0].AddEx(
+                new TComputer
+                {
+                    Name = "unicorns420"
+                });
 
             var computerDetail1 = toAdd[0].AddEx(
                 new TComputerDetail
@@ -1310,8 +2328,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             computer2.ComputerDetail = computerDetail2;
 
-            var driver1 = toAdd[0].AddEx(new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
-            var driver2 = toAdd[0].AddEx(new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
+            var driver1 = toAdd[0].AddEx(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2006, 9, 19),
+                    Name = "Eeky Bear"
+                });
+            var driver2 = toAdd[0].AddEx(
+                new TDriver
+                {
+                    BirthDate = new DateTime(2007, 9, 19),
+                    Name = "Splash Bear"
+                });
 
             var license1 = toAdd[1].AddEx(
                 new TLicense

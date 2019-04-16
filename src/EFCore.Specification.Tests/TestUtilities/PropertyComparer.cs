@@ -26,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return y == null;
             }
 
-            if (y == null)
-            {
-                return false;
-            }
-
-            return x.Name == y.Name
+            return y == null
+                ? false
+                : x.Name == y.Name
                    && x.ClrType == y.ClrType
                    && x.IsShadowProperty == y.IsShadowProperty
                    && x.IsNullable == y.IsNullable

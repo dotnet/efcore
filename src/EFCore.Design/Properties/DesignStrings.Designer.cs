@@ -169,6 +169,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 literalType);
 
         /// <summary>
+        ///     The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.
+        /// </summary>
+        public static string LiteralExpressionNotSupported([CanBeNull] object expression, [CanBeNull] object type)
+            => string.Format(
+                GetString("LiteralExpressionNotSupported", nameof(expression), nameof(type)),
+                expression, type);
+
+        /// <summary>
         ///     Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.
         /// </summary>
         public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
@@ -291,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, error);
 
         /// <summary>
-        ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.
+        ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
         /// </summary>
         public static string NoParameterlessConstructor([CanBeNull] object contextType)
             => string.Format(

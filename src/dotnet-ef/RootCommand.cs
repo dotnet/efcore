@@ -63,16 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 return ShowHelp(_help.HasValue(), commands);
             }
 
-            var projectFile = FindProjects(
+            var (projectFile, starupProjectFile) = ResolveProjects(
                 _project.Value(),
-                Resources.NoProject,
-                Resources.MultipleProjects);
-            Reporter.WriteVerbose(Resources.UsingProject(projectFile));
+                _startupProject.Value());
 
-            var starupProjectFile = FindProjects(
-                _startupProject.Value(),
-                Resources.NoStartupProject,
-                Resources.MultipleStartupProjects);
+            Reporter.WriteVerbose(Resources.UsingProject(projectFile));
             Reporter.WriteVerbose(Resources.UsingStartupProject(starupProjectFile));
 
             var project = Project.FromFile(projectFile, _msbuildprojectextensionspath.Value());
@@ -204,41 +199,75 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return Exe.Run(executable, args, startupProject.ProjectDir);
         }
 
-        private static string FindProjects(
-            string path,
-            string errorWhenNoProject,
-            string errorWhenMultipleProjects)
+        private static (string, string) ResolveProjects(
+            string projectPath,
+            string startupProjectPath)
         {
-            var specified = true;
+            var projects = ResolveProjects(projectPath);
+            var startupProjects = ResolveProjects(startupProjectPath);
+
+            if (projects.Count > 1)
+            {
+                throw new CommandException(
+                    projectPath != null
+                        ? Resources.MultipleProjectsInDirectory(projectPath)
+                        : Resources.MultipleProjects);
+            }
+
+            if (startupProjects.Count > 1)
+            {
+                throw new CommandException(
+                    startupProjectPath != null
+                        ? Resources.MultipleProjectsInDirectory(startupProjectPath)
+                        : Resources.MultipleStartupProjects);
+            }
+
+            if (projectPath != null && projects.Count == 0)
+            {
+                throw new CommandException(Resources.NoProjectInDirectory(projectPath));
+            }
+
+            if (startupProjectPath != null && startupProjects.Count == 0)
+            {
+                throw new CommandException(Resources.NoProjectInDirectory(startupProjectPath));
+            }
+
+            if (projectPath == null && startupProjectPath == null)
+            {
+                return projects.Count == 0
+                    ? throw new CommandException(Resources.NoProject)
+                    : (projects[0], startupProjects[0]);
+            }
+
+            if (projects.Count == 0)
+            {
+                return (startupProjects[0], startupProjects[0]);
+            }
+
+            if (startupProjects.Count == 0)
+            {
+                return (projects[0], projects[0]);
+            }
+
+            return (projects[0], startupProjects[0]);
+        }
+
+        private static List<string> ResolveProjects(string path)
+        {
             if (path == null)
             {
-                specified = false;
                 path = Directory.GetCurrentDirectory();
             }
             else if (!Directory.Exists(path)) // It's not a directory
             {
-                return path;
+                return new List<string> { path };
             }
 
             var projectFiles = Directory.EnumerateFiles(path, "*.*proj", SearchOption.TopDirectoryOnly)
                     .Where(f => !string.Equals(Path.GetExtension(f), ".xproj", StringComparison.OrdinalIgnoreCase))
                     .Take(2).ToList();
-            if (projectFiles.Count == 0)
-            {
-                throw new CommandException(
-                    specified
-                        ? Resources.NoProjectInDirectory(path)
-                        : errorWhenNoProject);
-            }
-            if (projectFiles.Count != 1)
-            {
-                throw new CommandException(
-                    specified
-                        ? Resources.MultipleProjectsInDirectory(path)
-                        : errorWhenMultipleProjects);
-            }
 
-            return projectFiles[0];
+            return projectFiles;
         }
 
         private static string GetVersion()

@@ -118,7 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
-
                 }
 
                 public T Current
@@ -140,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 _innerEnumerator = _exceptionInterceptor._innerEnumerable.GetEnumerator();
                             }
+
                             return _innerEnumerator.MoveNext();
                         }
                         catch (Exception exception)

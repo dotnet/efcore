@@ -6,15 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-#if Test20
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-#else
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -90,11 +83,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
-#else
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMappingSource>().GetMapping(property).StoreType;
-#endif
+
+            var storeType = property.FindRelationalMapping().StoreType;
+
             Assert.Equal("nvarchar(64)", storeType);
 
             return modelBuilder;
@@ -105,11 +96,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-#if Test20
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().FindMapping(property).StoreType;
-#else
-            var storeType = TestServiceFactory.Instance.Create<SqlServerTypeMappingSource>().GetMapping(property).StoreType;
-#endif
+
+            var storeType = property.FindRelationalMapping().StoreType;
+
             Assert.Equal("rowversion", storeType);
 
             return modelBuilder;
@@ -249,11 +238,11 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p1='1'" + _eol,
+                "@p1='1'" + _eol,
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = Int32)" + _eol,
+                "@p1='' (Nullable = false) (DbType = Int32)" + _eol,
                 Sql);
         }
 
@@ -332,7 +321,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
         public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

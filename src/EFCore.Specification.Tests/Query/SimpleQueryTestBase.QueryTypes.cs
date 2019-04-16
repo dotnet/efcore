@@ -1,30 +1,37 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [ConditionalFact]
-        public virtual void QueryType_simple()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_simple(bool isAsync)
         {
-            AssertQuery<CustomerView>(cvs => cvs);
+            return AssertQuery<CustomerView>(
+                isAsync,
+                cvs => cvs);
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_where_simple()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_where_simple(bool isAsync)
         {
-            AssertQuery<CustomerView>(
+            return AssertQuery<CustomerView>(
+                isAsync,
                 cvs => cvs.Where(c => c.City == "London"));
         }
 
@@ -36,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Query<ProductQuery>().ToArray();
 
                 Assert.Equal(69, results.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Query_throws_for_non_query()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(CoreStrings.InvalidSetTypeEntity(nameof(Product)),
+                    Assert.Throws<InvalidOperationException>(() => context.Query<Product>().ToArray()).Message);
             }
         }
 
@@ -64,16 +81,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_with_defining_query()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_defining_query(bool isAsync)
         {
-            AssertQuery<OrderQuery>(ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
+            return AssertQuery<OrderQuery>(
+                isAsync,
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_with_mixed_tracking()
+        // #issue 12873
+        //[Theory]
+        //[MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
         {
-            AssertQuery<Customer, OrderQuery>(
+            return AssertQuery<OrderQuery>(
+                isAsync,
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer).Select(cv => cv.Orders.Where(cc => true).ToList()));
+        }
+
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_mixed_tracking(bool isAsync)
+        {
+            return AssertQuery<Customer, OrderQuery>(
+                isAsync,
                 (cs, ovs)
                     => from c in cs
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
@@ -85,10 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_with_included_nav()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_included_nav(bool isAsync)
         {
-            AssertIncludeQuery<OrderQuery>(
+            return AssertIncludeQuery<OrderQuery>(
+                isAsync,
                 ovs => from ov in ovs.Include(ov => ov.Customer)
                        where ov.CustomerID == "ALFKI"
                        select ov,
@@ -98,10 +132,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_with_included_navs_multi_level()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
-            AssertIncludeQuery<OrderQuery>(
+            return AssertIncludeQuery<OrderQuery>(
+                isAsync,
                 ovs => from ov in ovs.Include(ov => ov.Customer.Orders)
                        where ov.CustomerID == "ALFKI"
                        select ov,
@@ -112,19 +148,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_select_where_navigation()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_select_where_navigation(bool isAsync)
         {
-            AssertQuery<OrderQuery>(
+            return AssertQuery<OrderQuery>(
+                isAsync,
                 ovs => from ov in ovs
                        where ov.Customer.City == "Seattle"
                        select ov);
         }
 
-        [ConditionalFact]
-        public virtual void QueryType_select_where_navigation_multi_level()
+        [Theory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
-            AssertQuery<OrderQuery>(
+            return AssertQuery<OrderQuery>(
+                isAsync,
                 ovs => from ov in ovs
                        where ov.Customer.Orders.Any()
                        select ov);

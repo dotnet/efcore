@@ -32,8 +32,14 @@ namespace Microsoft.EntityFrameworkCore
         public void Uses_comparer()
         {
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), null);
-            var table1 = new DatabaseTable { Name = "A B C" };
-            var table2 = new DatabaseTable { Name = "A_B_C" };
+            var table1 = new DatabaseTable
+            {
+                Name = "A B C"
+            };
+            var table2 = new DatabaseTable
+            {
+                Name = "A_B_C"
+            };
             Assert.Equal("A_B_C", namer.GetName(table1));
             Assert.Equal("A_B_C1", namer.GetName(table2));
         }
@@ -45,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Singularize);
-            var table = new DatabaseTable { Name = input };
+            var table = new DatabaseTable
+            {
+                Name = input
+            };
             Assert.Equal(output, namer.GetName(table));
         }
 
@@ -56,7 +65,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Pluralize);
-            var table = new DatabaseTable { Name = input };
+            var table = new DatabaseTable
+            {
+                Name = input
+            };
             Assert.Equal(output, namer.GetName(table));
         }
     }

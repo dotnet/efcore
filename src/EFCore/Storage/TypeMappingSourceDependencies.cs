@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -40,11 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="valueConverterSelector"> The registry of known <see cref="ValueConverter" />s. </param>
-        public TypeMappingSourceDependencies([NotNull] IValueConverterSelector valueConverterSelector)
+        /// <param name="plugins"> The plugins. </param>
+        public TypeMappingSourceDependencies(
+            [NotNull] IValueConverterSelector valueConverterSelector,
+            [NotNull] IEnumerable<ITypeMappingSourcePlugin> plugins)
         {
             Check.NotNull(valueConverterSelector, nameof(valueConverterSelector));
+            Check.NotNull(plugins, nameof(plugins));
 
             ValueConverterSelector = valueConverterSelector;
+            Plugins = plugins;
         }
 
         /// <summary>
@@ -53,11 +59,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IValueConverterSelector ValueConverterSelector { get; }
 
         /// <summary>
+        ///     Gets the plugins.
+        /// </summary>
+        public IEnumerable<ITypeMappingSourcePlugin> Plugins { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="valueConverterSelector"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public TypeMappingSourceDependencies With([NotNull] IValueConverterSelector valueConverterSelector)
-            => new TypeMappingSourceDependencies(valueConverterSelector);
+            => new TypeMappingSourceDependencies(valueConverterSelector, Plugins);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public TypeMappingSourceDependencies With([NotNull] IEnumerable<ITypeMappingSourcePlugin> plugins)
+            => new TypeMappingSourceDependencies(ValueConverterSelector, plugins);
     }
 }

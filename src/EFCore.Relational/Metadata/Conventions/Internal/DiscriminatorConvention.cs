@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             DiscriminatorBuilder discriminator;
             if (entityType.BaseType == null)
             {
-                if (!derivedEntityTypes.Any())
+                if (derivedEntityTypes.Count == 0)
                 {
                     entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
                     return true;

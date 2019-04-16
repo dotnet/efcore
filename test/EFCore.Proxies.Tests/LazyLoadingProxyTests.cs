@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -370,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public NeweyContext(IServiceProvider internalServiceProvider, string dbName = null, bool useProxies = true)
-            : this(dbName, useProxies)
+                : this(dbName, useProxies)
             {
                 _internalServiceProvider = internalServiceProvider;
             }

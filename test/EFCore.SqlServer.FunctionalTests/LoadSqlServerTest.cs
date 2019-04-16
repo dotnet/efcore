@@ -4,8 +4,6 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -18,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore
             fixture.TestSqlLoggerFactory.Clear();
         }
 
-#if !Test20
         public override void Lazy_load_collection(EntityState state)
         {
             base.Lazy_load_collection(state);
@@ -414,7 +411,6 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 
             Assert.Equal("", Sql);
         }
-#endif
 
         public override async Task Load_collection(EntityState state, bool async)
         {
@@ -1922,7 +1918,7 @@ WHERE 0 = 1",
 
         public class LoadSqlServerFixture : LoadFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

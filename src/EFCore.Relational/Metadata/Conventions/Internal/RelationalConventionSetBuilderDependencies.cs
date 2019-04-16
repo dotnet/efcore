@@ -3,12 +3,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -64,8 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new FallbackRelationalTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                    new RelationalTypeMappingSourceDependencies(
+                        Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                     typeMapper),
                 null,
                 currentContext,
@@ -153,8 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new FallbackRelationalTypeMappingSource(
                     new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
-                            new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMappingSourceDependencies(),
+                            new ValueConverterSelectorDependencies()),
+                        Enumerable.Empty<ITypeMappingSourcePlugin>()),
+                    new RelationalTypeMappingSourceDependencies(
+                        Enumerable.Empty<IRelationalTypeMappingSourcePlugin>()),
                     typeMapper),
                 Logger, Context, SetFinder, typeMapper);
 

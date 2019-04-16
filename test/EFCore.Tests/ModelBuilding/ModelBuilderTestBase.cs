@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -25,19 +24,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class ModelBuilderTestBase
         {
-            [Fact]
-            public void Entity_throws_when_called_for_query()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Query<Customer>();
-
-                Assert.Equal(
-                    CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<Customer>()).Message);
-            }
-
             protected void AssertEqual(
                 IEnumerable<string> expectedNames,
                 IEnumerable<string> actualNames,
@@ -117,8 +103,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var builder = CreateModelBuilder();
 
-                builder.Entity<Hob>().HasKey(e => new { e.Id1, e.Id2 });
-                builder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
+                builder.Entity<Hob>().HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
+                builder.Entity<Nob>().HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2
+                    });
 
                 return builder;
             }
@@ -130,32 +126,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             protected TestModelBuilder(TestHelpers testHelpers)
             {
-                Log = new List<(LogLevel, EventId, string)>();
                 var options = new LoggingOptions();
                 options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+                ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
                 var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                    ValidationLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"));
+
+                ModelLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
                 var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                    ModelLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"));
 
                 var contextServices = testHelpers.CreateContextServices();
 
-                ModelBuilder = new ModelBuilder(new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
-                    .AddConventions(new CoreConventionSetBuilder(
-                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
-                    .CreateConventionSet()));
+                var conventionSet = new CompositeConventionSetBuilder(
+                        contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
+                    .AddConventions(
+                        new CoreConventionSetBuilder(
+                                contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
+                            .CreateConventionSet());
 
-                ModelValidator = new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger));
+                conventionSet.ModelBuiltConventions.Add(
+                    new ValidatingConvention(
+                        new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger))));
+
+                ModelBuilder = new ModelBuilder(conventionSet);
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;
-            protected ModelBuilder ModelBuilder { get; }
-            protected IModelValidator ModelValidator { get; }
-            public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
+            public ModelBuilder ModelBuilder { get; }
+            public ListLoggerFactory ValidationLoggerFactory { get; }
+            public ListLoggerFactory ModelLoggerFactory { get; }
 
             public TestModelBuilder HasAnnotation(string annotation, object value)
             {
@@ -166,24 +170,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 where TEntity : class;
 
-
-            public abstract void Owned<TEntity>()
+            public abstract TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 where TEntity : class;
 
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
-            public virtual void Query<TQuery>()
-                where TQuery : class
-                => ModelBuilder.Query<TQuery>();
+            public abstract TestQueryTypeBuilder<TQuery> Query<TQuery>()
+                where TQuery : class;
+
+            public abstract TestModelBuilder Query<TQuery>(Action<TestQueryTypeBuilder<TQuery>> buildAction)
+                where TQuery : class;
 
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
             public virtual TestModelBuilder Validate()
             {
-                var modelBuilder = ModelBuilder.GetInfrastructure().Metadata.Validate();
-                ModelValidator.Validate(modelBuilder.Metadata);
+                ModelBuilder.FinalizeModel();
 
                 return this;
             }
@@ -235,6 +239,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
                 where TRelatedEntity : class;
 
+            public abstract TestCollectionOwnershipBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
+                Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
+                where TRelatedEntity : class;
+
+            public abstract TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
+                Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
+                Action<TestCollectionOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
+                where TRelatedEntity : class;
+
             public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
                 where TRelatedEntity : class;
@@ -243,14 +256,57 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
                 where TRelatedEntity : class;
 
+            public abstract TestEntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
+
             public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
 
             public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
             public abstract DataBuilder<TEntity> HasData(params TEntity[] data);
+
+            public abstract DataBuilder<TEntity> HasData(params object[] data);
+
+            public abstract DataBuilder<TEntity> HasData(IEnumerable<TEntity> data);
+
+            public abstract DataBuilder<TEntity> HasData(IEnumerable<object> data);
         }
 
-        public class TestKeyBuilder
+        public abstract class TestOwnedEntityTypeBuilder<TEntity>
+            where TEntity : class
+        {
+        }
+
+        public abstract class TestQueryTypeBuilder<TEntity>
+            where TEntity : class
+        {
+            public abstract IMutableEntityType Metadata { get; }
+            public abstract TestQueryTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
+
+            public abstract TestQueryTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
+                where TBaseEntity : class;
+
+            public abstract TestQueryTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+                Expression<Func<TEntity, TProperty>> propertyExpression);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+
+            public abstract TestQueryTypeBuilder<TEntity> Ignore(
+                Expression<Func<TEntity, object>> propertyExpression);
+
+            public abstract TestQueryTypeBuilder<TEntity> Ignore(string propertyName);
+
+            public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
+                where TRelatedEntity : class;
+
+            public abstract TestQueryTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter);
+
+            public abstract TestQueryTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+        }
+
+        public class TestKeyBuilder : IInfrastructure<KeyBuilder>
         {
             public TestKeyBuilder(KeyBuilder keyBuilder)
             {
@@ -262,6 +318,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public virtual TestKeyBuilder HasAnnotation(string annotation, object value)
                 => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
+
+            KeyBuilder IInfrastructure<KeyBuilder>.Instance => KeyBuilder;
         }
 
         public class TestIndexBuilder : IInfrastructure<IndexBuilder>
@@ -418,6 +476,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior);
 
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasEntityTypeAnnotation(string annotation, object value);
+            public abstract TestKeyBuilder HasKey(Expression<Func<TRelatedEntity, object>> keyExpression);
+            public abstract TestKeyBuilder HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TRelatedEntity, TProperty>> propertyExpression);
@@ -439,6 +499,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Action<TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity>> buildAction)
                 where TNewRelatedEntity : class;
 
+            public abstract TestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity> OwnsMany<TDependentEntity>(
+                Expression<Func<TRelatedEntity, IEnumerable<TDependentEntity>>> navigationExpression)
+                where TDependentEntity : class;
+
+            public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsMany<TDependentEntity>(
+                Expression<Func<TRelatedEntity, IEnumerable<TDependentEntity>>> navigationExpression,
+                Action<TestCollectionOwnershipBuilder<TRelatedEntity, TDependentEntity>> buildAction)
+                where TDependentEntity : class;
+
             public abstract TestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
                 Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)
                 where TNewRelatedEntity : class;
@@ -451,6 +520,81 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 ChangeTrackingStrategy changeTrackingStrategy);
 
             public abstract TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+            public abstract DataBuilder<TRelatedEntity> HasData(params TRelatedEntity[] data);
+
+            public abstract DataBuilder<TRelatedEntity> HasData(params object[] data);
+        }
+
+        public abstract class TestCollectionOwnershipBuilder<TEntity, TDependentEntity>
+            where TEntity : class
+            where TDependentEntity : class
+        {
+            public abstract IMutableForeignKey Metadata { get; }
+            public abstract IMutableEntityType OwnedEntityType { get; }
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKeyAnnotation(
+                string annotation, object value);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
+                params string[] foreignKeyPropertyNames);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
+                params string[] keyPropertyNames);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
+                Expression<Func<TEntity, object>> keyExpression);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasEntityTypeAnnotation(string annotation, object value);
+            public abstract TestKeyBuilder HasKey(Expression<Func<TDependentEntity, object>> keyExpression);
+            public abstract TestKeyBuilder HasKey(params string[] propertyNames);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(string propertyName);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> Ignore(
+                Expression<Func<TDependentEntity, object>> propertyExpression);
+
+            public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
+            public abstract TestIndexBuilder HasIndex(Expression<Func<TDependentEntity, object>> indexExpression);
+
+            public abstract TestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
+                Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression)
+                where TNewRelatedEntity : class;
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OwnsOne<TNewRelatedEntity>(
+                Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression,
+                Action<TestReferenceOwnershipBuilder<TDependentEntity, TNewRelatedEntity>> buildAction)
+                where TNewRelatedEntity : class;
+
+            public abstract TestCollectionOwnershipBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+                Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
+                where TNewDependentEntity : class;
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
+                Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
+                Action<TestCollectionOwnershipBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+                where TNewDependentEntity : class;
+
+            public abstract TestReferenceNavigationBuilder<TDependentEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+                Expression<Func<TDependentEntity, TRelatedEntity>> navigationExpression = null)
+                where TRelatedEntity : class;
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> HasChangeTrackingStrategy(
+                ChangeTrackingStrategy changeTrackingStrategy);
+
+            public abstract TestCollectionOwnershipBuilder<TEntity, TDependentEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+            public abstract DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data);
+
+            public abstract DataBuilder<TDependentEntity> HasData(params object[] data);
         }
     }
 }

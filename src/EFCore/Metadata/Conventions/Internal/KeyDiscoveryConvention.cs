@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IBaseTypeChangedConvention,
         IPropertyFieldChangedConvention,
         IForeignKeyAddedConvention,
-        IForeignKeyRemovedConvention
+        IForeignKeyRemovedConvention,
+        IForeignKeyUniquenessChangedConvention,
+        IForeignKeyOwnershipChangedConvention
     {
         private const string KeySuffix = "Id";
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
@@ -45,40 +47,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
             var entityType = entityTypeBuilder.Metadata;
-
-            if (entityType.BaseType == null
-                && ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
+            if (entityType.BaseType != null
+                || entityType.IsQueryType
+                || !ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
             {
-                IReadOnlyList<Property> keyProperties = null;
-                var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                                 ?? entityType.FindOwnership();
-                if (definingFk != null
-                    && definingFk.IsUnique
-                    && definingFk.DeclaringEntityType == entityType)
-                {
-                    // Make sure that the properties won't be reuniquified
-                    definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
-                    keyProperties = definingFk.Properties;
-                }
+                return entityTypeBuilder;
+            }
 
-                if (keyProperties == null)
-                {
-                    var candidateProperties = entityType.GetProperties().Where(
-                        p => !p.IsShadowProperty
-                             || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                    keyProperties = (IReadOnlyList<Property>)DiscoverKeyProperties(entityType, candidateProperties);
-                    if (keyProperties.Count > 1)
-                    {
-                        _logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
-                        return entityTypeBuilder;
-                    }
-                }
+            IReadOnlyList<Property> keyProperties = null;
+            var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
+                             ?? entityType.FindOwnership();
 
-                if (keyProperties.Count > 0)
+            if (definingFk?.IsUnique == false
+                && definingFk.DeclaringEntityType == entityType)
+            {
+                entityTypeBuilder.PrimaryKey((IReadOnlyList<string>)null, ConfigurationSource.Convention);
+                return entityTypeBuilder;
+            }
+
+            if (definingFk?.IsUnique == true
+                && definingFk.DeclaringEntityType == entityType)
+            {
+                keyProperties = definingFk.Properties;
+            }
+
+            if (keyProperties == null)
+            {
+                var candidateProperties = entityType.GetProperties().Where(
+                    p => !p.IsShadowProperty
+                         || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+                keyProperties = (IReadOnlyList<Property>)DiscoverKeyProperties(entityType, candidateProperties);
+                if (keyProperties.Count > 1)
                 {
-                    entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
+                    _logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
+                    return entityTypeBuilder;
                 }
+            }
+
+            if (keyProperties.Count > 0)
+            {
+                entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
             }
 
             return entityTypeBuilder;
@@ -154,11 +164,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
-            if (entityType.HasDefiningNavigation())
+            if (relationshipBuilder.Metadata.IsOwnership)
             {
-                Apply(entityType.Builder);
+                Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
             }
+
+            return relationshipBuilder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        InternalRelationshipBuilder IForeignKeyOwnershipChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
+        {
+            Apply(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
 
             return relationshipBuilder;
         }
@@ -169,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            if (entityTypeBuilder.Metadata.HasDefiningNavigation())
+            if (foreignKey.IsOwnership)
             {
                 Apply(entityTypeBuilder);
             }

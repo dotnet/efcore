@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore
@@ -24,6 +25,12 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool ContextPool
             => _contextPool
                ?? (_contextPool = (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType)));
+
+        private ListLoggerFactory _listLoggerFactory;
+
+        public ListLoggerFactory ListLoggerFactory
+            => _listLoggerFactory
+               ?? (_listLoggerFactory = (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>());
 
         protected SharedStoreFixtureBase()
         {
@@ -48,9 +55,17 @@ namespace Microsoft.EntityFrameworkCore
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c));
         }
 
-        public virtual TContext CreateContext() => UsePooling
-            ? (TContext)ContextPool.Rent()
-            : (TContext)ServiceProvider.GetRequiredService(ContextType);
+        public virtual TContext CreateContext()
+        {
+            if (UsePooling)
+            {
+                var context = (PoolableDbContext)ContextPool.Rent();
+                context.SetPool(ContextPool);
+                return (TContext)(object)context;
+            }
+
+            return (TContext)ServiceProvider.GetRequiredService(ContextType);
+        }
 
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;
@@ -58,6 +73,12 @@ namespace Microsoft.EntityFrameworkCore
         private DbContextOptionsBuilder ConfigureOptions(IServiceProvider serviceProvider, DbContextOptionsBuilder optionsBuilder)
             => AddOptions(TestStore.AddProviderOptions(optionsBuilder))
                 .UseInternalServiceProvider(serviceProvider);
+
+        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => base.AddServices(serviceCollection)
+                .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
+
+        protected virtual bool ShouldLogCategory(string logCategory) => false;
 
         public virtual void Reseed()
         {

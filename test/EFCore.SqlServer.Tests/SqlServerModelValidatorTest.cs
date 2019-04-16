@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
@@ -93,12 +93,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>(cb =>
+            modelBuilder.Entity<Cat>(
+                cb =>
                 {
                     cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
-            modelBuilder.Entity<Dog>(db =>
+            modelBuilder.Entity<Dog>(
+                db =>
                 {
                     db.Property(d => d.Identity).ValueGeneratedNever();
                     db.Property(c => c.Identity).HasColumnName(nameof(Dog.Identity));
@@ -142,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Detects_incompatible_momory_optimized_shared_table()
+        public virtual void Detects_incompatible_memory_optimized_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -152,6 +154,22 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(A), nameof(B), nameof(A), nameof(B)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_incompatible_non_clustered_shared_key()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table")
+                .HasKey(a => a.Id).ForSqlServerIsClustered();
+            modelBuilder.Entity<B>().ToTable("Table")
+                .HasKey(b => b.Id).ForSqlServerIsClustered(false);
+
+            VerifyError(
+                SqlServerStrings.DuplicateKeyMismatchedClustering("{'Id'}", nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table"),
                 modelBuilder.Model);
         }
 
@@ -240,6 +258,36 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
         }
 
+        [Fact]
+        public void Throws_for_missing_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), "Tag");
+
+            VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_duplicate_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), nameof(Dog.Type));
+
+            VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
+        }
+
+        [Fact]
+        public void Throws_for_indexed_include_properties()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Name));
+
+            VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] =
                 new SqlServerTypeMappingSource(
@@ -256,15 +304,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override IModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")),
-                    new DiagnosticsLogger<DbLoggerCategory.Model>(
-                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))),
+                new ModelValidatorDependencies(ValidationLogger, ModelLogger),
                 new RelationalModelValidatorDependencies(
 #pragma warning disable 618
                     TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),

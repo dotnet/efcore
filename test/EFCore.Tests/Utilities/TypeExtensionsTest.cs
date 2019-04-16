@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public new virtual int CherryBlossoms { get; set; }
             public new int ShesGone { get; set; }
             public virtual int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
         public class TindersticksIICd : TindersticksIIVinyl
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int CherryBlossoms { get; set; }
             public override int Mistakes { get; set; }
             public override int VertrauenIII { get; set; }
-            public new static int SleepySong { get; set; }
+            public static new int SleepySong { get; set; }
         }
 
         [Fact]
@@ -319,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
         }
 
+#pragma warning disable CA1061 // Do not hide base class methods
         private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
         {
             public new IEnumerator<IRole2014> GetEnumerator()
@@ -348,6 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             public bool IsReadOnly { get; private set; }
         }
+#pragma warning restore CA1061 // Do not hide base class methods
 
         private class Role2014 : IRole2014
         {

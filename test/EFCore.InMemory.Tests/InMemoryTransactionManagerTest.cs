@@ -59,15 +59,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(action).Message);
         }
 
-        public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
-            = new List<(LogLevel, EventId, string)>();
-
         private DiagnosticsLogger<DbLoggerCategory.Database.Transaction> CreateLogger()
         {
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().ConfigureWarnings(w => w.Default(WarningBehavior.Throw)).Options);
             var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Database.Transaction.Name),
+                new ListLoggerFactory(l => false),
                 options,
                 new DiagnosticListener("Fake"));
             return logger;

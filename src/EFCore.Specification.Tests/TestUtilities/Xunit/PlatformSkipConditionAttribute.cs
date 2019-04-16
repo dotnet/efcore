@@ -39,13 +39,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
                 return false;
             }
 
-            if (excludedFrameworks.HasFlag(TestPlatform.Mac)
-                && RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return false;
-            }
-
-            return true;
+            return excludedFrameworks.HasFlag(TestPlatform.Mac)
+                && RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                ? false
+                : true;
         }
     }
 }

@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class OracleMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         public OracleMigrationsSqlGenerator(
-            [NotNull] MigrationsSqlGeneratorDependencies dependencies,
-            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
+            [NotNull] MigrationsSqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

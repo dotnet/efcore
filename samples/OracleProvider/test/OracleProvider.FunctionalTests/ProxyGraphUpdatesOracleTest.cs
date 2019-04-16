@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
 {
     public class ProxyGraphUpdatesOracleTest
@@ -29,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // #11554
-        private class LazyLoading : ProxyGraphUpdatesOracleTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingOracleFixture>
+        public class LazyLoading : ProxyGraphUpdatesOracleTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingOracleFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingOracleFixture fixture)
                 : base(fixture)

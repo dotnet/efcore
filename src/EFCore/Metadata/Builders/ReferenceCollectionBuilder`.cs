@@ -57,6 +57,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
+        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
+        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
+        ///         that does not have a corresponding property in the entity class. The current value for the
+        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
+        ///         of the entity class.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified,
+        ///         then an attempt will be made to match the data type and order of foreign key properties against
+        ///         the primary key of the principal entity type. If they do not match, new shadow state properties
+        ///         that form a unique index will be added to the principal entity type to serve as the reference key.
+        ///     </para>
+        /// </summary>
+        /// <param name="foreignKeyPropertyNames">
+        ///     The name(s) of the foreign key property(s).
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
+            [NotNull] params string[] foreignKeyPropertyNames)
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                this,
+                foreignKeySet: true);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
         ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then
         ///         an attempt will be made to match the data type and order of foreign key properties against the
         ///         primary key of the principal entity type. If they do not match, new shadow state properties that
@@ -73,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>comment => new { comment.BlogId, comment.PostTitle }</c>). The order specified should match the order of
-        ///         corresponding keys in <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" />.
+        ///         corresponding properties in <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -90,13 +119,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
+        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey([NotNull] params string[] keyPropertyNames)
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+                this,
+                principalKeySet: true);
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
+        /// </summary>
         /// <param name="keyExpression">
         ///     <para>
         ///         A lambda expression representing the reference key property(s) (<c>blog => blog.BlogId</c>).
         ///     </para>
         ///     <para>
-        ///         If the principal key is made up of multiple properties then specify an anonymous type including
-        ///         the properties (<c>post => new { post.BlogId, post.PostTitle }</c>).
+        ///         If the principal key is made up of multiple properties then specify an anonymous type including the
+        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
+        ///         corresponding properties in <see cref="HasForeignKey(Expression{Func{TDependentEntity,object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -114,53 +158,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation(
+            [NotNull] string annotation,
+            [NotNull] object value)
             => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
                 Check.NotEmpty(annotation, nameof(annotation)),
                 Check.NotNull(value, nameof(value)));
-
-        /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
-        ///     <para>
-        ///         If the specified property name(s) do not exist on the entity type then a new shadow state
-        ///         property(s) will be added to serve as the foreign key. A shadow state property is one
-        ///         that does not have a corresponding property in the entity class. The current value for the
-        ///         property is stored in the <see cref="ChangeTracker" /> rather than being stored in instances
-        ///         of the entity class.
-        ///     </para>
-        ///     <para>
-        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" /> is not specified, then an attempt will be made to
-        ///         match
-        ///         the data type and order of foreign key properties against the primary key of the principal
-        ///         entity type. If they do not match, new shadow state properties that form a unique index will be
-        ///         added to the principal entity type to serve as the reference key.
-        ///     </para>
-        /// </summary>
-        /// <param name="foreignKeyPropertyNames">
-        ///     The name(s) of the foreign key property(s).
-        /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
-                this,
-                foreignKeySet: true);
-
-        /// <summary>
-        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
-        ///     constraint will be introduced.
-        /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey([NotNull] params string[] keyPropertyNames)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
-                this,
-                principalKeySet: true);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             name, internalEntry.EntityType.DisplayName(),
                             nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
                 }
+
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
 

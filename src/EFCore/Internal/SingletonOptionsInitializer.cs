@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class SingletonOptionsInitializer : ISingletonOptionsInitializer
     {
         private volatile bool _isInitialized;
+        private readonly object _lock = new object();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (!_isInitialized)
             {
-                lock (this)
+                lock (_lock)
                 {
                     if (!_isInitialized)
                     {

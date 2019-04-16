@@ -32,12 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (Equals(methodCallExpression.Method, _methodInfo))
-            {
-                return new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2]);
-            }
-
-            return Equals(methodCallExpression.Method, _methodInfoWithEscape)
+            return Equals(methodCallExpression.Method, _methodInfo)
+                ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2])
+                : Equals(methodCallExpression.Method, _methodInfoWithEscape)
                 ? new LikeExpression(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2], methodCallExpression.Arguments[3])
                 : null;
         }

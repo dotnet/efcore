@@ -25,12 +25,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType()
+            return ReferenceEquals(this, obj)
+                ? true
+                : obj.GetType() == GetType()
                    && Equals((OrderDetail)obj);
         }
 

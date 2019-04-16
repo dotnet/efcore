@@ -1,13 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -66,6 +67,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 parent = parent ?? context.Set<Parent>().Single();
 
                 ClearLog();
@@ -76,7 +79,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(collectionEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.Children);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -134,6 +141,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 child = child ?? context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
@@ -144,7 +153,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(child.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -204,6 +217,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 single = single ?? context.Set<Single>().Single();
 
                 ClearLog();
@@ -214,9 +229,13 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(single.Parent);
 
                 Assert.True(referenceEntry.IsLoaded);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
@@ -274,6 +293,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 parent = parent ?? context.Set<Parent>().Single();
 
                 ClearLog();
@@ -284,7 +305,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.Single);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -308,6 +333,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var single = context.Set<SinglePkToPk>().Single();
 
                 ClearLog();
@@ -318,7 +345,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(single.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -342,6 +373,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.Set<Parent>().Single();
 
                 ClearLog();
@@ -352,7 +385,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.SinglePkToPk);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -376,6 +413,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var child = context.CreateProxy<Child>();
                 child.Id = 767;
 
@@ -389,7 +428,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Null(child.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -409,6 +452,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var single = context.CreateProxy<Single>();
                 single.Id = 767;
 
@@ -422,7 +467,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Null(single.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -439,10 +488,119 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                var child = context.CreateProxy<Child>();
+                child.Id = 767;
+                child.ParentId = 797;
+
+                context.Attach(child);
+
+                ClearLog();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                referenceEntry.IsLoaded = true;
+
+                changeDetector.DetectChangesCalled = false;
+
+                child.ParentId = 707;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                Assert.Same(child, parent.Children.Single());
+                Assert.Same(parent, child.Parent);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                var parent = context.CreateProxy<Parent>();
+                parent.Id = 797;
+                parent.AlternateId = "X";
+
+                var child = context.CreateProxy<Child>();
+                child.Id = 767;
+
+                child.ParentId = 797;
+                child.Parent = parent;
+                parent.Children = new List<Child>
+                {
+                    child
+                };
+
+                context.Attach(child);
+                context.Attach(parent);
+
+                ClearLog();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                referenceEntry.IsLoaded = true;
+
+                changeDetector.DetectChangesCalled = false;
+
+                child.ParentId = 707;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
+
+                Assert.Same(child, newParent.Children.Single());
+                Assert.Same(newParent, child.Parent);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
         public virtual void Lazy_load_collection_not_found(EntityState state)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.CreateProxy<Parent>();
                 parent.Id = 767;
                 parent.AlternateId = "NewRoot";
@@ -457,7 +615,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(collectionEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Empty(parent.Children);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -477,6 +639,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var child = context.CreateProxy<Child>();
                 child.Id = 767;
                 child.ParentId = 787;
@@ -491,7 +655,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Null(child.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -511,6 +679,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var single = context.CreateProxy<Single>();
                 single.Id = 767;
                 single.ParentId = 787;
@@ -525,7 +695,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Null(single.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -546,6 +720,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.CreateProxy<Parent>();
                 parent.Id = 767;
                 parent.AlternateId = "NewRoot";
@@ -560,7 +736,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.Null(parent.Single);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -581,6 +761,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
@@ -591,7 +773,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(collectionEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.Children);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -613,6 +799,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
 
                 ClearLog();
@@ -623,7 +811,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(child.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -647,6 +839,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
@@ -657,7 +851,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(single.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -681,6 +879,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
@@ -691,7 +891,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.Single);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -715,6 +919,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
 
                 ClearLog();
@@ -725,7 +931,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(single.Parent);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -749,6 +959,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
                 var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
 
                 ClearLog();
@@ -759,7 +971,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
+                changeDetector.DetectChangesCalled = false;
+
                 Assert.NotNull(parent.SinglePkToPk);
+
+                Assert.False(changeDetector.DetectChangesCalled);
 
                 Assert.True(referenceEntry.IsLoaded);
 
@@ -1590,7 +1806,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                Func<Blog, bool> opaquePredicate = _ => true;
+                // ReSharper disable once ConvertToLocalFunction
+                bool opaquePredicate(Blog _) => true;
 
                 var blogs = context.Set<Blog>().Where(opaquePredicate);
 
@@ -1682,7 +1899,10 @@ namespace Microsoft.EntityFrameworkCore
             public int ApplicantId { get; set; }
             public virtual FullName Name { get; set; }
 
-            protected Applicant() { }
+            protected Applicant()
+            {
+            }
+
             public Applicant(FullName name)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -1691,9 +1911,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FirstName
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _value;
+#pragma warning restore IDE0044 // Add readonly modifier
 
-            protected FirstName() { }
+            protected FirstName()
+            {
+            }
+
             private FirstName(string value)
             {
                 _value = value;
@@ -1707,9 +1932,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class LastName
         {
+#pragma warning disable IDE0044 // Add readonly modifier
             private string _value;
+#pragma warning restore IDE0044 // Add readonly modifier
 
-            protected LastName() { }
+            protected LastName()
+            {
+            }
+
             private LastName(string value)
             {
                 _value = value;
@@ -1726,18 +1956,28 @@ namespace Microsoft.EntityFrameworkCore
             public int PyrsonId { get; set; }
             public virtual FullName Name { get; set; }
             public virtual Address Address { get; set; }
-            protected Pyrson() { }
+
+            protected Pyrson()
+            {
+            }
+
             public Pyrson(FullName name)
             {
                 Name = name ?? throw new ArgumentNullException(nameof(name));
             }
         }
+
         public class FullName
         {
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual LastName LastName { get; private set; }
 
-            protected FullName() { }
+            protected FullName()
+            {
+            }
+
             public FullName(FirstName firstName, LastName lastName)
             {
                 FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
@@ -1749,6 +1989,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public string AlternateId { get; set; }
 
             public virtual IEnumerable<Child> Children { get; set; }
@@ -1906,6 +2147,25 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        protected class ChangeDetectorProxy : ChangeDetector
+        {
+            public ChangeDetectorProxy(
+                IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+                ILoggingOptions loggingOptions)
+                : base(logger, loggingOptions)
+            {
+            }
+
+            public bool DetectChangesCalled { get; set; }
+
+            public override void DetectChanges(IStateManager stateManager)
+            {
+                DetectChangesCalled = true;
+
+                base.DetectChanges(stateManager);
+            }
+        }
+
         public abstract class LoadFixtureBase : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "LazyLoadProxyTest";
@@ -1914,7 +2174,10 @@ namespace Microsoft.EntityFrameworkCore
                 => base.AddOptions(builder.UseLazyLoadingProxies());
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-                => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+                => base.AddServices(
+                    serviceCollection
+                        .AddScoped<IChangeDetector, ChangeDetectorProxy>()
+                        .AddEntityFrameworkProxies());
 
             // By-design. Lazy loaders are not disposed when using pooling
             protected override bool UsePooling => false;
@@ -2047,7 +2310,6 @@ namespace Microsoft.EntityFrameworkCore
                                     .HasMaxLength(50)
                                     .IsRequired();
                             });
-
                     });
 
                 modelBuilder.Entity<Pyrson>(
@@ -2074,7 +2336,6 @@ namespace Microsoft.EntityFrameworkCore
                         builder.HasOne(prop => prop.Address)
                             .WithOne()
                             .HasForeignKey<Address>(prop => prop.PyrsonId);
-
                     });
             }
 
@@ -2258,18 +2519,18 @@ namespace Microsoft.EntityFrameworkCore
                     new Applicant(
                         new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga"))));
 
-                context.Add(new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
-                {
-                    Address = new Address
+                context.Add(
+                    new Pyrson(new FullName(FirstName.Create("Amila"), LastName.Create("Udayanga")))
                     {
-                        Line1 = "Line1",
-                        Line2 = "Line2"
-                    }
-                });
+                        Address = new Address
+                        {
+                            Line1 = "Line1",
+                            Line2 = "Line2"
+                        }
+                    });
 
                 context.SaveChanges();
             }
         }
     }
 }
-#endif

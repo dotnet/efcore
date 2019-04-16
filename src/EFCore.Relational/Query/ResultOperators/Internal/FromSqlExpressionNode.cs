@@ -21,9 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
-        {
-            RelationalQueryableExtensions.FromSqlMethodInfo
-        };
+            { RelationalQueryableExtensions.FromSqlMethodInfo };
 
         private readonly string _sql;
         private readonly Expression _arguments;

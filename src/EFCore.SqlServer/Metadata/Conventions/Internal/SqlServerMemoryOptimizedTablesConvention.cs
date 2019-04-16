@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                 {
                     key.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);
                 }
+
                 foreach (var index in entityTypeBuilder.Metadata.GetDerivedIndexesInclusive())
                 {
                     index.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);

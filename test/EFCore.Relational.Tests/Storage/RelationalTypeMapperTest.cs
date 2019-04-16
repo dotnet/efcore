@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
@@ -148,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-        
+
         public static RelationalTypeMapping GetMapping(
             Type type)
             => CreateTestTypeMapper().FindMapping(type);
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 GetMapping(mapper, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
-                "dec",
+                "dec(6,1)",
                 GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
         }
 

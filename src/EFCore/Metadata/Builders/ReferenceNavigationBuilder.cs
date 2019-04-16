@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceProperty = navigationProperty;
-            ReferenceName = navigationProperty?.Name;
+            ReferenceName = navigationProperty?.GetSimpleMemberName();
             Builder = builder;
         }
 
@@ -153,16 +153,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ThrowForConflictingNavigation(foreignKey, collectionName, false);
             }
 
-            if (RelatedEntityType != foreignKey.PrincipalEntityType)
-            {
-                return collection.Property == null && ReferenceProperty == null
+            return RelatedEntityType != foreignKey.PrincipalEntityType
+                ? collection.Property == null && ReferenceProperty == null
                     ? builder.Navigations(ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                    : builder.Navigations(ReferenceProperty, collection.Property, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
-            }
-
-            return collection.Property != null
-                ? builder.PrincipalToDependent(collection.Property, ConfigurationSource.Explicit)
-                : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
+                    : builder.Navigations(ReferenceProperty, collection.Property, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                : collection.Property != null
+                    ? builder.PrincipalToDependent(collection.Property, ConfigurationSource.Explicit)
+                    : builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -219,8 +216,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     && referenceName != null
                     && ReferenceName == referenceName)
                 {
-                    throw new InvalidOperationException(CoreStrings.ConflictingPropertyOrNavigation(
-                        referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.ConflictingPropertyOrNavigation(
+                            referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
                 }
 
                 var pointsToPrincipal = !foreignKey.IsSelfReferencing()

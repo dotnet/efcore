@@ -47,6 +47,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void GenerateParameterName([NotNull] StringBuilder builder, [NotNull] string name);
 
         /// <summary>
+        ///     Generates a valid parameter placehoder name for the given candidate name.
+        /// </summary>
+        /// <param name="name">
+        ///     The candidate name for the parameter placehoder.
+        /// </param>
+        /// <returns> A valid placehoder name based on the candidate name. </returns>
+        string GenerateParameterNamePlaceholder([NotNull] string name);
+
+        /// <summary>
+        ///     Writes a valid parameter placehoder name for the given candidate name.
+        /// </summary>
+        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
+        /// <param name="name">
+        ///     The candidate name for the parameter placehoder.
+        /// </param>
+        void GenerateParameterNamePlaceholder([NotNull] StringBuilder builder, [NotNull] string name);
+
+        /// <summary>
         ///     Generates the escaped SQL representation of a literal value.
         /// </summary>
         /// <param name="literal"> The value to be escaped. </param>

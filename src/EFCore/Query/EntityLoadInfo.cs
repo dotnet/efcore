@@ -91,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // hot path
             Debug.Assert(clrType != null);
 
-            if (_typeIndexMap == null
-                || !_typeIndexMap.ContainsKey(clrType))
+            if (_typeIndexMap?.ContainsKey(clrType) != true)
             {
                 return ValueBuffer;
             }

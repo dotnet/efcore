@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new Type[] { typeof(int), typeof(int) });
+            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -52,15 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var method = methodCallExpression.Method;
 
-            if (Equals(method, _guidNewGuid)
+            return Equals(method, _guidNewGuid)
                 || Equals(method, _randomNextNoArgs)
                 || Equals(method, _randomNextOneArg)
-                || Equals(method, _randomNextTwoArgs))
-            {
-                return false;
-            }
-
-            return base.IsEvaluatableMethodCall(methodCallExpression);
+                || Equals(method, _randomNextTwoArgs)
+                ? false
+                : base.IsEvaluatableMethodCall(methodCallExpression);
         }
 
         /// <summary>
@@ -71,16 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var member = memberExpression.Member;
 
-            if (Equals(member, _dateTimeNow)
+            return Equals(member, _dateTimeNow)
                 || Equals(member, _dateTimeUtcNow)
                 || Equals(member, _dateTimeToday)
                 || Equals(member, _dateTimeOffsetNow)
-                || Equals(member, _dateTimeOffsetUtcNow))
-            {
-                return false;
-            }
-
-            return base.IsEvaluatableMember(memberExpression);
+                || Equals(member, _dateTimeOffsetUtcNow)
+                ? false
+                : base.IsEvaluatableMember(memberExpression);
         }
     }
 }

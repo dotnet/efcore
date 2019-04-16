@@ -115,13 +115,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 if (property.ClrType == typeof(bool)
                     && property.ValueGenerated != ValueGenerated.Never
-                    && (property.Relational().DefaultValue != null
+                    && (IsNotNullAndFalse(property.Relational().DefaultValue)
                         || property.Relational().DefaultValueSql != null))
                 {
                     Dependencies.Logger.BoolWithDefaultWarning(property);
                 }
             }
         }
+
+        private static bool IsNotNullAndFalse(object value)
+            => value != null
+               && (!(value is bool asBool) || asBool);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -197,9 +201,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 if (mappedType.BaseType != null
                     || mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                        .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                                   && fk.PrincipalEntityType.RootType() != mappedType
-                                   && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                        .Any(
+                            fk => fk.PrincipalKey.IsPrimaryKey()
+                                  && fk.PrincipalEntityType.RootType() != mappedType
+                                  && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
                 {
                     continue;
                 }
@@ -212,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             mappedType.DisplayName(),
                             root.DisplayName()));
                 }
+
                 root = mappedType;
             }
 
@@ -223,9 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var entityType = typesToValidate.Dequeue();
                 var typesToValidateLeft = typesToValidate.Count;
-                var directlyConnectedTypes = unvalidatedTypes.Where(unvalidatedType =>
-                    entityType.IsAssignableFrom(unvalidatedType)
-                    || IsIdentifyingPrincipal(unvalidatedType, entityType));
+                var directlyConnectedTypes = unvalidatedTypes.Where(
+                    unvalidatedType =>
+                        entityType.IsAssignableFrom(unvalidatedType)
+                        || IsIdentifyingPrincipal(unvalidatedType, entityType));
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
                     var key = entityType.FindPrimaryKey();
@@ -270,8 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
         {
             return dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                    && fk.PrincipalEntityType == principalEntityType);
+                .Any(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
+                          && fk.PrincipalEntityType == principalEntityType);
         }
 
         /// <summary>
@@ -486,6 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 throw new InvalidOperationException(
                     RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
             }
+
             if (annotations.DiscriminatorValue == null)
             {
                 throw new InvalidOperationException(
@@ -518,6 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         RelationalStrings.DuplicateDiscriminatorValue(
                             derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
                 }
+
                 discriminatorValues[discriminatorValue] = derivedType;
             }
         }

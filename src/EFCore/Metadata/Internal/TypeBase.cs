@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public abstract class TypeBase : ConventionalAnnotatable, IMutableTypeBase
     {
         private ConfigurationSource _configurationSource;
-        private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new Dictionary<string, ConfigurationSource>();
+        private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
+            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
         private Dictionary<string, PropertyInfo> _runtimeProperties;
         private Dictionary<string, FieldInfo> _runtimeFields;
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_runtimeProperties == null)
             {
-                _runtimeProperties = new Dictionary<string, PropertyInfo>();
+                _runtimeProperties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
                 foreach (var property in ClrType.GetRuntimeProperties())
                 {
                     if (!property.IsStatic()
@@ -133,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (_runtimeFields == null)
             {
-                _runtimeFields = new Dictionary<string, FieldInfo>();
+                _runtimeFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
                 foreach (var field in ClrType.GetRuntimeFields())
                 {
                     if (!field.IsStatic
@@ -194,16 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ConfigurationSource? FindDeclaredIgnoredMemberConfigurationSource([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            if (_ignoredMembers.TryGetValue(name, out var ignoredConfigurationSource))
-            {
-                return ignoredConfigurationSource;
-            }
-
-            return null;
-        }
+            => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+                ? (ConfigurationSource?)ignoredConfigurationSource
+                : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

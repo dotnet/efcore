@@ -50,24 +50,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 while (type != null)
                 {
                     var fieldInfo = TryMatchFieldName(
-                        (Model)propertyBase.DeclaringType.Model, type, propertyBase.ClrType,propertyBase.Name);
+                        propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
                     if (fieldInfo != null)
                     {
                         propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Convention);
                         return;
                     }
+
                     type = type.GetTypeInfo().BaseType;
                 }
             }
         }
 
-        private FieldInfo TryMatchFieldName(Model model, Type entityClrType,  Type propertyType, string propertyName)
+        private static FieldInfo TryMatchFieldName(Model model, Type entityClrType, Type propertyType, string propertyName)
         {
             Dictionary<string, FieldInfo> fields;
             var entityType = model.FindEntityType(entityClrType);
             if (entityType == null)
             {
-                fields = new Dictionary<string, FieldInfo>();
+                fields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
                 foreach (var field in entityClrType.GetRuntimeFields())
                 {
                     if (!field.IsStatic
@@ -131,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return null;
                 }
+
                 currentValue = array[index];
                 if (!currentValue.Key.StartsWith(prefix, StringComparison.Ordinal))
                 {
@@ -161,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     left = middle + 1;
                     continue;
                 }
+
                 right = middle - 1;
             }
         }

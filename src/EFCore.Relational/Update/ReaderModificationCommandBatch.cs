@@ -216,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var columnModification = command.ColumnModifications[columnIndex];
                     if (columnModification.UseCurrentValueParameter)
                     {
-                        commandBuilder.AddParameter(columnModification.ParameterName,
+                        commandBuilder.AddParameter(
+                            columnModification.ParameterName,
                             SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                             columnModification.Property);
 
@@ -225,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                     if (columnModification.UseOriginalValueParameter)
                     {
-                        commandBuilder.AddParameter(columnModification.OriginalParameterName,
+                        commandBuilder.AddParameter(
+                            columnModification.OriginalParameterName,
                             SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                             columnModification.Property);
 

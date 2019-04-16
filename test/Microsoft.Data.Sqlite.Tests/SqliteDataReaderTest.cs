@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
@@ -61,19 +62,78 @@ namespace Microsoft.Data.Sqlite
                 (byte)1);
 
         [Fact]
-        public void GetBytes_not_supported()
+        public void GetBytes_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT x'7E57';"))
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'427E5743');");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'538F6854');");
+                connection.ExecuteNonQuery("INSERT INTO Test VALUES(x'649A7965');");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    var list = new List<byte[]>();
+                    while (reader.Read())
+                    {
+                        var buffer = new byte[6];
+                        var bytesRead = reader.GetBytes(0, 0, buffer, 0, buffer.Length);
+                        Assert.Equal(4, bytesRead);
+                        list.Add(buffer);
+                    }
+
+                    Assert.Equal(3, list.Count);
+                    Assert.Equal(new byte[6] { 0x42, 0x7E, 0x57, 0x43, 0, 0 }, list[0]);
+                    Assert.Equal(new byte[6] { 0x53, 0x8F, 0x68, 0x54, 0, 0 }, list[1]);
+                    Assert.Equal(new byte[6] { 0x64, 0x9A, 0x79, 0x65, 0, 0 }, list[2]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetBytes_NullBuffer()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    var buffer = new byte[2];
-                    Assert.Throws<NotSupportedException>(() => reader.GetBytes(0, 0, buffer, 0, buffer.Length));
+                    byte[] buffer = null;
+                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, 3);
+
+                    // Expecting to return the length of the field in bytes,
+                    // which can be simply be blob length minus the offset. 
+                    Assert.Equal(3, bytesRead);
+                }
+            }
+        }
+        [Fact]
+        public void GetBytes_works_with_overflow()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var hugeBuffer = new byte[1024];
+                    long bytesRead = reader.GetBytes(0, 1, hugeBuffer, 0, hugeBuffer.Length);
+                    Assert.Equal(3, bytesRead);
+
+                    var correctBytes = new byte[3] { 0x7E, 0x57, 0x43 };
+                    for(int i = 0; i < bytesRead; i++)
+                    {
+                        Assert.Equal(correctBytes[i], hugeBuffer[i]);
+                    }
                 }
             }
         }
@@ -93,7 +153,7 @@ namespace Microsoft.Data.Sqlite
                 'A');
 
         [Fact]
-        public void GetChars_not_supported()
+        public void GetChars_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -104,8 +164,55 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    var buffer = new char[4];
-                    Assert.Throws<NotSupportedException>(() => reader.GetChars(0, 0, buffer, 0, buffer.Length));
+                    var buffer = new char[2];
+                    reader.GetChars(0, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new char[2] { 'e', 's' }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetChars_works_with_overflow()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var hugeBuffer = new char[1024];
+                    long charsRead = reader.GetChars(0, 1, hugeBuffer, 0, hugeBuffer.Length);
+                    Assert.Equal(3, charsRead);
+
+                    var correctBytes = new char[3] { 'e', 's', 't' };
+                    for(int i = 0; i < charsRead; i++)
+                    {
+                        Assert.Equal(correctBytes[i], hugeBuffer[i]);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'427E5743';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var stream = reader.GetStream(0);
+                    Assert.Equal(0x42, stream.ReadByte());
+                    var stream2 = reader.GetStream(0);
+                    Assert.Equal(0x42, stream2.ReadByte());
+                    Assert.Equal(0x7E, stream.ReadByte());
                 }
             }
         }

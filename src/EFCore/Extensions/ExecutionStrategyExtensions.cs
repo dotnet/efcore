@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore
 
             strategy.Execute(
                 operation, operationScoped =>
-                    {
-                        operationScoped();
-                        return true;
-                    });
+                {
+                    operationScoped();
+                    return true;
+                });
         }
 
         /// <summary>
@@ -68,11 +68,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             strategy.Execute(
-                new { operation, state }, s =>
-                    {
-                        s.operation(s.state);
-                        return true;
-                    });
+                new
+                {
+                    operation,
+                    state
+                }, s =>
+                {
+                    s.operation(s.state);
+                    return true;
+                });
         }
 
         /// <summary>
@@ -93,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore
 
             return strategy.ExecuteAsync(
                 operation, async (operationScoped, ct) =>
-                    {
-                        await operationScoped();
-                        return true;
-                    }, default);
+                {
+                    await operationScoped();
+                    return true;
+                }, default);
         }
 
         /// <summary>
@@ -122,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore
 
             return strategy.ExecuteAsync(
                 operation, async (operationScoped, ct) =>
-                    {
-                        await operationScoped(ct);
-                        return true;
-                    }, cancellationToken);
+                {
+                    await operationScoped(ct);
+                    return true;
+                }, cancellationToken);
         }
 
         /// <summary>
@@ -201,11 +205,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new { operation, state }, async (t, ct) =>
-                    {
-                        await t.operation(t.state);
-                        return true;
-                    }, default);
+                new
+                {
+                    operation,
+                    state
+                }, async (t, ct) =>
+                {
+                    await t.operation(t.state);
+                    return true;
+                }, default);
         }
 
         /// <summary>
@@ -233,11 +241,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new { operation, state }, async (t, ct) =>
-                    {
-                        await t.operation(t.state, ct);
-                        return true;
-                    }, cancellationToken);
+                new
+                {
+                    operation,
+                    state
+                }, async (t, ct) =>
+                {
+                    await t.operation(t.state, ct);
+                    return true;
+                }, cancellationToken);
         }
 
         /// <summary>
@@ -264,7 +276,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(new { operation, state }, (t, ct) => t.operation(t.state), default);
+            return strategy.ExecuteAsync(
+                new
+                {
+                    operation,
+                    state
+                }, (t, ct) => t.operation(t.state), default);
         }
 
         /// <summary>
@@ -530,10 +547,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TState, bool> verifySucceeded)
             => strategy.ExecuteInTransaction(
                 state, s =>
-                    {
-                        operation(s);
-                        return true;
-                    }, verifySucceeded);
+                {
+                    operation(s);
+                    return true;
+                }, verifySucceeded);
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -569,10 +586,10 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync(
                 state, async (s, ct) =>
-                    {
-                        await operation(s, ct);
-                        return true;
-                    }, verifySucceeded, cancellationToken);
+                {
+                    await operation(s, ct);
+                    return true;
+                }, verifySucceeded, cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -672,17 +689,18 @@ namespace Microsoft.EntityFrameworkCore
                 new ExecutionState<TState, TResult>(
                     Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
                 (c, s) =>
+                {
+                    Check.NotNull(beginTransaction, nameof(beginTransaction));
+                    using (var transaction = beginTransaction(c))
                     {
-                        Check.NotNull(beginTransaction, nameof(beginTransaction));
-                        using (var transaction = beginTransaction(c))
-                        {
-                            s.CommitFailed = false;
-                            s.Result = s.Operation(s.State);
-                            s.CommitFailed = true;
-                            transaction.Commit();
-                        }
-                        return s.Result;
-                    }, (c, s) => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
+                        s.CommitFailed = false;
+                        s.Result = s.Operation(s.State);
+                        s.CommitFailed = true;
+                        transaction.Commit();
+                    }
+
+                    return s.Result;
+                }, (c, s) => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -723,17 +741,18 @@ namespace Microsoft.EntityFrameworkCore
                 new ExecutionStateAsync<TState, TResult>(
                     Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
                 async (c, s, ct) =>
+                {
+                    Check.NotNull(beginTransaction, nameof(beginTransaction));
+                    using (var transaction = await beginTransaction(c, cancellationToken))
                     {
-                        Check.NotNull(beginTransaction, nameof(beginTransaction));
-                        using (var transaction = await beginTransaction(c, cancellationToken))
-                        {
-                            s.CommitFailed = false;
-                            s.Result = await s.Operation(s.State, ct);
-                            s.CommitFailed = true;
-                            transaction.Commit();
-                        }
-                        return s.Result;
-                    }, async (c, s, ct) => new ExecutionResult<TResult>(s.CommitFailed && await s.VerifySucceeded(s.State, ct), s.Result));
+                        s.CommitFailed = false;
+                        s.Result = await s.Operation(s.State, ct);
+                        s.CommitFailed = true;
+                        transaction.Commit();
+                    }
+
+                    return s.Result;
+                }, async (c, s, ct) => new ExecutionResult<TResult>(s.CommitFailed && await s.VerifySucceeded(s.State, ct), s.Result));
 
         private class ExecutionState<TState, TResult>
         {

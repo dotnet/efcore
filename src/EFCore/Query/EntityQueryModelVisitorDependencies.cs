@@ -59,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The <see cref="IEntityResultFindingExpressionVisitorFactory" /> to be used when
         ///     processing the query.
         /// </param>
+        /// <param name="eagerLoadingExpressionVisitorFactory">
+        ///     The <see cref="IEagerLoadingExpressionVisitorFactory" /> to be used when
+        ///     processing the query.
+        /// </param>
         /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor" /> to be used when processing the query. </param>
         /// <param name="memberAccessBindingExpressionVisitorFactory">
         ///     The <see cref="IMemberAccessBindingExpressionVisitorFactory" /> to be used when
@@ -82,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory,
             [NotNull] IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory,
+            [NotNull] IEagerLoadingExpressionVisitorFactory eagerLoadingExpressionVisitorFactory,
             [NotNull] ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor,
             [NotNull] IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory,
             [NotNull] IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory,
@@ -96,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
             Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
             Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
+            Check.NotNull(eagerLoadingExpressionVisitorFactory, nameof(eagerLoadingExpressionVisitorFactory));
             Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
             Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory));
             Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory));
@@ -110,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
             QuerySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
             EntityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
+            EagerLoadingExpressionVisitorFactory = eagerLoadingExpressionVisitorFactory;
             TaskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
             MemberAccessBindingExpressionVisitorFactory = memberAccessBindingExpressionVisitorFactory;
             ProjectionExpressionVisitorFactory = projectionExpressionVisitorFactory;
@@ -140,6 +147,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Gets the <see cref="IEntityResultFindingExpressionVisitorFactory" /> to be used when processing a query.
         /// </summary>
         public IEntityResultFindingExpressionVisitorFactory EntityResultFindingExpressionVisitorFactory { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IEagerLoadingExpressionVisitorFactory" /> to be used when processing a query.
+        /// </summary>
+        public IEagerLoadingExpressionVisitorFactory EagerLoadingExpressionVisitorFactory { get; }
 
         /// <summary>
         ///     Gets the <see cref="ITaskBlockingExpressionVisitor" /> to be used when processing a query.
@@ -197,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -218,6 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -239,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 navigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -260,6 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 querySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -281,6 +297,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 entityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter,
+                QueryModelGenerator);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="eagerLoadingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IEagerLoadingExpressionVisitorFactory eagerLoadingExpressionVisitorFactory)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                eagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -302,6 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 taskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -323,6 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 memberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -344,6 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 projectionExpressionVisitorFactory,
@@ -365,6 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -386,6 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -407,6 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -428,6 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,
@@ -449,6 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 NavigationRewritingExpressionVisitorFactory,
                 QuerySourceTracingExpressionVisitorFactory,
                 EntityResultFindingExpressionVisitorFactory,
+                EagerLoadingExpressionVisitorFactory,
                 TaskBlockingExpressionVisitor,
                 MemberAccessBindingExpressionVisitorFactory,
                 ProjectionExpressionVisitorFactory,

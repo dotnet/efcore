@@ -917,6 +917,50 @@ FROM [Entities1] AS [e]
 WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[NullableStringB] = N'')) AND ([e].[BoolA] = 1)");
         }
 
+        public override void Null_comparison_in_selector_with_relational_nulls()
+        {
+            base.Null_comparison_in_selector_with_relational_nulls();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Entities1] AS [e]");
+        }
+
+        public override void Null_comparison_in_order_by_with_relational_nulls()
+        {
+            base.Null_comparison_in_order_by_with_relational_nulls();
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+ORDER BY CASE
+    WHEN ([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, CASE
+    WHEN ([e].[NullableIntB] <> 10) OR [e].[NullableIntB] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Null_comparison_in_join_key_with_relational_nulls()
+        {
+            base.Null_comparison_in_join_key_with_relational_nulls();
+
+            AssertSql(
+                @"SELECT [e1].[Id], [e1].[BoolA], [e1].[BoolB], [e1].[BoolC], [e1].[IntA], [e1].[IntB], [e1].[IntC], [e1].[NullableBoolA], [e1].[NullableBoolB], [e1].[NullableBoolC], [e1].[NullableIntA], [e1].[NullableIntB], [e1].[NullableIntC], [e1].[NullableStringA], [e1].[NullableStringB], [e1].[NullableStringC], [e1].[StringA], [e1].[StringB], [e1].[StringC], [i].[Id], [i].[BoolA], [i].[BoolB], [i].[BoolC], [i].[IntA], [i].[IntB], [i].[IntC], [i].[NullableBoolA], [i].[NullableBoolB], [i].[NullableBoolC], [i].[NullableIntA], [i].[NullableIntB], [i].[NullableIntC], [i].[NullableStringA], [i].[NullableStringB], [i].[NullableStringC], [i].[StringA], [i].[StringB], [i].[StringC]
+FROM [Entities1] AS [e1]
+INNER JOIN [Entities2] AS [i] ON CASE
+    WHEN ([e1].[NullableStringA] <> N'Foo') OR [e1].[NullableStringA] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END = CASE
+    WHEN ([i].[NullableBoolB] <> 1) OR [i].[NullableBoolB] IS NULL
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
         public override void Where_conditional_search_condition_in_result()
         {
             base.Where_conditional_search_condition_in_result();

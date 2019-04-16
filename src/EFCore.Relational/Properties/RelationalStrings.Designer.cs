@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogDisposingDataReader")));
 
         /// <summary>
-        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.
+        ///     Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.
         /// </summary>
         public static string BadSequenceType
             => GetString("BadSequenceType");
@@ -998,12 +998,62 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogValueConversionSqlLiteralWarning")));
 
         /// <summary>
-        ///     The query type '{queryType}' cannot be mapped to a view bacause it is derived from '{baseType}'. Only base query types can be mapped to a view.
+        ///     The query type '{queryType}' cannot be mapped to a view because it is derived from '{baseType}'. Only base query types can be mapped to a view.
         /// </summary>
         public static string DerivedQueryTypeView([CanBeNull] object queryType, [CanBeNull] object baseType)
             => string.Format(
                 GetString("DerivedQueryTypeView", nameof(queryType), nameof(baseType)),
                 queryType, baseType);
+
+        /// <summary>
+        ///     The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.
+        /// </summary>
+        public static string RelationalCloneNotImplemented([CanBeNull] object mapping)
+            => string.Format(
+                GetString("RelationalCloneNotImplemented", nameof(mapping)),
+                mapping);
+
+        /// <summary>
+        ///     The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseElseResultTypeUnexpected([CanBeNull] object elseResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseElseResultTypeUnexpected", nameof(elseResultType), nameof(resultType)),
+                elseResultType, resultType);
+
+        /// <summary>
+        ///     The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.
+        /// </summary>
+        public static string CaseWhenClauseResultTypeUnexpected([CanBeNull] object whenResultType, [CanBeNull] object resultType)
+            => string.Format(
+                GetString("CaseWhenClauseResultTypeUnexpected", nameof(whenResultType), nameof(resultType)),
+                whenResultType, resultType);
+
+        /// <summary>
+        ///     The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.
+        /// </summary>
+        public static string CaseWhenClauseTestTypeUnexpected([CanBeNull] object whenOperandType, [CanBeNull] object expectedWhenOperandType)
+            => string.Format(
+                GetString("CaseWhenClauseTestTypeUnexpected", nameof(whenOperandType), nameof(expectedWhenOperandType)),
+                whenOperandType, expectedWhenOperandType);
+
+        /// <summary>
+        ///     The number of argument type mappings does not match the number of arguments.
+        /// </summary>
+        public static string SqlFunctionArgumentsAndMappingsMismatch
+            => GetString("SqlFunctionArgumentsAndMappingsMismatch");
+
+        /// <summary>
+        ///     One of the specified argument type mappings was null.
+        /// </summary>
+        public static string SqlFunctionNullArgumentMapping
+            => GetString("SqlFunctionNullArgumentMapping");
+
+        /// <summary>
+        ///     An instance type mapping was specified without an instance expression.
+        /// </summary>
+        public static string SqlFunctionUnexpectedInstanceMapping
+            => GetString("SqlFunctionUnexpectedInstanceMapping");
 
         private static string GetString(string name, params string[] formatterNames)
         {

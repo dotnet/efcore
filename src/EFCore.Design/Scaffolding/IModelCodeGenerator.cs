@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="namespace"> The namespace. </param>
-        /// <param name="contextDir"> The directory of the <see cref="DbContext"/>. </param>
-        /// <param name="contextName"> The name of the <see cref="DbContext"/>. </param>
+        /// <param name="contextDir"> The directory of the <see cref="DbContext" />. </param>
+        /// <param name="contextName"> The name of the <see cref="DbContext" />. </param>
         /// <param name="connectionString"> The connection string. </param>
         /// <param name="options"> The options to use during generation. </param>
         /// <returns> The generated model. </returns>

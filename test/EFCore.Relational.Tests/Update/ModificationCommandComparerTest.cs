@@ -139,7 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic<Guid?>(new Guid(), Guid.NewGuid());
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic<FlagsEnum?>(FlagsEnum.Default, FlagsEnum.First | FlagsEnum.Second);
 
+            Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new Guid().ToByteArray(), Guid.NewGuid().ToByteArray());
+            Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new int[] { 1 }, new int[] { 2 });
+
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic("1", "2");
+
         }
 
         private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)

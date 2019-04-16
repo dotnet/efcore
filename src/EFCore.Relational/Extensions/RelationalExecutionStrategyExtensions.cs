@@ -187,10 +187,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => strategy.ExecuteInTransaction(
                 state,
                 s =>
-                    {
-                        operation(s);
-                        return true;
-                    }, verifySucceeded, isolationLevel);
+                {
+                    operation(s);
+                    return true;
+                }, verifySucceeded, isolationLevel);
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -229,10 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => strategy.ExecuteInTransactionAsync(
                 state,
                 async (s, ct) =>
-                    {
-                        await operation(s, ct);
-                        return true;
-                    }, verifySucceeded, isolationLevel, cancellationToken);
+                {
+                    await operation(s, ct);
+                    return true;
+                }, verifySucceeded, isolationLevel, cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether

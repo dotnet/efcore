@@ -32,13 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return true;
             }
 
-            if (property.IsPrimaryKey())
+            return property.IsPrimaryKey()
+                ? false
+                : IsOwnedByDerivedType(property.DeclaringEntityType);
+        }
+
+        private static bool IsOwnedByDerivedType(IEntityType entityType)
+        {
+            var ownerEntityType = entityType.FindPrimaryKey()?.Properties.First()
+                ?.FindSharedTableLink()?.PrincipalEntityType;
+
+            if (ownerEntityType?.BaseType != null)
             {
-                return false;
+                return true;
             }
 
-            return property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
-                ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
+            return ownerEntityType != null && IsOwnedByDerivedType(ownerEntityType);
         }
     }
 }

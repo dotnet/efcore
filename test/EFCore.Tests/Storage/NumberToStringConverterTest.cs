@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -576,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Assert.Equal(
                 CoreStrings.ConverterBadType(
-                    typeof(NumberToStringConverter<Guid>).ShortDisplayName(),
+                    typeof(StringNumberConverter<Guid, string, Guid>).ShortDisplayName(),
                     "Guid",
                     "int, long, short, byte, uint, ulong, ushort, sbyte, decimal, float, double"),
                 Assert.Throws<InvalidOperationException>(

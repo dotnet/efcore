@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 // ReSharper disable StringStartsWithIsCultureSpecific
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public class NorthwindContext : DbContext
+    public class NorthwindContext : PoolableDbContext
     {
         public NorthwindContext(DbContextOptions options)
             : base(options)
@@ -25,48 +27,57 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         {
             modelBuilder.Entity<Employee>(
                 e =>
-                    {
-                        e.Ignore(em => em.Address);
-                        e.Ignore(em => em.BirthDate);
-                        e.Ignore(em => em.Extension);
-                        e.Ignore(em => em.HireDate);
-                        e.Ignore(em => em.HomePhone);
-                        e.Ignore(em => em.LastName);
-                        e.Ignore(em => em.Notes);
-                        e.Ignore(em => em.Photo);
-                        e.Ignore(em => em.PhotoPath);
-                        e.Ignore(em => em.PostalCode);
-                        e.Ignore(em => em.Region);
-                        e.Ignore(em => em.TitleOfCourtesy);
+                {
+                    e.Ignore(em => em.Address);
+                    e.Ignore(em => em.BirthDate);
+                    e.Ignore(em => em.Extension);
+                    e.Ignore(em => em.HireDate);
+                    e.Ignore(em => em.HomePhone);
+                    e.Ignore(em => em.LastName);
+                    e.Ignore(em => em.Notes);
+                    e.Ignore(em => em.Photo);
+                    e.Ignore(em => em.PhotoPath);
+                    e.Ignore(em => em.PostalCode);
+                    e.Ignore(em => em.Region);
+                    e.Ignore(em => em.TitleOfCourtesy);
 
-                        e.HasOne(e1 => e1.Manager).WithMany().HasForeignKey(e1 => e1.ReportsTo);
-                    });
+                    e.HasOne(e1 => e1.Manager).WithMany().HasForeignKey(e1 => e1.ReportsTo);
+                });
 
             modelBuilder.Entity<Product>(
                 e =>
-                    {
-                        e.Ignore(p => p.CategoryID);
-                        e.Ignore(p => p.QuantityPerUnit);
-                        e.Ignore(p => p.ReorderLevel);
-                        e.Ignore(p => p.UnitsOnOrder);
-                    });
+                {
+                    e.Ignore(p => p.CategoryID);
+                    e.Ignore(p => p.QuantityPerUnit);
+                    e.Ignore(p => p.ReorderLevel);
+                    e.Ignore(p => p.UnitsOnOrder);
+                });
 
             modelBuilder.Entity<Order>(
                 e =>
-                    {
-                        e.Ignore(o => o.Freight);
-                        e.Ignore(o => o.RequiredDate);
-                        e.Ignore(o => o.ShipAddress);
-                        e.Ignore(o => o.ShipCity);
-                        e.Ignore(o => o.ShipCountry);
-                        e.Ignore(o => o.ShipName);
-                        e.Ignore(o => o.ShipPostalCode);
-                        e.Ignore(o => o.ShipRegion);
-                        e.Ignore(o => o.ShipVia);
-                        e.Ignore(o => o.ShippedDate);
-                    });
+                {
+                    e.Ignore(o => o.Freight);
+                    e.Ignore(o => o.RequiredDate);
+                    e.Ignore(o => o.ShipAddress);
+                    e.Ignore(o => o.ShipCity);
+                    e.Ignore(o => o.ShipCountry);
+                    e.Ignore(o => o.ShipName);
+                    e.Ignore(o => o.ShipPostalCode);
+                    e.Ignore(o => o.ShipRegion);
+                    e.Ignore(o => o.ShipVia);
+                    e.Ignore(o => o.ShippedDate);
+                });
 
-            modelBuilder.Entity<OrderDetail>(e => { e.HasKey(od => new { od.OrderID, od.ProductID }); });
+            modelBuilder.Entity<OrderDetail>(
+                e =>
+                {
+                    e.HasKey(
+                        od => new
+                        {
+                            od.OrderID,
+                            od.ProductID
+                        });
+                });
 
             modelBuilder
                 .Query<CustomerView>()
@@ -84,12 +95,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             modelBuilder
                 .Query<OrderQuery>()
-                .ToQuery(() => Orders
-                    .Select(
-                        o => new OrderQuery
-                        {
-                            CustomerID = o.CustomerID
-                        }));
+                .ToQuery(
+                    () => Orders
+                        .Select(
+                            o => new OrderQuery
+                            {
+                                CustomerID = o.CustomerID
+                            }));
 
             modelBuilder
                 .Query<ProductQuery>()
@@ -124,11 +136,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string TenantPrefix { get; set; } = "B";
 
         private readonly short _quantity = 50;
-        private string _searchTerm = "A";
+        private readonly string _searchTerm = "A";
 
         public void ConfigureFilters(ModelBuilder modelBuilder)
         {
-            // Called explictly from filter test fixtures. Code is here
+            // Called explicitly from filter test fixtures. Code is here
             // so we can capture TenantPrefix in filter exprs (simulates OnModelCreating).
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));

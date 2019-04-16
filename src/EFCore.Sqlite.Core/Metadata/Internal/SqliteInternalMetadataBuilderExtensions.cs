@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static RelationalPropertyBuilderAnnotations Sqlite(
+        public static SqlitePropertyBuilderAnnotations Sqlite(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalPropertyBuilderAnnotations(builder, configurationSource);
+            => new SqlitePropertyBuilderAnnotations(builder, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

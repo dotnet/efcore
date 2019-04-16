@@ -28,12 +28,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return y == null;
             }
 
-            if (y == null)
-            {
-                return false;
-            }
-
-            return ForeignKeyComparer.Instance.Equals(x, y)
+            return y == null
+                ? false
+                : ForeignKeyComparer.Instance.Equals(x, y)
                    && (x.IsUnique == y.IsUnique)
                    && (x.IsRequired == y.IsRequired)
                    && (!_compareNavigations

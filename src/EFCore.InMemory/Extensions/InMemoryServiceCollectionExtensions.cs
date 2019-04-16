@@ -71,6 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>()
                 .TryAdd<IConventionSetBuilder, InMemoryConventionSetBuilder>()
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
+                .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override string StoreName { get; } = "Northwind";
 
-        protected override bool UsePooling => false;
+        protected override bool UsePooling => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
 
         public QueryAsserterBase QueryAsserter { get; set; }
 

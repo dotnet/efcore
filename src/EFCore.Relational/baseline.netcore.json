@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Relational, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Relational, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "Microsoft.EntityFrameworkCore.RawSqlString",
@@ -55,6 +55,179 @@
           ],
           "Visibility": "Public",
           "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.RelationalCollectionOwnershipBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ToTable",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToTable<T0, T1>",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 1,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToTable",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "schema",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToTable<T0, T1>",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "schema",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 1,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasConstraintName",
+          "Parameters": [
+            {
+              "Name": "referenceReferenceBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasConstraintName<T0, T1>",
+          "Parameters": [
+            {
+              "Name": "referenceReferenceBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 1,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -786,6 +959,31 @@
         },
         {
           "Kind": "Method",
+          "Name": "HasName<T0>",
+          "Parameters": [
+            {
+              "Name": "indexBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
           "Name": "HasFilter",
           "Parameters": [
             {
@@ -802,6 +1000,31 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasFilter<T0>",
+          "Parameters": [
+            {
+              "Name": "indexBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>"
+            },
+            {
+              "Name": "sql",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -4162,12 +4385,43 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GenerateProviderOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateContextOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
       "ImplementedInterfaces": [],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GenerateProviderOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "GenericParameter": []
+        },
         {
           "Kind": "Method",
           "Name": "GenerateUseProvider",
@@ -4177,6 +4431,29 @@
               "Type": "System.String"
             }
           ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateUseProvider",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "providerOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateContextOptions",
+          "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
           "GenericParameter": []
         }
@@ -4229,6 +4506,16 @@
         },
         {
           "Kind": "Method",
+          "Name": "GenerateProviderOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "GenerateUseProvider",
           "Parameters": [
             {
@@ -4238,7 +4525,35 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
           "Virtual": true,
-          "Abstract": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateUseProvider",
+          "Parameters": [
+            {
+              "Name": "connectionString",
+              "Type": "System.String"
+            },
+            {
+              "Name": "providerOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateContextOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator",
           "Visibility": "Public",
           "GenericParameter": []
@@ -4265,6 +4580,70 @@
       "Sealed": true,
       "ImplementedInterfaces": [],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Plugins",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin>",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Scaffolding.ProviderCodeGeneratorDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Scaffolding.ProviderCodeGeneratorPlugin",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "GenerateContextOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateProviderOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Scaffolding.IProviderCodeGeneratorPlugin",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
         {
           "Kind": "Constructor",
           "Name": ".ctor",
@@ -7162,6 +7541,20 @@
         },
         {
           "Kind": "Method",
+          "Name": "set_IsCacheable",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_SelectExpression",
           "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpression",
@@ -7200,6 +7593,15 @@
           "Virtual": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGenerator",
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateTagsHeaderComment",
+          "Parameters": [],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -7268,6 +7670,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_SingleLineCommentToken",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "VisitSelect",
           "Parameters": [
             {
@@ -7300,6 +7711,20 @@
             }
           ],
           "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ApplyExplicitCastToBoolInProjectionOptimization",
+          "Parameters": [
+            {
+              "Name": "expression",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
           "Virtual": true,
           "Visibility": "Protected",
           "GenericParameter": []
@@ -7370,7 +7795,30 @@
             },
             {
               "Name": "joinAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateList",
+          "Parameters": [
+            {
+              "Name": "items",
+              "Type": "System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression>"
+            },
+            {
+              "Name": "joinAction",
               "Type": "System.Action<Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder>",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "typeMappings",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping>",
               "DefaultValue": "null"
             }
           ],
@@ -7393,7 +7841,40 @@
             },
             {
               "Name": "joinAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": [
+            {
+              "ParameterName": "T",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateList<T0>",
+          "Parameters": [
+            {
+              "Name": "items",
+              "Type": "System.Collections.Generic.IReadOnlyList<T0>"
+            },
+            {
+              "Name": "generationAction",
+              "Type": "System.Action<T0>"
+            },
+            {
+              "Name": "joinAction",
               "Type": "System.Action<Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilder>",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "typeMappings",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping>",
               "DefaultValue": "null"
             }
           ],
@@ -7903,6 +8384,21 @@
         },
         {
           "Kind": "Method",
+          "Name": "VisitCase",
+          "Parameters": [
+            {
+              "Name": "caseExpression",
+              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseExpression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "InferTypeMappingFromColumn",
           "Parameters": [
             {
@@ -8323,6 +8819,18 @@
             {
               "Name": "columnReferenceExpression",
               "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.ColumnReferenceExpression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitCase",
+          "Parameters": [
+            {
+              "Name": "caseExpression",
+              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseExpression"
             }
           ],
           "ReturnType": "System.Linq.Expressions.Expression",
@@ -9626,6 +10134,23 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslatorPlugin",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Translators",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator>",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator",
       "Visibility": "Public",
       "Kind": "Interface",
@@ -9642,6 +10167,23 @@
             }
           ],
           "ReturnType": "System.Linq.Expressions.Expression",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslatorPlugin",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Translators",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslator>",
           "GenericParameter": []
         }
       ],
@@ -9871,9 +10413,35 @@
       "ImplementedInterfaces": [],
       "Members": [
         {
+          "Kind": "Method",
+          "Name": "get_Plugins",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslatorPlugin>",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslatorPlugin>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMemberTranslatorDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
           "Kind": "Constructor",
           "Name": ".ctor",
-          "Parameters": [],
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslatorPlugin>"
+            }
+          ],
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -9963,11 +10531,32 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_Plugins",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslatorPlugin>",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "With",
           "Parameters": [
             {
               "Name": "logger",
               "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Query>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslatorDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslatorPlugin>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.RelationalCompositeMethodCallTranslatorDependencies",
@@ -9981,6 +10570,10 @@
             {
               "Name": "logger",
               "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Query>"
+            },
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMethodCallTranslatorPlugin>"
             }
           ],
           "Visibility": "Public",
@@ -10156,6 +10749,274 @@
             },
             {
               "Name": "expression",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseExpression",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "System.Linq.Expressions.Expression",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Query.Expressions.Internal.IPrintable"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Operand",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_WhenClauses",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ElseResult",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_NodeType",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.ExpressionType",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Type",
+          "Parameters": [],
+          "ReturnType": "System.Type",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Accept",
+          "Parameters": [
+            {
+              "Name": "visitor",
+              "Type": "System.Linq.Expressions.ExpressionVisitor"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitChildren",
+          "Parameters": [
+            {
+              "Name": "visitor",
+              "Type": "System.Linq.Expressions.ExpressionVisitor"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Equals",
+          "Parameters": [
+            {
+              "Name": "obj",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToString",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "whenClauses",
+              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause[]",
+              "IsParams": true
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "operand",
+              "Type": "System.Linq.Expressions.Expression"
+            },
+            {
+              "Name": "whenClauses",
+              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause[]",
+              "IsParams": true
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "whenClauses",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause>"
+            },
+            {
+              "Name": "elseResult",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "operand",
+              "Type": "System.Linq.Expressions.Expression"
+            },
+            {
+              "Name": "whenClauses",
+              "Type": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause>"
+            },
+            {
+              "Name": "elseResult",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Query.Expressions.CaseWhenClause",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Test",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Result",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Equals",
+          "Parameters": [
+            {
+              "Name": "obj",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToString",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "test",
+              "Type": "System.Linq.Expressions.Expression"
+            },
+            {
+              "Name": "result",
               "Type": "System.Linq.Expressions.Expression"
             }
           ],
@@ -10626,7 +11487,9 @@
       "Visibility": "Public",
       "Kind": "Class",
       "BaseType": "System.Linq.Expressions.Expression",
-      "ImplementedInterfaces": [],
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Query.Expressions.Internal.IPrintable"
+      ],
       "Members": [
         {
           "Kind": "Method",
@@ -12377,6 +13240,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_Tags",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyCollection<System.String>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Clone",
           "Parameters": [
             {
@@ -13267,9 +14139,45 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_IsNiladic",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_Arguments",
           "Parameters": [],
           "ReturnType": "System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ResultTypeMapping",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_InstanceTypeMapping",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_ArgumentTypeMappings",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping>",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -13408,8 +14316,86 @@
               "Type": "System.Type"
             },
             {
+              "Name": "niladic",
+              "Type": "System.Boolean"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "functionName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "returnType",
+              "Type": "System.Type"
+            },
+            {
               "Name": "schema",
               "Type": "System.String"
+            },
+            {
+              "Name": "arguments",
+              "Type": "System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "functionName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "returnType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "schema",
+              "Type": "System.String"
+            },
+            {
+              "Name": "arguments",
+              "Type": "System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>"
+            },
+            {
+              "Name": "resultTypeMapping",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "argumentTypeMappings",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping>",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "instance",
+              "Type": "System.Linq.Expressions.Expression"
+            },
+            {
+              "Name": "functionName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "returnType",
+              "Type": "System.Type"
             },
             {
               "Name": "arguments",
@@ -13438,6 +14424,45 @@
             {
               "Name": "arguments",
               "Type": "System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression>"
+            },
+            {
+              "Name": "resultTypeMapping",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "instanceTypeMapping",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+              "DefaultValue": "null"
+            },
+            {
+              "Name": "argumentTypeMappings",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping>",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "instance",
+              "Type": "System.Linq.Expressions.Expression"
+            },
+            {
+              "Name": "functionName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "returnType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "niladic",
+              "Type": "System.Boolean"
             }
           ],
           "Visibility": "Public",
@@ -18806,6 +19831,28 @@
             {
               "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation"
+            },
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "IndexOptions",
+          "Parameters": [
+            {
+              "Name": "operation",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation"
             },
             {
               "Name": "model",
@@ -25551,6 +26598,23 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.IRelationalDbContextOptionsBuilderInfrastructure",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_OptionsBuilder",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Infrastructure.ModelSnapshot",
       "Visibility": "Public",
       "Kind": "Class",
@@ -25596,7 +26660,9 @@
       "Visibility": "Public",
       "Kind": "Class",
       "Abstract": true,
-      "ImplementedInterfaces": [],
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.IRelationalDbContextOptionsBuilderInfrastructure"
+      ],
       "Members": [
         {
           "Kind": "Method",
@@ -26998,33 +28064,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27206,33 +28253,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27299,33 +28327,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27372,33 +28381,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27455,33 +28445,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27538,33 +28509,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27648,33 +28600,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27731,33 +28664,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27819,33 +28733,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -27907,33 +28802,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -28020,33 +28896,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -29003,6 +29860,29 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSourcePlugin",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "FindMapping",
+          "Parameters": [
+            {
+              "Name": "mappingInfo",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo",
+              "Direction": "Ref"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory",
       "Visibility": "Public",
       "Kind": "Interface",
@@ -29098,6 +29978,34 @@
         {
           "Kind": "Method",
           "Name": "GenerateParameterName",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "System.Text.StringBuilder"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateParameterNamePlaceholder",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateParameterNamePlaceholder",
           "Parameters": [
             {
               "Name": "builder",
@@ -29276,33 +30184,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -30326,7 +31215,8 @@
       "Kind": "Class",
       "Abstract": true,
       "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator"
+        "Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator",
+        "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreatorWithCanConnect"
       ],
       "Members": [
         {
@@ -30538,6 +31428,32 @@
           "ReturnType": "System.String",
           "Virtual": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CanConnect",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreatorWithCanConnect",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CanConnectAsync",
+          "Parameters": [
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreatorWithCanConnect",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -30861,6 +31777,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_DbCommand",
+          "Parameters": [],
+          "ReturnType": "System.Data.Common.DbCommand",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Read",
           "Parameters": [],
           "ReturnType": "System.Boolean",
@@ -31013,6 +31938,167 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.RelationalGeometryTypeMapping<T0, T1>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_SpatialConverter",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateParameter",
+          "Parameters": [
+            {
+              "Name": "command",
+              "Type": "System.Data.Common.DbCommand"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "nullable",
+              "Type": "System.Nullable<System.Boolean>",
+              "DefaultValue": "default(System.Nullable<System.Boolean>)"
+            }
+          ],
+          "ReturnType": "System.Data.Common.DbParameter",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CustomizeDataReaderExpression",
+          "Parameters": [
+            {
+              "Name": "expression",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateCodeLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_WKTReaderType",
+          "Parameters": [],
+          "ReturnType": "System.Type",
+          "Virtual": true,
+          "Abstract": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "AsText",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Abstract": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetSrid",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Abstract": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "converter",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<T0, T1>"
+            },
+            {
+              "Name": "storeType",
+              "Type": "System.String"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
+            },
+            {
+              "Name": "converter",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<T0, T1>"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TGeometry",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        },
+        {
+          "ParameterName": "TProvider",
+          "ParameterPosition": 1,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.RelationalSqlGenerationHelper",
       "Visibility": "Public",
       "Kind": "Class",
@@ -31058,6 +32144,40 @@
         {
           "Kind": "Method",
           "Name": "GenerateParameterName",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "System.Text.StringBuilder"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateParameterNamePlaceholder",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateParameterNamePlaceholder",
           "Parameters": [
             {
               "Name": "builder",
@@ -31271,6 +32391,24 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_Connection",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IRelationalConnection",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Logger",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Database+Transaction>",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_TransactionId",
           "Parameters": [],
           "ReturnType": "System.Guid",
@@ -31297,6 +32435,15 @@
           "Virtual": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction",
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ClearTransaction",
+          "Parameters": [],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -31740,6 +32887,70 @@
       "Members": [
         {
           "Kind": "Method",
+          "Name": "CreateParameter",
+          "Parameters": [
+            {
+              "Name": "command",
+              "Type": "System.Data.Common.DbCommand"
+            },
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            },
+            {
+              "Name": "nullable",
+              "Type": "System.Nullable<System.Boolean>",
+              "DefaultValue": "default(System.Nullable<System.Boolean>)"
+            }
+          ],
+          "ReturnType": "System.Data.Common.DbParameter",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CustomizeDataReaderExpression",
+          "Parameters": [
+            {
+              "Name": "expression",
+              "Type": "System.Linq.Expressions.Expression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Parameters",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Clone",
+          "Parameters": [
+            {
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Clone",
           "Parameters": [
             {
@@ -31753,7 +32964,24 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
-          "Abstract": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Clone",
+          "Parameters": [
+            {
+              "Name": "precision",
+              "Type": "System.Nullable<System.Int32>"
+            },
+            {
+              "Name": "scale",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+          "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -31770,38 +32998,6 @@
           "Virtual": true,
           "Override": true,
           "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GenerateNonNullSqlLiteral",
-          "Parameters": [
-            {
-              "Name": "value",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_SqlLiteralFormatString",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Parameters",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters",
-          "Virtual": true,
-          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -31831,6 +33027,15 @@
         {
           "Kind": "Method",
           "Name": "get_StoreType",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_StoreTypeNameBase",
           "Parameters": [],
           "ReturnType": "System.String",
           "Virtual": true,
@@ -31875,29 +33080,11 @@
         },
         {
           "Kind": "Method",
-          "Name": "CreateParameter",
-          "Parameters": [
-            {
-              "Name": "command",
-              "Type": "System.Data.Common.DbCommand"
-            },
-            {
-              "Name": "name",
-              "Type": "System.String"
-            },
-            {
-              "Name": "value",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "nullable",
-              "Type": "System.Nullable<System.Boolean>",
-              "DefaultValue": "default(System.Nullable<System.Boolean>)"
-            }
-          ],
-          "ReturnType": "System.Data.Common.DbParameter",
+          "Name": "get_SqlLiteralFormatString",
+          "Parameters": [],
+          "ReturnType": "System.String",
           "Virtual": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -31940,6 +33127,20 @@
           "ReturnType": "System.String",
           "Virtual": true,
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateNonNullSqlLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -32354,7 +33555,6 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
-          "Abstract": true,
           "Visibility": "Protected",
           "GenericParameter": []
         },
@@ -32498,9 +33698,35 @@
       "ImplementedInterfaces": [],
       "Members": [
         {
+          "Kind": "Method",
+          "Name": "get_Plugins",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSourcePlugin>",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSourcePlugin>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingSourceDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
           "Kind": "Constructor",
           "Name": ".ctor",
-          "Parameters": [],
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSourcePlugin>"
+            }
+          ],
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -32612,11 +33838,32 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_CoreOptions",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.ICoreSingletonOptions",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "With",
           "Parameters": [
             {
               "Name": "typeMappingSource",
               "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalValueBufferFactoryDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "coreOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.ICoreSingletonOptions"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalValueBufferFactoryDependencies",
@@ -32630,6 +33877,10 @@
             {
               "Name": "typeMappingSource",
               "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource"
+            },
+            {
+              "Name": "coreOptions",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.ICoreSingletonOptions"
             }
           ],
           "Visibility": "Public",
@@ -32650,33 +33901,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -32723,33 +33955,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -33006,33 +34219,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -33118,33 +34312,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -33332,6 +34507,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_IsFromLeftOuterJoin",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Boolean>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Equals",
           "Parameters": [
             {
@@ -33393,6 +34577,68 @@
           ],
           "Visibility": "Public",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "modelClrType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            },
+            {
+              "Name": "typeMappingSource",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource"
+            },
+            {
+              "Name": "fromLeftOuterJoin",
+              "Type": "System.Nullable<System.Boolean>"
+            },
+            {
+              "Name": "index",
+              "Type": "System.Int32"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "modelClrType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            },
+            {
+              "Name": "typeMappingSource",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource"
+            },
+            {
+              "Name": "fromLeftOuterJoin",
+              "Type": "System.Nullable<System.Boolean>"
+            },
+            {
+              "Name": "index",
+              "Type": "System.Int32",
+              "DefaultValue": "-1"
+            },
+            {
+              "Name": "mapping",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
         }
       ],
       "GenericParameters": []
@@ -33409,33 +34655,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -33482,33 +34709,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -33621,33 +34829,14 @@
           "Name": "Clone",
           "Parameters": [
             {
-              "Name": "storeType",
-              "Type": "System.String"
-            },
-            {
-              "Name": "size",
-              "Type": "System.Nullable<System.Int32>"
+              "Name": "parameters",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
           "Virtual": true,
           "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Clone",
-          "Parameters": [
-            {
-              "Name": "converter",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -36337,6 +37526,20 @@
           "GenericParameter": []
         },
         {
+          "Kind": "Method",
+          "Name": "Chain",
+          "Parameters": [
+            {
+              "Name": "call",
+              "Type": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
           "Kind": "Constructor",
           "Name": ".ctor",
           "Parameters": [
@@ -36535,6 +37738,14 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_PrecisionAndScaleOverriden",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_FixedLength",
           "Parameters": [],
           "ReturnType": "System.Boolean",
@@ -36546,6 +37757,20 @@
           "Name": "get_StoreTypePostfix",
           "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "WithTypeMappingInfo",
+          "Parameters": [
+            {
+              "Name": "mappingInfo",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo",
+              "Direction": "Ref"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -36565,6 +37790,23 @@
               "Name": "storeTypePostfix",
               "Type": "System.Nullable<Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix>",
               "DefaultValue": "default(System.Nullable<Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix>)"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "WithPrecisionAndScale",
+          "Parameters": [
+            {
+              "Name": "precision",
+              "Type": "System.Nullable<System.Int32>"
+            },
+            {
+              "Name": "scale",
+              "Type": "System.Nullable<System.Int32>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping+RelationalTypeMappingParameters",

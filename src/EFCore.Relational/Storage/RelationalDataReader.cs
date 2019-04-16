@@ -106,6 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual DbDataReader DbDataReader => _reader;
 
         /// <summary>
+        ///     Gets the underlying command for the result set.
+        /// </summary>
+        public virtual DbCommand DbCommand => _command;
+
+        /// <summary>
         ///     Calls Read on the underlying DbDataReader.
         /// </summary>
         /// <returns>true if there are more rows; otherwise false.</returns>
@@ -134,22 +139,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                _reader.Dispose();
-                _command.Parameters.Clear();
-                _command.Dispose();
-                _connection.Close();
+                try
+                {
+                    _reader.Close(); // can throw
 
-                _logger.DataReaderDisposing(
-                    _connection,
-                    _command,
-                    _reader,
-                    _commandId,
-                    _reader.RecordsAffected,
-                    _readCount,
-                    _startTime,
-                    _stopwatch.Elapsed);
+                    _logger.DataReaderDisposing(
+                        _connection,
+                        _command,
+                        _reader,
+                        _commandId,
+                        _reader.RecordsAffected,
+                        _readCount,
+                        _startTime,
+                        _stopwatch.Elapsed); // can throw
+                }
+                finally
+                {
+                    _disposed = true;
 
-                _disposed = true;
+                    _reader.Dispose();
+                    _command.Parameters.Clear();
+                    _command.Dispose();
+                    _connection.Close();
+                }
             }
         }
     }

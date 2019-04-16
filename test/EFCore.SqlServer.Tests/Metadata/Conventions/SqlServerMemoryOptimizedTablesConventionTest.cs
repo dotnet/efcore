@@ -20,7 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.SqlServer().IsClustered == null));
 
             modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized();
-            modelBuilder.Entity<Order>().HasKey(o => new { o.Id, o.CustomerId });
+            modelBuilder.Entity<Order>().HasKey(
+                o => new
+                {
+                    o.Id,
+                    o.CustomerId
+                });
             modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
 
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.SqlServer().IsClustered == false));

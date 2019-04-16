@@ -99,13 +99,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependentEntry.Property("CategoryId").CurrentValue = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependentEntry.Navigation("Category").CurrentValue = principal;
                 }
+
                 if (setToDependent)
                 {
-                    var collection = new HashSet<object> { dependent };
+                    var collection = new HashSet<object>
+                    {
+                        dependent
+                    };
                     principalEntry.Collection("Products").CurrentValue = collection;
                 }
 
@@ -113,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     principalEntry.State = entityState;
                 }
+
                 dependentEntry.State = entityState;
                 if (!principalFirst)
                 {
@@ -122,13 +128,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependentEntry.Property("CategoryId").CurrentValue);
-                            Assert.Same(principal, dependentEntry.Navigation("Category").CurrentValue);
-                            Assert.Equal(new[] { dependent }, principalEntry.Collection("Products").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependentEntry.Property("CategoryId").CurrentValue);
+                        Assert.Same(principal, dependentEntry.Navigation("Category").CurrentValue);
+                        Assert.Equal(new[] { dependent }, principalEntry.Collection("Products").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -215,10 +221,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     dependentEntry.Property("ParentId").CurrentValue = principal.Id;
                 }
+
                 if (setToPrincipal)
                 {
                     dependentEntry.Navigation("Parent").CurrentValue = principal;
                 }
+
                 if (setToDependent)
                 {
                     principalEntry.Navigation("Child").CurrentValue = dependent;
@@ -228,6 +236,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     principalEntry.State = entityState;
                 }
+
                 dependentEntry.State = entityState;
                 if (!principalFirst)
                 {
@@ -237,13 +246,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 AssertFixup(
                     context,
                     () =>
-                        {
-                            Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
-                            Assert.Same(principal, dependentEntry.Navigation("Parent").CurrentValue);
-                            Assert.Same(dependent, principalEntry.Navigation("Child").CurrentValue);
-                            Assert.Equal(entityState, context.Entry(principal).State);
-                            Assert.Equal(entityState, context.Entry(dependent).State);
-                        });
+                    {
+                        Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
+                        Assert.Same(principal, dependentEntry.Navigation("Parent").CurrentValue);
+                        Assert.Same(dependent, principalEntry.Navigation("Child").CurrentValue);
+                        Assert.Equal(entityState, context.Entry(principal).State);
+                        Assert.Equal(entityState, context.Entry(dependent).State);
+                    });
             }
         }
 
@@ -306,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var category = modelBuilder.Entity<Category>().Metadata;
 
-                modelBuilder.Entity<Product>(b =>
+                modelBuilder.Entity<Product>(
+                    b =>
                     {
                         var fk = b.Metadata.AddForeignKey(
                             new[] { b.Property<int>("CategoryId").Metadata },
@@ -318,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var parent = modelBuilder.Entity<Parent>().Metadata;
 
-                modelBuilder.Entity<Child>(b =>
+                modelBuilder.Entity<Child>(
+                    b =>
                     {
                         var fk = b.Metadata.AddForeignKey(
                             new[] { b.Property<int>("ParentId").Metadata },

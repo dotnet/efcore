@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class MigrationsContext : DbContext
+        public class MigrationsContext : PoolableDbContext
         {
             public MigrationsContext(DbContextOptions options)
                 : base(options)

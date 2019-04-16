@@ -339,13 +339,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return result;
         }
 
-        private DbCommand CreateCommand(
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual DbCommand CreateCommand(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues)
         {
             var command = connection.DbConnection.CreateCommand();
 
-            command.CommandText = CommandText;
+            command.CommandText = AdjustCommandText(CommandText);
+
+            ConfigureCommand(command);
 
             if (connection.CurrentTransaction != null)
             {
@@ -374,5 +380,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             return command;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ConfigureCommand(DbCommand command)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual string AdjustCommandText(string commandText)
+            => commandText;
     }
 }

@@ -53,19 +53,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
             _model = new LazyRef<IModel>(
                 () =>
-                    {
-                        var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet();
-                        var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.AddConventions(conventionSet));
+                {
+                    var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet();
+                    var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.AddConventions(conventionSet));
 
-                        modelBuilder.Entity<HistoryRow>(
-                            x =>
-                                {
-                                    ConfigureTable(x);
-                                    x.ToTable(TableName, TableSchema);
-                                });
+                    modelBuilder.Entity<HistoryRow>(
+                        x =>
+                        {
+                            ConfigureTable(x);
+                            x.ToTable(TableName, TableSchema);
+                        });
 
-                        return modelBuilder.Model;
-                    });
+                    return modelBuilder.Model;
+                });
             var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
             _migrationIdColumnName = new LazyRef<string>(
                 () => entityType.Value.FindProperty(nameof(HistoryRow.MigrationId)).Relational().ColumnName);

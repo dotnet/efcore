@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -54,10 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => EntityTypes.SingleOrDefault(
                 t => t.BaseType == null
                      && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
-                         .All(fk => !fk.PrincipalKey.IsPrimaryKey()
-                                    || fk.PrincipalEntityType.RootType() == t
-                                    || t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName
-                                    || t.Relational().Schema != fk.PrincipalEntityType.Relational().Schema));
+                         .All(
+                             fk => !fk.PrincipalKey.IsPrimaryKey()
+                                   || fk.PrincipalEntityType.RootType() == t
+                                   || t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName
+                                   || t.Relational().Schema != fk.PrincipalEntityType.Relational().Schema));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -71,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Dictionary<string, IProperty> GetPropertyMap()
         {
-            var dictionary = new Dictionary<string, IProperty>();
+            var dictionary = new Dictionary<string, IProperty>(StringComparer.Ordinal);
             foreach (var property in EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties))
             {
                 var columnName = property.Relational().ColumnName;

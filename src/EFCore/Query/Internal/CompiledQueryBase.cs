@@ -80,12 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 context,
                 _queryExpression,
                 (c, q) =>
-                    {
-                        var queryCompiler = context.GetService<IQueryCompiler>();
-                        var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
+                {
+                    var queryCompiler = context.GetService<IQueryCompiler>();
+                    var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                        return CreateCompiledQuery(queryCompiler, expression);
-                    });
+                    return CreateCompiledQuery(queryCompiler, expression);
+                });
 
         private sealed class QueryExpressionRewriter : ExpressionVisitor
         {
@@ -106,14 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return Expression.Constant(_context);
                 }
 
-                if (_parameters.Contains(parameterExpression))
-                {
-                    return Expression.Parameter(
+                return _parameters.Contains(parameterExpression)
+                    ? Expression.Parameter(
                         parameterExpression.Type,
-                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name);
-                }
-
-                return parameterExpression;
+                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name)
+                    : parameterExpression;
             }
         }
     }

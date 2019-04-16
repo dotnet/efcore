@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public DatabaseOperations(
             [NotNull] IOperationReporter reporter,
+            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _rootNamespace = rootNamespace;
             _language = language;
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
         }
 
         /// <summary>
@@ -99,8 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _language,
                 MakeDirRelative(outputDir, outputContextDir),
                 dbContextClassName,
-                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
-                new ModelCodeGenerationOptions { UseDataAnnotations = useDataAnnotations });
+                new ModelReverseEngineerOptions
+                {
+                    UseDatabaseNames = useDatabaseNames
+                },
+                new ModelCodeGenerationOptions
+                {
+                    UseDataAnnotations = useDataAnnotations
+                });
 
             return scaffolder.Save(
                 scaffoldedModel,
@@ -140,13 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             var last = path[path.Length - 1];
-            if (last == Path.DirectorySeparatorChar
-                || last == Path.AltDirectorySeparatorChar)
-            {
-                return path;
-            }
-
-            return path + Path.DirectorySeparatorChar;
+            return last == Path.DirectorySeparatorChar
+                || last == Path.AltDirectorySeparatorChar
+                ? path
+                : path + Path.DirectorySeparatorChar;
         }
     }
 }

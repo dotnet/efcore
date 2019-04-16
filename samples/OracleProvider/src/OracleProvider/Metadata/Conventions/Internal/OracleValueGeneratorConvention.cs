@@ -25,14 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Metadata.Conventions.Internal
         public override ValueGenerated? GetValueGenerated(Property property)
         {
             var valueGenerated = base.GetValueGenerated(property);
-            if (valueGenerated != null)
-            {
-                return valueGenerated;
-            }
-
-            return property.Oracle().GetOracleValueGenerationStrategy(fallbackToModel: false) != null
-                ? ValueGenerated.OnAdd
-                : (ValueGenerated?)null;
+            return valueGenerated
+                ?? (property.Oracle().GetOracleValueGenerationStrategy(fallbackToModel: false) != null
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null);
         }
     }
 }

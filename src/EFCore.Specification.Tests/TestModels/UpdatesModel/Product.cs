@@ -15,13 +15,4 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
         [ConcurrencyCheck]
         public decimal Price { get; set; }
     }
-
-    public class ProductWithBytes
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-
-        [ConcurrencyCheck]
-        public byte[] Bytes { get; set; }
-    }
 }

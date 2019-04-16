@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -39,9 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     </para>
         /// </summary>
         /// <param name="logger"> A logger. </param>
-        public RelationalCompositeMethodCallTranslatorDependencies([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        /// <param name="plugins"> The plugins. </param>
+        public RelationalCompositeMethodCallTranslatorDependencies(
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
         {
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(plugins, nameof(plugins));
+
             Logger = logger;
+            Plugins = plugins;
         }
 
         /// <summary>
@@ -50,11 +59,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
 
         /// <summary>
+        ///     Gets the plugins.
+        /// </summary>
+        public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalCompositeMethodCallTranslatorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-            => new RelationalCompositeMethodCallTranslatorDependencies(logger);
+            => new RelationalCompositeMethodCallTranslatorDependencies(logger, Plugins);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalCompositeMethodCallTranslatorDependencies With(
+                [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
+            => new RelationalCompositeMethodCallTranslatorDependencies(Logger, plugins);
     }
 }

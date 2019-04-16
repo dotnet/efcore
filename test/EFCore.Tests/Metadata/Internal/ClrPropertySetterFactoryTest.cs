@@ -48,7 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 77);
 
@@ -58,7 +61,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_is_returned_for_property_type_and_name()
         {
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).SetClrValue(customer, 77);
 
@@ -71,7 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 1);
 
@@ -84,7 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.ContentProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, "MyString");
 
@@ -97,7 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 3);
 
@@ -110,7 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, null);
 
@@ -123,7 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.FlagProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.One);
 
@@ -136,7 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalFlagProperty);
 
-            var customer = new Customer { Id = 7 };
+            var customer = new Customer
+            {
+                Id = 7
+            };
 
             new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.Two);
 

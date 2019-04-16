@@ -105,19 +105,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameterBuilder.AddCompositeParameter(
                 "CompositeInvariant",
                 builder =>
-                    {
-                        builder.AddParameter(
-                            "FirstInvariant",
-                            "FirstName",
-                            new IntTypeMapping("int", DbType.Int32),
-                            nullable: false);
+                {
+                    builder.AddParameter(
+                        "FirstInvariant",
+                        "FirstName",
+                        new IntTypeMapping("int", DbType.Int32),
+                        nullable: false);
 
-                        builder.AddParameter(
-                            "SecondInvariant",
-                            "SecondName",
-                            new StringTypeMapping("nvarchar(max)"),
-                            nullable: true);
-                    });
+                    builder.AddParameter(
+                        "SecondInvariant",
+                        "SecondName",
+                        new StringTypeMapping("nvarchar(max)"),
+                        nullable: true);
+                });
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);
 

@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customer
                     = await context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .Where(c => c.CustomerID == "ALFKI")
-                            .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
-                            .FirstOrDefaultAsync();
+                        .Include(c => c.Orders)
+                        .Where(c => c.CustomerID == "ALFKI")
+                        .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
+                        .FirstOrDefaultAsync();
 
                 Assert.NotNull(customer);
                 Assert.NotNull(customer.Orders);
@@ -305,7 +305,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
                              join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
                              where c.CustomerID == "ALFKI"
-                             select new { c, g })
+                             select new
+                             {
+                                 c,
+                                 g
+                             })
                         .ToListAsync();
 
                 Assert.Equal(1, customers.Count);
@@ -325,7 +329,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                              join o in context.Set<Order>().Include(o => o.OrderDetails)
                                  on c.CustomerID equals o.CustomerID into g
                              where c.CustomerID == "ALFKI"
-                             select new { c, g })
+                             select new
+                             {
+                                 c,
+                                 g
+                             })
                         .ToListAsync();
 
                 Assert.Equal(1, customers.Count);
@@ -516,7 +524,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new { c1, c2 })
+                             select new
+                             {
+                                 c1,
+                                 c2
+                             })
                         .ToListAsync();
 
                 Assert.Equal(4, customers.Count);
@@ -543,7 +555,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new { c1, c2 })
+                             select new
+                             {
+                                 c1,
+                                 c2
+                             })
                         .Take(1)
                         .ToListAsync();
 
@@ -570,7 +586,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new { c1, c2 })
+                             select new
+                             {
+                                 c1,
+                                 c2
+                             })
                         .Take(1)
                         .ToListAsync();
 
@@ -597,7 +617,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(o => o.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new { o1, o2 })
+                             select new
+                             {
+                                 o1,
+                                 o2
+                             })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -623,7 +647,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(o => o.OrderID)
                                  .Skip(2)
                                  .Take(2)
-                             select new { o1, o2 })
+                             select new
+                             {
+                                 o1,
+                                 o2
+                             })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -648,7 +676,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .Include(o => o.Customer)
                                  .Skip(2)
                                  .Take(2)
-                             select new { o1, o2 })
+                             select new
+                             {
+                                 o1,
+                                 o2
+                             })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -822,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(o => o.Order)
                         .ToListAsync();
 
-                Assert.True(orders.Any());
+                Assert.True(orders.Count > 0);
             }
         }
 

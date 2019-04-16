@@ -137,14 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, in ValueBuffer valueBuffer)
         {
-            if (navigation.IsDependentToPrincipal())
-            {
-                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out var keyValue)
+            return navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out var keyValue)
                     ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
-                    : new NullIncludeComparer();
-            }
-
-            return new PrincipalToDependentIncludeComparer<TKey>(
+                    : new NullIncludeComparer()
+                : new PrincipalToDependentIncludeComparer<TKey>(
                 (TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer),
                 navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
                 PrincipalKeyValueFactory);
@@ -156,14 +153,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, InternalEntityEntry entry)
         {
-            if (navigation.IsDependentToPrincipal())
-            {
-                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out var keyValue)
+            return navigation.IsDependentToPrincipal()
+                ? navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out var keyValue)
                     ? new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
-                    : (IIncludeKeyComparer)new NullIncludeComparer();
-            }
-
-            return new PrincipalToDependentIncludeComparer<TKey>(
+                    : (IIncludeKeyComparer)new NullIncludeComparer()
+                : new PrincipalToDependentIncludeComparer<TKey>(
                 PrincipalKeyValueFactory.CreateFromCurrentValues(entry),
                 navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
                 PrincipalKeyValueFactory);

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueConverterSelectorTest
     {
-        private readonly IValueConverterSelector _selector 
+        private readonly IValueConverterSelector _selector
             = new ValueConverterSelector(new ValueConverterSelectorDependencies());
 
         [Fact]
@@ -401,6 +401,150 @@ namespace Microsoft.EntityFrameworkCore.Storage
             AssertConverters(
                 _selector.Select(typeof(string)).ToList(),
                 (typeof(StringToBytesConverter), default));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_int()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(int)).ToList(),
+                (typeof(StringToNumberConverter<int>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_long()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(long)).ToList(),
+                (typeof(StringToNumberConverter<long>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_short()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(short)).ToList(),
+                (typeof(StringToNumberConverter<short>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_byte()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(byte)).ToList(),
+                (typeof(StringToNumberConverter<byte>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_ulong()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(ulong)).ToList(),
+                (typeof(StringToNumberConverter<ulong>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_uint()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(uint)).ToList(),
+                (typeof(StringToNumberConverter<uint>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_ushort()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(ushort)).ToList(),
+                (typeof(StringToNumberConverter<ushort>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_sbyte()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(sbyte)).ToList(),
+                (typeof(StringToNumberConverter<sbyte>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_decimal()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(decimal)).ToList(),
+                (typeof(StringToNumberConverter<decimal>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_double()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(double)).ToList(),
+                (typeof(StringToNumberConverter<double>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_float()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(float)).ToList(),
+                (typeof(StringToNumberConverter<float>), new ConverterMappingHints(size: 64)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_enum()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(Queen)).ToList(),
+                (typeof(StringToEnumConverter<Queen>), default));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_DateTime()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(DateTime)).ToList(),
+                (typeof(StringToDateTimeConverter), new ConverterMappingHints(size: 48)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_DateTimeOffset()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(DateTimeOffset)).ToList(),
+                (typeof(StringToDateTimeOffsetConverter), new ConverterMappingHints(size: 48)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_TimeSpan()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(TimeSpan)).ToList(),
+                (typeof(StringToTimeSpanConverter), new ConverterMappingHints(size: 48)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_Guid()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(Guid)).ToList(),
+                (typeof(StringToGuidConverter), new ConverterMappingHints(size: 36)));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_bool()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(bool)).ToList(),
+                (typeof(StringToBoolConverter), default));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_string_to_char()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(char)).ToList(),
+                (typeof(StringToCharConverter), new ConverterMappingHints(size: 1)));
         }
 
         [Fact]

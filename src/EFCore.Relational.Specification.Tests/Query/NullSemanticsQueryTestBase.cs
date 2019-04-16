@@ -15,6 +15,9 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable NegativeEqualityExpression
+
+#pragma warning disable RCS1068 // Simplify logical negation.
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NullSemanticsQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -277,7 +280,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from e1 in context.Entities1
                             join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
-                            select new { Id1 = e1.Id, Id2 = e2.Id, e1.NullableIntA, e2.NullableIntB };
+                            select new
+                            {
+                                Id1 = e1.Id,
+                                Id2 = e2.Id,
+                                e1.NullableIntA,
+                                e2.NullableIntB
+                            };
 
                 query.ToList();
             }
@@ -489,6 +498,43 @@ namespace Microsoft.EntityFrameworkCore.Query
                 useRelationalNulls: false);
         }
 
+        [Fact]
+        public virtual void Null_comparison_in_selector_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.Select(e => e.NullableStringA != "Foo");
+                var result = query.ToList();
+
+                Assert.Equal(27, result.Count);
+                Assert.Equal(18, result.Where(r => r).Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Null_comparison_in_order_by_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.OrderBy(e => e.NullableStringA != "Foo").ThenBy(e => e.NullableIntB != 10);
+                var result = query.ToList();
+
+                Assert.Equal(27, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Null_comparison_in_join_key_with_relational_nulls()
+        {
+            using (var ctx = CreateContext(useRelationalNulls: true))
+            {
+                var query = ctx.Entities1.Join(ctx.Entities2, e1 => e1.NullableStringA != "Foo", e2 => e2.NullableBoolB != true, (o, i) => new { o, i });
+                var result = query.ToList();
+
+                Assert.Equal(405, result.Count);
+            }
+        }
+
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> query,
             bool useDatabaseNullSemantics = false)
@@ -681,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(useRelationalNulls: true))
             {
                 var actual = context.Entities1
-                    .FromSql(@"SELECT * FROM ""Entities1""")
+                    .FromSql(NormalizeDelimeters("SELECT * FROM [Entities1]"))
                     .Where(c => c.StringA == c.StringB)
                     .ToArray();
 
@@ -695,12 +741,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? false
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);
@@ -717,12 +773,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expected = context.Entities1.ToList()
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 ClearLog();
 
                 var query = context.Entities1
-                    .Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+                    .Select(
+                        e => new
+                        {
+                            e.Id,
+                            Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false)
+                        });
 
                 var results = query.ToList();
                 Assert.Equal(expected.Count(), results.Count);
@@ -732,6 +798,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
+
+        private RawSqlString NormalizeDelimeters(RawSqlString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
+
+        private FormattableString NormalizeDelimeters(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimeters(sql);
 
         protected abstract NullSemanticsContext CreateContext(bool useRelationalNulls = false);
 

@@ -33,15 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a.DisplayName(), a.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(a)).Message);
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a.DisplayName(), b.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
+                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(b)).Message);
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a.DisplayName(), d.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(d); }).Message);
+                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(d)).Message);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NonShadowBaseType(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NonClrBaseType(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NotAssignableClrBaseType(typeof(A).Name, typeof(B).Name, typeof(A).Name, typeof(B).Name),
-                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
+                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(b)).Message);
         }
 
         [Fact]
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, typeof(B).Name, "G", typeof(A).Name, "G"),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
         }
 
         [Fact]
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
-                Assert.Throws<InvalidOperationException>(() => { d.HasBaseType(c); }).Message);
+                Assert.Throws<InvalidOperationException>(() => d.HasBaseType(c)).Message);
         }
 
         [Fact]
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, typeof(D).Name, "E", typeof(A).Name, "E"),
-                Assert.Throws<InvalidOperationException>(() => { c.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => c.HasBaseType(a)).Message);
         }
 
         [Fact]
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).Name),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
 
             b.RemoveKey(key.Properties);
             var f = b.AddProperty(B.FProperty);
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).Name),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
         }
 
         [Fact]
@@ -468,12 +468,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddQueryType(typeof(B));
 
             Assert.Equal(
-                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
-                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+                CoreStrings.MixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
+                Assert.Throws<InvalidOperationException>(() => b.HasBaseType(a)).Message);
 
             Assert.Equal(
-                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
+                CoreStrings.MixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
+                Assert.Throws<InvalidOperationException>(() => a.HasBaseType(b)).Message);
         }
 
         [Fact]
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, "Customer"),
-                Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
+                Assert.Throws<InvalidOperationException>(() => specialOrderType.HasBaseType(orderType)).Message);
         }
 
         [Fact]
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, nameof(Order.Customer)),
-                Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
+                Assert.Throws<InvalidOperationException>(() => specialOrderType.HasBaseType(orderType)).Message);
         }
 
         [Fact]
@@ -763,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(VerySpecialOrder).Name, typeof(SpecialOrder).Name, "Customer"),
-                Assert.Throws<InvalidOperationException>(() => { verySpecialOrderType.HasBaseType(specialOrderType); }).Message);
+                Assert.Throws<InvalidOperationException>(() => verySpecialOrderType.HasBaseType(specialOrderType)).Message);
         }
 
         [Fact]

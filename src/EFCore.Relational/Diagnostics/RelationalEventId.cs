@@ -464,15 +464,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId QueryPossibleExceptionWithAggregateOperator = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperator);
 
-        /// <summary> 
-        ///     <para> 
-        ///         A SQL literal is being generated for a value that is using a value conversion. 
-        ///     </para> 
-        ///     <para> 
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category. 
-        ///     </para> 
-        /// </summary> 
-        public static readonly EventId ValueConversionSqlLiteralWarning = MakeQueryId(Id.ValueConversionSqlLiteralWarning); 
+        /// <summary>
+        ///     <para>
+        ///         A SQL literal is being generated for a value that is using a value conversion.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ValueConversionSqlLiteralWarning = MakeQueryId(Id.ValueConversionSqlLiteralWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     <para>
         ///         Update commands were batched and are now ready for execution
-        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder,TExtension}.MinBatchSize"/>.
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder,TExtension}.MinBatchSize" />.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     <para>
         ///         Update commands were not batched because there were fewer than
-        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder,TExtension}.MinBatchSize"/>.
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder,TExtension}.MinBatchSize" />.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.

@@ -176,16 +176,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 contexts.Add(
                     context,
                     FindContextFactory(context) ?? (() =>
+                    {
+                        try
                         {
-                            try
-                            {
-                                return (DbContext)Activator.CreateInstance(context);
-                            }
-                            catch (MissingMethodException ex)
-                            {
-                                throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
-                            }
-                        }));
+                            return (DbContext)Activator.CreateInstance(context);
+                        }
+                        catch (MissingMethodException ex)
+                        {
+                            throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
+                        }
+                    }));
             }
 
             return contexts;
@@ -219,14 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
-                .Where(t => factoryInterface.IsAssignableFrom(t))
-                .FirstOrDefault();
-            if (factory == null)
-            {
-                return null;
-            }
-
-            return () => CreateContextFromFactory(factory.AsType());
+                .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
+            return factory == null ? (Func<DbContext>)null : (() => CreateContextFromFactory(factory.AsType()));
         }
 
         private DbContext CreateContextFromFactory(Type factory)
@@ -247,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
                 }
+
                 if (types.Count == 1)
                 {
                     return types.First();
@@ -260,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 throw new OperationException(DesignStrings.NoContextWithName(name));
             }
+
             if (candidates.Count == 1)
             {
                 return candidates.First();
@@ -271,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 throw new OperationException(DesignStrings.MultipleContextsWithName(name));
             }
+
             if (candidates.Count == 1)
             {
                 return candidates.First();

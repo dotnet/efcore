@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-#if !Test20
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -21,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class WarningsTest
     {
-#if !Test20
         [Fact]
         public void Should_throw_by_default_when_transaction()
         {
@@ -40,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Database.BeginTransaction()).Message);
             }
         }
-#endif
 
         [Fact]
         public void Should_throw_by_default_when_transaction_enlisted()
@@ -51,12 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
-#if Test20
-                Assert.Equal(
-                    CoreStrings.TransactionsNotSupported,
-                    Assert.Throws<NotSupportedException>(
-                        () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
-#else
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
@@ -64,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
-#endif
             }
         }
 
@@ -117,11 +105,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Logs_by_default_for_ignored_includes()
         {
-            using (var context = new WarningAsErrorContext(new ListLoggerFactory(Log, m => true)))
+            var loggerFactory = new ListLoggerFactory();
+
+            using (var context = new WarningAsErrorContext(loggerFactory))
             {
                 var _ = context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
-                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), Log.Select(l => l.Message));
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), loggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -141,18 +131,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-#if !Test20 // Uses lazy-loading (doesn't work with 2.0 in-memory provider)
         [Fact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
-            var loggerFactory = new ListLoggerFactory(Log, m => true);
-
+            var loggerFactory = new ListLoggerFactory();
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 
@@ -175,16 +164,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Lazy_load_with_disposed_context_can_be_configured_to_log()
         {
-            var loggerFactory = new ListLoggerFactory(Log, m => true);
+            var loggerFactory = new ListLoggerFactory();
 
             using (var context = new WarningAsErrorContext(
                 loggerFactory,
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 
@@ -201,20 +191,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Contains(
                 CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                Log.Select(l => l.Message));
+                loggerFactory.Log.Select(l => l.Message));
         }
 
         [Fact]
         public void Lazy_loading_is_logged_only_when_actually_loading()
         {
-            var loggerFactory = new ListLoggerFactory(Log, m => true);
+            var loggerFactory = new ListLoggerFactory();
 
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity
-                {
-                    Nav = new IncludedEntity()
-                });
+                context.Add(
+                    new WarningAsErrorEntity
+                    {
+                        Nav = new IncludedEntity()
+                    });
                 context.SaveChanges();
             }
 
@@ -222,21 +213,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
 
-                Log.Clear();
+                loggerFactory.Clear();
                 Assert.NotNull(entity.Nav);
 
                 Assert.Contains(
                     CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                    Log.Select(l => l.Message));
+                    loggerFactory.Log.Select(l => l.Message));
 
-                Log.Clear();
+                loggerFactory.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
                     CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                    Log.Select(l => l.Message));
+                    loggerFactory.Log.Select(l => l.Message));
             }
         }
-#endif
 
         [Fact]
         public void No_throw_when_event_id_not_registered()
@@ -268,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(_sink ?? new ListLoggerFactory(null, m => false))
+                    .UseLoggerFactory(_sink ?? new ListLoggerFactory(m => false))
                     .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
                         c =>
                         {
@@ -314,7 +304,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public int Id { get; set; }
         }
-
-        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
     }
 }

@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private string GetDefaultTableName()
             => ConstraintNamer.Truncate(
                 EntityType.HasDefiningNavigation()
-                ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
-                : EntityType.ShortName(),
+                    ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
+                    : EntityType.ShortName(),
                 null,
                 EntityType.Model.GetMaxIdentifierLength());
 

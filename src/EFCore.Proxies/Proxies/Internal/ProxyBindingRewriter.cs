@@ -53,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             {
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {
-                    if (entityType.ClrType != null
-                        && !entityType.ClrType.IsAbstract)
+                    if (entityType.ClrType?.IsAbstract == false)
                     {
                         if (entityType.ClrType.IsSealed)
                         {

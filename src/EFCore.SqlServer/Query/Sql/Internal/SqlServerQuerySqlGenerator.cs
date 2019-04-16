@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             if (binaryExpression.Left is SqlFunctionExpression sqlFunctionExpression
-                && sqlFunctionExpression.FunctionName == "FREETEXT")
+                && (sqlFunctionExpression.FunctionName == "FREETEXT" || sqlFunctionExpression.FunctionName == "CONTAINS"))
             {
                 Visit(binaryExpression.Left);
 
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             if (selectExpression.Offset != null
-                && !selectExpression.OrderBy.Any())
+                && selectExpression.OrderBy.Count == 0)
             {
                 Sql.AppendLine().Append("ORDER BY (SELECT 1)");
             }
@@ -146,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
 
         private static Expression ExplicitCastToBool(Expression expression)
             => ((expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce || expression.NodeType == ExpressionType.Constant)
-                && expression.Type.UnwrapNullableType() == typeof(bool)
+               && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)
                 : expression;
 
@@ -157,12 +156,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
 
             public override Expression Visit(Expression expression)
             {
-                if (expression is ExistsExpression existsExpression)
-                {
-                    return VisitExistExpression(existsExpression);
-                }
-
-                return expression is SelectExpression selectExpression
+                return expression is ExistsExpression existsExpression
+                    ? VisitExistExpression(existsExpression)
+                    : expression is SelectExpression selectExpression
                     ? VisitSelectExpression(selectExpression)
                     : base.Visit(expression);
             }
@@ -181,10 +177,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal
                 }
 
                 var subQuery = selectExpression.PushDownSubquery();
-
-                foreach (var projection in subQuery.Projection)
+                if (subQuery.Projection.Count > 0)
                 {
-                    selectExpression.AddToProjection(projection.LiftExpressionFromSubquery(subQuery));
+                    selectExpression.ExplodeStarProjection();
                 }
 
                 if (subQuery.OrderBy.Count == 0)

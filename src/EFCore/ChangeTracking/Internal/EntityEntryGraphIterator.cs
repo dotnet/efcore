@@ -41,19 +41,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
+                    var targetEntityType = navigation.GetTargetType();
                     if (navigation.IsCollection())
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
+                            var targetEntry = targetEntityType.HasDefiningNavigation()
+                                ? stateManager.GetOrCreateEntry(relatedEntity, targetEntityType)
+                                : stateManager.GetOrCreateEntry(relatedEntity);
                             TraverseGraph(
-                                node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
+                                node.CreateNode(node, targetEntry, navigation),
                                 state,
                                 handleNode);
                         }
                     }
                     else
                     {
-                        var targetEntityType = navigation.GetTargetType();
                         var targetEntry = targetEntityType.HasDefiningNavigation()
                             ? stateManager.GetOrCreateEntry(navigationValue, targetEntityType)
                             : stateManager.GetOrCreateEntry(navigationValue);
@@ -91,12 +94,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
+                    var targetType = navigation.GetTargetType();
                     if (navigation.IsCollection())
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
+                            var targetEntry = targetType.HasDefiningNavigation()
+                                ? stateManager.GetOrCreateEntry(relatedEntity, targetType)
+                                : stateManager.GetOrCreateEntry(relatedEntity);
                             await TraverseGraphAsync(
-                                node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
+                                node.CreateNode(node, targetEntry, navigation),
                                 state,
                                 handleNode,
                                 cancellationToken);
@@ -104,12 +111,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
-                        var targetType = navigation.GetTargetType();
-                        var entry = targetType.HasDefiningNavigation()
+                        var targetEntry = targetType.HasDefiningNavigation()
                             ? stateManager.GetOrCreateEntry(navigationValue, targetType)
                             : stateManager.GetOrCreateEntry(navigationValue);
                         await TraverseGraphAsync(
-                            node.CreateNode(node, entry, navigation),
+                            node.CreateNode(node, targetEntry, navigation),
                             state,
                             handleNode,
                             cancellationToken);

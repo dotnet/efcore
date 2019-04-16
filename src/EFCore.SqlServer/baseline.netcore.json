@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.SqlServer, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.SqlServer, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
@@ -24,6 +24,71 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqlServerCollectionOwnershipBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerIsMemoryOptimized",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder"
+            },
+            {
+              "Name": "memoryOptimized",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerIsMemoryOptimized<T0, T1>",
+          "Parameters": [
+            {
+              "Name": "collectionOwnershipBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>"
+            },
+            {
+              "Name": "memoryOptimized",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 1,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -234,6 +299,32 @@
               "BaseTypeOrInterfaces": []
             }
           ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerHasIndex<T0>",
+          "Parameters": [
+            {
+              "Name": "entityTypeBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0>"
+            },
+            {
+              "Name": "indexExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -266,6 +357,77 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerIsClustered<T0>",
+          "Parameters": [
+            {
+              "Name": "indexBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>"
+            },
+            {
+              "Name": "clustered",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerInclude",
+          "Parameters": [
+            {
+              "Name": "indexBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder"
+            },
+            {
+              "Name": "propertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqlServerInclude<T0>",
+          "Parameters": [
+            {
+              "Name": "indexBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>"
+            },
+            {
+              "Name": "includeExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -735,6 +897,56 @@
             },
             {
               "Name": "freeText",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Contains",
+          "Parameters": [
+            {
+              "Name": "_",
+              "Type": "Microsoft.EntityFrameworkCore.DbFunctions"
+            },
+            {
+              "Name": "propertyReference",
+              "Type": "System.String"
+            },
+            {
+              "Name": "searchCondition",
+              "Type": "System.String"
+            },
+            {
+              "Name": "languageTerm",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Contains",
+          "Parameters": [
+            {
+              "Name": "_",
+              "Type": "Microsoft.EntityFrameworkCore.DbFunctions"
+            },
+            {
+              "Name": "propertyReference",
+              "Type": "System.String"
+            },
+            {
+              "Name": "searchCondition",
               "Type": "System.String"
             }
           ],
@@ -2620,77 +2832,6 @@
               "Type": "System.String"
             },
             {
-              "Name": "annotatable",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable"
-            },
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ColumnDefinition",
-          "Parameters": [
-            {
-              "Name": "schema",
-              "Type": "System.String"
-            },
-            {
-              "Name": "table",
-              "Type": "System.String"
-            },
-            {
-              "Name": "name",
-              "Type": "System.String"
-            },
-            {
-              "Name": "clrType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "type",
-              "Type": "System.String"
-            },
-            {
-              "Name": "unicode",
-              "Type": "System.Nullable<System.Boolean>"
-            },
-            {
-              "Name": "maxLength",
-              "Type": "System.Nullable<System.Int32>"
-            },
-            {
-              "Name": "rowVersion",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "nullable",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "defaultValue",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "defaultValueSql",
-              "Type": "System.String"
-            },
-            {
-              "Name": "computedColumnSql",
-              "Type": "System.String"
-            },
-            {
               "Name": "identity",
               "Type": "System.Boolean"
             },
@@ -2871,6 +3012,29 @@
             {
               "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation"
+            },
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "IndexOptions",
+          "Parameters": [
+            {
+              "Name": "operation",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation"
             },
             {
               "Name": "model",
@@ -3156,6 +3320,13 @@
           "Parameters": [],
           "ReturnType": "System.Nullable<System.Boolean>",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IncludeProperties",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<System.String>",
+          "GenericParameter": []
         }
       ],
       "GenericParameters": []
@@ -3366,6 +3537,44 @@
             {
               "Name": "value",
               "Type": "System.Nullable<System.Boolean>"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_IncludeProperties",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IReadOnlyList<System.String>",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Metadata.ISqlServerIndexAnnotations",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_IncludeProperties",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Collections.Generic.IReadOnlyList<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "SetInclude",
+          "Parameters": [
+            {
+              "Name": "properties",
+              "Type": "System.Collections.Generic.IReadOnlyList<System.String>"
             }
           ],
           "ReturnType": "System.Boolean",
@@ -4392,6 +4601,16 @@
         {
           "Kind": "Field",
           "Name": "ForeignKeyPrincipalColumnMissingWarning",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "ReflexiveConstraintIgnored",
           "Parameters": [],
           "ReturnType": "Microsoft.Extensions.Logging.EventId",
           "Static": true,

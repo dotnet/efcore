@@ -4,6 +4,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
@@ -52,7 +53,6 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
 
-#if !Test20
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public async void FreeText_literal()
@@ -141,8 +141,9 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.City, "London")
-                        && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                    .Where(
+                        c => EF.Functions.FreeText(c.City, "London")
+                             && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
                 Assert.Equal(result.EmployeeID, 5u);
@@ -172,9 +173,10 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President")
-                        && EF.Functions.FreeText(c.Title, "Inside")
-                        && c.FirstName.Contains("Lau"))
+                    .Where(
+                        c => EF.Functions.FreeText(c.Manager.Title, "President")
+                             && EF.Functions.FreeText(c.Title, "Inside")
+                             && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
@@ -194,9 +196,10 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
             using (var context = CreateContext())
             {
                 var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                        && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                        && c.FirstName.Contains("Lau"))
+                    .Where(
+                        c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
+                             && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                             && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
@@ -246,11 +249,168 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async () => await (from e1 in context.Employees
                                        join m1 in context.Employees.OrderBy(e => e.EmployeeID).Skip(0)
-                                       on e1.ReportsTo equals m1.EmployeeID
+                                           on e1.ReportsTo equals m1.EmployeeID
                                        where EF.Functions.FreeText(m1.Title, "President")
                                        select e1).LastOrDefaultAsync());
             }
         }
+
+#if !Test21
+        [ConditionalFact]
+        public void Contains_should_throw_on_client_eval()
+        {
+            var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
+            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exNoLang.Message);
+            var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
+            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exLang.Message);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_should_throw_when_using_non_parameter_or_constant_for_contains_string()
+        {
+            using (var context = CreateContext())
+            {
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.Contains(e.City, e.FirstName)));
+
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.Contains(e.City, "")));
+
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.Contains(e.City, e.FirstName.ToUpper())));
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void Contains_should_throw_for_no_FullText_index()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<SqlException>(
+                    () => context.Employees.Where(c => EF.Functions.Contains(c.FirstName, "Fred")).ToArray());
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_literal()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .Where(c => EF.Functions.Contains(c.Title, "Representative"))
+                    .ToListAsync();
+
+                Assert.Equal(result.First().EmployeeID, 1u);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS([c].[Title], N'Representative')");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void Contains_with_language_term()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", 1033));
+
+                Assert.Equal(result.EmployeeID, 2u);
+
+                AssertSql(
+                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_with_logical_operator()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .Where(c => EF.Functions.Contains(c.Title, "Vice OR Inside"))
+                    .ToListAsync();
+
+                Assert.Equal(2, result.Count);
+                Assert.Equal(2u, result.First().EmployeeID);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_with_prefix_term_and_language_term()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .SingleOrDefaultAsync(c => EF.Functions.Contains(c.Title, "\"Mana*\"", 1033));
+
+                Assert.Equal(5u, result.EmployeeID);
+
+                AssertSql(
+                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async void Contains_with_proximity_term_and_language_term()
+        {
+            using (var context = CreateContext())
+            {
+                var result = await context.Employees
+                    .SingleOrDefaultAsync(c => EF.Functions.Contains(c.Title, "NEAR((Sales, President), 1)", 1033));
+
+                Assert.Equal(2u, result.EmployeeID);
+
+                AssertSql(
+                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
+            }
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public void Contains_through_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Employees
+                    .Where(
+                        c => EF.Functions.Contains(c.Manager.Title, "President")
+                             && EF.Functions.Contains(c.Title, "\"Ins*\""))
+                    .LastOrDefault();
+
+                Assert.NotNull(result);
+                Assert.Equal(result.EmployeeID, 8u);
+
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N'""Ins*""'))");
+            }
+        }
+#endif
 
         [ConditionalFact]
         public virtual void DateDiff_Year()
@@ -361,7 +521,7 @@ WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1.0E0, GETDATE())) = 0");
             }
         }
 
@@ -377,7 +537,7 @@ WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
             }
         }
 
@@ -393,10 +553,9 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [c]
-WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
             }
         }
-#endif
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

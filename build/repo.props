@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <Import Project="dependencies.props" />
 
   <PropertyGroup>
@@ -7,12 +7,12 @@
 
   <ItemGroup>
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp20PackageVersion)" />
-    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
+    <DotNetCoreRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
-    <!-- DocumentDb FunctionalTests are explicitly disabled due to excessively long execution time. -->
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.DocumentDb.FunctionalTests\*.csproj" />
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''"/>
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
+    <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Cosmos.sln" />
     <ExcludeSolutions Include="$(RepositoryRoot)Microsoft.Data.Sqlite.sln" />
   </ItemGroup>
 

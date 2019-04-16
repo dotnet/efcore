@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     Converts a <see cref="Guid" /> to and from an array of <see cref="byte"/>.
+    ///     Converts a <see cref="Guid" /> to and from an array of <see cref="byte" />.
     /// </summary>
     public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     {
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     </para>
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public GuidToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)

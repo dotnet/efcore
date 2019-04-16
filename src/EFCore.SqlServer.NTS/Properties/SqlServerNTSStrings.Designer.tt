@@ -1,0 +1,4 @@
+<#
+    Session["ResourceFile"] = "SqlServerNTSStrings.resx";
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

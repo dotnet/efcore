@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
-        private readonly bool _sensitiveLoggingEnabled = false;
+        private readonly bool _sensitiveLoggingEnabled;
 
         private readonly ConcurrentDictionary<IKey, Func<IInMemoryTable>> _factories
             = new ConcurrentDictionary<IKey, Func<IInMemoryTable>>();

@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         customConverter = converter;
                     }
                 }
+
                 if (size == null)
                 {
                     var maxLength = principal.GetMaxLength();
@@ -56,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         size = maxLength;
                     }
                 }
+
                 if (isUnicode == null)
                 {
                     var unicode = principal.IsUnicode();

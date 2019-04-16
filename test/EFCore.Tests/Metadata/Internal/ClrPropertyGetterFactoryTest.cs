@@ -50,13 +50,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty("Id", typeof(int));
 
-            Assert.Equal(7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(new Customer { Id = 7 }));
+            Assert.Equal(
+                7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7
+                    }));
         }
 
         [Fact]
         public void Delegate_getter_is_returned_for_property_info()
         {
-            Assert.Equal(7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(new Customer { Id = 7 }));
+            Assert.Equal(
+                7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(
+                    new Customer
+                    {
+                        Id = 7
+                    }));
         }
 
         [Fact]
@@ -88,91 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }));
         }
 
-        [Fact]
-        public void Delegate_getter_throws_for_IProperty_struct_property_when_quirked()
-        {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var fuelProperty = entityType.AddProperty("QuirkyFuel", typeof(Fuel));
-
-            try
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", true);
-
-                Assert.Throws<InvalidOperationException>(
-                    () => new ClrPropertyGetterFactory().Create(fuelProperty));
-
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", false);
-            }
-        }
-
-        [Fact]
-        public void Delegate_getter_throws_for_struct_PropertyInfo_when_quirked()
-        {
-            try
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", true);
-
-                Assert.Throws<InvalidOperationException>(
-                    () => new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("QuirkyFuel")));
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", false);
-            }
-        }
-
-        [Fact]
-        public void Delegate_getter_is_returned_for_IProperty_property_even_with_quirk()
-        {
-            try
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", true);
-
-                var entityType = new Model().AddEntityType(typeof(Customer));
-                var idProperty = entityType.AddProperty("QuirkyId", typeof(int));
-
-                Assert.Equal(
-                    7,
-                    new ClrPropertyGetterFactory()
-                        .Create(idProperty)
-                        .GetClrValue(new Customer { QuirkyId = 7 }));
-
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", false);
-            }
-        }
-
-        [Fact]
-        public void Delegate_getter_is_returned_for_property_info_even_with_quirk()
-        {
-            try
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", true);
-
-                Assert.Equal(
-                    7,
-                    new ClrPropertyGetterFactory()
-                        .Create(typeof(Customer).GetAnyProperty("QuirkyId"))
-                        .GetClrValue(new Customer { QuirkyId = 7 }));
-
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12290", false);
-            }
-        }
-
         private class Customer
         {
             internal int Id { get; set; }
             internal Fuel Fuel { get; set; }
-            internal Fuel QuirkyFuel { get; set; }
-            internal int QuirkyId { get; set; }
         }
 
         private struct Fuel

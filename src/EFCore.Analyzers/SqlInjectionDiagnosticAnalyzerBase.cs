@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -33,14 +34,22 @@ namespace Microsoft.EntityFrameworkCore
 
         private void AnalyzeSimpleMemberAccessExpressionSyntaxNode(SyntaxNodeAnalysisContext analysisContext)
         {
-            if (!(analysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax))
+            try
             {
-                return;
+                if (!(analysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax))
+                {
+                    return;
+                }
+
+                var identifierValueText = memberAccessExpressionSyntax.Name.Identifier.ValueText;
+
+                AnalyzeMember(analysisContext, identifierValueText, memberAccessExpressionSyntax);
             }
-
-            var identifierValueText = memberAccessExpressionSyntax.Name.Identifier.ValueText;
-
-            AnalyzeMember(analysisContext, identifierValueText, memberAccessExpressionSyntax);
+            catch (Exception)
+            {
+                // This analyzer will be removed in 3.0, so for 2.2 time frame just prevent any bugs
+                // from leaking into VS.
+            }
         }
 
         protected abstract void AnalyzeMember(
@@ -132,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
                 }
-            
+
                 return false;
             }
             finally
@@ -162,18 +171,18 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (
                             // Test for various string methods
-                            sn is InvocationExpressionSyntax invocationExpressionSyntax
+                            (sn is InvocationExpressionSyntax invocationExpressionSyntax
                             && invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax
                             && memberAccessExpressionSyntax.Name.Identifier.ValueText is string identifier
                             && (identifier == "Format"
                                 || identifier == "Concat"
                                 || identifier == "Insert"
                                 || identifier == "Replace"
-                                || identifier == "Join")
+                                || identifier == "Join"))
 
                             // Test for string '+' operator
-                            || sn is BinaryExpressionSyntax binaryExpressionSyntax
-                            && binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.PlusToken)
+                            || (sn is BinaryExpressionSyntax binaryExpressionSyntax
+                                && binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.PlusToken))
                         {
                             var memberSymbol = analysisContext.GetSymbol(sn);
 

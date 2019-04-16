@@ -49,6 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("StillUsingTypeMapper");
 
         /// <summary>
+        ///     The type mapping for '{type}' has not implemented code literal generation.
+        /// </summary>
+        public static string LiteralGenerationNotSupported([CanBeNull] object type)
+            => string.Format(
+                GetString("LiteralGenerationNotSupported", nameof(type)),
+                type);
+
+        /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         public static string InvalidPropertiesExpression([CanBeNull] object expression)
@@ -201,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 genericParameter);
 
         /// <summary>
-        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.
+        ///     The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IAsyncQueryProvider can be used for Entity Framework asynchronous operations.
         /// </summary>
         public static string IQueryableProviderNotAsync
             => GetString("IQueryableProviderNotAsync");
@@ -427,6 +435,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogManyServiceProvidersCreated")));
 
         /// <summary>
+        ///     An additional 'IServiceProvider' was created for internal use by Entity Framework. An existing service provider was not used due to the following configuration changes: {debugInfo}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogServiceProviderDebugInfo
+            = new EventDefinition<string>(
+                CoreEventId.ServiceProviderDebugInfo,
+                LogLevel.Debug,
+                "CoreEventId.ServiceProviderDebugInfo",
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    CoreEventId.ServiceProviderDebugInfo,
+                    _resourceManager.GetString("LogServiceProviderDebugInfo")));
+
+        /// <summary>
         ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}
         /// </summary>
         public static readonly EventDefinition<string, string, string, string> LogContextInitialized
@@ -440,12 +461,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogContextInitialized")));
 
         /// <summary>
+        ///     configuration changed for '{key}'
+        /// </summary>
+        public static string ServiceProviderConfigChanged([CanBeNull] object key)
+            => string.Format(
+                GetString("ServiceProviderConfigChanged", nameof(key)),
+                key);
+
+        /// <summary>
+        ///     configuration added for '{key}'
+        /// </summary>
+        public static string ServiceProviderConfigAdded([CanBeNull] object key)
+            => string.Format(
+                GetString("ServiceProviderConfigAdded", nameof(key)),
+                key);
+
+        /// <summary>
+        ///     configuration removed for '{key}'
+        /// </summary>
+        public static string ServiceProviderConfigRemoved([CanBeNull] object key)
+            => string.Format(
+                GetString("ServiceProviderConfigRemoved", nameof(key)),
+                key);
+
+        /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by EF and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.
         /// </summary>
         public static string NotAnEFService([CanBeNull] object service)
             => string.Format(
                 GetString("NotAnEFService", nameof(service)),
                 service);
+
+        /// <summary>
+        ///     The current database provider has not implemented the 'CanConnect' method.
+        /// </summary>
+        public static string CanConnectNotImplemented
+            => GetString("CanConnectNotImplemented");
 
         /// <summary>
         ///     The implementation type for the registration of the '{service}' service could not be determined. Specific implementation types must be used for services that expect multiple registrations so as to avoid duplicates.
@@ -504,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, state);
 
         /// <summary>
-        ///     An exception occurred in the database while iterating the results of a query for context type '{contextType}'.{newline}{error}
+        ///     An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}
         /// </summary>
         public static readonly EventDefinition<Type, string, Exception> LogExceptionDuringQueryIteration
             = new EventDefinition<Type, string, Exception>(
@@ -1195,12 +1246,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.
+        ///     The specified type '{type}'must be a non-interface reference type to be used as an entity type .
         /// </summary>
-        public static string InvalidEntityType([CanBeNull] object type, [CanBeNull] object argumentName)
+        public static string InvalidEntityType([CanBeNull] object type)
             => string.Format(
-                GetString("InvalidEntityType", nameof(type), nameof(argumentName)),
-                type, argumentName);
+                GetString("InvalidEntityType", nameof(type)),
+                type);
 
         /// <summary>
         ///     The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.
@@ -1391,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explict values instead.
+        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.
         /// </summary>
         public static string ValueGenWithConversion([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object converter)
             => string.Format(
@@ -1688,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property);
 
         /// <summary>
-        ///     A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+        ///     A second operation started on this context before a previous operation completed. This is usually caused by different threads using the same instance of DbContext, however instance members are not guaranteed to be thread safe. This could also be caused by a nested query being evaluated on the client, if this is the case rewrite the query avoiding nested invocations.
         /// </summary>
         public static string ConcurrentMethodInvocation
             => GetString("ConcurrentMethodInvocation");
@@ -2242,6 +2293,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property);
 
         /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.
+        /// </summary>
+        public static string SeedDatumDefaultValue([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object defaultValue)
+            => string.Format(
+                GetString("SeedDatumDefaultValue", nameof(entityType), nameof(property), nameof(defaultValue)),
+                entityType, property, defaultValue);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because a non-zero value is required for property '{property}'. Consider providing a negative value to avoid collisions with non-seed data.
+        /// </summary>
+        public static string SeedDatumSignedNumericValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("SeedDatumSignedNumericValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.
         /// </summary>
         public static string SeedDatumNavigation([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object relatedEntityType, [CanBeNull] object foreignKeyProperties)
@@ -2266,12 +2333,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, derivedType);
 
         /// <summary>
-        ///     No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.
+        ///     No suitable constructor found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.
         /// </summary>
-        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object parameters)
+        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object constructors)
             => string.Format(
-                GetString("ConstructorNotFound", nameof(entityType), nameof(parameters)),
-                entityType, parameters);
+                GetString("ConstructorNotFound", nameof(entityType), nameof(constructors)),
+                entityType, constructors);
 
         /// <summary>
         ///     Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.
@@ -2395,9 +2462,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.
         /// </summary>
-        public static string ErrorMixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
+        public static string MixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
             => string.Format(
-                GetString("ErrorMixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
+                GetString("MixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
                 baseType, derivedType);
 
         /// <summary>
@@ -2417,22 +2484,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.
+        ///     The index {redundantIndex} was not created on entity type '{firstEntityType}' as the properties are already covered by the index {otherIndex}.
         /// </summary>
-        public static string ErrorNavCannotTargetQueryType([CanBeNull] object type)
-            => string.Format(
-                GetString("ErrorNavCannotTargetQueryType", nameof(type)),
-                type);
-
-        /// <summary>
-        ///     The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogRedundantIndexRemoved
-            = new EventDefinition<string, string>(
+        public static readonly EventDefinition<string, string, string> LogRedundantIndexRemoved
+            = new EventDefinition<string, string, string>(
                 CoreEventId.RedundantIndexRemoved,
                 LogLevel.Debug,
                 "CoreEventId.RedundantIndexRemoved",
-                LoggerMessage.Define<string, string>(
+                LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.RedundantIndexRemoved,
                     _resourceManager.GetString("LogRedundantIndexRemoved")));
@@ -2664,7 +2723,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ErrorInvalidQueryable");
 
         /// <summary>
-        ///     The query type '{queryType}' cannot have a defining query bacause it is derived from '{baseType}'. Only base query types can have a defining query.
+        ///     The query type '{queryType}' cannot have a defining query because it is derived from '{baseType}'. Only base query types can have a defining query.
         /// </summary>
         public static string DerivedQueryTypeDefiningQuery([CanBeNull] object queryType, [CanBeNull] object baseType)
             => string.Format(
@@ -2686,6 +2745,80 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateQueryType", nameof(queryType)),
                 queryType);
+
+        /// <summary>
+        ///     {error}
+        /// </summary>
+        public static readonly EventDefinition<Exception> LogOptimisticConcurrencyException
+            = new EventDefinition<Exception>(
+                CoreEventId.OptimisticConcurrencyException,
+                LogLevel.Debug,
+                "CoreEventId.OptimisticConcurrencyException",
+                LoggerMessage.Define<Exception>(
+                    LogLevel.Debug,
+                    CoreEventId.OptimisticConcurrencyException,
+                    _resourceManager.GetString("LogOptimisticConcurrencyException")));
+
+        /// <summary>
+        ///     Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string AmbiguousOwnedNavigation([CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("AmbiguousOwnedNavigation", nameof(entityType), nameof(otherEntityType)),
+                entityType, otherEntityType);
+
+        /// <summary>
+        ///     The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.
+        /// </summary>
+        public static string FkAttributeOnNonUniquePrincipal([CanBeNull] object navigation, [CanBeNull] object principalType, [CanBeNull] object dependentType)
+            => string.Format(
+                GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
+                navigation, principalType, dependentType);
+
+        /// <summary>
+        ///     cannot bind '{failedBinds}' in '{parameters}'
+        /// </summary>
+        public static string ConstructorBindingFailed([CanBeNull] object failedBinds, [CanBeNull] object parameters)
+            => string.Format(
+                GetString("ConstructorBindingFailed", nameof(failedBinds), nameof(parameters)),
+                failedBinds, parameters);
+
+        /// <summary>
+        ///     The navigation '{navigation}' cannot be added because it targets the query type '{queryType}'. Navigations can only target entity types.
+        /// </summary>
+        public static string NavigationToQueryType([CanBeNull] object navigation, [CanBeNull] object queryType)
+            => string.Format(
+                GetString("NavigationToQueryType", nameof(navigation), nameof(queryType)),
+                navigation, queryType);
+
+        /// <summary>
+        ///     The key {key} cannot be added to query type '{queryType}'. Query types cannot have keys.
+        /// </summary>
+        public static string QueryTypeWithKey([CanBeNull] object key, [CanBeNull] object queryType)
+            => string.Format(
+                GetString("QueryTypeWithKey", nameof(key), nameof(queryType)),
+                key, queryType);
+
+        /// <summary>
+        ///     The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogRedundantForeignKey
+            = new EventDefinition<string, string>(
+                CoreEventId.RedundantForeignKeyWarning,
+                LogLevel.Warning,
+                "CoreEventId.RedundantForeignKeyWarning",
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.RedundantForeignKeyWarning,
+                    _resourceManager.GetString("LogRedundantForeignKey")));
+
+        /// <summary>
+        ///     There are multiple ForeignKeyAttributes which are pointing to same set of properties - '{propertyList}' on entity type '{entityType}'.
+        /// </summary>
+        public static string ConflictingForeignKeyAttributes([CanBeNull] object propertyList, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType)),
+                propertyList, entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

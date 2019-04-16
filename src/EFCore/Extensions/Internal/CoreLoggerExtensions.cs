@@ -73,6 +73,45 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void OptimisticConcurrencyException(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] Exception exception)
+        {
+            var definition = CoreStrings.LogOptimisticConcurrencyException;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    exception);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new DbContextErrorEventData(
+                        definition,
+                        OptimisticConcurrencyException,
+                        context,
+                        exception));
+            }
+        }
+
+        private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<Exception>)definition;
+            var p = (DbContextErrorEventData)payload;
+            return d.GenerateMessage(p.Exception);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void DuplicateDependentEntityTypeInstanceWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] IEntityType dependent1,
@@ -569,6 +608,89 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void ServiceProviderDebugInfo(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] IDictionary<string, string> newDebugInfo,
+            [NotNull] IList<IDictionary<string, string>> cachedDebugInfos)
+        {
+            var definition = CoreStrings.LogServiceProviderDebugInfo;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    GenerateDebugInfoString(newDebugInfo, cachedDebugInfos));
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ServiceProviderDebugInfoEventData(
+                        definition,
+                        (d, p) => ServiceProviderDebugInfo(d, p),
+                        newDebugInfo,
+                        cachedDebugInfos));
+            }
+        }
+
+        private static string ServiceProviderDebugInfo(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (ServiceProviderDebugInfoEventData)payload;
+            return d.GenerateMessage(
+                GenerateDebugInfoString(p.NewDebugInfo, p.CachedDebugInfos));
+        }
+
+        private static string GenerateDebugInfoString(
+            IDictionary<string, string> newDebugInfo,
+            IList<IDictionary<string, string>> cachedDebugInfos)
+        {
+            List<string> leastConflicts = null;
+
+            foreach (var cachedDebugInfo in cachedDebugInfos)
+            {
+                var newKeys = new HashSet<string>(newDebugInfo.Keys);
+
+                var conflicts = new List<string>();
+                foreach (var key in cachedDebugInfo.Keys)
+                {
+                    if (newDebugInfo.TryGetValue(key, out var value))
+                    {
+                        if (!value.Equals(cachedDebugInfo[key]))
+                        {
+                            conflicts.Add(CoreStrings.ServiceProviderConfigChanged(key));
+                        }
+                    }
+                    else
+                    {
+                        conflicts.Add(CoreStrings.ServiceProviderConfigRemoved(key));
+                    }
+
+                    newKeys.Remove(key);
+                }
+
+                foreach (var addedKey in newKeys)
+                {
+                    conflicts.Add(CoreStrings.ServiceProviderConfigAdded(addedKey));
+                }
+
+                if (leastConflicts == null
+                    || leastConflicts.Count > conflicts.Count)
+                {
+                    leastConflicts = conflicts;
+                }
+            }
+
+            return string.Join(", ", leastConflicts);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ContextInitialized(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             [NotNull] DbContext context,
@@ -832,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    Property.Format(redundantIndex), Property.Format(otherIndex));
+                    Property.Format(redundantIndex), redundantIndex.First().DeclaringType.DisplayName(), Property.Format(otherIndex));
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -849,11 +971,51 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static string RedundantIndexRemoved(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string>)definition;
+            var d = (EventDefinition<string, string, string>)definition;
             var p = (TwoPropertyBaseCollectionsEventData)payload;
             return d.GenerateMessage(
                 Property.Format(p.FirstPropertyCollection),
+                p.FirstPropertyCollection.First().DeclaringType.DisplayName(),
                 Property.Format(p.SecondPropertyCollection));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void RedundantForeignKeyWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IForeignKey redundantForeignKey)
+        {
+            var definition = CoreStrings.LogRedundantForeignKey;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    Property.Format(redundantForeignKey.Properties), redundantForeignKey.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ForeignKeyEventData(
+                        definition,
+                        RedundantForeignKeyWarning,
+                        redundantForeignKey));
+            }
+        }
+
+        private static string RedundantForeignKeyWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ForeignKeyEventData)payload;
+            return d.GenerateMessage(
+                Property.Format(p.ForeignKey.Properties),
+                p.ForeignKey.DeclaringEntityType.DisplayName());
         }
 
         /// <summary>
@@ -1156,8 +1318,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
-            return d.GenerateMessage(string.Join(
-                ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
+            return d.GenerateMessage(
+                string.Join(
+                    ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
                 p.SecondPropertyCollection.First().Item1.Name);
         }
 
@@ -1919,8 +2082,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    entry.EntityType.ShortName(),
-                    entry.StateManager.Context.GetType().ShortDisplayName());
+                    entry.StateManager.Context.GetType().ShortDisplayName(),
+                    entry.EntityType.ShortName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -1939,8 +2102,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (EntityEntryEventData)payload;
             return d.GenerateMessage(
-                p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.Context.GetType().ShortDisplayName());
+                p.EntityEntry.Context.GetType().ShortDisplayName(),
+                p.EntityEntry.Metadata.ShortName());
         }
 
         /// <summary>
@@ -1959,9 +2122,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 definition.Log(
                     diagnostics,
                     warningBehavior,
+                    entry.StateManager.Context.GetType().ShortDisplayName(),
                     entry.EntityType.ShortName(),
-                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                    entry.StateManager.Context.GetType().ShortDisplayName());
+                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties));
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -1980,9 +2143,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string, string>)definition;
             var p = (EntityEntryEventData)payload;
             return d.GenerateMessage(
+                p.EntityEntry.Context.GetType().ShortDisplayName(),
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties),
-                p.EntityEntry.Context.GetType().ShortDisplayName());
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties));
         }
 
         /// <summary>

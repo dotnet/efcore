@@ -155,15 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = isKeyOrIndex ? keyMapping : defaultMapping;
 
-            if (maxLength.HasValue
-                && maxLength != mapping.Size)
-            {
-                return maxLength <= maxBoundedLength
+            return maxLength.HasValue
+                && maxLength != mapping.Size
+                ? maxLength <= maxBoundedLength
                     ? boundedMappings.GetOrAdd(maxLength.Value, createBoundedMapping)
-                    : unboundedMapping;
-            }
-
-            return mapping;
+                    : unboundedMapping
+                : mapping;
         }
     }
 }
