@@ -3223,6 +3223,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
+        /// </summary>
+        public static EventDefinition<string, string> LogNonNullableOnDependent([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableOnDependent;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableOnDependent,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.NonNullableOnDependent,
+                        LogLevel.Debug,
+                        "CoreEventId.NonNullableOnDependent",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.NonNullableOnDependent,
+                            _resourceManager.GetString("LogNonNullableOnDependent"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations([NotNull] IDiagnosticsLogger logger)
@@ -3241,6 +3265,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.RequiredAttributeOnBothNavigations,
                             _resourceManager.GetString("LogRequiredAttributeOnBothNavigations"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     '{principalEntityType}.{principalNavigation}' has not been configured as required despite being non-nullable, because '{dependentEntityType}.{dependentNavigation}' is also non-nullable. Non-nullability should only be specified on the dependent side of the relationship.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogNonNullableReferenceOnBothNavigations([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnBothNavigations;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnBothNavigations,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.NonNullableReferenceOnBothNavigations,
+                        LogLevel.Debug,
+                        "CoreEventId.NonNullableReferenceOnBothNavigations",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.NonNullableReferenceOnBothNavigations,
+                            _resourceManager.GetString("LogNonNullableReferenceOnBothNavigations"))));
             }
 
             return (EventDefinition<string, string, string, string>)definition;

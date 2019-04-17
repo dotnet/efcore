@@ -113,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var concurrencyCheckAttributeConvention = new ConcurrencyCheckAttributeConvention(logger);
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention(logger);
             var requiredPropertyAttributeConvention = new RequiredPropertyAttributeConvention(logger);
+            var nonNullableReferencePropertyConvention = new NonNullableReferencePropertyConvention(logger);
             var maxLengthAttributeConvention = new MaxLengthAttributeConvention(logger);
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(logger);
             var timestampAttributeConvention = new TimestampAttributeConvention(logger);
@@ -121,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyAddedConventions.Add(concurrencyCheckAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(databaseGeneratedAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(requiredPropertyAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(nonNullableReferencePropertyConvention);
             conventionSet.PropertyAddedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(timestampAttributeConvention);
@@ -190,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(logger));
+            conventionSet.NavigationAddedConventions.Add(new NonNullableNavigationConvention(logger));
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
@@ -212,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyFieldChangedConventions.Add(concurrencyCheckAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(databaseGeneratedAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(requiredPropertyAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(nonNullableReferencePropertyConvention);
             conventionSet.PropertyFieldChangedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);

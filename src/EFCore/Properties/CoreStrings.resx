@@ -995,9 +995,17 @@
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnDependent string string</comment>
   </data>
+  <data name="LogNonNullableOnDependent" xml:space="preserve">
+    <value>The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Debug CoreEventId.NonNullableOnDependent string string</comment>
+  </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
+  </data>
+  <data name="LogNonNullableReferenceOnBothNavigations" xml:space="preserve">
+    <value>'{principalEntityType}.{principalNavigation}' has not been configured as required despite being non-nullable, because '{dependentEntityType}.{dependentNavigation}' is also non-nullable. Non-nullability should only be specified on the dependent side of the relationship.</value>
+    <comment>Debug CoreEventId.NonNullableReferenceOnBothNavigations string string string string</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.</value>
