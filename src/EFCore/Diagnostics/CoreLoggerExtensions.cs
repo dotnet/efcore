@@ -1159,6 +1159,45 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static void NonNullableOnDependent(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogNonNullableOnDependent(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new NavigationEventData(
+                        definition,
+                        NonNullableOnDependent,
+                        navigation));
+            }
+        }
+
+        private static string NonNullableOnDependent(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static void RequiredAttributeOnBothNavigations(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
@@ -1191,6 +1230,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static string RequiredAttributeOnBothNavigations(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string>)definition;
+            var p = (TwoPropertyBaseCollectionsEventData)payload;
+            var firstNavigation = p.FirstPropertyCollection[0];
+            var secondNavigation = p.SecondPropertyCollection[0];
+            return d.GenerateMessage(
+                firstNavigation.DeclaringType.DisplayName(),
+                firstNavigation.Name,
+                secondNavigation.DeclaringType.DisplayName(),
+                secondNavigation.Name);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void NonNullableReferenceOnBothNavigations(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation firstNavigation,
+            [NotNull] INavigation secondNavigation)
+        {
+            var definition = CoreResources.LogNonNullableReferenceOnBothNavigations(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstNavigation.DeclaringEntityType.DisplayName(),
+                    firstNavigation.Name,
+                    secondNavigation.DeclaringEntityType.DisplayName(),
+                    secondNavigation.Name);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new TwoPropertyBaseCollectionsEventData(
+                        definition,
+                        NonNullableReferenceOnBothNavigations,
+                        new[] { firstNavigation },
+                        new[] { secondNavigation }));
+            }
+        }
+
+        private static string NonNullableReferenceOnBothNavigations(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (TwoPropertyBaseCollectionsEventData)payload;
