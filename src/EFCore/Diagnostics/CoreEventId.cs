@@ -84,7 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RedundantIndexRemoved,
             IncompatibleMatchingForeignKeyProperties,
             RequiredAttributeOnDependent,
+            NonNullableOnDependent,
             RequiredAttributeOnBothNavigations,
+            NonNullableReferenceOnBothNavigations,
             ConflictingShadowForeignKeysWarning,
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
@@ -445,6 +447,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
+        ///         The entity type with the navigation property that has non-nullability
+        ///         was configured as the dependent side in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NonNullableOnDependent = MakeModelId(Id.NonNullableOnDependent);
+
+        /// <summary>
+        ///     <para>
         ///         Navigations separated into two relationships as <see cref="RequiredAttribute" /> was specified on both navigations.
         ///     </para>
         ///     <para>
@@ -455,6 +471,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.RequiredAttributeOnBothNavigations);
+
+        /// <summary>
+        ///     <para>
+        ///         Navigations separated into two relationships as non-nullability was specified on both navigations.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NonNullableReferenceOnBothNavigations = MakeModelId(Id.NonNullableReferenceOnBothNavigations);
 
         /// <summary>
         ///     <para>

@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 nameof(Blog.Posts),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(BlogDetails.Blog));
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog));
 
             relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
 
