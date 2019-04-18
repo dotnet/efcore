@@ -74,7 +74,7 @@ jobs:
               name: Build
             - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
-              condition: eq(variables['system.pullrequest.isfork'], false)
+              condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
               inputs:
                 pathtoPublish: 'artifacts/packages/'
                 artifactName: packages
