@@ -73,13 +73,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder UseSqlServerIdentityColumn(
-            [NotNull] this PropertyBuilder propertyBuilder)
+            [NotNull] this PropertyBuilder propertyBuilder,
+            int seed = 1,
+            int increment = 1)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            GetSqlServerInternalBuilder(propertyBuilder).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            var builder = GetSqlServerInternalBuilder(propertyBuilder);
+            builder.ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            builder.IdentitySeed(seed);
+            builder.IdentityIncrement(increment);
 
             return propertyBuilder;
         }
@@ -90,10 +97,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> UseSqlServerIdentityColumn<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
-            => (PropertyBuilder<TProperty>)UseSqlServerIdentityColumn((PropertyBuilder)propertyBuilder);
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            int seed = 1,
+            int increment = 1)
+            => (PropertyBuilder<TProperty>)UseSqlServerIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
 
         private static SqlServerPropertyBuilderAnnotations GetSqlServerInternalBuilder(PropertyBuilder propertyBuilder)
             => propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().SqlServer(ConfigurationSource.Explicit);

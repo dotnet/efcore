@@ -1269,7 +1269,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
             if (identity)
             {
+                var identitySeed = operation[
+                    SqlServerAnnotationNames.IdentitySeed] as int?;
+
+                var identityIncrement = operation[
+                    SqlServerAnnotationNames.IdentityIncrement] as int?;
+
                 builder.Append(" IDENTITY");
+
+                if ((identitySeed != null && identitySeed != 1) || (identityIncrement != null && identityIncrement != 1))
+                {
+                    builder.Append($"({identitySeed ?? 1},{identityIncrement ?? 1})");
+                }
             }
         }
 

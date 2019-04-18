@@ -52,15 +52,21 @@ namespace Microsoft.EntityFrameworkCore
         ///     behavior when targeting SQL Server.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerUseIdentityColumns(
-            [NotNull] this ModelBuilder modelBuilder)
+            [NotNull] this ModelBuilder modelBuilder,
+            int seed = 1,
+            int increment = 1)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             var property = modelBuilder.Model;
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
+            property.SqlServer().IdentitySeed = seed;
+            property.SqlServer().IdentityIncrement = increment;
             property.SqlServer().HiLoSequenceName = null;
             property.SqlServer().HiLoSequenceSchema = null;
 
