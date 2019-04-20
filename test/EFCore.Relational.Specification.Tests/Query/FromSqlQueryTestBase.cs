@@ -943,7 +943,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var tableName = "Orders";
                 var max = 10250;
                 var query = context.Orders.FromSqlRaw(
-                        NormalizeDelimetersInRawString($"SELECT * FROM {tableName} WHERE [OrderID] < {{0}}"), max)
+                        NormalizeDelimetersInRawString($"SELECT * FROM [{tableName}] WHERE [OrderID] < {{0}}"), max)
                     .ToList();
 
                 Assert.Equal(2, query.Count);
