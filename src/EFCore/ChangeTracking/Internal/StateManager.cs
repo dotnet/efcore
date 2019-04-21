@@ -38,10 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly EntityReferenceMap _entityReferenceMap
             = new EntityReferenceMap(hasSubMap: true);
 
-        private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
-            = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
-                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance));
-
+        private IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>> _referencedUntrackedEntities;
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
@@ -619,23 +616,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 FindIdentityMap(key)?.Remove(entry);
             }
 
-            if (_referencedUntrackedEntities.HasValue)
+            if (_referencedUntrackedEntities != null)
             {
                 var navigations = entityType.GetNavigations().ToList();
 
-                foreach (var keyValuePair in _referencedUntrackedEntities.Value.ToList())
+                foreach (var keyValuePair in _referencedUntrackedEntities.ToList())
                 {
                     var untrackedEntityType = _model.FindRuntimeEntityType(keyValuePair.Key.GetType());
                     if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(untrackedEntityType))
                         || untrackedEntityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entityType)))
                     {
-                        _referencedUntrackedEntities.Value.Remove(keyValuePair.Key);
+                        _referencedUntrackedEntities.Remove(keyValuePair.Key);
 
                         var newList = keyValuePair.Value.Where(tuple => tuple.Item2 != entry).ToList();
 
                         if (newList.Count > 0)
                         {
-                            _referencedUntrackedEntities.Value.Add(keyValuePair.Key, newList);
+                            _referencedUntrackedEntities.Add(keyValuePair.Key, newList);
                         }
                     }
                 }
@@ -670,11 +667,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Unsubscribe();
             ChangedCount = 0;
             _entityReferenceMap.Clear();
-
-            if (_referencedUntrackedEntities.HasValue)
-            {
-                _referencedUntrackedEntities.Value.Clear();
-            }
+            _referencedUntrackedEntities = null;
 
             _identityMaps?.Clear();
             _identityMap0?.Clear();
@@ -698,10 +691,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
         {
-            if (!_referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out var danglers))
+            if (_referencedUntrackedEntities == null)
+            {
+                _referencedUntrackedEntities
+                    = new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
+            }
+
+            if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
             {
                 danglers = new List<Tuple<INavigation, InternalEntityEntry>>();
-                _referencedUntrackedEntities.Value.Add(referencedEntity, danglers);
+                _referencedUntrackedEntities.Add(referencedEntity, danglers);
             }
 
             danglers.Add(Tuple.Create(navigation, referencedFromEntry));
@@ -715,12 +714,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear)
         {
-            if (_referencedUntrackedEntities.HasValue
-                && _referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out var danglers))
+            if (_referencedUntrackedEntities != null
+                && _referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
             {
                 if (clear)
                 {
-                    _referencedUntrackedEntities.Value.Remove(referencedEntity);
+                    _referencedUntrackedEntities.Remove(referencedEntity);
                 }
 
                 return danglers;
