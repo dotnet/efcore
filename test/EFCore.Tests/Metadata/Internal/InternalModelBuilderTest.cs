@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
             Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            modelBuilder = new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }

@@ -109,27 +109,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     var scopedProvider = scope.ServiceProvider;
 
-                    // Because IDbContextOptions cannot yet be resolved from the internal provider
-                    var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
-                        ScopedLoggerFactory.Create(scopedProvider, options),
-                        scopedProvider.GetService<ILoggingOptions>(),
-                        scopedProvider.GetService<DiagnosticSource>(),
-                        scopedProvider.GetService<LoggingDefinitions>());
-
-                    if (_configurations.Count == 0)
+                    // If loggingDefinitions is null, then there is no provider yet
+                    var loggingDefinitions = scopedProvider.GetService<LoggingDefinitions>();
+                    if (loggingDefinitions != null)
                     {
-                        logger.ServiceProviderCreated(serviceProvider);
-                    }
-                    else
-                    {
-                        logger.ServiceProviderDebugInfo(
-                            debugInfo,
-                            _configurations.Values.Select(v => v.DebugInfo).ToList());
+                        // Because IDbContextOptions cannot yet be resolved from the internal provider
+                        var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
+                            ScopedLoggerFactory.Create(scopedProvider, options),
+                            scopedProvider.GetService<ILoggingOptions>(),
+                            scopedProvider.GetService<DiagnosticSource>(),
+                            loggingDefinitions);
 
-                        if (_configurations.Count >= 20)
+                        if (_configurations.Count == 0)
                         {
-                            logger.ManyServiceProvidersCreatedWarning(
-                                _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                            logger.ServiceProviderCreated(serviceProvider);
+                        }
+                        else
+                        {
+                            logger.ServiceProviderDebugInfo(
+                                debugInfo,
+                                _configurations.Values.Select(v => v.DebugInfo).ToList());
+
+                            if (_configurations.Count >= 20)
+                            {
+                                logger.ManyServiceProvidersCreatedWarning(
+                                    _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                            }
                         }
                     }
                 }

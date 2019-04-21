@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
-                        CoreResources.LogDuplicateDependentEntityTypeInstance(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                        CoreResources.LogDuplicateDependentEntityTypeInstance(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName()),
                         "CoreEventId.DuplicateDependentEntityTypeInstanceWarning"),
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(
                     entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
                     dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
-                
+
                 Assert.Same(subDependent1, dependent1.SubChild);
                 var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
                 Assert.Equal(principal.Id, subDependentEntry1.Property("ParentId").CurrentValue);

@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>())
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
                 .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
 
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = foreignKey.HasPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>())
+            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
                 .Apply(((ForeignKey)foreignKey).Builder, (Navigation)navigation);
 
             return navigation;

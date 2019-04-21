@@ -217,7 +217,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAddCoreServices()
         {
-            TryAdd<LoggingDefinitions, LoggingDefinitions>();
             TryAdd<IDbSetFinder, DbSetFinder>();
             TryAdd<IDbSetInitializer, DbSetInitializer>();
             TryAdd<IDbSetSource, DbSetSource>();

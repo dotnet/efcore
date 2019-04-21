@@ -921,7 +921,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 logFactory,
                 new FakeLoggingOptions(false),
                 new DiagnosticListener("Fake"),
-                new RelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -977,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 logFactory,
                 new FakeLoggingOptions(true),
                 new DiagnosticListener("Fake"),
-                new RelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(3, logFactory.Log.Count);
             Assert.Equal(LogLevel.Warning, logFactory.Log[0].Level);
-            Assert.Equal(CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
+            Assert.Equal(CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
 
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
@@ -1033,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new RelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1103,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new RelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]

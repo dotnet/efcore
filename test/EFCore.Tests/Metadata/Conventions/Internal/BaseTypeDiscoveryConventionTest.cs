@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             Assert.Null(entityBuilderC.Metadata.BaseType);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilderC);
+            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
 
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             Assert.Null(entityBuilderC.Metadata.BaseType);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilderC);
+            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
 
             Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
         }
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
             entityBuilderC.HasBaseType(entityBuilderA.Metadata, ConfigurationSource.Convention);
 
-            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilderC);
+            new BaseTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilderC);
 
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }

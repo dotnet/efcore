@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
@@ -1400,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "Child"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "Child"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
@@ -1424,7 +1424,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<LoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);

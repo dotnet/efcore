@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogMultiplePrimaryKeyCandidates(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogMultiplePrimaryKeyCandidates(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(EntityWithMultipleIds.ID), nameof(EntityWithMultipleIds.Id), nameof(EntityWithMultipleIds)), logEntry.Message);
         }
 
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new LoggingDefinitions());
+                new TestLoggingDefinitions());
             return modelLogger;
         }
 
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             new PropertyDiscoveryConvention(
                     TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>())
+                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
                 .Apply(entityBuilder);
 
             return entityBuilder;

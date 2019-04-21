@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var setFinder = new FakeSetFinder();
             var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>(),
-                new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>());
+                new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>(),
+                new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
             var model = CreateDefaultModelSource(setFinder)
                 .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, new FakeModelValidator(), loggers);
@@ -131,8 +131,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
             var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>(),
-                new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>());
+                new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>(),
+                new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
             var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, loggers);
             var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, loggers);
@@ -147,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
             var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>(),
-                new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>());
+                new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>(),
+                new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
             var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, loggers);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual string ExpectedMessage(string optionsFragment)
-            => CoreResources.LogContextInitialized(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+            => CoreResources.LogContextInitialized(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                 ProductInfo.GetVersion(),
                 nameof(LoggingContext),
                 ProviderName,

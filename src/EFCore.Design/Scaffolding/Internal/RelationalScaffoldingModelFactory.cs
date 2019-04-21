@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IPluralizer _pluralizer;
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
+        private readonly LoggingDefinitions _loggingDefinitions;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,19 +59,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] ICandidateNamingService candidateNamingService,
             [NotNull] IPluralizer pluralizer,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
+            [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper,
+            [NotNull] LoggingDefinitions loggingDefinitions)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
             Check.NotNull(pluralizer, nameof(pluralizer));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
+            Check.NotNull(loggingDefinitions, nameof(loggingDefinitions));
 
             _reporter = reporter;
             _candidateNamingService = candidateNamingService;
             _pluralizer = pluralizer;
             _cSharpUtilities = cSharpUtilities;
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
+            _loggingDefinitions = loggingDefinitions;
         }
 
         /// <summary>
@@ -518,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                         new LoggingOptions(),
                         new DiagnosticListener(""),
-                        new LoggingDefinitions());
+                        _loggingDefinitions);
 
                     var conventionalValueGenerated = new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated(property);
                     if (conventionalValueGenerated == ValueGenerated.OnAdd)

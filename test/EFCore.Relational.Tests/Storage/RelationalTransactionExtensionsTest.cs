@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
-                    new RelationalLoggingDefinitions()),
+                    new TestRelationalLoggingDefinitions()),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());

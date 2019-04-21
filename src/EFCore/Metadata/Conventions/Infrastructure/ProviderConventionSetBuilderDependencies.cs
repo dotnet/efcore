@@ -1,9 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
@@ -74,51 +70,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="context"> The current context instance. </param>
         public ProviderConventionSetBuilderDependencies(
             [NotNull] ITypeMappingSource typeMappingSource,
-            [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
-            [CanBeNull] IParameterBindingFactories parameterBindingFactories,
-            [CanBeNull] IMemberClassifier memberClassifier,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            [CanBeNull] IDbSetFinder setFinder,
-            [CanBeNull] ICurrentDbContext context)
+            [NotNull] IConstructorBindingFactory constructorBindingFactory,
+            [NotNull] IParameterBindingFactories parameterBindingFactories,
+            [NotNull] IMemberClassifier memberClassifier,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICurrentDbContext context)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(setFinder, nameof(setFinder));
+            Check.NotNull(context, nameof(context));
 
             TypeMappingSource = typeMappingSource;
-
-            if (parameterBindingFactories == null)
-            {
-                parameterBindingFactories = new ParameterBindingFactories(
-                    null,
-                    new RegisteredServices(Enumerable.Empty<Type>()));
-            }
-
             ParameterBindingFactories = parameterBindingFactories;
-
-            if (memberClassifier == null)
-            {
-                memberClassifier = new MemberClassifier(
-                    typeMappingSource,
-                    parameterBindingFactories);
-            }
-
             MemberClassifier = memberClassifier;
-
-            if (constructorBindingFactory == null)
-            {
-                ConstructorBindingFactory = new ConstructorBindingFactory(
-                    new PropertyParameterBindingFactory(),
-                    parameterBindingFactories);
-            }
-
             ConstructorBindingFactory = constructorBindingFactory;
-
-            Logger = logger
-                     ?? new DiagnosticsLogger<DbLoggerCategory.Model>(
-                         new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
-                         new LoggingOptions(),
-                         new DiagnosticListener(""),
-                         new LoggingDefinitions());
-
+            Logger = logger;
             SetFinder = setFinder;
             Context = context;
         }

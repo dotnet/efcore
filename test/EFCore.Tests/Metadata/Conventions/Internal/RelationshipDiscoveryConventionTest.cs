@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilder = CreateInternalEntityBuilder<ManyToManyFirst>();
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(entityBuilder.ModelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder.ModelBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log[0];
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogMultipleNavigationProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(MultipleNavigationsSecond),
                     nameof(MultipleNavigationsFirst),
                     "{'MultipleNavigationsFirst'}",
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
 
             Assert.Same(entityBuilder, CreateRelationshipDiscoveryConvention().Apply(entityBuilder));
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             VerifyRelationship(
                 entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
@@ -907,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log[0];
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogMultipleNavigationProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogMultipleNavigationProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), logEntry.Message);
         }
 
@@ -990,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new LoggingDefinitions());
+                new TestLoggingDefinitions());
             return modelLogger;
         }
 

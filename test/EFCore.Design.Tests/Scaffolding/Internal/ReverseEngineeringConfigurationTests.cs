@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var reverseEngineer = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
                 .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()

@@ -38,6 +38,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
-        public override LoggingDefinitions LoggingDefinitions { get; } = new RelationalLoggingDefinitions();
+        public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();
     }
 }

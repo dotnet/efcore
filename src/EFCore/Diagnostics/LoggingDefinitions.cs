@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         to add caching for their events. It should not be used for any other purpose.
     ///     </para>
     /// </summary>
-    public class LoggingDefinitions
+    public abstract class LoggingDefinitions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

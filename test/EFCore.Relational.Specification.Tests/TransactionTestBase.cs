@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
                         Name = "Bobble"
                     });
 
-                
+
                 // Issue #14935. Cannot eval 'Last()'
                 // Added AsEnumerable()
                 context.Entry(context.Set<TransactionCustomer>().AsEnumerable().Last()).State = EntityState.Added;
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                
+
                 // Issue #14935. Cannot eval 'Last()'
                 // Added AsEnumerable()
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                
+
                 // Issue #14935. Cannot eval 'Last()'
                 // Added AsEnumerable()
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 77,
                         Name = "Bobble"
                     });
-                
+
                 // Issue #14935. Cannot eval 'Last()'
                 // Added AsEnumerable()
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).AsEnumerable().Last()).State = EntityState.Added;
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    RelationalResources.LogExplicitTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                    RelationalResources.LogExplicitTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Equal(
-                    RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                    RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
             }
 

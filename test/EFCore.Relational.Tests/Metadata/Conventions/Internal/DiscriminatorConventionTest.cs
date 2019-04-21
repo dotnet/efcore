@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Sets_discriminator_for_two_level_hierarchy()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Sets_discriminator_for_three_level_hierarchy()
         {
-            var logger = new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Uses_explicit_discriminator_if_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_nothing_if_explicit_discriminator_is_not_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_nothing_if_explicit_discriminator_set_on_derived_type()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             entityTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(string));
 

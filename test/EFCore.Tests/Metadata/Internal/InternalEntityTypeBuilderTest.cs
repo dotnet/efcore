@@ -1769,7 +1769,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ConfigureOrdersHierarchy(modelBuilder);
             }
 
-            var logger = new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>();
             var validationConvention = new IgnoredMembersValidationConvention(logger);
             if (exceptionExpected)
             {
@@ -1789,7 +1789,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 modelBuilder.Metadata,
                 new DiagnosticsLoggers(
                     logger,
-                    new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>()));
+                    new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>()));
 
             Assert.Equal(
                 expectedIgnored,
