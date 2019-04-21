@@ -179,5 +179,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["idempotent"] = idempotent,
                     ["contextType"] = contextType
                 });
+
+        public string ScriptDbContext(string contextType)
+            => InvokeOperation<string>(
+                "ScriptDbContext",
+                new Dictionary<string, object>
+                {
+                    ["contextType"] = contextType
+                });
     }
 }

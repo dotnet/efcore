@@ -141,6 +141,20 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         [Fact]
+        public void ScriptDbContext()
+        {
+            try
+            {
+                var sql = _project.Executor.ScriptDbContext("SimpleContext");
+                Assert.NotEmpty(sql);
+            }
+            catch (WrappedException ex)
+            {
+                throw new WrappedXunitException(ex);
+            }
+        }
+
+        [Fact]
         public void GetContextTypes()
         {
             try
@@ -229,6 +243,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                     {
                                         optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SimpleProject.SimpleContext;Integrated Security=True"");
                                     }
+
+                                    internal DbSet<Simple> Simples { get; set; }
+                                }
+
+                                internal class Simple
+                                {
+                                    public int Id { get; set; }
                                 }
 
                                 namespace Migrations

@@ -37,6 +37,11 @@ function Scaffold-DbContext
     throw $versionErrorMessage
 }
 
+function Script-DbContext
+{
+    throw $versionErrorMessage
+}
+
 function Script-Migration
 {
     throw $versionErrorMessage

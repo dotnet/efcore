@@ -315,4 +315,7 @@
   <data name="WorkingDirDescription" xml:space="preserve">
     <value>The working directory of the tool invoking this command.</value>
   </data>
+  <data name="DbContextScriptDescription" xml:space="preserve">
+    <value>Generate a script to create all tables for the DbContext.</value>
+  </data>
 </root>

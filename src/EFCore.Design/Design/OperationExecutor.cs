@@ -509,6 +509,37 @@ namespace Microsoft.EntityFrameworkCore.Design
             => _contextOperations.Value.DropDatabase(contextType);
 
         /// <summary>
+        ///     Represents an operation to generate a SQL script from the DbContext.
+        /// </summary>
+        public class ScriptDbContext : OperationBase
+        {
+            /// <summary>
+            ///     <para>Initializes a new instance of the <see cref="ScriptDbContext" /> class.</para>
+            ///     <para>The arguments supported by <paramref name="args" /> are:</para>
+            ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+            /// </summary>
+            /// <param name="executor"> The operation executor. </param>
+            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
+            /// <param name="args"> The operation arguments. </param>
+            public ScriptDbContext(
+                [NotNull] OperationExecutor executor,
+                [NotNull] object resultHandler,
+                [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var contextType = (string)args["contextType"];
+
+                Execute(() => executor.ScriptDbContextImpl(contextType));
+            }
+        }
+
+        private string ScriptDbContextImpl(string contextType)
+            => _contextOperations.Value.ScriptDbContext(contextType);
+
+        /// <summary>
         ///     Represents an operation.
         /// </summary>
         public abstract class OperationBase : MarshalByRefObject
