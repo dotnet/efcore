@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
+            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.SetPrimaryKey(keyProperty);
 
-            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<LoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
+            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<A>().HasOne<A>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
 
-            VerifyWarning(CoreResources.LogRedundantForeignKey(new TestLogger<LoggingDefinitions>()).GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
+            VerifyWarning(CoreResources.LogRedundantForeignKey(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
         }
 
         [Fact]

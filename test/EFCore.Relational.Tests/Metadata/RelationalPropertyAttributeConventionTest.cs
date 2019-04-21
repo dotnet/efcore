@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("BYTE", propertyBuilder.Metadata.Relational().ColumnType);
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()));
+                    new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

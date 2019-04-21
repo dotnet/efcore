@@ -130,7 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> This builder, such that further calls can be chained. </returns>
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
-            TryAdd<LoggingDefinitions, RelationalLoggingDefinitions>();
             TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
             TryAdd<IComparer<ModificationCommand>, ModificationCommandComparer>();
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 typeMappingSource,
                 TestServiceFactory.Instance.Create<IMemberClassifier>(
                     (typeof(ITypeMappingSource), typeMappingSource)),
-                new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>());
+                new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>());
         }
     }
 }

@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -172,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static IReverseEngineerScaffolder CreateScaffolder()
             => new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
                 .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()

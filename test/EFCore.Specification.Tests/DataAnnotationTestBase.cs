@@ -1838,7 +1838,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(PostDetails), nameof(PostDetails.Post),
                     nameof(Post), nameof(Post.PostDetails),
                     nameof(PostDetails.PostId),
@@ -1864,7 +1864,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogForeignKeyAttributesOnBothNavigations(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), logEntry.Message);
         }
 
@@ -1894,7 +1894,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
                 logEntry.Message);
         }

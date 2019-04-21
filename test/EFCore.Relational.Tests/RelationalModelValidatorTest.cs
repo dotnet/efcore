@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValue = true;
             property.ValueGenerated = ValueGenerated.OnAdd;
 
-            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
             property.Relational().DefaultValueSql = "TRUE";
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
+            VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             SetPrimaryKey(entityA);
             entityA.FindProperty("Id").Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
+            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             entityA.AddKey(new[] { property });
             property.Relational().DefaultValue = 1;
 
-            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<RelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
+            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
         }
 
         [Fact]

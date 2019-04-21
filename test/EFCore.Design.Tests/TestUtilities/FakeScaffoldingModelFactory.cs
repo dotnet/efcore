@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -16,8 +17,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             ICandidateNamingService candidateNamingService,
             IPluralizer pluralizer,
             ICSharpUtilities cSharpUtilities,
-            IScaffoldingTypeMapper scaffoldingTypeMapper)
-            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper)
+            IScaffoldingTypeMapper scaffoldingTypeMapper,
+            LoggingDefinitions loggingDefinitions)
+            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions)
         {
         }
 

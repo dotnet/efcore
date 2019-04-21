@@ -753,8 +753,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
                     .Validate(propertyBase.DeclaringType.Model,
                         new DiagnosticsLoggers(
-                            new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>(),
-                            new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>()));
+                            new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>(),
+                            new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>()));
 
                 Assert.Null(failMessage);
             }

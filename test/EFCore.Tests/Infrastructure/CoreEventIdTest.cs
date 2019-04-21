@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TestEventLogging(
                 typeof(CoreEventId),
                 typeof(CoreLoggerExtensions),
-                typeof(LoggingDefinitions),
+                typeof(TestLoggingDefinitions),
                 fakeFactories);
         }
 

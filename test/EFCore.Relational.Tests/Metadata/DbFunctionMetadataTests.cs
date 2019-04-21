@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionset = new ConventionSet();
 
             conventionset.ModelAnnotationChangedConventions.Add(
-                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, RelationalLoggingDefinitions>()));
+                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
             return new ModelBuilder(conventionset);
         }

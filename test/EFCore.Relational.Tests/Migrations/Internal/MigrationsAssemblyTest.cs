@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [Fact]
         public void Migrations_ignores_the_unattributed()
         {
-            var logger = new TestLogger<DbLoggerCategory.Migrations, RelationalLoggingDefinitions>
+            var logger = new TestLogger<DbLoggerCategory.Migrations, TestRelationalLoggingDefinitions>
             {
                 EnabledFor = LogLevel.Warning
             };

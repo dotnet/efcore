@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
+        private readonly LoggingDefinitions _loggingDefinitions;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
 
@@ -46,15 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public CSharpDbContextGenerator(
             [NotNull] IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
             [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            [NotNull] ICSharpHelper cSharpHelper,
+            [NotNull] LoggingDefinitions loggingDefinitions)
         {
             Check.NotNull(providerConfigurationCodeGenerator, nameof(providerConfigurationCodeGenerator));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
+            Check.NotNull(loggingDefinitions, nameof(loggingDefinitions));
 
             _providerConfigurationCodeGenerator = providerConfigurationCodeGenerator;
             _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
+            _loggingDefinitions = loggingDefinitions;
         }
 
         /// <summary>
@@ -658,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                 new LoggingOptions(),
                 new DiagnosticListener(""),
-                new LoggingDefinitions());
+                _loggingDefinitions);
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;

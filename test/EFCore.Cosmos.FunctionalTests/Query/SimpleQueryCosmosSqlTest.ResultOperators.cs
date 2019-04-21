@@ -1098,7 +1098,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 10248) AN
             base.Paging_operation_on_string_doesnt_issue_warning();
 
             Assert.DoesNotContain(
-                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<LoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }

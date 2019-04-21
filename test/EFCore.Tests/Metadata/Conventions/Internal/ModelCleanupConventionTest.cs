@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentEntityBuilder.Relationship(
                 principalEntityBuilder, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.Equal(nameof(OneToOnePrincipal), modelBuilder.Metadata.GetEntityTypes().Single().DisplayName());
         }
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentEntityBuilder.Relationship(
                 principalEntityBuilder, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
             baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.True(modelBuilder.Metadata.GetEntityTypes().All(e => !e.GetDeclaredForeignKeys().Any()));
         }

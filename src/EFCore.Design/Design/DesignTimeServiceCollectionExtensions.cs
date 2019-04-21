@@ -67,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                 .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                 .AddSingleton<ILoggingOptions, LoggingOptions>()
-                .AddSingleton<LoggingDefinitions, RelationalLoggingDefinitions>()
                 .AddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
                 .AddSingleton<IModelCodeGenerator, CSharpModelGenerator>()

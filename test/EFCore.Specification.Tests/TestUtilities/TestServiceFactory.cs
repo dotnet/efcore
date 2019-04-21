@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 (typeof(IRegisteredServices), new RegisteredServices(Enumerable.Empty<Type>())),
                 (typeof(ServiceParameterBindingFactory), new ServiceParameterBindingFactory(typeof(IStateManager))),
-                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model>), new TestLogger<DbLoggerCategory.Model, LoggingDefinitions>()),
-                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model.Validation>), new TestLogger<DbLoggerCategory.Model.Validation, LoggingDefinitions>()),
-                (typeof(IDiagnosticsLogger<DbLoggerCategory.Query>), new TestLogger<DbLoggerCategory.Query, LoggingDefinitions>())
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model>), new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()),
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Model.Validation>), new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>()),
+                (typeof(IDiagnosticsLogger<DbLoggerCategory.Query>), new TestLogger<DbLoggerCategory.Query, TestLoggingDefinitions>())
             };
 
         public TService Create<TService>(params (Type Type, object Implementation)[] specialCases)
