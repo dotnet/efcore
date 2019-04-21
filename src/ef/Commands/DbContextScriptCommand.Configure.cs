@@ -6,16 +6,15 @@ using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
-    internal class DbContextCommand : HelpCommandBase
+    internal partial class DbContextScriptCommand : ContextCommandBase
     {
+        private CommandOption _output;
+
         public override void Configure(CommandLineApplication command)
         {
-            command.Description = Resources.DbContextDescription;
+            command.Description = Resources.MigrationsScriptDescription;
 
-            command.Command("info", new DbContextInfoCommand().Configure);
-            command.Command("list", new DbContextListCommand().Configure);
-            command.Command("scaffold", new DbContextScaffoldCommand().Configure);
-            command.Command("script", new DbContextScriptCommand().Configure);
+            _output = command.Option("-o|--output <FILE>", Resources.OutputDescription);
 
             base.Configure(command);
         }

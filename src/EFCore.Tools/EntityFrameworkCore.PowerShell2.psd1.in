@@ -64,6 +64,7 @@
         'Get-DbContext',
         'Remove-Migration',
         'Scaffold-DbContext',
+        'Script-DbContext',
         'Script-Migration',
         'Update-Database'
     )

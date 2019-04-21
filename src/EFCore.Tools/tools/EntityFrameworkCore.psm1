@@ -367,6 +367,77 @@ function Scaffold-DbContext
 }
 
 #
+# Script-DbContext
+#
+
+Register-TabExpansion Script-DbContext @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Generates a SQL script from current DbContext.
+
+.DESCRIPTION
+    Generates a SQL script from current DbContext.
+
+.PARAMETER Output
+    The file to write the result to.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Script-DbContext
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $Output,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    if (!$Output)
+    {
+        $intermediatePath = GetIntermediatePath $dteProject
+        if (![IO.Path]::IsPathRooted($intermediatePath))
+        {
+            $projectDir = GetProperty $dteProject.Properties 'FullPath'
+            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+        }
+
+        $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
+        $Output = Join-Path $intermediatePath $scriptFileName
+    }
+    elseif (![IO.Path]::IsPathRooted($Output))
+    {
+        $Output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
+    }
+
+    $params = 'dbcontext', 'script', '--output', $Output
+
+    $params += GetParams $Context
+
+    EF $dteProject $dteStartupProject $params
+
+    $DTE.ItemOperations.OpenFile($Output) | Out-Null
+    ShowConsole
+}
+
+#
 # Script-Migration
 #
 
