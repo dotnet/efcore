@@ -61,5 +61,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(converter(""));
             Assert.False(converter(null));
         }
+
+        [Fact]
+        public void Can_convert_bools_to_empty_strings_or_whitespace()
+        {
+            var converter = new BoolToStringConverter("", " ").ConvertToProviderExpression.Compile();
+
+            Assert.Equal(" ", converter(true));
+            Assert.Equal("", converter(false));
+        }
+
+        [Fact]
+        public void Can_convert_empty_strings_or_whitespace_to_bool()
+        {
+            var converter = new BoolToStringConverter("", " ").ConvertFromProviderExpression.Compile();
+
+            Assert.False(converter(""));
+            Assert.True(converter(" "));
+            Assert.False(converter("\t"));
+            Assert.False(converter(null));
+        }
     }
 }

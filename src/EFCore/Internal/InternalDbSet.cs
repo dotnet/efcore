@@ -124,7 +124,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 CheckKey();
 
-                return _localView ?? (_localView = new LocalView<TEntity>(this));
+                if (_context.ChangeTracker.AutoDetectChangesEnabled)
+                {
+                    _context.ChangeTracker.DetectChanges();
+                }
+
+                return _localView ??= new LocalView<TEntity>(this);
             }
         }
 

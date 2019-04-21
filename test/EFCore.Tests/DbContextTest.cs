@@ -42,6 +42,75 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Local_calls_DetectChanges()
+        {
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                changeDetector.DetectChangesCalled = false;
+
+                var entry = context.Attach(
+                    new Product
+                    {
+                        Id = 1,
+                        Name = "Little Hedgehogs"
+                    });
+
+                entry.Entity.Name = "Big Hedgehogs";
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                var _ = context.Set<Product>().Local;
+
+                Assert.True(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Fact]
+        public void Local_does_not_call_DetectChanges_when_disabled()
+        {
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                changeDetector.DetectChangesCalled = false;
+
+                var entry = context.Attach(
+                    new Product
+                    {
+                        Id = 1,
+                        Name = "Little Hedgehogs"
+                    });
+
+                entry.Entity.Name = "Big Hedgehogs";
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                var _ = context.Set<Product>().Local;
+
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.True(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Fact]
         public void Set_throws_for_weak_types()
         {
             var model = new Model(new ConventionSet());
