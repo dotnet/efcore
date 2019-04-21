@@ -12,7 +12,6 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalConnection : IRelationalConnection, ITransactionEnlistmentManager
     {
         private readonly string _connectionString;
-        private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
         private Transaction _ambientTransaction;
+        private DbConnection _connection;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
@@ -65,13 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     throw new InvalidOperationException(RelationalStrings.ConnectionAndConnectionString);
                 }
 
-                _connection = new LazyRef<DbConnection>(() => relationalOptions.Connection);
+                _connection = relationalOptions.Connection;
                 _connectionOwned = false;
             }
             else if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
             {
                 _connectionString = dependencies.ConnectionStringResolver.ResolveConnectionString(relationalOptions.ConnectionString);
-                _connection = new LazyRef<DbConnection>(CreateDbConnection);
                 _connectionOwned = true;
             }
             else
@@ -104,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
-        public virtual DbConnection DbConnection => _connection.Value;
+        public virtual DbConnection DbConnection
+            => _connection ??= CreateDbConnection();
 
         /// <summary>
         ///     Gets the current transaction.
@@ -681,10 +680,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             ClearTransactions(clearAmbient: true);
 
-            if (_connectionOwned && _connection.HasValue)
+            if (_connectionOwned
+                && _connection != null)
             {
                 DbConnection.Dispose();
-                _connection.Reset(CreateDbConnection);
+                _connection = null;
                 _activeQueries.Clear();
                 _openedCount = 0;
             }

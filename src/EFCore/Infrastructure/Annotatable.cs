@@ -23,15 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class Annotatable : IMutableAnnotatable
     {
-        private readonly LazyRef<SortedDictionary<string, Annotation>> _annotations =
-            new LazyRef<SortedDictionary<string, Annotation>>(() => new SortedDictionary<string, Annotation>());
+        private SortedDictionary<string, Annotation> _annotations;
 
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
         public virtual IEnumerable<Annotation> GetAnnotations() =>
-            _annotations.HasValue
-                ? _annotations.Value.Values
+            _annotations != null
+                ? _annotations.Values
                 : Enumerable.Empty<Annotation>();
 
         /// <summary>
@@ -98,7 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] Annotation annotation,
             [NotNull] Annotation oldAnotation)
         {
-            _annotations.Value[name] = annotation;
+            if (_annotations == null)
+            {
+                _annotations = new SortedDictionary<string, Annotation>();
+            }
+
+            _annotations[name] = annotation;
 
             return OnAnnotationSet(name, annotation, oldAnotation);
         }
@@ -138,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotEmpty(name, nameof(name));
 
-            return !_annotations.HasValue
+            return _annotations == null
                 ? null
-                : _annotations.Value.TryGetValue(name, out var annotation)
+                : _annotations.TryGetValue(name, out var annotation)
                     ? annotation
                     : null;
         }
@@ -160,7 +164,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return null;
             }
 
-            _annotations.Value.Remove(name);
+            _annotations.Remove(name);
+
+            if (_annotations.Count == 0)
+            {
+                _annotations = null;
+            }
 
             OnAnnotationSet(name, null, annotation);
 
