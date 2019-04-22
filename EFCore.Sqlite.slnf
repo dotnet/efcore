@@ -1,0 +1,43 @@
+{
+  "solution": {
+    "path": "EFCore.sln",
+    "projects": [
+      "samples\\AggregateFunctionSample\\AggregateFunctionSample.csproj",
+      "samples\\AsyncSample\\AsyncSample.csproj",
+      "samples\\BatchingSample\\BatchingSample.csproj",
+      "samples\\BulkInsertSample\\BulkInsertSample.csproj",
+      "samples\\CollationSample\\CollationSample.csproj",
+      "samples\\DateAndTimeSample\\DateAndTimeSample.csproj",
+      "samples\\DirtyReadSample\\DirtyReadSample.csproj",
+      "samples\\EncryptionSample\\EncryptionSample.csproj",
+      "samples\\InMemorySample\\InMemorySample.csproj",
+      "samples\\InteropSample\\InteropSample.csproj",
+      "samples\\RegularExpressionSample\\RegularExpressionSample.csproj",
+      "samples\\ResultMetadataSample\\ResultMetadataSample.csproj",
+      "samples\\ScalarFunctionSample\\ScalarFunctionSample.csproj",
+      "samples\\StreamingSample\\StreamingSample.csproj",
+      "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
+      "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
+      "src\\EFCore.Design\\EFCore.Design.csproj",
+      "src\\EFCore.Proxies\\EFCore.Proxies.csproj",
+      "src\\EFCore.Relational\\EFCore.Relational.csproj",
+      "src\\EFCore.Sqlite.Core\\EFCore.Sqlite.Core.csproj",
+      "src\\EFCore.Sqlite.NTS\\EFCore.Sqlite.NTS.csproj",
+      "src\\EFCore.Sqlite\\EFCore.Sqlite.csproj",
+      "src\\EFCore\\EFCore.csproj",
+      "src\\Microsoft.Data.Sqlite.Core\\Microsoft.Data.Sqlite.Core.csproj",
+      "src\\Microsoft.Data.Sqlite\\Microsoft.Data.Sqlite.csproj",
+      "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Test.csproj",
+      "test\\EFCore.Design.Tests\\EFCore.Design.Tests.csproj",
+      "test\\EFCore.InMemory.FunctionalTests\\EFCore.InMemory.FunctionalTests.csproj",
+      "test\\EFCore.InMemory.Tests\\EFCore.InMemory.Tests.csproj",
+      "test\\EFCore.Relational.Specification.Tests\\EFCore.Relational.Specification.Tests.csproj",
+      "test\\EFCore.Relational.Tests\\EFCore.Relational.Tests.csproj",
+      "test\\EFCore.Specification.Tests\\EFCore.Specification.Tests.csproj",
+      "test\\EFCore.Sqlite.FunctionalTests\\EFCore.Sqlite.FunctionalTests.csproj",
+      "test\\EFCore.Sqlite.Tests\\EFCore.Sqlite.Tests.csproj",
+      "test\\EFCore.Tests\\EFCore.Tests.csproj",
+      "test\\Microsoft.Data.Sqlite.Tests\\Microsoft.Data.Sqlite.Tests.csproj"
+    ]
+  }
+}
