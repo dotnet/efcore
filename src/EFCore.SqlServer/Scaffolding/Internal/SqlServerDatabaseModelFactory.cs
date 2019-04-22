@@ -135,8 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 var tableList = options.Tables.ToList();
                 var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 11)
+                if (SupportsSequences(connection))
                 {
                     foreach (var sequence in GetSequences(connection, schemaFilter, typeAliases))
                     {
@@ -438,9 +437,8 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
             using (var command = connection.CreateCommand())
             {
                 var tables = new List<DatabaseTable>();
-                Version.TryParse(connection.ServerVersion, out var serverVersion);
-                var supportsMemoryOptimizedTable = serverVersion?.Major >= 12;
-                var supportsTemporalTable = serverVersion?.Major >= 13;
+                var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable(connection);
+                var supportsTemporalTable = SupportsTemporalTable(connection);
 
                 var commandText = @"
 SELECT
@@ -546,8 +544,7 @@ JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 WHERE " + tableFilter;
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 13)
+                if (SupportsTemporalTable(connection))
                 {
                     commandText += " AND [c].[is_hidden] = 0";
                 }
@@ -1019,6 +1016,45 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         }
                     }
                 }
+            }
+        }
+
+        private bool SupportsTemporalTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 130 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsMemoryOptimizedTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 120 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsSequences(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 110 && EngineEdition(connection) != 6;
+        }
+
+        private int EngineEdition(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+SELECT SERVERPROPERTY('EngineEdition');";
+                return (int)command.ExecuteScalar();
+            }
+        }
+
+        private byte CompatibilityLevel(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = $@"
+SELECT compatibility_level
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+                var result = command.ExecuteScalar();
+                return result != null ? Convert.ToByte(result) : (byte)0;
             }
         }
 
