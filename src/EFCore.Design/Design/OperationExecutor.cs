@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         private string ScriptDbContextImpl(string contextType)
-            => _contextOperations.Value.ScriptDbContext(contextType);
+            => ContextOperations.ScriptDbContext(contextType);
 
         /// <summary>
         ///     Represents an operation.
