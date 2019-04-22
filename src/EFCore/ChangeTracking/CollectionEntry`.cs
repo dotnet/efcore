@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual IQueryable<TProperty> Query()
         {
-            EnsureInitialized();
+            InternalEntry.GetOrCreateCollection(Metadata);
 
             return (IQueryable<TProperty>)base.Query();
         }

@@ -602,12 +602,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         The <see cref="MethodInfo"/> of the internal `_InjectParameters` method exposed such
+        ///         that it can be used when processing expression trees.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
         public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
 
         private static readonly MethodInfo _injectParametersMethodInfo

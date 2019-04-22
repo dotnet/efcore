@@ -73,13 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///    Creates a new <see cref="MigrationsSqlGenerator"/> instance using the given dependencies.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        [EntityFrameworkInternal]
         public MigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -1641,7 +1637,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder
                 .Append("CHECK ");
-            
+
             builder.Append("(")
                 .Append(operation.ConstraintSql)
                 .Append(")");

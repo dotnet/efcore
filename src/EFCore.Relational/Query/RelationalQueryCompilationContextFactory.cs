@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         A relational factory for instances of <see cref="QueryCompilationContext" />.
     ///     </para>
     ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
     ///         <see cref="DbContext"/> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
@@ -24,12 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryCompilationContextFactory : QueryCompilationContextFactory
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Creates a new <see cref="RelationalQueryCompilationContextFactory"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> The core dependencies for this service. </param>
+        /// <param name="relationalDependencies"> The relational-specific dependencies for this service. </param>
         public RelationalQueryCompilationContextFactory(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies)
