@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- workaround for https://github.com/dotnet/sdk/issues/2698 -->
+    <Version>$(PackageVersion)</Version>
+
     <Description>Entity Framework Core Tools for the .NET Command-Line Interface.
 
 Enables these commonly used dotnet-ef commands:
