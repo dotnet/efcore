@@ -9,37 +9,37 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>8e0ca420875f17a7a24f19e1e7817f7e16d2ee7a</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.0.0-preview5-27622-04" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>8e0ca420875f17a7a24f19e1e7817f7e16d2ee7a</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview5.19222.9">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview6.19222.10">
       <Uri>https://github.com/aspnet/Extensions</Uri>
-      <Sha>a65ec8b82a8de6ca7021e8555a22b5d3fd5a9c4b</Sha>
+      <Sha>42f0f5d278f4789fb26ccee5c5af5dbdaaea15b1</Sha>
     </Dependency>
     <Dependency Name="Microsoft.NETCore.Platforms" Version="3.0.0-preview5.19222.2" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/corefx</Uri>
