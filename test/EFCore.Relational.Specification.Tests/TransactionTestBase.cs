@@ -316,26 +316,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true, true, true)]
-        [InlineData(true, true, false)]
-        [InlineData(true, false, true)]
-        [InlineData(true, false, false)]
-        [InlineData(false, true, true)]
-        [InlineData(false, true, false)]
-        [InlineData(false, false, true)]
-        [InlineData(false, false, false)]
-        public virtual async Task SaveChanges_uses_ambient_transaction(bool async, bool closeConnection, bool autoTransactionsEnabled)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public virtual async Task SaveChanges_uses_ambient_transaction(bool async, bool autoTransactionsEnabled)
         {
             if (!AmbientTransactionsSupported)
             {
                 return;
             }
 
-            if (closeConnection)
-            {
-                TestStore.CloseConnection();
-            }
-            else if (TestStore.ConnectionState == ConnectionState.Closed)
+            if (TestStore.ConnectionState == ConnectionState.Closed)
             {
                 TestStore.OpenConnection();
             }
@@ -372,14 +364,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
                     Fixture.ListLoggerFactory.Log.First().Message);
-            }
-
-            if (closeConnection)
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.OpenConnection();
-                }
             }
 
             AssertStoreInitialState();
