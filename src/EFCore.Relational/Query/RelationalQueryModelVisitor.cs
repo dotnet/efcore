@@ -67,12 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Relational-specific dependencies for this service. </param>
+        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
+        /// <param name="parentQueryModelVisitor"> An optional parent visitor. </param>
         public RelationalQueryModelVisitor(
             [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitorDependencies relationalDependencies,

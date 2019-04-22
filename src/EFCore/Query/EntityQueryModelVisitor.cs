@@ -1307,24 +1307,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Gets the transparent identifier type for the given inner and outer types.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="outerType"> The outer type. </param>
+        /// <param name="innerType"> The inner type. </param>
+        /// <returns> The transparent identifier type. </returns>
         protected virtual Type CreateTransparentIdentifierType([NotNull] Type outerType, [NotNull] Type innerType)
             => typeof(TransparentIdentifier<,>).MakeGenericType(
                 Check.NotNull(outerType, nameof(outerType)),
                 Check.NotNull(innerType, nameof(innerType)));
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a <see cref="MethodCallExpression"/> for <see cref="CreateTransparentIdentifierType"/>.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="transparentIdentifierType"> The transparent identifier type. </param>
+        /// <param name="outerExpression"> The expression for the outer type. </param>
+        /// <param name="innerExpression"> The expression for the inner type. </param>
+        /// <returns> The expression representing a call to the method. </returns>
         protected virtual Expression CallCreateTransparentIdentifier(
             [NotNull] Type transparentIdentifierType,
             [NotNull] Expression outerExpression,

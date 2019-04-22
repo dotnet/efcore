@@ -6,8 +6,10 @@ using System;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    /// Marks a type or member as supporting the Entity Framework Core infrastructure and not intended to be used directly from
-    /// user or provider code.
+    ///     Marks an API as internal to Entity Framework Core. These APIs are not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use such APIs directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [AttributeUsage(
         AttributeTargets.Enum | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface |

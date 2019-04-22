@@ -70,12 +70,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates that the model does not contain any entity types without a corresponding CLR type.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateNoShadowEntities([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -89,12 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of shadow keys in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateNoShadowKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -131,12 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of mutable in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateNoMutableKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -155,12 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of the model for cycles.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateNoCycles([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var unvalidatedEntityTypes = new HashSet<IEntityType>(model.GetEntityTypes());
@@ -200,12 +192,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of primary key nullability in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateNonNullPrimaryKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -222,12 +212,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of inheritance in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateClrInheritance([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -239,14 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        protected virtual void ValidateClrInheritance(
+        private void ValidateClrInheritance(
             [NotNull] IModel model,
             [NotNull] IEntityType entityType,
             [NotNull] HashSet<IEntityType> validEntityTypes,
@@ -295,12 +276,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of change tracking in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateChangeTrackingStrategy([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -316,12 +295,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of ownership in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateOwnership([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -385,12 +362,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of foreign keys in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateForeignKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var modelLogger = loggers.GetLogger<DbLoggerCategory.Model>();
@@ -436,12 +411,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of defining navigations in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateDefiningNavigations([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -487,12 +460,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of properties mapped to fields in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateFieldMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -549,12 +520,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of entity types without keys in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateKeylessTypes([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -579,12 +548,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of query filters in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateQueryFilters([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -603,12 +570,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of data (e.g. seed data) in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateData([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -730,12 +695,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs all shadow properties that were created because there was no matching CLR member.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void LogShadowProperties([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));

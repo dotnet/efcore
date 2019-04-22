@@ -63,12 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of functions in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateDbFunctions([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var dbFunction in model.Relational().DbFunctions)
@@ -107,12 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of <see cref="bool"/> properties in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateBoolsWithDefaults([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             Check.NotNull(model, nameof(model));
@@ -136,12 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                && (!(value is bool asBool) || asBool);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of default values in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateDefaultValuesOnKeys([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
@@ -155,12 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of shared tables in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedTableCompatibility([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
@@ -191,12 +183,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the compatibility of entity types sharing a given table.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedTableCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -292,12 +283,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the compatibility of properties sharing columns in a given table.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -444,12 +434,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the compatibility of foreign keys in a given shared table.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -469,12 +458,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the compatibility of indexes in a given shared table.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -494,12 +482,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the compatibility of primary and alternate keys in a given shared table.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateSharedKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, DiagnosticsLoggers loggers)
         {
@@ -533,12 +520,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Validates the mapping/configuration of inheritance in the model.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
             foreach (var rootEntityType in model.GetRootEntityTypes())

@@ -174,12 +174,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IPropertyAnnotationChangedConvention>();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Call this method to build a <see cref="ConventionSet"/> for only core services when using
+        ///         the <see cref="ModelBuilder"/> outside of <see cref="DbContext.OnModelCreating"/>.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is unusual to use this method.
+        ///         Consider using <see cref="DbContext"/> in the normal way instead.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <returns> The convention set. </returns>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
         {
             var loggers = new DiagnosticsLoggers(
