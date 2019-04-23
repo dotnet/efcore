@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void DbSet_Local_does_not_call_DetectChanges()
+        public virtual void DbSet_Local_calls_DetectChanges()
         {
             using (var context = CreateF1Context())
             {
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                Assert.Equal(EntityState.Unchanged, context.Entry(alonso).State);
+                Assert.Equal(EntityState.Modified, context.Entry(alonso).State);
 
                 context.ChangeTracker.AutoDetectChangesEnabled = true;
 

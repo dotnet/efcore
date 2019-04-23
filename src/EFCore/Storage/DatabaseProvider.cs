@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     The type of options that the database provider will add to <see cref="DbContextOptions.Extensions" />
     ///     to identify that is has been selected (and to store its database specific settings).
     /// </typeparam>
-    [EntityFrameworkInternal]
     public class DatabaseProvider<TOptionsExtension> : IDatabaseProvider
         where TOptionsExtension : class, IDbContextOptionsExtension
     {

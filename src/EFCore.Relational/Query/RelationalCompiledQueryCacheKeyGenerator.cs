@@ -11,10 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         Creates keys that uniquely identifies a query. This is used to store and lookup
+    ///         compiled versions of a query in a cache.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
@@ -23,18 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    [EntityFrameworkInternal]
     public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
-        [EntityFrameworkInternal]
         public RelationalCompiledQueryCacheKeyGenerator(
             [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
             [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
@@ -51,46 +48,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalCompiledQueryCacheKeyGeneratorDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Generates the cache key for the given query.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="query"> The query to get the cache key for. </param>
+        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
+        /// <returns> The cache key. </returns>
         public override object GenerateCacheKey(Expression query, bool async)
             => GenerateCacheKeyCore(query, async);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Generates the cache key for the given query.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="query"> The query to get the cache key for. </param>
+        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
+        /// <returns> The cache key. </returns>
         protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new RelationalCompiledQueryCacheKey(
                 base.GenerateCacheKeyCore(query, async),
                 RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions).UseRelationalNulls);
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         A key that uniquely identifies a query. This is used to store and lookup
+        ///         compiled versions of a query in a cache.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
         protected readonly struct RelationalCompiledQueryCacheKey
         {
             private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
             private readonly bool _useRelationalNulls;
 
             /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
             /// </summary>
-            [EntityFrameworkInternal]
+            /// <param name="compiledQueryCacheKey"> The non-relational cache key. </param>
+            /// <param name="useRelationalNulls"> True to use relational null logic. </param>
             public RelationalCompiledQueryCacheKey(
                 CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls)
             {
@@ -99,12 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same query).
             /// </summary>
-            [EntityFrameworkInternal]
+            /// <param name="obj">
+            ///     The object to compare this key to.
+            /// </param>
+            /// <returns>
+            ///     True if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query, otherwise false.
+            /// </returns>
             public override bool Equals(object obj)
                 => !(obj is null)
                    && obj is RelationalCompiledQueryCacheKey
@@ -115,12 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                    && _useRelationalNulls == other._useRelationalNulls;
 
             /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            ///     Gets the hash code for the key.
             /// </summary>
-            [EntityFrameworkInternal]
+            /// <returns>
+            ///     The hash code for the key.
+            /// </returns>
             public override int GetHashCode()
             {
                 unchecked

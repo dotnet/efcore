@@ -104,36 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ? logger.Logger.IsEnabled(Level) ? WarningBehavior.Log : WarningBehavior.Ignore
                 : _warningBehavior;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        protected sealed class MessageExtractingLogger : ILogger
+        internal sealed class MessageExtractingLogger : ILogger
         {
             private string _message;
 
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            [EntityFrameworkInternal]
             public string Message {
                 get => _message ?? throw new InvalidOperationException();
                 private set => _message = value;
             }
-
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            [EntityFrameworkInternal]
             void ILogger.Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
@@ -144,22 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 Message = formatter(state, exception);
             }
 
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            [EntityFrameworkInternal]
             bool ILogger.IsEnabled(LogLevel logLevel) => true;
 
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            [EntityFrameworkInternal]
             IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state) => throw new NotImplementedException();
         }
     }

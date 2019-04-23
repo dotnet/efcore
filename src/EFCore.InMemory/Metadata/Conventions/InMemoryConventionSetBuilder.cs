@@ -7,14 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         A builder for building conventions for th in-memory provider.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
@@ -27,11 +24,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal
     public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="InMemoryConventionSetBuilder"/> instance.
         /// </summary>
+        /// <param name="dependencies"> The core dependencies for this service. </param>
         public InMemoryConventionSetBuilder(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
@@ -39,11 +34,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Call this method to build a <see cref="ConventionSet"/> for the in-memory provider when using
+        ///         the <see cref="ModelBuilder"/> outside of <see cref="DbContext.OnModelCreating"/>.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is unusual to use this method.
+        ///         Consider using <see cref="DbContext"/> in the normal way instead.
+        ///     </para>
         /// </summary>
+        /// <returns> The convention set. </returns>
         public static ConventionSet Build()
         {
             var serviceProvider = new ServiceCollection()
