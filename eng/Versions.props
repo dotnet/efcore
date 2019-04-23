@@ -28,25 +28,25 @@
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview6.19222.23</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview6.19223.2</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-preview6.19222.9</MicrosoftCSharpPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview6.19222.9</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-preview6.19222.9</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview6.19222.9</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.7.0-preview6.19222.9</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview6.19222.9</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-preview6.19223.2</MicrosoftCSharpPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview6.19223.2</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-preview6.19223.2</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview6.19223.2</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.7.0-preview6.19223.2</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview6.19223.2</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview6-27622-26</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview6-27622-26</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview6-27623-08</MicrosoftDotNetPlatformAbstractionsPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview6-27623-08</MicrosoftExtensionsDependencyModelPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <DotNetRuntime Include="2.0.9" />
