@@ -56,9 +56,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.In
             { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(short) }), "SIGN" }
         };
 
-        private static readonly IEnumerable<MethodInfo> _truncateMethodInfos = new[] { typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), new[] { typeof(decimal) }), typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), new[] { typeof(double) }) };
+        private static readonly IEnumerable<MethodInfo> _truncateMethodInfos = new[]
+        {
+            typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), new[] { typeof(decimal) }),
+            typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), new[] { typeof(double) })
+        };
 
-        private static readonly IEnumerable<MethodInfo> _roundMethodInfos = new[] { typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal) }), typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double) }), typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(int) }), typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) }) };
+        private static readonly IEnumerable<MethodInfo> _roundMethodInfos = new[]
+        {
+            typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal) }),
+            typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double) }),
+            typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(int) }),
+            typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) })
+        };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
