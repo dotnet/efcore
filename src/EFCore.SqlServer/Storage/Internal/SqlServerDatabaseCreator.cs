@@ -140,7 +140,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
-                .Build("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0");
+                .Build(@"
+IF EXISTS
+    (SELECT *
+FROM [sys].[objects] o
+WHERE [o].[type] = 'U'
+AND [o].[is_ms_shipped] = 0
+AND NOT EXISTS (SELECT *
+    FROM [sys].[extended_properties] AS [ep]
+    WHERE [ep].[major_id] = [o].[object_id]
+        AND [ep].[minor_id] = 0
+        AND [ep].[class] = 1
+        AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0");
 
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
         {
