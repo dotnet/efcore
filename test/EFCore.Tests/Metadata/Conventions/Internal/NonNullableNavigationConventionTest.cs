@@ -81,19 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                principalEntityTypeBuilder.Metadata,
-                nameof(Dependent.Principal),
+            var relationshipBuilder = principalEntityTypeBuilder.HasRelationship(
+                dependentEntityTypeBuilder.Metadata,
                 nameof(Principal.Dependents),
+                nameof(Dependent.Principal),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Dependent.Principal));
+            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependents));
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
             relationshipBuilder = CreateNotNullNavigationConvention().Apply(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
+
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         [Fact]
@@ -160,6 +162,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.True(
                 model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
                     .IsRequired);
+        }
+
+        [Fact]
+        public void Non_nullability_can_be_specified_on_both_navigations()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = (Model)modelBuilder.Model;
+            modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
+
+            Assert.True(
+                model.FindEntityType(typeof(BlogDetails)).GetForeignKeys()
+                    .Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
+
+            var logEntry = ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogNonNullableReferenceOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()

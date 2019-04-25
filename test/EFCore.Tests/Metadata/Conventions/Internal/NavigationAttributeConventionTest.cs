@@ -152,19 +152,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityTypeBuilder =
                 dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                principalEntityTypeBuilder.Metadata,
-                nameof(Dependent.Principal),
+            var relationshipBuilder = principalEntityTypeBuilder.HasRelationship(
+                dependentEntityTypeBuilder.Metadata,
                 nameof(Principal.Dependents),
+                nameof(Dependent.Principal),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Dependent.Principal));
+            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependents));
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
             relationshipBuilder = CreateRequiredNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
+
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         [Fact]
@@ -939,6 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [ForeignKey("AnotherPrincipal")]
             public int PrincipalAnotherFk { get; set; }
 
+            [Required]
             [ForeignKey("PrincipalFk")]
             [InverseProperty("Dependent")]
             public Principal Principal { get; set; }

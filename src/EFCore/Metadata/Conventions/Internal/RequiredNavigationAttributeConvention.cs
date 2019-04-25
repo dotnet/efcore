@@ -42,6 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
+            if (navigation.IsCollection())
+            {
+                return relationshipBuilder;
+            }
+
             if (!navigation.IsDependentToPrincipal())
             {
                 var inverse = navigation.FindInverse();
