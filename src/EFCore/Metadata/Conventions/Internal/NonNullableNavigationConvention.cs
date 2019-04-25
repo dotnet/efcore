@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            if (!IsNonNullable(navigation))
+            if (!IsNonNullable(navigation) || navigation.IsCollection())
             {
                 return relationshipBuilder;
             }
