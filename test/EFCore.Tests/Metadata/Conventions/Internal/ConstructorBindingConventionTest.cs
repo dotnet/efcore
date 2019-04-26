@@ -549,9 +549,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("loader", parameters[0].Name);
 
-            Assert.IsType<DefaultServiceParameterBinding>(bindings[0]);
+            Assert.IsType<DependencyInjectionParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(ILazyLoader), ((DefaultServiceParameterBinding)bindings[0]).ServiceType);
+            Assert.Same(typeof(ILazyLoader), ((DependencyInjectionParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithLazyLoader : Blog
@@ -576,9 +576,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("lazyLoader", parameters[0].Name);
 
-            Assert.IsType<ServiceMethodParameterBinding>(bindings[0]);
+            Assert.IsType<DependencyInjectionMethodParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(ILazyLoader), ((ServiceMethodParameterBinding)bindings[0]).ServiceType);
+            Assert.Same(typeof(ILazyLoader), ((DependencyInjectionMethodParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithLazyLoaderMethod : Blog

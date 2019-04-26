@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ServiceParameterBinding ParameterBinding
         {
             get => _parameterBinding;
-            [param: NotNull] set => SetParameterBinding(value, ConfigurationSource.Explicit);
+            set => SetParameterBinding(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -141,6 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             UpdateParameterBindingConfigurationSource(configurationSource);
         }
+
+        /// <summary>
+        ///     Sets the <see cref="ServiceParameterBinding"/> for this property.
+        /// </summary>
+        /// <param name="parameterBinding"> The parameter binding. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        void IConventionServiceProperty.SetParameterBinding(ServiceParameterBinding parameterBinding, bool fromDataAnnotation)
+            => SetParameterBinding(parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

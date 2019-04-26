@@ -315,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
 
             ServiceCollectionMap.GetInfrastructure()
+                .AddDependencySingleton<LazyLoaderParameterBindingFactoryDependencies>()
                 .AddDependencySingleton<DatabaseProviderDependencies>()
                 .AddDependencySingleton<ResultOperatorHandlerDependencies>()
                 .AddDependencySingleton<ModelSourceDependencies>()

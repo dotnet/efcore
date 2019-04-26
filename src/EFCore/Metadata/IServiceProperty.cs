@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -13,5 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the entity type that this property belongs to.
         /// </summary>
         IEntityType DeclaringEntityType { get; }
-    }
+
+        /// <summary>
+        ///    The <see cref="ServiceParameterBinding"/> for this property.
+        /// </summary>
+        ServiceParameterBinding ParameterBinding { get; }    }
 }
+

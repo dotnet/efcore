@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string OwnedTypes = "OwnedTypes";
 
         /// <summary>
-        ///     Indicates the <see cref="Internal.ConstructorBinding" /> to use for the annotated item.
+        ///     Indicates the <see cref="Metadata.ConstructorBinding" /> to use for the annotated item.
         /// </summary>
         public const string ConstructorBinding = "ConstructorBinding";
 

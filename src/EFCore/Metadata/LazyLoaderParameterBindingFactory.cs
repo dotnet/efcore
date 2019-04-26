@@ -6,18 +6,18 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         A <see cref="IParameterBindingFactory" /> for binding to the <see cref="IsLazyLoader"/> service.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
@@ -32,40 +32,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static readonly MethodInfo _loadAsyncMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.LoadAsync));
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
         /// </summary>
-        public LazyLoaderParameterBindingFactory()
+        /// <param name="dependencies"> The service dependencies to use. </param>
+        public LazyLoaderParameterBindingFactory([NotNull] LazyLoaderParameterBindingFactoryDependencies dependencies)
             : base(typeof(ILazyLoader))
         {
+            Check.NotNull(dependencies, nameof(dependencies));
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Checks whether or not this factory can bind a parameter with the given type and name.
         /// </summary>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> True if this parameter can be bound; false otherwise. </returns>
         public override bool CanBind(
             Type parameterType,
             string parameterName)
-            => IsLazyLoader(parameterType)
-               || IsLazyLoaderMethod(parameterType, parameterName)
-               || IsLazyLoaderAsyncMethod(parameterType, parameterName);
+        {
+            Check.NotNull(parameterType, nameof(parameterType));
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
+            return IsLazyLoader(parameterType)
+                   || IsLazyLoaderMethod(parameterType, parameterName)
+                   || IsLazyLoaderAsyncMethod(parameterType, parameterName);
+        }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> The binding. </returns>
         public override ParameterBinding Bind(
             IMutableEntityType entityType,
             Type parameterType,
             string parameterName)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(parameterType, nameof(parameterType));
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
             var baseType = entityType;
             do
             {
@@ -75,17 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             while (baseType != null);
 
             return parameterType == typeof(ILazyLoader)
-                ? new DefaultServiceParameterBinding(
+                ? new DependencyInjectionParameterBinding(
                     typeof(ILazyLoader),
                     typeof(ILazyLoader),
                     entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoader(p.ClrType)))
                 : parameterType == typeof(Action<object, string>)
-                    ? new ServiceMethodParameterBinding(
+                    ? new DependencyInjectionMethodParameterBinding(
                         typeof(Action<object, string>),
                         typeof(ILazyLoader),
                         _loadMethod,
                         entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderMethod(p.ClrType, p.Name)))
-                    : new ServiceMethodParameterBinding(
+                    : new DependencyInjectionMethodParameterBinding(
                         typeof(Func<object, CancellationToken, string, Task>),
                         typeof(ILazyLoader),
                         _loadAsyncMethod,

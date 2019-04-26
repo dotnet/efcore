@@ -4,9 +4,9 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private readonly IConstructorBindingFactory _constructorBindingFactory;
         private readonly IProxyFactory _proxyFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
+        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,12 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             [NotNull] IDbContextOptions options,
             [NotNull] IConstructorBindingFactory constructorBindingFactory,
             [NotNull] IProxyFactory proxyFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies)
         {
             _options = options;
             _constructorBindingFactory = constructorBindingFactory;
             _proxyFactory = proxyFactory;
             _logger = logger;
+            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
         }
 
         /// <summary>
@@ -61,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             conventionSet.ModelBuiltConventions.Add(
                 new ProxyBindingRewriter(
+                    _lazyLoaderParameterBindingFactoryDependencies,
                     _proxyFactory,
                     _constructorBindingFactory,
                     _logger,
