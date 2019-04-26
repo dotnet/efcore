@@ -5,14 +5,12 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         Finds a <see cref="ParameterBinding" /> specifically for some form of property
+    ///         (that is, some <see cref="IPropertyBase" />) of the model.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
@@ -23,11 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public interface IPropertyParameterBindingFactory
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Finds a <see cref="ParameterBinding" /> specifically for an <see cref="IPropertyBase" /> in the model.
         /// </summary>
+        /// <param name="entityType"> The entity type on which the <see cref="IPropertyBase" /> is defined. </param>
+        /// <param name="parameterType"> The parameter name. </param>
+        /// <param name="parameterName"> The parameter type. </param>
+        /// <returns> The parameter binding, or null if none was found. </returns>
         ParameterBinding TryBindParameter(
             [NotNull] IMutableEntityType entityType,
             [NotNull] Type parameterType,

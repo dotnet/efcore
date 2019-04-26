@@ -6,14 +6,12 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         A factory for finding and creating <see cref="ConstructorBinding" /> instances for
+    ///         a given CLR constructor.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
@@ -24,11 +22,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public interface IConstructorBindingFactory
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Attempts to create a <see cref="ConstructorBinding" /> for the given <see cref="IEntityType" /> and
+        ///     <see cref="ConstructorInfo" />
         /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="constructor"> The constructor to use. </param>
+        /// <param name="binding"> The binding, or null if none could be created. </param>
+        /// <param name="failedBindings"> The parameters that could not be bound. </param>
+        /// <returns> True if a binding was created; false otherwise. </returns>
         bool TryBindConstructor(
             [NotNull] IMutableEntityType entityType,
             [NotNull] ConstructorInfo constructor,

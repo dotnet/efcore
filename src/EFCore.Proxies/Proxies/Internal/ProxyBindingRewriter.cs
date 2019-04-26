@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
 
         private readonly ConstructorBindingConvention _directBindingConvention;
+        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
         private readonly IProxyFactory _proxyFactory;
         private readonly ProxiesOptionsExtension _options;
 
@@ -40,12 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyBindingRewriter(
+            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
             [NotNull] IProxyFactory proxyFactory,
             [NotNull] IConstructorBindingFactory bindingFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ProxiesOptionsExtension options)
         {
             _directBindingConvention = new ConstructorBindingConvention(bindingFactory, logger);
+            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
             _proxyFactory = proxyFactory;
             _options = options;
         }
@@ -83,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             serviceProperty = entityType.AddServiceProperty(_lazyLoaderProperty, ConfigurationSource.Convention);
                             serviceProperty.SetParameterBinding(
-                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory().Bind(
+                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(_lazyLoaderParameterBindingFactoryDependencies).Bind(
                                     entityType,
                                     typeof(ILazyLoader),
                                     nameof(IProxyLazyLoader.LazyLoader)));
@@ -104,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                 new List<ParameterBinding>
                                 {
                                     new EntityTypeParameterBinding(),
-                                    new DefaultServiceParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
+                                    new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
                                     new ObjectArrayParameterBinding(binding.ParameterBindings)
                                 },
                                 proxyType);
