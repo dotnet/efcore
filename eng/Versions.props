@@ -28,13 +28,13 @@
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview6.19227.1</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview6.19227.2</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
     <MicrosoftCSharpPackageVersion>4.6.0-preview6.19222.12</MicrosoftCSharpPackageVersion>
@@ -45,8 +45,8 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview6.19222.12</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview6-27626-18</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview6-27626-18</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview6-27627-01</MicrosoftDotNetPlatformAbstractionsPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview6-27627-01</MicrosoftExtensionsDependencyModelPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <DotNetRuntime Include="2.0.9" />
