@@ -731,7 +731,7 @@ WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
             AssertSql(
                 @"@p0='10250'
 
-SELECT * FROM Orders WHERE ""OrderID"" < @p0");
+SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
