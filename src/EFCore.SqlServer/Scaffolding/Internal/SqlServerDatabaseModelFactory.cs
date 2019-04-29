@@ -536,12 +536,13 @@ SELECT
     CAST([c].[scale] AS int) AS [scale],
     [c].[is_nullable],
     [c].[is_identity],
-    OBJECT_DEFINITION([c].[default_object_id]) AS [default_sql],
+    [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql]
 FROM [sys].[columns] AS [c]
 JOIN [sys].[tables] AS [t] ON [c].[object_id] = [t].[object_id]
 JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
+LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]
 WHERE " + tableFilter;
 
                 if (SupportsTemporalTable(connection))
