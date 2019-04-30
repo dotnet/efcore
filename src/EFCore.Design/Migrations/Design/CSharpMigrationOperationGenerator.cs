@@ -415,8 +415,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append("table: ")
                     .Append(Code.Literal(operation.Table))
                     .AppendLine(",")
-                    .Append("constraintSql: ")
-                    .Append(Code.Literal(operation.ConstraintSql))
+                    .Append("sql: ")
+                    .Append(Code.Literal(operation.Sql))
                     .Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
@@ -1084,7 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             .Append("table.CheckConstraint(")
                             .Append(Code.Literal(checkConstraints.Name))
                             .Append(", ")
-                            .Append(Code.Literal(checkConstraints.ConstraintSql))
+                            .Append(Code.Literal(checkConstraints.Sql))
                             .Append(")");
 
                         using (builder.Indent())

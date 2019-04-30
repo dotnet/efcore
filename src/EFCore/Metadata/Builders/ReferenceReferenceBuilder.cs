@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
 
@@ -324,20 +324,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (DeclaringEntityType.Name == entityTypeName)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
             if (RelatedEntityType.Name == entityTypeName)
             {
-                return RelatedEntityType;
+                return (EntityType)RelatedEntityType;
             }
 
             if (DeclaringEntityType.DisplayName() == entityTypeName)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.DisplayName() == entityTypeName ? RelatedEntityType : null;
+            return RelatedEntityType.DisplayName() == entityTypeName ? (EntityType)RelatedEntityType : null;
         }
 
         /// <summary>
@@ -351,14 +351,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (DeclaringEntityType.ClrType == entityType)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.ClrType == entityType ? RelatedEntityType : null;
+            return RelatedEntityType.ClrType == entityType ? (EntityType)RelatedEntityType : null;
         }
 
         private EntityType GetOtherEntityType(EntityType entityType)
-            => DeclaringEntityType == entityType ? RelatedEntityType : DeclaringEntityType;
+            => DeclaringEntityType == entityType ? (EntityType)RelatedEntityType : (EntityType)DeclaringEntityType;
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

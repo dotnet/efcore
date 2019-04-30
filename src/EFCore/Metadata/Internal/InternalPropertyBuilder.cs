@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 newPropertyBuilder = Metadata.GetIdentifyingMemberInfo() == null
                     ? entityTypeBuilder.Property(
-                        Metadata.Name, Metadata.ClrType, configurationSource, Metadata.GetTypeConfigurationSource())
+                        Metadata.ClrType, Metadata.Name, configurationSource, Metadata.GetTypeConfigurationSource())
                     : entityTypeBuilder.Property(Metadata.GetIdentifyingMemberInfo(), configurationSource);
             }
 

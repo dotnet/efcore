@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public override bool IsEvaluatableExpression(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression
-                && _model.Relational().FindDbFunction(methodCallExpression.Method) != null)
+                && _model.FindDbFunction(methodCallExpression.Method) != null)
             {
                 return false;
             }

@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -16,7 +15,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class RelationalDatabaseModelFactoryTest
     {
@@ -88,21 +87,21 @@ namespace Microsoft.EntityFrameworkCore
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 vwtable =>
                 {
-                    Assert.Equal("noPrimaryKey", vwtable.Relational().TableName);
+                    Assert.Equal("noPrimaryKey", vwtable.GetTableName());
                     Assert.Equal(0, vwtable.GetKeys().Count());
                 },
                 table =>
                 {
-                    Assert.Equal("noSchema", table.Relational().TableName);
-                    Assert.Null(table.Relational().Schema);
+                    Assert.Equal("noSchema", table.GetTableName());
+                    Assert.Null(table.GetSchema());
                 },
                 pgtable =>
                 {
-                    Assert.Equal("tableWithSchema", pgtable.Relational().TableName);
-                    Assert.Equal("public", pgtable.Relational().Schema);
+                    Assert.Equal("tableWithSchema", pgtable.GetTableName());
+                    Assert.Equal("public", pgtable.GetSchema());
                 }
             );
-            Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
+            Assert.Empty(model.GetEntityTypeErrors().Values);
         }
 
         [Fact]
@@ -197,34 +196,34 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 col1 =>
                 {
-                    Assert.Equal("created", col1.Relational().ColumnName);
+                    Assert.Equal("created", col1.GetColumnName());
                     Assert.Equal(ValueGenerated.OnAdd, col1.ValueGenerated);
                 },
                 col2 =>
                 {
                     Assert.Equal("Current", col2.Name);
                     Assert.Equal(typeof(string), col2.ClrType);
-                    Assert.Equal("compute_this()", col2.Relational().ComputedColumnSql);
+                    Assert.Equal("compute_this()", col2.GetComputedColumnSql());
                 },
                 col3 =>
                 {
-                    Assert.Equal("modified", col3.Relational().ColumnName);
+                    Assert.Equal("modified", col3.GetColumnName());
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
                 },
                 col4 =>
                 {
-                    Assert.Equal("occupation", col4.Relational().ColumnName);
+                    Assert.Equal("occupation", col4.GetColumnName());
                     Assert.Equal(typeof(string), col4.ClrType);
                     Assert.False(col4.IsColumnNullable());
                     Assert.Null(col4.GetMaxLength());
-                    Assert.Equal("\"dev\"", col4.Relational().DefaultValueSql);
+                    Assert.Equal("\"dev\"", col4.GetDefaultValueSql());
                 },
                 col5 =>
                 {
                     Assert.Equal("Salary", col5.Name);
                     Assert.Equal(typeof(int?), col5.ClrType);
                     Assert.True(col5.IsColumnNullable());
-                    Assert.Null(col5.Relational().DefaultValue);
+                    Assert.Null(col5.GetDefaultValue());
                 });
         }
 
@@ -351,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = (Property)_factory.Create(info, false).FindEntityType("A").FindProperty("Col");
 
-            Assert.Equal(expectedColumnType, property.Relational().ColumnType);
+            Assert.Equal(expectedColumnType, property.GetColumnType());
         }
 
         [Fact]
@@ -399,9 +398,9 @@ namespace Microsoft.EntityFrameworkCore
             var property2 = (Property)entityTypeA.FindProperty("Col2");
             var property3 = (Property)entityTypeA.FindProperty("Col3");
 
-            Assert.Equal(0, property1.Scaffolding().ColumnOrdinal);
-            Assert.Equal(1, property2.Scaffolding().ColumnOrdinal);
-            Assert.Equal(2, property3.Scaffolding().ColumnOrdinal);
+            Assert.Equal(0, property1.GetColumnOrdinal());
+            Assert.Equal(1, property2.GetColumnOrdinal());
+            Assert.Equal(2, property3.GetColumnOrdinal());
         }
 
         [Theory]
@@ -468,8 +467,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
-            Assert.Equal(model.FindPrimaryKey().Relational().Name, "MyPk");
-            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
+            Assert.Equal(model.FindPrimaryKey().GetName(), "MyPk");
+            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
         }
 
         [Fact]
@@ -510,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore
             var index = entityType.GetIndexes().Single();
 
             Assert.True(index.IsUnique);
-            Assert.Equal("MyUniqueConstraint", index.Relational().Name);
+            Assert.Equal("MyUniqueConstraint", index.GetName());
             Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
         }
 
@@ -605,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore
                 indexColumn1 =>
                 {
                     Assert.False(indexColumn1.IsUnique);
-                    Assert.Equal("IDX_C1", indexColumn1.Relational().Name);
+                    Assert.Equal("IDX_C1", indexColumn1.GetName());
                     Assert.Same(entityType.FindProperty("C1"), indexColumn1.Properties.Single());
                 },
                 uniqueColumn2 =>
@@ -1319,7 +1318,7 @@ namespace Microsoft.EntityFrameworkCore
                 model.GetEntityTypes().Cast<EntityType>(),
                 ef1 =>
                 {
-                    Assert.Equal("E F", ef1.Relational().TableName);
+                    Assert.Equal("E F", ef1.GetTableName());
                     Assert.Equal("EF", ef1.Name);
                     Assert.Collection(
                         ef1.GetProperties(),
@@ -1327,21 +1326,21 @@ namespace Microsoft.EntityFrameworkCore
                         s1 =>
                         {
                             Assert.Equal("SanItized", s1.Name);
-                            Assert.Equal("San itized", s1.Relational().ColumnName);
+                            Assert.Equal("San itized", s1.GetColumnName());
                         },
                         s2 =>
                         {
                             Assert.Equal("SanItized1", s2.Name);
-                            Assert.Equal("San+itized", s2.Relational().ColumnName);
+                            Assert.Equal("San+itized", s2.GetColumnName());
                         });
                 },
                 ef2 =>
                 {
-                    Assert.Equal("E+F", ef2.Relational().TableName);
+                    Assert.Equal("E+F", ef2.GetTableName());
                     Assert.Equal("EF1", ef2.Name);
                     var id = Assert.Single(ef2.GetProperties());
                     Assert.Equal("Id", id.Name);
-                    Assert.Equal("Id", id.Relational().ColumnName);
+                    Assert.Equal("Id", id.GetColumnName());
                 });
         }
 
@@ -1360,10 +1359,10 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = (Model)_factory.Create(info, false);
+            var model = _factory.Create(info, false);
 
             Assert.Collection(
-                model.Relational().Sequences, first =>
+                model.GetSequences(), first =>
                 {
                     Assert.NotNull(first);
                     Assert.Equal("CountByThree", first.Name);
@@ -1395,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var model = _factory.Create(info, false);
-            Assert.Equal("Blog", model.GetEntityTypes().Single().Scaffolding().DbSetName);
+            Assert.Equal("Blog", model.GetEntityTypes().Single().GetDbSetName());
         }
 
         [Fact]
@@ -1442,15 +1441,15 @@ namespace Microsoft.EntityFrameworkCore
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
                 {
-                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.GetTableName());
                     Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blogs", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Blogs", entity.GetDbSetName());
                 },
                 entity =>
                 {
-                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Posts", entity.GetTableName());
                     Assert.Equal("Post", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Posts", entity.GetDbSetName());
                 }
             );
 
@@ -1460,15 +1459,15 @@ namespace Microsoft.EntityFrameworkCore
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
                 {
-                    Assert.Equal("Blog", entity.Relational().TableName);
+                    Assert.Equal("Blog", entity.GetTableName());
                     Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blog", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Blog", entity.GetDbSetName());
                 },
                 entity =>
                 {
-                    Assert.Equal("Posts", entity.Relational().TableName);
+                    Assert.Equal("Posts", entity.GetTableName());
                     Assert.Equal("Posts", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                    Assert.Equal("Posts", entity.GetDbSetName());
                 }
             );
         }
@@ -1762,11 +1761,11 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = _factory.Create(dbModel, false);
 
-            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").Relational().ColumnType);
-            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
+            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").GetColumnType());
+            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetColumnType());
         }
 
         [Fact]

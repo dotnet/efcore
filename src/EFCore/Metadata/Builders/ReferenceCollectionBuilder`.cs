@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceCollectionBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(principalEntityType, dependentEntityType, builder)
+            [NotNull] IMutableEntityType principalEntityType,
+            [NotNull] IMutableEntityType dependentEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
 

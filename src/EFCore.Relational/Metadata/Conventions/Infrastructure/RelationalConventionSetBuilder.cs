@@ -10,22 +10,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet"/>
-    ///         for the current relational database provider. This is combined with <see cref="IConventionSetCustomizer"/>
-    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder"/>
+    ///         A service on the EF internal service provider that creates the <see cref="ConventionSet" />
+    ///         for the current relational database provider. This is combined with <see cref="IConventionSetCustomizer" />
+    ///         instances to produce the full convention set exposed by the <see cref="IConventionSetBuilder" />
     ///         service.
     ///     </para>
     ///     <para>
     ///         Database providers should implement this service by inheriting from either
-    ///         this class (for relational providers) or <see cref="ProviderConventionSetBuilder"/> (for non-relational providers).
+    ///         this class (for relational providers) or <see cref="ProviderConventionSetBuilder" /> (for non-relational providers).
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -76,14 +76,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var sharedTableConvention = new SharedTableConvention(logger);
 
             var discriminatorConvention = new DiscriminatorConvention(logger);
+            var storeGenerationConvention = new StoreGenerationConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
+            conventionSet.ModelBuiltConventions.Add(storeGenerationConvention);
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));

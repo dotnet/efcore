@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // TODO: Issue#14630#21
+    // TODO: Issue #14630
     internal class InheritanceSqlServerTest : InheritanceRelationalTestBase<InheritanceSqlServerFixture>
     {
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -29,15 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var cokeType = context.Model.FindEntityType(typeof(Coke));
                 var teaType = context.Model.FindEntityType(typeof(Tea));
 
-                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").Relational().ColumnName);
-                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").Relational().ColumnName);
-                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").Relational().ColumnName);
+                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
+                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
+                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").GetColumnName());
 
-                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").Relational().ColumnName);
-                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").Relational().ColumnName);
+                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
+                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").GetColumnName());
 
-                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").Relational().ColumnName);
-                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").Relational().ColumnName);
+                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
+                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
             }
         }
 

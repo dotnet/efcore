@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         A builder for building conventions for SQL Server.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
-    ///         are allowed. This means that each <see cref="DbContext"/> instance will use its own
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
     ///         set of instances of this service.
     ///         The implementations may depend on other services registered with any lifetime.
     ///         The implementations do not need to be thread-safe.
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         /// <summary>
-        ///     Creates a new <see cref="SqlServerConventionSetBuilder"/> instance.
+        ///     Creates a new <see cref="SqlServerConventionSetBuilder" /> instance.
         /// </summary>
         /// <param name="dependencies"> The core dependencies for this service. </param>
         /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
-            var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper,logger);
+            var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper, logger);
 
             conventionSet.BaseEntityTypeChangedConventions.Add(sqlServerIndexConvention);
 
@@ -84,22 +84,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.PropertyNullabilityChangedConventions.Add(sqlServerIndexConvention);
 
+            StoreGenerationConvention storeGenerationConvention = new SqlServerStoreGenerationConvention();
             conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
-            conventionSet.PropertyAnnotationChangedConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
+            ReplaceConvention(conventionSet.PropertyAnnotationChangedConventions, storeGenerationConvention);
+            ReplaceConvention(
+                conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGeneratorConvention)valueGeneratorConvention);
 
-            ReplaceConvention(conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention(logger));
+            ReplaceConvention(
+                conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention(logger));
+
+            ReplaceConvention(conventionSet.ModelBuiltConventions, storeGenerationConvention);
 
             return conventionSet;
         }
 
         /// <summary>
         ///     <para>
-        ///         Call this method to build a <see cref="ConventionSet"/> for SQL Server when using
-        ///         the <see cref="ModelBuilder"/> outside of <see cref="DbContext.OnModelCreating"/>.
+        ///         Call this method to build a <see cref="ConventionSet" /> for SQL Server when using
+        ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
         ///     </para>
         ///     <para>
         ///         Note that it is unusual to use this method.
-        ///         Consider using <see cref="DbContext"/> in the normal way instead.
+        ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
         /// <returns> The convention set. </returns>
@@ -107,9 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContext<DbContext>((p, o) =>
-                    o.UseSqlServer("Server=.")
-                        .UseInternalServiceProvider(p))
+                .AddDbContext<DbContext>(
+                    (p, o) =>
+                        o.UseSqlServer("Server=.")
+                            .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())

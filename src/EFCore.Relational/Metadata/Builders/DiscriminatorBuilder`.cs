@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     A fluent API builder for setting discriminator values.
+    ///     Provides a simple API surface for setting discriminator values.
     /// </summary>
     /// <typeparam name="TDiscriminator"> The type of the discriminator property. </typeparam>
     public class DiscriminatorBuilder<TDiscriminator>

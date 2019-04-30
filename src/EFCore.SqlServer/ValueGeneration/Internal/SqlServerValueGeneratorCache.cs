@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             IProperty property,
             IRelationalConnection connection)
         {
-            var sequence = property.SqlServer().FindHiLoSequence();
+            var sequence = property.FindSqlServerHiLoSequence();
 
             Debug.Assert(sequence != null);
 

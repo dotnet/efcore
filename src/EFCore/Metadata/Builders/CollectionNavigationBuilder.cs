@@ -32,17 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
             [CanBeNull] string navigationName,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             CollectionName = navigationName;
-            Builder = builder;
+            Builder = ((ForeignKey)foreignKey).Builder;
         }
 
         /// <summary>
@@ -53,18 +53,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
             [CanBeNull] PropertyInfo navigationProperty,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             CollectionProperty = navigationProperty;
             CollectionName = navigationProperty?.GetSimpleMemberName();
-            Builder = builder;
+            Builder = ((ForeignKey)foreignKey).Builder;
         }
 
         private InternalRelationshipBuilder Builder { get; }
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType RelatedEntityType { get; }
+        protected virtual IMutableEntityType RelatedEntityType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType DeclaringEntityType { get; }
+        protected virtual IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     <para>
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
+                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -182,9 +182,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                    && RelatedEntityType != foreignKey.DeclaringEntityType
                 ? reference.MemberInfo == null && CollectionProperty == null
                     ? Builder.HasNavigations(
-                        reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                        reference.Name, CollectionName,
+                        (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
+                        ConfigurationSource.Explicit)
                     : Builder.HasNavigations(
-                        reference.MemberInfo, CollectionProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                        reference.MemberInfo, CollectionProperty,
+                        (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
+                        ConfigurationSource.Explicit)
                 : reference.MemberInfo == null
                     ? Builder.HasNavigation(
                         reference.Name,

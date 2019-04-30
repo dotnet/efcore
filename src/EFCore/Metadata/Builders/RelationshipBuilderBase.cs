@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationshipBuilderBase(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : this(builder, null)
+        protected RelationshipBuilderBase(
+            [NotNull] IMutableEntityType principalEntityType,
+            [NotNull] IMutableEntityType dependentEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : this(((ForeignKey)foreignKey).Builder, null)
         {
             PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
@@ -59,18 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType = oldBuilder.DependentEntityType;
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
-                    : DependentEntityType.Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
+                    : ((EntityType)DependentEntityType).Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
                 _principalKeyProperties = principalKeySet
                     ? builder.Metadata.PrincipalKey.Properties
-                    : PrincipalEntityType.Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
+                    : ((EntityType)PrincipalEntityType).Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
                 _required = requiredSet
                     ? builder.Metadata.IsRequired
                     : oldBuilder._required;
 
                 var foreignKey = builder.Metadata;
                 ForeignKey.AreCompatible(
-                    PrincipalEntityType,
-                    DependentEntityType,
+                    (EntityType)PrincipalEntityType,
+                    (EntityType)DependentEntityType,
                     foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
                     foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
                     _foreignKeyProperties,
@@ -81,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Gets the principal entity type used to configure this relationship.
+        ///     The principal entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType PrincipalEntityType { get; }
+        protected virtual IMutableEntityType PrincipalEntityType { get; }
 
         /// <summary>
-        ///     Gets the dependent entity type used to configure this relationship.
+        ///     The dependent entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType DependentEntityType { get; }
+        protected virtual IMutableEntityType DependentEntityType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);
 
         /// <summary>
@@ -136,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode() => base.GetHashCode();
 
         #endregion

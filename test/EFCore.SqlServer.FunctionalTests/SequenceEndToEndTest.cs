@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                         else
                         {
-                            b.Property(e => e.Identifier).UseSqlServerIdentityColumn();
+                            b.Property(e => e.Identifier).ForSqlServerUseIdentityColumn();
                         }
                     });
             }

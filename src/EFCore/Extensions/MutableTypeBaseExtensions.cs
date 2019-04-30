@@ -3,9 +3,11 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Extensions
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Extension methods for <see cref="IMutableTypeBase" />.
@@ -21,15 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         ///         be used for any property or navigation for which no override has been specified.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type for which to set the access mode. </param>
+        /// <param name="entityType"> The type for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
         public static void SetPropertyAccessMode(
             [NotNull] this IMutableTypeBase entityType, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType[CoreAnnotationNames.PropertyAccessMode] = propertyAccessMode;
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsTypeBase()
+                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     <para>
@@ -40,14 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         ///         be used for any navigation for which no override has been specified.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type for which to set the access mode. </param>
+        /// <param name="entityType"> The type for which to set the access mode. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
         public static void SetNavigationAccessMode(
             [NotNull] this IMutableTypeBase entityType, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            entityType[CoreAnnotationNames.NavigationAccessMode] = propertyAccessMode;
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsTypeBase()
+                .SetNavigationAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
     }
 }

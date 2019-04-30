@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.DataAnnotation);
+            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation);
 
             Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
 
             Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
 

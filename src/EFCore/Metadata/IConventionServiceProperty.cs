@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
-        ///     Sets the <see cref="ServiceParameterBinding"/> for this property.
+        ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

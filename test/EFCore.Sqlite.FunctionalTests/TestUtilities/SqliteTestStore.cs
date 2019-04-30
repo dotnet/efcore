@@ -50,13 +50,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => builder.UseSqlite(Connection, b => b.CommandTimeout(CommandTimeout));
 
         public SqliteTestStore InitializeSqlite(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => (SqliteTestStore)Initialize(serviceProvider, createContext, seed);
+            => (SqliteTestStore)Initialize(serviceProvider, createContext, seed, null);
 
         public SqliteTestStore InitializeSqlite(
             IServiceProvider serviceProvider, Func<SqliteTestStore, DbContext> createContext, Action<DbContext> seed)
-            => (SqliteTestStore)Initialize(serviceProvider, () => createContext(this), seed);
+            => (SqliteTestStore)Initialize(serviceProvider, () => createContext(this), seed, null);
 
-        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
+        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
             if (!_seed)
             {
@@ -67,10 +67,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (!context.Database.EnsureCreated())
                 {
+                    clean?.Invoke(context);
                     Clean(context);
                 }
 
-                seed(context);
+                seed?.Invoke(context);
             }
         }
 
@@ -84,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return command.ExecuteNonQuery();
             }
         }
+
         public T ExecuteScalar<T>(string sql, params object[] parameters)
         {
             using (var command = CreateCommand(sql, parameters))

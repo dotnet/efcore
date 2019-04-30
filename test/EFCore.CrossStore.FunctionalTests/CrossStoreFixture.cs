@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             return testStoreFactory.GetOrCreate(StoreName)
                 .Initialize(
                     AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
-                        .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
+                        .BuildServiceProvider(validateScopes: true), CreateContext, c => { }, null);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                     eb.ToTable("RelationalSimpleEntity");
                     eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
                     eb.HasKey(e => e.Id);
-                    eb.Property(e => e.Id).UseSqlServerIdentityColumn();
+                    eb.Property(e => e.Id).ForSqlServerUseIdentityColumn();
                 });
         }
     }

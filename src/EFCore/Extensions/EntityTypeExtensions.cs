@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -175,6 +176,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets a short name for the given <see cref="ITypeBase" /> that can be used in other identifiers.
+        /// </summary>
+        /// <param name="type"> The entity type. </param>
+        /// <returns> The short name. </returns>
+        [DebuggerStepThrough]
+        public static string ShortName([NotNull] this ITypeBase type)
+        {
+            if (type.ClrType != null)
+            {
+                return type.ClrType.ShortDisplayName();
+            }
+
+            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
+            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
+            return plusIndex == -1
+                ? dotIndex == -1
+                    ? type.Name
+                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
+                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
+        }
+
+        /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
         /// <param name="entityType"> The base type to find types that derive from. </param>
@@ -297,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.GetForeignKeys().Any(fk => fk.IsOwnership);
 
         /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
         /// <param name="entityType"> The entity type to find the key on. </param>
@@ -344,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
         ///     if no foreign key is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
@@ -355,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or null if none is defined. </returns>
+        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
         public static IForeignKey FindForeignKey(
             [NotNull] this IEntityType entityType,
             [NotNull] IProperty property,
@@ -366,6 +389,14 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
+
+        /// <summary>
+        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        public static IForeignKey FindOwnership([NotNull] this IEntityType entityType)
+            => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type

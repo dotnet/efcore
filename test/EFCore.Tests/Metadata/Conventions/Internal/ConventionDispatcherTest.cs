@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                var result = entityBuilder.Property(shadowPropertyName, typeof(int), ConfigurationSource.Convention);
+                var result = entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1596,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             else
             {
                 var result = entityBuilder.Metadata.AddForeignKey(
-                    entityBuilder.Property("OrderId1", typeof(int), ConfigurationSource.Convention).Metadata,
+                    entityBuilder.Property(typeof(int), "OrderId1", ConfigurationSource.Convention).Metadata,
                     entityBuilder.Metadata.FindPrimaryKey(),
                     entityBuilder.Metadata,
                     ConfigurationSource.Convention,
@@ -1661,7 +1661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = entityBuilder.Metadata.AddForeignKey(
-                new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
+                new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
                 entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata,
                 ConfigurationSource.Explicit,
@@ -1719,7 +1719,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var builder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = entityBuilder.Metadata.AddForeignKey(
-                new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
+                new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
                 entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata,
                 ConfigurationSource.Explicit,
@@ -1728,7 +1728,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
             foreignKey.SetProperties(
-                new[] { entityBuilder.Property("FK2", typeof(int), ConfigurationSource.Convention).Metadata },
+                new[] { entityBuilder.Property(typeof(int), "FK2", ConfigurationSource.Convention).Metadata },
                 foreignKey.PrincipalKey,
                 ConfigurationSource.Convention);
 

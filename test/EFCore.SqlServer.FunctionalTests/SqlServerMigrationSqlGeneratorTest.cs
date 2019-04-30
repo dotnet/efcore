@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Person", x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
-                            x.HasIndex("Name").ForSqlServerIsOnline();
+                            x.HasIndex("Name").ForSqlServerIsCreatedOnline();
                         }),
                 new AlterColumnOperation
                 {
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "IX_Person_Name",
                     Table = "Person",
                     Columns = new[] { "Name" },
-                    [SqlServerAnnotationNames.Online] = true
+                    [SqlServerAnnotationNames.CreatedOnline] = true
                 });
 
             Assert.Equal(
@@ -1087,7 +1087,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsUnique = true,
                     Filter = "[Name] IS NOT NULL AND <> ''",
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" },
-                    [SqlServerAnnotationNames.Online] = true
+                    [SqlServerAnnotationNames.CreatedOnline] = true
                 });
 
             Assert.Equal(

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             const int blockSize = 4;
 
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -172,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = 4;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 

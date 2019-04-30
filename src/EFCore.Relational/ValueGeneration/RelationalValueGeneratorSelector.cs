@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     return new TemporaryDateTimeOffsetValueGenerator();
                 }
 
-                if (property.Relational().DefaultValueSql != null)
+                if (property.GetDefaultValueSql() != null)
                 {
                     if (propertyType == typeof(Guid))
                     {

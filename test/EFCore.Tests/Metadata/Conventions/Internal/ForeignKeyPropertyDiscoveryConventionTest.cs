@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
             dependentTypeBuilder.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
             dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
-            var fkProperty = dependentTypeBuilder.Property("No!No!", typeof(int), ConfigurationSource.Convention).Metadata;
+            var fkProperty = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                     PrincipalType,
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyNameProperty, ConfigurationSource.Convention);
             dependentTypeBuilder.Property(DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
             dependentTypeBuilder.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
-            var fkProperty1 = dependentTypeBuilder.Property("No!No!", typeof(int), ConfigurationSource.Convention);
-            var fkProperty2 = dependentTypeBuilder.Property("No!No!2", typeof(string), ConfigurationSource.Convention);
+            var fkProperty1 = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention);
+            var fkProperty2 = dependentTypeBuilder.Property(typeof(string), "No!No!2", ConfigurationSource.Convention);
             fkProperty2.IsRequired(true, ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentTypeBuilder.HasRelationship(
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_not_match_principal_type_plus_PK_name_property_of_different_type()
         {
             var dependentTypeBuilder = DependentType.Builder;
-            var fkProperty = dependentTypeBuilder.Property("PrincipalEntityPeeKay", typeof(string), ConfigurationSource.Explicit).Metadata;
+            var fkProperty = dependentTypeBuilder.Property(typeof(string), "PrincipalEntityPeeKay", ConfigurationSource.Explicit).Metadata;
             dependentTypeBuilder.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentTypeBuilder.HasRelationship(
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.False(fk.IsUnique);
 
-            var property = DependentType.Builder.Property("SomeNavId", typeof(int?), ConfigurationSource.Convention);
+            var property = DependentType.Builder.Property(typeof(int?), "SomeNavId", ConfigurationSource.Convention);
 
             Assert.Same(property, convention.Apply(property));
             Assert.Same(fk, DependentType.GetForeignKeys().Single());

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
-                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null);
+                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null, null);
 
         public static SqlServerTestStore GetOrCreate(string name)
             => new SqlServerTestStore(name);
@@ -69,15 +69,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
+            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed, null);
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
             => InitializeSqlServer(serviceProvider, () => createContext(this), seed);
 
-        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
+        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
-            if (CreateDatabase())
+            if (CreateDatabase(clean))
             {
                 if (_scriptPath != null)
                 {
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     using (var context = createContext())
                     {
                         context.Database.EnsureCreatedResiliently();
-                        seed(context);
+                        seed?.Invoke(context);
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseSqlServer(Connection, b => b.ApplyConfiguration().CommandTimeout(CommandTimeout));
 
-        private bool CreateDatabase()
+        private bool CreateDatabase(Action<DbContext> clean)
         {
             using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
             {
@@ -116,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                                         .EnableServiceProviderCaching(false))
                                 .Options))
                         {
+                            clean?.Invoke(context);
                             Clean(context);
                             return true;
                         }

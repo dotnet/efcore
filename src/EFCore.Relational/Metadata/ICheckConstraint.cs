@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the constraint sql used in a check constraint in the database.
         /// </summary>
-        string ConstraintSql { get; }
+        string Sql { get; }
     }
 }

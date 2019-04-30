@@ -6,14 +6,13 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Query.Sql;
-using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
@@ -99,7 +98,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
                 .TryAdd<IShapedQueryOptimizerFactory, SqlServerShapedQueryOptimizerFactory>()
-
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

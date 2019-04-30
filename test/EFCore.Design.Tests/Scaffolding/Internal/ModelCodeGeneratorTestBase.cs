@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = new ModelBuilder(BuildNonValidatingConventionSet());
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
-            var _ = modelBuilder.Model.Scaffolding().EntityTypeErrors;
+            var _ = modelBuilder.Model.GetEntityTypeErrors();
 
             var model = modelBuilder.FinalizeModel();
 

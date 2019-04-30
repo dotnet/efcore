@@ -52,7 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                return (TAccessor)boundMethod.Invoke(this, new object[] { propertyInfo, propertyBase });
+                return (TAccessor)boundMethod.Invoke(
+                    this, new object[]
+                    {
+                        propertyInfo, propertyBase
+                    });
             }
             catch (TargetInvocationException e) when (e.InnerException != null)
             {

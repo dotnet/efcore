@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -221,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
                 RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
                 InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                ChangeDetector.SkipDetectChangesAnnotation,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.BeforeSaveBehavior,
@@ -236,7 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.DefiningQuery,
-                CoreAnnotationNames.QueryFilter
+                CoreAnnotationNames.QueryFilter,
+                RelationalAnnotationNames.CheckConstraints
             };
 
             var ignoredAnnotationTypes = new List<string>

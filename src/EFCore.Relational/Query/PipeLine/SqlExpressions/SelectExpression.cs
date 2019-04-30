@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             : base("")
         {
             var tableExpression = new TableExpression(
-                entityType.Relational().TableName,
-                entityType.Relational().Schema,
-                entityType.Relational().TableName.ToLower().Substring(0, 1));
+                entityType.GetTableName(),
+                entityType.GetSchema(),
+                entityType.GetTableName().ToLower().Substring(0, 1));
 
             _tables.Add(tableExpression);
 

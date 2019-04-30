@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
-            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = false;
-            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValue = false;
+            entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValue(false);
+            entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValue(false);
 
             var property = entityType.AddProperty("ImBool", typeof(bool));
-            property.Relational().DefaultValue = false;
+            property.SetDefaultValue(false);
             property.ValueGenerated = ValueGenerated.OnAdd;
 
             Validate(model);
@@ -44,11 +44,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
-            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = true;
-            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValue = true;
+            entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValue(true);
+            entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValue(true);
 
             var property = entityType.AddProperty("ImBool", typeof(bool));
-            property.Relational().DefaultValue = true;
+            property.SetDefaultValue(true);
             property.ValueGenerated = ValueGenerated.OnAdd;
 
             VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
@@ -60,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
-            entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValueSql = "TRUE";
-            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValueSql = "TRUE";
+            entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValueSql("TRUE");
+            entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValueSql("TRUE");
 
             var property = entityType.AddProperty("ImBool", typeof(bool));
-            property.Relational().DefaultValueSql = "TRUE";
+            property.SetDefaultValueSql("TRUE");
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
             VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
@@ -76,9 +76,10 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateConventionlessModelBuilder().Model;
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
-            entityA.FindProperty("Id").Relational().DefaultValue = 1;
+            entityA.FindProperty("Id").SetDefaultValue(1);
 
-            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
+            VerifyWarning(RelationalResources.LogKeyHasDefaultValue(
+                new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
         [Fact]
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityA.AddProperty("P0", typeof(int?));
             property.IsNullable = false;
             entityA.AddKey(new[] { property });
-            property.Relational().DefaultValue = 1;
+            property.SetDefaultValue(1);
 
             VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
         }
@@ -104,10 +105,10 @@ namespace Microsoft.EntityFrameworkCore
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
             SetPrimaryKey(entityB);
-            entityA.Relational().TableName = "Table";
-            entityA.Relational().Schema = "Schema";
-            entityB.Relational().TableName = "Table";
-            entityB.Relational().Schema = "Schema";
+            entityA.SetTableName("Table");
+            entityA.SetSchema("Schema");
+            entityB.SetTableName("Table");
+            entityB.SetSchema("Schema");
 
             VerifyError(
                 RelationalStrings.IncompatibleTableNoRelationship(
@@ -123,10 +124,10 @@ namespace Microsoft.EntityFrameworkCore
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
             SetPrimaryKey(entityB);
-            entityA.Relational().TableName = "Table";
-            entityA.Relational().Schema = "SchemaA";
-            entityB.Relational().TableName = "Table";
-            entityB.Relational().Schema = "SchemaB";
+            entityA.SetTableName("Table");
+            entityA.SetSchema("SchemaA");
+            entityB.SetTableName("Table");
+            entityB.SetSchema("SchemaB");
 
             Validate(model);
         }
@@ -567,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
+            Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -601,13 +602,13 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name", fk1.GetConstraintName());
+            Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
+            Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -622,13 +623,13 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name", fk1.GetConstraintName());
+            Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.Relational().Name, index2.Relational().Name);
+            Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -685,12 +686,12 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
+            Assert.Equal(fk1.GetConstraintName(), fk2.GetConstraintName());
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.Relational().Name, index2.Relational().Name);
+            Assert.Equal(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -749,12 +750,12 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(fk1, fk2);
-            Assert.Equal(fk1.Relational().ConstraintName, fk2.Relational().ConstraintName);
+            Assert.Equal(fk1.GetConstraintName(), fk2.GetConstraintName());
 
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.Relational().Name, index2.Relational().Name);
+            Assert.Equal(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -869,8 +870,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("IX_Animal_Name", index1.Relational().Name);
-            Assert.Equal("IX_Animal_Name1", index2.Relational().Name);
+            Assert.Equal("IX_Animal_Name", index1.GetName());
+            Assert.Equal("IX_Animal_Name1", index2.GetName());
         }
 
         [Fact]
@@ -896,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
 
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.Relational().Name, index2.Relational().Name);
+            Assert.Equal(index1.GetName(), index2.GetName());
         }
 
         [Fact]
@@ -986,8 +987,8 @@ namespace Microsoft.EntityFrameworkCore
             var entityC = model.AddEntityType(typeof(C));
             SetBaseType(entityC, entityA);
 
-            entityA.Relational().DiscriminatorProperty = entityA.AddProperty("D", typeof(int));
-            entityC.Relational().DiscriminatorValue = 1;
+            entityA.SetDiscriminatorProperty(entityA.AddProperty("D", typeof(int)));
+            entityC.SetDiscriminatorValue(1);
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
         }
@@ -1001,8 +1002,8 @@ namespace Microsoft.EntityFrameworkCore
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));
             SetBaseType(entityGeneric, entityAbstract);
 
-            entityAbstract.Relational().DiscriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
-            entityAbstract.Relational().DiscriminatorValue = 0;
+            entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("D", typeof(int)));
+            entityAbstract.SetDiscriminatorValue(0);
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
         }
@@ -1125,9 +1126,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.SetBaseType(entityType, baseEntityType);
 
-            baseEntityType.Relational().DiscriminatorProperty = baseEntityType.AddProperty("Discriminator", typeof(string));
-            baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
-            entityType.Relational().DiscriminatorValue = entityType.Name;
+            baseEntityType.SetDiscriminatorProperty(baseEntityType.AddProperty("Discriminator", typeof(string)));
+            baseEntityType.SetDiscriminatorValue(baseEntityType.Name);
+            entityType.SetDiscriminatorValue(entityType.Name);
         }
 
         protected class Animal

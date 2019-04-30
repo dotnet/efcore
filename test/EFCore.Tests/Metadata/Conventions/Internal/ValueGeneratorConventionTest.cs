@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityBuilder.Property("binaryKey", typeof(byte[]), ConfigurationSource.Explicit);
+            entityBuilder.Property(typeof(byte[]), "binaryKey", ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(new[] { "binaryKey" }, ConfigurationSource.Convention);
 
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityBuilder.Property("enumKey", typeof(Eenom), ConfigurationSource.Explicit);
+            entityBuilder.Property(typeof(Eenom), "enumKey", ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(new[] { "enumKey" }, ConfigurationSource.Convention);
 
@@ -374,8 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
-            var idProperty = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
-            var numberProperty = entityBuilder.Property("Number", typeof(int), ConfigurationSource.Convention).Metadata;
+            var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
+            var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention).Metadata;
 
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
-            entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention)
+            entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(

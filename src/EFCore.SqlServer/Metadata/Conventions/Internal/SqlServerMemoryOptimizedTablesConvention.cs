@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -18,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerMemoryOptimizedTablesConvention : IEntityTypeAnnotationChangedConvention, IKeyAddedConvention, IIndexAddedConvention
+    public class SqlServerMemoryOptimizedTablesConvention : IEntityTypeAnnotationChangedConvention, IKeyAddedConvention,
+        IIndexAddedConvention
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                 var memoryOptimized = annotation?.Value as bool? == true;
                 foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())
                 {
-                    key.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);
+                    key.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
 
                 foreach (var index in entityTypeBuilder.Metadata.GetDerivedIndexesInclusive())
                 {
-                    index.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);
+                    index.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
             }
 
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
-            if (keyBuilder.Metadata.DeclaringEntityType.SqlServer().IsMemoryOptimized)
+            if (keyBuilder.Metadata.DeclaringEntityType.GetSqlServerIsMemoryOptimized())
             {
-                keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(false);
+                keyBuilder.ForSqlServerIsClustered(false);
             }
 
             return keyBuilder;
@@ -89,9 +89,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalIndexBuilder Apply(InternalIndexBuilder indexBuilder)
         {
-            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.SqlServer().IsMemoryOptimized))
+            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.GetSqlServerIsMemoryOptimized()))
             {
-                indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(false);
+                indexBuilder.ForSqlServerIsClustered(false);
             }
 
             return indexBuilder;

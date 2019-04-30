@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             foreach (var function in MyBaseContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.Relational().FindDbFunction(
+                    modelBuilder.Model.FindDbFunction(
                         typeof(MyBaseContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             foreach (var function in MyDerivedContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.Relational().FindDbFunction(
+                    modelBuilder.Model.FindDbFunction(
                         typeof(MyDerivedContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }

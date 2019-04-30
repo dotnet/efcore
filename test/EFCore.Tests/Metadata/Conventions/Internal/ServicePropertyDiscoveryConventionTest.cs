@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_not_find_service_property_configured_as_property()
         {
             var entityType = new Model().AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
-            entityType.Builder.Property(nameof(BlogOneService.Loader), typeof(ILazyLoader), ConfigurationSource.Explicit)
+            entityType.Builder.Property(typeof(ILazyLoader), nameof(BlogOneService.Loader), ConfigurationSource.Explicit)
                 .HasConversion(typeof(string), ConfigurationSource.Explicit);
 
             ApplyConvention(entityType);

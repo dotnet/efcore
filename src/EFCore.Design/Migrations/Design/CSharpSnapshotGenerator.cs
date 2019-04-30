@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -65,8 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
                     IgnoreAnnotations(
                         annotations,
+                        ChangeDetector.SkipDetectChangesAnnotation,
                         CoreAnnotationNames.ChangeTrackingStrategy,
-                        CoreAnnotationNames.OwnedTypes);
+                        CoreAnnotationNames.OwnedTypes,
+                        RelationalAnnotationNames.CheckConstraints);
 
                     GenerateAnnotations(annotations, stringBuilder);
                 }
@@ -678,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(".")
                     .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
                     .Append("(")
-                    .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.Relational().TableName));
+                    .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.GetTableName()));
                 annotations.Remove(tableNameAnnotation);
                 nonDefaultName = true;
             }
@@ -730,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
-                    var discriminatorProperty = entityType.RootType().Relational().DiscriminatorProperty;
+                    var discriminatorProperty = entityType.RootType().GetDiscriminatorProperty();
                     if (discriminatorProperty != null)
                     {
                         var valueConverter = FindValueConverter(discriminatorProperty);
@@ -960,9 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(
                 ref annotations,
                 RelationalAnnotationNames.Name,
-                foreignKey.IsUnique
-                    ? nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)
-                    : nameof(RelationalReferenceCollectionBuilderExtensions.HasConstraintName),
+                "HasConstraintName",
                 stringBuilder);
 
             GenerateAnnotations(annotations, stringBuilder);
@@ -1075,10 +1076,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 stringBuilder.Append("(");
 
-                if (annotationValue != null)
-                {
-                    stringBuilder.Append(Code.UnknownLiteral(annotationValue));
-                }
+                stringBuilder.Append(Code.UnknownLiteral(annotationValue));
 
                 stringBuilder.Append(")");
 

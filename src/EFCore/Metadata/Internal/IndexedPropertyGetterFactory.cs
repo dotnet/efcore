@@ -57,7 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                   ?? property?.FindMapping()?.Comparer
                   ?? (ValueComparer)Activator.CreateInstance(
                       typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                      new object[] { false });
+                      new object[]
+                      {
+                          false
+                      });
 
             var hasDefaultValueExpression = comparer == null
                 ? Expression.Equal(readExpression, Expression.Default(typeof(TValue)))

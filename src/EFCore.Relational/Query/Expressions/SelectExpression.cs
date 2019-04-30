@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
                 ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
                     .LiftExpressionFromSubquery(table)
-                : new ColumnExpression(property.Relational().ColumnName, property, table);
+                : new ColumnExpression(property.GetColumnName(), property, table);
 
             return projectedExpressionToSearch;
         }

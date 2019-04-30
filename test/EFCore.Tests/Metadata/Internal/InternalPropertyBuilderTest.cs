@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
-            var builder = entityBuilder.Property(nameof(Customer.Id), typeof(int), ConfigurationSource.Convention);
+            var builder = entityBuilder.Property(typeof(int), nameof(Customer.Id), ConfigurationSource.Convention);
 
             Assert.Null(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 

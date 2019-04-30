@@ -1346,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (operation.IsUnicode == property.IsUnicode()
                     && operation.MaxLength == property.GetMaxLength()
-                    && (operation.IsFixedLength ?? false) == property.Relational().IsFixedLength
+                    && (operation.IsFixedLength ?? false) == property.IsFixedLength()
                     && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
                     return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("CHECK ");
 
             builder.Append("(")
-                .Append(operation.ConstraintSql)
+                .Append(operation.Sql)
                 .Append(")");
         }
 
@@ -1721,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => t.Relational().TableName == tableName && t.Relational().Schema == schema && t.FindPrimaryKey() != null);
+                t => t.GetTableName() == tableName && t.GetSchema() == schema && t.FindPrimaryKey() != null);
 
         /// <summary>
         ///     <para>
@@ -1739,15 +1739,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="columnName"> The column name. </param>
         /// <returns> The property found, or <c>null</c> if no property maps to the given column. </returns>
         protected virtual IProperty FindProperty(
-            [CanBeNull] IModel model,
-            [CanBeNull] string schema,
-            [NotNull] string tableName,
-            [NotNull] string columnName
+                [CanBeNull] IModel model,
+                [CanBeNull] string schema,
+                [NotNull] string tableName,
+                [NotNull] string columnName)
             // Any property that maps to the column will work because model validator has
             // checked that all properties result in the same column definition.
-        )
             => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
-                .FirstOrDefault(p => p.Relational().ColumnName == columnName);
+                .FirstOrDefault(p => p.GetColumnName() == columnName);
 
         /// <summary>
         ///     Generates a SQL fragment to terminate the SQL command.

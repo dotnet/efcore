@@ -88,11 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return Expression.Lambda(materializer, materializationContextParameter);
             }
 
-            var discriminatorProperty = firstEntityType.Relational().DiscriminatorProperty;
+            var discriminatorProperty = firstEntityType.GetDiscriminatorProperty();
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    firstEntityType.Relational().DiscriminatorValue,
+                    firstEntityType.GetDiscriminatorValue(),
                     discriminatorProperty.ClrType);
 
             var discriminatorValueVariable
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var discriminatorValue
                     = Expression.Constant(
-                        concreteEntityType.Relational().DiscriminatorValue,
+                        concreteEntityType.GetDiscriminatorValue(),
                         discriminatorProperty.ClrType);
 
                 materializer

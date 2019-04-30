@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public OwnershipBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(principalEntityType, dependentEntityType, builder)
+            [NotNull] IMutableEntityType principalEntityType,
+            [NotNull] IMutableEntityType dependentEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
-                DependentEntityType,
+                (EntityType)DependentEntityType,
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 Builder,
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
-                DependentEntityType,
+                (EntityType)DependentEntityType,
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 Builder,

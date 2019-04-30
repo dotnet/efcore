@@ -605,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var operand =
                 methodCallExpression.Method.IsEFIndexer()
                     ? null
-                    : compilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                    : compilationContext.Model.FindDbFunction(methodCallExpression.Method) != null
                         ? methodCallExpression.Object
                         : Visit(methodCallExpression.Object);
 

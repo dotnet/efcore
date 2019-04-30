@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            return entityType.Model.ShouldBeOwned(entityType.ClrType)
+            return entityType.Model.IsOwned(entityType.ClrType)
                    && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata)
                 ? targetEntityTypeBuilder.HasOwnership(
                     entityTypeBuilder.Metadata.ClrType,

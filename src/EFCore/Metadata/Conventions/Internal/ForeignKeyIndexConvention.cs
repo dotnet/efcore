@@ -284,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (index.IsUnique)
             {
                 foreach (var otherIndex in index.DeclaringEntityType.GetDerivedIndexesInclusive()
-                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUniqueness: true)).ToList())
+                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUniqueness: true))
+                    .ToList())
                 {
                     RemoveIndex(otherIndex);
                 }
@@ -373,7 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     foreach (var key in entityType.GetKeys())
                     {
-                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, coveringIndexUniqueness: true))
+                        if (AreIndexedBy(
+                            declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, coveringIndexUniqueness: true))
                         {
                             if (declaredForeignKey.Properties.Count != key.Properties.Count)
                             {
@@ -384,7 +386,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     foreach (var existingIndex in entityType.GetIndexes())
                     {
-                        if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties, existingIndex.IsUnique))
+                        if (AreIndexedBy(
+                            declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties, existingIndex.IsUnique))
                         {
                             if (declaredForeignKey.Properties.Count != existingIndex.Properties.Count)
                             {

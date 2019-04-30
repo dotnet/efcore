@@ -46,6 +46,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public ModelBuilder([NotNull] IMutableModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            _builder = ((Model)model).Builder;
+        }
+
+        /// <summary>
         ///     The model being configured.
         /// </summary>
         public virtual IMutableModel Model => Builder.Metadata;
@@ -86,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
+            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -98,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -112,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -210,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder.HasNoKey(ConfigurationSource.Explicit);
             }
 
-            return new QueryTypeBuilder<TQuery>(builder);
+            return new QueryTypeBuilder<TQuery>(builder.Metadata);
         }
 
         /// <summary>
@@ -228,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder.HasNoKey(ConfigurationSource.Explicit);
             }
 
-            return new EntityTypeBuilder(builder);
+            return new EntityTypeBuilder(builder.Metadata);
         }
 
         /// <summary>

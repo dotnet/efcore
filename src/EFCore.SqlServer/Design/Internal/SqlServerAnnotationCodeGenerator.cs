@@ -46,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-                ? (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn
-                : false;
+                   && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
         }
 
         /// <summary>
@@ -57,13 +56,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
-        {
-            return annotation.Name == SqlServerAnnotationNames.Clustered
+            => annotation.Name == SqlServerAnnotationNames.Clustered
                 ? (bool)annotation.Value == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
                     : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered))
                 : null;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

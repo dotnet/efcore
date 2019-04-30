@@ -2,9 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -23,25 +22,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
             Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            var discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
 
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Same(discriminator, baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
         }
 
         [Fact]
@@ -52,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
             Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
@@ -68,23 +67,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.True(new DiscriminatorConvention(logger).Apply(derivedTypeBuilder, oldBaseType: null));
 
-            var discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Same(discriminator, derivedTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Same(discriminator, baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Same(discriminator, derivedTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
 
             entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
 
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, derivedTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Same(discriminator, derivedTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
         [Fact]
@@ -95,17 +94,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
-            baseTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(string));
+            new EntityTypeBuilder(baseTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            var discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
+            Assert.Same(discriminator, baseTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Equal("T", discriminator.Name);
             Assert.Equal(typeof(string), discriminator.ClrType);
-            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
         [Fact]
@@ -116,17 +115,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
-            baseTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(int));
+            new EntityTypeBuilder(baseTypeBuilder.Metadata).HasDiscriminator("T", typeof(int));
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            var discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            var discriminator = entityTypeBuilder.Metadata.GetDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
+            Assert.Same(discriminator, baseTypeBuilder.Metadata.GetDiscriminatorProperty());
             Assert.Equal("T", discriminator.Name);
             Assert.Equal(typeof(int), discriminator.ClrType);
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
         [Fact]
@@ -135,25 +134,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
             var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
-            entityTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(string));
+            new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);
 
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: null));
 
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
             Assert.True(new DiscriminatorConvention(logger).Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
 
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.NotNull(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.NotNull(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
         private class EntityBase

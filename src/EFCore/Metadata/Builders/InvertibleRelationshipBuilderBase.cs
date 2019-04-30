@@ -28,15 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public InvertibleRelationshipBuilderBase(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : this(builder, null)
+        protected InvertibleRelationshipBuilderBase(
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : this(((ForeignKey)foreignKey).Builder, null)
         {
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
@@ -99,16 +99,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the first entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType DeclaringEntityType { get; }
+        protected virtual IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the second entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType RelatedEntityType { get; }
+        protected virtual IMutableEntityType RelatedEntityType { get; }
 
         /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
 
         /// <summary>

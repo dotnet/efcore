@@ -538,7 +538,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var entityType = FindEntityType(name);
-            return entityType == null ? Array.Empty<EntityType>() : new[] { entityType };
+            return entityType == null
+                ? Array.Empty<EntityType>()
+                : new[]
+                {
+                    entityType
+                };
         }
 
         /// <summary>
@@ -665,11 +670,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? FindIgnoredConfigurationSource([NotNull] Type type)
+        public virtual ConfigurationSource? GetIsIgnoredConfigurationSource([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return FindIgnoredConfigurationSource(GetDisplayName(type));
+            return GetIsIgnoredConfigurationSource(GetDisplayName(type));
         }
 
         /// <summary>
@@ -678,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
+        public virtual ConfigurationSource? GetIsIgnoredConfigurationSource(string name)
             => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
                 ? (ConfigurationSource?)ignoredConfigurationSource
                 : null;
@@ -690,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsIgnored(string name)
-            => FindIgnoredConfigurationSource(name) != null;
+            => GetIsIgnoredConfigurationSource(name) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -699,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsIgnored([NotNull] Type type)
-            => FindIgnoredConfigurationSource(GetDisplayName(type)) != null;
+            => GetIsIgnoredConfigurationSource(GetDisplayName(type)) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -731,24 +736,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ShouldBeOwned([NotNull] Type clrType)
+        public virtual bool IsOwned([NotNull] Type clrType)
+            => GetIsOwnedConfigurationSource(clrType) != null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetIsOwnedConfigurationSource([NotNull] Type clrType)
         {
-            if (!(this[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
+            if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
-                return false;
+                return null;
             }
 
             while (clrType != null)
             {
-                if (ownedTypes.Contains(GetDisplayName(clrType)))
+                if (ownedTypes.TryGetValue(GetDisplayName(clrType), out var configurationSource))
                 {
-                    return true;
+                    return configurationSource;
                 }
 
                 clrType = clrType.BaseType;
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -757,16 +771,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddOwned([NotNull] Type clrType)
+        public virtual void AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
             var name = GetDisplayName(clrType);
-            if (!(this[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
+            if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
-                ownedTypes = new HashSet<string>(StringComparer.Ordinal);
+                ownedTypes = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
                 this[CoreAnnotationNames.OwnedTypes] = ownedTypes;
             }
 
-            ownedTypes.Add(name);
+            if (ownedTypes.TryGetValue(name, out var oldConfigurationSource))
+            {
+                ownedTypes[name] = configurationSource.Max(oldConfigurationSource);
+                return;
+            }
+
+            ownedTypes.Add(name, configurationSource);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void RemoveOwned([NotNull] Type clrType)
+        {
+            if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
+            {
+                return;
+            }
+
+            ownedTypes.Remove(GetDisplayName(clrType));
         }
 
         /// <summary>
@@ -787,22 +823,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
             => this.SetOrRemoveAnnotation(CoreAnnotationNames.ChangeTrackingStrategy, changeTrackingStrategy, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void RemoveOwned([NotNull] Type clrType)
-        {
-            if (!(this[CoreAnnotationNames.OwnedTypes] is HashSet<string> ownedTypes))
-            {
-                return;
-            }
-
-            ownedTypes.Remove(GetDisplayName(clrType));
-        }
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -866,9 +886,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         void IMutableModel.AddIgnored(string name)
             => AddIgnored(name, ConfigurationSource.Explicit);
-
-        void IMutableModel.AddIgnored(Type clrType)
-            => AddIgnored(clrType, ConfigurationSource.Explicit);
 
         IConventionModelBuilder IConventionModel.Builder => Builder;
 

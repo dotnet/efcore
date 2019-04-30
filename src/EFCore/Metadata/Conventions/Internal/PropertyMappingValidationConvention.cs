@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var isTargetWeakOrOwned
                         = targetType != null
                           && (modelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetType)
-                              || modelBuilder.Metadata.ShouldBeOwned(targetType));
+                              || modelBuilder.Metadata.IsOwned(targetType));
 
                     if (targetType?.IsValidEntityType() == true
                         && (isTargetWeakOrOwned
@@ -139,8 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                         || (entityType.DefiningEntityType.ClrType.Equals(targetType)
                                             && targetSequenceType == null)))))
                         {
-                            if (modelBuilder.Metadata.ShouldBeOwned(entityType.ClrType)
-                                && modelBuilder.Metadata.ShouldBeOwned(targetType))
+                            if (modelBuilder.Metadata.IsOwned(entityType.ClrType)
+                                && modelBuilder.Metadata.IsOwned(targetType))
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));

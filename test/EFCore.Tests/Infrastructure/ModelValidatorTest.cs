@@ -71,22 +71,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            dependentEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             dependentEntityBuilder.PrimaryKey(
                 new List<string>
                 {
                     "Id"
                 }, ConfigurationSource.Convention);
             var principalEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
-            principalEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             principalEntityBuilder.PrimaryKey(
                 new List<string>
                 {
                     "Id"
                 }, ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
-            principalEntityBuilder.Property("ReferencedFoo", typeof(string), ConfigurationSource.Convention);
+            dependentEntityBuilder.Property(typeof(string), "Foo", ConfigurationSource.Convention);
+            principalEntityBuilder.Property(typeof(string), "ReferencedFoo", ConfigurationSource.Convention);
             dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata,
                 dependentEntityBuilder.GetOrCreateProperties(

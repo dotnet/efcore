@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="loggers"> Loggers to use if needed. </param>
         protected virtual void ValidateDbFunctions([NotNull] IModel model, DiagnosticsLoggers loggers)
         {
-            foreach (var dbFunction in model.Relational().DbFunctions)
+            foreach (var dbFunction in model.GetDbFunctions())
             {
                 var methodInfo = dbFunction.MethodInfo;
 
@@ -119,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 if (property.ClrType == typeof(bool)
                     && property.ValueGenerated != ValueGenerated.Never
-                    && (IsNotNullAndFalse(property.Relational().DefaultValue)
-                        || property.Relational().DefaultValueSql != null))
+                    && (IsNotNullAndFalse(property.GetDefaultValue())
+                        || property.GetDefaultValueSql() != null))
                 {
                     logger.BoolWithDefaultWarning(property);
                 }
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var property in model.GetEntityTypes().SelectMany(
                     t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
-                .Where(p => p.Relational().DefaultValue != null))
+                .Where(p => p.GetDefaultValue() != null))
             {
                 logger.ModelValidationKeyDefaultValueWarning(property);
             }
@@ -158,8 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var tables = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
-                var annotations = entityType.Relational();
-                var tableName = Format(annotations.Schema, annotations.TableName);
+                var tableName = Format(entityType.GetSchema(), entityType.GetTableName());
 
                 if (!tables.TryGetValue(tableName, out var mappedTypes))
                 {
@@ -238,16 +238,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var key = entityType.FindPrimaryKey();
                     var otherKey = nextEntityType.FindPrimaryKey();
-                    if (key.Relational().Name != otherKey.Relational().Name)
+                    if (key.GetName() != otherKey.GetName())
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.IncompatibleTableKeyNameMismatch(
                                 tableName,
                                 entityType.DisplayName(),
                                 nextEntityType.DisplayName(),
-                                key.Relational().Name,
+                                key.GetName(),
                                 key.Properties.Format(),
-                                otherKey.Relational().Name,
+                                otherKey.GetName(),
                                 otherKey.Properties.Format()));
                     }
 
@@ -267,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var invalidEntityType in unvalidatedTypes)
             {
+                Debug.Assert(root != null);
                 throw new InvalidOperationException(
                     RelationalStrings.IncompatibleTableNoRelationship(
                         tableName,
@@ -304,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             storeConcurrencyTokens = new Dictionary<string, IProperty>();
                         }
 
-                        storeConcurrencyTokens[property.Relational().ColumnName] = property;
+                        storeConcurrencyTokens[property.GetColumnName()] = property;
                     }
                 }
             }
@@ -330,8 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var propertyAnnotations = property.Relational();
-                    var columnName = propertyAnnotations.ColumnName;
+                    var columnName = property.GetColumnName();
                     missingConcurrencyTokens?.Remove(columnName);
                     if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                     {
@@ -339,10 +339,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
-                    var previousAnnotations = duplicateProperty.Relational();
-                    var currentTypeString = propertyAnnotations.ColumnType
+                    var currentTypeString = property.GetColumnType()
                                             ?? property.FindRelationalMapping()?.StoreType;
-                    var previousTypeString = previousAnnotations.ColumnType
+                    var previousTypeString = duplicateProperty.GetColumnType()
                                              ?? duplicateProperty.FindRelationalMapping()?.StoreType;
                     if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
                     {
@@ -370,8 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 tableName));
                     }
 
-                    var currentComputedColumnSql = propertyAnnotations.ComputedColumnSql ?? "";
-                    var previousComputedColumnSql = previousAnnotations.ComputedColumnSql ?? "";
+                    var currentComputedColumnSql = property.GetComputedColumnSql() ?? "";
+                    var previousComputedColumnSql = duplicateProperty.GetComputedColumnSql() ?? "";
                     if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(
@@ -386,8 +385,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 currentComputedColumnSql));
                     }
 
-                    var currentDefaultValue = propertyAnnotations.DefaultValue;
-                    var previousDefaultValue = previousAnnotations.DefaultValue;
+                    var currentDefaultValue = property.GetDefaultValue();
+                    var previousDefaultValue = duplicateProperty.GetDefaultValue();
                     if (!Equals(currentDefaultValue, previousDefaultValue))
                     {
                         throw new InvalidOperationException(
@@ -402,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 currentDefaultValue ?? "NULL"));
                     }
 
-                    var currentDefaultValueSql = propertyAnnotations.DefaultValueSql ?? "";
-                    var previousDefaultValueSql = previousAnnotations.DefaultValueSql ?? "";
+                    var currentDefaultValueSql = property.GetDefaultValueSql() ?? "";
+                    var previousDefaultValueSql = duplicateProperty.GetDefaultValueSql() ?? "";
                     if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(
@@ -423,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
-                        if (!entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties()).Any(p => p.Relational().ColumnName == missingColumn))
+                        if (!entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties()).Any(p => p.GetColumnName() == missingColumn))
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, tableName));
@@ -446,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
             {
-                var foreignKeyName = foreignKey.Relational().ConstraintName;
+                var foreignKeyName = foreignKey.GetConstraintName();
                 if (!foreignKeyMappings.TryGetValue(foreignKeyName, out var duplicateForeignKey))
                 {
                     foreignKeyMappings[foreignKeyName] = foreignKey;
@@ -470,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
-                var indexName = index.Relational().Name;
+                var indexName = index.GetName();
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;
@@ -494,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
             {
-                var keyName = key.Relational().Name;
+                var keyName = key.GetName();
 
                 if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
                 {
@@ -502,8 +501,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                if (!key.Properties.Select(p => p.Relational().ColumnName)
-                    .SequenceEqual(duplicateKey.Properties.Select(p => p.Relational().ColumnName)))
+                if (!key.Properties.Select(p => p.GetColumnName())
+                    .SequenceEqual(duplicateKey.Properties.Select(p => p.GetColumnName())))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateKeyColumnMismatch(
@@ -546,14 +545,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static void ValidateDiscriminator(IEntityType entityType)
         {
-            var annotations = entityType.Relational();
-            if (annotations.DiscriminatorProperty == null)
+            if (entityType.GetDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
             }
 
-            if (annotations.DiscriminatorValue == null)
+            if (entityType.GetDiscriminatorValue() == null)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.NoDiscriminatorValue(entityType.DisplayName()));
@@ -578,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 ValidateDiscriminator(derivedType);
 
-                var discriminatorValue = derivedType.Relational().DiscriminatorValue;
+                var discriminatorValue = derivedType.GetDiscriminatorValue();
                 if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))
                 {
                     throw new InvalidOperationException(

@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
             {
-                modelBuilder.Model.Scaffolding().DatabaseName = databaseModel.DatabaseName;
+                modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
             VisitSequences(modelBuilder, databaseModel.Sequences);
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var builder = modelBuilder.Entity(entityTypeName);
 
             var dbSetName = GetDbSetName(table);
-            builder.Metadata.Scaffolding().DbSetName = dbSetName;
+            builder.Metadata.SetDbSetName(dbSetName);
 
             builder.ToTable(table.Name, table.Schema);
 
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     var model = modelBuilder.Model;
                     model.RemoveEntityType(entityTypeName);
-                    model.Scaffolding().EntityTypeErrors.Add(entityTypeName, errorMessage);
+                    model.GetEntityTypeErrors().Add(entityTypeName, errorMessage);
                     return null;
                 }
             }
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.IsConcurrencyToken();
             }
 
-            property.Metadata.Scaffolding().ColumnOrdinal = column.Table.Columns.IndexOf(column);
+            property.Metadata.SetColumnOrdinal(column.Table.Columns.IndexOf(column));
 
             property.Metadata.AddAnnotations(
                 column.GetAnnotations().Where(
@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             if (!string.IsNullOrEmpty(primaryKey.Name)
-                && primaryKey.Name != ConstraintNamer.GetDefaultName(keyBuilder.Metadata))
+                && primaryKey.Name != keyBuilder.Metadata.GetDefaultName())
             {
                 keyBuilder.HasName(primaryKey.Name);
             }
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
 
             if (!string.IsNullOrEmpty(uniqueConstraint.Name)
-                && uniqueConstraint.Name != ConstraintNamer.GetDefaultName(indexBuilder.Metadata))
+                && uniqueConstraint.Name != indexBuilder.Metadata.GetDefaultName())
             {
                 indexBuilder.HasName(uniqueConstraint.Name);
             }
@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             if (!string.IsNullOrEmpty(index.Name)
-                && index.Name != ConstraintNamer.GetDefaultName(indexBuilder.Metadata))
+                && index.Name != indexBuilder.Metadata.GetDefaultName())
             {
                 indexBuilder.HasName(index.Name);
             }
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         _reporter.WriteWarning(
                             DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
                                 foreignKey.DisplayName(),
-                                index.Relational().Name,
+                                index.GetName(),
                                 nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
                                     .Aggregate((a, b) => a + "," + b)));
 
@@ -807,25 +807,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var key = dependentEntityType.AddForeignKey(
+            var newForeignKey = dependentEntityType.AddForeignKey(
                 dependentProperties, principalKey, principalEntityType);
 
             var dependentKey = dependentEntityType.FindKey(dependentProperties);
             var dependentIndex = dependentEntityType.FindIndex(dependentProperties);
-            key.IsUnique = dependentKey != null
+            newForeignKey.IsUnique = dependentKey != null
                            || dependentIndex?.IsUnique == true;
 
             if (!string.IsNullOrEmpty(foreignKey.Name)
-                && foreignKey.Name != ConstraintNamer.GetDefaultName(key))
+                && foreignKey.Name != newForeignKey.GetDefaultName())
             {
-                key.Relational().ConstraintName = foreignKey.Name;
+                newForeignKey.SetConstraintName(foreignKey.Name);
             }
 
-            AssignOnDeleteAction(foreignKey, key);
+            AssignOnDeleteAction(foreignKey, newForeignKey);
 
-            key.AddAnnotations(foreignKey.GetAnnotations());
+            newForeignKey.AddAnnotations(foreignKey.GetAnnotations());
 
-            return key;
+            return newForeignKey;
         }
 
         /// <summary>

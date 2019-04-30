@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -74,13 +73,13 @@ SET @SQL ='';
 SELECT @SQL = @SQL + 'DROP SCHEMA ' + QUOTENAME(name) + ';' FROM sys.schemas WHERE principal_id <> schema_id;
 EXEC (@SQL);";
 
-        protected override DropTableOperation Drop(DatabaseTable table)
+        protected override MigrationOperation Drop(DatabaseTable table)
             => AddMemoryOptimizedAnnotation(base.Drop(table), table);
 
-        protected override DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
+        protected override MigrationOperation Drop(DatabaseForeignKey foreignKey)
             => AddMemoryOptimizedAnnotation(base.Drop(foreignKey), foreignKey.Table);
 
-        protected override DropIndexOperation Drop(DatabaseIndex index)
+        protected override MigrationOperation Drop(DatabaseIndex index)
             => AddMemoryOptimizedAnnotation(base.Drop(index), index.Table);
 
         private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, DatabaseTable table)

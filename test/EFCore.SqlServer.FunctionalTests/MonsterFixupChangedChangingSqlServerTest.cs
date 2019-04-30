@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(builder);
 
-                builder.Entity<TMessage>().Property(e => e.MessageId).UseSqlServerIdentityColumn();
+                builder.Entity<TMessage>().Property(e => e.MessageId).ForSqlServerUseIdentityColumn();
 
                 builder.Entity<TProduct>()
                     .OwnsOne(
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore
                             db.Property(d => d.Height).HasColumnType("decimal(18,2)");
                         });
 
-                builder.Entity<TProductPhoto>().Property(e => e.PhotoId).UseSqlServerIdentityColumn();
-                builder.Entity<TProductReview>().Property(e => e.ReviewId).UseSqlServerIdentityColumn();
+                builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ForSqlServerUseIdentityColumn();
+                builder.Entity<TProductReview>().Property(e => e.ReviewId).ForSqlServerUseIdentityColumn();
 
                 builder.Entity<TComputerDetail>()
                     .OwnsOne(

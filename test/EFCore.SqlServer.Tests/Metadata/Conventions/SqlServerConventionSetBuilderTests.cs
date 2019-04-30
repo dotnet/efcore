@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var model = base.Can_build_a_model_with_default_conventions_without_DI();
 
-            Assert.Equal("ProductTable", model.GetEntityTypes().Single().SqlServer().TableName);
+            Assert.Equal("ProductTable", model.GetEntityTypes().Single().GetTableName());
 
             return model;
         }

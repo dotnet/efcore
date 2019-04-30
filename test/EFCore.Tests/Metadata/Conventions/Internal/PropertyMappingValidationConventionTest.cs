@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property(
-                nameof(NonPrimitiveAsPropertyEntity.Property), typeof(NavigationAsProperty), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(NavigationAsProperty), nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("ShadowProperty", typeof(NavigationAsProperty), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(NavigationAsProperty), "ShadowProperty", ConfigurationSource.Convention);
             entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
 
             CreateConvention().Apply(modelBuilder);
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Property", typeof(int), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(int), "Property", ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
         }

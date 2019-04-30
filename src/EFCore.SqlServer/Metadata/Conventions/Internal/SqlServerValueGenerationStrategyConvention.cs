@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
 {
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
 
         InternalModelBuilder IModelInitializedConvention.Apply(InternalModelBuilder modelBuilder)
         {
-            modelBuilder.SqlServer(ConfigurationSource.Convention).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
 
             return modelBuilder;
         }
@@ -50,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    property.Builder.SqlServer(ConfigurationSource.Convention)
-                        .ValueGenerationStrategy(property.SqlServer().ValueGenerationStrategy);
+                    // Needed for the annotation to show up in the model snapshot
+                    property.Builder.ForSqlServerHasValueGenerationStrategy(property.GetSqlServerValueGenerationStrategy());
                 }
             }
 

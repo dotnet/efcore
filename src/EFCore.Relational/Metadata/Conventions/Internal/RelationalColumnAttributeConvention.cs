@@ -39,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
-                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName(attribute.Name);
+                propertyBuilder.HasColumnName(attribute.Name, fromDataAnnotation: true);
             }
 
             if (!string.IsNullOrWhiteSpace(attribute.TypeName))
             {
-                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType(attribute.TypeName);
+                propertyBuilder.HasColumnType(attribute.TypeName, fromDataAnnotation: true);
             }
 
             return propertyBuilder;

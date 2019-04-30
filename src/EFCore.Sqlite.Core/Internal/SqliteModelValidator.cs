@@ -62,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
 
-            foreach (var entityType in model.GetEntityTypes().Where(e => e.Relational().Schema != null))
+            foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
             {
-                logger.SchemaConfiguredWarning(entityType, entityType.Relational().Schema);
+                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema());
             }
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
 
-            foreach (var sequence in model.Relational().Sequences)
+            foreach (var sequence in model.GetSequences())
             {
                 logger.SequenceConfiguredWarning(sequence);
             }

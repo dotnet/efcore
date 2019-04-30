@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Cat>(
                 cb =>
                 {
-                    cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
+                    cb.Property(c => c.Identity).ForSqlServerUseIdentityColumn();
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
             modelBuilder.Entity<Dog>(
@@ -122,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("FK_Animal_Person_Name", fk1.Relational().ConstraintName);
-            Assert.Equal("FK_Animal_Person_Name1", fk2.Relational().ConstraintName);
+            Assert.Equal("FK_Animal_Person_Name", fk1.GetConstraintName());
+            Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
         }
 
         [Fact]
@@ -136,10 +137,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("IX_Animal_Name", index1.Relational().Name);
-            Assert.Equal("IX_Animal_Name", index1.SqlServer().Name);
-            Assert.Equal("IX_Animal_Name1", index2.Relational().Name);
-            Assert.Equal("IX_Animal_Name1", index2.SqlServer().Name);
+            Assert.Equal("IX_Animal_Name", index1.GetName());
+            Assert.Equal("IX_Animal_Name1", index2.GetName());
         }
 
         [Fact]
@@ -195,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<byte>("Bite").ForSqlServerUseIdentityColumn();
 
             VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
@@ -205,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<byte?>("Bite").ForSqlServerUseIdentityColumn();
 
             VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
@@ -215,24 +214,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseIdentityColumn();
 
             Validate(modelBuilder.Model);
         }
 
         [Fact]
-        public void Throws_for_multiple_identity_properties()
+        public void Detects_multiple_identity_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<Dog>().Property<int?>("Tag").UseSqlServerIdentityColumn();
+            modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<int?>("Tag").ForSqlServerUseIdentityColumn();
 
             VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder.Model);
         }
 
         [Fact]
-        public void Throws_for_non_key_SequenceHiLo()
+        public void Detects_non_key_SequenceHiLo()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseSequenceHiLo();
@@ -261,8 +260,48 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder.Model);
         }
 
+        [Theory]
+        [InlineData("DefaultValue", "DefaultValueSql")]
+        [InlineData("DefaultValue", "ComputedColumnSql")]
+        [InlineData("DefaultValueSql", "ComputedColumnSql")]
+        [InlineData("SqlServerValueGenerationStrategy", "DefaultValue")]
+        [InlineData("SqlServerValueGenerationStrategy", "DefaultValueSql")]
+        [InlineData("SqlServerValueGenerationStrategy", "ComputedColumnSql")]
+        public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var propertyBuilder = modelBuilder.Entity<Dog>().Property<int?>("NullableInt");
+
+            ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
+            ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2");
+
+            VerifyError(RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration), modelBuilder.Model);
+        }
+
+        protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
+        {
+            switch (configuration)
+            {
+                case "DefaultValue":
+                    property.SetDefaultValue(int.Parse(value));
+                    break;
+                case "DefaultValueSql":
+                    property.SetDefaultValueSql(value);
+                    break;
+                case "ComputedColumnSql":
+                    property.SetComputedColumnSql(value);
+                    break;
+                case "SqlServerValueGenerationStrategy":
+                    property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         [Fact]
-        public void Throws_for_missing_include_properties()
+        public void Detects_missing_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
@@ -272,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Throws_for_duplicate_include_properties()
+        public void Detects_duplicate_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
@@ -282,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Throws_for_indexed_include_properties()
+        public void Detects_indexed_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
@@ -296,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerIsOnline();
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerIsCreatedOnline();
 
             Validate(modelBuilder.Model);
         }

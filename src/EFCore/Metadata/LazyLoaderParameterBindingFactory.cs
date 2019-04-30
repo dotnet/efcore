@@ -7,9 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IParameterBindingFactory" /> for binding to the <see cref="IsLazyLoader"/> service.
+    ///         A <see cref="IParameterBindingFactory" /> for binding to the <see cref="IsLazyLoader" /> service.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations

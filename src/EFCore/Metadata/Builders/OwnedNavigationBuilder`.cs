@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TDependentEntity, object>> keyExpression)
             => new KeyBuilder(
                 DependentEntityType.Builder.PrimaryKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -86,10 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>(
             [NotNull] Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-            => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
-                    ConfigurationSource.Explicit));
+            => UpdateBuilder(
+                () => new PropertyBuilder<TProperty>(
+                    DependentEntityType.Builder.Property(
+                        Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
+                        ConfigurationSource.Explicit).Metadata));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -110,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(
             [NotNull] Expression<Func<TDependentEntity, object>> propertyExpression)
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)
-                base.Ignore(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess().GetSimpleMemberName());
+                base.Ignore(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression))
+                        .GetPropertyAccess().GetSimpleMemberName());
 
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
@@ -130,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TDependentEntity, object>> indexExpression)
             => new IndexBuilder(
                 DependentEntityType.Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                        Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit)
+                    .Metadata);
 
         /// <summary>
         ///     <para>
@@ -158,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.HasNavigation(
                     ownerReference,
                     pointsToPrincipal: true,
-                    ConfigurationSource.Explicit));
+                    ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -185,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.HasNavigation(
                     referenceExpression?.GetPropertyAccess(),
                     pointsToPrincipal: true,
-                    ConfigurationSource.Explicit));
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -531,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType));
+                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -575,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigation,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigation, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType));
+                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
         }
 
         /// <summary>

@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
-using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -23,14 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null) => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null);
+            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null, null);
 
         public static CosmosTestStore GetOrCreate(string name) => new CosmosTestStore(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
             => new CosmosTestStore(name, dataFilePath: dataFilePath);
 
-        private CosmosTestStore(string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+        private CosmosTestStore(
+            string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             : base(name, shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
@@ -55,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 AuthToken,
                 Name);
 
-        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
+        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
             if (_dataFilePath == null)
             {
-                base.Initialize(createContext ?? (() => _storeContext), seed);
+                base.Initialize(createContext ?? (() => _storeContext), seed, clean);
             }
             else
             {

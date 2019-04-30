@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (shouldBeOwned == false
                     && (ShouldBeOwnedType(type)
-                        || (entityType != null && entityType.IsOwned())))
+                        || entityType != null && entityType.IsOwned()))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ClashingOwnedEntityType(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private bool ShouldBeOwnedType(in TypeIdentity type)
-            => type.Type != null && Metadata.ShouldBeOwned(type.Type);
+            => type.Type != null && Metadata.IsOwned(type.Type);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(type.Name);
+            var ignoredConfigurationSource = Metadata.GetIsIgnoredConfigurationSource(type.Name);
             return ignoredConfigurationSource.HasValue
                    && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalModelBuilder Ignore(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             var name = type.Name;
-            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(name);
+            var ignoredConfigurationSource = Metadata.GetIsIgnoredConfigurationSource(name);
             if (ignoredConfigurationSource.HasValue)
             {
                 if (configurationSource.Overrides(ignoredConfigurationSource)
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool CanIgnore(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             var name = type.Name;
-            if (Metadata.FindIgnoredConfigurationSource(name).HasValue)
+            if (Metadata.GetIsIgnoredConfigurationSource(name).HasValue)
             {
                 return true;
             }

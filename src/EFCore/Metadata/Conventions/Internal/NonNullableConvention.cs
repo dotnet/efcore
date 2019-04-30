@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             // so look for it by name, caching to avoid reflection on every check.
             // Note that this may change - if https://github.com/dotnet/corefx/issues/36222 is done we can remove all of this.
 
-            if (Attribute.GetCustomAttributes(memberInfo, true)?.FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is Attribute attribute)
+            if (Attribute.GetCustomAttributes(memberInfo, true)?.FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is
+                Attribute attribute)
             {
                 if (attribute.GetType() != _nullableAttrType)
                 {

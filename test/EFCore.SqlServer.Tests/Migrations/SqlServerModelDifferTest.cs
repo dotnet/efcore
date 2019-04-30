@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 target => target
                     .Entity(
@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 operations => Assert.Equal(0, operations.Count));
         }
@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("City");
                             x.Property<string>("Street");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 operations =>
                 {
@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Address", operation1.Table);
                     Assert.Equal("IX_Address_Zip", operation1.Name);
 
-                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.Online);
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.CreatedOnline);
                     Assert.NotNull(annotation);
 
                     var annotationValue = Assert.IsType<bool>(annotation.Value);

@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
         /// <param name="entityType"> The entity type to find the key on. </param>
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
             => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IConventionForeignKey>();
 
         /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
         ///     if no foreign key is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or null if none is defined. </returns>
+        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
         public static IConventionForeignKey FindForeignKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IProperty property,
@@ -212,6 +212,14 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
+
+        /// <summary>
+        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        public static IConventionForeignKey FindOwnership([NotNull] this IConventionEntityType entityType)
+            => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
@@ -347,37 +355,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.AddIndex(new[] { property }, fromDataAnnotation);
         }
-
-        /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
-        ///         in this model.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual entity types can override this access mode, and individual properties of
-        ///         entity types can override the access mode set on the entity type. The value set here will
-        ///         be used for any property for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the access mode for. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetPropertyAccessMode(
-            [NotNull] this IConventionEntityType entityType,
-            PropertyAccessMode? propertyAccessMode,
-            bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetPropertyAccessMode(
-                    propertyAccessMode,
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="ModelExtensions.GetPropertyAccessMode" />.
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the access mode for. </param>
-        /// <returns> The configuration source for <see cref="ModelExtensions.GetPropertyAccessMode" />. </returns>
-        public static ConfigurationSource? GetPropertyAccessModeConfigurationSource([NotNull] this IConventionEntityType entityType)
-            => entityType.FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
 
         /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the

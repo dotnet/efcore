@@ -377,6 +377,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual IConventionBatch StartBatch() => new ConventionBatch(this);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual T Run<T>(Func<T> func, ref ForeignKey foreignKey)
+        {
+            using var batch = StartBatch();
+            using var foreignKeyReference = Tracker.Track(foreignKey);
+            var result = func();
+            batch.Run();
+            foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
+            return result;
+        }
+
         private class ConventionBatch : IConventionBatch
         {
             private readonly ConventionDispatcher _dispatcher;

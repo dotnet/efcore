@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit);
+            entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
 
             Assert.Equal(
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveNonNavigationAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit)
-                .Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
+            entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit)
+                .HasColumnType("some_int_mapping");
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(

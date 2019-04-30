@@ -38,11 +38,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] IConventionEntityType baseEntityType, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns a value indicating whether the given type can be set as the base type of this entity type.
+        /// </summary>
+        /// <param name="baseEntityType"> The base entity type or <c>null</c> to indicate no base type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given type can be set as the base type of this entity type. </returns>
+        bool CanSetBaseType([CanBeNull] IConventionEntityType baseEntityType, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Returns an object that can be used to configure the property with the given name.
         ///     If no matching property exists, then a new property will be added.
         /// </summary>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
@@ -50,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <c>null</c> otherwise.
         /// </returns>
         IConventionPropertyBuilder Property(
-            [NotNull] string propertyName,
             [NotNull] Type propertyType,
+            [NotNull] string propertyName,
             bool setTypeConfigurationSource = true,
             bool fromDataAnnotation = false);
 
@@ -84,6 +92,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A list of properties if they exist on the entity type, <c>null</c> otherwise. </returns>
         IReadOnlyList<IConventionProperty> GetOrCreateProperties(
             [CanBeNull] IEnumerable<MemberInfo> memberInfos, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes shadow properties in the given list if they are not part of any metadata object.
+        /// </summary>
+        /// <param name="properties"> The properties to remove. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        void RemoveUnusedShadowProperties([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns an object that can be used to configure the service property with the given member info.
@@ -179,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <c>null</c> otherwise.
         /// </returns>
         IConventionIndexBuilder HasIndex(
-            [CanBeNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+            [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures a relationship between this and the target entity type.
@@ -194,11 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship between this and the target entity type with the target as the principal end.
         /// </summary>
         /// <param name="principalEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="dependentProperties">
-        ///     The properties on this type that make up the foreign key,
-        ///     <c>null</c> can be specified to indicate that unique shadow properties should be created.
-        /// </param>
-        /// <param name="principalKey"> The referenced key. <c>null</c> can be specified to indicate that the primary key should be used. </param>
+        /// <param name="dependentProperties"> The properties on this type that make up the foreign key. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
@@ -206,8 +217,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionRelationshipBuilder HasRelationship(
             [NotNull] IConventionEntityType principalEntityType,
-            [CanBeNull] IReadOnlyList<IConventionProperty> dependentProperties,
-            [CanBeNull] IConventionKey principalKey,
+            [NotNull] IReadOnlyList<IConventionProperty> dependentProperties,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship between this and the target entity type with the target as the principal end.
+        /// </summary>
+        /// <param name="principalEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="principalKey"> The referenced key. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionRelationshipBuilder HasRelationship(
+            [NotNull] IConventionEntityType principalEntityType,
+            [NotNull] IConventionKey principalKey,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship between this and the target entity type with the target as the principal end.
+        /// </summary>
+        /// <param name="principalEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="dependentProperties"> The properties on this type that make up the foreign key </param>
+        /// <param name="principalKey"> The referenced key. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionRelationshipBuilder HasRelationship(
+            [NotNull] IConventionEntityType principalEntityType,
+            [NotNull] IReadOnlyList<IConventionProperty> dependentProperties,
+            [NotNull] IConventionKey principalKey,
             bool fromDataAnnotation = false);
 
         /// <summary>

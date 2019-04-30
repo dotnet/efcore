@@ -4,13 +4,14 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ModificationCommandTest
@@ -444,19 +445,19 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.Relational().ColumnName = "Col1";
+            key.SetColumnName("Col1");
             entityType.SetPrimaryKey(key);
 
             var nonKey1 = entityType.AddProperty("Name1", typeof(string));
             nonKey1.IsConcurrencyToken = computeNonKeyValue;
 
-            nonKey1.Relational().ColumnName = "Col2";
+            nonKey1.SetColumnName("Col2");
             nonKey1.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             var nonKey2 = entityType.AddProperty("Name2", typeof(string));
             nonKey2.IsConcurrencyToken = computeNonKeyValue;
 
-            nonKey2.Relational().ColumnName = "Col3";
+            nonKey2.SetColumnName("Col3");
             nonKey2.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnUpdate : ValueGenerated.Never;
 
             return model;

@@ -206,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             string storeTypeName = null;
             bool? isFixedLength = null;
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < principals.Count; i++)
             {
                 var principal = principals[i];
@@ -220,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (isFixedLength == null)
                 {
-                    isFixedLength = principal.Relational().IsFixedLength;
+                    isFixedLength = principal.IsFixedLength();
                 }
             }
 
