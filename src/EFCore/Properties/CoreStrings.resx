@@ -217,7 +217,7 @@
     <value>No field was found backing property '{property}' of entity type '{entity}'. Lazy-loaded navigation properties must have backing fields. Either name the backing field so that it is picked up by convention or configure the backing field to use.</value>
   </data>
   <data name="NoFieldOrSetter" xml:space="preserve">
-    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.</value>
+    <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter. If this property is a readonly property, use a no-op private setter or protected setter.</value>
   </data>
   <data name="NoFieldOrGetter" xml:space="preserve">
     <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a getter.</value>
