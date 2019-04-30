@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
                     var innerExpression = Visit(newExpression.Arguments[0]);
 
-                    var entityStartIndex = ((EntityValuesExpression)innerExpression).StartIndex;
+                    var entityStartIndex = ((EntityProjectionExpression)innerExpression).StartIndex;
                     _materializationContextBindings[parameterExpression] = entityStartIndex;
 
                     var updatedExpression = Expression.New(newExpression.Constructor,
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     var originalIndex = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                     var indexOffset = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
-                        ? ((EntityValuesExpression)_queryExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).StartIndex
+                        ? ((EntityProjectionExpression)_queryExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).StartIndex
                         : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     return Expression.Call(

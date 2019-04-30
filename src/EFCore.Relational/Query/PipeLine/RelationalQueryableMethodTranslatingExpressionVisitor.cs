@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 selectExpression.PushdownIntoSubQuery();
             }
 
-            selectExpression.Reverse();
+            selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(selectExpression, Expression.Constant(1)));
 
             if (source.ShaperExpression.ReturnType != returnType)

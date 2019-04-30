@@ -18,7 +18,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class WarningsTest
+    internal class WarningsTest
     {
         [Fact]
         public void Should_throw_by_default_when_transaction()

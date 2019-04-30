@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Offset = sqlExpression;
         }
 
-        public void Reverse()
+        public void ReverseOrderings()
         {
             var existingOrdering = _orderings.ToArray();
 

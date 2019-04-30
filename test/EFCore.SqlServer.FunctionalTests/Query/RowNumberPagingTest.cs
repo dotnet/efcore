@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class RowNumberPagingTest : SimpleQueryTestBase<NorthwindRowNumberPagingQuerySqlServerFixture>, IDisposable
+    internal class RowNumberPagingTest : SimpleQueryTestBase<NorthwindRowNumberPagingQuerySqlServerFixture>, IDisposable
     {
         public RowNumberPagingTest(NorthwindRowNumberPagingQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

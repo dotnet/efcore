@@ -3059,7 +3059,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select s);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "QueryIssue")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_with_optional_navigation_as_subquery_predicate_is_translated_to_sql(bool isAsync)
         {

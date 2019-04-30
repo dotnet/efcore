@@ -15,7 +15,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
+    internal class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
     {
         private static readonly string _eol = Environment.NewLine;
 

@@ -228,32 +228,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
             else
             {
-                var needsParenthesis = RequiresBrackets(sqlBinaryExpression.Left);
+                var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
 
-                if (needsParenthesis)
+                if (requiresBrackets)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(sqlBinaryExpression.Left);
 
-                if (needsParenthesis)
+                if (requiresBrackets)
                 {
                     _relationalCommandBuilder.Append(")");
                 }
 
                 _relationalCommandBuilder.Append(GenerateOperator(sqlBinaryExpression));
 
-                needsParenthesis = RequiresBrackets(sqlBinaryExpression.Right);
+                requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
 
-                if (needsParenthesis)
+                if (requiresBrackets)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(sqlBinaryExpression.Right);
 
-                if (needsParenthesis)
+                if (requiresBrackets)
                 {
                     _relationalCommandBuilder.Append(")");
                 }

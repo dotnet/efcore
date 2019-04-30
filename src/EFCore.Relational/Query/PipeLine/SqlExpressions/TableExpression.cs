@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             {
                 var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ Table.GetHashCode();
-                hashCode = (hashCode * 397) ^ Schema.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
 
                 return hashCode;
             }

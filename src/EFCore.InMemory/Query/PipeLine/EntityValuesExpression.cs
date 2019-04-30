@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
-    public class EntityValuesExpression : Expression
+    public class EntityProjectionExpression : Expression
     {
-        public EntityValuesExpression(IEntityType entityType, int startIndex)
+        public EntityProjectionExpression(IEntityType entityType, int startIndex)
         {
             EntityType = entityType;
             StartIndex = startIndex;

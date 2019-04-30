@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         {
             ServerQueryExpression = new InMemoryTableExpression(entityType);
 
-            var entityValues = new EntityValuesExpression(entityType, 0);
+            var entityValues = new EntityProjectionExpression(entityType, 0);
             _projectionMapping[new ProjectionMember()] = entityValues;
             foreach (var property in entityType.GetProperties())
             {
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         {
             var member = (projectionExpression as ProjectionBindingExpression).ProjectionMember;
 
-            var entityValuesExpression = (EntityValuesExpression)_projectionMapping[member];
+            var entityValuesExpression = (EntityProjectionExpression)_projectionMapping[member];
             var offset = entityValuesExpression.StartIndex;
 
             return _valueBufferSlots[offset + property.GetIndex()];
@@ -113,14 +113,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 var member = kvp.Key;
                 var expression = kvp.Value;
                 var currentIndex = _valueBufferSlots.Count;
-                if (expression is EntityValuesExpression entityValuesExpression)
+                if (expression is EntityProjectionExpression entityValuesExpression)
                 {
                     foreach (var property in entityValuesExpression.EntityType.GetProperties())
                     {
                         _valueBufferSlots.Add(CreateReadValueExpression(property.ClrType, currentIndex + property.GetIndex(), property));
                     }
 
-                    _projectionMapping[member] = new EntityValuesExpression(entityValuesExpression.EntityType, currentIndex);
+                    _projectionMapping[member] = new EntityProjectionExpression(entityValuesExpression.EntityType, currentIndex);
                 }
                 else
                 {
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         public Expression GetProjectionExpression(ProjectionMember member)
         {
             var projection = _projectionMapping[member];
-            if (projection is EntityValuesExpression entityValues)
+            if (projection is EntityProjectionExpression entityValues)
             {
                 return entityValues;
             }
@@ -276,9 +276,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             foreach (var projection in queryExpression._projectionMapping)
             {
                 var updatedProjection = projection.Value;
-                if (updatedProjection is EntityValuesExpression entityValues)
+                if (updatedProjection is EntityProjectionExpression entityValues)
                 {
-                    updatedProjection = new EntityValuesExpression(entityValues.EntityType, entityValues.StartIndex + offset);
+                    updatedProjection = new EntityProjectionExpression(entityValues.EntityType, entityValues.StartIndex + offset);
                 }
                 projectionMapping[projection.Key.ShiftMember(innerMemberInfo)] = updatedProjection;
             }

@@ -815,7 +815,7 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "QueryIssue")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {

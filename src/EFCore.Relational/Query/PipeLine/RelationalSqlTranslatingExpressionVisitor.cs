@@ -241,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                     || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
+                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
+                    || unaryExpression.Type == typeof(object))
                 {
                     return sqlOperand;
                 }

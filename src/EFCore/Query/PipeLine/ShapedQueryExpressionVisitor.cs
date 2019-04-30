@@ -298,6 +298,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     return result;
                 }
 
+                if (extensionExpression is EntityValuesExpression entityValuesExpression)
+                {
+                    return Expression.NewArrayInit(
+                        typeof(object),
+                        entityValuesExpression.EntityType.GetProperties()
+                            .Select(p => _entityMaterializerSource.CreateReadValueExpression(
+                                entityValuesExpression.ValueBufferExpression,
+                                typeof(object),
+                                p.GetIndex(),
+                                p)));
+                }
+
                 if (extensionExpression is CollectionShaperExpression collectionShaper)
                 {
                     var keyType = collectionShaper.OuterKey.Type;

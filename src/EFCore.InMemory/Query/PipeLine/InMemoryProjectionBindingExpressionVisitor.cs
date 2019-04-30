@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -52,6 +54,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                   || expression is MemberInitExpression
                   || expression is EntityShaperExpression))
             {
+                // This converts object[] from GetDatabaseValues to appropriate projection.
+                if (expression is NewArrayExpression newArrayExpression
+                    && newArrayExpression.NodeType == ExpressionType.NewArrayInit
+                    && newArrayExpression.Expressions.Count > 0
+                    && newArrayExpression.Expressions[0] is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    && unaryExpression.Type == typeof(object)
+                    && unaryExpression.Operand is MethodCallExpression methodCall
+                    && methodCall.Method.IsEFPropertyMethod()
+                    && methodCall.Arguments[0] is EntityShaperExpression entityShaperExpression
+                    && entityShaperExpression.EntityType.GetProperties().Count() == newArrayExpression.Expressions.Count)
+                {
+                    _projectionMapping[_projectionMembers.Peek()]
+                       = _queryExpression.GetProjectionExpression(
+                           entityShaperExpression.ValueBufferExpression.ProjectionMember);
+
+                    return new EntityValuesExpression(entityShaperExpression.EntityType, entityShaperExpression.ValueBufferExpression);
+                }
+
                 var translation = _expressionTranslatingExpressionVisitor.Translate(_queryExpression, expression);
 
                 _projectionMapping[_projectionMembers.Peek()] = translation;

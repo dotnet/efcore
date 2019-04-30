@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneToOneSqlServerTest.OneToOneQuerySqlServerFixture>
+    internal class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneToOneSqlServerTest.OneToOneQuerySqlServerFixture>
     {
         public IncludeOneToOneSqlServerTest(OneToOneQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

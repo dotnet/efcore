@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (Equals(method, _methodInfo))
             {
                 var argument = arguments[0];
-                Debug.Assert(argument.TypeMapping != null, "Must have typeMapping.");
 
                 return _sqlExpressionFactory.OrElse(
                     _sqlExpressionFactory.IsNull(argument),
