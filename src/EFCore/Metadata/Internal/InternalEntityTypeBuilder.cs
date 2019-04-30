@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedRelationship.Attach();
                 }
 
-                RemoveShadowPropertiesIfUnused(key.Properties);
+                RemoveUnusedShadowProperties(key.Properties);
                 foreach (var property in key.Properties)
                 {
                     if (!property.IsKey()
@@ -397,10 +397,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property(
-            [NotNull] string propertyName,
             [NotNull] Type propertyType,
+            [NotNull] string propertyName,
             ConfigurationSource? configurationSource)
-            => Property(propertyName, propertyType, configurationSource, typeConfigurationSource: configurationSource);
+            => Property(propertyType, propertyName, configurationSource, typeConfigurationSource: configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -409,12 +409,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property(
-            [NotNull] string propertyName,
             [NotNull] Type propertyType,
+            [NotNull] string propertyName,
             ConfigurationSource? configurationSource,
             ConfigurationSource? typeConfigurationSource)
             => Property(
-                propertyName, propertyType, memberInfo: null, configurationSource, typeConfigurationSource);
+                propertyType, propertyName, memberInfo: null, configurationSource: configurationSource,
+                typeConfigurationSource: typeConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -423,7 +424,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource? configurationSource)
-            => Property(propertyName, propertyType: null, memberInfo: null, configurationSource, typeConfigurationSource: null);
+            => Property(
+                propertyType: null, propertyName: propertyName, memberInfo: null, configurationSource: configurationSource,
+                typeConfigurationSource: null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -432,11 +435,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] MemberInfo memberInfo, ConfigurationSource? configurationSource)
-            => Property(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(), memberInfo, configurationSource, configurationSource);
+            => Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
 
         private InternalPropertyBuilder Property(
-            [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
+            [NotNull] string propertyName,
             [CanBeNull] MemberInfo memberInfo,
             ConfigurationSource? configurationSource,
             ConfigurationSource? typeConfigurationSource)
@@ -452,7 +455,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (configurationSource.Overrides(existingProperty.GetConfigurationSource()))
                         {
-                            propertiesToDetach = new[] { existingProperty };
+                            propertiesToDetach = new[]
+                            {
+                                existingProperty
+                            };
                         }
                         else
                         {
@@ -586,7 +592,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     using (Metadata.Model.ConventionDispatcher.StartBatch())
                     {
-                        var detachedProperties = DetachProperties(new[] { existingProperty });
+                        var detachedProperties = DetachProperties(
+                            new[]
+                            {
+                                existingProperty
+                            });
 
                         property = clrProperty != null
                             ? Metadata.AddProperty(clrProperty, configurationSource.Value)
@@ -1362,6 +1372,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetBaseType(EntityType baseEntityType, ConfigurationSource configurationSource)
+            => Metadata.BaseType == baseEntityType
+               || configurationSource.Overrides(Metadata.GetBaseTypeConfigurationSource());
+
         internal static PropertiesSnapshot DetachProperties(IEnumerable<Property> propertiesToDetach)
         {
             var propertiesToDetachList = propertiesToDetach.ToList();
@@ -1565,7 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Debug.Assert(removedForeignKey == foreignKey);
 
-            RemoveShadowPropertiesIfUnused(foreignKey.Properties);
+            RemoveUnusedShadowProperties(foreignKey.Properties);
             foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             return currentConfigurationSource;
@@ -1692,21 +1712,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveShadowPropertiesIfUnused([NotNull] IEnumerable<Property> properties)
+        public virtual void RemoveUnusedShadowProperties<T>(
+            [NotNull] IReadOnlyList<T> properties, ConfigurationSource configurationSource = ConfigurationSource.Convention)
+            where T : class, IProperty
         {
-            foreach (var property in properties.ToList())
+            foreach (var property in properties)
             {
                 if (property?.IsShadowProperty() == true)
                 {
-                    RemovePropertyIfUnused(property);
+                    RemovePropertyIfUnused((Property)(object)property, configurationSource);
                 }
             }
         }
 
-        private static void RemovePropertyIfUnused(Property property)
+        private static void RemovePropertyIfUnused(Property property, ConfigurationSource configurationSource)
         {
             if (property.Builder == null
-                || !property.DeclaringEntityType.Builder.CanRemoveProperty(property, ConfigurationSource.Convention)
+                || !property.DeclaringEntityType.Builder.CanRemoveProperty(property, configurationSource)
                 || property.GetContainingIndexes().Any()
                 || property.GetContainingForeignKeys().Any()
                 || property.GetContainingKeys().Any())
@@ -1807,7 +1829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var removedIndex = Metadata.RemoveIndex(index.Properties);
             Debug.Assert(removedIndex == index);
 
-            RemoveShadowPropertiesIfUnused(index.Properties);
+            RemoveUnusedShadowProperties(index.Properties);
 
             return currentConfigurationSource;
         }
@@ -1969,7 +1991,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
-            [CanBeNull] IReadOnlyList<Property> dependentProperties,
+            [NotNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
             ConfigurationSource configurationSource)
             => HasForeignKey(
@@ -1979,9 +2001,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource);
 
         private InternalRelationshipBuilder HasForeignKey(
-            [NotNull] EntityType principalEntityType,
-            [CanBeNull] IReadOnlyList<Property> dependentProperties,
-            [CanBeNull] Key principalKey,
+            EntityType principalEntityType,
+            IReadOnlyList<Property> dependentProperties,
+            Key principalKey,
             ConfigurationSource configurationSource)
         {
             if (dependentProperties == null)
@@ -1990,6 +2012,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var newRelationship = HasRelationshipInternal(principalEntityType, principalKey, configurationSource);
+
             var relationship = newRelationship.HasForeignKey(dependentProperties, configurationSource);
             if (relationship == null
                 && newRelationship.Metadata.Builder != null)
@@ -1997,7 +2020,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 RemoveForeignKey(newRelationship.Metadata, configurationSource);
             }
 
-            return relationship;
+            newRelationship = relationship;
+
+            return newRelationship;
         }
 
         /// <summary>
@@ -2784,7 +2809,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (principalKey == null)
                 {
                     var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
-                        1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "").Item2;
+                        1, null, new[]
+                        {
+                            "TempId"
+                        }, new[]
+                        {
+                            typeof(int)
+                        }, isRequired: true, baseName: "").Item2;
 
                     principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(
                         principalKeyProperties, ConfigurationSource.Convention).Metadata;
@@ -2797,7 +2828,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var temporaryProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, "TempFk");
                     foreignKey.SetProperties(temporaryProperties, principalKey, configurationSource);
 
-                    foreignKey.DeclaringEntityType.Builder.RemoveShadowPropertiesIfUnused(oldProperties);
+                    foreignKey.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(oldProperties);
                     if (oldKey != principalKey)
                     {
                         oldKey.DeclaringEntityType.Builder.RemoveKeyIfUnused(oldKey);
@@ -2823,7 +2854,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (oldProperties != dependentProperties)
                 {
-                    foreignKey.DeclaringEntityType.Builder.RemoveShadowPropertiesIfUnused(oldProperties);
+                    foreignKey.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(oldProperties);
                 }
 
                 if (oldKey != principalKey)
@@ -2865,8 +2896,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type propertyType,
             bool isRequired)
             => CreateUniqueProperties(
-                new[] { propertyName },
-                new[] { propertyType },
+                new[]
+                {
+                    propertyName
+                },
+                new[]
+                {
+                    propertyType
+                },
                 isRequired).First();
 
         /// <summary>
@@ -2941,7 +2978,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 if (currentProperties == null)
                                 {
                                     var propertyBuilder = Property(
-                                        propertyName, clrType, ConfigurationSource.Convention, typeConfigurationSource: null);
+                                        clrType, propertyName, ConfigurationSource.Convention, typeConfigurationSource: null);
 
                                     if (clrType.IsNullableType())
                                     {
@@ -3030,12 +3067,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         // TODO: Log that a shadow property is created
                         propertyBuilder = Property(
-                            propertyName,
                             required
                                 ? type
                                 : type.MakeNullable(),
-                            configurationSource.Value,
-                            typeConfigurationSource: ConfigurationSource.Convention);
+                            propertyName,
+                            configurationSource.Value, typeConfigurationSource: ConfigurationSource.Convention);
                     }
                     else
                     {
@@ -3112,8 +3148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var builder = property.Builder != null && property.DeclaringEntityType.IsAssignableFrom(Metadata)
                     ? property.Builder
                     : Property(
-                        property.Name,
                         typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? property.ClrType : null,
+                        property.Name,
                         property.GetIdentifyingMemberInfo(),
                         configurationSource,
                         typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null);
@@ -3193,12 +3229,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => HasBaseType(
                 (EntityType)baseEntityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        bool IConventionEntityTypeBuilder.CanSetBaseType(IConventionEntityType baseEntityType, bool fromDataAnnotation)
+            => CanSetBaseType(
+                (EntityType)baseEntityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
         IConventionPropertyBuilder IConventionEntityTypeBuilder.Property(
-            string propertyName, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
+            Type propertyType, string propertyName, bool setTypeConfigurationSource, bool fromDataAnnotation)
             => Property(
-                propertyName, propertyType,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
-                setTypeConfigurationSource
+                propertyType,
+                propertyName,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                     : (ConfigurationSource?)null);
 
@@ -3213,6 +3253,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IReadOnlyList<IConventionProperty> IConventionEntityTypeBuilder.GetOrCreateProperties(
             IEnumerable<MemberInfo> memberInfos, bool fromDataAnnotation)
             => GetOrCreateProperties(memberInfos, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionEntityTypeBuilder.RemoveUnusedShadowProperties(
+            IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
+            => RemoveUnusedShadowProperties(
+                properties, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionServicePropertyBuilder IConventionEntityTypeBuilder.ServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
             => ServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -3229,17 +3274,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionKeyBuilder IConventionEntityTypeBuilder.PrimaryKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => PrimaryKey(
-                (IReadOnlyList<Property>)properties,
+                (properties as IReadOnlyList<Property>) ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         bool IConventionEntityTypeBuilder.CanSetPrimaryKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetPrimaryKey(
-                (IReadOnlyList<Property>)properties,
+                (properties as IReadOnlyList<Property>) ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionKeyBuilder IConventionEntityTypeBuilder.HasKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasKey(
-                (IReadOnlyList<Property>)properties,
+                (properties as IReadOnlyList<Property>) ?? properties.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoKey(bool fromDataAnnotation)
@@ -3248,7 +3293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasIndex(
-                (IReadOnlyList<Property>)properties,
+                (properties as IReadOnlyList<Property>) ?? properties.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
@@ -3257,11 +3302,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)targetEntityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+            IConventionEntityType principalEntityType, IReadOnlyList<IConventionProperty> dependentProperties, bool fromDataAnnotation)
+            => HasRelationship(
+                (EntityType)principalEntityType,
+                dependentProperties as IReadOnlyList<Property> ?? dependentProperties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
+            IConventionEntityType principalEntityType, IConventionKey principalKey, bool fromDataAnnotation)
+            => HasRelationship(
+                (EntityType)principalEntityType,
+                (Key)principalKey,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionRelationshipBuilder IConventionEntityTypeBuilder.HasRelationship(
             IConventionEntityType principalEntityType, IReadOnlyList<IConventionProperty> dependentProperties, IConventionKey principalKey,
             bool fromDataAnnotation)
             => HasRelationship(
                 (EntityType)principalEntityType,
-                (IReadOnlyList<Property>)dependentProperties,
+                dependentProperties as IReadOnlyList<Property> ?? dependentProperties.Cast<Property>().ToList(),
                 (Key)principalKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             var index = FindEntityTypes(model, operation.Schema, operation.Table)
-                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.Relational().Name == operation.NewName)
+                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.GetName() == operation.NewName)
                 .FirstOrDefault();
             if (index == null)
             {
@@ -252,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Name = operation.NewName,
                 Schema = operation.Schema,
                 Table = operation.Table,
-                Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
-                Filter = index.Relational().Filter
+                Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
+                Filter = index.GetFilter()
             };
             createOperation.AddAnnotations(_migrationsAnnotations.For(index));
 

@@ -49,43 +49,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
             }
 
             var entityType = entityTypeBuilder.Metadata;
             var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
-            DiscriminatorBuilder discriminator;
+            IConventionDiscriminatorBuilder discriminator;
             if (entityType.BaseType == null)
             {
                 if (derivedEntityTypes.Count == 0)
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                    entityTypeBuilder.HasNoDeclaredDiscriminator();
                     return true;
                 }
 
-                discriminator = entityTypeBuilder.Relational(ConfigurationSource.Convention)
-                    .HasDiscriminator(typeof(string));
+                discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
             }
             else
             {
-                if (entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null) == null)
+                if (entityTypeBuilder.HasNoDeclaredDiscriminator() == null)
                 {
                     return true;
                 }
 
                 var rootTypeBuilder = entityType.RootType().Builder;
-                discriminator = rootTypeBuilder?.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(string));
+                discriminator = rootTypeBuilder?.HasDiscriminator(typeof(string));
 
                 if (entityType.BaseType.BaseType == null)
                 {
-                    discriminator?.HasValue(entityType.BaseType.Name, entityType.BaseType.ShortName());
+                    discriminator?.HasValue(entityType.BaseType, entityType.BaseType.ShortName());
                 }
             }
 
             if (discriminator != null)
             {
-                discriminator.HasValue(entityTypeBuilder.Metadata.Name, entityTypeBuilder.Metadata.ShortName());
+                discriminator.HasValue(entityTypeBuilder.Metadata, entityTypeBuilder.Metadata.ShortName());
                 SetDefaultDiscriminatorValues(derivedEntityTypes, discriminator);
             }
 
@@ -105,17 +104,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
+                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
             }
 
             return true;
         }
 
-        private static void SetDefaultDiscriminatorValues(IReadOnlyList<EntityType> entityTypes, DiscriminatorBuilder discriminator)
+        private static void SetDefaultDiscriminatorValues(
+            IReadOnlyList<EntityType> entityTypes, IConventionDiscriminatorBuilder discriminator)
         {
             foreach (var entityType in entityTypes)
             {
-                discriminator.HasValue(entityType.Name, entityType.ShortName());
+                discriminator.HasValue(entityType, entityType.ShortName());
             }
         }
     }

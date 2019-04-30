@@ -108,21 +108,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             creator.CreateTables();
         }
 
-        protected virtual DropSequenceOperation Drop(DatabaseSequence sequence)
+        protected virtual MigrationOperation Drop(DatabaseSequence sequence)
             => new DropSequenceOperation
             {
                 Name = sequence.Name,
                 Schema = sequence.Schema
             };
 
-        protected virtual DropTableOperation Drop(DatabaseTable table)
+        protected virtual MigrationOperation Drop(DatabaseTable table)
             => new DropTableOperation
             {
                 Name = table.Name,
                 Schema = table.Schema
             };
 
-        protected virtual DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
+        protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
             => new DropForeignKeyOperation
             {
                 Name = foreignKey.Name,
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Schema = foreignKey.Table.Schema
             };
 
-        protected virtual DropIndexOperation Drop(DatabaseIndex index)
+        protected virtual MigrationOperation Drop(DatabaseIndex index)
             => new DropIndexOperation
             {
                 Name = index.Name,

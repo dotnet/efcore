@@ -185,9 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var propertyType = property.ClrType.UnwrapNullableType();
             return (propertyType.IsInteger()
                     && propertyType != typeof(byte))
-                   || propertyType == typeof(Guid)
-                ? true
-                : false;
+                   || propertyType == typeof(Guid);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         public override IEnumerable<IAnnotation> For(IModel model)
         {
             if (model.GetEntityTypes().SelectMany(t => t.GetProperties()).Any(
-                p => SqliteTypeMappingSource.IsSpatialiteType(p.Relational().ColumnType)))
+                p => SqliteTypeMappingSource.IsSpatialiteType(p.GetColumnType())))
             {
                 yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
             }
@@ -71,13 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
                 yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
 
-            var srid = property.Sqlite().Srid;
+            var srid = property.GetSqliteSrid();
             if (srid != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Srid, srid);
             }
 
-            var dimension = property.Sqlite().Dimension;
+            var dimension = property.GetSqliteDimension();
             if (dimension != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Dimension, dimension);

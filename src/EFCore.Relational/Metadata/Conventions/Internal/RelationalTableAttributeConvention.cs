@@ -37,12 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (!string.IsNullOrWhiteSpace(attribute.Schema))
             {
-                entityTypeBuilder.Relational(ConfigurationSource.DataAnnotation).ToTable(attribute.Name, attribute.Schema);
+                entityTypeBuilder.ToTable(attribute.Name, attribute.Schema, fromDataAnnotation: true);
             }
 
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
-                entityTypeBuilder.Relational(ConfigurationSource.DataAnnotation).ToTable(attribute.Name);
+                entityTypeBuilder.ToTable(attribute.Name, fromDataAnnotation: true);
             }
 
             return entityTypeBuilder;

@@ -338,7 +338,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             false, true, false, false, false, true)
                     }));
@@ -354,7 +353,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             false, true, false, false, false, true)
                     }));
@@ -390,7 +388,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             false, true, false, false, false, true)
                     }));
@@ -424,7 +421,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             false, false, false, true, false, true)
                     }));
@@ -458,7 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             false, true, false, true, false, true)
                     }));
@@ -492,7 +487,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
                             true, false, false, false, false, true)
                     }));
@@ -516,11 +510,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.Relational().ColumnName = "Col1";
+            key.SetColumnName("Col1");
             entityType.SetPrimaryKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.Relational().ColumnName = "Col2";
+            nonKey.SetColumnName("Col2");
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             GenerateMapping(key);

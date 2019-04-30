@@ -1,43 +1,37 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     Provides strongly typed access to scaffolding related annotations on an
-    ///     <see cref="IEntityType" /> instance. Instances of this class are typically obtained via the
-    ///     <see cref="ScaffoldingMetadataExtensions.Scaffolding(IEntityType)" /> extension method and it is not designed
-    ///     to be directly constructed in your application code.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ScaffoldingEntityTypeAnnotations : RelationalEntityTypeAnnotations
+    public static class ScaffoldingEntityTypeAnnotations
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ScaffoldingEntityTypeAnnotations" /> class.
-        ///     Instances of this class are typically obtained via the
-        ///     <see cref="ScaffoldingMetadataExtensions.Scaffolding(IEntityType)" /> extension method and it is not designed
-        ///     to be directly constructed in your application code.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="entity"> The entity type to access annotation on. </param>
-        public ScaffoldingEntityTypeAnnotations([NotNull] IEntityType entity)
-            : base(entity)
-        {
-        }
+        public static string GetDbSetName(this IEntityType entityType)
+            => (string)entityType[ScaffoldingAnnotationNames.DbSetName]
+               ?? entityType.Name;
 
         /// <summary>
-        ///     Gets or set the name of the <see cref="DbSet{TEntity}" /> property for this entity type.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string DbSetName
-        {
-            get => (string)Annotations.Metadata[ScaffoldingAnnotationNames.DbSetName]
-                   ?? EntityType.Name;
-
-            [param: CanBeNull]
-            set => Annotations.SetAnnotation(
+        public static void SetDbSetName(this IMutableEntityType entityType, string value) =>
+            entityType.SetAnnotation(
                 ScaffoldingAnnotationNames.DbSetName,
                 Check.NullButNotEmpty(value, nameof(value)));
-        }
     }
 }

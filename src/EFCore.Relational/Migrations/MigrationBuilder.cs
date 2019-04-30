@@ -632,13 +632,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="name"> The check constraint name. </param>
         /// <param name="table"> The name of the table for the check constraint. </param>
-        /// <param name="constraintSql"> The constraint sql for the check constraint. </param>
+        /// <param name="sql"> The constraint sql for the check constraint. </param>
         /// <param name="schema"> The schema that contains the check constraint, or <c>null</c> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<CreateCheckConstraintOperation> CreateCheckConstraint(
             [NotNull] string name,
             [NotNull] string table,
-            [NotNull] string constraintSql,
+            [NotNull] string sql,
             [CanBeNull] string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Schema = schema,
                 Name = name,
                 Table = table,
-                ConstraintSql = constraintSql
+                Sql = sql
             };
             Operations.Add(operation);
 

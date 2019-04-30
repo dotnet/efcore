@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatColumns([NotNull] this IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.Relational().ColumnName + "'")) + "}";
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName() + "'")) + "}";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

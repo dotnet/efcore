@@ -929,7 +929,7 @@ LIMIT 1",
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {
-                    var columnType = property.Relational().ColumnType;
+                    var columnType = property.GetColumnType();
                     Assert.NotNull(columnType);
 
                     if (property[RelationalAnnotationNames.ColumnType] == null)

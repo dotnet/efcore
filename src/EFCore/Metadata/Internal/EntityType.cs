@@ -420,7 +420,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
-            => new[] { this }.Concat(GetDerivedTypes());
+            => new[]
+            {
+                this
+            }.Concat(GetDerivedTypes());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -509,7 +512,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Key SetPrimaryKey([CanBeNull] Property property, ConfigurationSource configurationSource)
-            => SetPrimaryKey(property == null ? null : new[] { property }, configurationSource);
+            => SetPrimaryKey(
+                property == null
+                    ? null
+                    : new[]
+                    {
+                        property
+                    }, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -671,7 +680,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Key AddKey([NotNull] Property property, ConfigurationSource configurationSource)
-            => AddKey(new[] { property }, configurationSource);
+            => AddKey(
+                new[]
+                {
+                    property
+                }, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -762,7 +775,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key FindKey([NotNull] IProperty property) => FindKey(new[] { property });
+        public virtual Key FindKey([NotNull] IProperty property) => FindKey(
+            new[]
+            {
+                property
+            });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -883,7 +900,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType principalEntityType,
             ConfigurationSource? componentConfigurationSource,
             ConfigurationSource configurationSource)
-            => AddForeignKey(new[] { property }, principalKey, principalEntityType, componentConfigurationSource, configurationSource);
+            => AddForeignKey(
+                new[]
+                {
+                    property
+                }, principalKey, principalEntityType, componentConfigurationSource, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1016,7 +1037,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IProperty property)
-            => FindForeignKeys(new[] { property });
+            => FindForeignKeys(
+                new[]
+                {
+                    property
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1043,7 +1068,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IProperty property,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType)
-            => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+            => FindForeignKey(
+                new[]
+                {
+                    property
+                }, principalKey, principalEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1064,6 +1093,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
                    ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ForeignKey FindOwnership()
+            => GetForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ForeignKey FindDeclaredOwnership()
+            => GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1520,7 +1567,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Index AddIndex(
             [NotNull] Property property,
             ConfigurationSource configurationSource)
-            => AddIndex(new[] { property }, configurationSource);
+            => AddIndex(
+                new[]
+                {
+                    property
+                }, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1588,7 +1639,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Index FindIndex([NotNull] IProperty property)
-            => FindIndex(new[] { property });
+            => FindIndex(
+                new[]
+                {
+                    property
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1812,11 +1867,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 propertyType = memberInfo.GetMemberType();
                 typeConfigurationSource = ConfigurationSource.Convention.Max(typeConfigurationSource);
             }
-            else
+            else if (memberInfo != null
+                     && propertyType != memberInfo.GetMemberType()
+                     && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
             {
-                if (memberInfo != null
-                    && propertyType != memberInfo.GetMemberType()
-                    && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                if (typeConfigurationSource != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyWrongClrType(
@@ -1825,6 +1880,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             memberInfo.GetMemberType().ShortDisplayName(),
                             propertyType.ShortDisplayName()));
                 }
+
+                propertyType = memberInfo.GetMemberType();
             }
 
             var property = new Property(
@@ -2340,16 +2397,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual void SetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
         {
@@ -2663,7 +2710,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static IEnumerable<T> ToEnumerable<T>(T element)
             where T : class
-            => element == null ? Enumerable.Empty<T>() : new[] { element };
+            => element == null
+                ? Enumerable.Empty<T>()
+                : new[]
+                {
+                    element
+                };
 
         private class PropertyComparer : IComparer<string>
         {

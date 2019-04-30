@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (createDatabase)
                     {
-                        testDatabase.Initialize(null, (Func<DbContext>)null, null);
+                        testDatabase.Initialize(null, (Func<DbContext>)null, null, null);
                     }
                     else
                     {

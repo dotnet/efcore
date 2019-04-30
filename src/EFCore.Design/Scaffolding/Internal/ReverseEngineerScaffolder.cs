@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 contextName = DefaultDbContextName;
 
-                var annotatedName = model.Scaffolding().DatabaseName;
+                var annotatedName = model.GetDatabaseName();
                 if (!string.IsNullOrEmpty(annotatedName))
                 {
                     contextName = _code.Identifier(annotatedName + DbContextSuffix);

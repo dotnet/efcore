@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -205,13 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="querySource">The target query source.</param>
         /// <returns>true if the target type should have a defining query applied.</returns>
         public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
-        {
-            return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionAnnotation tableNameAnnotation)
-                    || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
-                   && QueryCompilationContext.QueryAnnotations
-                       .OfType<FromSqlResultOperator>()
-                       .All(a => a.QuerySource != querySource);
-        }
+            => (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionAnnotation tableNameAnnotation)
+                || tableNameAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+               && QueryCompilationContext.QueryAnnotations
+                   .OfType<FromSqlResultOperator>()
+                   .All(a => a.QuerySource != querySource);
 
         /// <summary>
         ///     Gets or sets a value indicating whether the query requires client eval.
@@ -1436,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
                 {
                     var discriminatorProperty
-                        = concreteEntityTypes[0].Relational().DiscriminatorProperty;
+                        = concreteEntityTypes[0].GetDiscriminatorProperty();
 
                     var discriminatorPropertyExpression
                         = qsre.CreateEFPropertyExpression(discriminatorProperty);
@@ -1447,7 +1444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 concreteEntityType =>
                                     Expression.Equal(
                                         discriminatorPropertyExpression,
-                                        Expression.Constant(concreteEntityType.Relational().DiscriminatorValue, discriminatorPropertyExpression.Type)))
+                                        Expression.Constant(concreteEntityType.GetDiscriminatorValue(), discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
                     return new DiscriminatorPredicateExpression(discriminatorPredicate, qsre.TryGetReferencedQuerySource());

@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
         ///     for the given property.
         /// </summary>
         /// <param name="entityType"> The entity type to find the key on. </param>
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
             => ((IEntityType)entityType).FindForeignKeys(properties).Cast<IMutableForeignKey>();
 
         /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
         ///     if no foreign key is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or null if none is defined. </returns>
+        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
         public static IMutableForeignKey FindForeignKey(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] IProperty property,
@@ -206,6 +206,14 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
+
+        /// <summary>
+        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        public static IMutableForeignKey FindOwnership([NotNull] this IMutableEntityType entityType)
+            => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type

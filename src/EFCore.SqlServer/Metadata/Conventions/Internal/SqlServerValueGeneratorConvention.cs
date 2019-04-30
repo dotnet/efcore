@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        public override Annotation Apply(
+            InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
             if (name == SqlServerAnnotationNames.ValueGenerationStrategy)
             {
@@ -54,13 +55,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override ValueGenerated? GetValueGenerated(Property property)
-        {
-            var valueGenerated = base.GetValueGenerated(property);
-            return valueGenerated != null
-                ? valueGenerated
-                : property.SqlServer().GetSqlServerValueGenerationStrategy(fallbackToModel: false) != null
-                    ? ValueGenerated.OnAdd
-                    : (ValueGenerated?)null;
-        }
+            => base.GetValueGenerated(property)
+               ?? (property.GetSqlServerValueGenerationStrategyConfigurationSource() != null
+                   && property.GetSqlServerValueGenerationStrategy() != null
+                   ? ValueGenerated.OnAdd
+                   : (ValueGenerated?)null);
     }
 }

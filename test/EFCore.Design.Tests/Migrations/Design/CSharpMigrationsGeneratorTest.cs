@@ -308,8 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot").Model;
 
-            Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).SqlServer().DiscriminatorValue);
-            Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).SqlServer().DiscriminatorValue);
+            Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).GetDiscriminatorValue());
+            Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
         }
 
         [Fact]
@@ -691,7 +691,7 @@ namespace MyNamespace
             foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
             {
                 var snapshotProperty = entityType.FindProperty(property.Name);
-                Assert.Equal(property.Relational().DefaultValue, snapshotProperty.Relational().DefaultValue);
+                Assert.Equal(property.GetDefaultValue(), snapshotProperty.GetDefaultValue());
             }
         }
 

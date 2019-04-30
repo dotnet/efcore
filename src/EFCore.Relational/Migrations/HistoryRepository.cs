@@ -83,12 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The name of the column that holds the Migration identifier.
         /// </summary>
         protected virtual string MigrationIdColumnName
-            => _migrationIdColumnName
-                ??= EnsureModel()
-                    .FindEntityType(typeof(HistoryRow))
-                    .FindProperty(nameof(HistoryRow.MigrationId))
-                    .Relational()
-                    .ColumnName;
+            => _migrationIdColumnName ??= EnsureModel()
+                .FindEntityType(typeof(HistoryRow))
+                .FindProperty(nameof(HistoryRow.MigrationId))
+                .GetColumnName();
 
         private IModel EnsureModel()
         {
@@ -116,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => _productVersionColumnName ??= EnsureModel()
                 .FindEntityType(typeof(HistoryRow))
                 .FindProperty(nameof(HistoryRow.ProductVersion))
-                .Relational()
-                .ColumnName;
+                .GetColumnName();
 
         /// <summary>
         ///     Overridden by database providers to generate SQL that tests for existence of the history table.

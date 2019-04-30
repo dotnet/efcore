@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerValueGeneratorSelectorTest
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            entityType.FindProperty("Guid").SqlServer().DefaultValueSql = "newid()";
+            entityType.FindProperty("Guid").SetDefaultValueSql("newid()");
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            entityType.FindProperty("String").SqlServer().DefaultValueSql = "Foo";
+            entityType.FindProperty("String").SetDefaultValueSql("Foo");
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            entityType.FindProperty("Binary").SqlServer().DefaultValueSql = "Foo";
+            entityType.FindProperty("Binary").SetDefaultValueSql("Foo");
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Returns_sequence_value_generators_when_configured_for_model()
         {
             var model = BuildModel();
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
+            model.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+            model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -127,11 +127,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Returns_generator_configured_on_model_when_property_is_Identity()
+        public void Returns_generator_configured_on_model_when_property_is_identity()
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
+            model.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+            model.AddSequence(SqlServerModelExtensions.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
 
             var model = builder.Model;
-            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
+            model.AddSequence(SqlServerModelExtensions.DefaultHiLoSequenceName);
 
             var entityType = model.FindEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random));
@@ -158,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             entityType.FindProperty("AlwaysIdentity").ValueGenerated = ValueGenerated.OnAdd;
-            entityType.FindProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
+            entityType.FindProperty("AlwaysIdentity").SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
 
             entityType.FindProperty("AlwaysSequence").ValueGenerated = ValueGenerated.OnAdd;
-            entityType.FindProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
+            entityType.FindProperty("AlwaysSequence").SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
             return model;
         }

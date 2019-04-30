@@ -84,7 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var memberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: false);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { navigation, memberInfo });
+            return (IClrCollectionAccessor)boundMethod.Invoke(
+                null, new object[]
+                {
+                    navigation, memberInfo
+                });
         }
 
         [UsedImplicitly]

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -12,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -47,29 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return memberInfo;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static string ShortName([NotNull] this IEntityType type)
-        {
-            if (type.ClrType != null)
-            {
-                return type.ClrType.ShortDisplayName();
-            }
-
-            var plusIndex = type.Name.LastIndexOf("+", StringComparison.Ordinal);
-            var dotIndex = type.Name.LastIndexOf(".", StringComparison.Ordinal);
-            return plusIndex == -1
-                ? dotIndex == -1
-                    ? type.Name
-                    : type.Name.Substring(dotIndex + 1, type.Name.Length - dotIndex - 1)
-                : type.Name.Substring(plusIndex + 1, type.Name.Length - plusIndex - 1);
         }
 
         /// <summary>
@@ -117,35 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IForeignKey FindOwnership([NotNull] this IEntityType entityType)
-            => ((EntityType)entityType).FindOwnership();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static ForeignKey FindOwnership([NotNull] this EntityType entityType)
-            => entityType.GetForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IForeignKey FindDeclaredOwnership([NotNull] this IEntityType entityType)
             => ((EntityType)entityType).FindDeclaredOwnership();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static ForeignKey FindDeclaredOwnership([NotNull] this EntityType entityType)
-            => entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

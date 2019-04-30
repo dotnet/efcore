@@ -1229,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property1, index2.Properties[0]);
             Assert.Same(property2, index2.Properties[1]);
             Assert.True(property1.IsIndex());
-            Assert.Equal(new[] { index1, index2 }, property1.GetContainingIndexes().ToArray());
+            Assert.Equal(new IIndex[] { index1, index2 }, property1.GetContainingIndexes().ToArray());
 
             Assert.Equal(2, entityType.GetIndexes().Count());
             Assert.Same(index1, entityType.GetIndexes().First());
@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var nameProperty = entityType.AddProperty("Name", null);
 
-            Assert.False(((IProperty)nameProperty).IsShadowProperty());
+            Assert.False(nameProperty.IsShadowProperty());
             Assert.Equal("Name", nameProperty.Name);
             Assert.Same(typeof(string), nameProperty.ClrType);
             Assert.Same(entityType, nameProperty.DeclaringEntityType);
@@ -1437,6 +1437,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
+        }
+
+        [Fact]
+        public void AddProperty_ignores_clr_type_if_implicit()
+        {
+            var entityType = (IConventionEntityType)CreateModel().AddEntityType(typeof(Customer));
+
+            var property = entityType.AddProperty(nameof(Customer.Name), typeof(int), setTypeConfigurationSource: false);
+
+            Assert.Equal(typeof(string), property.ClrType);
         }
 
         [Fact]

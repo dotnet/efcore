@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            var dbFunction = model.Relational().FindDbFunction(method);
+            var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)
             {
                 return dbFunction.Translation?.Invoke(
@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         dbFunction.Schema,
                         dbFunction.FunctionName,
                         arguments,
-                        method.ReturnType,
-                        null);
+                        method.ReturnType);
             }
 
             return _plugins.Concat(_translators)

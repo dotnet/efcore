@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Extension methods for <see cref="Expression"/> typically used by database providers to
+    ///         Extension methods for <see cref="Expression" /> typically used by database providers to
     ///         help in LINQ translation.
     ///     </para>
     ///     <para>
@@ -28,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         /// <summary>
         ///     <para>
-        ///         Finds the <see cref="IProperty"/> associated with the given <see cref="Expression"/>.
+        ///         Finds the <see cref="IProperty" /> associated with the given <see cref="Expression" />.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
-        ///  </summary>
+        /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <param name="targetType"> The target <see cref="Type"/> for the property. </param>
+        /// <param name="targetType"> The target <see cref="Type" /> for the property. </param>
         /// <returns> The found property, or <code>null</code> if none was found. </returns>
         public static IProperty FindProperty([NotNull] this Expression expression, [NotNull] Type targetType)
         {
@@ -60,7 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (functionExpression.Instance != null)
                     {
                         arguments = arguments.Concat(
-                            new[] {functionExpression.Instance});
+                            new[]
+                            {
+                                functionExpression.Instance
+                            });
                     }
 
                     targetType = targetType.UnwrapNullableType();

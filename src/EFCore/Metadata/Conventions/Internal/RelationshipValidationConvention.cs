@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -56,8 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         throw new InvalidOperationException(
                             CoreStrings.AmbiguousOneToOneRelationship(
-                                foreignKey.DeclaringEntityType.DisplayName() + (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
-                                foreignKey.PrincipalEntityType.DisplayName() + (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name)));
+                                foreignKey.DeclaringEntityType.DisplayName() + (foreignKey.DependentToPrincipal == null
+                                    ? ""
+                                    : "." + foreignKey.DependentToPrincipal.Name),
+                                foreignKey.PrincipalEntityType.DisplayName() + (foreignKey.PrincipalToDependent == null
+                                    ? ""
+                                    : "." + foreignKey.PrincipalToDependent.Name)));
                     }
                 }
             }

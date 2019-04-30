@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.False(model.ShouldBeOwned(typeof(Details)));
+            Assert.False(model.IsOwned(typeof(Details)));
 
             Assert.NotNull(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Owned(typeof(Details), ConfigurationSource.DataAnnotation));
 
-            Assert.True(model.ShouldBeOwned(typeof(Details)));
+            Assert.True(model.IsOwned(typeof(Details)));
 
             Assert.NotNull(
                 modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Explicit));
 
-            Assert.False(model.ShouldBeOwned(typeof(Details)));
+            Assert.False(model.IsOwned(typeof(Details)));
 
             Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
 

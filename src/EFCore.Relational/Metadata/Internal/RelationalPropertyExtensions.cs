@@ -6,7 +6,10 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" /> for relational database metadata.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class RelationalPropertyExtensions
     {
@@ -35,10 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var principalEntityType = fk.PrincipalEntityType;
-                var entityTypeAnnotations = fk.DeclaringEntityType.Relational();
-                var principalTypeAnnotations = principalEntityType.Relational();
-                if (entityTypeAnnotations.TableName == principalTypeAnnotations.TableName
-                    && entityTypeAnnotations.Schema == principalTypeAnnotations.Schema)
+                var declaringEntityType = fk.DeclaringEntityType;
+                if (declaringEntityType.GetTableName() == principalEntityType.GetTableName()
+                    && declaringEntityType.GetSchema() == principalEntityType.GetSchema())
                 {
                     return fk;
                 }

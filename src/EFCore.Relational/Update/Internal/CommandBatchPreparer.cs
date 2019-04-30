@@ -177,9 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
 
                 var entityType = entry.EntityType;
-                var relationalExtensions = entityType.Relational();
-                var table = relationalExtensions.TableName;
-                var schema = relationalExtensions.Schema;
+                var table = entityType.GetTableName();
+                var schema = entityType.GetSchema();
                 var tableKey = (schema, table);
 
                 ModificationCommand command;

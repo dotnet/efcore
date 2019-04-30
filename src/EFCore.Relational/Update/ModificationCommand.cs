@@ -232,12 +232,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 foreach (var property in entry.EntityType.GetProperties())
                 {
-                    var propertyAnnotations = property.Relational();
                     var isKey = property.IsPrimaryKey();
                     var isConcurrencyToken = property.IsConcurrencyToken;
                     var isCondition = !adding && (isKey || isConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
-                    var columnName = propertyAnnotations.ColumnName;
+                    var columnName = property.GetColumnName();
                     var columnPropagator = sharedColumnMap?[columnName];
 
                     var writeValue = false;
@@ -249,9 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
                         else if (updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                         {
-                            writeValue = columnPropagator == null
-                                ? entry.IsModified(property)
-                                : columnPropagator.TryPropagate(property, (InternalEntityEntry)entry);
+                            writeValue = columnPropagator?.TryPropagate(property, (InternalEntityEntry)entry)
+                                         ?? entry.IsModified(property);
                         }
                     }
 
@@ -267,7 +265,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         var columnModification = new ColumnModification(
                             entry,
                             property,
-                            propertyAnnotations,
                             _generateParameterName,
                             readValue,
                             writeValue,
@@ -300,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var columnName = property.Relational().ColumnName;
+                var columnName = property.GetColumnName();
                 if (!columnMap.TryGetValue(columnName, out var columnPropagator))
                 {
                     columnPropagator = new ColumnValuePropagator();

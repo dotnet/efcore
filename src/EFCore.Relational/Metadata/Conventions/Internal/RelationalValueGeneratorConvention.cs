@@ -34,14 +34,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+        public virtual Annotation Apply(
+            InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
             var property = propertyBuilder.Metadata;
-            if (name == RelationalAnnotationNames.DefaultValue
-                || name == RelationalAnnotationNames.DefaultValueSql
-                || name == RelationalAnnotationNames.ComputedColumnSql)
+            switch (name)
             {
-                propertyBuilder.ValueGenerated(GetValueGenerated(property), ConfigurationSource.Convention);
+                case RelationalAnnotationNames.DefaultValue:
+                case RelationalAnnotationNames.DefaultValueSql:
+                case RelationalAnnotationNames.ComputedColumnSql:
+                    propertyBuilder.ValueGenerated(GetValueGenerated(property), ConfigurationSource.Convention);
+                    break;
             }
 
             return annotation;
@@ -61,11 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return valueGenerated;
             }
 
-            var relationalProperty = property.Relational();
-            return relationalProperty.ComputedColumnSql != null
+            return property.GetComputedColumnSql() != null
                 ? ValueGenerated.OnAddOrUpdate
-                : relationalProperty.DefaultValue != null
-                  || relationalProperty.DefaultValueSql != null
+                : property.GetDefaultValue() != null
+                  || property.GetDefaultValueSql() != null
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null;
         }

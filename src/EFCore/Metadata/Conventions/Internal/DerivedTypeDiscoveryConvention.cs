@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                          && t.HasClrType()
                          && !t.HasDefiningNavigation()
                          && t.FindDeclaredOwnership() == null
-                         && !model.ShouldBeOwned(t.ClrType)
+                         && !model.IsOwned(t.ClrType)
                          && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
                              || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
                 .ToList();

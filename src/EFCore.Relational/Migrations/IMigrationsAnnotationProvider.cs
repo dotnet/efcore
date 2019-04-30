@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />
         ///     when it is being removed/altered.
         /// </summary>
-        /// <param name="sequence"> The check constraint. </param>
+        /// <param name="checkConstraint"> The check constraint. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] ICheckConstraint sequence);
+        IEnumerable<IAnnotation> ForRemove([NotNull] ICheckConstraint checkConstraint);
     }
 }

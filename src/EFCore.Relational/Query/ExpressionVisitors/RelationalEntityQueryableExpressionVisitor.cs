@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
-            var tableName = entityType.Relational().TableName;
+            var tableName = entityType.GetTableName();
 
             var tableAlias
                 = relationalQueryCompilationContext.CreateUniqueTableAlias(
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new TableExpression(
                         tableName,
-                        entityType.Relational().Schema,
+                        entityType.GetSchema(),
                         tableAlias,
                         _querySource));
             }
@@ -349,12 +349,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var discriminatorColumn
                 = selectExpression.BindProperty(
-                    concreteEntityTypes[0].Relational().DiscriminatorProperty,
+                    concreteEntityTypes[0].GetDiscriminatorProperty(),
                     querySource);
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    concreteEntityTypes[0].Relational().DiscriminatorValue,
+                    concreteEntityTypes[0].GetDiscriminatorValue(),
                     discriminatorColumn.Type);
 
             var discriminatorPredicate
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .Select(
                             concreteEntityType
                                 => Expression.Constant(
-                                    concreteEntityType.Relational().DiscriminatorValue,
+                                    concreteEntityType.GetDiscriminatorValue(),
                                     discriminatorColumn.Type))
                         .Aggregate(
                             discriminatorPredicate, (current, discriminatorValue) =>
@@ -460,8 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 var sharingTypes = new HashSet<IEntityType>(
                     _model.GetEntityTypes()
                         .Where(et => et.FindPrimaryKey() != null
-                                  && et.Relational().TableName == entityType.Relational().TableName
-                                  && et.Relational().Schema == entityType.Relational().Schema));
+                                  && et.GetTableName() == entityType.GetTableName()
+                                  && et.GetSchema() == entityType.GetSchema()));
 
                 var currentPath = new Stack<IEntityType>();
                 currentPath.Push(entityType);

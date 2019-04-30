@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("RowVersion", typeof(Guid), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
 
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("RowVersion", typeof(Guid), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
 
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
                 new List<string>
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
                 new List<string>
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
 
@@ -183,8 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
 
-            var idPropertyBuilder = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Explicit);
-            var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
+            var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             keyAttributeConvention.Apply(idPropertyBuilder);
 
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit).Metadata;
             derivedEntityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Explicit);
 
-            var propertyBuilder = derivedEntityTypeBuilder.Property("Number", typeof(int), ConfigurationSource.Explicit);
+            var propertyBuilder = derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
 
             Assert.Equal(
                 CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("MaxLengthProperty", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("MaxLengthProperty", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void NotMappedAttribute_overrides_configuration_from_convention_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
-            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Convention);
 
             entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
 
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
-            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Explicit);
+            entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Explicit);
 
             entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
 
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void NotMappedAttribute_on_field_overrides_configuration_from_convention_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<F>();
-            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Convention);
 
             entityTypeBuilder = new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityTypeBuilder);
 
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
 
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("StringLengthProperty", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("StringLengthProperty", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Timestamp", typeof(byte[]), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Timestamp", typeof(byte[]), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
             propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);

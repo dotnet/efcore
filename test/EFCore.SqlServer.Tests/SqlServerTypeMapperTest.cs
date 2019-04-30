@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_non_key_SQL_Server_fixed_length_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyBinaryProp", typeof(byte[]));
-            property.Relational().ColumnType = "binary(100)";
+            property.SetColumnType("binary(100)");
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
 

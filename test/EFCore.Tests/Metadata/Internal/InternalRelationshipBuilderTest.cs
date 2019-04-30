@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(
                 relationshipBuilder.HasForeignKey(
                     new[] { Order.IdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
-            var shadowId = principalEntityBuilder.Property("ShadowId", typeof(int), ConfigurationSource.Convention).Metadata;
+            var shadowId = principalEntityBuilder.Property(typeof(int), "ShadowId", ConfigurationSource.Convention).Metadata;
             Assert.Null(
                 relationshipBuilder.HasPrincipalKey(
                     new[] { shadowId.Name, Customer.UniqueProperty.Name }, ConfigurationSource.DataAnnotation));
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var relationshipBuilder = orderEntityBuilder.HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention);
             relationshipBuilder = relationshipBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
 
-            var nullableId = orderEntityBuilder.Property("NullableId", typeof(int?), ConfigurationSource.Explicit);
+            var nullableId = orderEntityBuilder.Property(typeof(int?), "NullableId", ConfigurationSource.Explicit);
             relationshipBuilder = relationshipBuilder.HasForeignKey(new[] { nullableId.Metadata.Name }, ConfigurationSource.Convention);
             Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.Equal(

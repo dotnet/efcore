@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool AreCompatible([NotNull] this IForeignKey foreignKey, [NotNull] IForeignKey duplicateForeignKey, bool shouldThrow)
         {
-            var principalAnnotations = foreignKey.PrincipalEntityType.Relational();
-            var duplicatePrincipalAnnotations = duplicateForeignKey.PrincipalEntityType.Relational();
-            if (!string.Equals(principalAnnotations.Schema, duplicatePrincipalAnnotations.Schema, StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(principalAnnotations.TableName, duplicatePrincipalAnnotations.TableName, StringComparison.OrdinalIgnoreCase))
+            var principalType = foreignKey.PrincipalEntityType;
+            var duplicatePrincipalType = duplicateForeignKey.PrincipalEntityType;
+            if (!string.Equals(principalType.GetSchema(), duplicatePrincipalType.GetSchema(), StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(principalType.GetTableName(), duplicatePrincipalType.GetTableName(), StringComparison.OrdinalIgnoreCase))
             {
                 if (shouldThrow)
                 {
@@ -38,17 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().ConstraintName,
-                            Format(principalAnnotations),
-                            Format(duplicatePrincipalAnnotations)));
+                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.GetConstraintName(),
+                            Format(principalType),
+                            Format(duplicatePrincipalType)));
                 }
 
                 return false;
             }
 
-            if (!foreignKey.Properties.Select(p => p.Relational().ColumnName)
-                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.Relational().ColumnName)))
+            if (!foreignKey.Properties.Select(p => p.GetColumnName())
+                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName())))
             {
                 if (shouldThrow)
                 {
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().ConstraintName,
+                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.GetConstraintName(),
                             foreignKey.Properties.FormatColumns(),
                             duplicateForeignKey.Properties.FormatColumns()));
                 }
@@ -68,10 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!foreignKey.PrincipalKey.Properties
-                .Select(p => p.Relational().ColumnName)
+                .Select(p => p.GetColumnName())
                 .SequenceEqual(
                     duplicateForeignKey.PrincipalKey.Properties
-                        .Select(p => p.Relational().ColumnName)))
+                        .Select(p => p.GetColumnName())))
             {
                 if (shouldThrow)
                 {
@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().ConstraintName,
+                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.GetConstraintName(),
                             foreignKey.PrincipalKey.Properties.FormatColumns(),
                             duplicateForeignKey.PrincipalKey.Properties.FormatColumns()));
                 }
@@ -100,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().ConstraintName));
+                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.GetConstraintName()));
                 }
 
                 return false;
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType.Relational()),
-                            foreignKey.Relational().ConstraintName,
+                            Format(foreignKey.DeclaringEntityType),
+                            foreignKey.GetConstraintName(),
                             foreignKey.DeleteBehavior,
                             duplicateForeignKey.DeleteBehavior));
                 }
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static string Format(IRelationalEntityTypeAnnotations annotations)
-            => (string.IsNullOrEmpty(annotations.Schema) ? "" : annotations.Schema + ".") + annotations.TableName;
+        private static string Format(IEntityType entityType)
+            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

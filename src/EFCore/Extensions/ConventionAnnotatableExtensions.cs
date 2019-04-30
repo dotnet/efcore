@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -13,6 +15,15 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class ConventionAnnotatableExtensions
     {
+        /// <summary>
+        ///     Gets the annotation with the given name, throwing if it does not exist.
+        /// </summary>
+        /// <param name="annotatable"> The object to find the annotation on. </param>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns> The annotation with the specified name. </returns>
+        public static IConventionAnnotation GetAnnotation([NotNull] this IConventionAnnotatable annotatable, [NotNull] string annotationName)
+            => (IConventionAnnotation)((IAnnotatable)annotatable).GetAnnotation(annotationName);
+
         /// <summary>
         ///     Adds annotations to an object.
         /// </summary>
@@ -43,15 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [CanBeNull] object value,
             bool fromDataAnnotation = false)
-        {
-            if (value == null)
-            {
-                annotatable.RemoveAnnotation(name);
-            }
-            else
-            {
-                annotatable.SetAnnotation(name, value, fromDataAnnotation);
-            }
-        }
+            => ((ConventionAnnotatable)annotatable).SetOrRemoveAnnotation(
+                name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

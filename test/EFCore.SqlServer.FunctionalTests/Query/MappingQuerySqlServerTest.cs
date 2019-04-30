@@ -73,9 +73,9 @@ FROM [dbo].[Orders] AS [o]",
                 modelBuilder.Entity<MappedCustomer>(
                     e =>
                     {
-                        e.Property(c => c.CompanyName2).Metadata.SqlServer().ColumnName = "CompanyName";
-                        e.Metadata.SqlServer().TableName = "Customers";
-                        e.Metadata.SqlServer().Schema = "dbo";
+                        e.Property(c => c.CompanyName2).Metadata.SetColumnName("CompanyName");
+                        e.Metadata.SetTableName("Customers");
+                        e.Metadata.SetSchema("dbo");
                     });
 
                 modelBuilder.Entity<MappedEmployee>()

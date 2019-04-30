@@ -3386,23 +3386,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasForeignKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasForeignKey(
-                (IReadOnlyList<Property>)properties,
+                properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         bool IConventionRelationshipBuilder.CanSetForeignKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetForeignKey(
-                (IReadOnlyList<Property>)properties,
+                properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasPrincipalKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasPrincipalKey(
-                (IReadOnlyList<Property>)properties,
+                properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         bool IConventionRelationshipBuilder.CanSetPrincipalKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetPrincipalKey(
-                (IReadOnlyList<Property>)properties,
+                properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigation(

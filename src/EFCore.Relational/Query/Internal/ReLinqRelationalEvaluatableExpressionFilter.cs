@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
-            => _model.Relational().FindDbFunction(methodCallExpression.Method) == null
+            => _model.FindDbFunction(methodCallExpression.Method) == null
                && base.IsEvaluatableMethodCall(methodCallExpression);
     }
 }

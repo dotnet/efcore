@@ -5,8 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Names for well-known relational model annotations. Applications should not use these names
-    ///     directly, but should instead use the 'Relational()' methods on <see cref="RelationalMetadataExtensions" />.
-    ///     They are exposed here for use by database providers and conventions.
+    ///     directly, but should instead use the extension methods on metadata objects.
     /// </summary>
     public static class RelationalAnnotationNames
     {
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string SequencePrefix = Prefix + "Sequence:";
 
         /// <summary>
-        ///     The prefix for serialized check constraint annotations.
+        ///     The name for check constraint annotations.
         /// </summary>
         public const string CheckConstraints = Prefix + "CheckConstraints";
 

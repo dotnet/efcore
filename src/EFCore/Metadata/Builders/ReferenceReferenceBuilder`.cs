@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
 

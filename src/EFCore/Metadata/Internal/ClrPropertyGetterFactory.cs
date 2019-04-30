@@ -50,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 readExpression = Expression.Block(
-                    new[] { converted },
+                    new[]
+                    {
+                        converted
+                    },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -93,7 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                ?? property?.FindMapping()?.Comparer
                                ?? (ValueComparer)Activator.CreateInstance(
                                    typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                                   new object[] { false });
+                                   new object[]
+                                   {
+                                       false
+                                   });
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)

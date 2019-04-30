@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
@@ -161,21 +160,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         ///     Configures a check constraint on the table.
         /// </summary>
         /// <param name="name"> The constraint name. </param>
-        /// <param name="constraintSql"> The sql expression used in the CHECK constraint. </param>
+        /// <param name="sql"> The sql expression used in the CHECK constraint. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<CreateCheckConstraintOperation> CheckConstraint(
             [NotNull] string name,
-            [NotNull] string constraintSql)
+            [NotNull] string sql)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(constraintSql, nameof(constraintSql));
+            Check.NotNull(sql, nameof(sql));
 
             var operation = new CreateCheckConstraintOperation
             {
                 Schema = Operation.Schema,
                 Table = Operation.Name,
                 Name = name,
-                ConstraintSql = constraintSql
+                Sql = sql
             };
             Operation.CheckConstraints.Add(operation);
 

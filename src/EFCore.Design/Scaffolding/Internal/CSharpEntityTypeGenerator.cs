@@ -136,12 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateTableAttribute(IEntityType entityType)
         {
-            var tableName = entityType.Relational().TableName;
-            var schema = entityType.Relational().Schema;
-            var defaultSchema = entityType.Model.Relational().DefaultSchema;
+            var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema();
+            var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
-            var tableAttributeNeeded = schemaParameterNeeded || tableName != null && tableName != entityType.Scaffolding().DbSetName;
+            var tableAttributeNeeded = schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName();
 
             if (tableAttributeNeeded)
             {
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            foreach (var property in entityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
+            foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
                 if (_useDataAnnotations)
                 {
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return;
                 }
 
-                if (key.Relational().Name != ConstraintNamer.GetDefaultName(key))
+                if (key.GetName() != key.GetDefaultName())
                 {
                     return;
                 }
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateColumnAttribute(IProperty property)
         {
-            var columnName = property.Relational().ColumnName;
+            var columnName = property.GetColumnName();
             var columnType = property.GetConfiguredColumnType();
 
             var delimitedColumnName = columnName != null && columnName != property.Name ? _code.Literal(columnName) : null;
@@ -315,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var sortedNavigations = entityType.GetNavigations()
                 .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
-                .ThenBy(n => n.IsCollection() ? 1 : 0);
+                .ThenBy(n => n.IsCollection() ? 1 : 0)
+                .ToList();
 
             if (sortedNavigations.Any())
             {

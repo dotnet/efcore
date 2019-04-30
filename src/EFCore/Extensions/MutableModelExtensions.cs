@@ -148,8 +148,17 @@ namespace Microsoft.EntityFrameworkCore
                 .SetChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Returns a value indicating whether the entity types matching the given name should be configured
-        ///     as owned types when discovered.
+        ///     Marks the given entity type as ignored, preventing conventions from adding a matching entity type to the model.
+        /// </summary>
+        /// <param name="model"> The model to get the value from. </param>
+        /// <param name="clrType"> The entity type to be ignored. </param>
+        public static void AddIgnored([NotNull] this IMutableModel model, [NotNull] Type clrType)
+            => Check.NotNull(model, nameof(model)).AsModel().AddIgnored(
+                Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Returns a value indicating whether the entity types using the given type should be configured
+        ///     as owned types when discovered by conventions.
         /// </summary>
         /// <param name="model"> The model to get the value from. </param>
         /// <param name="clrType"> The type of the entity type that might be owned. </param>
@@ -157,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <c>true</c> if a matching entity type should be configured as owned when discovered,
         ///     <c>false</c> otherwise.
         /// </returns>
-        public static bool ShouldBeOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
-            => Check.NotNull(model, nameof(model)).AsModel().ShouldBeOwned(
+        public static bool IsOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
+            => Check.NotNull(model, nameof(model)).AsModel().IsOwned(
                 Check.NotNull(clrType, nameof(clrType)));
 
         /// <summary>
@@ -169,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clrType"> The type of the entity type that should be owned. </param>
         public static void AddOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull(model, nameof(model)).AsModel().AddOwned(
-                Check.NotNull(clrType, nameof(clrType)));
+                Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Removes the given owned type, indicating that when discovered matching entity types

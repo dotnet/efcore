@@ -118,12 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void AddIgnored([NotNull] string name);
 
         /// <summary>
-        ///     Marks the given entity type as ignored, preventing conventions from adding a matching entity type to the model.
-        /// </summary>
-        /// <param name="clrType"> The entity type to be ignored. </param>
-        void AddIgnored([NotNull] Type clrType);
-
-        /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="name"> The name of the ignored entity type to be removed. </param>

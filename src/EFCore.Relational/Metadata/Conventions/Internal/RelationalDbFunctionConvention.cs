@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -70,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         protected virtual void ApplyCustomizations(
             [NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [NotNull] Annotation annotation)
         {
-            var dbFunctionBuilder = new InternalDbFunctionBuilder((DbFunction)annotation.Value);
+            var dbFunctionBuilder = (IConventionDbFunctionBuilder)new DbFunctionBuilder((IMutableDbFunction)annotation.Value);
             var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
             var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
 
-            dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name, ConfigurationSource.Convention);
-            dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema, ConfigurationSource.Convention);
+            dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name);
+            dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema);
         }
     }
 }

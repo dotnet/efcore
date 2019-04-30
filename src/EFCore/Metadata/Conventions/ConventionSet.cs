@@ -175,12 +175,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <summary>
         ///     <para>
-        ///         Call this method to build a <see cref="ConventionSet"/> for only core services when using
-        ///         the <see cref="ModelBuilder"/> outside of <see cref="DbContext.OnModelCreating"/>.
+        ///         Call this method to build a <see cref="ConventionSet" /> for only core services when using
+        ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
         ///     </para>
         ///     <para>
         ///         Note that it is unusual to use this method.
-        ///         Consider using <see cref="DbContext"/> in the normal way instead.
+        ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
         /// <returns> The convention set. </returns>

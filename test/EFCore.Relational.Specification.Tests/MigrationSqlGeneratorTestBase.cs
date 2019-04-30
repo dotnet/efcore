@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore
                     Table = "People",
                     Schema = "dbo",
                     Name = "CK_People_DriverLicense",
-                    ConstraintSql = "DriverLicense_Number > 0"
+                    Sql = "DriverLicense_Number > 0"
                 });
         
         [Fact]
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         new CreateCheckConstraintOperation
                         {
-                            ConstraintSql = "SSN > 0"
+                            Sql = "SSN > 0"
                         }
                     },
                     ForeignKeys =

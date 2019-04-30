@@ -253,6 +253,7 @@ namespace System
             while (type != null);
         }
 
+        // Looking up the members through the whole hierarchy allows to find inherited private members.
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type)
         {
             do

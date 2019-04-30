@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///    but can reference other columns in the same table for the same row.
         ///    The expression cannot reference an alias data type.
         /// </summary>
-        public virtual string ConstraintSql { get; [param: NotNull] set; }
+        public virtual string Sql { get; [param: NotNull] set; }
     }
 }

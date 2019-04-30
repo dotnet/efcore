@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -19,11 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
-            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(
+                propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
@@ -33,11 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
 
-            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(propertyBuilder);
+            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(
+                propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }

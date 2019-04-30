@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
         {
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
-            property.Relational().ColumnType = typeName;
+            property.SetColumnType(typeName);
 
             return GetMapping(property);
         }

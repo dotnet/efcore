@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<NumNum>()
                     .Property(e => e.Id)
                     .HasColumnType("numeric(18, 0)")
-                    .UseSqlServerIdentityColumn();
+                    .ForSqlServerUseIdentityColumn();
 
                 modelBuilder
                     .Entity<AdNum>()
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<ByteNum>()
                     .Property(e => e.Id)
-                    .UseSqlServerIdentityColumn();
+                    .ForSqlServerUseIdentityColumn();
 
                 modelBuilder
                     .Entity<ByteAdNum>()

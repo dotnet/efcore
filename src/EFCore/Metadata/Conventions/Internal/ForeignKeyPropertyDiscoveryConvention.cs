@@ -115,10 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 if (fkProperty.ClrType != newType)
                                 {
                                     fkProperty.DeclaringEntityType.Builder.Property(
-                                        fkProperty.Name,
                                         fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired),
-                                        fkProperty.GetConfigurationSource(),
-                                        ConfigurationSource.Convention);
+                                        fkProperty.Name,
+                                        fkProperty.GetConfigurationSource(), ConfigurationSource.Convention);
                                 }
                             }
                         }

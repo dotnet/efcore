@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed(), null);
 
             TestSqlLoggerFactory.Clear();
 

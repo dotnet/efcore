@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
         [Fact]
@@ -36,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
         [Fact]
@@ -50,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
 
-            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()

@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
             if (identity)
             {
-                // NB: This gets added to all added non-nullalbe columns by MigrationsModelDiffer. We need to suppress
+                // NB: This gets added to all added non-nullable columns by MigrationsModelDiffer. We need to suppress
                 //     it, here because SQL Server can have both IDENTITY and a DEFAULT constraint on the same column.
                 operation.DefaultValue = null;
             }
@@ -1439,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             base.IndexOptions(operation, model, builder);
 
-            if (operation[SqlServerAnnotationNames.Online] is bool isOnline && isOnline)
+            if (operation[SqlServerAnnotationNames.CreatedOnline] is bool isOnline && isOnline)
             {
                 builder.Append(" WITH (ONLINE = ON)");
             }
@@ -1538,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .OfType<CreateIndexOperation>().ToList();
             foreach (var index in property.DeclaringEntityType.GetIndexes().Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
             {
-                var indexName = index.Relational().Name;
+                var indexName = index.GetName();
                 if (createIndexOperations.Any(o => o.Name == indexName))
                 {
                     continue;
@@ -1548,7 +1548,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     yield return index;
                 }
-                else if (index.SqlServer().IncludeProperties is IReadOnlyList<string> includeProperties)
+                else if (index.GetSqlServerIncludeProperties() is IReadOnlyList<string> includeProperties)
                 {
                     if (includeProperties.Contains(property.Name))
                     {
@@ -1574,9 +1574,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var operation = new DropIndexOperation
                 {
-                    Schema = index.DeclaringEntityType.Relational().Schema,
-                    Table = index.DeclaringEntityType.Relational().TableName,
-                    Name = index.Relational().Name
+                    Schema = index.DeclaringEntityType.GetSchema(),
+                    Table = index.DeclaringEntityType.GetTableName(),
+                    Name = index.GetName()
                 };
                 operation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
 
@@ -1602,11 +1602,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var operation = new CreateIndexOperation
                 {
                     IsUnique = index.IsUnique,
-                    Name = index.Relational().Name,
-                    Schema = index.DeclaringEntityType.Relational().Schema,
-                    Table = index.DeclaringEntityType.Relational().TableName,
-                    Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
-                    Filter = index.Relational().Filter
+                    Name = index.GetName(),
+                    Schema = index.DeclaringEntityType.GetSchema(),
+                    Table = index.DeclaringEntityType.GetTableName(),
+                    Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
+                    Filter = index.GetFilter()
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 
@@ -1629,7 +1629,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.SqlServer().IsMemoryOptimized) == true;
+               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.GetSqlServerIsMemoryOptimized()) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

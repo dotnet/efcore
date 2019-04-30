@@ -1,16 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -54,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            if (!IsNonNullable(navigation) || navigation.IsCollection())
+            if (!IsNonNullable(navigation)
+                || navigation.IsCollection())
             {
                 return relationshipBuilder;
             }

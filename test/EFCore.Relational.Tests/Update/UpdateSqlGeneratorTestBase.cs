@@ -331,16 +331,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, identityKey, !identityKey, true, false, false, true),
+                    entry, idProperty, generator.GenerateNext, identityKey, !identityKey, true, false, false, true),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false, true),
+                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false, true),
+                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false,
+                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
                     true, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, false,
+                    entry, concurrencyProperty, generator.GenerateNext, false, true, false, false,
                     false, true)
             };
 
@@ -368,16 +368,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, false, true),
+                    entry, idProperty, generator.GenerateNext, false, false, true, true, false, true),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false, true),
+                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false, true),
+                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false,
+                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
                     false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false,
+                    entry, concurrencyProperty,  generator.GenerateNext, false, true, false,
                     concurrencyToken, concurrencyToken, true)
             };
 
@@ -397,9 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, concurrencyToken, true),
+                    entry, idProperty, generator.GenerateNext, false, false, true, true, concurrencyToken, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false,
+                    entry, concurrencyProperty, generator.GenerateNext, false, false, false,
                     concurrencyToken, concurrencyToken, true)
             };
 

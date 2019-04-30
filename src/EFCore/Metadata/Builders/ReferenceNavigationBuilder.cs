@@ -34,18 +34,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
             [CanBeNull] string navigationName,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceName = navigationName;
-            Builder = builder;
+            Builder = ((ForeignKey)foreignKey).Builder;
         }
 
         /// <summary>
@@ -56,19 +56,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
             [CanBeNull] PropertyInfo navigationProperty,
-            [NotNull] InternalRelationshipBuilder builder)
+            [NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
             ReferenceProperty = navigationProperty;
             ReferenceName = navigationProperty?.GetSimpleMemberName();
-            Builder = builder;
+            Builder = ((ForeignKey)foreignKey).Builder;
         }
 
         private InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType RelatedEntityType { [DebuggerStepThrough] get; }
+        protected virtual IMutableEntityType RelatedEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual EntityType DeclaringEntityType { [DebuggerStepThrough] get; }
+        protected virtual IMutableEntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder(
                 RelatedEntityType,
                 DeclaringEntityType,
-                WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))));
+                WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -157,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private InternalRelationshipBuilder WithManyBuilder(PropertyIdentity collection)
         {
-            var builder = Builder.HasEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
+            var builder = Builder.HasEntityTypes(
+                (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
             var collectionName = collection.Name;
             if (builder.Metadata.IsUnique
                 && builder.Metadata.PrincipalToDependent != null
@@ -180,9 +181,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return RelatedEntityType != foreignKey.PrincipalEntityType
                 ? collection.MemberInfo == null && ReferenceProperty == null
                     ? builder.HasNavigations(
-                        ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                        ReferenceName, collection.Name,
+                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                     : builder.HasNavigations(
-                        ReferenceProperty, collection.MemberInfo, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                        ReferenceProperty, collection.MemberInfo,
+                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                 : collection.MemberInfo != null
                     ? builder.HasNavigation(
                         collection.MemberInfo,
@@ -213,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
+                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -287,9 +290,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 {
                     builder = referenceProperty == null && ReferenceProperty == null
                         ? builder.HasNavigations(
-                            referenceName, ReferenceName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)
+                            referenceName, ReferenceName,
+                            (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)
                         : builder.HasNavigations(
-                            referenceProperty, ReferenceProperty, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit);
+                            referenceProperty, ReferenceProperty,
+                            (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit);
                 }
                 else if (referenceName != null
                          && !pointsToPrincipal
@@ -297,9 +302,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 {
                     builder = referenceProperty == null && ReferenceProperty == null
                         ? builder.HasNavigations(
-                            ReferenceName, referenceName, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                            ReferenceName, referenceName,
+                            (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                         : builder.HasNavigations(
-                            ReferenceProperty, referenceProperty, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
+                            ReferenceProperty, referenceProperty,
+                            (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
                 }
                 else
                 {
@@ -352,6 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);
 
         /// <summary>
@@ -359,6 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode() => base.GetHashCode();
 
         #endregion

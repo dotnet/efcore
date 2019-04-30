@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
+        public EntityTypeBuilder([NotNull] IMutableEntityType entityType)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(entityType, nameof(entityType));
 
-            Builder = builder;
+            Builder = ((EntityType)entityType).Builder;
         }
 
         private InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the base type or <c>null</c> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] string name)
-            => new EntityTypeBuilder(Builder.HasBaseType(name, ConfigurationSource.Explicit));
+            => new EntityTypeBuilder(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The base type or <c>null</c> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type entityType)
-            => new EntityTypeBuilder(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
+            => new EntityTypeBuilder(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+            => new KeyBuilder(
+                Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -108,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
         /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
-            => new KeyBuilder(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+            => new KeyBuilder(
+                Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -137,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new PropertyBuilder(
                 Builder.Property(
                     Check.NotEmpty(propertyName, nameof(propertyName)),
-                    ConfigurationSource.Explicit));
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -158,9 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
             => new PropertyBuilder<TProperty>(
                 Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
                     typeof(TProperty),
-                    ConfigurationSource.Explicit));
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -181,9 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
             => new PropertyBuilder(
                 Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
                     Check.NotNull(propertyType, nameof(propertyType)),
-                    ConfigurationSource.Explicit));
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -219,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
-            => new IndexBuilder(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+            => new IndexBuilder(
+                Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -555,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -598,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -674,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                relationship);
+                relationship.Metadata);
         }
 
         /// <summary>
@@ -770,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                relationship);
+                relationship.Metadata);
         }
 
         /// <summary>

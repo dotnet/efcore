@@ -6,7 +6,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -108,12 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var sets = Dependencies.SetFinder.CreateClrTypeDbSetMapping(context);
 
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes().Cast<EntityType>())
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes().Cast<IConventionEntityType>())
             {
                 if (entityType.BaseType == null
                     && sets.ContainsKey(entityType.ClrType))
                 {
-                    entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(sets[entityType.ClrType].Name);
+                    entityType.Builder.ToTable(sets[entityType.ClrType].Name);
                 }
             }
         }

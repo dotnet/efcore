@@ -1388,7 +1388,7 @@ namespace Microsoft.EntityFrameworkCore
         protected bool UseDetectChanges => Fixture.UseDetectChanges;
 
         protected void CreateAndSeedDatabase(Action<MonsterContext> seed)
-            => TestStore.Initialize(Fixture.ServiceProvider, CreateContext, c => seed((MonsterContext)c));
+            => TestStore.Initialize(Fixture.ServiceProvider, CreateContext, c => seed((MonsterContext)c), null);
 
         protected MonsterContext CreateContext() => Fixture.CreateContext(Options);
 

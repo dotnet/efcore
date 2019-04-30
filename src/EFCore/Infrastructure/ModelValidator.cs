@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 ownership.PrincipalEntityType.DisplayName()));
                     }
                 }
-                else if (entityType.HasClrType() && ((IMutableModel)model).ShouldBeOwned(entityType.ClrType))
+                else if (entityType.HasClrType() && ((IMutableModel)model).IsOwned(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.OwnerlessOwnedType(entityType.DisplayName()));
                 }

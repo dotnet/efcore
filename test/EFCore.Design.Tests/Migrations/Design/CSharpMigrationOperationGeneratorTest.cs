@@ -411,17 +411,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Name = "CK_Post_AltId1_AltId2",
                     Table = "Post",
-                    ConstraintSql = "AltId1 > AltId2"
+                    Sql = "AltId1 > AltId2"
                 },
                 "mb.CreateCheckConstraint(" + _eol +
                 "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
                 "    table: \"Post\"," + _eol +
-                "    constraintSql: \"AltId1 > AltId2\");",
+                "    sql: \"AltId1 > AltId2\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
                     Assert.Equal("Post", o.Table);
-                    Assert.Equal("AltId1 > AltId2", o.ConstraintSql);
+                    Assert.Equal("AltId1 > AltId2", o.Sql);
                 });
         }
 
@@ -434,19 +434,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "CK_Post_AltId1_AltId2",
                     Schema = "dbo",
                     Table = "Post",
-                    ConstraintSql = "AltId1 > AltId2"
+                    Sql = "AltId1 > AltId2"
                 },
                 "mb.CreateCheckConstraint(" + _eol +
                 "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
                 "    schema: \"dbo\"," + _eol +
                 "    table: \"Post\"," + _eol +
-                "    constraintSql: \"AltId1 > AltId2\");",
+                "    sql: \"AltId1 > AltId2\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
-                    Assert.Equal("AltId1 > AltId2", o.ConstraintSql);
+                    Assert.Equal("AltId1 > AltId2", o.Sql);
                 });
         }
         
@@ -1614,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             Name = "CK_Post_AltId1_AltId2",
                             Table = "Post",
-                            ConstraintSql = "AltId1 > AltId2"
+                            Sql = "AltId1 > AltId2"
                         }
                     }
                 },
@@ -1635,7 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     Assert.Equal("CK_Post_AltId1_AltId2", o.CheckConstraints[0].Name);
                     Assert.Equal("Post", o.CheckConstraints[0].Table);
-                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].ConstraintSql);
+                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
                 });
         }
 
@@ -1667,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Name = "CK_Post_AltId1_AltId2",
                             Schema = "dbo",
                             Table = "Post",
-                            ConstraintSql = "AltId1 > AltId2"
+                            Sql = "AltId1 > AltId2"
                         }
                     }
                 },
@@ -1690,7 +1690,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("CK_Post_AltId1_AltId2", o.CheckConstraints[0].Name);
                     Assert.Equal("dbo", o.CheckConstraints[0].Schema);
                     Assert.Equal("Post", o.CheckConstraints[0].Table);
-                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].ConstraintSql);
+                    Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
                 });
         }
 

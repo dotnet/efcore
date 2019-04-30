@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalAnnotatableBuilder RemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
         {
-            if (!CanSetAnnotation(name, null, configurationSource))
+            if (!CanRemoveAnnotation(name, configurationSource))
             {
                 return null;
             }
@@ -143,7 +143,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanRemoveAnnotation(string name, ConfigurationSource configurationSource)
-            => CanSetAnnotation(name, null, configurationSource);
+        {
+            var existingAnnotation = Metadata.FindAnnotation(name);
+            return existingAnnotation == null
+                   || configurationSource.Overrides(existingAnnotation.GetConfigurationSource());
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

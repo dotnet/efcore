@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableSequence : ISequence
     {
         /// <summary>
+        ///     The <see cref="IMutableModel" /> in which this sequence is defined.
+        /// </summary>
+        new IMutableModel Model { get; }
+
+        /// <summary>
         ///     The value at which the sequence will start.
         /// </summary>
         new long StartValue { get; set; }

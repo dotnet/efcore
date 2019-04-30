@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
         /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="propertyAnnotations"> Provides access to relational-specific annotations for the column. </param>
         /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
         /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
         /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
@@ -48,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         public ColumnModification(
             [NotNull] IUpdateEntry entry,
             [NotNull] IProperty property,
-            [NotNull] IRelationalPropertyAnnotations propertyAnnotations,
             [NotNull] Func<string> generateParameterName,
             bool isRead,
             bool isWrite,
@@ -57,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isConcurrencyToken,
             bool sensitiveLoggingEnabled)
             : this(
-                Check.NotNull(propertyAnnotations, nameof(propertyAnnotations)).ColumnName,
+                Check.NotNull(property, nameof(property)).GetColumnName(),
                 originalValue: null,
                 value: null,
                 property: property,

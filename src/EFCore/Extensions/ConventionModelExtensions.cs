@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or null if none if found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none if found. </returns>
         public static IConventionEntityType FindEntityType([NotNull] this IConventionModel model, [NotNull] Type type)
             => (IConventionEntityType)((IModel)model).FindEntityType(type);
 
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
         public static IConventionEntityType FindEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
@@ -165,11 +165,25 @@ namespace Microsoft.EntityFrameworkCore
         ///     <c>false</c> otherwise.
         /// </returns>
         public static bool ShouldBeOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
-            => Check.NotNull(model, nameof(model)).AsModel().ShouldBeOwned(
+            => Check.NotNull(model, nameof(model)).AsModel().IsOwned(
                 Check.NotNull(clrType, nameof(clrType)));
 
         /// <summary>
-        ///     Marks the given entity type as owned, indicating that when discovered matching entity types
+        ///     Returns a value indicating whether the entity types using the given type should be configured
+        ///     as owned types when discovered.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="clrType"> The type of the entity type that could be owned. </param>
+        /// <returns>
+        ///     The configuration source if the given type name is marked as owned,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static ConfigurationSource? GetIsOwnedConfigurationSource([NotNull] this IConventionModel model, [NotNull] Type clrType)
+            => Check.NotNull(model, nameof(model)).AsModel().GetIsOwnedConfigurationSource(
+                Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Marks the given entity type as owned, indicating that when discovered entity types using the given type
         ///     should be configured as owned.
         /// </summary>
         /// <param name="model"> The model to add the owned type to. </param>
@@ -177,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void AddOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
             => Check.NotNull(model, nameof(model)).AsModel().AddOwned(
-                Check.NotNull(clrType, nameof(clrType)));
+                Check.NotNull(clrType, nameof(clrType)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Removes the given owned type, indicating that when discovered matching entity types

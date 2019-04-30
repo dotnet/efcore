@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool AreCompatible([NotNull] this IIndex index, [NotNull] IIndex duplicateIndex, bool shouldThrow)
         {
-            if (!index.Properties.Select(p => p.Relational().ColumnName)
-                .SequenceEqual(duplicateIndex.Properties.Select(p => p.Relational().ColumnName)))
+            if (!index.Properties.Select(p => p.GetColumnName())
+                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName())))
             {
                 if (shouldThrow)
                 {
@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType.Relational()),
-                            index.Relational().Name,
+                            Format(index.DeclaringEntityType),
+                            index.GetName(),
                             index.Properties.FormatColumns(),
                             duplicateIndex.Properties.FormatColumns()));
                 }
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType.Relational()),
-                            index.Relational().Name));
+                            Format(index.DeclaringEntityType),
+                            index.GetName()));
                 }
 
                 return false;
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static string Format(IRelationalEntityTypeAnnotations annotations)
-            => (string.IsNullOrEmpty(annotations.Schema) ? "" : annotations.Schema + ".") + annotations.TableName;
+        private static string Format(IEntityType entityType)
+            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

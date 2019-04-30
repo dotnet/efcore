@@ -24,6 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Schema { get; }
 
         /// <summary>
+        ///     The <see cref="IModel" /> in which this function is defined.
+        /// </summary>
+        IModel Model { get; }
+
+        /// <summary>
         ///     The CLR method which maps to the function in the database.
         /// </summary>
         MethodInfo MethodInfo { get; }

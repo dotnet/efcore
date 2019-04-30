@@ -24,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+        public override TestStore Initialize(
+            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
         {
-            base.Initialize(serviceProvider, createContext, seed);
+            base.Initialize(serviceProvider, createContext, seed, clean);
 
             if (ConnectionState != ConnectionState.Open)
             {

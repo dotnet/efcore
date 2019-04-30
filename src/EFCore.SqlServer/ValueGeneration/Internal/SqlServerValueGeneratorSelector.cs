@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             return property.GetValueGeneratorFactory() == null
-                   && property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+                   && property.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
                 ? _sequenceFactory.Create(
                     property,
                     Cache.GetOrAddSequenceState(property, _connection),
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
                 ? property.ValueGenerated == ValueGenerated.Never
-                  || property.SqlServer().DefaultValueSql != null
+                  || property.GetDefaultValueSql() != null
                     ? (ValueGenerator)new TemporaryGuidValueGenerator()
                     : new SequentialGuidValueGenerator()
                 : base.Create(property, entityType);

@@ -169,7 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.MakeIndex(
                                 instanceVariable,
                                 indexerPropertyInfo,
-                                new[] { Expression.Constant(property.Name) }),
+                                new[]
+                                {
+                                    Expression.Constant(property.Name)
+                                }),
                             readValueExpression)
                         : Expression.MakeMemberAccess(
                             instanceVariable,
@@ -179,7 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Block(new[] { instanceVariable }, blockExpressions);
+            return Expression.Block(
+                new[]
+                {
+                    instanceVariable
+                }, blockExpressions);
         }
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers

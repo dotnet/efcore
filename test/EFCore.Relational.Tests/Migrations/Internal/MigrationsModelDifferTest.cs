@@ -1142,7 +1142,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Draco")
                             .HasComputedColumnSql("CreateDragonName()");
                     }),
                 operations =>
@@ -1682,7 +1681,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Buffy")
                             .HasDefaultValueSql("CreateBisonName()");
                     }),
                 target => target.Entity(
@@ -1694,7 +1692,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired(false)
-                            .HasDefaultValue("Buffy")
                             .HasDefaultValueSql("CreateBisonName()");
                     }),
                 operations =>
@@ -1725,7 +1722,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<string>("Name")
                             .IsRequired()
-                            .HasDefaultValue("Puff")
                             .HasDefaultValueSql("CreatePumaName()");
                     }),
                 source => source.Entity(
@@ -2017,7 +2013,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValueSql("CreateCougarName()")
                             .HasDefaultValue("Butch");
                     }),
                 target => target.Entity(
@@ -2029,7 +2024,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValueSql("CreateCougarName()")
                             .HasDefaultValue("Cosmo");
                     }),
                 operations =>
@@ -2061,7 +2055,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasDefaultValueSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
@@ -2073,7 +2066,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasDefaultValueSql("CreateCatamountName()");
                     }),
                 operations =>
@@ -2105,7 +2097,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasComputedColumnSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
@@ -2117,7 +2108,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasComputedColumnSql("CreateCatamountName()");
                     }),
                 operations =>
@@ -2310,7 +2300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Flamingo", operation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
-                    Assert.Equal("AlternateId > Id", operation.ConstraintSql);
+                    Assert.Equal("AlternateId > Id", operation.Sql);
                 });
         }
 
@@ -2381,7 +2371,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", createOperation.Schema);
                     Assert.Equal("Pelican", createOperation.Table);
                     Assert.Equal("CK_Flamingo", createOperation.Name);
-                    Assert.Equal("AlternateId > Id", createOperation.ConstraintSql);
+                    Assert.Equal("AlternateId > Id", createOperation.Sql);
                 });
         }
 
@@ -2420,7 +2410,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", createOperation.Schema);
                     Assert.Equal("Rook", createOperation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);
-                    Assert.Equal("AlternateId < Id", createOperation.ConstraintSql);
+                    Assert.Equal("AlternateId < Id", createOperation.Sql);
                 });
         }
 

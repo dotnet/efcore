@@ -146,11 +146,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be ignored. </param>
+        /// <param name="name"> The name of the entity type that could be ignored. </param>
         /// <returns>
         ///     The configuration source if the given entity type name is ignored,
         ///     <c>null</c> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string name);
+        ConfigurationSource? GetIsIgnoredConfigurationSource([NotNull] string name);
     }
 }

@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IKey key)
         {
-            var isClustered = key.SqlServer().IsClustered;
+            var isClustered = key.GetSqlServerIsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -78,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
-            var isClustered = index.SqlServer().IsClustered;
+            var isClustered = index.GetSqlServerIsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     isClustered.Value);
             }
 
-            var includeProperties = index.SqlServer().IncludeProperties;
+            var includeProperties = index.GetSqlServerIncludeProperties();
             if (includeProperties != null)
             {
                 yield return new Annotation(
@@ -94,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     includeProperties);
             }
 
-            var isOnline = index.SqlServer().IsOnline;
+            var isOnline = index.GetSqlServerIsCreatedOnline();
             if (isOnline.HasValue)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Online,
+                    SqlServerAnnotationNames.CreatedOnline,
                     isOnline.Value);
             }
         }
@@ -111,13 +110,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+            if (property.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
 
-                var seed = property.SqlServer().IdentitySeed;
+                var seed = property.GetSqlServerIdentitySeed();
                 if (seed.HasValue)
                 {
                     yield return new Annotation(
@@ -125,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                         seed.Value);
                 }
 
-                var increment = property.SqlServer().IdentityIncrement;
+                var increment = property.GetSqlServerIdentityIncrement();
                 if (increment.HasValue)
                 {
                     yield return new Annotation(
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> ForRemove(IModel model)
         {
-            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.SqlServer().IsMemoryOptimized))
+            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.GetSqlServerIsMemoryOptimized()))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
@@ -169,6 +168,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         }
 
         private static bool IsMemoryOptimized(IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusive().Any(t => t.SqlServer().IsMemoryOptimized);
+            => entityType.GetAllBaseTypesInclusive().Any(t => t.GetSqlServerIsMemoryOptimized());
     }
 }

@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
-                var fullName = (entityType.Relational().Schema, entityType.Relational().TableName);
+                var fullName = (entityType.GetSchema(), entityType.GetTableName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
