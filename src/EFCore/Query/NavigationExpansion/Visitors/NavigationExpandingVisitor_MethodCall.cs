@@ -632,8 +632,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 outerApplyOrderingsResult.state.CustomRootMappings.Concat(new[] { groupingMapping }).ToList(),
                 materializeCollectionNavigation: null);
 
+            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
+            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
+
             var lambda = Expression.Lambda(
-                Expression.New(transparentIdentifierCtorInfo, outerApplyOrderingsResult.state.CurrentParameter, newGroupingParameter),
+                Expression.New(
+                    transparentIdentifierCtorInfo,
+                    new[] { outerApplyOrderingsResult.state.CurrentParameter, newGroupingParameter },
+                    new[] { transparentIdentifierOuterMemberInfo, transparentIdentifierInnerMemberInfo }),
                 outerApplyOrderingsResult.state.CurrentParameter,
                 newGroupingParameter);
 
@@ -1354,8 +1360,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 outerState.CustomRootMappings.Concat(innerState.CustomRootMappings).ToList(),
                 materializeCollectionNavigation: null);
 
+            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
+            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
+
             var lambda = Expression.Lambda(
-                Expression.New(transparentIdentifierCtorInfo, outerState.CurrentParameter, innerState.CurrentParameter),
+                Expression.New(
+                    transparentIdentifierCtorInfo,
+                    new[] { outerState.CurrentParameter, innerState.CurrentParameter },
+                    new[] { transparentIdentifierOuterMemberInfo, transparentIdentifierInnerMemberInfo }),
                 outerState.CurrentParameter,
                 innerState.CurrentParameter);
 
