@@ -143,8 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     var groupJoinResultTransparentIdentifierCtorInfo
                         = groupJoinResultType.GetTypeInfo().GetConstructors().Single();
 
+                    var groupJoinResultTransparentIdentifierOuterMemberInfo = groupJoinResultType.GetTypeInfo().GetDeclaredField("Outer");
+                    var groupJoinResultTransparentIdentifierInnerMemberInfo = groupJoinResultType.GetTypeInfo().GetDeclaredField("Inner");
+
                     var groupJoinResultSelector = Expression.Lambda(
-                        Expression.New(groupJoinResultTransparentIdentifierCtorInfo, resultSelectorOuterParameter, resultSelectorInnerParameter),
+                        Expression.New(
+                            groupJoinResultTransparentIdentifierCtorInfo,
+                            new[] { resultSelectorOuterParameter, resultSelectorInnerParameter },
+                            new[] { groupJoinResultTransparentIdentifierOuterMemberInfo, groupJoinResultTransparentIdentifierInnerMemberInfo }),
                         resultSelectorOuterParameter,
                         resultSelectorInnerParameter);
 
@@ -180,9 +186,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     var selectManyResultTransparentIdentifierCtorInfo
                         = selectManyResultType.GetTypeInfo().GetConstructors().Single();
 
+                    var selectManyResultTransparentIdentifierOuterMemberInfo = selectManyResultType.GetTypeInfo().GetDeclaredField("Outer");
+                    var selectManyResultTransparentIdentifierInnerMemberInfo = selectManyResultType.GetTypeInfo().GetDeclaredField("Inner");
+
                     // TODO: dont reuse parameters here?
                     var selectManyResultSelector = Expression.Lambda(
-                        Expression.New(selectManyResultTransparentIdentifierCtorInfo, selectManyCollectionSelectorParameter, innerKeySelectorParameter),
+                        Expression.New(
+                            selectManyResultTransparentIdentifierCtorInfo,
+                            new[] { selectManyCollectionSelectorParameter, innerKeySelectorParameter },
+                            new[] { selectManyResultTransparentIdentifierOuterMemberInfo, selectManyResultTransparentIdentifierInnerMemberInfo }),
                         selectManyCollectionSelectorParameter,
                         innerKeySelectorParameter);
 
@@ -220,8 +232,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     var transparentIdentifierCtorInfo
                         = resultType.GetTypeInfo().GetConstructors().Single();
 
+                    var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
+                    var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
+
                     var resultSelector = Expression.Lambda(
-                        Expression.New(transparentIdentifierCtorInfo, resultSelectorOuterParameter, resultSelectorInnerParameter),
+                        Expression.New(
+                            transparentIdentifierCtorInfo,
+                            new[] { resultSelectorOuterParameter, resultSelectorInnerParameter },
+                            new[] { transparentIdentifierOuterMemberInfo, transparentIdentifierInnerMemberInfo }),
                         resultSelectorOuterParameter,
                         resultSelectorInnerParameter);
 
