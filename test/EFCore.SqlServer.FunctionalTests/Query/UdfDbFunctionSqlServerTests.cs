@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Static
 
-        [Fact]
         public override void Scalar_Function_Extension_Method_Static()
         {
             base.Scalar_Function_Extension_Method_Static();
@@ -36,7 +35,6 @@ WHERE CASE
 END = CAST(0 AS bit)");
         }
 
-        [Fact]
         public override void Scalar_Function_With_Translator_Translates_Static()
         {
             base.Scalar_Function_With_Translator_Translates_Static();
@@ -49,13 +47,7 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
-        public override void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
-        {
-            base.Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static();
-        }
 
-        [Fact]
         public override void Scalar_Function_Constant_Parameter_Static()
         {
             base.Scalar_Function_Constant_Parameter_Static();
@@ -67,7 +59,6 @@ SELECT [dbo].[CustomerOrderCount](@__customerId_0)
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Correlated_Static()
         {
             base.Scalar_Function_Anonymous_Type_Select_Correlated_Static();
@@ -78,7 +69,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Static()
         {
             base.Scalar_Function_Anonymous_Type_Select_Not_Correlated_Static();
@@ -89,7 +79,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Parameter_Static()
         {
             base.Scalar_Function_Anonymous_Type_Select_Parameter_Static();
@@ -102,7 +91,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Static()
         {
             base.Scalar_Function_Anonymous_Type_Select_Nested_Static();
@@ -116,7 +104,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Correlated_Static()
         {
             base.Scalar_Function_Where_Correlated_Static();
@@ -127,7 +114,6 @@ FROM [Customers] AS [c]
 WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Not_Correlated_Static()
         {
             base.Scalar_Function_Where_Not_Correlated_Static();
@@ -140,7 +126,6 @@ FROM [Customers] AS [c]
 WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Parameter_Static()
         {
             base.Scalar_Function_Where_Parameter_Static();
@@ -153,7 +138,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_0))");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Nested_Static()
         {
             base.Scalar_Function_Where_Nested_Static();
@@ -164,7 +148,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](0))");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Correlated_Static()
         {
             base.Scalar_Function_Let_Correlated_Static();
@@ -175,7 +158,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 2");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Not_Correlated_Static()
         {
             base.Scalar_Function_Let_Not_Correlated_Static();
@@ -186,7 +168,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 2");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Not_Parameter_Static()
         {
             base.Scalar_Function_Let_Not_Parameter_Static();
@@ -199,7 +180,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Nested_Static()
         {
             base.Scalar_Function_Let_Nested_Static();
@@ -233,7 +213,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
         {
             base.Scalar_Nested_Function_Unwind_Client_Eval_Select_Static();
@@ -334,7 +313,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_BCL_UDF_Static()
         {
             base.Scalar_Nested_Function_BCL_UDF_Static();
@@ -355,7 +333,6 @@ WHERE 3 = ABS([dbo].[CustomerOrderCount]([c].[Id]))");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_UDF_BCL_Static()
         {
             base.Scalar_Nested_Function_UDF_BCL_Static();
@@ -366,7 +343,6 @@ FROM [Customers] AS [c]
 WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
         }
 
-        [Fact]
         public override void Nullable_navigation_property_access_preserves_schema_for_sql_function()
         {
             base.Nullable_navigation_property_access_preserves_schema_for_sql_function();
@@ -382,7 +358,6 @@ ORDER BY [o].[Id]");
 
         #region Instance
 
-        [Fact]
         public override void Scalar_Function_Non_Static()
         {
             base.Scalar_Function_Non_Static();
@@ -393,7 +368,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
 
-        [Fact]
         public override void Scalar_Function_Extension_Method_Instance()
         {
             base.Scalar_Function_Extension_Method_Instance();
@@ -407,7 +381,6 @@ WHERE CASE
 END = CAST(0 AS bit)");
         }
 
-        [Fact]
         public override void Scalar_Function_With_Translator_Translates_Instance()
         {
             base.Scalar_Function_With_Translator_Translates_Instance();
@@ -420,7 +393,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Constant_Parameter_Instance()
         {
             base.Scalar_Function_Constant_Parameter_Instance();
@@ -432,7 +404,6 @@ SELECT [dbo].[CustomerOrderCount](@__customerId_1)
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Correlated_Instance()
         {
             base.Scalar_Function_Anonymous_Type_Select_Correlated_Instance();
@@ -443,7 +414,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Instance()
         {
             base.Scalar_Function_Anonymous_Type_Select_Not_Correlated_Instance();
@@ -454,7 +424,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Parameter_Instance()
         {
             base.Scalar_Function_Anonymous_Type_Select_Parameter_Instance();
@@ -467,7 +436,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
         {
             base.Scalar_Function_Anonymous_Type_Select_Nested_Instance();
@@ -481,7 +449,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_0");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Correlated_Instance()
         {
             base.Scalar_Function_Where_Correlated_Instance();
@@ -492,7 +459,6 @@ FROM [Customers] AS [c]
 WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Not_Correlated_Instance()
         {
             base.Scalar_Function_Where_Not_Correlated_Instance();
@@ -505,7 +471,6 @@ FROM [Customers] AS [c]
 WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Parameter_Instance()
         {
             base.Scalar_Function_Where_Parameter_Instance();
@@ -518,7 +483,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1))");
         }
 
-        [Fact]
         public override void Scalar_Function_Where_Nested_Instance()
         {
             base.Scalar_Function_Where_Nested_Instance();
@@ -529,7 +493,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](0))");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Correlated_Instance()
         {
             base.Scalar_Function_Let_Correlated_Instance();
@@ -540,7 +503,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 2");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Not_Correlated_Instance()
         {
             base.Scalar_Function_Let_Not_Correlated_Instance();
@@ -551,7 +513,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 2");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Not_Parameter_Instance()
         {
             base.Scalar_Function_Let_Not_Parameter_Instance();
@@ -564,7 +525,6 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__8__locals1_customerId_1");
         }
 
-        [Fact]
         public override void Scalar_Function_Let_Nested_Instance()
         {
             base.Scalar_Function_Let_Nested_Instance();
@@ -598,7 +558,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()
         {
             base.Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance();
@@ -699,7 +658,6 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_BCL_UDF_Instance()
         {
             base.Scalar_Nested_Function_BCL_UDF_Instance();
@@ -720,7 +678,6 @@ WHERE 3 = ABS([dbo].[CustomerOrderCount]([c].[Id]))");
 FROM [Customers] AS [c]");
         }
 
-        [Fact]
         public override void Scalar_Nested_Function_UDF_BCL_Instance()
         {
             base.Scalar_Nested_Function_UDF_BCL_Instance();

@@ -38,11 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
         /// <param name="type"> The type to read. </param>
         /// <param name="index"> The index in the buffer to read from. </param>
+        /// <param name="property"> The IPropertyBase being read if any. </param>
         /// <returns> An expression to read the value. </returns>
         Expression CreateReadValueExpression(
             [NotNull] Expression valueBuffer,
             [NotNull] Type type,
-            int index);
+            int index,
+            [CanBeNull] IPropertyBase property);
 
         /// <summary>
         ///     <para>
@@ -54,11 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type being materialized. </param>
+        /// <param name="entityInstanceName"> The name of the instance being materialized. </param>
         /// <param name="materializationExpression"> The materialization expression to build on. </param>
         /// <param name="indexMap"> An optional index map for reading values. </param>
         /// <returns> An expression to read the value. </returns>
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
+            [NotNull] string entityInstanceName,
             [NotNull] Expression materializationExpression,
             [CanBeNull] int[] indexMap = null);
 

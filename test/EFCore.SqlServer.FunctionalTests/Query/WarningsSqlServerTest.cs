@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
+    internal class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
     {
         public WarningsSqlServerTest(QueryNoClientEvalSqlServerFixture fixture)
             : base(fixture)
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Does_not_throw_for_top_level_single();
 
             Assert.Equal(
-                @"SELECT TOP(2) [x].[OrderID], [x].[CustomerID], [x].[EmployeeID], [x].[OrderDate]
+                @"SELECT TOP(1) [x].[OrderID], [x].[CustomerID], [x].[EmployeeID], [x].[OrderDate]
 FROM [Orders] AS [x]
 WHERE [x].[OrderID] = 10248",
                 Fixture.TestSqlLoggerFactory.Sql,

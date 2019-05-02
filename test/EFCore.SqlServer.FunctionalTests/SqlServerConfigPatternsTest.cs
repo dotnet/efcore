@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class NestedContext
         {
-            [Fact]
+            [Fact(Skip = "QueryIssue")]
             public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
             {
                 using (SqlServerTestStore.GetNorthwindStore())

@@ -127,8 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return true;
                 }
 
-                if (unaryExpression.Operand.Type.UnwrapNullableType().IsEnum
-                    || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(char))
+                if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
+                    && (unaryExpression.Operand.Type.UnwrapNullableType().IsEnum
+                        || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(char)
+                        || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(ushort)))
                 {
                     return true;
                 }

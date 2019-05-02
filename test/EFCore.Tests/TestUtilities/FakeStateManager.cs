@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -142,6 +143,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public bool SensitiveLoggingEnabled { get; }
         public void CascadeChanges(bool force) => throw new NotImplementedException();
         public void CascadeDelete(InternalEntityEntry entry, bool force) => throw new NotImplementedException();
+
+        public InternalEntityEntry TryGetEntry([NotNull] IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+        {
+            throw new NotImplementedException();
+        }
 
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
     }

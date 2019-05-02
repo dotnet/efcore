@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
+        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
     }
 }

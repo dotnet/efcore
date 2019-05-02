@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -153,7 +154,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IKeyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IQueryTrackingListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IPropertyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) }
+                { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+
+                // New Query related services
+                { typeof(IQueryCompilationContextFactory2), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IEntityQueryableTranslatorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IQueryableMethodTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IShapedQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+
             };
 
         /// <summary>
@@ -252,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryCompiler, QueryCompiler>();
             TryAdd<IQueryModelGenerator, QueryModelGenerator>();
             TryAdd<IQueryAnnotationExtractor, QueryAnnotationExtractor>();
-            TryAdd<IQueryOptimizer, QueryOptimizer>();
+            TryAdd<IQueryOptimizer, Query.Internal.QueryOptimizer>();
             TryAdd<IEntityTrackingInfoFactory, EntityTrackingInfoFactory>();
             TryAdd<ITaskBlockingExpressionVisitor, TaskBlockingExpressionVisitor>();
             TryAdd<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>();
@@ -295,6 +305,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
             TryAdd<IMemoryCache>(p => new MemoryCache(new MemoryCacheOptions()));
             TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
+
+            // New QueryPipeline
+            TryAdd<IQueryCompilationContextFactory2, QueryCompilationContextFactory2>();
+            TryAdd<IQueryOptimizerFactory, QueryOptimizerFactory>();
+            TryAdd<IShapedQueryOptimizerFactory, ShapedQueryOptimizerFactory>();
 
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));

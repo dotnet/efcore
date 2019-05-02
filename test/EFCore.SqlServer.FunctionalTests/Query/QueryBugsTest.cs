@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug6901
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Left_outer_join_bug_6091()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -133,7 +133,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bug5481
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -237,7 +237,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Query_when_null_key_in_database_should_throw()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -386,7 +386,7 @@ ORDER BY [t].[FirstName], [t].[LastName]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -660,7 +660,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
         #region Bug963
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             using (CreateDatabase963())
@@ -672,7 +672,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             using (CreateDatabase963())
@@ -684,7 +684,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             using (CreateDatabase963())
@@ -696,7 +696,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             using (CreateDatabase963())
@@ -877,7 +877,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3758
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Customer_collections_materialize_properly_3758()
         {
             using (CreateDatabase3758())
@@ -1092,7 +1092,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3409
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -1252,7 +1252,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3101
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1272,7 +1272,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1292,7 +1292,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateDatabase3101())
@@ -1312,7 +1312,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1336,7 +1336,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1360,7 +1360,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1385,7 +1385,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1411,7 +1411,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_conditional()
         {
             using (CreateDatabase3101())
@@ -1434,7 +1434,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_coalesce_tracking()
         {
             using (CreateDatabase3101())
@@ -1562,7 +1562,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug6986
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_query_base_type_when_derived_types_contain_shadow_properties()
         {
             using (CreateDatabase6986())
@@ -1578,7 +1578,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk()
         {
             using (CreateDatabase6986())
@@ -1593,7 +1593,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_project_shadow_property_using_ef_property()
         {
             using (CreateDatabase6986())
@@ -1706,7 +1706,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug5456
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1724,7 +1724,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1783,7 +1783,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1801,7 +1801,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1896,7 +1896,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug7359
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Discriminator_type_is_handled_correctly_in_materialization_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1910,7 +1910,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Discriminator_type_is_handled_correctly_with_is_operator_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1971,7 +1971,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug7312
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Reference_include_on_derived_type_with_sibling_works_bug_7312()
         {
             using (CreateDatabase7312())
@@ -2045,7 +2045,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug8282
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
             using (CreateDatabase8282())
@@ -2331,7 +2331,7 @@ WHERE [c].[Id] = @__id_0");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Variable_from_multi_level_nested_closure_is_parametrized()
         {
             using (CreateDatabase8909())
@@ -2729,7 +2729,7 @@ WHERE [w].[Val] = 1");
 
         #region Bug9277
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void From_sql_gets_value_of_out_parameter_in_stored_procedure()
         {
             using (CreateDatabase9277())
@@ -3243,7 +3243,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #region Bug9468
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
         {
             using (CreateDatabase9468())
@@ -3684,7 +3684,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
 
         #region Bug11104
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
         {
             using (CreateDatabase11104())
@@ -4554,7 +4554,7 @@ FROM [Prices] AS [e]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_with_OfType_base()
         {
             using (CreateDatabase12582())
@@ -4630,7 +4630,7 @@ FROM [Prices] AS [e]");
 
         #region Bug12748
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_correctly_associates_entities_with_byte_array_keys()
         {
             using (CreateDatabase12748())
@@ -4863,7 +4863,7 @@ FROM [Prices] AS [e]");
 
         #region Bug11944
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Include_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())
@@ -4879,7 +4879,7 @@ FROM [Prices] AS [e]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())

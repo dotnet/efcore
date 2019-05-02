@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "QueryIssue")]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task QueryAsync_uses_explicit_transaction(bool autoTransaction)
@@ -1265,7 +1265,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "QueryIssue")]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task Externally_closed_connections_are_handled_correctly(bool async)

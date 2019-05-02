@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TestStore TestStore { get; }
         protected DbContextOptions Options { get; }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_build_monster_model_and_seed_data_using_FKs()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: true));
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: false));
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: false, principalNavs: true));
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigationsWithDeferredAdd());

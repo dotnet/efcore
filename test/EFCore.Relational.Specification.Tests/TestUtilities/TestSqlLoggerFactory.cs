@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
 
-                File.AppendAllText(logFile, contents);
+                //File.AppendAllText(logFile, contents);
 
-                throw;
+                //throw;
             }
         }
 

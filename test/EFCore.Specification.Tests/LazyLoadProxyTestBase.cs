@@ -1743,7 +1743,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [Theory(Skip = "QueryIssue")]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
         [InlineData(EntityState.Modified, true)]
@@ -1860,7 +1860,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Lazy_loading_shares_service__property_on_derived_types()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

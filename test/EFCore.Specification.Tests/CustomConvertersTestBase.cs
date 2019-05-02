@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
             public SocialSecurityNumber? SSN { get; set; }
         }
 
-        [Fact]
+        [Fact(Skip = "TaskList#19")]
         public virtual void Can_query_and_update_with_nullable_converter_on_primary_key()
         {
             using (var context = CreateContext())
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore
             public double Volume { get; }
         }
 
-        [Fact]
+        [Fact(Skip = "TaskList#19")]
         public virtual void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
             using (var context = CreateContext())

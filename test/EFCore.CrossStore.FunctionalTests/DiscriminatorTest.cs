@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DiscriminatorTest
     {
-        [Fact]
+        [Fact(Skip = "Tasklist#21")]
         public void Can_save_entities_with_discriminators()
         {
             using (var context = new Context4285())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Tasklist#21")]
         public void Can_save_entities_with_int_discriminators()
         {
             using (var context = new Context4285())

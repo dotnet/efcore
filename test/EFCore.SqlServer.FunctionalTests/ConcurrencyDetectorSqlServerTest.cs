@@ -10,7 +10,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConcurrencyDetectorSqlServerTest : ConcurrencyDetectorRelationalTestBase<
+    // TODO: See Tasklist#23
+    internal class ConcurrencyDetectorSqlServerTest : ConcurrencyDetectorRelationalTestBase<
         NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public ConcurrencyDetectorSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
