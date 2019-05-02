@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _translators.AddRange(
                 new IMethodCallTranslator[] {
                     new EqualsTranslator(sqlExpressionFactory),
-                    new IsNullOrEmptyTranslator(sqlExpressionFactory),
+                    new StringMethodTranslator(sqlExpressionFactory),
                     new ContainsTranslator(sqlExpressionFactory),
                     new LikeTranslator(sqlExpressionFactory),
                     new EnumHasFlagTranslator(sqlExpressionFactory),

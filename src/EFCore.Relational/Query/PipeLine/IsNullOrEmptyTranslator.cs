@@ -8,21 +8,24 @@ using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public class IsNullOrEmptyTranslator : IMethodCallTranslator
+    public class StringMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo
+        private static readonly MethodInfo _isNullOrEmptyMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
+
+        private static readonly MethodInfo _concatMethodInfo
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public IsNullOrEmptyTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public StringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (Equals(method, _methodInfo))
+            if (Equals(method, _isNullOrEmptyMethodInfo))
             {
                 var argument = arguments[0];
 
@@ -31,6 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     _sqlExpressionFactory.Equal(
                         argument,
                         _sqlExpressionFactory.Constant(string.Empty)));
+            }
+
+            if (Equals(method, _concatMethodInfo))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    arguments[1]);
             }
 
             return null;

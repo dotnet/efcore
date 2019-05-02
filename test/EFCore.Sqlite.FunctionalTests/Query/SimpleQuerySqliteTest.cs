@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Skip for SQLite. Issue #14935. Cannot eval 'where Convert([o].EmployeeID, UInt32).ToString().Contains(\"10\")'
         public override Task Query_expression_with_to_string_and_contains(bool isAsync) => null;
 
+        // TODO: Client Eval.
+        public override Task Select_math_truncate_int(bool isAsync) => null;
+
         // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => DefaultIfEmpty()}'
         public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync) => null;
 
@@ -305,6 +308,7 @@ FROM ""Orders"" AS ""o""
 WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
         }
 
+        [ConditionalTheory(Skip = "Issue#15586")]
         public override async Task Where_datetime_millisecond_component(bool isAsync)
         {
             await base.Where_datetime_millisecond_component(isAsync);
@@ -537,9 +541,9 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
-        public override async Task Substring_with_client_eval(bool isAsync)
+        public override async Task Substring_with_Index_of(bool isAsync)
         {
-            await base.Substring_with_client_eval(isAsync);
+            await base.Substring_with_Index_of(isAsync);
 
             AssertSql(
                 @"SELECT ""c"".""ContactName""

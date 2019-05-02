@@ -238,11 +238,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (unaryExpression.NodeType == ExpressionType.Convert)
             {
+                // Object convert needs to be converted to explicit cast when mismatching types
                 if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                     || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
-                    || unaryExpression.Type == typeof(object))
+                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                 {
                     return sqlOperand;
                 }
