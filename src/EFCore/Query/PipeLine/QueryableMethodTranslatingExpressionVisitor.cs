@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -430,6 +431,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 }
 
                 throw new NotImplementedException();
+            }
+
+            // TODO: Skip ToOrderedQueryable method
+            if (methodCallExpression.Method.DeclaringType == typeof(NavigationExpansionReducingVisitor)
+                && methodCallExpression.Method.Name == nameof(NavigationExpansionReducingVisitor.ToOrderedQueryable))
+            {
+                return Visit(methodCallExpression.Arguments[0]);
             }
 
             return base.VisitMethodCall(methodCallExpression);

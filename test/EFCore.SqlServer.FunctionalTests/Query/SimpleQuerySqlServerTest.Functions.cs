@@ -242,9 +242,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= @__customer_CustomerID_0");
         }
 
-        public override async Task String_Compare_simple_client(bool isAsync)
+        public override async Task String_Compare_simple_more_than_one(bool isAsync)
         {
-            await base.String_Compare_simple_client(isAsync);
+            await base.String_Compare_simple_more_than_one(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -403,9 +403,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= @__customer_CustomerID_0");
         }
 
-        public override async Task String_Compare_to_simple_client(bool isAsync)
+        public override async Task String_Compare_to_simple_more_than_one(bool isAsync)
         {
-            await base.String_Compare_to_simple_client(isAsync);
+            await base.String_Compare_to_simple_more_than_one(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -806,25 +806,11 @@ FROM [Order Details] AS [od]
 WHERE ([od].[OrderID] = 11077) AND (SIGN([od].[Discount]) > 0)");
         }
 
-        public override async Task Where_math_min(bool isAsync)
-        {
-            await base.Where_math_min(isAsync);
+        // TODO: Client Eval
+        public override Task Where_math_min(bool isAsync) => null;
 
-            AssertSql(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
-WHERE [od].[OrderID] = 11077");
-        }
-
-        public override async Task Where_math_max(bool isAsync)
-        {
-            await base.Where_math_max(isAsync);
-
-            AssertSql(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
-WHERE [od].[OrderID] = 11077");
-        }
+        // TODO: Client Eval
+        public override Task Where_math_max(bool isAsync) => null;
 
         public override async Task Where_guid_newguid(bool isAsync)
         {
@@ -1201,9 +1187,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task Substring_with_client_eval(bool isAsync)
+        public override async Task Substring_with_Index_of(bool isAsync)
         {
-            await base.Substring_with_client_eval(isAsync);
+            await base.Substring_with_Index_of(isAsync);
 
             AssertSql(
                 @"SELECT [c].[ContactName]
@@ -1265,25 +1251,11 @@ FROM [Customers] AS [c]
 WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
-        [ConditionalTheory(Skip ="ClientEval")]
-        public override async Task TrimStart_with_char_argument_in_predicate(bool isAsync)
-        {
-            await base.TrimStart_with_char_argument_in_predicate(isAsync);
+        // TODO: Client Eval
+        public override Task TrimStart_with_char_argument_in_predicate(bool isAsync) => null;
 
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
-
-        [ConditionalTheory(Skip = "ClientEval")]
-        public override async Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
-        {
-            await base.TrimStart_with_char_array_argument_in_predicate(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
+        // TODO: Client Eval
+        public override Task TrimStart_with_char_array_argument_in_predicate(bool isAsync) => null;
 
         public override async Task TrimEnd_without_arguments_in_predicate(bool isAsync)
         {
@@ -1295,25 +1267,11 @@ FROM [Customers] AS [c]
 WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
         }
 
-        [ConditionalTheory(Skip = "ClientEval")]
-        public override async Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
-        {
-            await base.TrimEnd_with_char_argument_in_predicate(isAsync);
+        // TODO: Client Eval
+        public override Task TrimEnd_with_char_argument_in_predicate(bool isAsync) => null;
 
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
-
-        [ConditionalTheory(Skip = "ClientEval")]
-        public override async Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
-        {
-            await base.TrimEnd_with_char_array_argument_in_predicate(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
+        // TODO: Client Eval
+        public override Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync) => null;
 
         public override async Task Trim_without_argument_in_predicate(bool isAsync)
         {
@@ -1325,25 +1283,11 @@ FROM [Customers] AS [c]
 WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
         }
 
-        [ConditionalTheory(Skip = "ClientEval")]
-        public override async Task Trim_with_char_argument_in_predicate(bool isAsync)
-        {
-            await base.Trim_with_char_argument_in_predicate(isAsync);
+        // TODO: Client Eval
+        public override Task Trim_with_char_argument_in_predicate(bool isAsync) => null;
 
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
-
-        [ConditionalTheory(Skip = "ClientEval")]
-        public override async Task Trim_with_char_array_argument_in_predicate(bool isAsync)
-        {
-            await base.Trim_with_char_array_argument_in_predicate(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
+        // TODO: Client Eval
+        public override Task Trim_with_char_array_argument_in_predicate(bool isAsync) => null;
 
         public override async Task Order_by_length_twice(bool isAsync)
         {

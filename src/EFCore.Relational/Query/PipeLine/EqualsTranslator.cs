@@ -32,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 right = RemoveObjectConvert(arguments[0]);
             }
             else if (method.Name == nameof(object.Equals)
-                && arguments.Count == 2
-                && arguments[0].Type == arguments[1].Type)
+                && arguments.Count == 2)
             {
                 left = RemoveObjectConvert(arguments[0]);
                 right = RemoveObjectConvert(arguments[1]);
