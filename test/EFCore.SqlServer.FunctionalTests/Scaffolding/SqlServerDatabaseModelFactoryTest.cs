@@ -659,6 +659,37 @@ CREATE TABLE [dbo].[Blogs] (
         }
 
         [Fact]
+        public void Create_view_columns()
+        {
+            Test(
+                @"
+CREATE VIEW [dbo].[BlogsView]
+ AS
+SELECT
+ CAST(100 AS int) AS Id,
+ CAST(N'' AS nvarchar(100)) AS Name;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = dbModel.Tables.Single();
+
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.Equal(null, table.PrimaryKey);
+                    Assert.All(
+                        table.Columns, c =>
+                        {
+                            Assert.Equal("dbo", c.Table.Schema);
+                            Assert.Equal("BlogsView", c.Table.Name);
+                        });
+
+                    Assert.Single(table.Columns.Where(c => c.Name == "Id"));
+                    Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                },
+                "DROP VIEW [dbo].[BlogsView];");
+        }
+
+        [Fact]
         public void Create_primary_key()
         {
             Test(

@@ -437,6 +437,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
             using (var command = connection.CreateCommand())
             {
                 var tables = new List<DatabaseTable>();
+
                 var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable(connection);
                 var supportsTemporalTable = SupportsTemporalTable(connection);
 
@@ -476,8 +477,38 @@ AND [t].[temporal_type] <> 1";
 AND " + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
                 }
 
-                command.CommandText = commandText + @"
+                commandText = commandText + @"
 WHERE " + filter;
+
+                var viewCommandText = @"
+UNION
+SELECT
+    SCHEMA_NAME([v].[schema_id]) AS [schema],
+    [v].[name]";
+
+                if (supportsMemoryOptimizedTable)
+                {
+                    viewCommandText += @",
+    CAST(0 AS bit) AS [is_memory_optimized]";
+                }
+
+                viewCommandText += @"
+FROM [sys].[views] AS [v]";
+
+
+                var viewFilter = @"[v].[is_ms_shipped] = 0
+AND [v].[is_date_correlation_view] = 0 ";
+
+                if (tableFilter != null)
+                {
+                    viewFilter += @"
+AND " + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
+                }
+
+                viewCommandText = viewCommandText + @"
+WHERE " + viewFilter;
+
+                command.CommandText = commandText + viewCommandText;
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -507,7 +538,7 @@ WHERE " + filter;
                 }
 
                 // This is done separately due to MARS property may be turned off
-                GetColumns(connection, tables, filter, typeAliases);
+                GetColumns(connection, tables, filter, viewFilter, typeAliases);
                 GetIndexes(connection, tables, filter);
                 GetForeignKeys(connection, tables, filter);
 
@@ -519,14 +550,15 @@ WHERE " + filter;
             DbConnection connection,
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
+            string viewFilter,
             IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
                 var commandText = @"
 SELECT
-    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
-    [t].[name] AS [table_name],
+    SCHEMA_NAME([o].[schema_id]) AS [table_schema],
+    [o].[name] AS [table_name],
     [c].[name] AS [column_name],
     [c].[column_id] AS [ordinal],
     SCHEMA_NAME([tp].[schema_id]) AS [type_schema],
@@ -538,16 +570,30 @@ SELECT
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql]
-FROM [sys].[columns] AS [c]
-JOIN [sys].[tables] AS [t] ON [c].[object_id] = [t].[object_id]
+FROM 
+(
+    SELECT[v].[name], [v].[object_id], [v].[schema_id]
+    FROM [sys].[views] v WHERE ";
+
+                commandText += viewFilter;
+
+                commandText += @"
+UNION ALL
+    SELECT [t].[name], [t].[object_id], [t].[schema_id]
+    FROM [sys].[tables] t WHERE ";
+
+                commandText += tableFilter;
+
+                commandText += @"
+) o
+JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
-LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]
-WHERE " + tableFilter;
+LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
 
                 if (SupportsTemporalTable(connection))
                 {
-                    commandText += " AND [c].[is_hidden] = 0";
+                    commandText += " WHERE [c].[is_hidden] = 0";
                 }
 
                 commandText += @"
