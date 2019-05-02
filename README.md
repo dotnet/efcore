@@ -16,7 +16,7 @@ EF Core is an object-relational mapper (O/RM) that enables .NET developers to wo
 
 ## Weekly status updates
 
-See [Weekly status updates](https://github.com/aspnet/EntityFrameworkCore/issues/15403) to keep up-to-date on what is happening in the world of EF Core.
+See the [weekly status updates issue](https://github.com/aspnet/EntityFrameworkCore/issues/15403) to keep up-to-date on what is happening in the world of EF Core.
 
 ## Database Providers
 
