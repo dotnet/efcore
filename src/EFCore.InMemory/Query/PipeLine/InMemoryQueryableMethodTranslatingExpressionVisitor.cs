@@ -32,10 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     inMemoryQueryExpression.ServerQueryExpression,
                     TranslateLambdaExpression(source, predicate));
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -53,10 +50,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     inMemoryQueryExpression.ServerQueryExpression,
                     TranslateLambdaExpression(source, predicate));
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -83,10 +77,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         inMemoryQueryExpression.GetScalarProjectionLambda()),
                     item);
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -111,10 +102,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         TranslateLambdaExpression(source, predicate));
             }
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -214,10 +202,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         TranslateLambdaExpression(source, predicate));
             }
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -256,12 +241,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             }
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(
-                selector.Parameters.Single(), source.ShaperExpression.Body, selector.Body);
+                selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            newSelectorBody = _projectionBindingExpressionVisitor
+            source.ShaperExpression = _projectionBindingExpressionVisitor
                     .Translate((InMemoryQueryExpression)source.QueryExpression, newSelectorBody);
-
-            source.ShaperExpression = Expression.Lambda(newSelectorBody, source.ShaperExpression.Parameters);
 
             return source;
         }
@@ -357,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
         {
             var lambdaBody = ReplacingExpressionVisitor.Replace(
-                lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression.Body, lambdaExpression.Body);
+                lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
             return Expression.Lambda(
                 TranslateExpression((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody),
@@ -381,10 +364,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         inMemoryQueryExpression.ServerQueryExpression,
                         selector);
 
-            source.ShaperExpression
-                = Expression.Lambda(
-                    inMemoryQueryExpression.GetSingleScalarProjection(),
-                    source.ShaperExpression.Parameters);
+            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
             return source;
         }
@@ -404,11 +384,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     inMemoryQueryExpression.ServerQueryExpression,
                     predicate);
 
-            if (source.ShaperExpression.ReturnType != returnType)
+            if (source.ShaperExpression.Type != returnType)
             {
-                source.ShaperExpression = Expression.Lambda(
-                    Expression.Convert(source.ShaperExpression.Body, returnType),
-                    source.ShaperExpression.Parameters);
+                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
             }
 
             return source;

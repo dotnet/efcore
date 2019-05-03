@@ -14,14 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             QueryExpression = new SelectExpression(entityType);
             var resultParameter = Parameter(typeof(SelectExpression), "result");
-            ShaperExpression = Lambda(new EntityShaperExpression(
+            ShaperExpression = new EntityShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(
                     QueryExpression,
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
-                false),
-                resultParameter);
+                false);
         }
     }
 }
