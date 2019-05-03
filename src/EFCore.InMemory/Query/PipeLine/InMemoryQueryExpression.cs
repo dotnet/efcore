@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             _projectionMapping.Clear();
             _projectionMapping[new ProjectionMember()] = _valueBufferSlots[0];
 
-            return new ProjectionBindingExpression(this, new ProjectionMember(), ServerQueryExpression.Type);
+            return new ProjectionBindingExpression(new ProjectionMember(), ServerQueryExpression.Type);
         }
 
         public Expression BindProperty(Expression projectionExpression, IProperty property)

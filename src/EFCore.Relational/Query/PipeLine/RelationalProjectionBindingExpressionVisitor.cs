@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 _projectionMapping[_projectionMembers.Peek()] = translation ?? throw new InvalidOperationException();
 
-                return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
+                return new ProjectionBindingExpression(_projectionMembers.Peek(), expression.Type);
             }
 
             return base.Visit(expression);
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                 return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                    new ProjectionBindingExpression(_projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             throw new InvalidOperationException();

@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     new List<ProjectionExpression>(),
                     new List<TableExpressionBase>());
 
-                source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
+                source.ShaperExpression = new ProjectionBindingExpression(new ProjectionMember(), typeof(bool));
 
                 return source;
             }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 projectionMapping,
                 new List<ProjectionExpression>(),
                 new List<TableExpressionBase>());
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
+            source.ShaperExpression = new ProjectionBindingExpression(new ProjectionMember(), typeof(bool));
 
             return source;
         }
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     projectionMapping,
                     new List<ProjectionExpression>(),
                     new List<TableExpressionBase>());
-                source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
+                source.ShaperExpression = new ProjectionBindingExpression(new ProjectionMember(), typeof(bool));
 
                 return source;
             }
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             selectExpression.ClearOrdering();
             selectExpression.ApplyProjection(_projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(int));
+            source.ShaperExpression = new ProjectionBindingExpression(new ProjectionMember(), typeof(int));
 
             return source;
         }
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             selectExpression.ClearOrdering();
             selectExpression.ApplyProjection(_projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(long));
+            source.ShaperExpression = new ProjectionBindingExpression(new ProjectionMember(), typeof(long));
 
             return source;
         }
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             selectExpression.ClearOrdering();
 
-            Expression shaper = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), projection.Type);
+            Expression shaper = new ProjectionBindingExpression(new ProjectionMember(), projection.Type);
 
             if (throwOnNullResult)
             {
