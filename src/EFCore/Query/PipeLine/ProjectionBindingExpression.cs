@@ -8,14 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class ProjectionBindingExpression : Expression
     {
-        public ProjectionBindingExpression(Expression queryExpression, ProjectionMember projectionMember, Type type)
+        public ProjectionBindingExpression(ProjectionMember projectionMember, Type type)
         {
-            QueryExpression = queryExpression;
             ProjectionMember = projectionMember;
             Type = type;
         }
 
-        public Expression QueryExpression { get; }
         public ProjectionMember ProjectionMember { get; }
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;

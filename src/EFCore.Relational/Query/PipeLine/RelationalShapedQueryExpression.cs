@@ -13,11 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public RelationalShapedQueryExpression(IEntityType entityType)
         {
             QueryExpression = new SelectExpression(entityType);
-            var resultParameter = Parameter(typeof(SelectExpression), "result");
             ShaperExpression = new EntityShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(
-                    QueryExpression,
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
                 false);

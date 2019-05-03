@@ -576,7 +576,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 if (node is ProjectionBindingExpression projectionBindingExpression)
                 {
                     return new ProjectionBindingExpression(
-                        _queryExpression,
                         projectionBindingExpression.ProjectionMember.ShiftMember(_memberShift),
                         projectionBindingExpression.Type);
                 }
