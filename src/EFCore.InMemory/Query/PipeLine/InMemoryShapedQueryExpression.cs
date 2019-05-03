@@ -12,13 +12,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         public InMemoryShapedQueryExpression(IEntityType entityType)
         {
             QueryExpression = new InMemoryQueryExpression(entityType);
-            var resultParameter = Parameter(typeof(InMemoryQueryExpression), "result");
             ShaperExpression = new EntityShaperExpression(
                 entityType,
-                new ProjectionBindingExpression(
-                    QueryExpression,
-                    new ProjectionMember(),
-                    typeof(ValueBuffer)),
+                new ProjectionBindingExpression(new ProjectionMember(), typeof(ValueBuffer)),
                 false);
         }
     }
