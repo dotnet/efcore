@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 throw new NotImplementedException();
             }
 
-            // TODO: Skip ToOrderedQueryable method
+            // TODO: Skip ToOrderedQueryable method. See Issue#15591
             if (methodCallExpression.Method.DeclaringType == typeof(NavigationExpansionReducingVisitor)
                 && methodCallExpression.Method.Name == nameof(NavigationExpansionReducingVisitor.ToOrderedQueryable))
             {
@@ -469,15 +469,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected ShapedQueryExpression TranslateResultSelectorForJoin(
             ShapedQueryExpression outer,
             LambdaExpression resultSelector,
-            LambdaExpression innerShaper,
+            Expression innerShaper,
             Type transparentIdentifierType,
             bool innerNullable)
         {
             if (innerNullable)
             {
-                innerShaper = Expression.Lambda(
-                    new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper.Body),
-                    innerShaper.Parameters);
+                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
             }
 
             outer.ShaperExpression = CombineShapers(
@@ -502,15 +500,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         protected ShapedQueryExpression TranslateResultSelectorForGroupJoin(
             ShapedQueryExpression outer,
-            LambdaExpression innerShaper,
+            Expression innerShaper,
             LambdaExpression outerKeySelector,
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector,
             Type transparentIdentifierType)
         {
-            innerShaper = Expression.Lambda(
-                new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper.Body),
-                innerShaper.Parameters);
+            innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
 
             var shaperExpression = CombineShapers(
                outer.QueryExpression,
@@ -539,33 +535,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             };
 
             var resultBody = new ReplacingExpressionVisitor(replacements).Visit(resultSelector.Body);
-            resultBody = ReplacingExpressionVisitor.Replace(
+            outer.ShaperExpression = ReplacingExpressionVisitor.Replace(
                 transparentIdentifierParameter,
-                shaperExpression.Body,
+                shaperExpression,
                 resultBody);
-
-            outer.ShaperExpression = Expression.Lambda(resultBody, shaperExpression.Parameters);
 
             return outer;
         }
 
-        private LambdaExpression CombineShapers(
+        private Expression CombineShapers(
             Expression queryExpression,
-            LambdaExpression outerShaper,
-            LambdaExpression innerShaper,
+            Expression outerShaper,
+            Expression innerShaper,
             Type transparentIdentifierType)
         {
             var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
             var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            var outerBody = new MemberAccessShiftingExpressionVisitor(queryExpression, outerMemberInfo).Visit(outerShaper.Body);
-            var innerBody = new MemberAccessShiftingExpressionVisitor(queryExpression, innerMemberInfo).Visit(innerShaper.Body);
+            outerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, outerMemberInfo).Visit(outerShaper);
+            innerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, innerMemberInfo).Visit(innerShaper);
 
-            var newBody = Expression.New(
+            return Expression.New(
                 transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                new[] { outerBody, innerBody },
+                new[] { outerShaper, innerShaper },
                 new[] { outerMemberInfo, innerMemberInfo });
-
-            return Expression.Lambda(newBody, outerShaper.Parameters);
         }
 
         private class MemberAccessShiftingExpressionVisitor : ExpressionVisitor

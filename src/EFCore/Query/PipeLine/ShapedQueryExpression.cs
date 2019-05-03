@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public Expression QueryExpression { get; set; }
         public ResultType ResultType { get; set; }
 
-        public LambdaExpression ShaperExpression { get; set; }
+        public Expression ShaperExpression { get; set; }
 
-        public override Type Type => typeof(IQueryable<>).MakeGenericType(ShaperExpression.ReturnType);
+        public override Type Type => typeof(IQueryable<>).MakeGenericType(ShaperExpression.Type);
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 

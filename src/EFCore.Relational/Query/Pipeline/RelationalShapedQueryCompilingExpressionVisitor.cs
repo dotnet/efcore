@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperLambda = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
+            var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
 
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
             var newBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression)
-                .Visit(shaperLambda.Body);
+                .Visit(shaperBody);
 
-            shaperLambda = Expression.Lambda(
+            var shaperLambda = Expression.Lambda(
                 newBody,
                 QueryCompilationContext2.QueryContextParameter,
                 RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter);

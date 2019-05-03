@@ -138,11 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         protected abstract Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression);
 
-        protected virtual LambdaExpression InjectEntityMaterializer(
-            LambdaExpression lambdaExpression)
+        protected virtual Expression InjectEntityMaterializer(Expression expression)
         {
             return new EntityMaterializerInjectingExpressionVisitor(
-                _entityMaterializerSource, _trackQueryResults, Async).Inject(lambdaExpression);
+                _entityMaterializerSource, _trackQueryResults, Async).Inject(expression);
         }
 
         private class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
@@ -185,28 +184,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 _async = async;
             }
 
-            public LambdaExpression Inject(LambdaExpression lambdaExpression)
+            public Expression Inject(Expression expression)
             {
-                var modifiedBody = Visit(lambdaExpression.Body);
+                var modifiedBody = Visit(expression);
                 if (_async)
                 {
-                    var resultVariable = Expression.Variable(typeof(Task<>).MakeGenericType(lambdaExpression.ReturnType), "result");
+                    var resultVariable = Expression.Variable(typeof(Task<>).MakeGenericType(expression.Type), "result");
                     _variables.Add(resultVariable);
                     _expressions.Add(Expression.Assign(resultVariable,
                         Expression.Call(
-                            _taskFromResultMethodInfo.MakeGenericMethod(lambdaExpression.ReturnType),
+                            _taskFromResultMethodInfo.MakeGenericMethod(expression.Type),
                             modifiedBody)));
                     _expressions.Add(resultVariable);
                 }
                 else
                 {
-                    var resultVariable = Expression.Variable(lambdaExpression.ReturnType, "result");
+                    var resultVariable = Expression.Variable(expression.Type, "result");
                     _variables.Add(resultVariable);
                     _expressions.Add(Expression.Assign(resultVariable, modifiedBody));
                     _expressions.Add(resultVariable);
                 }
 
-                return Expression.Lambda(Expression.Block(_variables, _expressions), lambdaExpression.Parameters);
+                return Expression.Block(_variables, _expressions);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)

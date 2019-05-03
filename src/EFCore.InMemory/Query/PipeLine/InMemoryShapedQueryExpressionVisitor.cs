@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperLambda = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
+            var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
 
             var innerEnumerable = Visit(shapedQueryExpression.QueryExpression);
 
@@ -55,14 +55,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
             var newBody = new InMemoryProjectionBindingRemovingExpressionVisitor(
                 (InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
-                .Visit(shaperLambda.Body);
+                .Visit(shaperBody);
 
             newBody = ReplacingExpressionVisitor.Replace(
                 InMemoryQueryExpression.ValueBufferParameter,
                 Expression.MakeMemberAccess(enumeratorParameter, _enumeratorCurrent),
                 newBody);
 
-            shaperLambda = Expression.Lambda(
+            var shaperLambda = Expression.Lambda(
                 newBody,
                 QueryCompilationContext2.QueryContextParameter,
                 enumeratorParameter);

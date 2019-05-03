@@ -13,14 +13,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         {
             QueryExpression = new InMemoryQueryExpression(entityType);
             var resultParameter = Parameter(typeof(InMemoryQueryExpression), "result");
-            ShaperExpression = Lambda(new EntityShaperExpression(
+            ShaperExpression = new EntityShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(
                     QueryExpression,
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
-                false),
-                resultParameter);
+                false);
         }
     }
 
