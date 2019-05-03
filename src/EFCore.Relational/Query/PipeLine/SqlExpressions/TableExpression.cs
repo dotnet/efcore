@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class TableExpression : TableExpressionBase
@@ -44,5 +46,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
         }
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (!string.IsNullOrEmpty(Schema))
+            {
+                expressionPrinter.StringBuilder
+                    .Append(Schema)
+                    .Append(".");
+            }
+
+            expressionPrinter.StringBuilder
+                .Append(Table)
+                .Append(" AS ")
+                .Append(Alias);
+        }
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -118,5 +119,45 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            var requiresBrackets = RequiresBrackets(Left);
+
+            if (requiresBrackets)
+            {
+                expressionPrinter.StringBuilder.Append("(");
+            }
+
+            expressionPrinter.Visit(Left);
+
+            if (requiresBrackets)
+            {
+                expressionPrinter.StringBuilder.Append(")");
+            }
+
+            expressionPrinter.StringBuilder.Append(" " + expressionPrinter.GenerateBinaryOperator(OperatorType) + " ");
+
+            requiresBrackets = RequiresBrackets(Right);
+
+            if (requiresBrackets)
+            {
+                expressionPrinter.StringBuilder.Append("(");
+            }
+
+            expressionPrinter.Visit(Right);
+
+            if (requiresBrackets)
+            {
+                expressionPrinter.StringBuilder.Append(")");
+            }
+        }
+
+        private bool RequiresBrackets(SqlExpression expression)
+        {
+            return expression is SqlBinaryExpression sqlBinary
+                && sqlBinary.OperatorType != ExpressionType.Coalesce
+                || expression is LikeExpression;
+        }
     }
 }

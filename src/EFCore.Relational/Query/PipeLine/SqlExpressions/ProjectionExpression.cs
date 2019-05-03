@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
-    public class ProjectionExpression : Expression
+    public class ProjectionExpression : Expression, IPrintable
     {
         #region Fields & Constructors
         public ProjectionExpression(SqlExpression expression, string alias)
@@ -62,6 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Expression);
+            if (!string.IsNullOrEmpty(Alias))
+            {
+                expressionPrinter.StringBuilder.Append(" AS " + Alias);
+            }
+        }
     }
 }

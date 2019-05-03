@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
@@ -51,7 +52,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append("INNER JOIN ");
+            expressionPrinter.Visit(Table);
+            expressionPrinter.StringBuilder.Append(" ON ");
+            expressionPrinter.Visit(JoinPredicate);
+        }
     }
 
     public class CrossJoinExpression : JoinExpressionBase
@@ -99,5 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
         }
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append("CROSS JOIN ");
+            expressionPrinter.Visit(Table);
+        }
     }
 }

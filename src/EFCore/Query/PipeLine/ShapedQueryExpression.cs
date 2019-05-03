@@ -4,10 +4,12 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public abstract class ShapedQueryExpression : Expression
+    public abstract class ShapedQueryExpression : Expression, IPrintable
     {
         public Expression QueryExpression { get; set; }
         public ResultType ResultType { get; set; }
@@ -25,6 +27,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             QueryExpression = visitor.Visit(QueryExpression);
 
             return this;
+        }
+
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.AppendLine(nameof(ShapedQueryExpression) + ": ");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.StringBuilder.AppendLine(nameof(QueryExpression) + ": ");
+                using (expressionPrinter.StringBuilder.Indent())
+                {
+                    expressionPrinter.Visit(QueryExpression);
+                }
+
+                expressionPrinter.StringBuilder.AppendLine().Append(nameof(ShaperExpression) + ": ");
+                using (expressionPrinter.StringBuilder.Indent())
+                {
+                    expressionPrinter.Visit(ShaperExpression);
+                }
+
+                expressionPrinter.StringBuilder.AppendLine();
+            }
         }
     }
 

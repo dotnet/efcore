@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public class ProjectionBindingExpression : Expression
+    public class ProjectionBindingExpression : Expression, IPrintable
     {
         public ProjectionBindingExpression(ProjectionMember projectionMember, Type type)
         {
@@ -17,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public ProjectionMember ProjectionMember { get; }
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
-    }
 
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append(nameof(ProjectionBindingExpression) + ": " + ProjectionMember);
+        }
+    }
 }

@@ -3,11 +3,13 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
-    public abstract class SqlExpression : Expression
+    public abstract class SqlExpression : Expression, IPrintable
     {
         #region Fields & Constructors
         protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
@@ -52,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public abstract void Print(ExpressionPrinter expressionPrinter);
     }
 }

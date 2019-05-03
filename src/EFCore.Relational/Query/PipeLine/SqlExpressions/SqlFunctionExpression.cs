@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
@@ -171,6 +172,35 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (!string.IsNullOrEmpty(Schema))
+            {
+                expressionPrinter.StringBuilder
+                    .Append(Schema)
+                    .Append(".")
+                    .Append(FunctionName);
+            }
+            else
+            {
+                if (Instance != null)
+                {
+                    expressionPrinter.Visit(Instance);
+                    expressionPrinter.StringBuilder.Append(".");
+                }
+
+                expressionPrinter.StringBuilder.Append(FunctionName);
+            }
+
+            if (!IsNiladic)
+            {
+                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.VisitList(Arguments);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+        }
     }
 }

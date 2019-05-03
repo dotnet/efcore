@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public class EntityShaperExpression : Expression
+    public class EntityShaperExpression : Expression, IPrintable
     {
         public EntityShaperExpression(IEntityType entityType, ProjectionBindingExpression valueBufferExpression, bool nullable)
         {
@@ -37,6 +39,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         public override Type Type => EntityType.ClrType;
         public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.AppendLine(nameof(EntityShaperExpression) + ": ");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.StringBuilder.AppendLine(EntityType);
+                expressionPrinter.StringBuilder.AppendLine(nameof(ValueBufferExpression) + ": ");
+                using (expressionPrinter.StringBuilder.Indent())
+                {
+                    expressionPrinter.Visit(ValueBufferExpression);
+                }
+            }
+        }
     }
 
     public class EntityValuesExpression : Expression

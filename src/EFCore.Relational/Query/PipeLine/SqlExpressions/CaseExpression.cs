@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
@@ -117,5 +118,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append("CASE");
+            if (Operand != null)
+            {
+                expressionPrinter.StringBuilder.Append(" ");
+                expressionPrinter.Visit(Operand);
+            }
+
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                foreach (var whenClause in WhenClauses)
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("WHEN ");
+                    expressionPrinter.Visit(whenClause.Test);
+                    expressionPrinter.StringBuilder.Append(" THEN ");
+                    expressionPrinter.Visit(whenClause.Result);
+                }
+
+                if (ElseResult != null)
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("ELSE ");
+                    expressionPrinter.Visit(ElseResult);
+                }
+            }
+
+            expressionPrinter.StringBuilder.AppendLine().Append("END");
+        }
     }
 }

@@ -4,7 +4,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -71,5 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             return true;
         }
+
+        public override string ToString()
+            => string.Join(".", _memberChain);
     }
 }

@@ -163,6 +163,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void VisitList<T>(
+            IReadOnlyList<T> items,
+            Action<ExpressionPrinter> joinAction = null)
+            where T : Expression
+        {
+            joinAction ??= (p => p.StringBuilder.Append(", "));
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (i > 0)
+                {
+                    joinAction(this);
+                }
+
+                Visit(items[i]);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected virtual void Append([NotNull] string message) => _stringBuilder.Append(message);
 
         /// <summary>
@@ -259,6 +283,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return queryPlan;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string GenerateBinaryOperator(ExpressionType expressionType)
+        {
+            return _binaryOperandMap[expressionType];
         }
 
         /// <summary>
@@ -511,11 +546,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _stringBuilder.SuspendCurrentNode();
             }
 
-            foreach (var constantPrinter in ConstantPrinters)
+            if (constantExpression.Value is IPrintable printable)
             {
-                if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
+                printable.Print(this);
+            }
+            else
+            {
+                foreach (var constantPrinter in ConstantPrinters)
                 {
-                    break;
+                    if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
+                    {
+                        break;
+                    }
                 }
             }
 

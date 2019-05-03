@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -87,6 +88,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (OperatorType == ExpressionType.Convert)
+            {
+                expressionPrinter.StringBuilder.Append("CAST(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.StringBuilder.Append(" AS ");
+                expressionPrinter.StringBuilder.Append(TypeMapping.StoreType);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+            else
+            {
+                expressionPrinter.StringBuilder.Append(OperatorType);
+                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+        }
     }
 }

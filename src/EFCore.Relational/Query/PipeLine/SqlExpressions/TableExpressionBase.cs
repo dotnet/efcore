@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
-    public abstract class TableExpressionBase : Expression
+    public abstract class TableExpressionBase : Expression, IPrintable
     {
         #region Fields & Constructors
         protected TableExpressionBase(string alias)
@@ -48,6 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public abstract void Print(ExpressionPrinter expressionPrinter);
     }
 }

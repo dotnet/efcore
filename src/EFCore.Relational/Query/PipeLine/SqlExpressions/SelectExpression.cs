@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
@@ -537,6 +538,99 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 hashCode = (hashCode * 397) ^ IsDistinct.GetHashCode();
 
                 return hashCode;
+            }
+        }
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.AppendLine("Projection Mapping:");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                foreach (var projectionMappingEntry in _projectionMapping)
+                {
+                    expressionPrinter.StringBuilder.AppendLine();
+                    expressionPrinter.StringBuilder.Append(projectionMappingEntry.Key + " -> ");
+                    expressionPrinter.Visit(projectionMappingEntry.Value);
+                }
+            }
+
+            expressionPrinter.StringBuilder.AppendLine();
+            if (!string.IsNullOrEmpty(Alias))
+            {
+                expressionPrinter.StringBuilder.AppendLine("(");
+                expressionPrinter.StringBuilder.IncrementIndent();
+            }
+
+            expressionPrinter.StringBuilder.Append("SELECT ");
+
+            if (IsDistinct)
+            {
+                expressionPrinter.StringBuilder.Append("DISTINCT ");
+            }
+
+            if (Limit != null
+                && Offset == null)
+            {
+                expressionPrinter.StringBuilder.Append("TOP(");
+                expressionPrinter.Visit(Limit);
+                expressionPrinter.StringBuilder.Append(") ");
+            }
+
+            if (Projection.Any())
+            {
+                expressionPrinter.VisitList(Projection);
+            }
+            else
+            {
+                expressionPrinter.StringBuilder.Append("1");
+            }
+
+            if (Tables.Any())
+            {
+                expressionPrinter.StringBuilder.AppendLine().Append("FROM ");
+
+                expressionPrinter.VisitList(Tables, p => p.StringBuilder.AppendLine());
+            }
+
+            if (Predicate != null)
+            {
+                expressionPrinter.StringBuilder.AppendLine().Append("WHERE ");
+                expressionPrinter.Visit(Predicate);
+            }
+
+            if (Orderings.Any())
+            {
+                var orderings = Orderings.ToList();
+                if (orderings.Count > 0
+                    && (Limit != null || Offset != null))
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("ORDER BY ");
+                    expressionPrinter.VisitList(orderings);
+                }
+            }
+            else if (Offset != null)
+            {
+                expressionPrinter.StringBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
+            }
+
+            if (Offset != null)
+            {
+                expressionPrinter.StringBuilder.AppendLine().Append("OFFSET ");
+                expressionPrinter.Visit(Offset);
+                expressionPrinter.StringBuilder.Append(" ROWS");
+
+                if (Limit != null)
+                {
+                    expressionPrinter.StringBuilder.Append(" FETCH NEXT ");
+                    expressionPrinter.Visit(Limit);
+                    expressionPrinter.StringBuilder.Append(" ROWS ONLY");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Alias))
+            {
+                expressionPrinter.StringBuilder.DecrementIndent();
+                expressionPrinter.StringBuilder.AppendLine().Append(") AS " + Alias);
             }
         }
     }
