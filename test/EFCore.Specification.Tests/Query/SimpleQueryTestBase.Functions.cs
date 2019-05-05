@@ -256,9 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (Compare([c].CustomerID, \"ALFKI\") == 42)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_Compare_simple_client(bool isAsync)
+        public virtual async Task String_Compare_simple_more_than_one(bool isAsync)
         {
             await AssertQuery<Customer>(
                 isAsync,
@@ -431,9 +431,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].CustomerID.CompareTo(\"ALFKI\") == 42)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task String_Compare_to_simple_client(bool isAsync)
+        public virtual async Task String_Compare_to_simple_more_than_one(bool isAsync)
         {
             await AssertQuery<Customer>(
                 isAsync,
@@ -682,15 +682,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        protected static string LocalMethod1()
-        {
-            return "M";
-        }
-
-        protected static string LocalMethod2()
-        {
-            return "m";
-        }
+        protected static string LocalMethod1() => "M";
+        protected static string LocalMethod2() => "m";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -960,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (Max([od].OrderID, [od].ProductID) == [od].OrderID)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_max(bool isAsync)
         {
@@ -970,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (Min([od].OrderID, [od].ProductID) == [od].ProductID)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_math_min(bool isAsync)
         {
@@ -1263,11 +1256,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_client_eval(bool isAsync)
+        public virtual Task Substring_with_Index_of(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)));
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf("a"), 3)));
         }
 
         [ConditionalTheory]
@@ -1336,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.TrimStart(O) == \"wner\")'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1346,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.TrimStart(value(System.Char[])) == \"ner\")'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
         {
@@ -1366,7 +1359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.TrimEnd(r) == \"Owne\")''")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1376,7 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.TrimEnd(value(System.Char[])) == \"Own\")'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
         {
@@ -1396,7 +1389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.Trim(O) == \"wner\")'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_argument_in_predicate(bool isAsync)
         {
@@ -1406,7 +1399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 17);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].ContactTitle.Trim(value(System.Char[])) == \"wne\")'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Trim_with_char_array_argument_in_predicate(bool isAsync)
         {

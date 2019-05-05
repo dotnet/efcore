@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -44,12 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IDictionary<MainFromClause, CorrelatedSubqueryMetadata> _correlatedSubqueryMetadataMap;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Creates a new <see cref="QueryCompilationContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> The dependencies for this service. </param>
+        /// <param name="linqOperatorProvider"> The LINQ operator provider to use. </param>
+        /// <param name="trackQueryResults"> True for tracking queries; false for no-tracking queries. </param>
         public QueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -122,13 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return _correlatedSubqueryMetadataMap?.TryGetValue(mainFromClause, out correlatedSubqueryMetadata) == true;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         internal virtual IDictionary<MainFromClause, CorrelatedSubqueryMetadata> CorrelatedSubqueryMetadataMap => _correlatedSubqueryMetadataMap;
 
         /// <summary>

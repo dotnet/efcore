@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Divide, " / " },
             { ExpressionType.Modulo, " % " },
             { ExpressionType.And, " & " },
-            { ExpressionType.Or, " | " }
+            { ExpressionType.Or, " | " },
+            { ExpressionType.ExclusiveOr, " ^ " }
         };
 
         private bool _highlightNonreducibleNodes;
@@ -155,6 +156,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual List<IQuerySource> VisitedQuerySources { get; } = new List<IQuerySource>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void VisitList<T>(
+            IReadOnlyList<T> items,
+            Action<ExpressionPrinter> joinAction = null)
+            where T : Expression
+        {
+            joinAction ??= (p => p.StringBuilder.Append(", "));
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (i > 0)
+                {
+                    joinAction(this);
+                }
+
+                Visit(items[i]);
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -266,6 +291,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string GenerateBinaryOperator(ExpressionType expressionType)
+        {
+            return _binaryOperandMap[expressionType];
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Expression Visit(Expression expression)
         {
             if (expression == null)
@@ -299,6 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Modulo:
                 case ExpressionType.And:
                 case ExpressionType.Or:
+                case ExpressionType.ExclusiveOr:
                     VisitBinary((BinaryExpression)expression);
                     break;
 
@@ -354,6 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.Throw:
                 case ExpressionType.Not:
                 case ExpressionType.TypeAs:
+                case ExpressionType.Quote:
                     VisitUnary((UnaryExpression)expression);
                     break;
 
@@ -508,11 +546,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _stringBuilder.SuspendCurrentNode();
             }
 
-            foreach (var constantPrinter in ConstantPrinters)
+            if (constantExpression.Value is IPrintable printable)
             {
-                if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
+                printable.Print(this);
+            }
+            else
+            {
+                foreach (var constantPrinter in ConstantPrinters)
                 {
-                    break;
+                    if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -793,7 +838,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _stringBuilder.IncrementIndent();
             }
 
-            VisitArguments(newExpression.Arguments, appendAction);
+            for (var i = 0; i < newExpression.Arguments.Count; i++)
+            {
+                if (newExpression.Members != null)
+                {
+                    Append(newExpression.Members[i].Name + " = ");
+                }
+
+                Visit(newExpression.Arguments[i]);
+                appendAction(i == newExpression.Arguments.Count - 1 ? "" : ", ");
+            }
 
             if (isComplex)
             {
@@ -864,7 +918,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (_parametersInScope.ContainsKey(parameterExpression))
             {
-                _stringBuilder.Append(_parametersInScope[parameterExpression]);
+                if (_parametersInScope[parameterExpression].Contains("."))
+                {
+                    _stringBuilder.Append("[" + _parametersInScope[parameterExpression] + "]");
+                }
+                else
+                {
+                    _stringBuilder.Append(_parametersInScope[parameterExpression]);
+                }
             }
             else
             {
@@ -916,6 +977,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _stringBuilder.Append("(");
                     Visit(unaryExpression.Operand);
                     _stringBuilder.Append(" as " + unaryExpression.Type.ShortDisplayName() + ")");
+                    break;
+
+                case ExpressionType.Quote:
+                    Visit(unaryExpression.Operand);
                     break;
 
                 default:
@@ -1023,7 +1088,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (GenerateUniqueQsreIds)
                         {
                             var index = VisitedQuerySources.IndexOf(qsre.ReferencedQuerySource);
-                            StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
+                            if (index == -1)
+                            {
+                                StringBuilder.Append("[" + HighlightLeft + qsre.ReferencedQuerySource.ItemName + "{" + index + "}" + HighlightRight + "]");
+                            }
+                            else
+                            {
+                                StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
+                            }
                         }
                         else
                         {

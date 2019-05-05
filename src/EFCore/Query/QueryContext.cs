@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,12 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IQueryBuffer _queryBuffer;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Creates a new <see cref="QueryContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="queryBufferFactory"> A factory for creating query buffers. </param>
         public QueryContext(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory)
@@ -184,6 +189,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 entityTrackingInfo.StartTracking(StateManager, entity, ValueBuffer.Empty);
             }
+        }
+
+        public virtual void StartTracking(
+            IEntityType entityType,
+            object entity,
+            ValueBuffer valueBuffer)
+        {
+            StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
         }
 
         /// <summary>

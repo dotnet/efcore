@@ -47,6 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _methodInfoBasedNodeTypeRegistry = methodInfoBasedNodeTypeRegistry;
 
             _methodInfoBasedNodeTypeRegistry
+                .Register(ToOrderedEnumerableExpressionNode.SupportedMethods, typeof(ToOrderedEnumerableExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
+                .Register(ToOrderedQueryableExpressionNode.SupportedMethods, typeof(ToOrderedQueryableExpressionNode));
+            _methodInfoBasedNodeTypeRegistry
                 .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
             _methodInfoBasedNodeTypeRegistry
                 .Register(TagExpressionNode.SupportedMethods, typeof(TagExpressionNode));

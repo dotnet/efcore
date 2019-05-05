@@ -532,15 +532,15 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task Where_OrderBy_Count_client_eval_mixed(bool isAsync)
-        {
-            await base.Where_OrderBy_Count_client_eval_mixed(isAsync);
+//        public override async Task Where_OrderBy_Count_client_eval_mixed(bool isAsync)
+//        {
+//            await base.Where_OrderBy_Count_client_eval_mixed(isAsync);
 
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] > 10))");
-        }
+//            AssertSql(
+//                @"SELECT c
+//FROM root c
+//WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] > 10))");
+//        }
 
         public override async Task OrderBy_Where_Count_client_eval(bool isAsync)
         {

@@ -163,7 +163,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The model logger
         /// </summary>
-        [EntityFrameworkInternal]
         public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
 
         /// <summary>

@@ -14,6 +14,10 @@ Entity Framework (EF) Core is a lightweight and extensible version of the popula
 
 EF Core is an object-relational mapper (O/RM) that enables .NET developers to work with a database using .NET objects. It eliminates the need for most of the data-access code that developers usually need to write.
 
+## Weekly status updates
+
+See the [weekly status updates issue](https://github.com/aspnet/EntityFrameworkCore/issues/15403) to keep up-to-date on what is happening in the world of EF Core.
+
 ## Database Providers
 
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.

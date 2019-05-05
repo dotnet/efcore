@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     new CommandBuilderPrinter(),
                     new EntityTrackingInfoListPrinter(),
                     new MetadataPropertyCollectionPrinter(),
-                    new ShaperPrinter(this)
+                    new ShaperPrinter(this),
                 });
         }
 

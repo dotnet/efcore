@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#15312")]
         public virtual void Warning_when_suspicious_conversion_in_sql()
         {
             using (var context = CreateContext())

@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    internal class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -731,7 +731,7 @@ WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
             AssertSql(
                 @"@p0='10250'
 
-SELECT * FROM Orders WHERE ""OrderID"" < @p0");
+SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)

@@ -4,14 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Issue#11266 This type is being used by provider code. Do not break.
-    public class DbFunction : IMutableDbFunction, IMethodCallTranslator
+    public class DbFunction : IMutableDbFunction
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -213,22 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<Expression>, Expression> Translation { get; set; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        Expression IMethodCallTranslator.Translate(
-            MethodCallExpression methodCallExpression,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-            return Translation?.Invoke(methodCallExpression.Arguments)
-                   ?? new SqlFunctionExpression(FunctionName, MethodInfo.ReturnType, Schema, methodCallExpression.Arguments);
-        }
+        public virtual Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; set; }
     }
 }

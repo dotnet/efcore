@@ -3,17 +3,13 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         A builder for building conventions for SQLite.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
@@ -23,16 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
-    [EntityFrameworkInternal]
     public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
+
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="SqliteConventionSetBuilder"/> instance.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> The core dependencies for this service. </param>
+        /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
         public SqliteConventionSetBuilder(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -41,12 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     <para>
+        ///         Call this method to build a <see cref="ConventionSet"/> for SQLite when using
+        ///         the <see cref="ModelBuilder"/> outside of <see cref="DbContext.OnModelCreating"/>.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is unusual to use this method.
+        ///         Consider using <see cref="DbContext"/> in the normal way instead.
+        ///     </para>
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <returns> The convention set. </returns>
         public static ConventionSet Build()
         {
             var serviceProvider = new ServiceCollection()

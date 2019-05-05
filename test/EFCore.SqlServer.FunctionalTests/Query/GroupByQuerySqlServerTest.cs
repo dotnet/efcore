@@ -34,6 +34,14 @@ GROUP BY [o].[CustomerID]");
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
+        public override async Task GroupBy_Property_Select_Average_with_navigation_expansion(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Average_with_navigation_expansion(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task GroupBy_Property_Select_Count(bool isAsync)
         {
             await base.GroupBy_Property_Select_Count(isAsync);
@@ -1402,7 +1410,7 @@ ORDER BY [Key]");
     END
 ), [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [c].[CustomerID] LIKE N'A%'",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
 

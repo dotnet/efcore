@@ -20,7 +20,29 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FiltersTestBase<>),                     // issue #15264
             typeof(OwnedQueryTestBase<>),                  // issue #15285
             typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
-            typeof(RelationalOwnedQueryTestBase<>)         // issue #15285
+            typeof(RelationalOwnedQueryTestBase<>),         // issue #15285
+            // Query pipeline
+            typeof(ConcurrencyDetectorTestBase<>),
+            typeof(CompiledQueryTestBase<>),
+            typeof(GearsOfWarQueryTestBase<>),
+            typeof(IncludeAsyncTestBase<>),
+            typeof(IncludeOneToOneTestBase<>),
+            typeof(IncludeTestBase<>),
+            typeof(InheritanceRelationshipsQueryTestBase<>),
+            typeof(InheritanceTestBase<>),
+            typeof(NullKeysTestBase<>),
+            typeof(QueryNavigationsTestBase<>),
+            typeof(ConcurrencyDetectorRelationalTestBase<>),
+            typeof(AsyncFromSqlQueryTestBase<>),
+            typeof(QueryTaggingTestBase<>),
+            typeof(FromSqlQueryTestBase<>),
+            typeof(GearsOfWarFromSqlQueryTestBase<>),
+            typeof(InheritanceRelationalTestBase<>),
+            typeof(NullSemanticsQueryTestBase<>),
+            typeof(QueryNoClientEvalTestBase<>),
+            typeof(WarningsTestBase<>),
+            typeof(AsyncFromSqlSprocQueryTestBase<>),
+            typeof(FromSqlSprocQueryTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;

@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var parameters = _code.Literal(sequence.Name);
 
-            if (string.IsNullOrEmpty(sequence.Schema)
+            if (!string.IsNullOrEmpty(sequence.Schema)
                 && sequence.Model.Relational().DefaultSchema != sequence.Schema)
             {
                 parameters += $", {_code.Literal(sequence.Schema)}";

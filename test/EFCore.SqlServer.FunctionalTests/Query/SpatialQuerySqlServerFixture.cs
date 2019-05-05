@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,8 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e => new SqlFunctionExpression(
                         e.First(),
                         "STDistance",
+                         e.Skip(1),
                         typeof(double),
-                        e.Skip(1))));
+                        null)));
         }
     }
 }

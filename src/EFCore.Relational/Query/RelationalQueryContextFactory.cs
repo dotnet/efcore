@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,10 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///         A factory for <see cref="RelationalQueryContext" /> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
@@ -22,18 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    [EntityFrameworkInternal]
     public class RelationalQueryContextFactory : QueryContextFactory
     {
         private readonly IRelationalConnection _connection;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="RelationalQueryContextFactory"/> instance using the given dependencies.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="connection"> The connection to use. </param>
+        /// <param name="executionStrategyFactory"> A factory for the execution strategy to use. </param>
         public RelationalQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] IRelationalConnection connection,
@@ -53,12 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="RelationalQueryContext"/>.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <returns>
+        ///     A QueryContext.
+        /// </returns>
         public override QueryContext Create()
             => new RelationalQueryContext(Dependencies, CreateQueryBuffer, _connection, ExecutionStrategyFactory);
     }

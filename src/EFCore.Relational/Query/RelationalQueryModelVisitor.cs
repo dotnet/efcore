@@ -67,12 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Relational-specific dependencies for this service. </param>
+        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
+        /// <param name="parentQueryModelVisitor"> An optional parent visitor. </param>
         public RelationalQueryModelVisitor(
             [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitorDependencies relationalDependencies,
@@ -1246,34 +1246,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        /// <summary>
-        ///     Determines whether correlated collections (if any) can be optimized.
-        /// </summary>
-        /// <returns>True if optimization is allowed, false otherwise.</returns>
-        protected override bool CanOptimizeCorrelatedCollections()
-        {
-            if (!base.CanOptimizeCorrelatedCollections())
-            {
-                return false;
-            }
-
-            if (RequiresClientEval
-                || RequiresClientFilter
-                || RequiresClientJoin
-                || RequiresClientOrderBy
-                || RequiresClientSelectMany)
-            {
-                return false;
-            }
-
-            var injectParametersFinder
-                = new InjectParametersFindingVisitor(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod);
-
-            injectParametersFinder.Visit(Expression);
-
-            return !injectParametersFinder.InjectParametersFound;
-        }
-
         private class InjectParametersFindingVisitor : ExpressionVisitorBase
         {
             private readonly MethodInfo _injectParametersMethod;
@@ -1401,66 +1373,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 WarnClientEval(queryModel, resultOperator);
             }
-        }
-
-        private class GroupByPreProcessor : QueryModelVisitorBase
-        {
-            private readonly QueryCompilationContext _queryCompilationContext;
-
-            public GroupByPreProcessor(QueryCompilationContext queryCompilationContext)
-            {
-                _queryCompilationContext = queryCompilationContext;
-            }
-
-            public override void VisitQueryModel(QueryModel queryModel)
-            {
-                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<GroupByPreProcessor>(this).Visit);
-
-                if (queryModel.ResultOperators.Any(o => o is GroupResultOperator)
-                    && _queryCompilationContext.IsIncludeQuery
-                    && !queryModel.ResultOperators.Any(
-                        o => o is SkipResultOperator || o is TakeResultOperator || o is ChoiceResultOperatorBase || o is DistinctResultOperator))
-                {
-                    base.VisitQueryModel(queryModel);
-                }
-            }
-
-            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
-            {
-                var groupResultOperators = queryModel.ResultOperators.OfType<GroupResultOperator>().ToList();
-                if (groupResultOperators.Count > 0)
-                {
-                    var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().FirstOrDefault();
-                    if (orderByClause == null)
-                    {
-                        orderByClause = new OrderByClause();
-                        queryModel.BodyClauses.Add(orderByClause);
-                    }
-
-                    var firstGroupResultOperator = groupResultOperators[0];
-
-                    var groupKeys = firstGroupResultOperator.KeySelector is NewExpression compositeGroupKey
-                        ? compositeGroupKey.Arguments.Reverse()
-                        : new[] { firstGroupResultOperator.KeySelector };
-
-                    foreach (var groupKey in groupKeys)
-                    {
-                        orderByClause.Orderings.Insert(0, new Ordering(groupKey, OrderingDirection.Asc));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Pre-processes query model before we rewrite its navigations.
-        /// </summary>
-        /// <param name="queryModel">Query model to process. </param>
-        protected override void OnBeforeNavigationRewrite(QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var groupByPreProcessor = new GroupByPreProcessor(QueryCompilationContext);
-            groupByPreProcessor.VisitQueryModel(queryModel);
         }
 
         /// <summary>
@@ -2106,7 +2018,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     Debug.Assert(projectionIndex > -1);
 
-                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
+                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex, property);
                 },
                 bindSubQueries: true);
         }
@@ -2134,7 +2046,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                            Debug.Assert(projectionIndex > -1);
 
-                           return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
+                           return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex, property);
                        },
                        bindSubQueries: true)
                    ?? ParentQueryModelVisitor?

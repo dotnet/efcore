@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (queryStateManager)
             {
-                var entry = _dependencies.StateManager.TryGetEntry(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
+                var entry = _dependencies.StateManager.TryGetEntry(key, new object[] { }, throwOnNullKey, out var _);
 
                 if (entry != null)
                 {

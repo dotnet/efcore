@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public Task Database_concurrency_token_value_is_discarded_for_non_conflicting_entities()
         {
             byte[] firstVersion = null;
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Equal(ClientPodiums, c.Drivers.Single(d => d.CarNumber == 2).Podiums));
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15318")]
         public async Task Database_concurrency_token_value_is_updated_for_all_sharing_entities()
         {
             using (var c = CreateF1Context())

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             Point CreatePoint(double y = 2.2)
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Translators_handle_static_members()
         {
             using (var db = Fixture.CreateContext())

@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Expression.Call(
                     parameter,
                     ValueBuffer.GetValueMethod,
-                    Expression.Constant(property.GetIndex())),
+                    Expression.Constant(property.GetShadowIndex())),
                 property.ClrType);
 
         /// <summary>

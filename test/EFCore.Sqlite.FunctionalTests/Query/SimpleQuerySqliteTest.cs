@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Skip for SQLite. Issue #14935. Cannot eval 'where Convert([o].EmployeeID, UInt32).ToString().Contains(\"10\")'
         public override Task Query_expression_with_to_string_and_contains(bool isAsync) => null;
 
+        // TODO: Client Eval.
+        public override Task Select_math_truncate_int(bool isAsync) => null;
+
         // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => DefaultIfEmpty()}'
         public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync) => null;
 
@@ -305,6 +308,7 @@ FROM ""Orders"" AS ""o""
 WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
         }
 
+        [ConditionalTheory(Skip = "Issue#15586")]
         public override async Task Where_datetime_millisecond_component(bool isAsync)
         {
             await base.Where_datetime_millisecond_component(isAsync);
@@ -322,7 +326,7 @@ WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) = 88")
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1, length('M')) = 'M')");
+WHERE ""c"".""ContactName"" LIKE 'M%'");
         }
 
         public override async Task String_StartsWith_Identity(bool isAsync)
@@ -352,7 +356,7 @@ WHERE (""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%' AND (substr(""c""
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1, length('M')) = 'M')");
+WHERE ""c"".""ContactName"" LIKE 'M%'");
         }
 
         public override async Task String_EndsWith_Literal(bool isAsync)
@@ -362,7 +366,7 @@ WHERE ""c"".""ContactName"" LIKE 'M' || '%' AND (substr(""c"".""ContactName"", 1
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", -length('b')) = 'b'");
+WHERE ""c"".""ContactName"" LIKE '%b'");
         }
 
         public override async Task String_EndsWith_Identity(bool isAsync)
@@ -392,7 +396,7 @@ WHERE (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""C
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", -length('m')) = 'm'");
+WHERE ""c"".""ContactName"" LIKE '%m'");
         }
 
         public override async Task String_Contains_Literal(bool isAsync)
@@ -537,9 +541,9 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
-        public override async Task Substring_with_client_eval(bool isAsync)
+        public override async Task Substring_with_Index_of(bool isAsync)
         {
-            await base.Substring_with_client_eval(isAsync);
+            await base.Substring_with_Index_of(isAsync);
 
             AssertSql(
                 @"SELECT ""c"".""ContactName""
@@ -815,7 +819,7 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "QueryIssue")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {

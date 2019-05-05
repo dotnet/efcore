@@ -157,9 +157,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task String_Compare_simple_client(bool isAsync)
+        public override async Task String_Compare_simple_more_than_one(bool isAsync)
         {
-            await base.String_Compare_simple_client(isAsync);
+            await base.String_Compare_simple_more_than_one(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -217,9 +217,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task String_Compare_to_simple_client(bool isAsync)
+        public override async Task String_Compare_to_simple_more_than_one(bool isAsync)
         {
-            await base.String_Compare_to_simple_client(isAsync);
+            await base.String_Compare_to_simple_more_than_one(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -697,9 +697,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_client_eval(bool isAsync)
+        public override async Task Substring_with_Index_of(bool isAsync)
         {
-            await base.Substring_with_client_eval(isAsync);
+            await base.Substring_with_Index_of(isAsync);
 
             AssertSql(
                 @"SELECT c

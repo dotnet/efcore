@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GearsOfWarQuerySqliteTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqliteFixture>
+    internal class GearsOfWarQuerySqliteTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqliteFixture>
     {
         public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture)
             : base(fixture)

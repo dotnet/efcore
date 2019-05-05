@@ -9,7 +9,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
+    // TODO: Issue#14630#21
+    internal class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
     {
         public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
