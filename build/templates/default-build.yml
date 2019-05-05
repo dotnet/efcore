@@ -74,10 +74,10 @@ jobs:
       vmImage: ubuntu-16.04
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
-        name: NetCorePublic-Int-Pool
+        name: NetCorePublic-Pool
         queue: BuildPool.Windows.10.Amd64.VS2017.Open
       ${{ if ne(variables['System.TeamProject'], 'public') }}:
-        name: NetCoreInternal-Int-Pool
+        name: NetCoreInternal-Pool
         queue: BuildPool.Windows.10.Amd64.VS2017
   variables:
     AgentOsName: ${{ parameters.agentOs }}
@@ -94,6 +94,13 @@ jobs:
   steps:
   - checkout: self
     clean: true
+  - ${{ if eq(parameters.agentOs, 'Windows') }}:
+    - task: NuGetCommand@2
+      displayName: 'Clear NuGet caches'
+      condition: succeeded()
+      inputs:
+        command: custom
+        arguments: 'locals all -clear'
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.agentOs, 'Windows'), eq(parameters.codeSign, 'true')) }}:
     - task: MicroBuildSigningPlugin@1
       displayName: Install MicroBuild Signing plugin
