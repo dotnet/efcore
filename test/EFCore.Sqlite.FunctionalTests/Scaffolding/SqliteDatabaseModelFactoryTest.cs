@@ -165,6 +165,33 @@ CREATE TABLE MountainsColumns (
         }
 
         [Fact]
+        public void Create_view_columns()
+        {
+            Test(
+                @"
+CREATE VIEW MountainsColumnsView
+ AS
+SELECT
+ CAST(100 AS integer) AS Id,
+ CAST('' AS text) AS Name;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = dbModel.Tables.Single();
+
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.Equal(null, table.PrimaryKey);
+                    Assert.All(
+                        table.Columns, c => Assert.Equal("MountainsColumnsView", c.Table.Name));
+
+                    Assert.Single(table.Columns.Where(c => c.Name == "Id"));
+                    Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                },
+                "DROP VIEW MountainsColumnsView;");
+        }
+
+        [Fact]
         public void Create_primary_key()
         {
             Test(

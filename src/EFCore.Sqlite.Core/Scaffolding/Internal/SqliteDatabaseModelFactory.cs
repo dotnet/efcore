@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 command.CommandText = new StringBuilder()
                     .AppendLine("SELECT \"name\"")
                     .AppendLine("FROM \"sqlite_master\"")
-                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
+                    .Append("WHERE \"type\" IN ('table', 'view') AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
                     .Append(HistoryRepository.DefaultTableName)
                     .Append("', 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth', ")
                     .Append("'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time', ")
@@ -163,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     .Append("'sql_statements_log', 'views_geometry_columns', 'views_geometry_columns_auth', ")
                     .Append("'views_geometry_columns_field_infos', 'views_geometry_columns_statistics', ")
                     .Append("'virts_geometry_columns', 'virts_geometry_columns_auth', ")
+                    .Append("'geom_cols_ref_sys', 'spatial_ref_sys_all', ")
                     .AppendLine("'virts_geometry_columns_field_infos', 'virts_geometry_columns_statistics');")
                     .ToString();
 
