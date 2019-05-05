@@ -30,10 +30,10 @@ jobs:
         - job: Windows
           pool:
             ${{ if eq(variables['System.TeamProject'], 'public') }}:
-              name: NetCorePublic-Int-Pool
+              name: NetCorePublic-Pool
               queue: BuildPool.Windows.10.Amd64.VS2017.Open
             ${{ if ne(variables['System.TeamProject'], 'public') }}:
-              name: NetCoreInternal-Int-Pool
+              name: NetCoreInternal-Pool
               queue: BuildPool.Windows.10.Amd64.VS2017
           variables:
             - _InternalBuildArgs: ''
@@ -44,6 +44,12 @@ jobs:
               - _DotNetPublishToBlobFeed: true
               - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
           steps:
+            - task: NuGetCommand@2
+              displayName: 'Clear NuGet caches'
+              condition: succeeded()
+              inputs:
+                command: custom
+                arguments: 'locals all -clear'
             - script: "echo ##vso[build.addbuildtag]daily-build"
               condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
               displayName: 'Set CI tags'
