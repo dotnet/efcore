@@ -603,10 +603,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(Order)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(SpecialOrder)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(Customer)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(SpecialCustomer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Order)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialOrder)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Customer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
             }
 
             [Fact]
@@ -651,10 +651,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasDefiningNavigation()));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(Order)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(SpecialOrder)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(Customer)));
-                Assert.Null(model.GetIsIgnoredConfigurationSource(typeof(SpecialCustomer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Order)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialOrder)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(Customer)));
+                Assert.Null(model.FindIgnoredConfigurationSource(typeof(SpecialCustomer)));
             }
 
             [Fact]

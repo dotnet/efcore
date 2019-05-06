@@ -670,11 +670,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsIgnoredConfigurationSource([NotNull] Type type)
+        public virtual ConfigurationSource? FindIgnoredConfigurationSource([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return GetIsIgnoredConfigurationSource(GetDisplayName(type));
+            return FindIgnoredConfigurationSource(GetDisplayName(type));
         }
 
         /// <summary>
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsIgnoredConfigurationSource(string name)
+        public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
             => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
                 ? (ConfigurationSource?)ignoredConfigurationSource
                 : null;
@@ -695,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsIgnored(string name)
-            => GetIsIgnoredConfigurationSource(name) != null;
+            => FindIgnoredConfigurationSource(name) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsIgnored([NotNull] Type type)
-            => GetIsIgnoredConfigurationSource(GetDisplayName(type)) != null;
+            => FindIgnoredConfigurationSource(GetDisplayName(type)) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

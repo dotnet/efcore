@@ -98,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public Type ClrType { get; }
             public IEntityType BaseType { get; }
+            public bool IsKeyless { get; }
             public string DefiningNavigationName { get; }
             public IEntityType DefiningEntityType { get; }
             public LambdaExpression QueryFilter { get; }

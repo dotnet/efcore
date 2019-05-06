@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -86,9 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _currentContext.Context,
                     _scopedProvider.GetService<IConventionSetBuilder>(),
                     _scopedProvider.GetService<IModelValidator>(),
-                    new DiagnosticsLoggers(
-                        _scopedProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
-                        _scopedProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>()));
+                    _scopedProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
             }
             finally
             {

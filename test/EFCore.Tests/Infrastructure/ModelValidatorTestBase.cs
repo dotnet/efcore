@@ -41,11 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return entityType.AddKey(keyProperties);
         }
 
-        public void SetPrimaryKey(IMutableEntityType entityType)
+        public void AddProperties(IMutableEntityType entityTypeA)
         {
-            var property = entityType.AddProperty("Id", typeof(int));
-            entityType.SetPrimaryKey(property);
+            entityTypeA.AddProperty(nameof(A.P0), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P1), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P2), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P3), typeof(int?));
         }
+
+        public void SetPrimaryKey(IMutableEntityType entityType)
+            => entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
 
         protected IMutableForeignKey CreateForeignKey(IMutableKey dependentKey, IMutableKey principalKey)
             => CreateForeignKey(dependentKey.DeclaringEntityType, dependentKey.Properties, principalKey);
@@ -129,6 +134,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int SampleEntityId { get; set; }
         }
 
+        public class SampleEntityMinimal
+        {
+            public int Id { get; set; }
+            public ReferencedEntityMinimal ReferencedEntity { get; set; }
+        }
+
+        public class ReferencedEntityMinimal
+        {
+        }
+
+        public class AnotherSampleEntityMinimal
+        {
+            public int Id { get; set; }
+            public ReferencedEntityMinimal ReferencedEntity { get; set; }
+        }
+
         protected class E
         {
             public int Id { get; set; }
@@ -184,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected virtual void VerifyError(string expectedMessage, IModel model)
         {
-            Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
+            var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
+            Assert.Equal(expectedMessage, message);
         }
 
         protected virtual void Validate(IModel model) => ((Model)model).FinalizeModel();
@@ -222,9 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             conventionSet.ModelBuiltConventions.Add(
                 new ValidatingConvention(
                     TestHelpers.CreateModelValidator(),
-                    new Diagnostics.DiagnosticsLoggers(
-                        CreateModelLogger(sensitiveDataLoggingEnabled),
-                        CreateValidationLogger(sensitiveDataLoggingEnabled))));
+                    CreateValidationLogger(sensitiveDataLoggingEnabled)));
 
             return new ModelBuilder(conventionSet);
         }

@@ -1,6 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -47,8 +51,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        public ModelValidatorDependencies()
+        /// <param name="typeMappingSource"> The type mapper. </param>
+        /// <param name="memberClassifier"> The member classifier. </param>
+        public ModelValidatorDependencies(
+            [NotNull] ITypeMappingSource typeMappingSource,
+            [NotNull] IMemberClassifier memberClassifier)
         {
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(memberClassifier, nameof(memberClassifier));
+
+            TypeMappingSource = typeMappingSource;
+            MemberClassifier = memberClassifier;
         }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public ITypeMappingSource TypeMappingSource { get; }
+
+        /// <summary>
+        ///     The member classifier.
+        /// </summary>
+        public IMemberClassifier MemberClassifier { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelValidatorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
+            => new ModelValidatorDependencies(typeMappingSource, MemberClassifier);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelValidatorDependencies With([NotNull] IMemberClassifier memberClassifier)
+            => new ModelValidatorDependencies(TypeMappingSource, memberClassifier);
     }
 }

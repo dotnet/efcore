@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Validate(IModel model, DiagnosticsLoggers loggers)
+        public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.Validate(model, loggers);
+            base.Validate(model, logger);
 
-            ValidateNoSchemas(model, loggers);
-            ValidateNoSequences(model, loggers);
+            ValidateNoSchemas(model, logger);
+            ValidateNoSequences(model, logger);
         }
 
         /// <summary>
@@ -58,10 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateNoSchemas([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateNoSchemas([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
             {
                 logger.SchemaConfiguredWarning(entityType, entityType.GetSchema());
@@ -74,10 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateNoSequences([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateNoSequences([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var sequence in model.GetSequences())
             {
                 logger.SequenceConfiguredWarning(sequence);
