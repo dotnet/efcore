@@ -49,14 +49,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Validate(IModel model, DiagnosticsLoggers loggers)
+        public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.Validate(model, loggers);
+            base.Validate(model, logger);
 
-            ValidateDefaultDecimalMapping(model, loggers);
-            ValidateByteIdentityMapping(model, loggers);
-            ValidateNonKeyValueGeneration(model, loggers);
-            ValidateIndexIncludeProperties(model, loggers);
+            ValidateDefaultDecimalMapping(model, logger);
+            ValidateByteIdentityMapping(model, logger);
+            ValidateNonKeyValueGeneration(model, logger);
+            ValidateIndexIncludeProperties(model, logger);
         }
 
         /// <summary>
@@ -65,10 +65,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
@@ -96,10 +94,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
@@ -116,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
@@ -139,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {
@@ -186,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedTableCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var firstMappedType = mappedTypes[0];
             var isMemoryOptimized = firstMappedType.GetSqlServerIsMemoryOptimized();
@@ -203,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 }
             }
 
-            base.ValidateSharedTableCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedTableCompatibility(mappedTypes, tableName, logger);
         }
 
         /// <summary>
@@ -213,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedColumnsCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, logger);
 
             var identityColumns = new List<IProperty>();
             var propertyMappings = new Dictionary<string, IProperty>();
@@ -266,9 +262,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedKeysCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, logger);
 
             var keyMappings = new Dictionary<string, IKey>();
 

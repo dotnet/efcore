@@ -390,6 +390,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
         private static EventId MakeModelId(Id id) => new EventId((int)id, _modelPrefix + id);
 
+        private static readonly string _modelValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
+        private static EventId MakeModelValidationId(Id id) => new EventId((int)id, _modelValidationPrefix + id);
+
         /// <summary>
         ///     <para>
         ///         A shadow property has been created.
@@ -401,14 +404,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ShadowPropertyCreated = MakeModelId(Id.ShadowPropertyCreated);
+        public static readonly EventId ShadowPropertyCreated = MakeModelValidationId(Id.ShadowPropertyCreated);
 
         /// <summary>
         ///     <para>
         ///         An index was not created as the properties are already covered.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
@@ -621,14 +624,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         The configured <see cref="IForeignKey" /> is redundant.
         ///     </para>
         ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId RedundantForeignKeyWarning = MakeModelId(Id.RedundantForeignKeyWarning);
+        public static readonly EventId RedundantForeignKeyWarning = MakeModelValidationId(Id.RedundantForeignKeyWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

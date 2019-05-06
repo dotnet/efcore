@@ -151,6 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The configuration source if the given entity type name is ignored,
         ///     <c>null</c> otherwise.
         /// </returns>
-        ConfigurationSource? GetIsIgnoredConfigurationSource([NotNull] string name);
+        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string name);
     }
 }

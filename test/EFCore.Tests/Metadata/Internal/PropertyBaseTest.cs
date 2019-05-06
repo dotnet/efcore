@@ -645,7 +645,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
+
+            entityType.AddIgnored("Reference");
+            entityType.AddIgnored("Collection");
+
             var property = entityType.AddProperty(propertyName, typeof(int));
             property.SetField(fieldName);
             return property;
@@ -656,9 +661,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
+
+            entityType.AddIgnored("Foo");
+            entityType.AddIgnored("Collection");
+
             var navigation = foreignKey.HasDependentToPrincipal(typeof(TEntity).GetProperty(navigationName));
             navigation.SetField(fieldName);
             return navigation;
@@ -669,9 +679,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
+
+            entityType.AddIgnored("Foo");
+            entityType.AddIgnored("Reference");
+
             var navigation = foreignKey.HasPrincipalToDependent(typeof(TEntity).GetProperty(navigationName));
             navigation.SetField(fieldName);
             return navigation;
@@ -752,9 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
                     .Validate(propertyBase.DeclaringType.Model,
-                        new DiagnosticsLoggers(
-                            new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>(),
-                            new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>()));
+                        new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }

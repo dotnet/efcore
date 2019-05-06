@@ -953,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property. </param>
         public static void ShadowPropertyCreated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
         {
             var definition = CoreResources.LogShadowPropertyCreated(diagnostics);
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="redundantForeignKey"> The redundant foreign key. </param>
         public static void RedundantForeignKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IForeignKey redundantForeignKey)
         {
             var definition = CoreResources.LogRedundantForeignKey(diagnostics);

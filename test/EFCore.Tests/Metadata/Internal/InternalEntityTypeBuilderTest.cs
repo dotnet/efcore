@@ -1685,19 +1685,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [InlineData(ConfigurationSource.Convention, ConfigurationSource.Convention)]
         public void Can_ignore_property_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
         {
-            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
 
-            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreProperty(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreProperty(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
         }
 
         private void VerifyIgnoreProperty(
@@ -1709,10 +1709,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             VerifyIgnoreMember(
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
-                et => et.Metadata.FindProperty(Order.CustomerIdProperty.Name) != null,
-                et => et.Property(Order.CustomerIdProperty, addConfigurationSource) != null,
-                et => et.Property(Order.CustomerIdProperty, ignoreConfigurationSource) != null,
-                Order.CustomerIdProperty.Name);
+                et => et.Metadata.FindProperty(OrderMinimal.CustomerIdProperty.Name) != null,
+                et => et.Property(OrderMinimal.CustomerIdProperty, addConfigurationSource) != null,
+                et => et.Property(OrderMinimal.CustomerIdProperty, ignoreConfigurationSource) != null,
+                OrderMinimal.CustomerIdProperty.Name);
         }
 
         private void VerifyIgnoreMember(
@@ -1727,31 +1727,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string memberToIgnore)
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)
-                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Explicit);
+            var customerTypeBuilder = modelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Convention);
+
+            customerTypeBuilder
+                .PrimaryKey(new[] { CustomerMinimal.IdProperty }, ConfigurationSource.Convention);
+
             if (setBaseFirst)
             {
-                ConfigureOrdersHierarchy(modelBuilder);
+                ConfigureOrdersHierarchyMinimal(modelBuilder);
             }
 
             var ignoredEntityTypeBuilder = modelBuilder.Entity(ignoredOnType, ConfigurationSource.Convention);
-            var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Convention);
             Assert.False(findMember(addedEntityTypeBuilder));
 
-            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrder);
+            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal);
+
             var expectedAdded = exceptionExpected
                                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
                                     && (ignoreConfigurationSource != ConfigurationSource.Explicit
-                                        || ignoredOnType != typeof(SpecialOrder)
+                                        || ignoredOnType != typeof(SpecialOrderMinimal)
                                         || ignoredFirst));
-            var expectedIgnored = (ignoredOnType != typeof(SpecialOrder)
+
+            var expectedIgnored = (ignoredOnType != typeof(SpecialOrderMinimal)
                                    || !expectedAdded)
                                   && !exceptionExpected;
 
             if (ignoredFirst)
             {
                 Assert.NotNull(ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource));
-                Assert.Equal(expectedAdded || (!setBaseFirst && ignoredOnType != typeof(SpecialOrder)), addMember(addedEntityTypeBuilder));
+                Assert.Equal(expectedAdded || (!setBaseFirst && ignoredOnType != typeof(SpecialOrderMinimal)), addMember(addedEntityTypeBuilder));
             }
             else
             {
@@ -1761,7 +1766,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Assert.Equal(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            memberToIgnore, typeof(ExtraSpecialOrder).ShortDisplayName(), typeof(SpecialOrder).ShortDisplayName()),
+                            memberToIgnore, typeof(ExtraSpecialOrderMinimal).ShortDisplayName(), typeof(SpecialOrderMinimal).ShortDisplayName()),
                         Assert.Throws<InvalidOperationException>(
                             () => ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource)).Message);
                     return;
@@ -1770,36 +1775,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Equal(
                     expectedIgnored
                     || (!setBaseFirst
-                        && (ignoreConfigurationSource == ConfigurationSource.Explicit || ignoredOnType != typeof(SpecialOrder))),
+                        && (ignoreConfigurationSource == ConfigurationSource.Explicit || ignoredOnType != typeof(SpecialOrderMinimal))),
                     ignoredEntityTypeBuilder.Ignore(memberToIgnore, ignoreConfigurationSource) != null);
             }
 
             if (!setBaseFirst)
             {
-                ConfigureOrdersHierarchy(modelBuilder);
+                ConfigureOrdersHierarchyMinimal(modelBuilder);
             }
-
-            var logger = new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>();
-            var validationConvention = new IgnoredMembersValidationConvention(logger);
-            if (exceptionExpected)
-            {
-                Assert.Equal(
-                    CoreStrings.InheritedPropertyCannotBeIgnored(
-                        memberToIgnore, typeof(ExtraSpecialOrder).ShortDisplayName(), typeof(SpecialOrder).ShortDisplayName()),
-                    Assert.Throws<InvalidOperationException>(() => validationConvention.Apply(modelBuilder)).Message);
-
-                Assert.True(unignoreMember(ignoredEntityTypeBuilder));
-            }
-
-            validationConvention.Apply(modelBuilder);
 
             var modelValidator = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
 
-            modelValidator.Validate(
-                modelBuilder.Metadata,
-                new DiagnosticsLoggers(
-                    logger,
-                    new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>()));
+            if (exceptionExpected)
+            {
+                var logger = new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>();
+
+                Assert.Equal(
+                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                        memberToIgnore,
+                        typeof(ExtraSpecialOrderMinimal).ShortDisplayName(),
+                        typeof(SpecialOrderMinimal).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelValidator.Validate(
+                            modelBuilder.Metadata,
+                            new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>())).Message);
+
+                Assert.True(unignoreMember(ignoredEntityTypeBuilder));
+            }
 
             Assert.Equal(
                 expectedIgnored,
@@ -1816,6 +1818,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit);
             var derivedEntityBuilder = modelBuilder.Entity(typeof(ExtraSpecialOrder), ConfigurationSource.Explicit);
             derivedEntityBuilder.HasBaseType(typeof(SpecialOrder), ConfigurationSource.Explicit);
+        }
+
+        private void ConfigureOrdersHierarchyMinimal(InternalModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity(typeof(OrderMinimal), ConfigurationSource.Explicit)
+                .PrimaryKey(new[] { OrderMinimal.IdProperty }, ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Explicit);
+            entityBuilder.HasBaseType(typeof(OrderMinimal), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(ExtraSpecialOrderMinimal), ConfigurationSource.Explicit);
+            derivedEntityBuilder.HasBaseType(typeof(SpecialOrderMinimal), ConfigurationSource.Explicit);
         }
 
         [Fact]
@@ -2191,19 +2203,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [InlineData(ConfigurationSource.Convention, ConfigurationSource.Convention)]
         public void Can_ignore_navigation_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
         {
-            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: true);
 
-            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(Order), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(SpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
-            VerifyIgnoreNavigation(typeof(ExtraSpecialOrder), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: true, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(OrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(SpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
+            VerifyIgnoreNavigation(typeof(ExtraSpecialOrderMinimal), ignoreSource, addSource, ignoredFirst: false, setBaseFirst: false);
         }
 
         private void VerifyIgnoreNavigation(
@@ -2214,18 +2226,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool setBaseFirst)
             => VerifyIgnoreMember(
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
-                et => et.Metadata.FindNavigation(Order.CustomerProperty.Name) != null,
+                et => et.Metadata.FindNavigation(OrderMinimal.CustomerProperty.Name) != null,
                 et => et.HasRelationship(
-                          et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Metadata,
-                          Order.CustomerProperty.Name,
-                          Customer.OrdersProperty.Name,
+                          et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
+                          OrderMinimal.CustomerProperty.Name,
+                          CustomerMinimal.OrdersProperty.Name,
                           addConfigurationSource) != null,
                 et => et.HasRelationship(
-                          et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Metadata,
-                          Order.CustomerProperty.Name,
-                          Customer.OrdersProperty.Name,
+                          et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
+                          OrderMinimal.CustomerProperty.Name,
+                          CustomerMinimal.OrdersProperty.Name,
                           ignoreConfigurationSource) != null,
-                Order.CustomerProperty.Name);
+                OrderMinimal.CustomerProperty.Name);
 
         [Fact]
         public void Can_merge_with_intrahierarchical_relationship_of_higher_source()
@@ -2778,6 +2790,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class SpecialCustomer : Customer
         {
             internal Customer Customer { get; set; }
+        }
+
+        private class OrderMinimal
+        {
+            public static readonly PropertyInfo IdProperty = typeof(OrderMinimal).GetProperty("Id");
+            public static readonly PropertyInfo CustomerIdProperty = typeof(OrderMinimal).GetProperty("CustomerId");
+            public static readonly PropertyInfo CustomerProperty = typeof(OrderMinimal).GetProperty("Customer");
+
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public CustomerMinimal Customer { get; set; }
+        }
+
+        private class SpecialOrderMinimal : OrderMinimal, IEnumerable<OrderMinimal>
+        {
+            public static readonly PropertyInfo SpecialtyProperty = typeof(SpecialOrderMinimal).GetProperty("Specialty");
+
+            public IEnumerator<OrderMinimal> GetEnumerator()
+            {
+                yield return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        private class ExtraSpecialOrderMinimal : SpecialOrderMinimal
+        {
+        }
+
+        private class BackOrderMinimal : OrderMinimal
+        {
+        }
+
+        private class CustomerMinimal
+        {
+            public static readonly PropertyInfo IdProperty = typeof(CustomerMinimal).GetProperty("Id");
+            public static readonly PropertyInfo OrdersProperty = typeof(CustomerMinimal).GetProperty("Orders");
+
+            public int Id { get; set; }
+            public ICollection<OrderMinimal> Orders { get; set; }
         }
     }
 }

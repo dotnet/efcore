@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
-        /// <param name="loggers"> Loggers to use. </param>
-        void Validate([NotNull] IModel model, DiagnosticsLoggers loggers);
+        /// <param name="logger"> The logger to use. </param>
+        void Validate([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger);
     }
 }

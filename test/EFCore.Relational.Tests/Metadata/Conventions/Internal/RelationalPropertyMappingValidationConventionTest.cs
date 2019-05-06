@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(Tuple<long>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -40,20 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 CoreStrings.PropertyNotMapped(
                     typeof(NonPrimitiveNonNavigationAsPropertyEntity).ShortDisplayName(), "LongProperty",
                     typeof(Tuple<long>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        protected override PropertyMappingValidationConvention CreateConvention()
-        {
-            var typeMappingSource = new TestRelationalTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
-            return new PropertyMappingValidationConvention(
-                typeMappingSource,
-                TestServiceFactory.Instance.Create<IMemberClassifier>(
-                    (typeof(ITypeMappingSource), typeMappingSource)),
-                new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>());
-        }
+        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }

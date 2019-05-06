@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -859,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             return new ModelBuilder(
                 new RuntimeConventionSetBuilder(
-                        new ProviderConventionSetBuilder(dependencies),
+                        new InMemoryConventionSetBuilder(dependencies),
                         Enumerable.Empty<IConventionSetCustomizer>())
                     .CreateConventionSet());
         }

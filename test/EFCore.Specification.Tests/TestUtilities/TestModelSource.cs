@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DbContext context,
             IConventionSetBuilder conventionSetBuilder,
             IModelValidator validator,
-            DiagnosticsLoggers loggers)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
             var conventionSet = conventionSetBuilder.CreateConventionSet();
-            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, loggers));
+            conventionSet.ModelBuiltConventions.Add(new ValidatingConvention(validator, validationLogger));
 
             var modelBuilder = new ModelBuilder(conventionSet);
 

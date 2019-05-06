@@ -186,14 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The convention set. </returns>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
         {
-            var loggers = new DiagnosticsLoggers(
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
 
             var conventionSet = context.GetService<IConventionSetBuilder>().CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
+                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return conventionSet;
         }

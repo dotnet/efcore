@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var ignoredConfigurationSource = Metadata.GetIsIgnoredConfigurationSource(type.Name);
+            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(type.Name);
             return ignoredConfigurationSource.HasValue
                    && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalModelBuilder Ignore(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             var name = type.Name;
-            var ignoredConfigurationSource = Metadata.GetIsIgnoredConfigurationSource(name);
+            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(name);
             if (ignoredConfigurationSource.HasValue)
             {
                 if (configurationSource.Overrides(ignoredConfigurationSource)
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool CanIgnore(in TypeIdentity type, ConfigurationSource configurationSource)
         {
             var name = type.Name;
-            if (Metadata.GetIsIgnoredConfigurationSource(name).HasValue)
+            if (Metadata.FindIgnoredConfigurationSource(name).HasValue)
             {
                 return true;
             }

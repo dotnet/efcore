@@ -176,16 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelBuiltConventions.Add(new ChangeTrackingStrategyConvention(logger));
             conventionSet.ModelBuiltConventions.Add(new ConstructorBindingConvention(Dependencies.ConstructorBindingFactory, logger));
             conventionSet.ModelBuiltConventions.Add(new TypeMappingConvention(Dependencies.TypeMappingSource, logger));
-            conventionSet.ModelBuiltConventions.Add(new IgnoredMembersValidationConvention(logger));
             conventionSet.ModelBuiltConventions.Add(foreignKeyIndexConvention);
 
-            conventionSet.ModelBuiltConventions.Add(
-                new PropertyMappingValidationConvention(
-                    Dependencies.TypeMappingSource,
-                    Dependencies.MemberClassifier,
-                    logger));
-
-            conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention(logger));
             conventionSet.ModelBuiltConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ModelBuiltConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.ModelBuiltConventions.Add(new CacheCleanupConvention(logger));

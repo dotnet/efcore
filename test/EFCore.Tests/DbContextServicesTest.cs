@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 IModelValidator validator,
-                DiagnosticsLoggers loggers)
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
                 => new Model();
         }
 

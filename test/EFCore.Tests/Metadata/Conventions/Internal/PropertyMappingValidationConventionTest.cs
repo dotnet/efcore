@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
                     nameof(NonPrimitiveAsPropertyEntity.Property),
                     typeof(NavigationAsProperty).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityTypeBuilder.Property(typeof(NavigationAsProperty), "ShadowProperty", ConfigurationSource.Convention);
             entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
                     typeof(PrimitivePropertyEntity).ShortDisplayName(), "Property", typeof(int).DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
                     typeof(NonPrimitiveValueTypePropertyEntity).ShortDisplayName(), "Property", typeof(CancellationToken).Name),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     typeof(NonPrimitiveReferenceTypePropertyEntity).ShortDisplayName(),
                     nameof(NonPrimitiveReferenceTypePropertyEntity.Property),
                     typeof(ICollection<Uri>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property(typeof(int), "Property", ConfigurationSource.Convention);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(
                 CoreStrings.NavigationNotAdded(
                     typeof(NavigationEntity).ShortDisplayName(), "Navigation", typeof(PrimitivePropertyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasRelationship(referencedEntityTypeBuilder.Metadata, "Navigation", null, ConfigurationSource.Convention);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Ignore("Navigation", ConfigurationSource.DataAnnotation);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             modelBuilder.Ignore(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityTypeBuilder.HasRelationship(
                 referencedEntityTypeBuilder.Metadata, "Navigation", null, ConfigurationSource.Convention);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
         [Fact]
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     typeof(InterfaceNavigationEntity).ShortDisplayName(),
                     "Navigation",
                     typeof(IList<INavigationEntity>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
         [Fact]
@@ -180,19 +180,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
 
-            CreateConvention().Apply(modelBuilder);
+            CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        protected virtual PropertyMappingValidationConvention CreateConvention()
+        protected virtual Action<IModel> CreatePropertyMappingValidator()
         {
-            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+            var validator = TestHelpers.CreateModelValidator();
+            var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
-            return new PropertyMappingValidationConvention(
-                typeMappingSource,
-                TestServiceFactory.Instance.Create<IMemberClassifier>(
-                    (typeof(ITypeMappingSource), typeMappingSource)),
-                new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
+            var validatePropertyMappingMethod = typeof(ModelValidator).GetRuntimeMethods().Single(e => e.Name == "ValidatePropertyMapping");
+
+            return m =>
+            {
+                try
+                {
+                    validatePropertyMappingMethod.Invoke(
+                        validator, new object[]
+                        {
+                            m, logger
+                        });
+                }
+                catch (TargetInvocationException exception)
+                {
+                    throw exception.InnerException;
+                }
+            };
         }
+
+        protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
 
         protected class NonPrimitiveNonNavigationAsPropertyEntity
         {

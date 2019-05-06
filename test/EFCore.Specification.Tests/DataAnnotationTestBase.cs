@@ -47,14 +47,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var context = CreateContext();
             var conventionSetBuilder = CreateConventionSetBuilder(context);
-            var loggers = new DiagnosticsLoggers(
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
 
             var conventionSet = conventionSetBuilder.CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
+                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return new ModelBuilder(conventionSet);
         }

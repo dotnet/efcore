@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class ValidatingConvention : IModelBuiltConvention
     {
         private readonly IModelValidator _validator;
-        private readonly DiagnosticsLoggers _loggers;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _logger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ValidatingConvention([NotNull] IModelValidator validator, DiagnosticsLoggers loggers)
+        public ValidatingConvention([NotNull] IModelValidator validator, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             _validator = validator;
-            _loggers = loggers;
+            _logger = logger;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            _validator.Validate(modelBuilder.Metadata, _loggers);
+            _validator.Validate(modelBuilder.Metadata, _logger);
 
             return modelBuilder;
         }

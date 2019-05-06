@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -33,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
-        /// <param name="loggers"> The loggers to use. </param>
+        /// <param name="validationLogger"> The validation logger to use. </param>
         /// <returns> The model to be used. </returns>
         IModel GetModel(
             [NotNull] DbContext context,
             [NotNull] IConventionSetBuilder conventionSetBuilder,
             [NotNull] IModelValidator validator,
-            DiagnosticsLoggers loggers);
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger);
     }
 }
