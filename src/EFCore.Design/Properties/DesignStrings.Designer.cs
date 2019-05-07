@@ -465,14 +465,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName, columnNames);
 
         /// <summary>
-        ///     Unable to identify the primary key for table '{tableName}'.
-        /// </summary>
-        public static string MissingPrimaryKey([CanBeNull] object tableName)
-            => string.Format(
-                GetString("MissingPrimaryKey", nameof(tableName)),
-                tableName);
-
-        /// <summary>
         ///     Unable to generate entity type for table '{tableName}'.
         /// </summary>
         public static string UnableToGenerateEntityType([CanBeNull] object tableName)

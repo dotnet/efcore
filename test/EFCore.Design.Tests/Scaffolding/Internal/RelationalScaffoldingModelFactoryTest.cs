@@ -79,13 +79,18 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new DatabaseTable
                     {
-                        Name = "notScaffoldable"
+                        Name = "noPrimaryKey"
                     }
                 }
             };
             var model = _factory.Create(info, false);
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                vwtable =>
+                {
+                    Assert.Equal("noPrimaryKey", vwtable.Relational().TableName);
+                    Assert.Equal(0, vwtable.GetKeys().Count());
+                },
                 table =>
                 {
                     Assert.Equal("noSchema", table.Relational().TableName);
@@ -97,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("public", pgtable.Relational().Schema);
                 }
             );
-            Assert.NotEmpty(model.Scaffolding().EntityTypeErrors.Values);
+            Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
         }
 
         [Fact]
