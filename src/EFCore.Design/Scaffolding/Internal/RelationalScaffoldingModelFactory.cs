@@ -332,17 +332,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitColumns(builder, table.Columns);
 
-            var keyBuilder = VisitPrimaryKey(builder, table);
-
-            if (keyBuilder == null)
+            if (table.PrimaryKey != null)
             {
-                var errorMessage = DesignStrings.UnableToGenerateEntityType(table.DisplayName());
-                _reporter.WriteWarning(errorMessage);
+                var keyBuilder = VisitPrimaryKey(builder, table);
 
-                var model = modelBuilder.Model;
-                model.RemoveEntityType(entityTypeName);
-                model.Scaffolding().EntityTypeErrors.Add(entityTypeName, errorMessage);
-                return null;
+                if (keyBuilder == null)
+                {
+                    var errorMessage = DesignStrings.UnableToGenerateEntityType(table.DisplayName());
+                    _reporter.WriteWarning(errorMessage);
+
+                    var model = modelBuilder.Model;
+                    model.RemoveEntityType(entityTypeName);
+                    model.Scaffolding().EntityTypeErrors.Add(entityTypeName, errorMessage);
+                    return null;
+                }
             }
 
             VisitUniqueConstraints(builder, table.UniqueConstraints);
@@ -489,11 +492,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(table, nameof(table));
 
             var primaryKey = table.PrimaryKey;
-            if (primaryKey == null)
-            {
-                _reporter.WriteWarning(DesignStrings.MissingPrimaryKey(table.DisplayName()));
-                return null;
-            }
 
             var unmappedColumns = primaryKey.Columns
                 .Where(c => _unmappedColumns.Contains(c))
