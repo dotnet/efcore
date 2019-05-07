@@ -20,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
 
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            return this;
+        }
+
         public void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.Append(nameof(ProjectionBindingExpression) + ": " + ProjectionMember);

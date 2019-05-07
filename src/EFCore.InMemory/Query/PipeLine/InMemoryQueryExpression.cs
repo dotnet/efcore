@@ -117,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     foreach (var property in entityValuesExpression.EntityType.GetProperties())
                     {
-                        _valueBufferSlots.Add(CreateReadValueExpression(property.ClrType, currentIndex + property.GetIndex(), property));
+                        _valueBufferSlots.Add(
+                            CreateReadValueExpression(property.ClrType, entityValuesExpression.StartIndex + property.GetIndex(), property));
                     }
 
                     _projectionMapping[member] = new EntityProjectionExpression(entityValuesExpression.EntityType, currentIndex);
