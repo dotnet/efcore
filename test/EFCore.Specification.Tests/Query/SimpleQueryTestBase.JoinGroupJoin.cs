@@ -48,6 +48,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 919);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_customers_orders_entities_same_entity_twice(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from c in cs
+                    join o in os on c.CustomerID equals o.CustomerID
+                    select new
+                    {
+                        A = c,
+                        B = c
+                    },
+                e => e.A.CustomerID + " " + e.B.CustomerID,
+                entryCount: 89);
+        }
+
         [ConditionalTheory(Skip = "QueryIssue")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_select_many(bool isAsync)

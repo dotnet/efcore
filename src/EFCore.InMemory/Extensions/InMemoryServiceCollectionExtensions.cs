@@ -77,6 +77,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IEntityQueryableTranslatorFactory, InMemoryEntityQueryableTranslatorFactory>()
+                .TryAdd<IShapedQueryOptimizerFactory, InMemoryShapedQueryOptimizerFactory>()
 
 
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
