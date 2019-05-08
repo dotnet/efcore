@@ -147,7 +147,7 @@ Register-TabExpansion Get-DbContext @{
 
 <#
 .SYNOPSIS
-    Gets information about a DbContext type.
+    Gets information about DbContext types.
 
 .DESCRIPTION
     Gets information about a DbContext type.
@@ -172,11 +172,19 @@ function Get-DbContext
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    $params = 'dbcontext', 'info', '--json'
-    $params += GetParams $Context
-
-    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    if ($Context)
+    {
+       $params = 'dbcontext', 'info', '--json'
+       $params += GetParams $Context
+       # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    }
+    else
+    {
+       $params = 'dbcontext', 'list', '--json'
+       # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json | Format-Table -Property safeName -HideTableHeaders
+    }
 }
 
 #
