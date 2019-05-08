@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,24 +20,34 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         This class contains static methods used by EF Core internals and relationl database providers to
+    ///         write information to an <see cref="ILogger" /> and a <see cref="DiagnosticListener" /> for
+    ///         well-known events.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public static class RelationalLoggerExtensions
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
+        /// <param name="startTime"> The time that execution began. </param>
         public static void CommandExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -97,11 +108,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                && diagnostics.ShouldLogSensitiveData();
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="methodResult"> The return value from the underlying method execution. </param>
+        /// <param name="async"> Indicates whether or not this is an async command. </param>
+        /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         public static void CommandExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -162,11 +179,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.CommandError" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="exception"> The exception that caused this failure. </param>
+        /// <param name="async"> Indicates whether or not this is an async command. </param>
+        /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         public static void CommandError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] DbCommand command,
@@ -227,11 +250,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ConnectionOpening" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -273,11 +297,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ConnectionOpened" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The amount of time before the connection was opened. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionOpened(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -321,15 +347,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ConnectionClosing" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionClosing(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            bool async)
         {
             var definition = RelationalResources.LogRelationalLoggerClosingConnection(diagnostics);
 
@@ -366,16 +394,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ConnectionClosed" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The amount of time before the connection was closed. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionClosed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
-            TimeSpan duration)
+            TimeSpan duration,
+            bool async)
         {
             var definition = RelationalResources.LogRelationalLoggerClosedConnection(diagnostics);
 
@@ -413,11 +444,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ConnectionError" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="exception"> The exception representing the error. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time before the operation failed. </param>
+        /// <param name="async"> Indicates whether or not this is an async operation. </param>
+        /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
         public static void ConnectionError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -466,17 +501,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionStarted" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
         public static void TransactionStarted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            DateTimeOffset startDate)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogRelationalLoggerBeginningTransaction(diagnostics);
 
@@ -499,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        startDate));
+                        startTime));
             }
         }
 
@@ -512,17 +549,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionUsed" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
         public static void TransactionUsed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            DateTimeOffset startDate)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogRelationalLoggerUsingTransaction(diagnostics);
 
@@ -545,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        startDate));
+                        startTime));
             }
         }
 
@@ -558,11 +597,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionCommitted" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionCommitted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -595,11 +637,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionRolledBack" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionRolledBack(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -632,17 +677,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionDisposed" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
         public static void TransactionDisposed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            DateTimeOffset startDate)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogRelationalLoggerDisposingTransaction(diagnostics);
 
@@ -662,16 +709,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         transaction,
                         transactionId,
                         connection.ConnectionId,
-                        startDate));
+                        startTime));
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.TransactionError" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="action"> The action being taken. </param>
+        /// <param name="exception"> The exception that represents the error. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -708,15 +760,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.AmbientTransactionWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
         public static void AmbientTransactionWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
-            DateTimeOffset startDate)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogAmbientTransaction(diagnostics);
 
@@ -736,16 +788,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         connection.DbConnection,
                         connection.ConnectionId,
                         false,
-                        startDate));
+                        startTime));
             }
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.AmbientTransactionEnlisted" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
         public static void AmbientTransactionEnlisted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -783,11 +835,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ExplicitTransactionEnlisted" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
         public static void ExplicitTransactionEnlisted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -825,11 +877,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.DataReaderDisposing" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="dataReader"> The data reader. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="recordsAffected"> The number of records in the database that were affected. </param>
+        /// <param name="readCount"> The number of records that were read. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void DataReaderDisposing(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -868,11 +926,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrateUsingConnection" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="connection"> The connection. </param>
         public static void MigrateUsingConnection(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -914,11 +972,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationReverting" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="migration"> The migration. </param>
         public static void MigrationReverting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -955,11 +1013,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationApplying" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="migration"> The migration. </param>
         public static void MigrationApplying(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -996,11 +1054,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationGeneratingDownScript" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="migration"> The migration. </param>
+        /// <param name="fromMigration"> The starting migration name. </param>
+        /// <param name="toMigration"> The ending migration name. </param>
+        /// <param name="idempotent"> Indicates whether or not an idempotent script is being generated. </param>
         public static void MigrationGeneratingDownScript(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -1043,11 +1104,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationGeneratingUpScript" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="migration"> The migration. </param>
+        /// <param name="fromMigration"> The starting migration name. </param>
+        /// <param name="toMigration"> The ending migration name. </param>
+        /// <param name="idempotent"> Indicates whether or not an idempotent script is being generated. </param>
         public static void MigrationGeneratingUpScript(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -1090,11 +1154,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationsNotApplied" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
         public static void MigrationsNotApplied(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator)
@@ -1119,11 +1182,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationsNotFound" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrator"> The migrator. </param>
+        /// <param name="migrationsAssembly"> The assembly in which migrations are stored. </param>
         public static void MigrationsNotFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
@@ -1160,11 +1223,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.MigrationAttributeMissingWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="migrationType"> Info for the migration type. </param>
         public static void MigrationAttributeMissingWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] TypeInfo migrationType)
@@ -1199,11 +1261,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.QueryClientEvaluationWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="queryModelElement"> The element that is being client evaluated. </param>
         public static void QueryClientEvaluationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] QueryModel queryModel,
@@ -1240,11 +1302,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="methodCallExpression"> The expression representing the problematic method call. </param>
         public static void QueryPossibleUnintendedUseOfEqualsWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] MethodCallExpression methodCallExpression)
@@ -1279,11 +1340,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void QueryPossibleExceptionWithAggregateOperatorWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
@@ -1306,11 +1365,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ValueConversionSqlLiteralWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="mappingClrType"> The CLR type. </param>
+        /// <param name="valueConverter"> The value converter. </param>
         public static void ValueConversionSqlLiteralWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             [NotNull] Type mappingClrType,
@@ -1348,11 +1407,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.ModelValidationKeyDefaultValueWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="property"> The property. </param>
         public static void ModelValidationKeyDefaultValueWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
@@ -1390,11 +1448,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.BoolWithDefaultWarning" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="property"> The property. </param>
         public static void BoolWithDefaultWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IProperty property)
@@ -1430,11 +1487,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.BatchReadyForExecution" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entries"> The entries for entities in the batch. </param>
+        /// <param name="commandCount"> The number of commands. </param>
         public static void BatchReadyForExecution(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] IEnumerable<IUpdateEntry> entries,
@@ -1471,11 +1528,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Logs for the <see cref="RelationalEventId.BatchSmallerThanMinBatchSize" /> event.
         /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entries"> The entries for entities in the batch. </param>
+        /// <param name="commandCount"> The number of commands. </param>
+        /// <param name="minBatchSize"> The minimum batch size. </param>
         public static void BatchSmallerThanMinBatchSize(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] IEnumerable<IUpdateEntry> entries,

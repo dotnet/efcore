@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
 
-                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
+                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTime, async: false);
 
                     try
                     {
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                         wasClosed = true;
 
-                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, stopwatch.Elapsed);
+                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, stopwatch.Elapsed, async: false);
                     }
                     catch (Exception e)
                     {
