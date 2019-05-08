@@ -125,6 +125,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 
+            _sb.AppendLine();
+
+            using (_sb.Indent())
+            {
+                _sb.AppendLine("partial void OnModelCreatingPartial(ModelBuilder modelBuilder);");
+            }
+
             _sb.AppendLine("}");
         }
 
@@ -316,6 +323,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     GenerateSequence(sequence);
                 }
+            }
+
+            _sb.AppendLine();
+
+            using (_sb.Indent())
+            {
+                _sb.AppendLine("OnModelCreatingPartial(modelBuilder);");
             }
 
             _sb.AppendLine("}");
