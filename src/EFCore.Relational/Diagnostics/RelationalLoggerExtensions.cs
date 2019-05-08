@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime)
         {
-            var definition = RelationalResources.LogRelationalLoggerExecutingCommand(diagnostics);
+            var definition = RelationalResources.LogExecutingCommand(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRelationalLoggerExecutedCommand(diagnostics);
+            var definition = RelationalResources.LogExecutedCommand(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRelationalLoggerCommandFailed(diagnostics);
+            var definition = RelationalResources.LogCommandFailed(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             bool async)
         {
-            var definition = RelationalResources.LogRelationalLoggerOpeningConnection(diagnostics);
+            var definition = RelationalResources.LogOpeningConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             bool async)
         {
-            var definition = RelationalResources.LogRelationalLoggerOpenedConnection(diagnostics);
+            var definition = RelationalResources.LogOpenedConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             bool async)
         {
-            var definition = RelationalResources.LogRelationalLoggerClosingConnection(diagnostics);
+            var definition = RelationalResources.LogClosingConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TimeSpan duration,
             bool async)
         {
-            var definition = RelationalResources.LogRelationalLoggerClosedConnection(diagnostics);
+            var definition = RelationalResources.LogClosedConnection(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -463,8 +463,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool logErrorAsDebug)
         {
             var definition = logErrorAsDebug
-                ? RelationalResources.LogRelationalLoggerConnectionErrorAsDebug(diagnostics)
-                : RelationalResources.LogRelationalLoggerConnectionError(diagnostics);
+                ? RelationalResources.LogConnectionErrorAsDebug(diagnostics)
+                : RelationalResources.LogConnectionError(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid transactionId,
             DateTimeOffset startTime)
         {
-            var definition = RelationalResources.LogRelationalLoggerBeginningTransaction(diagnostics);
+            var definition = RelationalResources.LogBeginningTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid transactionId,
             DateTimeOffset startTime)
         {
-            var definition = RelationalResources.LogRelationalLoggerUsingTransaction(diagnostics);
+            var definition = RelationalResources.LogUsingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRelationalLoggerCommittingTransaction(diagnostics);
+            var definition = RelationalResources.LogCommittingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRelationalLoggerRollingbackTransaction(diagnostics);
+            var definition = RelationalResources.LogRollingbackTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid transactionId,
             DateTimeOffset startTime)
         {
-            var definition = RelationalResources.LogRelationalLoggerDisposingTransaction(diagnostics);
+            var definition = RelationalResources.LogDisposingTransaction(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRelationalLoggerTransactionError(diagnostics);
+            var definition = RelationalResources.LogTransactionError(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

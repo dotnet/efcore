@@ -3,7 +3,6 @@
 
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,13 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var result = generator.GenerateModel(
                 modelBuilder.Model,
-                "RootNamespace",
-                "TestNamespace",
-                "ContextNameSpace",
-                Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
-                "TestContext",
-                "Data Source=Test",
-                new ModelCodeGenerationOptions());
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = "TestNamespace",
+                    ContextNamespace = "ContextNameSpace",
+                    ContextDir = Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
+                    ContextName = "TestContext",
+                    ConnectionString = "Data Source=Test"
+                });
 
             Assert.Equal(Path.Combine("..", "TestContextDir", "TestContext.cs"), result.ContextFile.Path);
             Assert.NotEmpty(result.ContextFile.Code);

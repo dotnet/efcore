@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var databaseModelFactory = CreateDatabaseModelFactory(loggerFactory);
                 var databaseModel = databaseModelFactory.Create(
                     connection.DbConnection,
-                    new DatabaseModelFactoryOptions(Enumerable.Empty<string>(), Enumerable.Empty<string>()));
+                    new DatabaseModelFactoryOptions());
 
                 var operations = new List<MigrationOperation>();
 

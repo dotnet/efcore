@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerTransactionError;
+        public EventDefinitionBase LogTransactionError;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerOpeningConnection;
+        public EventDefinitionBase LogOpeningConnection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerOpenedConnection;
+        public EventDefinitionBase LogOpenedConnection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerClosingConnection;
+        public EventDefinitionBase LogClosingConnection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerClosedConnection;
+        public EventDefinitionBase LogClosedConnection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerConnectionError;
+        public EventDefinitionBase LogConnectionError;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerBeginningTransaction;
+        public EventDefinitionBase LogBeginningTransaction;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerUsingTransaction;
+        public EventDefinitionBase LogUsingTransaction;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerCommittingTransaction;
+        public EventDefinitionBase LogCommittingTransaction;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerRollingbackTransaction;
+        public EventDefinitionBase LogRollingbackTransaction;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerDisposingTransaction;
+        public EventDefinitionBase LogDisposingTransaction;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerExecutingCommand;
+        public EventDefinitionBase LogExecutingCommand;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerExecutedCommand;
+        public EventDefinitionBase LogExecutedCommand;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerCommandFailed;
+        public EventDefinitionBase LogCommandFailed;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EventDefinitionBase LogRelationalLoggerConnectionErrorAsDebug;
+        public EventDefinitionBase LogConnectionErrorAsDebug;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

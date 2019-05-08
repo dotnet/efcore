@@ -132,13 +132,13 @@ namespace TestNamespace
 
             var scaffoldedModel = generator.GenerateModel(
                 new Model(),
-                "TestNamespace",
-                "TestNamespace",
-                "TestNamespace",
-                contextDir: string.Empty,
-                "TestDbContext",
-                "Initial Catalog=TestDatabase",
-                new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true });
+                new ModelCodeGenerationOptions
+                {
+                    SuppressConnectionStringWarning = true,
+                    ModelNamespace = "TestNamespace",
+                    ContextName = "TestDbContext",
+                    ConnectionString = "Initial Catalog=TestDatabase"
+                });
 
             Assert.Contains(
                 @"optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption()).SetContextOption();",

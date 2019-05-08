@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="entity"> The entity on which the navigation property is located. </param>
         /// <param name="navigationName"> The navigation property name. </param>
-        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string navigationName = "");
+        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string navigationName = null);
 
         /// <summary>
         ///     Loads a navigation property if it has not already been loaded.
@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 #pragma warning restore CA1068 // CancellationToken parameters must come last
             [NotNull] object entity,
             CancellationToken cancellationToken = default,
-            [NotNull] [CallerMemberName] string navigationName = "");
+            [NotNull] [CallerMemberName] string navigationName = null);
     }
 }

@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -17,13 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="tables"> A list of tables to include. Empty to include all tables. </param>
         /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
-        public DatabaseModelFactoryOptions([NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas)
+        public DatabaseModelFactoryOptions([CanBeNull] IEnumerable<string> tables = null, [CanBeNull] IEnumerable<string> schemas = null)
         {
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
-
-            Tables = tables;
-            Schemas = schemas;
+            Tables = tables ?? Enumerable.Empty<string>();
+            Schemas = schemas ?? Enumerable.Empty<string>();
         }
 
         /// <summary>

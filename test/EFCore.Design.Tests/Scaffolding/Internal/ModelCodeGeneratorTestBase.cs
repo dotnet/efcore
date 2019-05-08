@@ -58,14 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
+            options.ModelNamespace = "TestNamespace";
+            options.ContextName = "TestDbContext";
+            options.ConnectionString = "Initial Catalog=TestDatabase";
+
             var scaffoldedModel = generator.GenerateModel(
                 model,
-                "TestNamespace",
-                "TestNamespace",
-                "TestNamespace",
-                /*contextDir:*/ string.Empty,
-                "TestDbContext",
-                "Initial Catalog=TestDatabase",
                 options);
             assertScaffold(scaffoldedModel);
 

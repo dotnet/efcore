@@ -69,37 +69,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public override ScaffoldedModel GenerateModel(
             IModel model,
-            string rootNamespace,
-            string modelNamespace,
-            string contextNamespace,
-            string contextDir,
-            string contextName,
-            string connectionString,
             ModelCodeGenerationOptions options)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotEmpty(modelNamespace, nameof(modelNamespace));
-            Check.NotEmpty(contextNamespace, nameof(contextNamespace));
-            Check.NotNull(contextDir, nameof(contextDir));
-            Check.NotEmpty(contextName, nameof(contextName));
-            Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(options, nameof(options));
 
             var resultingFiles = new ScaffoldedModel();
 
-            var generatedCode = CSharpDbContextGenerator.WriteCode(model, contextNamespace, contextName, connectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(model, options.ContextNamespace ?? options.ModelNamespace, options.ContextName, options.ConnectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
 
             // output DbContext .cs file
-            var dbContextFileName = contextName + FileExtension;
+            var dbContextFileName = options.ContextName + FileExtension;
             resultingFiles.ContextFile = new ScaffoldedFile
             {
-                Path = Path.Combine(contextDir, dbContextFileName),
+                Path = options.ContextDir != null
+                    ? Path.Combine(options.ContextDir, dbContextFileName)
+                    : dbContextFileName,
                 Code = generatedCode
             };
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, modelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = ((ITypeBase)entityType).DisplayName() + FileExtension;

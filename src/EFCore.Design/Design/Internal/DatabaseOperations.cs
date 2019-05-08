@@ -96,19 +96,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
-                _rootNamespace,
-                modelNamespace,
-                contextNamespace,
-                _language,
-                MakeDirRelative(outputDir, outputContextDir),
-                dbContextClassName,
                 new ModelReverseEngineerOptions
                 {
                     UseDatabaseNames = useDatabaseNames
                 },
                 new ModelCodeGenerationOptions
                 {
-                    UseDataAnnotations = useDataAnnotations
+                    UseDataAnnotations = useDataAnnotations,
+                    RootNamespace = _rootNamespace,
+                    ModelNamespace = modelNamespace,
+                    ContextNamespace = contextNamespace,
+                    Language = _language,
+                    ContextDir = MakeDirRelative(outputDir, outputContextDir),
+                    ContextName = dbContextClassName,
                 });
 
             return scaffolder.Save(

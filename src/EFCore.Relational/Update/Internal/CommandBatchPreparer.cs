@@ -74,10 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(
             IList<IUpdateEntry> entries,
-            IUpdateAdapter modelData)
+            IUpdateAdapter updateAdapter)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-            var commands = CreateModificationCommands(entries, modelData, parameterNameGenerator.GenerateNext);
+            var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
             // TODO: Enable batching of dependent commands by passing through the dependency graph
@@ -156,14 +156,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
             [NotNull] IList<IUpdateEntry> entries,
-            [NotNull] IUpdateAdapter modelData,
+            [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
             if (_sharedTableEntryMapFactories == null)
             {
                 _sharedTableEntryMapFactories = SharedTableEntryMap<ModificationCommand>
-                    .CreateSharedTableEntryMapFactories(modelData.Model, modelData);
+                    .CreateSharedTableEntryMapFactories(updateAdapter.Model, updateAdapter);
             }
 
             Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =

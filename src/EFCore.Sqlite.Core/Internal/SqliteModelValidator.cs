@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 {
     /// <summary>
     ///     <para>

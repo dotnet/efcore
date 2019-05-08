@@ -157,47 +157,47 @@
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
-  <data name="LogRelationalLoggerOpeningConnection" xml:space="preserve">
+  <data name="LogOpeningConnection" xml:space="preserve">
     <value>Opening connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpening string string</comment>
   </data>
-  <data name="LogRelationalLoggerOpenedConnection" xml:space="preserve">
+  <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpened string string</comment>
   </data>
-  <data name="LogRelationalLoggerClosingConnection" xml:space="preserve">
+  <data name="LogClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionClosing string string</comment>
   </data>
-  <data name="LogRelationalLoggerClosedConnection" xml:space="preserve">
+  <data name="LogClosedConnection" xml:space="preserve">
     <value>Closed connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionClosed string string</comment>
   </data>
-  <data name="LogRelationalLoggerConnectionError" xml:space="preserve">
+  <data name="LogConnectionError" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Error RelationalEventId.ConnectionError string string</comment>
   </data>
-  <data name="LogRelationalLoggerBeginningTransaction" xml:space="preserve">
+  <data name="LogBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.TransactionStarted string</comment>
   </data>
-  <data name="LogRelationalLoggerUsingTransaction" xml:space="preserve">
+  <data name="LogUsingTransaction" xml:space="preserve">
     <value>Using an existing transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.TransactionUsed string</comment>
   </data>
-  <data name="LogRelationalLoggerCommittingTransaction" xml:space="preserve">
+  <data name="LogCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
-  <data name="LogRelationalLoggerRollingbackTransaction" xml:space="preserve">
+  <data name="LogRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRolledBack</comment>
   </data>
-  <data name="LogRelationalLoggerDisposingTransaction" xml:space="preserve">
+  <data name="LogDisposingTransaction" xml:space="preserve">
     <value>Disposing transaction.</value>
     <comment>Debug RelationalEventId.TransactionDisposed</comment>
   </data>
-  <data name="LogRelationalLoggerTransactionError" xml:space="preserve">
+  <data name="LogTransactionError" xml:space="preserve">
     <value>An error occurred using a transaction.</value>
     <comment>Error RelationalEventId.TransactionError</comment>
   </data>
@@ -316,15 +316,15 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
-  <data name="LogRelationalLoggerExecutingCommand" xml:space="preserve">
+  <data name="LogExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Debug RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
   </data>
-  <data name="LogRelationalLoggerExecutedCommand" xml:space="preserve">
+  <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Debug RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
-  <data name="LogRelationalLoggerCommandFailed" xml:space="preserve">
+  <data name="LogCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Error RelationalEventId.CommandError string string System.Data.CommandType int string string</comment>
   </data>
@@ -406,7 +406,7 @@
   <data name="NoElements" xml:space="preserve">
     <value>Sequence contains no elements.</value>
   </data>
-  <data name="LogRelationalLoggerConnectionErrorAsDebug" xml:space="preserve">
+  <data name="LogConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
   </data>

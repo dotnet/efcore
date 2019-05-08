@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -679,13 +678,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Opening connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerOpeningConnection([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogOpeningConnection([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpeningConnection;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOpeningConnection;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpeningConnection,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOpeningConnection,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionOpening,
@@ -694,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionOpening,
-                            _resourceManager.GetString("LogRelationalLoggerOpeningConnection"))));
+                            _resourceManager.GetString("LogOpeningConnection"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -703,13 +702,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Opened connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerOpenedConnection([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogOpenedConnection([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpenedConnection;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOpenedConnection;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerOpenedConnection,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOpenedConnection,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionOpened,
@@ -718,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionOpened,
-                            _resourceManager.GetString("LogRelationalLoggerOpenedConnection"))));
+                            _resourceManager.GetString("LogOpenedConnection"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -727,13 +726,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Closing connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerClosingConnection([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogClosingConnection([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosingConnection;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosingConnection;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosingConnection,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosingConnection,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionClosing,
@@ -742,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionClosing,
-                            _resourceManager.GetString("LogRelationalLoggerClosingConnection"))));
+                            _resourceManager.GetString("LogClosingConnection"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -751,13 +750,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Closed connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerClosedConnection([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogClosedConnection([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosedConnection;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerClosedConnection,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionClosed,
@@ -766,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionClosed,
-                            _resourceManager.GetString("LogRelationalLoggerClosedConnection"))));
+                            _resourceManager.GetString("LogClosedConnection"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -775,13 +774,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerConnectionError([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogConnectionError([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionError;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionError;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionError,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionError,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionError,
@@ -790,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionError,
-                            _resourceManager.GetString("LogRelationalLoggerConnectionError"))));
+                            _resourceManager.GetString("LogConnectionError"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -799,13 +798,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Beginning transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static EventDefinition<string> LogRelationalLoggerBeginningTransaction([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogBeginningTransaction([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerBeginningTransaction;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBeginningTransaction;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerBeginningTransaction,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogBeginningTransaction,
                     () => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.TransactionStarted,
@@ -814,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             RelationalEventId.TransactionStarted,
-                            _resourceManager.GetString("LogRelationalLoggerBeginningTransaction"))));
+                            _resourceManager.GetString("LogBeginningTransaction"))));
             }
 
             return (EventDefinition<string>)definition;
@@ -823,13 +822,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Using an existing transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static EventDefinition<string> LogRelationalLoggerUsingTransaction([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogUsingTransaction([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerUsingTransaction;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUsingTransaction;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerUsingTransaction,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogUsingTransaction,
                     () => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.TransactionUsed,
@@ -838,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             RelationalEventId.TransactionUsed,
-                            _resourceManager.GetString("LogRelationalLoggerUsingTransaction"))));
+                            _resourceManager.GetString("LogUsingTransaction"))));
             }
 
             return (EventDefinition<string>)definition;
@@ -847,13 +846,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Committing transaction.
         /// </summary>
-        public static EventDefinition LogRelationalLoggerCommittingTransaction([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogCommittingTransaction([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommittingTransaction;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommittingTransaction;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommittingTransaction,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommittingTransaction,
                     () => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionCommitted,
@@ -862,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.TransactionCommitted,
-                            _resourceManager.GetString("LogRelationalLoggerCommittingTransaction"))));
+                            _resourceManager.GetString("LogCommittingTransaction"))));
             }
 
             return (EventDefinition)definition;
@@ -871,13 +870,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Rolling back transaction.
         /// </summary>
-        public static EventDefinition LogRelationalLoggerRollingbackTransaction([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogRollingbackTransaction([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerRollingbackTransaction;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRollingbackTransaction;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerRollingbackTransaction,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRollingbackTransaction,
                     () => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionRolledBack,
@@ -886,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.TransactionRolledBack,
-                            _resourceManager.GetString("LogRelationalLoggerRollingbackTransaction"))));
+                            _resourceManager.GetString("LogRollingbackTransaction"))));
             }
 
             return (EventDefinition)definition;
@@ -895,13 +894,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Disposing transaction.
         /// </summary>
-        public static EventDefinition LogRelationalLoggerDisposingTransaction([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogDisposingTransaction([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerDisposingTransaction;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingTransaction;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerDisposingTransaction,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingTransaction,
                     () => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionDisposed,
@@ -910,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.TransactionDisposed,
-                            _resourceManager.GetString("LogRelationalLoggerDisposingTransaction"))));
+                            _resourceManager.GetString("LogDisposingTransaction"))));
             }
 
             return (EventDefinition)definition;
@@ -919,13 +918,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     An error occurred using a transaction.
         /// </summary>
-        public static EventDefinition LogRelationalLoggerTransactionError([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogTransactionError([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerTransactionError;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogTransactionError;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerTransactionError,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogTransactionError,
                     () => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionError,
@@ -934,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.TransactionError,
-                            _resourceManager.GetString("LogRelationalLoggerTransactionError"))));
+                            _resourceManager.GetString("LogTransactionError"))));
             }
 
             return (EventDefinition)definition;
@@ -1255,13 +1254,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static EventDefinition<string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutingCommand([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, System.Data.CommandType, int, string, string> LogExecutingCommand([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutingCommand;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExecutingCommand;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutingCommand,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExecutingCommand,
                     () => new EventDefinition<string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuting,
@@ -1270,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, System.Data.CommandType, int, string, string>(
                             level,
                             RelationalEventId.CommandExecuting,
-                            _resourceManager.GetString("LogRelationalLoggerExecutingCommand"))));
+                            _resourceManager.GetString("LogExecutingCommand"))));
             }
 
             return (EventDefinition<string, System.Data.CommandType, int, string, string>)definition;
@@ -1279,13 +1278,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerExecutedCommand([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogExecutedCommand([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutedCommand;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExecutedCommand;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerExecutedCommand,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExecutedCommand,
                     () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuted,
@@ -1294,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
                             level,
                             RelationalEventId.CommandExecuted,
-                            _resourceManager.GetString("LogRelationalLoggerExecutedCommand"))));
+                            _resourceManager.GetString("LogExecutedCommand"))));
             }
 
             return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
@@ -1303,13 +1302,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogRelationalLoggerCommandFailed([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogCommandFailed([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommandFailed;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandFailed;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerCommandFailed,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandFailed,
                     () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandError,
@@ -1318,7 +1317,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
                             level,
                             RelationalEventId.CommandError,
-                            _resourceManager.GetString("LogRelationalLoggerCommandFailed"))));
+                            _resourceManager.GetString("LogCommandFailed"))));
             }
 
             return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
@@ -1327,13 +1326,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     An error occurred using the connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static EventDefinition<string, string> LogRelationalLoggerConnectionErrorAsDebug([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogConnectionErrorAsDebug([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionErrorAsDebug;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionErrorAsDebug;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRelationalLoggerConnectionErrorAsDebug,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionErrorAsDebug,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionError,
@@ -1342,7 +1341,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.ConnectionError,
-                            _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug"))));
+                            _resourceManager.GetString("LogConnectionErrorAsDebug"))));
             }
 
             return (EventDefinition<string, string>)definition;
