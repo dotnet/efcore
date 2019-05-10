@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         {
                             x.Property<int>("Id");
 
-                            x.HasOne("Person", "Author").WithMany();
+                            x.HasOne("Person", "Author").WithMany("Posts");
                             x.HasMany("Contribution", "Contributions").WithOne();
                         }),
                 new ModelCodeGenerationOptions
@@ -53,7 +53,8 @@ namespace TestNamespace
         public int Id { get; set; }
         public int? AuthorId { get; set; }
 
-        [ForeignKey(""AuthorId"")]
+        [ForeignKey(nameof(AuthorId))]
+        [InverseProperty(nameof(Person.Posts))]
         public virtual Person Author { get; set; }
         public virtual ICollection<Contribution> Contributions { get; set; }
     }
