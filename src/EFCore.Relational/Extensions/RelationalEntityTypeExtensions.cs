@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -142,5 +144,114 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetSchemaConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(RelationalAnnotationNames.Schema)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Finds an <see cref="ICheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the check constraint for. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     The <see cref="ICheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     given name in the given entity type was found.
+        /// </returns>
+        public static ICheckConstraint FindCheckConstraint(
+            [NotNull] this IEntityType entityType, [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return CheckConstraint.FindCheckConstraint(entityType, name);
+        }
+
+        /// <summary>
+        ///     Finds an <see cref="IConventionCheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the check constraint for. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     The <see cref="IConventionCheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     given name in the given entity type was found.
+        /// </returns>
+        public static IConventionCheckConstraint FindCheckConstraint(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name)
+            => (IConventionCheckConstraint)((IEntityType)entityType).FindCheckConstraint(name);
+
+        /// <summary>
+        ///     Creates a new check constraint with the given name on entity type. Throws an exception
+        ///     if a check constraint with the same name exists on the same entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the check constraint to. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <returns> The new check constraint. </returns>
+        public static ICheckConstraint AddCheckConstraint(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] string name,
+            [NotNull] string sql)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(sql, nameof(sql));
+
+            return new CheckConstraint(entityType, name, sql, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     Creates a new check constraint with the given name on entity type. Throws an exception
+        ///     if a check constraint with the same name exists on the same entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the check constraint to. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new check constraint. </returns>
+        public static IConventionCheckConstraint AddCheckConstraint(
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] string name,
+            [NotNull] string sql,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(sql, nameof(sql));
+
+            return new CheckConstraint(
+                (IMutableEntityType)entityType, name, sql,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        }
+
+        /// <summary>
+        ///     Removes the <see cref="ICheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to remove the check constraint from. </param>
+        /// <param name="name"> The check constraint name to be removed. </param>
+        /// <returns>
+        ///     True if the <see cref="ICheckConstraint" /> is successfully found and removed; otherwise, false.
+        /// </returns>
+        public static bool RemoveCheckConstraint(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return CheckConstraint.RemoveCheckConstraint(entityType, name);
+        }
+
+        /// <summary>
+        ///     Removes the <see cref="IConventionCheckConstraint" /> with the given name.
+        /// </summary>
+        /// <param name="entityType"> The entity type to remove the check constraint from. </param>
+        /// <param name="name"> The check constraint name. </param>
+        /// <returns>
+        ///     True if the <see cref="IConventionCheckConstraint" /> is successfully found and removed; otherwise, false.
+        /// </returns>
+        public static bool RemoveCheckConstraint(
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] string name)
+            => RemoveCheckConstraint((IMutableEntityType)entityType, name);
+
+        /// <summary>
+        ///     Returns all <see cref="ICheckConstraint" /> contained in the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<ICheckConstraint> GetCheckConstraints([NotNull] this IEntityType entityType)
+            => CheckConstraint.GetCheckConstraints(entityType);
     }
 }

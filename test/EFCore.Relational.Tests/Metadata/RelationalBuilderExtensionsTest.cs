@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -493,37 +495,74 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_create_check_constraint()
         {
             var modelBuilder = CreateConventionModelBuilder();
+            var entityType = modelBuilder.Entity<Customer>().Metadata;
 
             modelBuilder
                 .Entity<Customer>()
                 .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
 
-            var checkConstraint = modelBuilder.Model.FindCheckConstraint("CK_Customer_AlternateId", "Customer");
+            var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 
             Assert.NotNull(checkConstraint);
+            Assert.Equal(entityType, checkConstraint.EntityType);
             Assert.Equal("CK_Customer_AlternateId", checkConstraint.Name);
             Assert.Equal("AlternateId > Id", checkConstraint.Sql);
-            Assert.Equal("Customer", checkConstraint.Table);
-            Assert.Equal(null, checkConstraint.Schema);
         }
 
         [Fact]
-        public void Can_create_check_constraint_with_schema_and_none_default_table_name()
+        public void Can_create_check_constraint_with_duplicate_name_replaces_existing()
         {
             var modelBuilder = CreateConventionModelBuilder();
+            var entityType = modelBuilder.Entity<Customer>().Metadata;
 
             modelBuilder
                 .Entity<Customer>()
-                .ToTable("Customizer", "db0")
                 .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
 
-            var checkConstraint = modelBuilder.Model.FindCheckConstraint("CK_Customer_AlternateId", "Customizer", "db0");
+            modelBuilder
+                .Entity<Customer>()
+                .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id");
+
+            var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 
             Assert.NotNull(checkConstraint);
+            Assert.Equal(entityType, checkConstraint.EntityType);
             Assert.Equal("CK_Customer_AlternateId", checkConstraint.Name);
-            Assert.Equal("AlternateId > Id", checkConstraint.Sql);
-            Assert.Equal("Customizer", checkConstraint.Table);
-            Assert.Equal("db0", checkConstraint.Schema);
+            Assert.Equal("AlternateId < Id", checkConstraint.Sql);
+        }
+
+        [Fact]
+        public void AddCheckConstraint_with_duplicate_names_throws_exception()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            Assert.Equal(
+                RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() =>
+                       entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+        }
+
+        [Fact]
+        public void RemoveCheckConstraint_returns_true_when_constraint_exists()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            Assert.True(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+        }
+
+        [Fact]
+        public void RemoveCheckConstraint_returns_false_when_constraint_is_missing()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            Assert.False(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
         }
 
         [Fact]

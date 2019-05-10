@@ -4,14 +4,14 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a check constraint in the <see cref="IConventionModel" />.
+    ///     Represents a check constraint in the <see cref="IConventionEntityType" />.
     /// </summary>
     public interface IConventionCheckConstraint : ICheckConstraint
     {
         /// <summary>
-        ///     The <see cref="IConventionModel" /> in which this check constraint is defined.
+        ///     The <see cref="IConventionEntityType" /> in which this check constraint is defined.
         /// </summary>
-        new IConventionModel Model { get; }
+        new IConventionEntityType EntityType { get; }
 
         /// <summary>
         ///     Returns the configuration source for this <see cref="IConventionCheckConstraint" />.

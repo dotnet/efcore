@@ -322,6 +322,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 conflictingConfiguration, property, existingConfiguration);
 
         /// <summary>
+        ///     The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.
+        /// </summary>
+        public static string DuplicateCheckConstraint([CanBeNull] object checkConstraint, [CanBeNull] object entityType)
+            => string.Format(GetString("DuplicateCheckConstraint", nameof(checkConstraint), nameof(entityType)), checkConstraint, entityType);
+
+        /// <summary>
         ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
         /// </summary>
         public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)

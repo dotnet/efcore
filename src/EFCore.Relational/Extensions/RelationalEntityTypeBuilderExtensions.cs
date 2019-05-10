@@ -353,24 +353,20 @@ namespace Microsoft.EntityFrameworkCore
 
             var entityType = entityTypeBuilder.Metadata;
 
-            var tableName = entityType.GetTableName();
-            var schema = entityType.GetSchema();
-
-            var constraint = entityType.Model.FindCheckConstraint(name, tableName, schema);
+            var constraint = entityType.FindCheckConstraint(name);
             if (constraint != null)
             {
                 if (constraint.Sql == sql)
                 {
-                    ((CheckConstraint)constraint).UpdateConfigurationSource(ConfigurationSource.Explicit);
                     return entityTypeBuilder;
                 }
 
-                entityType.Model.RemoveCheckConstraint(name, tableName, schema);
+                entityType.RemoveCheckConstraint(name);
             }
 
             if (sql != null)
             {
-                entityType.Model.AddCheckConstraint(sql, name, tableName, schema);
+                entityType.AddCheckConstraint(name, sql);
             }
 
             return entityTypeBuilder;
@@ -414,15 +410,12 @@ namespace Microsoft.EntityFrameworkCore
 
             var entityType = entityTypeBuilder.Metadata;
 
-            var tableName = entityType.GetTableName();
-            var schema = entityType.GetSchema();
-
-            var constraint = entityType.Model.FindCheckConstraint(name, tableName, schema);
+            var constraint = entityType.FindCheckConstraint(name);
             if (constraint != null)
             {
                 if (constraint.Sql == sql)
                 {
-                    ((CheckConstraint)constraint).UpdateConfigurationSource(
+                   ((CheckConstraint)constraint).UpdateConfigurationSource(
                         fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
                     return entityTypeBuilder;
                 }
@@ -433,19 +426,19 @@ namespace Microsoft.EntityFrameworkCore
                     return null;
                 }
 
-                entityType.Model.RemoveCheckConstraint(name, tableName, schema);
+                entityType.RemoveCheckConstraint(name);
             }
 
             if (sql != null)
             {
-                entityType.Model.AddCheckConstraint(sql, name, tableName, schema, fromDataAnnotation);
+                entityType.AddCheckConstraint(name, sql, fromDataAnnotation);
             }
 
             return entityTypeBuilder;
         }
 
         /// <summary>
-        ///     Returns a value indicating whether the discriminator column can be configured.
+        ///     Returns a value indicating whether the check constraint can be configured.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the check constraint. </param>
@@ -462,16 +455,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var entityType = entityTypeBuilder.Metadata;
-            var tableName = entityType.GetTableName();
-            var schema = entityType.GetSchema();
-
-            var constraint = entityType.Model.FindCheckConstraint(name, tableName, schema);
+            var constraint = entityTypeBuilder.Metadata.FindCheckConstraint(name);
 
             return constraint == null
                    || constraint.Sql == sql
                    || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                   .Overrides(entityTypeBuilder.Metadata.GetDiscriminatorPropertyConfigurationSource());
+                   .Overrides(constraint.GetConfigurationSource());
         }
     }
 }
