@@ -199,6 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateEntityTypeAnnotations(builderName, entityType, stringBuilder);
 
+                    GenerateCheckConstraints(builderName, entityType, stringBuilder);
+
                     if (ownerNavigation != null)
                     {
                         GenerateRelationships(builderName, entityType, stringBuilder);
@@ -767,7 +769,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ChangeTrackingStrategy,
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.DefiningQuery,
-                CoreAnnotationNames.QueryFilter);
+                CoreAnnotationNames.QueryFilter,
+                RelationalAnnotationNames.CheckConstraints);
 
             if (annotations.Count > 0)
             {
@@ -788,6 +791,55 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(";");
                 }
             }
+        }
+
+        /// <summary>
+        ///     Generates code for <see cref="ICheckConstraint" /> objects.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateCheckConstraints(
+            [NotNull] string builderName,
+            [NotNull] IEntityType entityType,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            var constraintsForEntity = entityType.GetCheckConstraints();
+
+            foreach (var checkConstraint in constraintsForEntity)
+            {
+                stringBuilder.AppendLine();
+
+                GenerateCheckConstraint(builderName, checkConstraint, stringBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for an <see cref="ICheckConstraint" />.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateCheckConstraint(
+            [NotNull] string builderName,
+            [NotNull] ICheckConstraint checkConstraint,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(checkConstraint, nameof(checkConstraint));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            stringBuilder
+                .Append(builderName)
+                .Append(".HasCheckConstraint(")
+                .Append(Code.Literal(checkConstraint.Name))
+                .Append(", ")
+                .Append(Code.Literal(checkConstraint.Sql))
+                .AppendLine(");");
         }
 
         /// <summary>

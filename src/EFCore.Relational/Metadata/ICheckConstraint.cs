@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a check constraint in the <see cref="IModel" />.
+    ///     Represents a check constraint in the <see cref="IEntityType" />.
     /// </summary>
     public interface ICheckConstraint
     {
@@ -14,19 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///     The database table that contains the check constraint.
+        ///     The <see cref="IEntityType" /> in which this check constraint is defined.
         /// </summary>
-        string Table { get; }
-
-        /// <summary>
-        ///     The database table schema that contains the check constraint.
-        /// </summary>
-        string Schema { get; }
-
-        /// <summary>
-        ///     The <see cref="IModel" /> in which this check constraint is defined.
-        /// </summary>
-        IModel Model { get; }
+        IEntityType EntityType { get; }
 
         /// <summary>
         ///     Gets the constraint sql used in a check constraint in the database.

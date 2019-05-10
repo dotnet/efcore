@@ -181,19 +181,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
-            var model = typeBuilder.Metadata.Model;
+            var entityType = typeBuilder.Metadata;
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
-            Assert.Equal("Splew", model.GetCheckConstraints().Single().Name);
-            Assert.Equal("s > p", model.GetCheckConstraints().Single().Sql);
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);
+            Assert.Equal("s > p", entityType.GetCheckConstraints().Single().Sql);
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true));
-            Assert.Equal("Splew", model.GetCheckConstraints().Single().Name);
-            Assert.Equal("s < p", model.GetCheckConstraints().Single().Sql);
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);
+            Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
 
             Assert.Null(typeBuilder.HasCheckConstraint("Splew", "s > p"));
-            Assert.Equal("Splew", model.GetCheckConstraints().Single().Name);
-            Assert.Equal("s < p", model.GetCheckConstraints().Single().Sql);
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);
+            Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
         }
 
         private class Splot

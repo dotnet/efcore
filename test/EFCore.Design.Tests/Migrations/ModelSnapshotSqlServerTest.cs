@@ -344,8 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        //[Fact]
-        //Issue #15676
+        [Fact]
         public virtual void CheckConstraint_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -373,7 +372,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(2, o.GetAnnotations().Count());
+                });
+        }
+
+        [Fact]
+        public virtual void CheckConstraint_is_only_stored_in_snapshot_once_for_TPH()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<DerivedEntity>()
+                        .HasBaseType<BaseEntity>()
+                        .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+                    builder.Entity<BaseEntity>();
+                },
+                AddBoilerPlate(
+                    GetHeading() + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>(""Discriminator"")
+                        .IsRequired();
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntity"");
+
+                    b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
+
+                    b.Property<string>(""Name"");
+
+                    b.HasDiscriminator().HasValue(""DerivedEntity"");
+
+                    b.HasCheckConstraint(""CK_Customer_AlternateId"", ""AlternateId > Id"");
+                });"),
+                o =>
+                {
+                    Assert.Equal(2, o.GetAnnotations().Count());
                 });
         }
 
