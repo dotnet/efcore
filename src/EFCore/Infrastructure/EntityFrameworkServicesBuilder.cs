@@ -149,11 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IConventionSetCustomizer), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IEntityStateListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(INavigationListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IKeyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IQueryTrackingListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
-                { typeof(IPropertyListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
 
                 // New Query related services
@@ -284,12 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd(p => GetContextServices(p).Model);
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);
-            TryAdd<IEntityStateListener, INavigationFixer>(p => p.GetService<INavigationFixer>());
-            TryAdd<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>());
-            TryAdd<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>());
-            TryAdd<IQueryTrackingListener, INavigationFixer>(p => p.GetService<INavigationFixer>());
-            TryAdd<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>());
-            TryAdd<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>());
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
             TryAdd<ReLinq.IEvaluatableExpressionFilter, ReLinqEvaluatableExpressionFilter>();

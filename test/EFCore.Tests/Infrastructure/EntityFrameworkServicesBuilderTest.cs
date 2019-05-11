@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -189,19 +190,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation()
         {
-            TestMultipleScoped(b => b.TryAdd<IEntityStateListener, FakeEntityStateListener>());
+            TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>());
         }
 
         [Fact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation_non_generic()
         {
-            TestMultipleScoped(b => b.TryAdd(typeof(IEntityStateListener), typeof(FakeEntityStateListener)));
+            TestMultipleScoped(b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService)));
         }
 
         [Fact]
         public void Can_register_multiple_scoped_service_with_full_factory()
         {
-            TestMultipleScoped(b => b.TryAdd<IEntityStateListener, FakeEntityStateListener>(p => new FakeEntityStateListener()));
+            TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>(p => new FakeResetableService()));
         }
 
         [Fact]
@@ -210,9 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
 
             Assert.Equal(
-                CoreStrings.ImplementationTypeRequired(nameof(IEntityStateListener)),
+                CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
                 Assert.Throws<InvalidOperationException>(
-                        () => builder.TryAdd<IEntityStateListener>(p => new FakeEntityStateListener()))
+                        () => builder.TryAdd<IResettableService>(p => new FakeResetableService()))
                     .Message);
         }
 
@@ -220,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Can_register_multiple_scoped_service_with_full_factory_non_generic()
         {
             TestMultipleScoped(
-                b => b.TryAdd(typeof(IEntityStateListener), typeof(FakeEntityStateListener), p => new FakeEntityStateListener()));
+                b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService), p => new FakeResetableService()));
         }
 
         [Fact]
@@ -229,10 +230,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
 
             Assert.Equal(
-                CoreStrings.ImplementationTypeRequired(nameof(IEntityStateListener)),
+                CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
                 Assert.Throws<InvalidOperationException>(
                         () => builder.TryAdd(
-                            typeof(IEntityStateListener), typeof(IEntityStateListener), p => new FakeEntityStateListener()))
+                            typeof(IResettableService), typeof(IResettableService), p => new FakeResetableService()))
                     .Message);
         }
 
@@ -242,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
 
             Assert.Equal(
-                CoreStrings.ImplementationTypeRequired(nameof(IEntityStateListener)),
+                CoreStrings.ImplementationTypeRequired(nameof(IResettableService)),
                 Assert.Throws<InvalidOperationException>(
-                        () => builder.TryAdd(typeof(IEntityStateListener), typeof(object), p => new FakeEntityStateListener()))
+                        () => builder.TryAdd(typeof(IResettableService), typeof(object), p => new FakeResetableService()))
                     .Message);
         }
 
@@ -254,9 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
 
             Assert.Equal(
-                CoreStrings.SingletonRequired("Scoped", nameof(IEntityStateListener)),
+                CoreStrings.SingletonRequired("Scoped", nameof(IResettableService)),
                 Assert.Throws<InvalidOperationException>(
-                        () => builder.TryAdd<IEntityStateListener>(new FakeEntityStateListener()))
+                        () => builder.TryAdd<IResettableService>(new FakeResetableService()))
                     .Message);
         }
 
@@ -266,9 +267,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
 
             Assert.Equal(
-                CoreStrings.SingletonRequired("Scoped", nameof(IEntityStateListener)),
+                CoreStrings.SingletonRequired("Scoped", nameof(IResettableService)),
                 Assert.Throws<InvalidOperationException>(
-                        () => builder.TryAdd(typeof(IEntityStateListener), new FakeEntityStateListener()))
+                        () => builder.TryAdd(typeof(IResettableService), new FakeResetableService()))
                     .Message);
         }
 
@@ -283,18 +284,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var services = new List<IEntityStateListener>();
+            var services = new List<IResettableService>();
 
             using (var context = CreateContext(serviceProvider))
             {
-                services = context.GetService<IEnumerable<IEntityStateListener>>().ToList();
+                services = context.GetService<IEnumerable<IResettableService>>().ToList();
 
                 Assert.Equal(3, services.Count);
-                Assert.Contains(typeof(FakeEntityStateListener), services.Select(s => s.GetType()));
-                Assert.Contains(typeof(NavigationFixer), services.Select(s => s.GetType()));
-                Assert.Contains(typeof(LocalViewListener), services.Select(s => s.GetType()));
+                Assert.Contains(typeof(FakeResetableService), services.Select(s => s.GetType()));
+                Assert.Contains(typeof(StateManager), services.Select(s => s.GetType()));
+                Assert.Contains(typeof(InMemoryTransactionManager), services.Select(s => s.GetType()));
 
-                foreach (var service in context.GetService<IEnumerable<IEntityStateListener>>())
+                foreach (var service in context.GetService<IEnumerable<IResettableService>>())
                 {
                     Assert.Contains(service, services);
                 }
@@ -302,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             using (var context = CreateContext(serviceProvider))
             {
-                var newServices = context.GetService<IEnumerable<IEntityStateListener>>().ToList();
+                var newServices = context.GetService<IEnumerable<IResettableService>>().ToList();
 
                 Assert.Equal(3, newServices.Count);
 
@@ -338,13 +339,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public object CreateSet(DbContext context, Type type) => throw new NotImplementedException();
         }
 
-        private class FakeEntityStateListener : IEntityStateListener
+        private class FakeResetableService : IResettableService
         {
-            public void StateChanging(InternalEntityEntry entry, EntityState newState)
-            {
-            }
-
-            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
+            public void ResetState()
             {
             }
         }

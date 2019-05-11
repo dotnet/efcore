@@ -2369,8 +2369,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 new ServiceCollection()
                     .AddScoped<TestRelationshipListener>()
                     .AddScoped<IEntityGraphAttacher, TestAttacher>()
-                    .AddScoped<INavigationListener>(p => p.GetRequiredService<TestRelationshipListener>())
-                    .AddScoped<IKeyListener>(p => p.GetRequiredService<TestRelationshipListener>()),
+                    .AddScoped<INavigationFixer>(p => p.GetRequiredService<TestRelationshipListener>()),
                 model ?? BuildModel());
         }
 
@@ -2395,8 +2394,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private class TestRelationshipListener : INavigationListener, IKeyListener
+        private class TestRelationshipListener : NavigationFixer
         {
+            public TestRelationshipListener(IChangeDetector changeDetector, IEntityGraphAttacher attacher)
+                : base(changeDetector, attacher)
+            {
+            }
+
             public Tuple<InternalEntityEntry, IProperty, IReadOnlyList<IKey>, IReadOnlyList<IForeignKey>, object, object> KeyChange
             {
                 get;
@@ -2406,18 +2410,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
-            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+            public override void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             {
                 ReferenceChange = Tuple.Create(entry, navigation, oldValue, newValue);
+
+                base.NavigationReferenceChanged(entry, navigation, oldValue, newValue);
             }
 
-            public void NavigationCollectionChanged(
+            public override void NavigationCollectionChanged(
                 InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
+
+                base.NavigationCollectionChanged(entry, navigation, added, removed);
             }
 
-            public void KeyPropertyChanged(
+            public override void KeyPropertyChanged(
                 InternalEntityEntry entry,
                 IProperty property,
                 IReadOnlyList<IKey> containingPrincipalKeys,
@@ -2426,6 +2434,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 object newValue)
             {
                 KeyChange = Tuple.Create(entry, property, containingPrincipalKeys, containingForeignKeys, oldValue, newValue);
+
+                base.KeyPropertyChanged(entry, property, containingPrincipalKeys, containingForeignKeys, oldValue, newValue);
             }
         }
     }

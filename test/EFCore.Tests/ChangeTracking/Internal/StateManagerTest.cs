@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -824,60 +823,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .ToArray());
         }
 
-        [Fact]
-        public void Listeners_are_notified_when_entity_states_change()
-        {
-            var listeners = new[]
-            {
-                new TestListener(),
-                new TestListener(),
-                new TestListener()
-            };
-
-            var services = new ServiceCollection()
-                .AddSingleton<IEntityStateListener>(listeners[0])
-                .AddSingleton<IEntityStateListener>(listeners[1])
-                .AddSingleton<IEntityStateListener>(listeners[2]);
-
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(services, BuildModel());
-
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
-
-            var entry = stateManager.GetOrCreateEntry(
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                });
-            entry.SetEntityState(EntityState.Added);
-
-            foreach (var listener in listeners)
-            {
-                Assert.Equal(1, listener.ChangingCount);
-                Assert.Equal(1, listener.ChangedCount);
-
-                Assert.Equal(EntityState.Added, listener.ChangingState);
-                Assert.Equal(EntityState.Detached, listener.ChangedState);
-            }
-
-            entry.SetEntityState(EntityState.Modified);
-
-            foreach (var listener in listeners)
-            {
-                Assert.Equal(2, listener.ChangingCount);
-                Assert.Equal(2, listener.ChangedCount);
-
-                Assert.Equal(EntityState.Modified, listener.ChangingState);
-                Assert.Equal(EntityState.Added, listener.ChangedState);
-            }
-        }
-
-        private class TestListener : IEntityStateListener
+        private class TestListener : INavigationFixer
         {
             public int ChangingCount;
             public int ChangedCount;
             public EntityState ChangingState;
             public EntityState ChangedState;
+
+            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+            {
+            }
+
+            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
+            {
+            }
+
+            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys)
+            {
+            }
+
+            public void KeyPropertyChanged(
+                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys,
+                object oldValue, object newValue)
+            {
+            }
 
             public void StateChanging(InternalEntityEntry entry, EntityState newState)
             {
