@@ -1605,19 +1605,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Maybe
 
-        public static TResult Maybe<TResult>(object caller, Func<TResult> expression)
+        protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {
             return caller == null ? null : expression();
         }
 
-        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+        protected static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
             where TResult : struct
         {
             return caller == null ? null : expression();
         }
 
-        public static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
+        protected static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
             where TResult : class
         {
             return caller == null

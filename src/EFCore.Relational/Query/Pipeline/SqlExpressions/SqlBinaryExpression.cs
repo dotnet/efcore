@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 expressionPrinter.StringBuilder.Append(")");
             }
 
-            expressionPrinter.StringBuilder.Append(" " + expressionPrinter.GenerateBinaryOperator(OperatorType) + " ");
+            expressionPrinter.StringBuilder.Append(expressionPrinter.GenerateBinaryOperator(OperatorType));
 
             requiresBrackets = RequiresBrackets(Right);
 

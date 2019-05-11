@@ -7,9 +7,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class RelationalShapedQueryOptimizerFactory : ShapedQueryOptimizerFactory
     {
+        protected ISqlExpressionFactory SqlExpressionFactory { get; private set; }
+
+        public RelationalShapedQueryOptimizerFactory(ISqlExpressionFactory sqlExpressionFactory)
+        {
+            SqlExpressionFactory = sqlExpressionFactory;
+        }
+
         public override ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext)
         {
-            return new RelationalShapedQueryOptimizer(queryCompilationContext);
+            return new RelationalShapedQueryOptimizer(queryCompilationContext, SqlExpressionFactory);
         }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqliteFixture>
+    public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqliteFixture>
     {
         public NullSemanticsQuerySqliteTest(NullSemanticsQuerySqliteFixture fixture)
             : base(fixture)

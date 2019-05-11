@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     : ConvertToValue(sqlExpression, condition);
 
         private Expression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
-                => condition
-                    ? sqlExpression
-                    : BuildCompareToExpression(sqlExpression);
+            => condition
+                ? sqlExpression
+                : BuildCompareToExpression(sqlExpression);
 
         private Expression ConvertToValue(SqlExpression sqlExpression, bool condition)
         {
@@ -246,67 +246,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         {
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
-            var changed = false;
             var instance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
-            changed |= instance != sqlFunctionExpression.Instance;
             var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
                 arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
-                changed |= arguments[i] != sqlFunctionExpression.Arguments[i];
             }
 
             _isSearchCondition = parentSearchCondition;
-            SqlExpression newFunction;
-            if (changed)
-            {
-                if (sqlFunctionExpression.Instance != null)
-                {
-                    if (sqlFunctionExpression.IsNiladic)
-                    {
-                        newFunction = _sqlExpressionFactory.Function(
-                            instance,
-                            sqlFunctionExpression.FunctionName,
-                            sqlFunctionExpression.IsNiladic,
-                            sqlFunctionExpression.Type,
-                            sqlFunctionExpression.TypeMapping);
-                    }
-                    else
-                    {
-                        newFunction = _sqlExpressionFactory.Function(
-                            instance,
-                            sqlFunctionExpression.FunctionName,
-                            arguments,
-                            sqlFunctionExpression.Type,
-                            sqlFunctionExpression.TypeMapping);
-                    }
-                }
-                else
-                {
-                    if (sqlFunctionExpression.IsNiladic)
-                    {
-                        newFunction = _sqlExpressionFactory.Function(
-                            sqlFunctionExpression.Schema,
-                            sqlFunctionExpression.FunctionName,
-                            sqlFunctionExpression.IsNiladic,
-                            sqlFunctionExpression.Type,
-                            sqlFunctionExpression.TypeMapping);
-                    }
-                    else
-                    {
-                        newFunction = _sqlExpressionFactory.Function(
-                            sqlFunctionExpression.Schema,
-                            sqlFunctionExpression.FunctionName,
-                            arguments,
-                            sqlFunctionExpression.Type,
-                            sqlFunctionExpression.TypeMapping);
-                    }
-                }
-            }
-            else
-            {
-                newFunction = sqlFunctionExpression;
-            }
+            var newFunction = sqlFunctionExpression.Update(instance, arguments);
 
             var condition = string.Equals(sqlFunctionExpression.FunctionName, "FREETEXT")
                 || string.Equals(sqlFunctionExpression.FunctionName, "CONTAINS");

@@ -82,9 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public virtual CaseExpression Update(
-            SqlExpression operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
+            SqlExpression operand,
+            IReadOnlyList<CaseWhenClause> whenClauses,
+            SqlExpression elseResult)
         {
-            return new CaseExpression(operand, whenClauses, elseResult);
+            return operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
+                ? new CaseExpression(operand, whenClauses, elseResult)
+                : this;
         }
 
         #endregion

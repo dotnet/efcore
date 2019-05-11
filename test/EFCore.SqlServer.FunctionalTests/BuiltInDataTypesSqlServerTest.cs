@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = '00:01:02'",
+WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }
@@ -93,7 +93,7 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0",
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = @__timeSpan_0",
+WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT NULL AND @__timeSpan_0 IS NOT NULL)) OR ([m].[TimeSpanAsTime] IS NULL AND @__timeSpan_0 IS NULL)",
                     Sql,
                     ignoreLineEndingDifferences: true);
             }

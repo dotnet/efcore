@@ -3,22 +3,19 @@
 
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerShapedQueryOptimizerFactory : RelationalShapedQueryOptimizerFactory
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
         public SqlServerShapedQueryOptimizerFactory(ISqlExpressionFactory sqlExpressionFactory)
+            : base(sqlExpressionFactory)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public override ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext)
         {
-            return new SqlServerShapedQueryOptimizer(queryCompilationContext, _sqlExpressionFactory);
+            return new SqlServerShapedQueryOptimizer(queryCompilationContext, SqlExpressionFactory);
         }
     }
 }

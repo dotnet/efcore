@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public SqlFunctionExpression Update(SqlExpression instance, IReadOnlyList<SqlExpression> arguments)
         {
-            return instance != Instance || arguments != Arguments
+            return instance != Instance || !arguments.SequenceEqual(Arguments)
                 ? new SqlFunctionExpression(instance, Schema, FunctionName, IsNiladic, arguments, Type, TypeMapping)
                 : this;
         }

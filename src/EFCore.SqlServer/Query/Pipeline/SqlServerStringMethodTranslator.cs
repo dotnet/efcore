@@ -266,10 +266,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                         instance,
                         _sqlExpressionFactory.Constant(null, stringTypeMapping));
                 }
-                if (constantString.Length == 0)
-                {
-                    return _sqlExpressionFactory.Constant(true);
-                }
+
                 return constantString.Any(c => IsLikeWildChar(c))
                     ? _sqlExpressionFactory.Like(
                         instance,
@@ -289,42 +286,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             // because of wildchars).
             if (startsWith)
             {
-                return _sqlExpressionFactory.OrElse(
-                    _sqlExpressionFactory.AndAlso(
-                        _sqlExpressionFactory.Like(
+                return _sqlExpressionFactory.AndAlso(
+                    _sqlExpressionFactory.Like(
+                        instance,
+                        _sqlExpressionFactory.Add(
                             instance,
-                            _sqlExpressionFactory.Add(
-                                instance,
-                                _sqlExpressionFactory.Constant("%"))),
-                        _sqlExpressionFactory.Equal(
-                            _sqlExpressionFactory.Function(
-                                "LEFT",
-                                new[] {
-                                    instance,
-                                    _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
-                                },
-                                typeof(string),
-                                stringTypeMapping),
-                            pattern)),
+                            _sqlExpressionFactory.Constant("%"))),
                     _sqlExpressionFactory.Equal(
-                        pattern,
-                        _sqlExpressionFactory.Constant(string.Empty)));
+                        _sqlExpressionFactory.Function(
+                            "LEFT",
+                            new[] {
+                                instance,
+                                _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
+                            },
+                            typeof(string),
+                            stringTypeMapping),
+                        pattern));
             }
 
-            return _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.Equal(
-                    _sqlExpressionFactory.Function(
-                        "RIGHT",
-                        new[] {
-                            instance,
-                            _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
-                        },
-                        typeof(string),
-                        stringTypeMapping),
-                    pattern),
-                _sqlExpressionFactory.Equal(
-                    pattern,
-                    _sqlExpressionFactory.Constant(string.Empty)));
+            return _sqlExpressionFactory.Equal(
+                _sqlExpressionFactory.Function(
+                    "RIGHT",
+                    new[] {
+                        instance,
+                        _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
+                    },
+                    typeof(string),
+                    stringTypeMapping),
+                pattern);
         }
 
         // See https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
@@ -340,8 +329,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 {
                     builder.Append(LikeEscapeChar);
                 }
+
                 builder.Append(c);
             }
+
             return builder.ToString();
         }
     }

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqlServerFixture>
+    public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqlServerFixture>
     {
         // ReSharper disable once UnusedParameter.Local
         public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -1293,6 +1293,93 @@ WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableString
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) <> [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) AND [e].[NullableStringC] IS NOT NULL) OR [e].[NullableStringA] IS NOT NULL)");
+        }
+
+        public override void Null_semantics_coalesce()
+        {
+            base.Null_semantics_coalesce();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableBoolA] = CAST(COALESCE([e].[NullableBoolB], [e].[BoolC]) AS bit)) AND [e].[NullableBoolA] IS NOT NULL",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (([e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[NullableBoolC])) AND ([e].[NullableBoolA] IS NOT NULL AND COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NULL)",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (CAST(COALESCE([e].[NullableBoolB], [e].[BoolC]) AS bit) <> [e].[NullableBoolA]) OR [e].[NullableBoolA] IS NULL",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA]) OR (COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NULL OR [e].[NullableBoolA] IS NULL)) AND (COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL)");
+        }
+
+        public override void Null_semantics_conditional()
+        {
+            base.Null_semantics_conditional();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ([e].[BoolA] = CASE
+    WHEN [e].[BoolB] = CAST(1 AS bit) THEN [e].[NullableBoolB]
+    ELSE [e].[NullableBoolC]
+END) AND CASE
+    WHEN [e].[BoolB] = CAST(1 AS bit) THEN [e].[NullableBoolB]
+    ELSE [e].[NullableBoolC]
+END IS NOT NULL",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL) THEN [e].[BoolB]
+    ELSE [e].[BoolC]
+END = [e].[BoolA]",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN CASE
+        WHEN [e].[BoolA] = CAST(1 AS bit) THEN CASE
+            WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL) THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END
+        ELSE [e].[BoolC]
+    END <> [e].[BoolB] THEN [e].[BoolA]
+    ELSE CASE
+        WHEN (([e].[NullableBoolB] = [e].[NullableBoolC]) AND ([e].[NullableBoolB] IS NOT NULL AND [e].[NullableBoolC] IS NOT NULL)) OR ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit)");
+        }
+
+        public override void Null_semantics_function()
+        {
+            base.Null_semantics_function();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) <> [e].[NullableStringB]) OR (SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) IS NULL OR [e].[NullableStringB] IS NULL)) AND (SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)");
+        }
+
+        public override void Null_semantics_join_with_composite_key()
+        {
+            base.Null_semantics_join_with_composite_key();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Null_semantics_contains()
+        {
+            base.Null_semantics_contains();
+
+            AssertSql(
+                @"");
         }
 
         private void AssertSql(params string[] expected)
