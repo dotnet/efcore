@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class SqliteModelValidatorTest : RelationalModelValidatorTest
     {

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class RelationalModelValidatorTest : ModelValidatorTestBase
     {
@@ -992,83 +991,6 @@ namespace Microsoft.EntityFrameworkCore
             AddProperties(entityA);
 
             Validate(model);
-        }
-
-        [Fact]
-        public virtual void Detects_missing_discriminator_property()
-        {
-            var model = CreateConventionlessModelBuilder().Model;
-
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            AddProperties(entityA);
-
-            var entityC = model.AddEntityType(typeof(C));
-            entityC.BaseType = entityA;
-
-            VerifyError(RelationalStrings.NoDiscriminatorProperty(entityA.DisplayName()), model);
-        }
-
-        [Fact]
-        public virtual void Detects_missing_discriminator_value_on_base()
-        {
-            var model = CreateConventionlessModelBuilder().Model;
-
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            AddProperties(entityA);
-
-            var entityC = model.AddEntityType(typeof(C));
-            SetBaseType(entityC, entityA);
-
-            entityA.SetDiscriminatorProperty(entityA.AddProperty("D", typeof(int)));
-            entityC.SetDiscriminatorValue(1);
-
-            VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
-        }
-
-        [Fact]
-        public virtual void Detects_missing_discriminator_value_on_leaf()
-        {
-            var model = CreateConventionlessModelBuilder().Model;
-
-            var entityAbstract = model.AddEntityType(typeof(Abstract));
-            SetPrimaryKey(entityAbstract);
-            AddProperties(entityAbstract);
-
-            var entityGeneric = model.AddEntityType(typeof(Generic<string>));
-            SetBaseType(entityGeneric, entityAbstract);
-
-            entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("D", typeof(int)));
-            entityAbstract.SetDiscriminatorValue(0);
-
-            VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
-        }
-
-        [Fact]
-        public virtual void Detects_missing_non_string_discriminator_values()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<C>();
-            modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
-                .HasValue<A>(0)
-                .HasValue<D>(1);
-
-            var model = modelBuilder.Model;
-            VerifyError(RelationalStrings.NoDiscriminatorValue(typeof(C).Name), model);
-        }
-
-        [Fact]
-        public virtual void Detects_duplicate_discriminator_values()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
-                .HasValue<A>(1)
-                .HasValue<C>(1)
-                .HasValue<D>(2);
-
-            var model = modelBuilder.Model;
-            VerifyError(RelationalStrings.DuplicateDiscriminatorValue(typeof(C).Name, 1, typeof(A).Name), model);
         }
 
         [Fact]

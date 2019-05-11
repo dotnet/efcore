@@ -51,6 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string OwnedTypes = "OwnedTypes";
 
         /// <summary>
+        ///     The name for discriminator property annotations.
+        /// </summary>
+        public const string DiscriminatorProperty = "DiscriminatorProperty";
+
+        /// <summary>
+        ///     The name for discriminator value annotations.
+        /// </summary>
+        public const string DiscriminatorValue = "DiscriminatorValue";
+
+        /// <summary>
         ///     Indicates the <see cref="Metadata.ConstructorBinding" /> to use for the annotated item.
         /// </summary>
         public const string ConstructorBinding = "ConstructorBinding";

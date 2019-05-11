@@ -89,16 +89,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name, object value, ConfigurationSource configurationSource)
             => new ConventionAnnotation(name, value, configurationSource);
 
+        /// <inheritdoc />
         IEnumerable<IConventionAnnotation> IConventionAnnotatable.GetAnnotations() => GetAnnotations();
 
+        /// <inheritdoc />
         void IConventionAnnotatable.SetAnnotation(string name, object value, bool fromDataAnnotation)
             => SetAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionAnnotation IConventionAnnotatable.AddAnnotation(string name, object value, bool fromDataAnnotation)
             => AddAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionAnnotation IConventionAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
 
+        /// <inheritdoc />
         IConventionAnnotation IConventionAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

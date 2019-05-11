@@ -393,5 +393,33 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] LambdaExpression definingQuery)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDefiningQuery(definingQuery, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator property for. </param>
+        /// <param name="property"> The property to set. </param>
+        public static void SetDiscriminatorProperty([NotNull] this IMutableEntityType entityType, [CanBeNull] IProperty property)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetDiscriminatorProperty(property, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the discriminator value for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator value for. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetDiscriminatorValue([NotNull] this IMutableEntityType entityType, [CanBeNull] object value)
+        {
+            entityType.AsEntityType().CheckDiscriminatorValue(entityType, value);
+
+            entityType.SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value);
+        }
+
+        /// <summary>
+        ///     Removes the discriminator value for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to remove the discriminator value for. </param>
+        public static void RemoveDiscriminatorValue([NotNull] this IMutableEntityType entityType)
+            => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
     }
 }

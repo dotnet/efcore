@@ -89,15 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         + @"(""WithAnnotations"",""MySchema"");" + _nl)
                 },
                 {
-                    RelationalAnnotationNames.DiscriminatorProperty,
+                    CoreAnnotationNames.DiscriminatorProperty,
                     ("Id",
-                        _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                        _toTable + _nl + "modelBuilder.HasDiscriminator"
                         + @"<int>(""Id"");" + _nl)
                 },
                 {
-                    RelationalAnnotationNames.DiscriminatorValue,
+                    CoreAnnotationNames.DiscriminatorValue,
                     ("MyDiscriminatorValue",
-                        _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                        _toTable + _nl + "modelBuilder.HasDiscriminator"
                         + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
                 }
             };
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.Name,
                 RelationalAnnotationNames.SequencePrefix,
                 RelationalAnnotationNames.CheckConstraints,
-                RelationalAnnotationNames.DiscriminatorProperty,
-                RelationalAnnotationNames.DiscriminatorValue,
+                CoreAnnotationNames.DiscriminatorProperty,
+                CoreAnnotationNames.DiscriminatorValue,
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
                 RelationalAnnotationNames.MaxIdentifierLength

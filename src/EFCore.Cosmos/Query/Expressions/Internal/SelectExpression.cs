@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToList();
 
-            var discriminatorProperty = entityType.Cosmos().DiscriminatorProperty;
+            var discriminatorProperty = entityType.GetDiscriminatorProperty();
 
             var discriminatorPredicate = Equal(
                 new KeyAccessExpression(discriminatorProperty, FromExpression),
-                Constant(concreteEntityTypes[0].Cosmos().DiscriminatorValue, discriminatorProperty.ClrType));
+                Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
             if (concreteEntityTypes.Count > 1)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
                         .Skip(1)
                         .Select(
                             concreteEntityType
-                                => Constant(concreteEntityType.Cosmos().DiscriminatorValue, discriminatorProperty.ClrType))
+                                => Constant(concreteEntityType.GetDiscriminatorValue(), discriminatorProperty.ClrType))
                         .Aggregate(
                             discriminatorPredicate, (current, discriminatorValue) =>
                                 OrElse(

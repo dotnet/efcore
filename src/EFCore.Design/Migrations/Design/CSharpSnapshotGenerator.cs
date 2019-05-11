@@ -700,8 +700,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder.AppendLine(");");
             }
 
-            var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.DiscriminatorProperty);
-            var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.DiscriminatorValue);
+            var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorProperty);
+            var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
 
             if ((discriminatorPropertyAnnotation ?? discriminatorValueAnnotation) != null)
             {
@@ -709,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine()
                     .Append(builderName)
                     .Append(".")
-                    .Append(nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator));
+                    .Append("HasDiscriminator");
 
                 if (discriminatorPropertyAnnotation?.Value != null)
                 {
@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     stringBuilder
                         .Append(".")
-                        .Append(nameof(DiscriminatorBuilder.HasValue))
+                        .Append("HasValue")
                         .Append("(")
                         .Append(Code.UnknownLiteral(value))
                         .Append(")");

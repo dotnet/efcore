@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class KeyBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalKeyBuilder>
+    public class KeyBuilder : IInfrastructure<InternalKeyBuilder>
     {
         private readonly InternalKeyBuilder _builder;
 
@@ -45,11 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The key being configured.
         /// </summary>
         public virtual IMutableKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that the key belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the key. If an annotation with the key specified in

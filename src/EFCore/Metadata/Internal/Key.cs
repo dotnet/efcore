@@ -152,16 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Note this is ISet because there is no suitable readonly interface in the profiles we are using
         public virtual ISet<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
 
-        IReadOnlyList<IProperty> IKey.Properties => Properties;
-        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
-
-        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
-        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
-
-        IConventionKeyBuilder IConventionKey.Builder => Builder;
-        IReadOnlyList<IConventionProperty> IConventionKey.Properties => Properties;
-        IConventionEntityType IConventionKey.DeclaringEntityType => DeclaringEntityType;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -178,5 +168,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<Key> DebugView
             => new DebugView<Key>(this, m => m.ToDebugString(false));
+
+        /// <inheritdoc />
+        IReadOnlyList<IProperty> IKey.Properties => Properties;
+
+        /// <inheritdoc />
+        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        IConventionKeyBuilder IConventionKey.Builder => Builder;
+
+        /// <inheritdoc />
+        IReadOnlyList<IConventionProperty> IConventionKey.Properties => Properties;
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionKey.DeclaringEntityType => DeclaringEntityType;
     }
 }

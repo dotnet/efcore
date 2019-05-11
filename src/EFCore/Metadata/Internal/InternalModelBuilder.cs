@@ -534,14 +534,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
+        /// <inheritdoc />
         IConventionModel IConventionModelBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(string name, bool? shouldBeOwned, bool fromDataAnnotation)
             => Entity(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
+        /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(Type type, bool? shouldBeOwned, bool fromDataAnnotation)
             => Entity(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
+        /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(
             string name, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
             => Entity(
@@ -550,6 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)definingEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(
             Type type, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
             => Entity(
@@ -558,41 +563,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)definingEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionOwnedEntityTypeBuilder IConventionModelBuilder.Owned(Type type, bool fromDataAnnotation)
             => Owned(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.IsIgnored(Type type, bool fromDataAnnotation)
             => IsIgnored(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.IsIgnored(string name, bool fromDataAnnotation)
             => IsIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionModelBuilder IConventionModelBuilder.Ignore(Type type, bool fromDataAnnotation)
             => Ignore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionModelBuilder IConventionModelBuilder.Ignore(string name, bool fromDataAnnotation)
             => Ignore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.CanIgnore(Type type, bool fromDataAnnotation)
             => CanIgnore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.CanIgnore(string name, bool fromDataAnnotation)
             => CanIgnore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionModelBuilder IConventionModelBuilder.HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation)
             => UseChangeTrackingStrategy(
                 changeTrackingStrategy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.CanSetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation)
             => CanSetChangeTrackingStrategy(
                 changeTrackingStrategy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionModelBuilder IConventionModelBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionModelBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

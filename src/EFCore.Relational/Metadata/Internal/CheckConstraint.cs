@@ -193,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static Dictionary<string, string> GetAnnotationsDictionary(IModel model) =>
             (Dictionary<string, string>)model[RelationalAnnotationNames.CheckConstraints];
 
+        /// <inheritdoc />
         IConventionModel IConventionCheckConstraint.Model => (IConventionModel)Model;
 
         private class CheckConstraintData

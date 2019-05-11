@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             var builder = new StringBuilder();
 
             var pk = entry.Metadata.FindPrimaryKey();
-            var discriminator = entry.Metadata.Cosmos().DiscriminatorValue;
+            var discriminator = entry.Metadata.GetDiscriminatorValue();
             if (discriminator != null
-                && !pk.Properties.Contains(entry.Metadata.Cosmos().DiscriminatorProperty))
+                && !pk.Properties.Contains(entry.Metadata.GetDiscriminatorProperty()))
             {
                 AppendString(builder,discriminator);
                 builder.Append("|");

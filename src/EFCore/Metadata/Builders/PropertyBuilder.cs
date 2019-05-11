@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<InternalPropertyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,11 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The property being configured.
         /// </summary>
         public virtual IMutableProperty Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that the property belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the property. If an annotation with the key specified in

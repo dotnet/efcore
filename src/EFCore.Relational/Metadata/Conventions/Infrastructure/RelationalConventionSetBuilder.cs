@@ -73,19 +73,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
-            var sharedTableConvention = new SharedTableConvention(logger);
-
-            var discriminatorConvention = new DiscriminatorConvention(logger);
             var storeGenerationConvention = new StoreGenerationConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
-            conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
-            conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
+            var sharedTableConvention = new SharedTableConvention(logger);
             conventionSet.ModelBuiltConventions.Add(storeGenerationConvention);
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 

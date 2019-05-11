@@ -483,7 +483,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var keyMappings = new Dictionary<string, IKey>();
 
@@ -521,11 +523,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var rootEntityType in model.GetRootEntityTypes())
-            {
-                ValidateDiscriminatorValues(rootEntityType);
-            }
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
@@ -536,51 +533,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     throw new InvalidOperationException(
                         RelationalStrings.DerivedTypeTable(entityType.DisplayName(), entityType.BaseType.DisplayName()));
                 }
-            }
-        }
-
-        private static void ValidateDiscriminator(IEntityType entityType)
-        {
-            if (entityType.GetDiscriminatorProperty() == null)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
-            }
-
-            if (entityType.GetDiscriminatorValue() == null)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.NoDiscriminatorValue(entityType.DisplayName()));
-            }
-        }
-
-        private static void ValidateDiscriminatorValues(IEntityType rootEntityType)
-        {
-            var discriminatorValues = new Dictionary<object, IEntityType>();
-            var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();
-            if (derivedTypes.Count == 1)
-            {
-                return;
-            }
-
-            foreach (var derivedType in derivedTypes)
-            {
-                if (derivedType.ClrType?.IsInstantiable() != true)
-                {
-                    continue;
-                }
-
-                ValidateDiscriminator(derivedType);
-
-                var discriminatorValue = derivedType.GetDiscriminatorValue();
-                if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DuplicateDiscriminatorValue(
-                            derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
-                }
-
-                discriminatorValues[discriminatorValue] = derivedType;
             }
         }
 

@@ -1008,16 +1008,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            return principalProperties != null
-                   && dependentProperties != null
-                   && !AreCompatible(
+            return principalProperties == null
+                   || dependentProperties == null
+                   || AreCompatible(
                        principalProperties,
                        dependentProperties,
                        principalEntityType,
                        dependentEntityType,
-                       shouldThrow)
-                ? false
-                : true;
+                       shouldThrow);
         }
 
         /// <summary>
@@ -1089,6 +1087,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual DebugView<ForeignKey> DebugView
             => new DebugView<ForeignKey>(this, m => m.ToDebugString(false));
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionForeignKey.Builder => Builder;
     }
 }

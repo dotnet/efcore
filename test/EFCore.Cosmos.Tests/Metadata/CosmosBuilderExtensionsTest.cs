@@ -18,19 +18,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.Cosmos().ContainerName);
-            Assert.Null(modelBuilder.Model.Cosmos().DefaultContainerName);
+            Assert.Equal("Customer", entityType.GetCosmosContainerName());
+            Assert.Null(modelBuilder.Model.GetCosmosDefaultContainerName());
 
-            modelBuilder.HasDefaultContainerName("db0");
+            modelBuilder.ForCosmosHasDefaultContainerName("db0");
 
-            Assert.Equal("db0", entityType.Cosmos().ContainerName);
-            Assert.Equal("db0", modelBuilder.Model.Cosmos().DefaultContainerName);
+            Assert.Equal("db0", entityType.GetCosmosContainerName());
+            Assert.Equal("db0", modelBuilder.Model.GetCosmosDefaultContainerName());
 
             modelBuilder
                 .Entity<Customer>()
-                .ToContainer("db1");
+                .ForCosmosToContainer("db1");
 
-            Assert.Equal("db1", entityType.Cosmos().ContainerName);
+            Assert.Equal("db1", entityType.GetCosmosContainerName());
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder() => CosmosTestHelpers.Instance.CreateConventionBuilder();

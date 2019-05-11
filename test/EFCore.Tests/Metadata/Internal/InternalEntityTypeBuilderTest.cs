@@ -8,12 +8,12 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-// ReSharper disable UnusedMember.Global
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 // ReSharper disable MemberCanBePrivate.Local
@@ -2732,6 +2732,228 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, derivedEntityBuilder.Metadata.GetServiceProperties().Count());
         }
 
+        [Fact]
+        public void Can_access_discriminator()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
+
+            Assert.NotNull(typeBuilder.HasDiscriminator());
+            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+
+            Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator());
+            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
+
+            Assert.NotNull(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
+            Assert.Equal("Splod", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splod", typeBuilder.Metadata.GetProperties().Single().Name);
+
+            Assert.NotNull(typeBuilder.HasDiscriminator(Order.CustomerUniqueProperty, fromDataAnnotation: true));
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
+
+            Assert.Null(typeBuilder.HasDiscriminator("Splew", typeof(int?)));
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
+
+            Assert.NotNull(typeBuilder.HasDiscriminator(typeof(int), fromDataAnnotation: true));
+            Assert.Null(typeBuilder.HasDiscriminator(typeof(long)));
+            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+
+            Assert.Null(typeBuilder.HasNoDeclaredDiscriminator());
+        }
+
+        [Fact]
+        public void Discriminator_is_not_set_if_ignored()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
+            typeBuilder.Ignore("Splod", true);
+
+            Assert.NotNull(typeBuilder.HasDiscriminator("Splew", typeof(string)));
+            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+
+            Assert.Null(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
+            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+        }
+
+        [Fact]
+        public void Discriminator_is_not_set_if_default_ignored()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
+            typeBuilder.Ignore("Discriminator", true);
+
+            Assert.Null(typeBuilder.HasDiscriminator());
+            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
+        }
+
+        [Fact]
+        public void Can_access_discriminator_value()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
+            var derivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splod");
+            derivedTypeBuilder.HasBaseType(typeBuilder.Metadata, fromDataAnnotation: true);
+            var otherDerivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splow");
+
+            Assert.NotNull(typeBuilder.HasDiscriminator());
+            Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
+
+            var discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(int?));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, 1));
+            Assert.NotNull(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, 2));
+            Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, 3));
+
+            Assert.Same(typeBuilder.Metadata, otherDerivedTypeBuilder.Metadata.BaseType);
+            Assert.Equal(1, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                2, typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                3, typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Same(typeBuilder.Metadata, typeBuilder.ModelBuilder.Metadata.FindEntityType("Splow").BaseType);
+
+            discriminatorBuilder = typeBuilder.HasDiscriminator(fromDataAnnotation: true);
+            Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, 4, fromDataAnnotation: true));
+            Assert.NotNull(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, 5, fromDataAnnotation: true));
+            Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, 6, fromDataAnnotation: true));
+            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+
+            discriminatorBuilder = typeBuilder.HasDiscriminator();
+            Assert.Null(discriminatorBuilder.HasValue(typeBuilder.Metadata, 1));
+            Assert.Null(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, 2));
+            Assert.Null(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, 3));
+            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+
+            Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator(fromDataAnnotation: true));
+            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Empty(typeBuilder.Metadata.GetProperties());
+        }
+
+        [Fact]
+        public void Changing_discriminator_type_removes_values()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
+            var derivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splod");
+            derivedTypeBuilder.HasBaseType(typeBuilder.Metadata, fromDataAnnotation: true);
+            var otherDerivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splow");
+
+            Assert.NotNull(typeBuilder.HasDiscriminator());
+            Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
+
+            var discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(int));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, 1));
+            Assert.NotNull(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, 2));
+            Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, 3));
+
+            discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(string));
+            Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, "4"));
+            Assert.NotNull(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, "5"));
+            Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, "6"));
+
+            discriminatorBuilder = typeBuilder.HasDiscriminator("Splotted", typeof(string));
+
+            Assert.NotNull(discriminatorBuilder);
+            Assert.Equal("4", typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                "5", typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Equal(
+                "6", typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+
+            discriminatorBuilder = typeBuilder.HasDiscriminator(typeof(int));
+
+            Assert.NotNull(discriminatorBuilder);
+            Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splow")
+                    .Metadata.GetDiscriminatorValue());
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splod")
+                    .Metadata.GetDiscriminatorValue());
+        }
+
+        [Fact]
+        public void Can_access_discriminator_value_generic()
+        {
+            IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+
+            var discriminatorBuilder = new DiscriminatorBuilder<int?>(
+                (DiscriminatorBuilder)typeBuilder.HasDiscriminator(Splot.SplowedProperty));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splot), 1));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splow), 2));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splod), 3));
+
+            var splow = typeBuilder.ModelBuilder.Entity(typeof(Splow)).Metadata;
+            var splod = typeBuilder.ModelBuilder.Entity(typeof(Splod)).Metadata;
+            Assert.Equal(1, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(2, splow.GetDiscriminatorValue());
+            Assert.Equal(
+                3, typeBuilder.ModelBuilder.Entity(typeof(Splod))
+                    .Metadata.GetDiscriminatorValue());
+
+            discriminatorBuilder = new DiscriminatorBuilder<int?>(
+                (DiscriminatorBuilder)typeBuilder.HasDiscriminator(fromDataAnnotation: true));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splot), 4));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splow), 5));
+            Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splod), 6));
+            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(5, splow.GetDiscriminatorValue());
+            Assert.Equal(6, splod.GetDiscriminatorValue());
+
+            var conventionDiscriminatorBuilder = typeBuilder.HasDiscriminator();
+            Assert.Null(conventionDiscriminatorBuilder.HasValue(typeBuilder.Metadata, 1));
+            Assert.Null(conventionDiscriminatorBuilder.HasValue(splow, 2));
+            Assert.Null(conventionDiscriminatorBuilder.HasValue(splod, 3));
+            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Equal(5, splow.GetDiscriminatorValue());
+            Assert.Equal(6, splod.GetDiscriminatorValue());
+        }
+
+        [Fact]
+        public void DiscriminatorValue_throws_if_base_cannot_be_set()
+        {
+            IConventionModelBuilder modelBuilder = CreateModelBuilder();
+            var typeBuilder = modelBuilder.Entity("Splot");
+            var nonDerivedTypeBuilder = modelBuilder.Entity("Splow");
+            nonDerivedTypeBuilder.HasBaseType(modelBuilder.Entity("Splod").Metadata, true);
+
+            var discriminatorBuilder = typeBuilder.HasDiscriminator();
+            Assert.Equal(
+                CoreStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
+                Assert.Throws<InvalidOperationException>(()
+                    => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
+        }
+
         private InternalModelBuilder CreateModelBuilder() => new InternalModelBuilder(new Model());
 
         private class Order
@@ -2830,6 +3052,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Id { get; set; }
             public ICollection<OrderMinimal> Orders { get; set; }
+        }
+
+        private class Splot
+        {
+            public static readonly PropertyInfo SplowedProperty = typeof(Splot).GetProperty("Splowed");
+
+            public int? Splowed { get; set; }
+        }
+
+        private class Splow : Splot
+        {
+        }
+
+        private class Splod : Splow
+        {
         }
     }
 }

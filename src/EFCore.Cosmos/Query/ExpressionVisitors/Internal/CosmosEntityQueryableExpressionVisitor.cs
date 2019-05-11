@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
                 QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
                 new DocumentQueryExpression(
                     QueryModelVisitor.QueryCompilationContext.IsAsyncQuery,
-                    entityType.Cosmos().ContainerName,
+                    entityType.GetCosmosContainerName(),
                     new SelectExpression(entityType, _querySource, _sqlGeneratorFactory)),
                 new EntityShaper(
                     entityType,

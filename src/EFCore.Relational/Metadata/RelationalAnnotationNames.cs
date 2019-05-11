@@ -70,16 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string CheckConstraints = Prefix + "CheckConstraints";
 
         /// <summary>
-        ///     The name for discriminator property annotations.
-        /// </summary>
-        public const string DiscriminatorProperty = Prefix + "DiscriminatorProperty";
-
-        /// <summary>
-        ///     The name for discriminator value annotations.
-        /// </summary>
-        public const string DiscriminatorValue = Prefix + "DiscriminatorValue";
-
-        /// <summary>
         ///     The name for filter annotations.
         /// </summary>
         public const string Filter = Prefix + "Filter";

@@ -238,29 +238,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ? null
                         : new ClrCollectionAccessorFactory().Create(n));
 
-        IForeignKey INavigation.ForeignKey
-        {
-            [DebuggerStepThrough] get => ForeignKey;
-        }
-
-        IMutableForeignKey IMutableNavigation.ForeignKey
-        {
-            [DebuggerStepThrough] get => ForeignKey;
-        }
-
-        IEntityType INavigation.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
-        }
-
-        IMutableEntityType IMutableNavigation.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
-        }
-
-        IConventionEntityType IConventionNavigation.DeclaringEntityType => DeclaringEntityType;
-        IConventionForeignKey IConventionNavigation.ForeignKey => ForeignKey;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -277,5 +254,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<Navigation> DebugView
             => new DebugView<Navigation>(this, m => m.ToDebugString(false));
+
+        /// <inheritdoc />
+        IForeignKey INavigation.ForeignKey
+        {
+            [DebuggerStepThrough] get => ForeignKey;
+        }
+
+        /// <inheritdoc />
+        IMutableForeignKey IMutableNavigation.ForeignKey
+        {
+            [DebuggerStepThrough] get => ForeignKey;
+        }
+
+        /// <inheritdoc />
+        IEntityType INavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableNavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionNavigation.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        IConventionForeignKey IConventionNavigation.ForeignKey => ForeignKey;
     }
 }

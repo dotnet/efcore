@@ -669,113 +669,147 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newPropertyBuilder;
         }
 
+        /// <inheritdoc />
         IConventionProperty IConventionPropertyBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.IsRequired(bool? required, bool fromDataAnnotation)
             => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
             => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.ValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation)
             => ValueGenerated(valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation)
             => CanSetValueGenerated(
                 valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.IsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
             => IsConcurrencyToken(
                 concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
             => CanSetIsConcurrencyToken(
                 concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasField(string fieldName, bool fromDataAnnotation)
             => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
             => CanSetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => CanSetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => UsePropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasMaxLength(int? maxLength, bool fromDataAnnotation)
             => HasMaxLength(maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetMaxLength(int? maxLength, bool fromDataAnnotation)
             => CanSetMaxLength(maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.IsUnicode(bool? unicode, bool fromDataAnnotation)
             => IsUnicode(unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetIsUnicode(bool? unicode, bool fromDataAnnotation)
             => CanSetIsUnicode(unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.BeforeSave(PropertySaveBehavior? behavior, bool fromDataAnnotation)
             => BeforeSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetBeforeSave(PropertySaveBehavior? behavior, bool fromDataAnnotation)
             => CanSetBeforeSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.AfterSave(PropertySaveBehavior? behavior, bool fromDataAnnotation)
             => AfterSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetAfterSave(PropertySaveBehavior? behavior, bool fromDataAnnotation)
             => CanSetAfterSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasValueGenerator(Type valueGeneratorType, bool fromDataAnnotation)
             => HasValueGenerator(
                 valueGeneratorType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasValueGenerator(
             Func<IProperty, IEntityType, ValueGenerator> factory, bool fromDataAnnotation)
             => HasValueGenerator(factory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory, bool fromDataAnnotation)
             => CanSetValueGenerator(factory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasConversion(ValueConverter converter, bool fromDataAnnotation)
             => HasConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetConversion(ValueConverter converter, bool fromDataAnnotation)
             => CanSetConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasConversion(Type providerClrType, bool fromDataAnnotation)
             => HasConversion(providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetConversion(Type providerClrType, bool fromDataAnnotation)
             => CanSetConversion(providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => HasValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => CanSetValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasKeyValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => HasKeyValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetKeyValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => CanSetKeyValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionPropertyBuilder IConventionPropertyBuilder.HasStructuralValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => HasStructuralValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionPropertyBuilder.CanSetStructuralValueComparer(ValueComparer comparer, bool fromDataAnnotation)
             => CanSetStructuralValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

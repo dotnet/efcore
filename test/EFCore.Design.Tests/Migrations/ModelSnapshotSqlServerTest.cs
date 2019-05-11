@@ -519,12 +519,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))[RelationalAnnotationNames.DiscriminatorProperty]);
-                    Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))[RelationalAnnotationNames.DiscriminatorValue]);
+                    Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))[CoreAnnotationNames.DiscriminatorProperty]);
+                    Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))[CoreAnnotationNames.DiscriminatorValue]);
                     Assert.Equal(
                         "AnotherDerivedEntity",
-                        o.FindEntityType(typeof(AnotherDerivedEntity))[RelationalAnnotationNames.DiscriminatorValue]);
-                    Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[RelationalAnnotationNames.DiscriminatorValue]);
+                        o.FindEntityType(typeof(AnotherDerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
+                    Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
                 });
         }
 

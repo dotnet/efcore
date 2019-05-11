@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class IndexBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalIndexBuilder>
+    public class IndexBuilder : IInfrastructure<InternalIndexBuilder>
     {
         private readonly InternalIndexBuilder _builder;
 
@@ -45,11 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The index being configured.
         /// </summary>
         public virtual IMutableIndex Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that the index belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the index. If an annotation with the key specified in

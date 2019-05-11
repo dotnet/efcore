@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, configurationSource) == null)
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.DiscriminatorEntityTypeNotDerived(
+                    CoreStrings.DiscriminatorEntityTypeNotDerived(
                         entityTypeBuilder.Metadata.DisplayName(),
                         baseEntityTypeBuilder.Metadata.DisplayName()));
             }
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                if (!entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value, configurationSource))
+                if (!entityTypeBuilder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, configurationSource))
                 {
                     return null;
                 }
@@ -116,20 +116,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(object value, bool fromDataAnnotation)
             => HasValue(
                 EntityTypeBuilder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(
             IConventionEntityType entityType, object value, bool fromDataAnnotation)
             => HasValue(
                 (InternalEntityTypeBuilder)entityType.Builder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionDiscriminatorBuilder.CanSetValue(object value, bool fromDataAnnotation)
             => ((IConventionDiscriminatorBuilder)this).CanSetValue(EntityTypeBuilder.Metadata, value, fromDataAnnotation);
 
+        /// <inheritdoc />
         bool IConventionDiscriminatorBuilder.CanSetValue(IConventionEntityType entityType, object value, bool fromDataAnnotation)
         {
             var baseEntityTypeBuilder = EntityTypeBuilder;
@@ -139,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return false;
             }
 
-            return entityType.Builder.CanSetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
+            return entityType.Builder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
         }
 
         #region Hidden System.Object members

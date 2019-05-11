@@ -49,9 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
+                ((IConventionEntityTypeBuilder)oldBaseType.Builder)?.HasNoDeclaredDiscriminator();
             }
 
+            IConventionEntityTypeBuilder conventionEntityTypeBuilder = entityTypeBuilder;
             var entityType = entityTypeBuilder.Metadata;
             var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
@@ -60,20 +61,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (derivedEntityTypes.Count == 0)
                 {
-                    entityTypeBuilder.HasNoDeclaredDiscriminator();
+                    conventionEntityTypeBuilder.HasNoDeclaredDiscriminator();
                     return true;
                 }
 
-                discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+                discriminator = conventionEntityTypeBuilder.HasDiscriminator(typeof(string));
             }
             else
             {
-                if (entityTypeBuilder.HasNoDeclaredDiscriminator() == null)
+                if (conventionEntityTypeBuilder.HasNoDeclaredDiscriminator() == null)
                 {
                     return true;
                 }
 
-                var rootTypeBuilder = entityType.RootType().Builder;
+                IConventionEntityTypeBuilder rootTypeBuilder = entityType.RootType().Builder;
                 discriminator = rootTypeBuilder?.HasDiscriminator(typeof(string));
 
                 if (entityType.BaseType.BaseType == null)
@@ -104,14 +105,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && oldBaseType.BaseType == null
                 && oldBaseType.GetDirectlyDerivedTypes().Count == 0)
             {
-                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
+                ((IConventionEntityTypeBuilder)oldBaseType.Builder)?.HasNoDeclaredDiscriminator();
             }
 
             return true;
         }
 
-        private static void SetDefaultDiscriminatorValues(
-            IReadOnlyList<EntityType> entityTypes, IConventionDiscriminatorBuilder discriminator)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void SetDefaultDiscriminatorValues(
+            IEnumerable<EntityType> entityTypes, IConventionDiscriminatorBuilder discriminator)
         {
             foreach (var entityType in entityTypes)
             {

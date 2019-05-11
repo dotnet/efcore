@@ -425,5 +425,55 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator property for. </param>
+        /// <param name="property"> The property to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetDiscriminatorProperty(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] IProperty property, bool fromDataAnnotation = false)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
+                .SetDiscriminatorProperty(
+                    property,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator property.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if no discriminator property has been set. </returns>
+        public static ConfigurationSource? GetDiscriminatorPropertyConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)
+                ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the discriminator value for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the discriminator value for. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetDiscriminatorValue(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] object value, bool fromDataAnnotation = false)
+        {
+            entityType.AsEntityType().CheckDiscriminatorValue(entityType, value);
+
+            entityType.SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Removes the discriminator value for this entity type.
+        /// </summary>
+        public static void RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
+            => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.
+        /// </summary>
+        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if no discriminator value has been set. </returns>
+        public static ConfigurationSource? GetDiscriminatorValueConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorValue)
+                ?.GetConfigurationSource();
     }
 }

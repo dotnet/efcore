@@ -3,12 +3,11 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Cosmos-specific extension methods for <see cref="PropertyBuilder" />.
@@ -22,26 +21,71 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ToProperty(
+        public static PropertyBuilder ForCosmosToProperty(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string name)
-            => propertyBuilder.GetInfrastructure<InternalPropertyBuilder>()
-                .Cosmos(ConfigurationSource.Explicit)
-                .ToProperty(name)
-                ? propertyBuilder
-                : propertyBuilder;
+            [NotNull] string name)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NotEmpty(name, nameof(name));
+
+            propertyBuilder.Metadata.SetCosmosPropertyName(name);
+
+            return propertyBuilder;
+        }
 
         /// <summary>
         ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
         /// </summary>
-        /// <remarks> If an empty string is supplied then the property will not be persisted. </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ToProperty<TProperty>(
+        public static PropertyBuilder<TProperty> ForCosmosToProperty<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string name)
-            => (PropertyBuilder<TProperty>)ToProperty((PropertyBuilder)propertyBuilder, name);
+            [NotNull] string name)
+            => (PropertyBuilder<TProperty>)ForCosmosToProperty((PropertyBuilder)propertyBuilder, name);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property name that the property is mapped to when targeting Azure Cosmos.
+        ///     </para>
+        ///     <para>
+        ///         If an empty string is supplied then the property will not be persisted.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the container. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder ForCosmosToProperty(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.ForCosmosCanSetProperty(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetCosmosPropertyName(name, fromDataAnnotation);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given property name can be set.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the container. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the property name can be set. </returns>
+        public static bool ForCosmosCanSetProperty(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+            => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
     }
 }

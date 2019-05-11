@@ -2486,63 +2486,139 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             this.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetDiscriminatorProperty([CanBeNull] IProperty property, ConfigurationSource configurationSource)
+        {
+            CheckDiscriminatorProperty(property);
+
+            if (property != null
+                && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))
+            {
+                foreach (var derivedType in GetDerivedTypesInclusive())
+                {
+                    ((IMutableEntityType)derivedType).RemoveDiscriminatorValue();
+                }
+            }
+
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
+        }
+
+        private void CheckDiscriminatorProperty(IProperty property)
+        {
+            if (property != null)
+            {
+                if (this != RootType())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DiscriminatorPropertyMustBeOnRoot(this.DisplayName()));
+                }
+
+                if (property.DeclaringEntityType != this)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DiscriminatorPropertyNotFound(property.Name, this.DisplayName()));
+                }
+            }
+        }
+
+        public virtual void CheckDiscriminatorValue(IEntityType entityType, object value)
+        {
+            if (value != null
+                && entityType.GetDiscriminatorProperty() == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NoDiscriminatorForValue(entityType.DisplayName(), entityType.RootType().DisplayName()));
+            }
+
+            if (value != null
+                && !entityType.GetDiscriminatorProperty().ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DiscriminatorValueIncompatible(
+                        value, entityType.GetDiscriminatorProperty().Name, entityType.GetDiscriminatorProperty().ClrType));
+            }
+        }
+
         #endregion
 
         #region Explicit interface implementations
 
+        /// <inheritdoc />
         IModel ITypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         IMutableModel IMutableTypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         IMutableModel IMutableEntityType.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         IEntityType IEntityType.BaseType
         {
             [DebuggerStepThrough] get => _baseType;
         }
 
+        /// <inheritdoc />
         IMutableEntityType IMutableEntityType.BaseType
         {
             get => _baseType;
             set => HasBaseType((EntityType)value, ConfigurationSource.Explicit);
         }
 
+        /// <inheritdoc />
         IEntityType IEntityType.DefiningEntityType
         {
             [DebuggerStepThrough] get => DefiningEntityType;
         }
 
+        /// <inheritdoc />
         IMutableKey IMutableEntityType.SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
             => SetPrimaryKey(properties?.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableKey IMutableEntityType.FindPrimaryKey() => FindPrimaryKey();
 
+        /// <inheritdoc />
         IMutableKey IMutableEntityType.AddKey(IReadOnlyList<IMutableProperty> properties)
             => AddKey(properties.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IKey IEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableKey IMutableEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
 
+        /// <inheritdoc />
         IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
+
+        /// <inheritdoc />
         IEnumerable<IMutableKey> IMutableEntityType.GetKeys() => GetKeys();
+
+        /// <inheritdoc />
         IMutableKey IMutableEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
 
+        /// <inheritdoc />
         IMutableForeignKey IMutableEntityType.AddForeignKey(
             IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
             => AddForeignKey(
@@ -2552,109 +2628,171 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ConfigurationSource.Explicit,
                 ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableForeignKey IMutableEntityType.FindForeignKey(
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IForeignKey IEntityType.FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
+        /// <inheritdoc />
         IEnumerable<IForeignKey> IEntityType.GetForeignKeys() => GetForeignKeys();
+
+        /// <inheritdoc />
         IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys() => GetForeignKeys();
 
+        /// <inheritdoc />
         IMutableForeignKey IMutableEntityType.RemoveForeignKey(
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
+        /// <inheritdoc />
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
             => AddIndex(properties.Cast<Property>().ToList(), ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IIndex IEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableIndex IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
 
+        /// <inheritdoc />
         IEnumerable<IIndex> IEntityType.GetIndexes() => GetIndexes();
+
+        /// <inheritdoc />
         IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes() => GetIndexes();
 
+        /// <inheritdoc />
         IMutableIndex IMutableEntityType.RemoveIndex(IReadOnlyList<IProperty> properties)
             => RemoveIndex(properties);
 
+        /// <inheritdoc />
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
             => AddProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         IMutableProperty IMutableEntityType.AddIndexedProperty(string name, Type propertyType)
             => AddIndexedProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IProperty IEntityType.FindProperty(string name) => FindProperty(name);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
 
+        /// <inheritdoc />
         IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
+        /// <inheritdoc />
         IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo)
             => AddServiceProperty(memberInfo, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IServiceProperty IEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableServiceProperty IMutableEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
 
+        /// <inheritdoc />
         IEnumerable<IServiceProperty> IEntityType.GetServiceProperties() => GetServiceProperties();
+
+        /// <inheritdoc />
         IEnumerable<IMutableServiceProperty> IMutableEntityType.GetServiceProperties() => GetServiceProperties();
+
+        /// <inheritdoc />
         IMutableServiceProperty IMutableEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
 
+        /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionEntityType.Builder => Builder;
+
+        /// <inheritdoc />
         IConventionModel IConventionEntityType.Model => Model;
+
+        /// <inheritdoc />
         IConventionEntityType IConventionEntityType.BaseType => BaseType;
 
+        /// <inheritdoc />
         void IConventionEntityType.HasBaseType(IConventionEntityType entityType, bool fromDataAnnotation)
             => HasBaseType(
                 (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         void IConventionEntityType.HasNoKey(bool? keyless, bool fromDataAnnotation)
             => HasNoKey(keyless, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionKey IConventionEntityType.SetPrimaryKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => SetPrimaryKey(
                 properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionKey IConventionEntityType.FindPrimaryKey() => FindPrimaryKey();
+
+        /// <inheritdoc />
         IConventionKey IConventionEntityType.FindKey(IReadOnlyList<IProperty> properties) => FindKey(properties);
+
+        /// <inheritdoc />
         IEnumerable<IConventionKey> IConventionEntityType.GetKeys() => GetKeys();
 
+        /// <inheritdoc />
         IConventionForeignKey IConventionEntityType.FindForeignKey(
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType);
 
+        /// <inheritdoc />
         IEnumerable<IConventionForeignKey> IConventionEntityType.GetForeignKeys() => GetForeignKeys();
+
+        /// <inheritdoc />
         IConventionIndex IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+
+        /// <inheritdoc />
         IEnumerable<IConventionIndex> IConventionEntityType.GetIndexes() => GetIndexes();
+
+        /// <inheritdoc />
         IConventionProperty IConventionEntityType.FindProperty(string name) => FindProperty(name);
+
+        /// <inheritdoc />
         IEnumerable<IConventionProperty> IConventionEntityType.GetProperties() => GetProperties();
+
+        /// <inheritdoc />
         IConventionServiceProperty IConventionEntityType.FindServiceProperty(string name) => FindServiceProperty(name);
+
+        /// <inheritdoc />
         IEnumerable<IConventionServiceProperty> IConventionEntityType.GetServiceProperties() => GetServiceProperties();
+
+        /// <inheritdoc />
         IConventionServiceProperty IConventionEntityType.RemoveServiceProperty(string name) => RemoveServiceProperty(name);
+
+        /// <inheritdoc />
         IConventionProperty IConventionEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
+        /// <inheritdoc />
         IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
             => AddServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionIndex IConventionEntityType.RemoveIndex(IReadOnlyList<IProperty> properties) => RemoveIndex(properties);
 
+        /// <inheritdoc />
         IConventionProperty IConventionEntityType.AddProperty(
             string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
             => AddProperty(
@@ -2665,6 +2803,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : (ConfigurationSource?)null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionProperty IConventionEntityType.AddIndexedProperty(
             string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
             => AddIndexedProperty(
@@ -2675,17 +2814,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : (ConfigurationSource?)null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionForeignKey IConventionEntityType.RemoveForeignKey(
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
+        /// <inheritdoc />
         IConventionIndex IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => AddIndex(
                 properties.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionKey IConventionEntityType.RemoveKey(IReadOnlyList<IProperty> properties) => RemoveKey(properties);
 
+        /// <inheritdoc />
         IConventionForeignKey IConventionEntityType.AddForeignKey(
             IReadOnlyList<IConventionProperty> properties,
             IConventionKey principalKey,
@@ -2701,6 +2844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : (ConfigurationSource?)null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionKey IConventionEntityType.AddKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => AddKey(
                 properties.Cast<Property>().ToList(),

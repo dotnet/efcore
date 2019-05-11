@@ -158,22 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.
-        /// </summary>
-        public static string DiscriminatorPropertyMustBeOnRoot([CanBeNull] object entityType)
-            => string.Format(
-                GetString("DiscriminatorPropertyMustBeOnRoot", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.
-        /// </summary>
-        public static string DiscriminatorPropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("DiscriminatorPropertyNotFound", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
         /// </summary>
         public static string StoredProcedureIncludeNotSupported
@@ -202,46 +186,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("IncompatibleTableNoRelationship", nameof(table), nameof(entityType), nameof(otherEntityType)),
                 table, entityType, otherEntityType);
-
-        /// <summary>
-        ///     Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
-        /// </summary>
-        public static string DiscriminatorEntityTypeNotDerived([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
-            => string.Format(
-                GetString("DiscriminatorEntityTypeNotDerived", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
-
-        /// <summary>
-        ///     Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.
-        /// </summary>
-        public static string DiscriminatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
-            => string.Format(
-                GetString("DiscriminatorValueIncompatible", nameof(value), nameof(discriminator), nameof(discriminatorType)),
-                value, discriminator, discriminatorType);
-
-        /// <summary>
-        ///     Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.
-        /// </summary>
-        public static string NoDiscriminatorForValue([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
-            => string.Format(
-                GetString("NoDiscriminatorForValue", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.
-        /// </summary>
-        public static string NoDiscriminatorProperty([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoDiscriminatorProperty", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.
-        /// </summary>
-        public static string NoDiscriminatorValue([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NoDiscriminatorValue", nameof(entityType)),
-                entityType);
 
         /// <summary>
         ///     No value provided for required parameter '{parameter}'.
@@ -344,14 +288,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("IncorrectDefaultValueType", nameof(value), nameof(valueType), nameof(property), nameof(propertyType), nameof(entityType)),
                 value, valueType, property, propertyType, entityType);
-
-        /// <summary>
-        ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
-        /// </summary>
-        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
-            => string.Format(
-                GetString("DuplicateDiscriminatorValue", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
-                entityType1, discriminatorValue, entityType2);
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different nullability.

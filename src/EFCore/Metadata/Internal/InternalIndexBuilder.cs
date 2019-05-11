@@ -72,13 +72,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newIndexBuilder;
         }
 
+        /// <inheritdoc />
         IConventionIndex IConventionIndexBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionIndexBuilder IConventionIndexBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
             => IsUnique(
                 unique,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionIndexBuilder.CanSetIsUnique(bool? unique, bool fromDataAnnotation)
             => CanSetIsUnique(
                 unique,

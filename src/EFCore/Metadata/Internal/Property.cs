@@ -637,21 +637,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual List<IIndex> Indexes { get; [param: CanBeNull] set; }
 
-        IConventionPropertyBuilder IConventionProperty.Builder => Builder;
-        IConventionEntityType IConventionProperty.DeclaringEntityType => DeclaringEntityType;
-
-        void IConventionProperty.SetIsNullable(bool? nullable, bool fromDataAnnotation)
-            => SetIsNullable(
-                nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        void IConventionProperty.SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation)
-            => SetValueGenerated(
-                valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        void IConventionProperty.SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
-            => SetIsConcurrencyToken(
-                concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -668,5 +653,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<Property> DebugView
             => new DebugView<Property>(this, m => m.ToDebugString(false));
+
+        /// <inheritdoc />
+        IConventionPropertyBuilder IConventionProperty.Builder => Builder;
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionProperty.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        void IConventionProperty.SetIsNullable(bool? nullable, bool fromDataAnnotation)
+            => SetIsNullable(
+                nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        void IConventionProperty.SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation)
+            => SetValueGenerated(
+                valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        void IConventionProperty.SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
+            => SetIsConcurrencyToken(
+                concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

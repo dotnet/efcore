@@ -288,28 +288,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _ignoredMembers.Remove(name);
         }
 
+        /// <inheritdoc />
         IModel ITypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         IMutableModel IMutableTypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         IConventionModel IConventionTypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
 
+        /// <inheritdoc />
         Type ITypeBase.ClrType
         {
             [DebuggerStepThrough] get => ClrType;
         }
 
+        /// <inheritdoc />
         void IMutableTypeBase.AddIgnored(string name) => AddIgnored(name, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         void IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }

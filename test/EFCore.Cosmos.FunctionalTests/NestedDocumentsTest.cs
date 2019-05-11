@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Entity<Person>(
                     eb => eb.OwnsMany(v => v.Addresses, b =>
                     {
-                        b.ToProperty("Stored Addresses");
+                        b.ForCosmosToProperty("Stored Addresses");
                         b.HasKey(v => new { v.Street, v.City });
                     }));
             }

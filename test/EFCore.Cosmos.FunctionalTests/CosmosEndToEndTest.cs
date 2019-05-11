@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -271,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.HasDefaultContainerName(nameof(CustomerContext));
-                modelBuilder.Entity<Customer>().Property<string>("EMail").ToProperty("e-mail");
+                modelBuilder.ForCosmosHasDefaultContainerName(nameof(CustomerContext));
+                modelBuilder.Entity<Customer>().Property<string>("EMail").ForCosmosToProperty("e-mail");
             }
         }
 
@@ -318,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().Property(c => c.Name).ToProperty("");
+                modelBuilder.Entity<Customer>().Property(c => c.Name).ForCosmosToProperty("");
             }
         }
 

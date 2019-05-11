@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -20,13 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         {
             var conventionSet = base.CreateConventionSet();
 
-            var discriminatorConvention = new DiscriminatorConvention();
+            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies.Logger);
             var storeKeyConvention = new StoreKeyConvention();
             conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
 
+            ReplaceConvention(conventionSet.EntityTypeRemovedConventions, (DiscriminatorConvention)discriminatorConvention);
+
             conventionSet.BaseEntityTypeChangedConventions.Add(storeKeyConvention);
-            conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
+            ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(storeKeyConvention);
 

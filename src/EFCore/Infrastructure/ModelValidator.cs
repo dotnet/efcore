@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateNoMutableKeys(model, logger);
             ValidateNoCycles(model, logger);
             ValidateClrInheritance(model, logger);
+            ValidateDiscriminatorValues(model, logger);
             ValidateChangeTrackingStrategy(model, logger);
             ValidateForeignKeys(model, logger);
             ValidateFieldMapping(model, logger);
@@ -435,15 +436,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var validEntityTypes = new HashSet<IEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                ValidateClrInheritance(model, entityType, validEntityTypes, logger);
+                ValidateClrInheritance(model, entityType, validEntityTypes);
             }
         }
 
         private void ValidateClrInheritance(
             [NotNull] IModel model,
             [NotNull] IEntityType entityType,
-            [NotNull] HashSet<IEntityType> validEntityTypes,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] HashSet<IEntityType> validEntityTypes)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(entityType, nameof(entityType));
@@ -485,6 +485,59 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             validEntityTypes.Add(entityType);
+        }
+
+        /// <summary>
+        ///     Validates the mapping/configuration of inheritance in the model.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateDiscriminatorValues([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var rootEntityType in model.GetRootEntityTypes())
+            {
+                ValidateDiscriminatorValues(rootEntityType);
+            }
+        }
+
+        private static void ValidateDiscriminatorValues(IEntityType rootEntityType)
+        {
+            var discriminatorValues = new Dictionary<object, IEntityType>();
+            var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();
+            if (derivedTypes.Count == 1)
+            {
+                return;
+            }
+
+            if (rootEntityType.GetDiscriminatorProperty() == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NoDiscriminatorProperty(rootEntityType.DisplayName()));
+            }
+
+            foreach (var derivedType in derivedTypes)
+            {
+                if (derivedType.ClrType?.IsInstantiable() != true)
+                {
+                    continue;
+                }
+
+                var discriminatorValue = derivedType.GetDiscriminatorValue();
+                if (discriminatorValue == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NoDiscriminatorValue(derivedType.DisplayName()));
+                }
+
+                if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DuplicateDiscriminatorValue(
+                            derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
+                }
+
+                discriminatorValues[discriminatorValue] = derivedType;
+            }
         }
 
         /// <summary>

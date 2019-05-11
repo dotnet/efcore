@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns <c>null</c> if no key is defined for the given properties.
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
-        /// <returns> The key, or null if none is defined. </returns>
+        /// <returns> The key, or <c>null</c> if none is defined. </returns>
         IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or null if none is defined. </returns>
+        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
         IForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,

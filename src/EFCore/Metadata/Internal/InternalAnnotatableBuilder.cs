@@ -180,23 +180,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <inheritdoc />
         IConventionModelBuilder IConventionAnnotatableBuilder.ModelBuilder => ModelBuilder;
 
+        /// <inheritdoc />
         IConventionAnnotatable IConventionAnnotatableBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatableBuilder.HasAnnotation(string name, object value, bool fromDataAnnotation)
             => HasAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatableBuilder.SetOrRemoveAnnotation(
             string name, object value, bool fromDataAnnotation)
             => SetOrRemoveAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionAnnotatableBuilder.CanSetAnnotation(string name, object value, bool fromDataAnnotation)
             => CanSetAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatableBuilder.RemoveAnnotation(string name, bool fromDataAnnotation)
             => RemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionAnnotatableBuilder.CanRemoveAnnotation(string name, bool fromDataAnnotation)
             => CanRemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }

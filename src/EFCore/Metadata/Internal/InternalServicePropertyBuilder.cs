@@ -130,17 +130,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        /// <inheritdoc />
         IConventionServiceProperty IConventionServicePropertyBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionServicePropertyBuilder IConventionServicePropertyBuilder.HasField(string fieldName, bool fromDataAnnotation)
             => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionServicePropertyBuilder IConventionServicePropertyBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionServicePropertyBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
             => CanSetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionServicePropertyBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => CanSetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }

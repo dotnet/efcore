@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasName(string name, bool fromDataAnnotation)
         {
             if (((IConventionDbFunctionBuilder)this).CanSetName(name, fromDataAnnotation))
@@ -63,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetFunctionNameConfigurationSource())
                || _function.FunctionName == name;
@@ -79,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasSchema(string schema, bool fromDataAnnotation)
         {
             if (((IConventionDbFunctionBuilder)this).CanSetSchema(schema, fromDataAnnotation))
@@ -90,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetSchemaConfigurationSource())
                || _function.Schema == schema;
@@ -116,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
         {
@@ -128,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())

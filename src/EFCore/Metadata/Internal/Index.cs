@@ -170,19 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (INullableValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
                 ref _nullableValueFactory, this, i => new CompositeNullableValueFactory(i.Properties));
 
-        IReadOnlyList<IProperty> IIndex.Properties => Properties;
-        IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
-
-        IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
-        IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
-
-        IConventionIndexBuilder IConventionIndex.Builder => Builder;
-        IReadOnlyList<IConventionProperty> IConventionIndex.Properties => Properties;
-        IConventionEntityType IConventionIndex.DeclaringEntityType => DeclaringEntityType;
-
-        void IConventionIndex.SetIsUnique(bool? unique, bool fromDataAnnotation)
-            => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -199,5 +186,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<Index> DebugView
             => new DebugView<Index>(this, m => m.ToDebugString(false));
+
+        /// <inheritdoc />
+        IReadOnlyList<IProperty> IIndex.Properties => Properties;
+
+        /// <inheritdoc />
+        IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
+
+        IConventionIndexBuilder IConventionIndex.Builder => Builder;
+
+        /// <inheritdoc />
+        IReadOnlyList<IConventionProperty> IConventionIndex.Properties => Properties;
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionIndex.DeclaringEntityType => DeclaringEntityType;
+
+        /// <inheritdoc />
+        void IConventionIndex.SetIsUnique(bool? unique, bool fromDataAnnotation)
+            => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

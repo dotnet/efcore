@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring a relationship.
     /// </summary>
-    public abstract class RelationshipBuilderBase : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
+    public abstract class RelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -59,18 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType = oldBuilder.DependentEntityType;
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
-                    : ((EntityType)DependentEntityType).Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
+                    : ((EntityType)oldBuilder.DependentEntityType).Builder.GetActualProperties(oldBuilder._foreignKeyProperties, null);
                 _principalKeyProperties = principalKeySet
                     ? builder.Metadata.PrincipalKey.Properties
-                    : ((EntityType)PrincipalEntityType).Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
+                    : ((EntityType)oldBuilder.PrincipalEntityType).Builder.GetActualProperties(oldBuilder._principalKeyProperties, null);
                 _required = requiredSet
                     ? builder.Metadata.IsRequired
                     : oldBuilder._required;
 
                 var foreignKey = builder.Metadata;
                 ForeignKey.AreCompatible(
-                    (EntityType)PrincipalEntityType,
-                    (EntityType)DependentEntityType,
+                    (EntityType)oldBuilder.PrincipalEntityType,
+                    (EntityType)oldBuilder.DependentEntityType,
                     foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
                     foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
                     _foreignKeyProperties,
@@ -103,11 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The foreign key that represents this relationship.
         /// </summary>
         public virtual IMutableForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that this relationship belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.

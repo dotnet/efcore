@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = _cosmosClient.CreateDatabaseIfNotExists();
             foreach (var entityType in _model.GetEntityTypes())
             {
-                created |= _cosmosClient.CreateContainerIfNotExists(entityType.Cosmos().ContainerName, "__partitionKey");
+                created |= _cosmosClient.CreateContainerIfNotExists(entityType.GetCosmosContainerName(), "__partitionKey");
             }
 
             if (created)
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
             foreach (var entityType in _model.GetEntityTypes())
             {
-                created |= await _cosmosClient.CreateContainerIfNotExistsAsync(entityType.Cosmos().ContainerName, "__partitionKey", cancellationToken);
+                created |= await _cosmosClient.CreateContainerIfNotExistsAsync(entityType.GetCosmosContainerName(), "__partitionKey", cancellationToken);
             }
 
             if (created)

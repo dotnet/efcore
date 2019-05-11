@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         public virtual IMutableSequence Metadata => _sequence;
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.HasType(Type type, bool fromDataAnnotation)
         {
             if (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetType(Type type, bool fromDataAnnotation)
             => (type == null || Sequence.SupportedTypes.Contains(type))
                && (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
@@ -62,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.IncrementsBy(int? increment, bool fromDataAnnotation)
         {
             if (((IConventionSequenceBuilder)this).CanSetIncrementsBy(increment, fromDataAnnotation))
@@ -73,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetIncrementsBy(int? increment, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetIncrementByConfigurationSource())
                || _sequence.IncrementBy == increment;
@@ -89,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.StartsAt(long? startValue, bool fromDataAnnotation)
         {
             if (((IConventionSequenceBuilder)this).CanSetStartsAt(startValue, fromDataAnnotation))
@@ -100,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetStartsAt(long? startValue, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetStartValueConfigurationSource())
                || _sequence.StartValue == startValue;
@@ -116,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.HasMax(long? maximum, bool fromDataAnnotation)
         {
             if (((IConventionSequenceBuilder)this).CanSetMax(maximum, fromDataAnnotation))
@@ -127,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetMax(long? maximum, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetMaxValueConfigurationSource())
                || _sequence.MaxValue == maximum;
@@ -143,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.HasMin(long? minimum, bool fromDataAnnotation)
         {
             if (((IConventionSequenceBuilder)this).CanSetMin(minimum, fromDataAnnotation))
@@ -154,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetMin(long? minimum, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetMinValueConfigurationSource())
                || _sequence.MinValue == minimum;
@@ -171,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionSequenceBuilder IConventionSequenceBuilder.IsCyclic(bool? cyclic, bool fromDataAnnotation)
         {
             if (((IConventionSequenceBuilder)this).CanSetCyclic(cyclic, fromDataAnnotation))
@@ -182,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetCyclic(bool? cyclic, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetIsCyclicConfigurationSource())
                || _sequence.IsCyclic == cyclic;

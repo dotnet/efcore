@@ -851,82 +851,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return finalModel;
         }
 
-        IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
-        IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
-
-        IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
-        IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name, ConfigurationSource.Explicit);
-        IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type, ConfigurationSource.Explicit);
-        IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
-
-        IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
-            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
-
-        IMutableEntityType IMutableModel.FindEntityType(
-            string name, string definingNavigationName, IMutableEntityType definingEntityType)
-            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
-
-        IMutableEntityType IMutableModel.AddEntityType(
-            string name,
-            string definingNavigationName,
-            IMutableEntityType definingEntityType)
-            => AddEntityType(name, definingNavigationName, (EntityType)definingEntityType, ConfigurationSource.Explicit);
-
-        IMutableEntityType IMutableModel.AddEntityType(
-            Type type,
-            string definingNavigationName,
-            IMutableEntityType definingEntityType)
-            => AddEntityType(type, definingNavigationName, (EntityType)definingEntityType, ConfigurationSource.Explicit);
-
-        IMutableEntityType IMutableModel.RemoveEntityType(
-            string name, string definingNavigationName, IMutableEntityType definingEntityType)
-            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
-
-        IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
-
-        void IMutableModel.AddIgnored(string name)
-            => AddIgnored(name, ConfigurationSource.Explicit);
-
-        IConventionModelBuilder IConventionModel.Builder => Builder;
-
-        IConventionEntityType IConventionModel.FindEntityType(string name) => FindEntityType(name);
-
-        IConventionEntityType IConventionModel.FindEntityType(
-            string name, string definingNavigationName, IConventionEntityType definingEntityType)
-            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
-
-        IConventionEntityType IConventionModel.AddEntityType(string name, bool fromDataAnnotation)
-            => AddEntityType(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        IConventionEntityType IConventionModel.AddEntityType(Type clrType, bool fromDataAnnotation)
-            => AddEntityType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        IConventionEntityType IConventionModel.AddEntityType(
-            string name, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
-            => AddEntityType(
-                name, definingNavigationName, (EntityType)definingEntityType,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        IConventionEntityType IConventionModel.AddEntityType(
-            Type clrType, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
-            => AddEntityType(
-                clrType, definingNavigationName, (EntityType)definingEntityType,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        IConventionEntityType IConventionModel.RemoveEntityType(string name) => RemoveEntityType(name);
-
-        IConventionEntityType IConventionModel.RemoveEntityType(
-            string name, string definingNavigationName, IConventionEntityType definingEntityType)
-            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
-
-        IEnumerable<IConventionEntityType> IConventionModel.GetEntityTypes() => GetEntityTypes();
-
-        void IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
-            => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        void IConventionModel.AddIgnored(Type clrType, bool fromDataAnnotation)
-            => AddIgnored(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -935,5 +859,110 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView<Model> DebugView
             => new DebugView<Model>(this, m => m.ToDebugString());
+
+        /// <inheritdoc />
+        IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
+
+        /// <inheritdoc />
+        IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
+
+        /// <inheritdoc />
+        IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.FindEntityType(
+            string name, string definingNavigationName, IMutableEntityType definingEntityType)
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.AddEntityType(
+            string name,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType)
+            => AddEntityType(name, definingNavigationName, (EntityType)definingEntityType, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.AddEntityType(
+            Type type,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType)
+            => AddEntityType(type, definingNavigationName, (EntityType)definingEntityType, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        IMutableEntityType IMutableModel.RemoveEntityType(
+            string name, string definingNavigationName, IMutableEntityType definingEntityType)
+            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        /// <inheritdoc />
+        IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
+
+        /// <inheritdoc />
+        void IMutableModel.AddIgnored(string name)
+            => AddIgnored(name, ConfigurationSource.Explicit);
+
+        /// <inheritdoc />
+        IConventionModelBuilder IConventionModel.Builder => Builder;
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.FindEntityType(string name) => FindEntityType(name);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.FindEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType)
+            => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.AddEntityType(string name, bool fromDataAnnotation)
+            => AddEntityType(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.AddEntityType(Type clrType, bool fromDataAnnotation)
+            => AddEntityType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.AddEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
+            => AddEntityType(
+                name, definingNavigationName, (EntityType)definingEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.AddEntityType(
+            Type clrType, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
+            => AddEntityType(
+                clrType, definingNavigationName, (EntityType)definingEntityType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.RemoveEntityType(string name) => RemoveEntityType(name);
+
+        /// <inheritdoc />
+        IConventionEntityType IConventionModel.RemoveEntityType(
+            string name, string definingNavigationName, IConventionEntityType definingEntityType)
+            => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
+
+        /// <inheritdoc />
+        IEnumerable<IConventionEntityType> IConventionModel.GetEntityTypes() => GetEntityTypes();
+
+        /// <inheritdoc />
+        void IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
+            => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        void IConventionModel.AddIgnored(Type clrType, bool fromDataAnnotation)
+            => AddIgnored(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

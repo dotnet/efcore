@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring an invertible relationship.
     /// </summary>
-    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
+    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -124,11 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The foreign key that represents this relationship.
         /// </summary>
         public virtual IMutableForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that this relationship belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         #region Hidden System.Object members
 

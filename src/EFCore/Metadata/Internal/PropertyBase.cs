@@ -323,10 +323,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessors Accessors
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
 
+        /// <inheritdoc />
         ITypeBase IPropertyBase.DeclaringType => DeclaringType;
+
+        /// <inheritdoc />
         IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
+
+        /// <inheritdoc />
         IConventionTypeBase IConventionPropertyBase.DeclaringType => DeclaringType;
 
+        /// <inheritdoc />
         void IConventionPropertyBase.SetField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => SetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }

@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -100,6 +103,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 entityType.DisplayName());
         }
 
+        [Fact]
+        public void Setting_discriminator_on_non_root_type_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+            var property = entityType.AddProperty("D", typeof(string));
+
+            var derivedType = modelBuilder
+                .Entity<SpecialCustomer>()
+                .Metadata;
+            derivedType.BaseType = entityType;
+
+            Assert.Equal(
+                CoreStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
+                Assert.Throws<InvalidOperationException>(() => derivedType.SetDiscriminatorProperty(property)).Message);
+        }
+
+        [Fact]
+        public void Setting_discriminator_from_different_entity_type_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var otherType = modelBuilder
+                .Entity<SpecialCustomer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
+                Assert.Throws<InvalidOperationException>(() => otherType.SetDiscriminatorProperty(property)).Message);
+        }
+
+        [Fact]
+        public void Can_get_and_set_discriminator_value()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D", typeof(string));
+            entityType.SetDiscriminatorProperty(property);
+
+            Assert.Null(entityType.GetDiscriminatorValue());
+
+            entityType.SetDiscriminatorValue("V");
+
+            Assert.Equal("V", entityType.GetDiscriminatorValue());
+
+            entityType.SetDiscriminatorValue(null);
+
+            Assert.Null(entityType.GetDiscriminatorValue());
+        }
+
+        [Fact]
+        public void Setting_discriminator_value_when_discriminator_not_set_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            Assert.Equal(
+                CoreStrings.NoDiscriminatorForValue("Customer", "Customer"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.SetDiscriminatorValue("V")).Message);
+        }
+
+        [Fact]
+        public void Setting_incompatible_discriminator_value_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D", typeof(int));
+            entityType.SetDiscriminatorProperty(property);
+
+            Assert.Equal(
+                CoreStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.SetDiscriminatorValue("V")).Message);
+
+            entityType.SetDiscriminatorValue(null);
+        }
+
         private static IMutableModel CreateModel() => new Model();
 
         private class A<T>
@@ -115,6 +216,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public SelfRef SelfRefPrincipal { get; set; }
             public SelfRef SelfRefDependent { get; set; }
             public int? SelfRefId { get; set; }
+        }
+
+        private class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Guid AlternateId { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
     }
 }

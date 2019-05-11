@@ -3370,120 +3370,145 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ResetDependentProperties = 1 << 3
         }
 
+        /// <inheritdoc />
         IConventionForeignKey IConventionRelationshipBuilder.Metadata => Metadata;
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasEntityTypes(
             IConventionEntityType principalEntityType, IConventionEntityType dependentEntityType, bool fromDataAnnotation)
             => HasEntityTypes(
                 (EntityType)principalEntityType, (EntityType)dependentEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanInvert(IReadOnlyList<IConventionProperty> newForeignKeyProperties, bool fromDataAnnotation)
             => CanInvert(
                 (IReadOnlyList<Property>)newForeignKeyProperties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasForeignKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasForeignKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetForeignKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetForeignKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasPrincipalKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasPrincipalKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetPrincipalKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetPrincipalKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigation(
             string name, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasNavigation(
                 name, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
             => HasNavigation(
                 property, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
             => HasNavigations(
                 navigationToPrincipalName, navigationToDependentName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
             => HasNavigations(
                 navigationToPrincipal, navigationToDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetNavigation(
                 property, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetNavigation(string name, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetNavigation(
                 name, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
             => CanSetNavigations(
                 navigationToPrincipal, navigationToDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.IsEagerLoaded(
             bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation)
             => IsEagerLoaded(
                 eagerLoaded, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetIsEagerLoaded(
                 eagerLoaded, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
             => CanSetNavigations(
                 navigationToPrincipalName, navigationToDependentName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.IsRequired(bool? required, bool fromDataAnnotation)
             => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
             => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.IsOwnership(bool? ownership, bool fromDataAnnotation)
             => IsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetIsOwnership(bool? ownership, bool fromDataAnnotation)
             => CanSetIsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.OnDelete(
             DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => OnDelete(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetOnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => CanSetDeleteBehavior(
                 deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
             => IsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         bool IConventionRelationshipBuilder.CanSetIsUnique(bool? unique, bool fromDataAnnotation)
             => CanSetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }

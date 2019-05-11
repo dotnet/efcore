@@ -88,7 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
 
+            var discriminatorConvention = new DiscriminatorConvention(logger);
             conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(logger));
+            conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
 
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention(logger);
             var valueGeneratorConvention = new ValueGeneratorConvention(logger);
@@ -100,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.BaseEntityTypeChangedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(foreignKeyIndexConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(valueGeneratorConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
 
             var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention(logger);
 

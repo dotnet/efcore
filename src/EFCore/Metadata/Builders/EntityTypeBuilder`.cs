@@ -755,6 +755,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new DataBuilder<TEntity>();
         }
 
-        private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
+        /// <param name="propertyExpression">
+        ///     A lambda expression representing the property to be used as the discriminator (
+        ///     <c>blog => blog.Discriminator</c>).
+        /// </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+            [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)
+        {
+            Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+            return new DiscriminatorBuilder<TDiscriminator>(
+               Builder.DiscriminatorBuilder(Property(propertyExpression).GetInfrastructure(), ConfigurationSource.Explicit));
+        }
+
+        private InternalEntityTypeBuilder Builder => this.GetInfrastructure();
     }
 }

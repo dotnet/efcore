@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -523,5 +524,28 @@ namespace Microsoft.EntityFrameworkCore
 
             return (LambdaExpression)entityType[CoreAnnotationNames.DefiningQuery];
         }
+        /// <summary>
+        ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        public static IProperty GetDiscriminatorProperty([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.RootType().GetDiscriminatorProperty();
+            }
+
+            var propertyName = (string)entityType[CoreAnnotationNames.DiscriminatorProperty];
+
+            return propertyName == null ? null : entityType.FindProperty(propertyName);
+        }
+
+        /// <summary>
+        ///     Returns the discriminator value for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the discriminator value for. </param>
+        /// <returns> The discriminator value for this entity type. </returns>
+        public static object GetDiscriminatorValue([NotNull] this IEntityType entityType)
+            => entityType[CoreAnnotationNames.DiscriminatorValue];
     }
 }

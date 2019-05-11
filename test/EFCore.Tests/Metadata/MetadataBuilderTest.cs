@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", model["Annotation"]);
             Assert.Equal("V2.Metadata", model["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -51,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -71,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -91,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -112,7 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -133,7 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", property["Annotation"]);
             Assert.Equal("V2.Metadata", property["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -154,7 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -176,7 +169,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -198,7 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -221,7 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -239,7 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", model["Annotation"]);
             Assert.Equal("V2.Metadata", model["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -259,7 +248,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -279,7 +267,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -299,7 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -320,7 +306,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -341,7 +326,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", property["Annotation"]);
             Assert.Equal("V2.Metadata", property["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -362,7 +346,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -384,7 +367,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -406,7 +388,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         [Fact]
@@ -429,7 +410,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
         }
 
         protected virtual ModelBuilder CreateModelBuilder()
@@ -468,7 +448,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Model["Metadata"] = value + ".Metadata";
-            builder.Model["Model"] = value + ".Model";
 
             return builder;
         }
@@ -477,7 +456,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -488,7 +466,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -497,7 +474,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -506,7 +482,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -515,7 +490,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -524,7 +498,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -533,7 +506,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -542,7 +514,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -560,7 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -571,7 +541,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -580,7 +549,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -589,7 +557,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -598,7 +565,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -607,7 +573,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -616,7 +581,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }

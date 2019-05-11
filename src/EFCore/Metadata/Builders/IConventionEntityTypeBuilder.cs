@@ -493,5 +493,99 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given <see cref="PropertyAccessMode" /> can be set. </returns>
         bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        IConventionDiscriminatorBuilder HasDiscriminator(bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the discriminator was configured,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDiscriminatorBuilder HasDiscriminator([NotNull] Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the discriminator was configured,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDiscriminatorBuilder HasDiscriminator([NotNull] string name, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the discriminator was configured,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDiscriminatorBuilder HasDiscriminator([NotNull] string name, [NotNull] Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="memberInfo"> The property mapped to the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the discriminator was configured,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionDiscriminatorBuilder HasDiscriminator([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Removes the discriminator property from this entity type.
+        ///     This method is usually called when the entity type is no longer mapped to the same table as any other type in
+        ///     the hierarchy or when this entity type is no longer the root type.
+        /// </summary>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the discriminator was configured,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        IConventionEntityTypeBuilder HasNoDeclaredDiscriminator(bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the discriminator column can be configured.
+        /// </summary>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanSetDiscriminator([CanBeNull] string name, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the discriminator column can be configured.
+        /// </summary>
+        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanSetDiscriminator([CanBeNull] Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the discriminator column can be configured.
+        /// </summary>
+        /// <param name="type"> The type of values stored in the discriminator column. </param>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        bool CanSetDiscriminator([NotNull] Type type, [NotNull] string name, bool fromDataAnnotation = false);
     }
 }
