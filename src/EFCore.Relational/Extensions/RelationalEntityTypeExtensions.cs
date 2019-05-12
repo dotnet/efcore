@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             entityType.BaseType != null
                 ? entityType.RootType().GetViewName()
                 : (string)entityType[RelationalAnnotationNames.TableName]
-                  ?? GetDefaultTableName(entityType);
+                  ?? GetTableName(entityType);
 
         /// <summary>
         ///     Sets the name of the table to which the entity type is mapped.
