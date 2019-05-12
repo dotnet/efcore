@@ -48,6 +48,16 @@ namespace Microsoft.EntityFrameworkCore
                     : entityType.ShortName(),
                 entityType.Model.GetMaxIdentifierLength());
         }
+        /// <summary>
+        ///     Returns the name of the view to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the view name for. </param>
+        /// <returns> The name of the view to which the entity type is mapped. </returns>
+        public static string GetViewName([NotNull] this IEntityType entityType) =>
+            entityType.BaseType != null
+                ? entityType.RootType().GetViewName()
+                : (string)entityType[RelationalAnnotationNames.TableName]
+                  ?? GetDefaultTableName(entityType);
 
         /// <summary>
         ///     Sets the name of the table to which the entity type is mapped.
@@ -57,6 +67,16 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetTableName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
             => entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.TableName,
+                Check.NullButNotEmpty(name, nameof(name)));
+
+        /// <summary>
+        ///     Sets the name of the view to which the entity type is mapped.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the view name for. </param>
+        /// <param name="name"> The name to set. </param>
+        public static void SetViewName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+            => entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewName,
                 Check.NullButNotEmpty(name, nameof(name)));
 
         /// <summary>

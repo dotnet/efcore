@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
-            var tableName = entityType.GetTableName();
+            var tableName = entityType.GetViewName();
 
             var tableAlias
                 = relationalQueryCompilationContext.CreateUniqueTableAlias(

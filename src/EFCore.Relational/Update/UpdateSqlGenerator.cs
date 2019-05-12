@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
+            var viewName = command.ViewName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToList();
 
-                return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
+                return AppendSelectAffectedCommand(commandStringBuilder, viewName, schema, readOperations, keyOperations, commandPosition);
             }
 
             return ResultSetMapping.NoResultSet;
@@ -94,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
+            var viewName = command.ViewName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
 
@@ -107,10 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToList();
 
-                return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
+                return AppendSelectAffectedCommand(commandStringBuilder, viewName, schema, readOperations, keyOperations, commandPosition);
             }
 
-            return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+            return AppendSelectAffectedCountCommand(commandStringBuilder, viewName, schema, commandPosition);
         }
 
         /// <summary>
@@ -126,12 +128,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
+            var viewName = command.ViewName;
             var schema = command.Schema;
             var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
 
             AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
 
-            return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+            return AppendSelectAffectedCountCommand(commandStringBuilder, viewName, schema, commandPosition);
         }
 
         /// <summary>

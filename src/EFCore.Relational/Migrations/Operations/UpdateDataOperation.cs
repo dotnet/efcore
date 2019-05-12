@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
 
         /// <summary>
+        ///     The name of the view in which data will be updated.
+        /// </summary>
+        public virtual string View { get; [param: NotNull] set; }
+
+        /// <summary>
         ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
@@ -67,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 $"The number of key values doesn't match the number of values (${KeyValues.GetLength(0)})");
 
             var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, Schema)?.GetPropertyMap()
+                ? TableMapping.GetTableMapping(model, Table, View, Schema)?.GetPropertyMap()
                 : null;
 
             for (var i = 0; i < KeyValues.GetLength(0); i++)
@@ -88,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                         isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, View, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
             }
         }
     }
