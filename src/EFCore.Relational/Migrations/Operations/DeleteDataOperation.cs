@@ -58,8 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 KeyColumns.Length == KeyValues.GetLength(1),
                 $"The number of key values doesn't match the number of keys (${KeyColumns.Length})");
 
+            var viewName = ViewName ?? Table;
+            var viewSchemaName = ViewSchemaName ?? Schema;
+
             var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, Schema, ViewName, ViewSchemaName)?.GetPropertyMap()
+                ? TableMapping.GetTableMapping(model, Table, Schema, viewName, viewSchemaName)?.GetPropertyMap()
                 : null;
 
             for (var i = 0; i < KeyValues.GetLength(0); i++)
@@ -72,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                         isRead: false, isWrite: true, isKey: true, isCondition: true, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, ViewName, ViewSchemaName, modifications, sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, Schema, viewName, viewSchemaName, modifications, sensitiveLoggingEnabled: true);
             }
         }
     }

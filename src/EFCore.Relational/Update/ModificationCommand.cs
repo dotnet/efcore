@@ -91,7 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
-
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
