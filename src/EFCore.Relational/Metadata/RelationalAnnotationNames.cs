@@ -45,6 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string TableName = Prefix + "TableName";
 
         /// <summary>
+        ///     The name for schema name annotations.
+        /// </summary>
+        public const string Schema = Prefix + "Schema";
+
+        /// <summary>
         ///     The name for view name annotations.
         /// </summary>
         public const string ViewName = Prefix + "ViewName";
@@ -52,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The name for schema name annotations.
         /// </summary>
-        public const string Schema = Prefix + "Schema";
+        public const string ViewSchemaName = Prefix + "ViewSchemaName";
 
         /// <summary>
         ///     The name for default schema annotations.

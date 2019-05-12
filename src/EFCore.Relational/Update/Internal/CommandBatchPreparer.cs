@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
 
-        private IReadOnlyDictionary<(string Schema, string Name, string ViewName), SharedTableEntryMapFactory<ModificationCommand>> _sharedTableEntryMapFactories;
+        private IReadOnlyDictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMapFactory<ModificationCommand>> _sharedTableEntryMapFactories;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     .CreateSharedTableEntryMapFactories(modelData.Model, modelData);
             }
 
-            Dictionary<(string Schema, string Name, string ViewName), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
+            Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
             {
@@ -180,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var table = entityType.GetTableName();
                 var schema = entityType.GetSchema();
                 var viewName = entityType.GetViewName();
-                var tableKey = (schema, table, viewName);
+                var viewSchemaName = entityType.GetViewSchemaName();
+                var tableKey = (schema, table, viewSchemaName, viewName);
 
                 ModificationCommand command;
                 if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
@@ -188,15 +189,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (sharedTablesCommandsMap == null)
                     {
                         sharedTablesCommandsMap =
-                            new Dictionary<(string Schema, string Name, string ViewName), SharedTableEntryMap<ModificationCommand>>();
+                            new Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMap<ModificationCommand>>();
                     }
 
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                     {
                         sharedCommandsMap = commandIdentityMapFactory(
-                            (t, v, s, c) => new ModificationCommand(
-                                t, v, s, generateParameterName, _sensitiveLoggingEnabled, c));
-                        sharedTablesCommandsMap.Add((schema, table, viewName), sharedCommandsMap);
+                            (t, s, v, vs, c) => new ModificationCommand(
+                                t, s, v, vs, generateParameterName, _sensitiveLoggingEnabled, c));
+                        sharedTablesCommandsMap.Add((schema, table, viewSchemaName, viewName), sharedCommandsMap);
                     }
 
                     command = sharedCommandsMap.GetOrAddValue(entry);
@@ -204,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 else
                 {
                     command = new ModificationCommand(
-                        table, viewName, schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                        table, schema, viewName, viewSchemaName, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                 }
 
                 command.AddEntry(entry);
@@ -223,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private void Validate(
-            Dictionary<(string Schema, string Name, string ViewName),
+            Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName),
                 SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap)
         {
             foreach (var modificationCommandIdentityMap in sharedTablesCommandsMap.Values)
@@ -289,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private void AddUnchangedSharingEntries(
-            Dictionary<(string Schema, string Name, string ViewName), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap,
+            Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap,
             IList<IUpdateEntry> entries)
         {
             foreach (var modificationCommandIdentityMap in sharedTablesCommandsMap.Values)

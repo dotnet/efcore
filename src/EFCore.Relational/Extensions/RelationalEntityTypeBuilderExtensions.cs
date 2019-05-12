@@ -319,8 +319,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(schema, nameof(schema));
 
             entityTypeBuilder.Metadata.SetViewName(name);
-            // TODO:
-            //entityTypeBuilder.Metadata.SetViewSchema(schema);
+            entityTypeBuilder.Metadata.SetViewSchema(schema);
 
             return entityTypeBuilder;
         }

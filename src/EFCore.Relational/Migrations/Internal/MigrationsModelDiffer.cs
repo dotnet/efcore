@@ -1633,9 +1633,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     target.EntityTypes,
                     _targetUpdateAdapter,
                     target.Name,
+                    target.Schema,
                     target.ViewName,
-                    target.Schema)
-                ((t, v, s, c) => new List<IUpdateEntry>());
+                    target.ViewSchemaName)
+                ((t, s, v, vs, c) => new List<IUpdateEntry>());
 
             foreach (var targetEntityType in target.EntityTypes)
             {
@@ -1694,9 +1695,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     source.EntityTypes,
                     _sourceUpdateAdapter,
                     source.Name,
-                    source.ViewName,
-                    source.Schema)
-                ((t, v, s, c) => new EntryMapping());
+                    source.Schema,
+                    source.ViewSchemaName,
+                    source.ViewName)
+                ((t, s, v, vs, c) => new EntryMapping());
 
             foreach (var sourceEntityType in source.EntityTypes)
             {

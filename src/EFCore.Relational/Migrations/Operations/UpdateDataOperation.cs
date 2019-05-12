@@ -23,14 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
 
         /// <summary>
+        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        /// </summary>
+        public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     The name of the view in which data will be updated.
         /// </summary>
-        public virtual string View { get; [param: NotNull] set; }
+        public virtual string ViewName { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string ViewSchemaName { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     A list of column names that represent the columns that will be used to identify
@@ -72,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 $"The number of key values doesn't match the number of values (${KeyValues.GetLength(0)})");
 
             var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, View, Schema)?.GetPropertyMap()
+                ? TableMapping.GetTableMapping(model, Table, Schema, ViewName, ViewSchemaName)?.GetPropertyMap()
                 : null;
 
             for (var i = 0; i < KeyValues.GetLength(0); i++)
@@ -93,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                         isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, View, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, Schema, ViewName, ViewSchemaName, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
             }
         }
     }

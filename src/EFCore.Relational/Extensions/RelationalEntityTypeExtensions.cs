@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                     : entityType.ShortName(),
                 entityType.Model.GetMaxIdentifierLength());
         }
+
         /// <summary>
         ///     Returns the name of the view to which the entity type is mapped.
         /// </summary>
@@ -132,6 +133,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the schema for. </param>
+        /// <returns> The database schema that contains the mapped view. </returns>
+        public static string GetViewSchemaName([NotNull] this IEntityType entityType) =>
+            entityType.BaseType != null
+                ? entityType.RootType().GetViewSchemaName()
+                : (string)entityType[RelationalAnnotationNames.Schema]
+                  ?? GetSchema(entityType);
+
+        /// <summary>
         ///     Sets the database schema that contains the mapped table.
         /// </summary>
         /// <param name="entityType"> The entity type to set the schema for. </param>
@@ -151,6 +163,29 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Schema,
+                Check.NullButNotEmpty(value, nameof(value)),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Sets the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the schema for. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetViewSchema([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
+            => entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewSchemaName,
+                Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     Sets the database schema that contains the mapped view.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the schema for. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetViewSchema(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.ViewSchemaName,
                 Check.NullButNotEmpty(value, nameof(value)),
                 fromDataAnnotation);
 

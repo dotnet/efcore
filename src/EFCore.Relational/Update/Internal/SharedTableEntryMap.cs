@@ -22,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
         private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _dependents;
         private readonly string _name;
-        private readonly string _viewName;
         private readonly string _schema;
+        private readonly string _viewName;
+        private readonly string _viewSchemaName;
         private readonly SharedTableEntryValueFactory<TValue> _createElement;
         private readonly IComparer<IUpdateEntry> _comparer;
 
@@ -41,16 +42,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> principals,
             [NotNull] IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> dependents,
             [NotNull] string name,
-            [NotNull] string viewName,
             [CanBeNull] string schema,
+            [NotNull] string viewName,
+            [CanBeNull] string viewSchemaName,
             [NotNull] SharedTableEntryValueFactory<TValue> createElement)
         {
             _updateAdapter = updateAdapter;
             _principals = principals;
             _dependents = dependents;
             _name = name;
-            _viewName = viewName;
             _schema = schema;
+            _viewName = viewName;
+            _viewSchemaName = viewSchemaName;
             _createElement = createElement;
             _comparer = new EntryComparer(principals);
         }
@@ -61,15 +64,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Dictionary<(string Schema, string Name, string ViewName), SharedTableEntryMapFactory<TValue>>
+        public static Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMapFactory<TValue>>
             CreateSharedTableEntryMapFactories(
                 [NotNull] IModel model,
                 [NotNull] IUpdateAdapter updateAdapter)
         {
-            var tables = new Dictionary<(string Schema, string TableName, string ViewName), List<IEntityType>>();
+            var tables = new Dictionary<(string Schema, string TableName, string ViewSchemaName, string ViewName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
-                var fullName = (entityType.GetSchema(), entityType.GetTableName(), entityType.GetViewName());
+                var fullName = (entityType.GetSchema(), entityType.GetTableName(), entityType.GetViewSchemaName(), entityType.GetViewName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
@@ -79,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 mappedEntityTypes.Add(entityType);
             }
 
-            var sharedTablesMap = new Dictionary<(string Schema, string Name, string ViewName), SharedTableEntryMapFactory<TValue>>();
+            var sharedTablesMap = new Dictionary<(string Schema, string Name, string ViewSchemaName, string ViewName), SharedTableEntryMapFactory<TValue>>();
             foreach (var tableMapping in tables)
             {
                 if (tableMapping.Value.Count <= 1)
@@ -87,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.ViewName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema, tableMapping.Key.ViewSchemaName, tableMapping.Key.ViewName);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }
@@ -105,8 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IReadOnlyList<IEntityType> entityTypes,
             [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] string tableName,
+            [NotNull] string schema,
             [NotNull] string viewName,
-            [NotNull] string schema)
+            [NotNull] string viewSchemaName)
         {
             var principals = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
             var dependents = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
@@ -146,8 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 principals,
                 dependents,
                 tableName,
-                viewName,
                 schema,
+                viewName,
+                viewSchemaName,
                 createElement);
         }
 
@@ -173,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return sharedCommand;
             }
 
-            sharedCommand = _createElement(_name, _viewName, _schema, _comparer);
+            sharedCommand = _createElement(_name, _schema, _viewName, _viewSchemaName, _comparer);
             _entryValueMap.Add(mainEntry, sharedCommand);
 
             return sharedCommand;

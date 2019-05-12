@@ -22,14 +22,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The name of the view into which data will be inserted.
-        /// </summary>
-        public virtual string View { get; [param: NotNull] set; }
-
-        /// <summary>
         ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The name of the view into which data will be inserted.
+        /// </summary>
+        public virtual string ViewName { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the view, or <c>null</c> if the default schema should be used.
+        /// </summary>
+        public virtual string ViewSchemaName { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     A list of column names that represent the columns into which data will be inserted.
@@ -53,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
 
             var properties = model != null
-                ? TableMapping.GetTableMapping(model, Table, View, Schema)?.GetPropertyMap()
+                ? TableMapping.GetTableMapping(model, Table, Schema, ViewName, ViewSchemaName)?.GetPropertyMap()
                 : null;
 
             for (var i = 0; i < Values.GetLength(0); i++)
@@ -66,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                         isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, View, Schema, modifications, sensitiveLoggingEnabled: true);
+                yield return new ModificationCommand(Table, Schema, ViewName, ViewSchemaName, modifications, sensitiveLoggingEnabled: true);
             }
         }
     }

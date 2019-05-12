@@ -26,11 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public TableMapping(
             [CanBeNull] string schema,
             [NotNull] string name,
+            [CanBeNull] string viewSchemaName,
             [NotNull] string viewName,
             [NotNull] IReadOnlyList<IEntityType> entityTypes)
         {
             Schema = schema;
             Name = name;
+            ViewSchemaName = viewSchemaName;
             ViewName = viewName;
             EntityTypes = entityTypes;
         }
@@ -58,6 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string ViewName { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ViewSchemaName { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
-            var tables = new Dictionary<(string Schema, string TableName, string ViewName), List<IEntityType>>();
+            var tables = new Dictionary<(string Schema, string TableName, string ViewSchemaName, string ViewName), List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
-                var fullName = (entityType.GetSchema(), entityType.GetTableName(), entityType.GetViewName());
+                var fullName = (entityType.GetSchema(), entityType.GetTableName(), entityType.GetViewSchemaName(), entityType.GetViewName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))
                 {
                     mappedEntityTypes = new List<IEntityType>();
@@ -168,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 mappedEntityTypes.Add(entityType);
             }
 
-            return tables.Select(kv => new TableMapping(kv.Key.Schema, kv.Key.TableName, kv.Key.ViewName, kv.Value))
+            return tables.Select(kv => new TableMapping(kv.Key.Schema, kv.Key.TableName, kv.Key.ViewSchemaName, kv.Key.ViewName, kv.Value))
                 .OrderBy(t => t.Schema).ThenBy(t => t.Name).ToList();
         }
 
@@ -178,21 +188,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static TableMapping GetTableMapping([NotNull] IModel model, [NotNull] string table, [NotNull] string view, [CanBeNull] string schema)
+        public static TableMapping GetTableMapping([NotNull] IModel model, [NotNull] string table, [CanBeNull] string schema, [NotNull] string viewName, [CanBeNull] string viewSchemaName)
         {
             var mappedEntities = new List<IEntityType>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
                 if (table == entityType.GetTableName()
-                    && view == entityType.GetViewName()
-                    && schema == entityType.GetSchema())
+                    && schema == entityType.GetSchema()
+                    && viewName == entityType.GetViewName()
+                    && viewSchemaName == entityType.GetViewSchemaName())
                 {
                     mappedEntities.Add(entityType);
                 }
             }
 
             return mappedEntities.Count > 0
-                ? new TableMapping(schema, table, view, mappedEntities)
+                ? new TableMapping(schema, table, viewSchemaName, viewName, mappedEntities)
                 : null;
         }
     }
