@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetViewName([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
                 ? entityType.RootType().GetViewName()
-                : (string)entityType[RelationalAnnotationNames.TableName]
+                : (string)entityType[RelationalAnnotationNames.ViewName]
                   ?? GetTableName(entityType);
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetViewSchemaName([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
                 ? entityType.RootType().GetViewSchemaName()
-                : (string)entityType[RelationalAnnotationNames.Schema]
+                : (string)entityType[RelationalAnnotationNames.ViewSchemaName]
                   ?? GetSchema(entityType);
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to set the schema for. </param>
         /// <param name="value"> The value to set. </param>
-        public static void SetViewSchema([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
+        public static void SetViewSchemaName([NotNull] this IMutableEntityType entityType, [CanBeNull] string value)
             => entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ViewSchemaName,
                 Check.NullButNotEmpty(value, nameof(value)));
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the schema for. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetViewSchema(
+        public static void SetViewSchemaName(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string value, bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ViewSchemaName,

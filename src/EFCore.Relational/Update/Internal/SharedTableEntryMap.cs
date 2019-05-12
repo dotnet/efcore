@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema, tableMapping.Key.ViewSchemaName, tableMapping.Key.ViewName);
+                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema, tableMapping.Key.ViewName, tableMapping.Key.ViewSchemaName);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }
