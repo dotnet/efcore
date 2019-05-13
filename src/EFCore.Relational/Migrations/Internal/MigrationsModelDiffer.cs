@@ -825,10 +825,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                              && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
                 (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c)
-                             && PropertyStructureEquals(s, t),
-                (s, t, c) => PropertyStructureEquals(s, t));
+                             && PropertyStructureEquals(s, t, c),
+                (s, t, c) => PropertyStructureEquals(s, t, c));
 
-        private bool PropertyStructureEquals(IProperty source, IProperty target)
+        private bool PropertyStructureEquals(IProperty source, IProperty target, DiffContext diffContext)
             =>
                 source.ClrType == target.ClrType
                 && source.IsConcurrencyToken == target.IsConcurrencyToken
@@ -840,10 +840,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
                 && source.GetComputedColumnSql() == target.GetComputedColumnSql()
                 && Equals(GetDefaultValue(source), GetDefaultValue(target))
-                && source.GetDefaultValueSql() == target.GetDefaultValueSql();
+                && source.GetDefaultValueSql() == target.GetDefaultValueSql()
+                && EntityTypePathEquals(
+                        source.FindContainingPrimaryKey()?.DeclaringEntityType,
+                        target.FindContainingPrimaryKey()?.DeclaringEntityType,
+                        diffContext)
+                && (source.FindContainingPrimaryKey() == null || target.FindContainingPrimaryKey() == null
+                    || source.FindContainingPrimaryKey().Properties.Count == 
+                        target.FindContainingPrimaryKey().Properties.Count)
+                && source.GetContainingForeignKeys().All(sfk =>
+                        target.GetContainingForeignKeys().Any(tfk =>
+                            EntityTypePathEquals(sfk.PrincipalEntityType, tfk.PrincipalEntityType, diffContext)
+                            && sfk.PrincipalKey == tfk.PrincipalKey))
+                && source.GetContainingIndexes().All(si =>
+                        target.GetContainingIndexes().Any(ti =>
+                            EntityTypePathEquals(si.DeclaringEntityType, ti.DeclaringEntityType, diffContext)
+                            && si.Properties.Select(p => p.GetColumnName()).SequenceEqual(
+                                 ti.Properties.Select(p => p.GetColumnName()))));
 
         private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
         {
+            if (source == null && target == null)
+            { 
+                return true;
+            }
+            else if (source == null || target == null)
+            {
+                return false;
+            }
+
             var sourceTable = diffContext.FindSourceTable(source);
             var targetTable = diffContext.FindTargetTable(target);
 
