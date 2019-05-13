@@ -420,7 +420,7 @@ namespace Microsoft.Data.Sqlite
             => GetX_works(
                 "SELECT julianday('2013-10-12 09:25:22.120') - julianday('2013-10-07 08:23:19');",
                 r => ((SqliteDataReader)r).GetTimeSpan(0),
-                new TimeSpan(5, 1, 2, 3, 120));
+                TimeSpan.FromDays(5.04309166688472));
 
         [Fact]
         public void GetTimeSpan_works_with_integer()
