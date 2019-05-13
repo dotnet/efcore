@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 schema,
                 Check.NotEmpty(name, nameof(name)),
                 schema,
-                null,
+                generateParameterName,
                 sensitiveLoggingEnabled,
                 comparer)
         {
