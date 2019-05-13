@@ -71,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
                 RelationalAnnotationNames.MaxIdentifierLength,
-                RelationalAnnotationNames.IsFixedLength
+                RelationalAnnotationNames.IsFixedLength,
+                RelationalAnnotationNames.ViewSchemaName,
+                RelationalAnnotationNames.ViewName,
             };
 
             // Add a line here if the code generator is supposed to handle this annotation
@@ -134,7 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.DiscriminatorValue,
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.MaxIdentifierLength
+                RelationalAnnotationNames.MaxIdentifierLength,
+                RelationalAnnotationNames.ViewSchemaName,
+                RelationalAnnotationNames.ViewName,
             };
 
             // Add a line here if the code generator is supposed to handle this annotation
