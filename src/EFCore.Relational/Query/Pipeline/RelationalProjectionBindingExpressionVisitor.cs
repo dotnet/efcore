@@ -76,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     && methodCall.Arguments[0] is EntityShaperExpression entityShaperExpression
                     && entityShaperExpression.EntityType.GetProperties().Count() == newArrayExpression.Expressions.Count)
                 {
+                    VerifySelectExpression(entityShaperExpression.ValueBufferExpression);
+
                     _projectionMapping[_projectionMembers.Peek()]
                        = _selectExpression.GetProjectionExpression(
                            entityShaperExpression.ValueBufferExpression.ProjectionMember);
@@ -83,11 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     return new EntityValuesExpression(entityShaperExpression.EntityType, entityShaperExpression.ValueBufferExpression);
                 }
 
-                var translation = _sqlTranslator.Translate(_selectExpression, expression);
+                var translation = _sqlTranslator.Translate(expression);
 
                 _projectionMapping[_projectionMembers.Peek()] = translation ?? throw new InvalidOperationException();
 
-                return new ProjectionBindingExpression(_projectionMembers.Peek(), expression.Type);
+                return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
             }
 
             return base.Visit(expression);
@@ -97,12 +99,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
+                VerifySelectExpression(entityShaperExpression.ValueBufferExpression);
+
                 _projectionMapping[_projectionMembers.Peek()]
                     = _selectExpression.GetProjectionExpression(
                         entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                 return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_projectionMembers.Peek(), typeof(ValueBuffer)));
+                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             throw new InvalidOperationException();
@@ -141,6 +145,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             return memberInitExpression.Update(newExpression, newBindings);
+        }
+
+        // TODO: Debugging
+        private void VerifySelectExpression(ProjectionBindingExpression projectionBindingExpression)
+        {
+            if (projectionBindingExpression.QueryExpression != _selectExpression)
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

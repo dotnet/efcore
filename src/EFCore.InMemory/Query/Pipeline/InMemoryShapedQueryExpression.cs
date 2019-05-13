@@ -14,7 +14,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             QueryExpression = new InMemoryQueryExpression(entityType);
             ShaperExpression = new EntityShaperExpression(
                 entityType,
-                new ProjectionBindingExpression(new ProjectionMember(), typeof(ValueBuffer)),
+                new ProjectionBindingExpression(
+                    QueryExpression,
+                    new ProjectionMember(), typeof(ValueBuffer)),
                 false);
         }
     }

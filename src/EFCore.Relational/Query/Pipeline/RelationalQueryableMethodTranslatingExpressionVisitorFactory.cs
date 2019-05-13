@@ -19,10 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _relationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
         }
 
-        public QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext)
+        public QueryableMethodTranslatingExpressionVisitor Create(IModel model)
         {
             return new RelationalQueryableMethodTranslatingExpressionVisitor(
-                queryCompilationContext.Model,
+                model,
+                this,
                 _relationalSqlTranslatingExpressionVisitorFactory,
                 _sqlExpressionFactory);
         }

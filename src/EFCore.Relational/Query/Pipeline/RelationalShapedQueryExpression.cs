@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             ShaperExpression = new EntityShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(
+                    QueryExpression,
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
                 false);

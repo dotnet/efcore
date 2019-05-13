@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     return ApplyTypeMappingOnCase(caseExpression, typeMapping);
 
                 case LikeExpression likeExpression:
-                    return ApplyTypeMappingOnLike(likeExpression, typeMapping);
+                    return ApplyTypeMappingOnLike(likeExpression);
 
                 case SqlBinaryExpression sqlBinaryExpression:
                     return ApplyTypeMappingOnSqlBinary(sqlBinaryExpression, typeMapping);
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
         }
 
-        private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression, RelationalTypeMapping typeMapping)
+        private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
         {
             var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(
                 likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar)

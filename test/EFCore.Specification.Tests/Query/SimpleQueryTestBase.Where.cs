@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
-        [ConditionalFact(Skip = "TaskList#11")]
+        [ConditionalFact]
         public virtual void Where_subquery_closure_via_query_cache()
         {
             using (var context = CreateContext())
@@ -618,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 3);
         }
 
-        [ConditionalTheory(Skip = "TaskList#14")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_shadow_subquery_FirstOrDefault(bool isAsync)
         {
@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        [ConditionalTheory(Skip = "TaskList#11")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_correlated(bool isAsync)
         {
@@ -1922,7 +1922,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "TaskList#11")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_multiple_contains_in_subquery_with_or(bool isAsync)
         {
@@ -1936,7 +1936,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 41);
         }
 
-        [ConditionalTheory(Skip = "TaskList#11")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_multiple_contains_in_subquery_with_and(bool isAsync)
         {
