@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         public SqlServerMemberTranslatorProvider(
             ISqlExpressionFactory sqlExpressionFactory,
             IEnumerable<IMemberTranslatorPlugin> plugins)
-            : base(plugins)
+            : base(sqlExpressionFactory, plugins)
         {
             AddTranslators(
                 new IMemberTranslator[] {

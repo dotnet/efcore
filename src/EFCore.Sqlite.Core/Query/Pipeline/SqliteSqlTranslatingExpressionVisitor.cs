@@ -5,12 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -84,10 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqliteSqlTranslatingExpressionVisitor(
             IModel model,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(model, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
+            : base(model, queryableMethodTranslatingExpressionVisitorFactory, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
         {
         }
 
@@ -133,6 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
         }
 
         private static Type GetProviderType(SqlExpression expression)
-            => (expression.TypeMapping?.Converter.ProviderClrType ?? expression.TypeMapping?.ClrType).UnwrapNullableType();
+        {
+            return (expression.TypeMapping?.Converter?.ProviderClrType
+                ?? expression.TypeMapping?.ClrType
+                ?? expression.Type).UnwrapNullableType();
+        }
     }
 }

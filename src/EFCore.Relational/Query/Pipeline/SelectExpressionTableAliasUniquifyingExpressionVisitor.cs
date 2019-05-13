@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
@@ -11,25 +12,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     public class SelectExpressionTableAliasUniquifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
+            = new HashSet<TableExpressionBase>(ReferenceEqualityComparer.Instance);
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             switch (extensionExpression)
             {
-                case SelectExpression selectExpression:
-                    foreach (var table in selectExpression.Tables)
-                    {
-                        Visit(table);
-                    }
-                    return selectExpression;
-
-                case JoinExpressionBase joinExpressionBase:
-                    Visit(joinExpressionBase.Table);
-                    return joinExpressionBase;
-
                 case TableExpressionBase tableExpressionBase
-                    when !string.IsNullOrEmpty(tableExpressionBase.Alias):
+                    when !_visitedTableExpressionBases.Contains(tableExpressionBase)
+                        && !string.IsNullOrEmpty(tableExpressionBase.Alias):
                     tableExpressionBase.Alias = GenerateUniqueAlias(tableExpressionBase.Alias);
+                    _visitedTableExpressionBases.Add(tableExpressionBase);
                     return tableExpressionBase;
 
                 default:

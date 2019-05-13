@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FiltersTestBase<>),                     // issue #15264
             typeof(OwnedQueryTestBase<>),                  // issue #15285
             // Query pipeline
+            typeof(SimpleQueryTestBase<>),
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(AsNoTrackingTestBase<>),
             typeof(AsTrackingTestBase<>),

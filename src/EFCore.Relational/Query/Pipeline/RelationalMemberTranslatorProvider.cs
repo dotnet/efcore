@@ -14,14 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
         private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
 
-        public RelationalMemberTranslatorProvider(IEnumerable<IMemberTranslatorPlugin> plugins)
+        public RelationalMemberTranslatorProvider(ISqlExpressionFactory sqlExpressionFactory,
+            IEnumerable<IMemberTranslatorPlugin> plugins)
         {
             _plugins.AddRange(plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(
                 new[]
                 {
-                    new NullableValueTranslator(),
+                    new NullableMemberTranslator(sqlExpressionFactory),
                 });
         }
 

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
@@ -23,10 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
         }
 
-        public override RelationalSqlTranslatingExpressionVisitor Create(IModel model)
+        public override RelationalSqlTranslatingExpressionVisitor Create(
+            IModel model,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory)
         {
-            return new RelationalSqlTranslatingExpressionVisitor(
+            return new SqliteSqlTranslatingExpressionVisitor(
                 model,
+                queryableMethodTranslatingExpressionVisitorFactory,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);

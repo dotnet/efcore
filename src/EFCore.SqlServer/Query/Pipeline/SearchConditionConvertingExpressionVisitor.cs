@@ -215,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     break;
 
                 case ExpressionType.Convert:
+                case ExpressionType.Negate:
                     _isSearchCondition = false;
                     resultCondition = false;
                     break;
@@ -369,6 +370,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             _isSearchCondition = parentSearchCondition;
 
             return leftJoinExpression.Update(table, joinPredicate);
+        }
+
+        protected override Expression VisitSubSelect(SubSelectExpression subSelectExpression)
+        {
+            var subquery = (SelectExpression)Visit(subSelectExpression.Subquery);
+
+            return subSelectExpression.Update(subquery);
         }
     }
 }

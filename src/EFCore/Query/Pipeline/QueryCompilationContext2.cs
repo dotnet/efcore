@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             query = _queryOptimizerFactory.Create(this).Visit(query);
             // Convert EntityQueryable to ShapedQueryExpression
             query = _entityQueryableTranslatorFactory.Create(this).Visit(query);
-            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
+            query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
             query = _shapedQueryOptimizerFactory.Create(this).Visit(query);
 
             // Inject actual entity materializer

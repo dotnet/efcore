@@ -63,6 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case SqlParameterExpression sqlParameterExpression:
                     return VisitSqlParameter(sqlParameterExpression);
 
+                case SubSelectExpression subSelectExpression:
+                    return VisitSubSelect(subSelectExpression);
+
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
             }
@@ -88,5 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected abstract Expression VisitTable(TableExpression tableExpression);
         protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
         protected abstract Expression VisitLike(LikeExpression likeExpression);
+        protected abstract Expression VisitSubSelect(SubSelectExpression subSelectExpression);
     }
 }

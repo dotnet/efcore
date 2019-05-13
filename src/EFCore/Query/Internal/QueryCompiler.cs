@@ -115,8 +115,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IModel model,
             bool async)
         {
-            query = ExpandNavigations(query, model);
-
             return database.CompileQuery2<TResult>(query, async);
         }
 
@@ -135,15 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             //return CompileQueryCore<TResult>(query, _model, _queryModelGenerator, _database, _logger, _contextType);
             throw new NotImplementedException();
         }
-
-        private static Expression ExpandNavigations(Expression query, IModel model)
-        {
-            var navigationExpander = new NavigationExpander(model);
-            var newQuery = navigationExpander.ExpandNavigations(query);
-
-            return newQuery;
-        }
-
 
         public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {

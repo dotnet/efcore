@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
     public class CosmosQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        public QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext)
+        public QueryableMethodTranslatingExpressionVisitor Create(IModel model)
         {
             throw new NotImplementedException();
         }

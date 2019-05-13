@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -21,10 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
         }
 
-        public virtual RelationalSqlTranslatingExpressionVisitor Create(IModel model)
+        public virtual RelationalSqlTranslatingExpressionVisitor Create(
+            IModel model,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory)
         {
             return new RelationalSqlTranslatingExpressionVisitor(
                 model,
+                queryableMethodTranslatingExpressionVisitorFactory,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);

@@ -66,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     && methodCall.Arguments[0] is EntityShaperExpression entityShaperExpression
                     && entityShaperExpression.EntityType.GetProperties().Count() == newArrayExpression.Expressions.Count)
                 {
+                    VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
+
                     _projectionMapping[_projectionMembers.Peek()]
                        = _queryExpression.GetProjectionExpression(
                            entityShaperExpression.ValueBufferExpression.ProjectionMember);
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
                 _projectionMapping[_projectionMembers.Peek()] = translation;
 
-                return new ProjectionBindingExpression(_projectionMembers.Peek(), expression.Type);
+                return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), expression.Type);
             }
 
             return base.Visit(expression);
@@ -87,12 +89,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
+                VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
+
                 _projectionMapping[_projectionMembers.Peek()]
                     = _queryExpression.GetProjectionExpression(
                         entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                 return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_projectionMembers.Peek(), typeof(ValueBuffer)));
+                    new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             throw new InvalidOperationException();
@@ -131,6 +135,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             }
 
             return memberInitExpression.Update(newExpression, newBindings);
+        }
+
+        // TODO: Debugging
+        private void VerifyQueryExpression(ProjectionBindingExpression projectionBindingExpression)
+        {
+            if (projectionBindingExpression.QueryExpression != _queryExpression)
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

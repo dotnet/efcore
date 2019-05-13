@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -16,33 +18,37 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         private readonly IModel _model;
+        private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor;
 
-        private SelectExpression _selectExpression;
-
         public RelationalSqlTranslatingExpressionVisitor(
             IModel model,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _model = model;
+            _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
             _sqlVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
-        public SqlExpression Translate(SelectExpression selectExpression, Expression expression)
+        public SqlExpression Translate(Expression expression)
         {
-            _selectExpression = selectExpression;
-
             var translation = (SqlExpression)Visit(expression);
 
-            _selectExpression = null;
+            if (translation is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                && sqlUnaryExpression.Type == typeof(object))
+            {
+                translation = sqlUnaryExpression.Operand;
+            }
 
             translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
@@ -73,10 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var innerExpression = Visit(memberExpression.Expression);
             if (innerExpression is EntityShaperExpression entityShaper)
             {
-                var entityType = entityShaper.EntityType;
-                var property = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
-
-                return _selectExpression.BindProperty(entityShaper.ValueBufferExpression, property);
+                return BindProperty(entityShaper, memberExpression.Member.GetSimpleMemberName());
             }
 
             return TranslationFailed(memberExpression.Expression, innerExpression)
@@ -84,16 +87,65 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 : _memberTranslatorProvider.Translate((SqlExpression)innerExpression, memberExpression.Member, memberExpression.Type);
         }
 
+        private Expression BindProperty(EntityShaperExpression entityShaper, string propertyName)
+        {
+            var property = entityShaper.EntityType.FindProperty(propertyName);
+            var selectExpression = (SelectExpression)entityShaper.ValueBufferExpression.QueryExpression;
+
+            return selectExpression.BindProperty(entityShaper.ValueBufferExpression, property);
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsEFPropertyMethod())
             {
-                if (Visit(methodCallExpression.Arguments[0]) is EntityShaperExpression entityShaper)
-                {
-                    var entityType = entityShaper.EntityType;
-                    var property = entityType.FindProperty((string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                var firstArgument = methodCallExpression.Arguments[0];
 
-                    return _selectExpression.BindProperty(entityShaper.ValueBufferExpression, property);
+                // In certain cases EF.Property would have convert node around the source.
+                if (firstArgument is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    && unaryExpression.Type == typeof(object))
+                {
+                    firstArgument = unaryExpression.Operand;
+                }
+
+                if (firstArgument is EntityShaperExpression entityShaper)
+                {
+                    return BindProperty(entityShaper, (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+
+            if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
+            {
+                var translation = _queryableMethodTranslatingExpressionVisitorFactory.Create(_model).Visit(methodCallExpression);
+
+                if (translation is ShapedQueryExpression shapedQuery)
+                {
+                    var subquery = (SelectExpression)shapedQuery.QueryExpression;
+                    subquery.ApplyProjection();
+
+                    if (methodCallExpression.Method.Name == nameof(Queryable.Any)
+                        || methodCallExpression.Method.Name == nameof(Queryable.All)
+                        || methodCallExpression.Method.Name == nameof(Queryable.Contains))
+                    {
+                        if (subquery.Tables.Count == 0
+                            && subquery.Projection.Count == 1)
+                        {
+                            return subquery.Projection[0].Expression;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                    }
+                    else
+                    {
+                        return new SubSelectExpression(subquery);
+                    }
                 }
                 else
                 {
@@ -159,12 +211,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
             {
-                return _selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember);
+                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+
+                return selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember);
             }
 
             if (extensionExpression is NullConditionalExpression nullConditionalExpression)
             {
                 return Visit(nullConditionalExpression.AccessOperation);
+            }
+
+            if (extensionExpression is CorrelationPredicateExpression correlationPredicateExpression)
+            {
+                return Visit(correlationPredicateExpression.EqualExpression);
             }
 
             return base.VisitExtension(extensionExpression);
@@ -225,40 +284,37 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return null;
             }
 
-            // In certain cases EF.Property would have convert node around the source.
-            if (operand is EntityShaperExpression
-                && unaryExpression.Type == typeof(object)
-                && unaryExpression.NodeType == ExpressionType.Convert)
-            {
-                return operand;
-            }
+
 
             var sqlOperand = (SqlExpression)operand;
 
-            if (unaryExpression.NodeType == ExpressionType.Convert)
+            switch (unaryExpression.NodeType)
             {
-                // Object convert needs to be converted to explicit cast when mismatching types
-                if (operand.Type.IsInterface
-                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
-                    || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
-                {
-                    return sqlOperand;
-                }
 
-                sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+                case ExpressionType.Not:
+                    return _sqlExpressionFactory.Not(sqlOperand);
 
-                return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
-            }
+                case ExpressionType.Negate:
+                    return _sqlExpressionFactory.Negate(sqlOperand);
 
-            if (unaryExpression.NodeType == ExpressionType.Not)
-            {
-                return _sqlExpressionFactory.Not(sqlOperand);
+                case ExpressionType.Convert:
+                    // Object convert needs to be converted to explicit cast when mismatching types
+                    if (operand.Type.IsInterface
+                            && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                        || unaryExpression.Type.UnwrapNullableType() == operand.Type
+                        || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
+                    {
+                        return sqlOperand;
+                    }
+                    sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+
+                    return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
             }
 
             return null;
         }
 
+        [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation)
         {
             return original != null && translation == null;
