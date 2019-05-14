@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
+        private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
             = new NullSafeAccessVerifyingExpressionVisitor();
 
         public NullCheckRemovingExpressionVisitor()
