@@ -1,11 +1,12 @@
 <Project>
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-  </PropertyGroup>
-  <PropertyGroup>
+  <PropertyGroup Label="Version settings">
     <VersionPrefix>3.0.0</VersionPrefix>
     <PreReleaseVersionLabel>preview6</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Arcade settings">
+    <!-- Opt-in to using the version of the Roslyn compiler bundled with Arcade. -->
+    <UsingToolMicrosoftNetCompilers>true</UsingToolMicrosoftNetCompilers>
     <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
