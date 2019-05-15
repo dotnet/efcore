@@ -703,11 +703,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IDisposable CreateTransactionScope(bool useTransaction)
         {
-#if NET461
             return TestStore.CreateTransactionScope(useTransaction);
-#else
-            return TestStore.CreateTransactionScope(useTransaction: false);
-#endif
         }
 
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)

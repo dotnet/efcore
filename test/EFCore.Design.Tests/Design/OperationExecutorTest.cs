@@ -64,15 +64,15 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             private class MockOperation<T> : OperationExecutor.OperationBase
             {
-                public MockOperation(object resultHandler, Action action)
+                public MockOperation(IOperationResultHandler resultHandler, Action action)
                     : base(resultHandler)
                     => Execute(action);
 
-                public MockOperation(object resultHandler, Func<T> action)
+                public MockOperation(IOperationResultHandler resultHandler, Func<T> action)
                     : base(resultHandler)
                     => Execute(action);
 
-                public MockOperation(object resultHandler, Func<IEnumerable<T>> action)
+                public MockOperation(IOperationResultHandler resultHandler, Func<IEnumerable<T>> action)
                     : base(resultHandler)
                     => Execute(action);
             }

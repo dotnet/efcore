@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
-    <!-- Put this project into its own test group to avoid running parallel with other test projects. The test assembly is not loaded propertly on net461 otherwise. -->
-    <TestGroupName>Cosmos.FunctionalTests</TestGroupName>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
@@ -24,10 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Cosmos\EFCore.Cosmos.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup>

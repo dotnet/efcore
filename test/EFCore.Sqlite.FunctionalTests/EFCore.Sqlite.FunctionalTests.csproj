@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
@@ -21,10 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <Reference Include="System.Transactions" />
   </ItemGroup>
 
   <ItemGroup>

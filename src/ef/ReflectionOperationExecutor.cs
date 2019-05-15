@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -25,8 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string dataDirectory,
             string rootNamespace,
             string language)
-            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace, language)
+            : base(assembly, startupAssembly, projectDir, rootNamespace, language)
         {
+            if (dataDirectory != null)
+            {
+                Reporter.WriteVerbose(Resources.UsingDataDir(dataDirectory));
+                AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
+            }
+
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });

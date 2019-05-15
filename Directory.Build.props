@@ -7,10 +7,6 @@
 
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <Import
-    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
-    Condition=" '$(CI)' != 'true' AND '$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
-
   <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
     <Copyright>$(CopyrightMicrosoft)</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

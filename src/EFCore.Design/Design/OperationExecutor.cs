@@ -49,14 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
         /// <param name="args"> The executor arguments. </param>
-        public OperationExecutor([NotNull] object reportHandler, [NotNull] IDictionary args)
+        public OperationExecutor([NotNull] IOperationReportHandler reportHandler, [NotNull] IDictionary args)
         {
             Check.NotNull(reportHandler, nameof(reportHandler));
             Check.NotNull(args, nameof(args));
 
-            var unwrappedReportHandler = ForwardingProxy.Unwrap<IOperationReportHandler>(reportHandler);
-
-            _reporter = new OperationReporter(unwrappedReportHandler);
+            _reporter = new OperationReporter(reportHandler);
             _targetName = (string)args["targetName"];
             _startupTargetName = (string)args["startupTargetName"];
             _projectDir = (string)args["projectDir"];
@@ -152,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="args"> The operation arguments. </param>
             public AddMigration(
                 [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
+                [NotNull] IOperationResultHandler resultHandler,
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
@@ -200,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetContextInfo([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public GetContextInfo([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -240,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public UpdateDatabase([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public UpdateDatabase([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -274,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="args"> The operation arguments. </param>
             public ScriptMigration(
                 [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
+                [NotNull] IOperationResultHandler resultHandler,
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
@@ -317,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="args"> The operation arguments. </param>
             public RemoveMigration(
                 [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
+                [NotNull] IOperationResultHandler resultHandler,
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
@@ -355,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetContextTypes([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public GetContextTypes([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -398,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetMigrations([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public GetMigrations([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -448,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public ScaffoldContext([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+            public ScaffoldContext([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -515,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="args"> The operation arguments. </param>
             public DropDatabase(
                 [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
+                [NotNull] IOperationResultHandler resultHandler,
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
@@ -546,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="args"> The operation arguments. </param>
             public ScriptDbContext(
                 [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
+                [NotNull] IOperationResultHandler resultHandler,
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
@@ -573,11 +571,11 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     Initializes a new instance of the <see cref="OperationBase" /> class.
             /// </summary>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            protected OperationBase([NotNull] object resultHandler)
+            protected OperationBase([NotNull] IOperationResultHandler resultHandler)
             {
                 Check.NotNull(resultHandler, nameof(resultHandler));
 
-                _resultHandler = ForwardingProxy.Unwrap<IOperationResultHandler>(resultHandler);
+                _resultHandler = resultHandler;
             }
 
             /// <summary>

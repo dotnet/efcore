@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string dataDirectory,
             string rootNamespace,
             string language)
         {
