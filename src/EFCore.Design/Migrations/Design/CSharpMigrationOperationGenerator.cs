@@ -182,6 +182,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.UnknownLiteral(operation.DefaultValue));
                 }
 
+                if (operation.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("comment: ")
+                        .Append(Code.Literal(operation.Comment));
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
@@ -518,6 +526,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.UnknownLiteral(operation.DefaultValue));
                 }
 
+                if (operation.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("comment: ")
+                        .Append(Code.Literal(operation.Comment));
+                }
+
                 if (operation.OldColumn.ClrType != null)
                 {
                     builder.AppendLine(",")
@@ -587,6 +603,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("oldDefaultValue: ")
                         .Append(Code.UnknownLiteral(operation.OldColumn.DefaultValue));
+                }
+
+                if (operation.OldColumn.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldComment: ")
+                        .Append(Code.Literal(operation.OldColumn.Comment));
                 }
 
                 builder.Append(")");
@@ -734,6 +758,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("schema: ")
                         .Append(Code.Literal(operation.Schema));
+                }
+
+                if (operation.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("comment: ")
+                        .Append(Code.Literal(operation.Comment));
                 }
 
                 builder.Append(")");
@@ -1163,7 +1195,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                 }
 
-                builder.Append("})");
+                builder.Append("}");
+
+                if (operation.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("comment: ")
+                        .Append(Code.Literal(operation.Comment));
+                }
+
+                builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
             }

@@ -227,11 +227,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             while (typesToValidate.Count > 0)
             {
                 var entityType = typesToValidate.Dequeue();
+                var comment = entityType.GetComment();
                 var typesToValidateLeft = typesToValidate.Count;
                 var directlyConnectedTypes = unvalidatedTypes.Where(
                     unvalidatedType =>
                         entityType.IsAssignableFrom(unvalidatedType)
                         || IsIdentifyingPrincipal(unvalidatedType, entityType));
+
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
                     var key = entityType.FindPrimaryKey();
@@ -247,6 +249,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 key.Properties.Format(),
                                 otherKey.GetName(),
                                 otherKey.Properties.Format()));
+                    }
+
+                    var nextComment = nextEntityType.GetComment();
+                    comment ??= nextComment;
+                    if (comment != null && !comment.Equals(nextComment, StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableCommentMismatch(
+                                tableName,
+                                entityType.DisplayName(),
+                                nextEntityType.DisplayName(),
+                                comment,
+                                nextComment));
                     }
 
                     typesToValidate.Enqueue(nextEntityType);
@@ -414,6 +429,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 tableName,
                                 previousDefaultValueSql,
                                 currentDefaultValueSql));
+                    }
+
+                    var currentComment = property.GetComment() ?? "";
+                    var previousComment = duplicateProperty.GetComment() ?? "";
+                    if (!currentComment.Equals(previousComment, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.DuplicateColumnNameCommentMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                tableName,
+                                previousComment,
+                                currentComment));
                     }
                 }
 

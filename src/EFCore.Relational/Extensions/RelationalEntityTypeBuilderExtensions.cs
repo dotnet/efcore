@@ -462,5 +462,78 @@ namespace Microsoft.EntityFrameworkCore
                    || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                    .Overrides(constraint.GetConfigurationSource());
         }
+
+        /// <summary>
+        ///     Configures a comment to be applied to the table
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="comment"> The comment for the table. </param>
+        /// <returns> A builder to further configure the entity type. </returns>
+        public static EntityTypeBuilder HasComment(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string comment)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Metadata.SetComment(comment);
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a comment to be applied to the table
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The entity type builder. </param>
+        /// <param name="comment"> The comment for the table. </param>
+        /// <returns> A builder to further configure the entity type. </returns>
+        public static EntityTypeBuilder<TEntity> HasComment<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            [CanBeNull] string comment)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)HasComment((EntityTypeBuilder)entityTypeBuilder, comment);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the table
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="comment"> The comment for the table. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder HasComment(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string comment,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            if (!entityTypeBuilder.CanSetComment(comment, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetComment(comment, fromDataAnnotation);
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether a comment can be set for this entity type
+        ///     from the current configuration source
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="comment"> The comment for the table. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        public static bool CanSetComment(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string comment,
+            bool fromDataAnnotation = false)
+            => entityTypeBuilder.CanSetAnnotation(
+                RelationalAnnotationNames.Comment,
+                comment,
+                fromDataAnnotation);
+
     }
 }

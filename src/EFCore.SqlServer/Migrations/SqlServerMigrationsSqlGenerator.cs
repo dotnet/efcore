@@ -338,6 +338,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
+            if (operation.OldColumn.Comment != operation.Comment)
+            {
+                if (operation.OldColumn.Comment != null)
+                {
+                    EndStatement(builder);
+
+                    GenerateDropExtendedProperty(builder, model, "Comment", operation.Schema, operation.Table, operation.Name);
+                }
+
+                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Table, operation.Name);
+            }
+
             if (narrowed)
             {
                 CreateIndexes(indexesToRebuild, builder);
@@ -1613,6 +1625,120 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 Generate(operation, index.DeclaringEntityType.Model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+        }
+
+        /// <summary>
+        ///     Generates SQL to create comment extended properties on table and columns.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="comment"> The comment to be applied. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="table"> The name of the table. </param>
+        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
+        protected override void GenerateComment(
+            MigrationOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            string comment,
+            string schema,
+            string table,
+            string columnName = null)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(table, nameof(table));
+
+            if (comment != null)
+            {
+                EndStatement(builder);
+
+                GenerateCreateExtendedProperty(builder, model, "Comment", comment, schema, table, columnName);
+            }
+        }
+
+        /// <summary>
+        ///     Generates SQL to create a extended property on table and columns.
+        /// </summary>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="name"> The name of the extended property. </param>
+        /// <param name="value"> The value of the extended property. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="table"> The name of the table. </param>
+        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
+        protected virtual void GenerateCreateExtendedProperty(
+            [NotNull] MigrationCommandListBuilder builder,
+            [CanBeNull] IModel model,
+            [NotNull] string name,
+            [NotNull] string value,
+            [CanBeNull] string schema,
+            [NotNull] string table,
+            [CanBeNull] string columnName = null)
+        {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(name, nameof(name));
+            Check.NotNull(value, nameof(value));
+            Check.NotNull(table, nameof(table));
+
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+            builder
+                .Append("EXEC sp_addextendedproperty @name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(name))
+                .Append(", @value = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(value))
+                .Append(", @level0type = N'Schema', @level0name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(schema ?? model?.GetDefaultSchema()))
+                .Append(", @level1type = N'Table', @level1name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(table));
+
+            if (columnName != null)
+            {
+                builder
+                    .Append(", @level2type = N'Column', @level2name = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(columnName));
+            }
+        }
+
+        /// <summary>
+        ///     Generates SQL to drop a extended property on table and columns.
+        /// </summary>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="name"> The name of the extended property. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="table"> The name of the table. </param>
+        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
+        protected virtual void GenerateDropExtendedProperty(
+            [NotNull] MigrationCommandListBuilder builder,
+            [CanBeNull] IModel model,
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] string table,
+            [CanBeNull] string columnName = null)
+        {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(name, nameof(name));
+            Check.NotNull(table, nameof(table));
+
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+            builder
+                .Append("EXEC sp_dropextendedproperty @name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(name))
+                .Append(", @level0type = N'Schema', @level0name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(schema ?? model?.GetDefaultSchema()))
+                .Append(", @level1type = N'Table', @level1name = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(table));
+
+            if (columnName != null)
+            {
+                builder
+                    .Append(", @level2type = N'Column', @level2name = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(columnName));
             }
         }
 
