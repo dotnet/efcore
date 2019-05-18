@@ -278,6 +278,9 @@
   <data name="IncompatibleTableKeyNameMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
   </data>
+  <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
+  </data>
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
   </data>
@@ -348,6 +351,9 @@
   </data>
   <data name="DuplicateColumnNameDefaultSqlMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').</value>
+  </data>
+  <data name="DuplicateColumnNameCommentMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different comments ('{comment1}' and '{comment2}').</value>
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
     <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.</value>

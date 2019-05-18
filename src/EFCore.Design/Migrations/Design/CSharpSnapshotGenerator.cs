@@ -492,6 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql, nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength, nameof(RelationalPropertyBuilderExtensions.IsFixedLength), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Comment, nameof(RelationalPropertyBuilderExtensions.HasComment), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLength, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.Unicode, nameof(PropertyBuilder.IsUnicode), stringBuilder);
 
@@ -756,6 +757,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 annotations.Remove(discriminatorPropertyAnnotation);
                 annotations.Remove(discriminatorValueAnnotation);
+            }
+
+            var commentAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Comment);
+
+            if (commentAnnotation != null)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(builderName)
+                    .Append(".")
+                    .Append(nameof(RelationalPropertyBuilderExtensions.HasComment))
+                    .Append("(")
+                    .Append(Code.UnknownLiteral(commentAnnotation.Value))
+                    .AppendLine(");");
+
+                annotations.Remove(commentAnnotation);
             }
 
             IgnoreAnnotations(

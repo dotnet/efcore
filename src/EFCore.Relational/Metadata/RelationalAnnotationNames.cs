@@ -50,6 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Schema = Prefix + "Schema";
 
         /// <summary>
+        ///     The name for comment annotations.
+        /// </summary>
+        public const string Comment = Prefix + "Comment";
+
+        /// <summary>
         ///     The name for default schema annotations.
         /// </summary>
         public const string DefaultSchema = Prefix + "DefaultSchema";

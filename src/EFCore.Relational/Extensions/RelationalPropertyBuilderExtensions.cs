@@ -442,5 +442,74 @@ namespace Microsoft.EntityFrameworkCore
                 RelationalAnnotationNames.DefaultValue,
                 value,
                 fromDataAnnotation);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasComment(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string comment)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetComment(comment);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasComment<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string comment)
+            => (PropertyBuilder<TProperty>)HasComment((PropertyBuilder)propertyBuilder, comment);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder HasComment(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string comment,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetComment(comment, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetComment(comment, fromDataAnnotation);
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given value can be set as comment for the column.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given value can be set as default for the column. </returns>
+        public static bool CanSetComment(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] object comment,
+            bool fromDataAnnotation = false)
+            => propertyBuilder.CanSetAnnotation(
+                RelationalAnnotationNames.Comment,
+                comment,
+                fromDataAnnotation);
     }
 }

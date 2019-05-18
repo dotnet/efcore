@@ -187,6 +187,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_incompatible_comments_with_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableCommentMismatch(
+                    "Table", nameof(A), nameof(B), "My comment", ""),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_incompatible_primary_key_columns_with_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -384,6 +399,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.DuplicateColumnNameNullabilityMismatch(
                     nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_comments()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasComment("My comment");
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameCommentMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "My comment", ""),
                 modelBuilder.Model);
         }
 

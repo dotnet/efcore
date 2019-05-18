@@ -470,5 +470,46 @@ namespace Microsoft.EntityFrameworkCore
 
             return principalProperty == property ? null : principalProperty;
         }
+
+        /// <summary>
+        ///     Returns the comment for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The comment for the column this property is mapped to. </returns>
+        public static string GetComment([NotNull] this IProperty property)
+        {
+            var value = (string)property[RelationalAnnotationNames.Comment];
+            if (value != null)
+            {
+                return value;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return GetComment(sharedTablePrincipalPrimaryKeyProperty);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        public static void SetComment([NotNull] this IMutableProperty property, [CanBeNull] string comment)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment);
+
+        /// <summary>
+        ///     Configures a comment to be applied to the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comment"> The comment for the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetComment(
+            [NotNull] this IConventionProperty property, [CanBeNull] string comment, bool fromDataAnnotation = false)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
+
     }
 }

@@ -224,6 +224,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void AddColumnOperation_with_comment()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "FullName",
+                    ClrType = typeof(string),
+                    Comment = "My comment"
+                });
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;" + EOL +
+                "GO" + EOL + EOL +
+                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = NULL, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';" + EOL,
+                Sql);
+        }
+
+        [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {
             Generate(
@@ -806,6 +825,118 @@ namespace Microsoft.EntityFrameworkCore
                     }));
 
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
+        }
+
+        [ConditionalFact]
+        public void AlterColumnOperation_with_new_comment()
+        {
+            Generate(
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "LuckyNumber",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    Comment = "My Comment"
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
+                + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL + 
+                "GO" + EOL + EOL +
+                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber'",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public void AlterColumnOperation_with_different_comment_to_existing()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.Property<string>("Name").HasComment("My Comment");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = false,
+                    Comment = "My Comment 2",
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true,
+                        Comment = "My Comment"
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
+                + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;" + EOL +
+                "GO" + EOL + EOL +
+                "EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'" +
+                "GO" + EOL + EOL +
+                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public void AlterColumnOperation_by_removing_comment()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.Property<string>("Name").HasComment("My Comment");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = false,
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        IsNullable = true,
+                        Comment = "My Comment"
+                    }
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
+                + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
+                "ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;" + EOL +
+                "GO" + EOL + EOL +
+                "EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'",
+                Sql);
         }
 
         [ConditionalFact]
