@@ -27,6 +27,7 @@
     <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.2.0</SystemInteractiveAsyncPackageVersion>
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
+    <MicrosoftDataSqlClientPackageVersion>1.0.19128.1-Preview</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
     <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview6.19273.3</MicrosoftExtensionsCachingMemoryPackageVersion>
@@ -42,7 +43,6 @@
     <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview6.19270.15</MicrosoftNETCorePlatformsPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.6.0-preview6.19270.15</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview6.19270.15</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.7.0-preview6.19270.15</SystemDataSqlClientPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview6.19270.15</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">

@@ -61,10 +61,6 @@
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>11eba7947e9736109c588a1cfcb77987cb80f570</Sha>
     </Dependency>
-    <Dependency Name="System.Data.SqlClient" Version="4.7.0-preview6.19270.15" CoherentParentDependency="Microsoft.NETCore.App">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>11eba7947e9736109c588a1cfcb77987cb80f570</Sha>
-    </Dependency>
     <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview6.19270.15" CoherentParentDependency="Microsoft.NETCore.App">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>11eba7947e9736109c588a1cfcb77987cb80f570</Sha>

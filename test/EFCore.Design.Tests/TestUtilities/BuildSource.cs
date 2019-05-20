@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
             BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Data.SqlClient", true),
+            BuildReference.ByName("Microsoft.Data.SqlClient", true),
             BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
             BuildReference.ByName("System.ValueTuple", true)
 #elif NETCOREAPP3_0
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
             BuildReference.ByName("System.Data.Common"),
-            BuildReference.ByName("System.Data.SqlClient"),
+            BuildReference.ByName("Microsoft.Data.SqlClient"),
             BuildReference.ByName("System.Linq.Expressions"),
             BuildReference.ByName("System.Runtime"),
             BuildReference.ByName("System.Runtime.Extensions"),
