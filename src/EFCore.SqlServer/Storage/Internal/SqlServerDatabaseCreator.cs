@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -269,23 +269,23 @@ SELECT 1 ELSE SELECT 0");
         private bool RetryOnExistsFailure(SqlException exception)
         {
             // This is to handle the case where Open throws (Number 233):
-            //   System.Data.SqlClient.SqlException: A connection was successfully established with the
+            //   Microsoft.Data.SqlClient.SqlException: A connection was successfully established with the
             //   server, but then an error occurred during the login process. (provider: Named Pipes
             //   Provider, error: 0 - No process is on the other end of the pipe.)
             // It appears that this happens when the database has just been created but has not yet finished
             // opening or is auto-closing when using the AUTO_CLOSE option. The workaround is to flush the pool
             // for the connection and then retry the Open call.
             // Also handling (Number -2):
-            //   System.Data.SqlClient.SqlException: Connection Timeout Expired.  The timeout period elapsed while
+            //   Microsoft.Data.SqlClient.SqlException: Connection Timeout Expired.  The timeout period elapsed while
             //   attempting to consume the pre-login handshake acknowledgment.  This could be because the pre-login
             //   handshake failed or the server was unable to respond back in time.
             // And (Number 4060):
-            //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
+            //   Microsoft.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
             //   login failed.
             // And (Number 1832)
-            //   System.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
+            //   Microsoft.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
             // And (Number 5120)
-            //   System.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
+            //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
             if (exception.Number == 233
                 || exception.Number == -2
                 || exception.Number == 4060

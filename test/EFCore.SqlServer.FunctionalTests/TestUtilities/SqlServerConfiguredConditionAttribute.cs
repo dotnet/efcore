@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
 using System.Runtime.InteropServices;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities

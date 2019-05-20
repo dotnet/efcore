@@ -1,9 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.SqlClient;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;

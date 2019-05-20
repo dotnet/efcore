@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
                 var retryMessage =
                     "A transient exception has been encountered during execution and the operation will be retried after 0ms."
                     + Environment.NewLine +
-                    "System.Data.SqlClient.SqlException (0x80131904): Bang!";
+                    "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
                 {
                     var logEntry = Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == CoreEventId.ExecutionStrategyRetrying);

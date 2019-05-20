@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

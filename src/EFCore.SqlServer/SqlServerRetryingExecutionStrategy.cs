@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 

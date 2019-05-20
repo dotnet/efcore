@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="System.Data.SqlClient" Version="$(SystemDataSqlClientPackageVersion)" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="$(MicrosoftDataSqlClientPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
