@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             _functionName = functionName;
             _schema = schema;
         }
+        
+        Fail
 
         /// <summary>
         ///     The name of the function in the database.
