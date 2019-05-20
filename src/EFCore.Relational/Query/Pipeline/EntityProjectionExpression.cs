@@ -28,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _propertyExpressionsCache = propertyExpressions;
         }
 
+        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override Type Type => EntityType.ClrType;
+
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             if (_innerTable != null)
@@ -76,8 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public IEntityType EntityType { get; }
         public bool Nullable { get; }
-        public override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => EntityType.ClrType;
 
         public ColumnExpression GetProperty(IProperty property)
         {

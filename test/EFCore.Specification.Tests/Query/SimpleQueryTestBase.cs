@@ -1096,35 +1096,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 asyncQuery: cs => cs.AllAsync(c1 => cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All([c].IsLondon)'")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task All_client(bool isAsync)
-        {
-            return AssertAll<Customer, Customer>(
-                isAsync,
-                cs => cs,
-                predicate: c => c.IsLondon);
-        }
+        //[ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All([c].IsLondon)'")]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task All_client(bool isAsync)
+        //{
+        //    return AssertAll<Customer, Customer>(
+        //        isAsync,
+        //        cs => cs,
+        //        predicate: c => c.IsLondon);
+        //}
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All((([c].CustomerID != \"Foo\") AndAlso [c].IsLondon))'")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task All_client_and_server_top_level(bool isAsync)
-        {
-            return AssertAll<Customer, Customer>(
-                isAsync,
-                cs => cs,
-                predicate: c => c.CustomerID != "Foo" && c.IsLondon);
-        }
+        //[ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All((([c].CustomerID != \"Foo\") AndAlso [c].IsLondon))'")]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task All_client_and_server_top_level(bool isAsync)
+        //{
+        //    return AssertAll<Customer, Customer>(
+        //        isAsync,
+        //        cs => cs,
+        //        predicate: c => c.CustomerID != "Foo" && c.IsLondon);
+        //}
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All((([c].CustomerID != \"Foo\") OrElse [c].IsLondon))'")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task All_client_or_server_top_level(bool isAsync)
-        {
-            return AssertAll<Customer, Customer>(
-                isAsync,
-                cs => cs,
-                predicate: c => c.CustomerID != "Foo" || c.IsLondon);
-        }
+        //[ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All((([c].CustomerID != \"Foo\") OrElse [c].IsLondon))'")]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task All_client_or_server_top_level(bool isAsync)
+        //{
+        //    return AssertAll<Customer, Customer>(
+        //        isAsync,
+        //        cs => cs,
+        //        predicate: c => c.CustomerID != "Foo" || c.IsLondon);
+        //}
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_subquery_projection(bool isAsync)
         {
@@ -1712,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Order>(o => o.OrderID));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_subquery_filtered(bool isAsync)
         {
@@ -1749,7 +1749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         //         assertOrder: true);
         // }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_in_anonymous_type(bool isAsync)
         {
@@ -1778,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_recursive_trivial(bool isAsync)
         {
@@ -4272,7 +4272,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_datetime_add_ticks(bool isAsync)
         {
@@ -4287,7 +4287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_date_add_milliseconds_above_the_range(bool isAsync)
         {
@@ -4302,7 +4302,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_date_add_milliseconds_below_the_range(bool isAsync)
         {

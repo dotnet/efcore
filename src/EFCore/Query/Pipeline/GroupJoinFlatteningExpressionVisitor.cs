@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {

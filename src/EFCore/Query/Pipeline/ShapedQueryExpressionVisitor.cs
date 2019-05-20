@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
@@ -169,8 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             private readonly bool _trackQueryResults;
             private readonly bool _async;
 
-            private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
-            private readonly List<Expression> _expressions = new List<Expression>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
@@ -183,13 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             public Expression Inject(Expression expression)
             {
+                _currentEntityIndex = 0;
                 var modifiedBody = Visit(expression);
-                _expressions.Add(
-                    _async
+                return _async
                     ? Expression.Call(_taskFromResultMethodInfo.MakeGenericMethod(expression.Type), modifiedBody)
-                    : modifiedBody);
-
-                return Expression.Block(_variables, _expressions);
+                    : modifiedBody;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -212,30 +209,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 p)));
                 }
 
-                if (extensionExpression is CollectionShaperExpression collectionShaper)
-                {
-                    var keyType = collectionShaper.OuterKey.Type;
-                    var comparerType = typeof(EqualityComparer<>).MakeGenericType(keyType);
-                    var comparer = Expression.Variable(comparerType, "comparer" + _currentEntityIndex);
-
-                    _variables.Add(comparer);
-                    Expression.Assign(
-                        comparer,
-                        Expression.MakeMemberAccess(null, comparerType.GetProperty(nameof(EqualityComparer<int>.Default))));
-                    var parent = Visit(collectionShaper.Parent);
-                }
-
-                if (extensionExpression is ProjectionBindingExpression)
-                {
-                    return extensionExpression;
-                }
-
                 return base.VisitExtension(extensionExpression);
             }
 
             private Expression ProcessEntityShaper(EntityShaperExpression entityShaperExpression)
             {
-                _currentEntityIndex++;
                 var expressions = new List<Expression>();
                 var variables = new List<ParameterExpression>();
 
@@ -305,6 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         MaterializeEntity(entityType, valueBuffer)));
                 }
 
+                _currentEntityIndex++;
                 return Expression.Block(variables, expressions);
             }
 

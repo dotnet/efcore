@@ -25,17 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             // TODO: temporary hack
             if (extensionExpression is IncludeExpression includeExpression)
             {
-                var methodInfo = typeof(IncludeHelpers).GetMethod(nameof(IncludeHelpers.IncludeMethod))
-                    .MakeGenericMethod(includeExpression.EntityExpression.Type);
+                //var methodInfo = typeof(IncludeHelpers).GetMethod(nameof(IncludeHelpers.IncludeMethod))
+                //    .MakeGenericMethod(includeExpression.EntityExpression.Type);
 
-                var newEntityExpression = Visit(includeExpression.EntityExpression);
-                var newNavigationExpression = Visit(includeExpression.NavigationExpression);
+                //var newEntityExpression = Visit(includeExpression.EntityExpression);
+                //var newNavigationExpression = Visit(includeExpression.NavigationExpression);
 
-                return Expression.Call(
-                    methodInfo,
-                    newEntityExpression,
-                    newNavigationExpression,
-                    Expression.Constant(includeExpression.Navigation));
+                //return Expression.Call(
+                //    methodInfo,
+                //    newEntityExpression,
+                //    newNavigationExpression,
+                //    Expression.Constant(includeExpression.Navigation));
+
+                return includeExpression;
             }
 
             if (extensionExpression is NavigationExpansionRootExpression navigationExpansionRootExpression)

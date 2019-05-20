@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
             if (extensionExpression is NavigationExpansionRootExpression
                 || extensionExpression is NavigationExpansionExpression
-                || extensionExpression is IncludeExpression)
+                /*|| extensionExpression is IncludeExpression*/)
             {
                 var result = new NavigationExpansionReducingVisitor().Visit(extensionExpression);
 

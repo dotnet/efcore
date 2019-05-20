@@ -254,20 +254,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 outer = TranslateThenBy(outer, outerKeySelector, true);
 
+                var collectionShaper = new CollectionShaperExpression(
+                    outerSelectExpression.GetIdenfyingKey(),
+                    inner.ShaperExpression);
+
                 var innerTransparentIdentifierType = CreateTransparentIdentifierType(
                     resultSelector.Parameters[0].Type,
                     resultSelector.Parameters[1].Type.TryGetSequenceType());
 
+                var groupTransparentIdentifierType = CreateTransparentIdentifierType(
+                    resultSelector.Parameters[0].Type,
+                    resultSelector.Parameters[1].Type);
+
                 outerSelectExpression.AddLeftJoin(
-                    innerSelectExpression, joinPredicate, innerTransparentIdentifierType);
+                    innerSelectExpression, joinPredicate, innerTransparentIdentifierType, true);
 
                 return TranslateResultSelectorForGroupJoin(
                     outer,
-                    inner.ShaperExpression,
-                    outerKeySelector,
-                    innerKeySelector,
+                    collectionShaper,
                     resultSelector,
-                    innerTransparentIdentifierType);
+                    innerTransparentIdentifierType,
+                    groupTransparentIdentifierType);
             }
 
             throw new NotImplementedException();
@@ -342,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     resultSelector.Parameters[1].Type);
 
                 outerSelectExpression.AddLeftJoin(
-                    innerSelectExpression, joinPredicate, transparentIdentifierType);
+                    innerSelectExpression, joinPredicate, transparentIdentifierType, false);
 
                 return TranslateResultSelectorForJoin(
                     outer,

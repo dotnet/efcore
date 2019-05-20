@@ -500,47 +500,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         protected ShapedQueryExpression TranslateResultSelectorForGroupJoin(
             ShapedQueryExpression outer,
-            Expression innerShaper,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector,
+            Expression collectionShaper,
             LambdaExpression resultSelector,
-            Type transparentIdentifierType)
+            Type transparentIdentifierType,
+            Type groupTransparentIdentifierType)
         {
-            innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+            collectionShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(collectionShaper);
 
-            var shaperExpression = CombineShapers(
-               outer.QueryExpression,
-               outer.ShaperExpression,
-               innerShaper,
-               transparentIdentifierType);
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
 
-            var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
-            var outerAccess = AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter);
-            var innerAccess = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
+            var outerShaper = new MemberAccessShiftingExpressionVisitor(outer.QueryExpression, outerMemberInfo).Visit(outer.ShaperExpression);
+            collectionShaper = new MemberAccessShiftingExpressionVisitor(outer.QueryExpression, innerMemberInfo).Visit(collectionShaper);
 
-            var outerKey = ReplacingExpressionVisitor.Replace(
-                outerKeySelector.Parameters[0],
-                outerAccess,
-                outerKeySelector.Body);
+            var groupOuterMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var groupInnerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
 
-            var innerKey = ReplacingExpressionVisitor.Replace(
-                innerKeySelector.Parameters[0],
-                innerAccess,
-                innerKeySelector.Body);
+            outer.ShaperExpression = Expression.New(
+                groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
+                new[] { outerShaper, collectionShaper },
+                new[] { groupOuterMemberInfo, groupInnerMemberInfo });
+
+            var groupTransparentIdentifierParameter = Expression.Parameter(groupTransparentIdentifierType);
 
             var replacements = new Dictionary<Expression, Expression>
-            {
-                { resultSelector.Parameters[0], outerAccess  },
-                { resultSelector.Parameters[1], new CollectionShaperExpression(outerAccess, innerAccess, outerKey, innerKey) },
-            };
+                {
+                    { resultSelector.Parameters[0], AccessOuterTransparentField(groupTransparentIdentifierType, groupTransparentIdentifierParameter) },
+                    { resultSelector.Parameters[1], AccessInnerTransparentField(groupTransparentIdentifierType, groupTransparentIdentifierParameter) },
+                };
 
             var resultBody = new ReplacingExpressionVisitor(replacements).Visit(resultSelector.Body);
-            outer.ShaperExpression = ReplacingExpressionVisitor.Replace(
-                transparentIdentifierParameter,
-                shaperExpression,
-                resultBody);
+            var newResultSelector = Expression.Lambda(resultBody, groupTransparentIdentifierParameter);
 
-            return outer;
+            return TranslateSelect(outer, newResultSelector);
         }
 
         private Expression CombineShapers(

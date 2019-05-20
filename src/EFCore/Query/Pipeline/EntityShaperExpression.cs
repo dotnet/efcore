@@ -87,48 +87,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     public class CollectionShaperExpression : Expression
     {
         public CollectionShaperExpression(
-            Expression parent,
-            Expression innerShaper,
-            Expression outerKey,
-            Expression innerKey)
+            Expression outerKeySelector,
+            Expression innerShaper)
         {
-            Parent = parent;
+            OuterKeySelector = outerKeySelector;
             InnerShaper = innerShaper;
-            OuterKey = outerKey;
-            InnerKey = innerKey;
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var parent = visitor.Visit(Parent);
             var innerShaper = visitor.Visit(InnerShaper);
-            var outerKey = visitor.Visit(OuterKey);
-            var innerKey = visitor.Visit(InnerKey);
 
-            return parent != Parent || innerShaper != InnerShaper || outerKey != OuterKey || innerKey != InnerKey
-                ? new CollectionShaperExpression(parent, innerShaper, outerKey, innerKey)
+            return innerShaper != InnerShaper
+                ? new CollectionShaperExpression(OuterKeySelector, innerShaper)
                 : this;
         }
 
-        public override Expression Reduce()
+        public CollectionShaperExpression Update(Expression innerShaper)
         {
-            var comparer = EqualityComparer<int>.Default;
-
-
-
-            return null;
+            return innerShaper != InnerShaper
+                ? new CollectionShaperExpression(OuterKeySelector, innerShaper)
+                : this;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Type Type => typeof(IEnumerable<>).MakeGenericType(InnerShaper.Type);
 
-        public Expression Parent { get; }
+        public Expression OuterKeySelector { get; }
 
         public Expression InnerShaper { get; }
-
-        public Expression OuterKey { get; }
-
-        public Expression InnerKey { get; }
     }
 }

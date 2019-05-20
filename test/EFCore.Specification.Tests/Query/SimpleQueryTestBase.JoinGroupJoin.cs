@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_customers_orders(bool isAsync)
         {
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new
                     {
                         customer = c,
-                        orders = orders.ToList()
+                        orders
                     },
                 e => e.customer.CustomerID,
                 elementAsserter: (e, a) =>
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.customer.CustomerID, a.customer.CustomerID);
                     CollectionAsserter<Order>(o => o.OrderID)(e.orders, a.orders);
                 },
-                entryCount: 91);
+                entryCount: 921);
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_tracking_groups(bool isAsync)
         {
@@ -602,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_tracking_groups2(bool isAsync)
         {
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 919);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection(bool isAsync)
         {
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection2(bool isAsync)
         {
@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection3(bool isAsync)
         {
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(s => s)(e.g, a.g));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection4(bool isAsync)
         {
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<string>(s => s));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection_reverse(bool isAsync)
         {
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_outer_projection_reverse2(bool isAsync)
         {

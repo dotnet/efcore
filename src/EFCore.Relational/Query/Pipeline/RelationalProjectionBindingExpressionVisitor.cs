@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -64,7 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (!(expression is NewExpression
                   || expression is MemberInitExpression
-                  || expression is EntityShaperExpression))
+                  || expression is EntityShaperExpression
+                  || expression is CollectionShaperExpression
+                  || expression is IncludeExpression))
             {
                 // This skips the group parameter from GroupJoin
                 if (expression is ParameterExpression parameter
@@ -108,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = translation;
-
                     return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
                 }
             }
@@ -144,6 +146,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
+            }
+
+            if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
+            {
+                var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+                if (innerShaper == null)
+                {
+                    return null;
+                }
+
+                return collectionShaperExpression.Update(innerShaper);
+            }
+
+            if (extensionExpression is IncludeExpression includeExpression)
+            {
+                return _clientEval ? base.VisitExtension(includeExpression) : null;
             }
 
             throw new InvalidOperationException();

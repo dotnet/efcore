@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
     {
         private IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+        private readonly List<SqlExpression> _identifiers = new List<SqlExpression>();
 
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
@@ -32,11 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private SelectExpression(
             string alias,
             List<ProjectionExpression> projections,
+            List<SqlExpression> identifiers,
             List<TableExpressionBase> tables,
             List<OrderingExpression> orderings)
             : base(alias ?? "")
         {
             _projection = projections;
+            _identifiers = identifiers;
             _tables = tables;
             _orderings = orderings;
         }
@@ -51,7 +54,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             _tables.Add(tableExpression);
 
-            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, tableExpression, false);
+            var entityProjectionExpression = new EntityProjectionExpression(entityType, tableExpression, false);
+            _projectionMapping[new ProjectionMember()] = entityProjectionExpression;
+            var key = entityType.FindPrimaryKey();
+            if (key != null)
+            {
+                foreach (var property in key.Properties)
+                {
+                    _identifiers.Add(entityProjectionExpression.GetProperty(property));
+                }
+            }
         }
 
         public SqlExpression BindProperty(Expression projectionExpression, IProperty property)
@@ -63,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyProjection()
         {
-            if (Projection.Any())
+            if (_projectionMapping == null
+                || (_projectionMapping.Values.Count > 0
+                    && _projectionMapping.Values.First() is ConstantExpression))
             {
                 return;
             }
@@ -94,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return new SelectExpression(
                 null,
                 new List<ProjectionExpression>(),
+                new List<SqlExpression>(),
                 new List<TableExpressionBase>(),
                 new List<OrderingExpression>())
             {
@@ -164,6 +179,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
+        public Expression GetIdenfyingKey()
+        {
+            var projections = new List<Expression>();
+            foreach (var identifyingExpression in _identifiers)
+            {
+                var projectionBindingExpression = new ProjectionBindingExpression(this, _projection.Count, identifyingExpression.Type);
+                projections.Add(projectionBindingExpression.Type.IsValueType
+                    ? Convert(projectionBindingExpression, typeof(object))
+                    : (Expression)projectionBindingExpression);
+                _projection.Add(new ProjectionExpression(identifyingExpression, ""));
+            }
+
+            return NewArrayInit(typeof(object), projections);
+        }
+
+        //public Expression GetKeySelectorExpression(string keyName, ProjectionMember projectionMember)
+        //{
+        //    return _keySelectorMapping[keyName][projectionMember];
+        //}
 
         public void ApplyOrderBy(OrderingExpression orderingExpression)
         {
@@ -235,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, _projection.ToList(), _tables.ToList(), _orderings.ToList())
+            return new SelectExpression(alias, _projection.ToList(), _identifiers.ToList(), _tables.ToList(), _orderings.ToList())
             {
                 _projectionMapping = projectionMapping,
                 Predicate = Predicate,
@@ -283,6 +317,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             subquery._projectionMapping = null;
+
+            var identifiers = _identifiers.ToList();
+            _identifiers.Clear();
+            if (subquery.IsDistinct
+                && !identifiers.All(se => subquery._projection.Any(pe => pe.Expression.Equals(se))))
+            {
+                foreach (var identifyingExpression in subquery._projection)
+                {
+                    _identifiers.Add(new ColumnExpression(identifyingExpression, subquery, IsNullableProjection(identifyingExpression)));
+                }
+            }
+            else
+            {
+                foreach (var identifyingExpression in identifiers)
+                {
+                    var projectionExpression = new ProjectionExpression(identifyingExpression, "c" + columnNameCounter++);
+                    subquery._projection.Add(projectionExpression);
+                    _identifiers.Add(new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression)));
+                }
+            }
 
             var currentOrderings = _orderings.ToList();
             _orderings.Clear();
@@ -339,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _projectionMapping = projectionMapping;
         }
 
-        public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
+        public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType, bool collection)
         {
             var joinTable = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
             _tables.Add(joinTable);
@@ -368,6 +422,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             _projectionMapping = projectionMapping;
+
+            if (collection)
+            {
+                foreach (var identifyingExpression in innerSelectExpression._identifiers)
+                {
+                    _identifiers.Add(identifyingExpression);
+                }
+            }
         }
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
@@ -420,6 +482,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
             }
 
+            var idenfifiers = new List<SqlExpression>();
+            foreach (var identifyingExpression in _identifiers)
+            {
+                var newIndetifyingExpression = (SqlExpression)visitor.Visit(identifyingExpression);
+                changed |= newIndetifyingExpression != identifyingExpression;
+
+                idenfifiers.Add(newIndetifyingExpression);
+            }
+
             var tables = new List<TableExpressionBase>();
             foreach (var table in _tables)
             {
@@ -447,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             if (changed)
             {
-                var newSelectExpression = new SelectExpression(Alias, projections, tables, orderings)
+                var newSelectExpression = new SelectExpression(Alias, projections, idenfifiers, tables, orderings)
                 {
                     _projectionMapping = projectionMapping,
                     Predicate = predicate,
@@ -535,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, projections, tables, orderings)
+            return new SelectExpression(alias, projections, _identifiers, tables, orderings)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
