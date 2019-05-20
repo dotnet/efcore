@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Xunit;
 
 // Copyright (c) .NET Foundation. All rights reserved.
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void BatchSeparator_returns_separator()
         {
-            Assert.Equal(string.Empty, CreateSqlGenerationHelper().BatchTerminator);
+            Assert.Equal(Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
         }
 
         protected abstract ISqlGenerationHelper CreateSqlGenerationHelper();

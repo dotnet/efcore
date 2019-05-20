@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool suppressOnConfiguring,
             bool noPluralize);
 
-        string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
+        string ScriptMigration(string fromMigration, string toMigration, bool idempotent, bool noTransactions, string contextType);
 
         string ScriptDbContext(string contextType);
     }

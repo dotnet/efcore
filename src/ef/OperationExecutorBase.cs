@@ -171,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string fromMigration,
             string toMigration,
             bool idempotent,
+            bool noTransactions,
             string contextType)
             => InvokeOperation<string>(
                 "ScriptMigration",
@@ -179,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["fromMigration"] = fromMigration,
                     ["toMigration"] = toMigration,
                     ["idempotent"] = idempotent,
+                    ["noTransactions"] = noTransactions,
                     ["contextType"] = contextType
                 });
 

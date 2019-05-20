@@ -308,6 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             options |= MigrationsSqlGenerationOptions.Script;
 
             var idempotent = options.HasFlag(MigrationsSqlGenerationOptions.Idempotent);
+            var noTransactions = options.HasFlag(MigrationsSqlGenerationOptions.NoTransactions);
 
             IEnumerable<string> appliedMigrations;
             if (string.IsNullOrEmpty(fromMigration)
@@ -335,9 +336,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (fromMigration == Migration.InitialDatabase
                 || string.IsNullOrEmpty(fromMigration))
             {
-                builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
-                builder.Append(_sqlGenerationHelper.BatchTerminator);
+                builder
+                    .Append(_historyRepository.GetCreateIfNotExistsScript())
+                    .Append(_sqlGenerationHelper.BatchTerminator);
             }
+
+            var transactionStarted = false;
 
             for (var i = 0; i < migrationsToRevert.Count; i++)
             {
@@ -350,6 +354,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 foreach (var command in GenerateDownSql(migration, previousMigration, options))
                 {
+                    if (!noTransactions)
+                    {
+                        if (!transactionStarted && !command.TransactionSuppressed)
+                        {
+                            builder
+                                .AppendLine(_sqlGenerationHelper.StartTransaction)
+                                .Append(_sqlGenerationHelper.BatchTerminator);
+                            transactionStarted = true;
+                        }
+                        if (transactionStarted && command.TransactionSuppressed)
+                        {
+                            builder
+                                .AppendLine(_sqlGenerationHelper.Commit)
+                                .Append(_sqlGenerationHelper.BatchTerminator);
+                            transactionStarted = false;
+                        }
+                    }
+
                     if (idempotent)
                     {
                         builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
@@ -358,14 +380,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             builder.AppendLines(command.CommandText);
                         }
 
-                        builder.AppendLine(_historyRepository.GetEndIfScript());
+                        builder.Append(_historyRepository.GetEndIfScript());
                     }
                     else
                     {
-                        builder.AppendLine(command.CommandText);
+                        builder.Append(command.CommandText);
                     }
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
+                }
+
+                if (!noTransactions && transactionStarted)
+                {
+                    builder
+                        .AppendLine(_sqlGenerationHelper.Commit)
+                        .Append(_sqlGenerationHelper.BatchTerminator);
+                    transactionStarted = false;
                 }
             }
 
@@ -375,6 +405,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 foreach (var command in GenerateUpSql(migration, options))
                 {
+                    if (!noTransactions)
+                    {
+                        if (!transactionStarted && !command.TransactionSuppressed)
+                        {
+                            builder
+                                .AppendLine(_sqlGenerationHelper.StartTransaction)
+                                .Append(_sqlGenerationHelper.BatchTerminator);
+                            transactionStarted = true;
+                        }
+                        if (transactionStarted && command.TransactionSuppressed)
+                        {
+                            builder
+                                .AppendLine(_sqlGenerationHelper.Commit)
+                                .Append(_sqlGenerationHelper.BatchTerminator);
+                            transactionStarted = false;
+                        }
+                    }
+
                     if (idempotent)
                     {
                         builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
@@ -383,14 +431,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             builder.AppendLines(command.CommandText);
                         }
 
-                        builder.AppendLine(_historyRepository.GetEndIfScript());
+                        builder.Append(_historyRepository.GetEndIfScript());
                     }
                     else
                     {
-                        builder.AppendLine(command.CommandText);
+                        builder.Append(command.CommandText);
                     }
 
                     builder.Append(_sqlGenerationHelper.BatchTerminator);
+                }
+
+                if (!noTransactions && transactionStarted)
+                {
+                    builder
+                        .AppendLine(_sqlGenerationHelper.Commit)
+                        .Append(_sqlGenerationHelper.BatchTerminator);
+                    transactionStarted = false;
                 }
             }
 

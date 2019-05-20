@@ -43,7 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
-        public virtual string BatchTerminator => string.Empty;
+        public virtual string BatchTerminator => Environment.NewLine;
+
+        /// <inheritdoc />
+        public virtual string StartTransaction => "START TRANSACTION" + StatementTerminator;
+
+        /// <inheritdoc />
+        public virtual string Commit => "COMMIT" + StatementTerminator;
 
         /// <summary>
         ///     The default single-line comment prefix.

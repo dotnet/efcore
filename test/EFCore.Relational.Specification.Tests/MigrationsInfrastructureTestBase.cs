@@ -184,6 +184,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Can_generate_up_scripts_noTransactions()
+        {
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
+
+            SetSql(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
+        }
+
+        [ConditionalFact]
         public virtual void Can_generate_one_up_script()
         {
             using var db = Fixture.CreateContext();
@@ -208,6 +217,18 @@ namespace Microsoft.EntityFrameworkCore
             var migrator = db.GetService<IMigrator>();
 
             SetSql(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_generate_idempotent_up_scripts_noTransactions()
+        {
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
+
+            SetSql(
+                migrator.GenerateScript(
+                    options: MigrationsSqlGenerationOptions.Idempotent
+                        | MigrationsSqlGenerationOptions.NoTransactions));
         }
 
         [ConditionalFact]

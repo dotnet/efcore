@@ -552,6 +552,9 @@ Register-TabExpansion Script-Migration @{
 .PARAMETER Idempotent
     Generate a script that can be used on a database at any migration.
 
+.PARAMETER NoTransactions
+    Don't generate SQL transaction statements.
+
 .PARAMETER Output
     The file to write the result to.
 
@@ -581,6 +584,7 @@ function Script-Migration
         [Parameter(ParameterSetName = 'WithTo', Position = 1, Mandatory = $true)]
         [string] $To,
         [switch] $Idempotent,
+        [switch] $NoTransactions,
         [string] $Output,
         [string] $Context,
         [string] $Project,
@@ -622,6 +626,11 @@ function Script-Migration
     if ($Idempotent)
     {
         $params += '--idempotent'
+    }
+
+    if ($NoTransactions)
+    {
+        $params += '--no-transactions'
     }
 
     $params += GetParams $Context

@@ -269,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>fromMigration</c>--The starting migration. Defaults to <see cref="Migration.InitialDatabase" />.</para>
             ///     <para><c>toMigration</c>--The ending migration. Defaults to the last migration.</para>
             ///     <para><c>idempotent</c>--Generate a script that can be used on a database at any migration.</para>
+            ///     <para><c>noTransactions</c>--Don't generate SQL transaction statements.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
@@ -286,9 +287,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var fromMigration = (string)args["fromMigration"];
                 var toMigration = (string)args["toMigration"];
                 var idempotent = (bool)args["idempotent"];
+                var noTransactions = (bool)(args["noTransactions"] ?? false);
                 var contextType = (string)args["contextType"];
 
-                Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, contextType));
+                Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, noTransactions, contextType));
             }
         }
 
@@ -296,12 +298,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
             bool idempotent,
+            bool noTransactions,
             [CanBeNull] string contextType)
         {
             var options = MigrationsSqlGenerationOptions.Default;
             if (idempotent)
             {
                 options |= MigrationsSqlGenerationOptions.Idempotent;
+            }
+            if (noTransactions)
+            {
+                options |= MigrationsSqlGenerationOptions.NoTransactions;
             }
 
             return MigrationsOperations.ScriptMigration(

@@ -28,6 +28,9 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
 .PARAMETER Namespace
     Specify to override the namespace for the migration.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Remove-Migration
     Update-Database
@@ -39,7 +42,8 @@ function Add-Migration(
     $Context,
     $Project,
     $StartupProject,
-    $Namespace)
+    $Namespace,
+    $Args)
 {
     WarnIfEF6 'Add-Migration'
     throw $UpdatePowerShell
@@ -61,6 +65,9 @@ function Add-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
     about_EntityFrameworkCore
@@ -68,7 +75,8 @@ function Add-Migration(
 function Drop-Database(
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -95,13 +103,17 @@ function Enable-Migrations
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
 function Get-DbContext(
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -125,6 +137,9 @@ function Get-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Add-Migration
     about_EntityFrameworkCore
@@ -133,7 +148,8 @@ function Remove-Migration(
     [switch] $Force,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -193,6 +209,9 @@ function Remove-Migration(
 .PARAMETER NoPluralize
     Don't use the pluralizer.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -212,7 +231,8 @@ function Scaffold-DbContext(
     $StartupProject,
     $Namespace,
     $ContextNamespace,
-    [switch] $NoPluralize)
+    [switch] $NoPluralize,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -236,6 +256,9 @@ function Scaffold-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -243,7 +266,8 @@ function Script-DbContext(
     $Output,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -264,6 +288,9 @@ function Script-DbContext(
 .PARAMETER Idempotent
     Generate a script that can be used on a database at any migration.
 
+.PARAMETER NoTransactions
+    Don't generate SQL transaction statements.
+
 .PARAMETER Output
     The file to write the result to.
 
@@ -276,6 +303,9 @@ function Script-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
     about_EntityFrameworkCore
@@ -284,10 +314,12 @@ function Script-Migration(
     $From,
     $To,
     [switch] $Idempotent,
+    [switch] $NoTransactions,
     $Output,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -314,6 +346,9 @@ function Script-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Script-Migration
     about_EntityFrameworkCore
@@ -323,7 +358,8 @@ function Update-Database(
     $Connection,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     WarnIfEF6 'Update-Database'
     throw $UpdatePowerShell

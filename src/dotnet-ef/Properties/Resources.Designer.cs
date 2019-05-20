@@ -482,6 +482,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string NoPluralizeDescription
             => GetString("NoPluralizeDescription");
 
+        /// <summary>
+        ///     Don't generate SQL transaction statements.
+        /// </summary>
+        public static string NoTransactionsDescription
+            => GetString("NoTransactionsDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -336,4 +336,7 @@
   <data name="NoPluralizeDescription" xml:space="preserve">
     <value>Don't use the pluralizer.</value>
   </data>
+  <data name="NoTransactionsDescription" xml:space="preserve">
+    <value>Don't generate SQL transaction statements.</value>
+  </data>
 </root>
