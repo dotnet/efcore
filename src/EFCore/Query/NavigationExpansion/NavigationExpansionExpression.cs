@@ -95,13 +95,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             if (State.ApplyPendingSelector)
             {
                 expressionPrinter.StringBuilder.Append(".PendingSelect(");
-                expressionPrinter.Visit(State.PendingSelector);
+                using (expressionPrinter.StringBuilder.Indent())
+                {
+                    expressionPrinter.Visit(State.PendingSelector);
+                }
+
                 expressionPrinter.StringBuilder.Append(")");
             }
 
             if (State.PendingCardinalityReducingOperator != null)
             {
-                expressionPrinter.StringBuilder.Append(".Pending" + State.PendingCardinalityReducingOperator.Name);
+                expressionPrinter.StringBuilder.Append(".Pending" + State.PendingCardinalityReducingOperator.Name + "()");
             }
         }
     }

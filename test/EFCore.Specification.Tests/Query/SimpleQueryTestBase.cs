@@ -3511,7 +3511,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15720")]
+        [ConditionalFact]
         public virtual void Select_Where_Subquery_Deep_First()
         {
             using (var context = CreateContext())
@@ -4966,7 +4966,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
         }
 
-        [ConditionalTheory(Skip = "Issue#15720")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task DTO_subquery_orderby(bool isAsync)
         {

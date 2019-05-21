@@ -615,17 +615,15 @@ WHERE @_outer_CustomerID1 = [c2].[CustomerID]");
             AssertSql(
                 @"@__p_0='2'
 
-SELECT TOP(@__p_0) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
+SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
 WHERE (
     SELECT TOP(1) (
         SELECT TOP(1) [c].[City]
         FROM [Customers] AS [c]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    )
-    FROM [Orders] AS [o]
-    WHERE [od].[OrderID] = [o].[OrderID]
-) = N'Seattle'");
+        WHERE [o0].[CustomerID] = [c].[CustomerID])
+    FROM [Orders] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) = N'Seattle'");
         }
 
         public override void Select_Where_Subquery_Equality()

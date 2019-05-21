@@ -58,6 +58,30 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             string propertyName,
             Type resultType)
         {
+            // in case of nested FirstOrDefaults, we need to dig into the inner most - that's where the member finally gets pushed down to
+            if (navigationExpansionExpression.State.PendingSelector.Body is NavigationExpansionExpression navigationExpansionPendingSelector
+                && navigationExpansionPendingSelector.State.PendingCardinalityReducingOperator != null)
+            {
+                var newPendingSelector = (NavigationExpansionExpression)ProcessMemberPushdown(source, navigationExpansionPendingSelector, efProperty, memberInfo, propertyName, resultType);
+
+                var newStateNested = new NavigationExpansionExpressionState(
+                    navigationExpansionExpression.State.CurrentParameter,
+                    navigationExpansionExpression.State.SourceMappings,
+                    Expression.Lambda(newPendingSelector, navigationExpansionExpression.State.CurrentParameter),
+                    applyPendingSelector: true,
+                    navigationExpansionExpression.State.PendingOrderings,
+                    navigationExpansionExpression.State.PendingIncludeChain,
+                    navigationExpansionExpression.State.PendingCardinalityReducingOperator,
+                    navigationExpansionExpression.State.PendingTags,
+                    navigationExpansionExpression.State.CustomRootMappings,
+                    navigationExpansionExpression.State.MaterializeCollectionNavigation);
+
+                return new NavigationExpansionExpression(
+                    navigationExpansionExpression.Operand,
+                    newStateNested,
+                    resultType);
+            }
+
             var selectorParameter = Expression.Parameter(source.Type, navigationExpansionExpression.State.CurrentParameter.Name);
 
             var selectorBody = efProperty

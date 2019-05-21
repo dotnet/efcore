@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault())));
         }
 
-        [ConditionalTheory(Skip = "Issue#15720")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool isAsync)
         {

@@ -6213,5 +6213,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
             }
         }
+
+        [ConditionalFact]
+        public virtual void Member_pushdown_chain_3_levels_deep()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            orderby l1.Id
+                            where (from l2 in ctx.LevelTwo
+                                   orderby l2.Id
+                                   where l2.Level1_Optional_Id == l1.Id
+                                   select (from l3 in ctx.LevelThree
+                                           orderby l3.Id
+                                           where l3.Level2_Required_Id == l2.Id
+                                           select (from l4 in ctx.LevelFour
+                                                   where l4.Level3_Required_Id == l3.Id
+                                                   orderby l4.Id
+                                                   select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name != "Foo"
+                            select l1;
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Member_pushdown_with_collection_navigation_in_the_middle()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            orderby l1.Id
+                            select (from l2 in ctx.LevelTwo
+                                    orderby l2.Id
+                                    where l2.Level1_Required_Id == l1.Id
+                                    select l2.OneToMany_Optional2.Select(l3 => (from l4 in ctx.LevelFour
+                                                                                where l4.Level3_Required_Id == l3.Id
+                                                                                orderby l4.Id
+                                                                                select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name;
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Member_pushdown_with_multiple_collections(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => l1s.Select(l1 => l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault().OneToMany_Optional2.OrderBy(l3 => l3.Id).FirstOrDefault().Name),
+                l1s => l1s.Select(l1s => Maybe(
+                    l1s.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault(),
+                    () => Maybe(l1s.OneToMany_Optional1.OrderBy(l2 => MaybeScalar<int>(l2, () => l2.Id)).FirstOrDefault().OneToMany_Optional2.OrderBy(l3 => l3.Id).FirstOrDefault(),
+                        () => l1s.OneToMany_Optional1.OrderBy(l2 => MaybeScalar<int>(l2, () => l2.Id)).FirstOrDefault().OneToMany_Optional2.OrderBy(l3 => l3.Id).FirstOrDefault().Name))));
+        }
     }
 }

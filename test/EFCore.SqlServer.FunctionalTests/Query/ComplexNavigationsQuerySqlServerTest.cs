@@ -4591,6 +4591,68 @@ LEFT JOIN [LevelTwo] AS [join.OneToOne_Optional_FK1] ON [l1].[Id] = [join.OneToO
                 @"");
         }
 
+        public override void Member_pushdown_chain_3_levels_deep()
+        {
+            base.Member_pushdown_chain_3_levels_deep();
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+WHERE (
+    SELECT TOP(1) (
+        SELECT TOP(1) (
+            SELECT TOP(1) [l0].[Name]
+            FROM [LevelFour] AS [l0]
+            WHERE [l0].[Level3_Required_Id] = [l1].[Id]
+            ORDER BY [l0].[Id])
+        FROM [LevelThree] AS [l1]
+        WHERE [l1].[Level2_Required_Id] = [l2].[Id]
+        ORDER BY [l1].[Id])
+    FROM [LevelTwo] AS [l2]
+    WHERE [l2].[Level1_Optional_Id] = [l].[Id]
+    ORDER BY [l2].[Id]) <> N'Foo'
+ORDER BY [l].[Id]");
+
+        }
+
+        public override void Member_pushdown_with_collection_navigation_in_the_middle()
+        {
+            base.Member_pushdown_with_collection_navigation_in_the_middle();
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) (
+        SELECT TOP(1) (
+            SELECT TOP(1) [l].[Name]
+            FROM [LevelFour] AS [l]
+            WHERE [l].[Level3_Required_Id] = [l0].[Id]
+            ORDER BY [l].[Id])
+        FROM [LevelThree] AS [l0]
+        WHERE [l1].[Id] = [l0].[OneToMany_Optional_Inverse3Id])
+    FROM [LevelTwo] AS [l1]
+    WHERE [l1].[Level1_Required_Id] = [l2].[Id]
+    ORDER BY [l1].[Id])
+FROM [LevelOne] AS [l2]
+ORDER BY [l2].[Id]");
+        }
+
+        public override async Task Member_pushdown_with_multiple_collections(bool isAsync)
+        {
+            await base.Member_pushdown_with_multiple_collections(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [l].[Name]
+    FROM [LevelThree] AS [l]
+    WHERE [l].[OneToMany_Optional_Inverse3Id] = (
+        SELECT TOP(1) [l0].[Id]
+        FROM [LevelTwo] AS [l0]
+        WHERE [l1].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+        ORDER BY [l0].[Id])
+    ORDER BY [l].[Id])
+FROM [LevelOne] AS [l1]");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
