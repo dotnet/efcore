@@ -12,18 +12,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        private readonly Dictionary<ExpressionType, ExpressionType> _expressionTypesNegationMap
-            = new Dictionary<ExpressionType, ExpressionType>
-            {
-                { ExpressionType.AndAlso, ExpressionType.OrElse },
-                { ExpressionType.OrElse, ExpressionType.AndAlso },
-                { ExpressionType.Equal, ExpressionType.NotEqual },
-                { ExpressionType.NotEqual, ExpressionType.Equal },
-                { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
-                { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
-                { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
-                { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
+        private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
+        {
+            var negated = expressionType switch {
+                ExpressionType.AndAlso            => ExpressionType.OrElse,
+                ExpressionType.OrElse             => ExpressionType.AndAlso,
+                ExpressionType.Equal              => ExpressionType.NotEqual,
+                ExpressionType.NotEqual           => ExpressionType.Equal,
+                ExpressionType.GreaterThan        => ExpressionType.LessThanOrEqual,
+                ExpressionType.GreaterThanOrEqual => ExpressionType.LessThan,
+                ExpressionType.LessThan           => ExpressionType.GreaterThanOrEqual,
+                ExpressionType.LessThanOrEqual    => ExpressionType.GreaterThan,
+                _ => (ExpressionType?)null
             };
+
+            result = negated ?? default;
+            return negated.HasValue;
+        }
 
         public SqlExpressionOptimizingVisitor(ISqlExpressionFactory sqlExpressionFactory)
         {
@@ -130,11 +135,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 // they are safe to do here because null semantics removes possibility of nulls in the tree
                 // however if we decide to do "partial" null semantics (that doesn't distinguish between NULL and FALSE, e.g. for predicates)
                 // we need to be extra careful here
-                if (_expressionTypesNegationMap.ContainsKey(innerBinary.OperatorType))
+                if (TryNegate(innerBinary.OperatorType, out var negated))
                 {
                     return Visit(
                         _sqlExpressionFactory.MakeBinary(
-                            _expressionTypesNegationMap[innerBinary.OperatorType],
+                            negated,
                             innerBinary.Left,
                             innerBinary.Right,
                             innerBinary.TypeMapping));
@@ -161,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 // true && a -> a
                 // true || a -> true
                 // false && a -> false
-                // false || a -> a 
+                // false || a -> a
                 if (newLeftConstant != null)
                 {
                     return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
@@ -175,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 else if (newRightConstant != null)
                 {
                     // a && true -> a
-                    // a || true -> true 
+                    // a || true -> true
                     // a && false -> false
                     // a || false -> a
                     return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso

@@ -8,18 +8,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class NegationOptimizingVisitor : ExpressionVisitor
     {
-        private readonly Dictionary<ExpressionType, ExpressionType> _expressionTypesNegationMap
-            = new Dictionary<ExpressionType, ExpressionType>
-            {
-                { ExpressionType.AndAlso, ExpressionType.OrElse },
-                { ExpressionType.OrElse, ExpressionType.AndAlso },
-                { ExpressionType.Equal, ExpressionType.NotEqual },
-                { ExpressionType.NotEqual, ExpressionType.Equal },
-                { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
-                { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
-                { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
-                { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
-            };
+        private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
+        {
+            var negated = expressionType switch {
+                ExpressionType.AndAlso            => ExpressionType.OrElse,
+                ExpressionType.OrElse             => ExpressionType.AndAlso,
+                ExpressionType.Equal              => ExpressionType.NotEqual,
+                ExpressionType.NotEqual           => ExpressionType.Equal,
+                ExpressionType.GreaterThan        => ExpressionType.LessThanOrEqual,
+                ExpressionType.GreaterThanOrEqual => ExpressionType.LessThan,
+                ExpressionType.LessThan           => ExpressionType.GreaterThanOrEqual,
+                ExpressionType.LessThanOrEqual    => ExpressionType.GreaterThan,
+                _ => (ExpressionType?)null
+                };
+
+            result = negated ?? default;
+            return negated.HasValue;
+        }
+
+        private static ExpressionType Negate(ExpressionType expressionType)
+            => TryNegate(expressionType, out var result) ? result : throw new KeyNotFoundException();
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
@@ -48,16 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     {
                         return Visit(
                             Expression.MakeBinary(
-                                _expressionTypesNegationMap[innerBinary.NodeType],
+                                Negate(innerBinary.NodeType),
                                 Expression.Not(innerBinary.Left),
                                 Expression.Not(innerBinary.Right)));
                     }
 
-                    if (_expressionTypesNegationMap.ContainsKey(innerBinary.NodeType))
+                    if (TryNegate(innerBinary.NodeType, out var negated))
                     {
                         return Visit(
                             Expression.MakeBinary(
-                                _expressionTypesNegationMap[innerBinary.NodeType],
+                                negated,
                                 innerBinary.Left,
                                 innerBinary.Right));
                     }
