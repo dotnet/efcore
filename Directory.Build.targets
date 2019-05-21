@@ -13,6 +13,9 @@
       <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</DefaultRuntimeFrameworkVersion>
       <TargetingPackVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</TargetingPackVersion>
     </KnownFrameworkReference>
+    <KnownFrameworkReference Update="NETStandard.Library">
+      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>
+    </KnownFrameworkReference>
   </ItemGroup>
 
   <!-- This is required to workaround overlap between System.Collections.Generic.IAsyncEnumerable in System.Runtime and System.Interactive.Async. -->

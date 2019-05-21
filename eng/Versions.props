@@ -49,5 +49,6 @@
     <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview6-27720-09</MicrosoftDotNetPlatformAbstractionsPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview6-27720-09</MicrosoftExtensionsDependencyModelPackageVersion>
     <MicrosoftNETCoreAppPackageVersion>3.0.0-preview6-27720-09</MicrosoftNETCoreAppPackageVersion>
+    <NETStandardLibraryRefPackageVersion>2.1.0-preview6-27720-09</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
 </Project>
