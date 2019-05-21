@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (translation != null)
             {
                 selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
-                selectExpression.ApplyProjection(new Dictionary<ProjectionMember, Expression>());
+                selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
                 if (selectExpression.Limit == null
                     && selectExpression.Offset == null)
                 {
@@ -55,17 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 translation = _sqlExpressionFactory.Exists(selectExpression, true);
-                var projectionMapping = new Dictionary<ProjectionMember, Expression>
-                {
-                    { new ProjectionMember(), translation }
-                };
-
-                source.QueryExpression = new SelectExpression(
-                    null,
-                    projectionMapping,
-                    new List<ProjectionExpression>(),
-                    new List<TableExpressionBase>());
-
+                source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
                 source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
                 return source;
@@ -82,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ApplyProjection(new Dictionary<ProjectionMember, Expression>());
+            selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
             if (selectExpression.Limit == null
                 && selectExpression.Offset == null)
             {
@@ -90,16 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var translation = _sqlExpressionFactory.Exists(selectExpression, false);
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>
-            {
-                { new ProjectionMember(), translation }
-            };
-
-            source.QueryExpression = new SelectExpression(
-                "",
-                projectionMapping,
-                new List<ProjectionExpression>(),
-                new List<TableExpressionBase>());
+            source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
             return source;
@@ -175,16 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 selectExpression.ApplyProjection();
                 translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-                var projectionMapping = new Dictionary<ProjectionMember, Expression>
-                {
-                    { new ProjectionMember(), translation }
-                };
-
-                source.QueryExpression = new SelectExpression(
-                    "",
-                    projectionMapping,
-                    new List<ProjectionExpression>(),
-                    new List<TableExpressionBase>());
+                source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
                 source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
                 return source;
@@ -218,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ApplyProjection(_projectionMapping);
+            selectExpression.ReplaceProjection(_projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int));
 
             return source;
@@ -478,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ApplyProjection(_projectionMapping);
+            selectExpression.ReplaceProjection(_projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long));
 
             return source;
@@ -802,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ApplyProjection(
+            selectExpression.ReplaceProjection(
                 new Dictionary<ProjectionMember, Expression>
                 {
                     { new ProjectionMember(), projection }
