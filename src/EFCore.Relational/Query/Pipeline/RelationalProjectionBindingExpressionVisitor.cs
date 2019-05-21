@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             var result = Visit(expression);
 
-            _selectExpression.ApplyProjection(_projectionMapping);
+            _selectExpression.ReplaceProjection(_projectionMapping);
 
             _selectExpression = null;
             _projectionMembers.Clear();

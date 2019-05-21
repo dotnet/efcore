@@ -73,10 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.Append("(");
-			using (expressionPrinter.StringBuilder.Indent())
-			{
-				expressionPrinter.Visit(Subquery);
-			}
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.Visit(Subquery);
+            }
             expressionPrinter.StringBuilder.Append(")");
         }
     }
