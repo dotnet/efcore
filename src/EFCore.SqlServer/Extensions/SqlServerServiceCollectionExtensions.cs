@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
@@ -16,7 +15,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal;
@@ -91,13 +89,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
                 .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
-                .TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
 
                 // New Query Pipeline
                 .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
                 .TryAdd<IShapedQueryOptimizerFactory, SqlServerShapedQueryOptimizerFactory>()
+                .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
+
+
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

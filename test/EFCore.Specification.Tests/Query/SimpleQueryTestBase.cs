@@ -1478,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15719")]
+        [ConditionalFact]
         public virtual void Select_DTO_constructor_distinct_translated_to_server()
         {
             using (var context = CreateContext())
@@ -1502,7 +1502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15719")]
+        [ConditionalFact]
         public virtual void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
         {
             using (var context = CreateContext())
@@ -4127,7 +4127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue#15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_other_to_string(bool isAsync)
         {
@@ -4142,7 +4142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ShipName);
         }
 
-        [ConditionalTheory(Skip = "Issue#15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_long_to_string(bool isAsync)
         {
@@ -4157,7 +4157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ShipName);
         }
 
-        [ConditionalTheory(Skip = "Issue#15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_int_to_string(bool isAsync)
         {
@@ -4172,7 +4172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ShipName);
         }
 
-        [ConditionalTheory(Skip = "Issue#15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task ToString_with_formatter_is_evaluated_on_the_client(bool isAsync)
         {

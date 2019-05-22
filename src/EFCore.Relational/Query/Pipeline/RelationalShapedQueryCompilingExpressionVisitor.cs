@@ -269,9 +269,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     && parameterExpression.Type == typeof(MaterializationContext))
                 {
                     var newExpression = (NewExpression)binaryExpression.Right;
+                    var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
 
-                    _materializationContextBindings[parameterExpression]
-                        = (int)((ConstantExpression)_selectExpression.GetProjectionExpression(((ProjectionBindingExpression)newExpression.Arguments[0]).ProjectionMember)).Value;
+                    _materializationContextBindings[parameterExpression] = GetProjectionIndex(projectionBindingExpression);
 
                     var updatedExpression = Expression.New(newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 {
                     var originalIndex = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                     var indexOffset = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
-                        ? (int)((ConstantExpression)_selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).Value
+                        ? GetProjectionIndex(projectionBindingExpression)
                         : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    var projectionIndex = (int)((ConstantExpression)_selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).Value;
+                    var projectionIndex = GetProjectionIndex(projectionBindingExpression);
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     return CreateGetValueExpression(
@@ -323,6 +323,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 return base.VisitExtension(extensionExpression);
+            }
+
+            private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            {
+                return projectionBindingExpression.ProjectionMember != null
+                    ? (int)((ConstantExpression)_selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).Value
+                    : projectionBindingExpression.Index;
             }
 
             private static bool IsNullableProjection(ProjectionExpression projection)

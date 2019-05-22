@@ -199,6 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     return ProcessEntityShaper(entityShaperExpression);
                 }
 
+                // TODO: Remove when InMemory implements client eval projection
                 if (extensionExpression is EntityValuesExpression entityValuesExpression)
                 {
                     return Expression.NewArrayInit(

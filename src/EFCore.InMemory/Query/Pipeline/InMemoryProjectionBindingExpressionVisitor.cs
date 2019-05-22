@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                   || expression is MemberInitExpression
                   || expression is EntityShaperExpression))
             {
+                // TODO: Remove when InMemory implements client eval projection
                 // This converts object[] from GetDatabaseValues to appropriate projection.
                 if (expression is NewArrayExpression newArrayExpression
                     && newArrayExpression.NodeType == ExpressionType.NewArrayInit
