@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly IndentedStringBuilder _stringBuilder;
         private readonly Dictionary<ParameterExpression, string> _parametersInScope;
+        private readonly List<ParameterExpression> _namelessParameters;
 
         private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
         {
@@ -97,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _stringBuilder = new IndentedStringBuilder();
             _parametersInScope = new Dictionary<ParameterExpression, string>();
+            _namelessParameters = new List<ParameterExpression>();
 
             ConstantPrinters.AddRange(additionalConstantPrinters);
 
@@ -261,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
+            _namelessParameters.Clear();
 
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
@@ -634,6 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
+                // however we don't remove nameless parameters so that they are unique globally, not just within the scope
                 _parametersInScope.Remove(parameter);
             }
 
@@ -918,13 +922,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (_parametersInScope.ContainsKey(parameterExpression))
             {
-                if (_parametersInScope[parameterExpression].Contains("."))
+                var parameterName = _parametersInScope[parameterExpression];
+                if (parameterName == null)
                 {
-                    _stringBuilder.Append("[" + _parametersInScope[parameterExpression] + "]");
+                    if (!_namelessParameters.Contains(parameterExpression))
+                    {
+                        _namelessParameters.Add(parameterExpression);
+                    }
+
+                    _stringBuilder.Append("namelessParameter{" + _namelessParameters.IndexOf(parameterExpression) + "}");
+                }
+                else if (parameterName.Contains("."))
+                {
+                    _stringBuilder.Append("[" + parameterName + "]");
                 }
                 else
                 {
-                    _stringBuilder.Append(_parametersInScope[parameterExpression]);
+                    _stringBuilder.Append(parameterName);
                 }
             }
             else
