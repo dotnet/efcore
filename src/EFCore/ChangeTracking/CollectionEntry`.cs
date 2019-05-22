@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
-    /// <typeparam name="TProperty"> The type of the property. </typeparam>
-    public class CollectionEntry<TEntity, TProperty> : CollectionEntry
+    /// <typeparam name="TRelatedEntity"> The type of the property. </typeparam>
+    public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
         where TEntity : class
-        where TProperty : class
+        where TRelatedEntity : class
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual IEnumerable<TProperty> CurrentValue
+        public new virtual IEnumerable<TRelatedEntity> CurrentValue
         {
-            get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TProperty>>(Metadata);
+            get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 
@@ -78,11 +78,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         actually loading all entities from the database.
         ///     </para>
         /// </summary>
-        public new virtual IQueryable<TProperty> Query()
+        public new virtual IQueryable<TRelatedEntity> Query()
         {
             InternalEntry.GetOrCreateCollection(Metadata);
 
-            return (IQueryable<TProperty>)base.Query();
+            return (IQueryable<TRelatedEntity>)base.Query();
         }
 
         /// <summary>
@@ -90,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public new virtual EntityEntry<TProperty> GetTargetEntry(object entity)
+        public new virtual EntityEntry<TRelatedEntity> FindEntry(object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null
                     ? null
-                    : new EntityEntry<TProperty>(entry);
+                    : new EntityEntry<TRelatedEntity>(entry);
         }
     }
 }

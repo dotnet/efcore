@@ -26,21 +26,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Marks the given member name as ignored, preventing conventions from adding a matching property
         ///     or navigation to the type.
         /// </summary>
-        /// <param name="name"> The name of the member to be ignored. </param>
-        void AddIgnored([NotNull] string name);
+        /// <param name="memberName"> The name of the member to be ignored. </param>
+        void AddIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Removes the ignored member name.
         /// </summary>
-        /// <param name="name"> The name of the member to be removed. </param>
-        void RemoveIgnored([NotNull] string name);
+        /// <param name="memberName"> The name of the member to be removed. </param>
+        void RemoveIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.
         /// </summary>
-        /// <param name="name"> The name of the member that might be ignored. </param>
+        /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <returns> <c>true</c> if the given member name is ignored. </returns>
-        bool IsIgnored([NotNull] string name);
+        bool IsIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Gets all the ignored members.

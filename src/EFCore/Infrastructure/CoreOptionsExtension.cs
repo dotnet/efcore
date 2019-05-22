@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
         private string _logFragment;
-        private bool _cacheServiceProvider = true;
+        private bool _serviceProviderCachingEnabled = true;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
-            _cacheServiceProvider = copyFrom.ServiceProviderCachingEnabled;
+            _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
 
             if (copyFrom._replacedServices != null)
             {
@@ -263,13 +263,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="cacheServiceProvider"> The option to change. </param>
+        /// <param name="serviceProviderCachingEnabled"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithCacheServiceProvider(bool cacheServiceProvider)
+        public virtual CoreOptionsExtension WithServiceProviderCachingEnabled(bool serviceProviderCachingEnabled)
         {
             var clone = Clone();
 
-            clone._cacheServiceProvider = cacheServiceProvider;
+            clone._serviceProviderCachingEnabled = serviceProviderCachingEnabled;
 
             return clone;
         }
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.EnableServiceProviderCaching" /> method.
         /// </summary>
-        public virtual bool ServiceProviderCachingEnabled => _cacheServiceProvider;
+        public virtual bool ServiceProviderCachingEnabled => _serviceProviderCachingEnabled;
 
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.

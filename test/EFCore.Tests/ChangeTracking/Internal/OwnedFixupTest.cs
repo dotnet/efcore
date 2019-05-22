@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.UntrackedDependentEntity(
                         typeof(ChildPN).ShortDisplayName(),
                         ".Reference().TargetEntry",
-                        ".Collection().GetTargetEntry()"),
+                        ".Collection().FindEntry()"),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
 
                 var dependentEntry1 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
@@ -865,11 +865,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 dependent2.SubChildCollection = new HashSet<SubChildPN>(ReferenceEqualityComparer.Instance) { subDependent2 };
 
                 var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection2)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 dependentEntry2.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var subDependentEntry2 = dependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 subDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();
@@ -956,11 +956,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 dependent2.SubChildCollection = new HashSet<SubChild>(ReferenceEqualityComparer.Instance) {subDependent2};
 
                 var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 dependentEntry2.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var subDependentEntry2 = dependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 subDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();
@@ -1176,7 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                 }
 
-                var dependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection1).GetTargetEntry(dependent);
+                var dependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection1).FindEntry(dependent);
 
                 principal.ChildCollection2 = principal.ChildCollection1;
                 principal.ChildCollection1 = null;
@@ -1188,13 +1188,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Contains(dependent, principal.ChildCollection2);
                 Assert.Equal(entityState, context.Entry(principal).State);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
-                var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection2).GetTargetEntry(dependent);
+                var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection2).FindEntry(dependent);
                 Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(nameof(ParentPN.ChildCollection2), dependentEntry2.Metadata.DefiningNavigationName);
 
                 Assert.Contains(subDependent, dependent.SubChildCollection);
-                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).GetTargetEntry(subDependent);
+                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
                 Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
                 Assert.Equal(nameof(ChildPN.SubChildCollection), subDependentEntry.Metadata.DefiningNavigationName);
@@ -1251,7 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                 }
 
-                var dependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection2).GetTargetEntry(dependent);
+                var dependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection2).FindEntry(dependent);
 
                 principal.ChildCollection1 = principal.ChildCollection2;
                 principal.ChildCollection2 = null;
@@ -1264,14 +1264,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Contains(dependent, principal.ChildCollection1);
                 Assert.Equal(entityState, context.Entry(principal).State);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
-                var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1).GetTargetEntry(dependent);
+                var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1).FindEntry(dependent);
                 Assert.Equal(principal.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(nameof(Parent.ChildCollection1), dependentEntry2.Metadata.DefiningNavigationName);
 
                 Assert.Contains(subDependent, dependent.SubChildCollection);
                 Assert.Same(dependent, subDependent.Parent);
-                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).GetTargetEntry(subDependent);
+                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
                 Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
                 Assert.Equal(nameof(Child.SubChildCollection), subDependentEntry.Metadata.DefiningNavigationName);
@@ -1543,19 +1543,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal.ChildCollection1 = tempCollection;
 
                 var newDependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection2)
-                    .GetTargetEntry(dependent1);
+                    .FindEntry(dependent1);
                 newDependentEntry1.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newDependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 newDependentEntry2.Property<int>("Id").CurrentValue = dependentEntry2.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent1);
+                    .FindEntry(subDependent1);
                 newSubDependentEntry1.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();
@@ -1666,19 +1666,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal.ChildCollection1 = tempCollection;
 
                 var newDependentEntry1 = context.Entry(principal).Collection(p => p.ChildCollection2)
-                    .GetTargetEntry(dependent1);
+                    .FindEntry(dependent1);
                 newDependentEntry1.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newDependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 newDependentEntry2.Property<int>("Id").CurrentValue = dependentEntry2.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent1);
+                    .FindEntry(subDependent1);
                 newSubDependentEntry1.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();
@@ -1977,14 +1977,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(EntityState.Detached, dependentEntry1.State);
 
                     var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent);
+                        .FindEntry(dependent);
                     Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, dependentEntry2.State);
                     Assert.Equal(nameof(ParentPN.ChildCollection1), dependentEntry2.Metadata.DefiningNavigationName);
 
                     Assert.Contains(subDependent, dependent.SubChildCollection);
                     var subDependentEntry2 = dependentEntry2.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent);
+                        .FindEntry(subDependent);
                     Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, subDependentEntry2.State);
                     Assert.Equal(nameof(ChildPN.SubChildCollection), subDependentEntry2.Metadata.DefiningNavigationName);
@@ -2079,7 +2079,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(EntityState.Detached, dependentEntry1.State);
 
                     var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent);
+                        .FindEntry(dependent);
                     Assert.Equal(EntityState.Added, dependentEntry2.State);
                     Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(nameof(Parent.ChildCollection1), dependentEntry2.Metadata.DefiningNavigationName);
@@ -2087,7 +2087,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Contains(subDependent, dependent.SubChildCollection);
                     Assert.Same(dependent, subDependent.Parent);
                     var subDependentEntry2 = dependentEntry2.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent);
+                        .FindEntry(subDependent);
                     Assert.Equal(principal2.Id, subDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, subDependentEntry2.State);
                     Assert.Equal(nameof(Child.SubChildCollection), subDependentEntry2.Metadata.DefiningNavigationName);
@@ -2418,27 +2418,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(entityState, context.Entry(principal2).State);
 
                     var newDependentEntry2 = context.Entry(principal1).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent2);
+                        .FindEntry(dependent2);
                     Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry2.State);
                     Assert.Equal(nameof(ParentPN.ChildCollection1), newDependentEntry2.Metadata.DefiningNavigationName);
 
                     var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent1);
+                        .FindEntry(dependent1);
                     Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
                     Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry1.State);
                     Assert.Equal(nameof(ParentPN.ChildCollection1), newDependentEntry1.Metadata.DefiningNavigationName);
 
                     Assert.Contains(subDependent1, dependent1.SubChildCollection);
                     var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent1);
+                        .FindEntry(subDependent1);
                     Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
                     Assert.Equal(nameof(ChildPN.SubChildCollection), newSubDependentEntry1.Metadata.DefiningNavigationName);
 
                     Assert.Contains(subDependent2, dependent2.SubChildCollection);
                     var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent2);
+                        .FindEntry(subDependent2);
                     Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
                     Assert.Equal(nameof(ChildPN.SubChildCollection), newSubDependentEntry2.Metadata.DefiningNavigationName);
@@ -2549,13 +2549,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Equal(entityState, context.Entry(principal2).State);
 
                     var newDependentEntry2 = context.Entry(principal1).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent2);
+                        .FindEntry(dependent2);
                     Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry2.State);
                     Assert.Equal(principal1.Id, newDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(nameof(Parent.ChildCollection1), newDependentEntry2.Metadata.DefiningNavigationName);
 
                     var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                        .GetTargetEntry(dependent1);
+                        .FindEntry(dependent1);
                     Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
                     Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, newDependentEntry1.State);
                     Assert.Equal(nameof(Parent.ChildCollection1), newDependentEntry1.Metadata.DefiningNavigationName);
@@ -2563,7 +2563,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Contains(subDependent1, dependent1.SubChildCollection);
                     Assert.Same(dependent1, subDependent1.Parent);
                     var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent1);
+                        .FindEntry(subDependent1);
                     Assert.Equal(principal2.Id, newSubDependentEntry1.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, newSubDependentEntry1.State);
                     Assert.Equal(nameof(Child.SubChildCollection), newSubDependentEntry1.Metadata.DefiningNavigationName);
@@ -2571,7 +2571,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Assert.Contains(subDependent2, dependent2.SubChildCollection);
                     Assert.Same(dependent2, subDependent2.Parent);
                     var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                        .GetTargetEntry(subDependent2);
+                        .FindEntry(subDependent2);
                     Assert.Equal(principal1.Id, newSubDependentEntry2.Property("ParentId").CurrentValue);
                     Assert.Equal(EntityState.Added, newSubDependentEntry2.State);
                     Assert.Equal(nameof(Child.SubChildCollection), newSubDependentEntry2.Metadata.DefiningNavigationName);
@@ -2795,7 +2795,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                 }
 
-                var dependentEntry1 = context.Entry(principal1).Collection(p => p.ChildCollection2).GetTargetEntry(dependent);
+                var dependentEntry1 = context.Entry(principal1).Collection(p => p.ChildCollection2).FindEntry(dependent);
 
                 principal2.ChildCollection1 = principal1.ChildCollection2;
                 principal1.ChildCollection2 = null;
@@ -2810,13 +2810,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(entityState, context.Entry(principal1).State);
                 Assert.Equal(entityState, context.Entry(principal2).State);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
-                var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).GetTargetEntry(dependent);
+                var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).FindEntry(dependent);
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(nameof(ParentPN.ChildCollection1), dependentEntry2.Metadata.DefiningNavigationName);
 
                 Assert.Contains(subDependent, dependent.SubChildCollection);
-                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).GetTargetEntry(subDependent);
+                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
                 Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
                 Assert.Equal(nameof(ChildPN.SubChildCollection), subDependentEntry.Metadata.DefiningNavigationName);
@@ -2883,7 +2883,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                 }
 
-                var dependentEntry1 = context.Entry(principal1).Collection(p => p.ChildCollection2).GetTargetEntry(dependent);
+                var dependentEntry1 = context.Entry(principal1).Collection(p => p.ChildCollection2).FindEntry(dependent);
 
                 principal2.ChildCollection1 = principal1.ChildCollection2;
                 principal1.ChildCollection2 = null;
@@ -2899,14 +2899,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(entityState, context.Entry(principal1).State);
                 Assert.Equal(entityState, context.Entry(principal2).State);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Detached : EntityState.Deleted, dependentEntry1.State);
-                var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).GetTargetEntry(dependent);
+                var dependentEntry2 = context.Entry(principal2).Collection(p => p.ChildCollection1).FindEntry(dependent);
                 Assert.Equal(principal2.Id, dependentEntry2.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry2.State);
                 Assert.Equal(nameof(Parent.ChildCollection1), dependentEntry2.Metadata.DefiningNavigationName);
 
                 Assert.Contains(subDependent, dependent.SubChildCollection);
                 Assert.Same(dependent, subDependent.Parent);
-                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).GetTargetEntry(subDependent);
+                var subDependentEntry = dependentEntry2.Collection(p => p.SubChildCollection).FindEntry(subDependent);
                 Assert.Equal(principal2.Id, subDependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, subDependentEntry.State);
                 Assert.Equal(nameof(Child.SubChildCollection), subDependentEntry.Metadata.DefiningNavigationName);
@@ -3211,19 +3211,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal1.ChildCollection2 = tempCollection;
 
                 var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                    .GetTargetEntry(dependent1);
+                    .FindEntry(dependent1);
                 newDependentEntry1.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newDependentEntry2 = context.Entry(principal1).Collection(p => p.ChildCollection2)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 newDependentEntry2.Property<int>("Id").CurrentValue = dependentEntry2.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent1);
+                    .FindEntry(subDependent1);
                 newSubDependentEntry1.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();
@@ -3347,19 +3347,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal1.ChildCollection2 = tempCollection;
 
                 var newDependentEntry1 = context.Entry(principal2).Collection(p => p.ChildCollection1)
-                    .GetTargetEntry(dependent1);
+                    .FindEntry(dependent1);
                 newDependentEntry1.Property<int>("Id").CurrentValue = dependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newDependentEntry2 = context.Entry(principal1).Collection(p => p.ChildCollection2)
-                    .GetTargetEntry(dependent2);
+                    .FindEntry(dependent2);
                 newDependentEntry2.Property<int>("Id").CurrentValue = dependentEntry2.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry1 = newDependentEntry1.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent1);
+                    .FindEntry(subDependent1);
                 newSubDependentEntry1.Property<int>("Id").CurrentValue = subDependentEntry1.Property<int>("Id").CurrentValue;
 
                 var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
-                    .GetTargetEntry(subDependent2);
+                    .FindEntry(subDependent2);
                 newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
                 context.ChangeTracker.DetectChanges();

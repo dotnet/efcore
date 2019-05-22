@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableServiceProviderCaching(bool cacheServiceProvider = true)
-            => WithOption(e => e.WithCacheServiceProvider(cacheServiceProvider));
+            => WithOption(e => e.WithServiceProviderCachingEnabled(cacheServiceProvider));
 
         /// <summary>
         ///     <para>

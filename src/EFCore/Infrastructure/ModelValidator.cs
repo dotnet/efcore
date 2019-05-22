@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var isTargetWeakOrOwned
                         = targetType != null
                           && (conventionModel.HasEntityTypeWithDefiningNavigation(targetType)
-                              || conventionModel.ShouldBeOwned(targetType));
+                              || conventionModel.IsOwned(targetType));
 
                     if (targetType?.IsValidEntityType() == true
                         && (isTargetWeakOrOwned
@@ -196,8 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         || (entityType.DefiningEntityType.ClrType.Equals(targetType)
                                             && targetSequenceType == null)))))
                         {
-                            if (conventionModel.ShouldBeOwned(entityType.ClrType)
-                                && conventionModel.ShouldBeOwned(targetType))
+                            if (conventionModel.IsOwned(entityType.ClrType)
+                                && conventionModel.IsOwned(targetType))
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(entityType.DisplayName(), targetType.ShortDisplayName()));

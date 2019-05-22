@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <c>true</c> if a matching entity type should be configured as owned when discovered,
         ///     <c>false</c> otherwise.
         /// </returns>
-        public static bool ShouldBeOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
+        public static bool IsOwned([NotNull] this IConventionModel model, [NotNull] Type clrType)
             => Check.NotNull(model, nameof(model)).AsModel().IsOwned(
                 Check.NotNull(clrType, nameof(clrType)));
 

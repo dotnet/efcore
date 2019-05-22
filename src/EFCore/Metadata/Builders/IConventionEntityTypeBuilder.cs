@@ -116,30 +116,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Indicates whether the given member name is ignored for the current configuration source.
         /// </summary>
-        /// <param name="name"> The name of the member that might be ignored. </param>
+        /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given member name is ignored. </returns>
-        bool IsIgnored([NotNull] string name, bool fromDataAnnotation = false);
+        bool IsIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Excludes the given property from the entity type and prevents conventions from adding a matching property
         ///     or navigation to the type.
         /// </summary>
-        /// <param name="name"> The name of the member to be removed. </param>
+        /// <param name="memberName"> The name of the member to be removed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same <see cref="IConventionEntityTypeBuilder" /> instance so that additional configuration calls can be chained
         ///     if the given member was ignored, <c>null</c> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder Ignore([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder Ignore([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given member name can be ignored from the current configuration source.
         /// </summary>
-        /// <param name="name"> The member name to be removed from the entity type. </param>
+        /// <param name="memberName"> The member name to be removed from the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given member name can be ignored. </returns>
-        bool CanIgnore([NotNull] string name, bool fromDataAnnotation = false);
+        bool CanIgnore([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.

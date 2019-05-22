@@ -26,25 +26,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Marks the given member name as ignored, preventing conventions from adding a matching property
         ///     or navigation to the type.
         /// </summary>
-        /// <param name="name"> The name of the member to be ignored. </param>
+        /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddIgnored([NotNull] string name, bool fromDataAnnotation = false);
+        void AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored member name.
         /// </summary>
-        /// <param name="name"> The name of the member to be removed. </param>
-        void RemoveIgnored([NotNull] string name);
+        /// <param name="memberName"> The name of the member to be removed. </param>
+        void RemoveIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.
         /// </summary>
-        /// <param name="name"> The name of the member to be ignored. </param>
+        /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <returns>
         ///     The configuration source if the given member name is ignored,
         ///     <c>null</c> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string name);
+        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string memberName);
 
         /// <summary>
         ///     Gets all the ignored members.

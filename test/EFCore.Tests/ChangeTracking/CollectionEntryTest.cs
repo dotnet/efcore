@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Same(chunky, cherry.Monkeys.Single());
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(chunky, collection.CurrentValue.Cast<Chunky>().Single());
-                Assert.Same(collection.GetTargetEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+                Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
                 collection.CurrentValue = null;
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Null(cherry.Monkeys);
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(collection.CurrentValue);
-                Assert.Null(collection.GetTargetEntry(chunky));
+                Assert.Null(collection.FindEntry(chunky));
             }
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Same(chunky, cherry.Monkeys.Single());
                 Assert.Equal(cherry.Id, chunky.GarciaId);
                 Assert.Same(chunky, collection.CurrentValue.Single());
-                Assert.Same(collection.GetTargetEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+                Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
                 collection.CurrentValue = null;
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Null(cherry.Monkeys);
                 Assert.Null(chunky.GarciaId);
                 Assert.Null(collection.CurrentValue);
-                Assert.Null(collection.GetTargetEntry(chunky));
+                Assert.Null(collection.FindEntry(chunky));
             }
         }
 

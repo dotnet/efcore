@@ -126,9 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Marks the given entity type name as ignored.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be ignored. </param>
+        /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddIgnored([NotNull] string name, bool fromDataAnnotation = false);
+        void AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Marks the given entity type as ignored.
@@ -140,17 +140,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
-        /// <param name="name"> The name of the ignored entity type to be removed. </param>
-        void RemoveIgnored([NotNull] string name);
+        /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
+        void RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
-        /// <param name="name"> The name of the entity type that could be ignored. </param>
+        /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns>
         ///     The configuration source if the given entity type name is ignored,
         ///     <c>null</c> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string name);
+        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string typeName);
     }
 }

@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public virtual EntityEntry GetTargetEntry(object entity)
+        public virtual EntityEntry FindEntry(object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null

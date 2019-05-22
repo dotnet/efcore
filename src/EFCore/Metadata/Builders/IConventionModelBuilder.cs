@@ -116,10 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Indicates whether the given entity type name is ignored for the current configuration source.
         /// </summary>
-        /// <param name="name"> The name of the entity type that might be ignored. </param>
+        /// <param name="typeName"> The name of the entity type that might be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
-        bool IsIgnored([NotNull] string name, bool fromDataAnnotation = false);
+        bool IsIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Excludes the given entity type from the model and prevents it from being added by convention.
@@ -135,14 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Excludes the given entity type name from the model and prevents it from being added by convention.
         /// </summary>
-        /// <param name="name"> The entity type name to be removed from the model. </param>
+        /// <param name="typeName"> The entity type name to be removed from the model. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given entity type name was ignored. </returns>
         /// <returns>
         ///     The same <see cref="IConventionModelBuilder" /> instance so that additional configuration calls can be chained
         ///     if the given entity type name was ignored, <c>null</c> otherwise.
         /// </returns>
-        IConventionModelBuilder Ignore([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionModelBuilder Ignore([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given entity type can be ignored from the current configuration source
@@ -155,10 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given entity type name can be ignored from the current configuration source
         /// </summary>
-        /// <param name="name"> The entity type name to be removed from the model. </param>
+        /// <param name="typeName"> The entity type name to be removed from the model. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given entity type name can be ignored. </returns>
-        bool CanIgnore([NotNull] string name, bool fromDataAnnotation = false);
+        bool CanIgnore([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
