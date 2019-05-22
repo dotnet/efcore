@@ -112,6 +112,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "HOUR"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
+                    "HOUR"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MINUTE"
@@ -136,6 +148,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "MINUTE"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
+                    "MINUTE"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "SECOND"
@@ -160,6 +184,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 },
                 {
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "SECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
+                    "SECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MILLISECOND"
@@ -180,6 +216,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                    "MILLISECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "MILLISECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
                     "MILLISECOND"
                 },
                 {
@@ -204,6 +252,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                    "MICROSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "MICROSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
                     "MICROSECOND"
                 },
                 {
@@ -228,6 +288,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                    "NANOSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan), typeof(TimeSpan) }),
+                    "NANOSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
                     "NANOSECOND"
                 }
             };

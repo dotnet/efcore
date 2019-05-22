@@ -99,6 +99,156 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
             }
         }
 
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffHour(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffMinute_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffMinute(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffSecond_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffSecond(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffMillisecond_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffMillisecond(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffMicrosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => EF.Functions.DateDiffNanosecond(e.TimeSpanAsTime, timeSpan) == 0)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_1='02:01:00' (Nullable = true)
+
+SELECT [m].[Int]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
         [Fact]
         public virtual void Can_query_using_any_mapped_data_type()
         {
