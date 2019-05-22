@@ -4,9 +4,11 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
+    [DebuggerDisplay("{ToString(), nq}")]
     public class ProjectionMember
     {
         private readonly IList<MemberInfo> _memberChain;
