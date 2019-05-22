@@ -550,10 +550,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             unchecked
             {
                 var hashCode = base.GetHashCode();
-                foreach (var projectionMapping in _projectionMapping)
+                if (_projectionMapping != null)
                 {
-                    hashCode = (hashCode * 397) ^ projectionMapping.Key.GetHashCode();
-                    hashCode = (hashCode * 397) ^ projectionMapping.Value.GetHashCode();
+                    foreach (var projectionMapping in _projectionMapping)
+                    {
+                        hashCode = (hashCode * 397) ^ projectionMapping.Key.GetHashCode();
+                        hashCode = (hashCode * 397) ^ projectionMapping.Value.GetHashCode();
+                    }
                 }
 
                 hashCode = (hashCode * 397) ^ _tables.Aggregate(
