@@ -9,51 +9,23 @@ using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public class ShaperExpressionDedupingExpressionVisitor : ExpressionVisitor
+    public class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
         private SelectExpression _selectExpression;
-        private IDictionary<Expression, IList<Expression>> _duplicateShapers;
+        private IDictionary<Expression, ParameterExpression> _mapping;
+        private List<ParameterExpression> _variables;
+        private List<Expression> _expressions;
 
         public Expression Process(Expression expression)
         {
             if (expression is ShapedQueryExpression shapedQueryExpression)
             {
                 _selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-                _duplicateShapers = new Dictionary<Expression, IList<Expression>>();
-                Visit(shapedQueryExpression.ShaperExpression);
-
-                var variables = new List<ParameterExpression>();
-                var expressions = new List<Expression>();
-                var replacements = new Dictionary<Expression, Expression>();
-                var index = 0;
-
-                foreach (var kvp in _duplicateShapers)
-                {
-                    if (kvp.Value.Count > 1)
-                    {
-                        var firstShaper = kvp.Value[0];
-                        var entityParameter = Expression.Parameter(firstShaper.Type, $"entity{index++}");
-                        variables.Add(entityParameter);
-                        expressions.Add(Expression.Assign(
-                            entityParameter,
-                            firstShaper));
-
-                        foreach (var shaper in kvp.Value)
-                        {
-                            replacements[shaper] = entityParameter;
-                        }
-                    }
-                }
-
-                if (variables.Count == 0)
-                {
-                    return shapedQueryExpression;
-                }
-
-                expressions.Add(new ReplacingExpressionVisitor(replacements)
-                        .Visit(shapedQueryExpression.ShaperExpression));
-
-                shapedQueryExpression.ShaperExpression = Expression.Block(variables, expressions);
+                _mapping = new Dictionary<Expression, ParameterExpression>();
+                _variables = new List<ParameterExpression>();
+                _expressions = new List<Expression>();
+                _expressions.Add(Visit(shapedQueryExpression.ShaperExpression));
+                shapedQueryExpression.ShaperExpression = Expression.Block(_variables, _expressions);
 
                 return shapedQueryExpression;
             }
@@ -65,22 +37,40 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                var serverProjection = _selectExpression.GetProjectionExpression(
-                    entityShaperExpression.ValueBufferExpression.ProjectionMember);
-
-                if (_duplicateShapers.ContainsKey(serverProjection))
+                var key = GenerateKey(entityShaperExpression.ValueBufferExpression);
+                if (!_mapping.TryGetValue(key, out var variable))
                 {
-                    _duplicateShapers[serverProjection].Add(entityShaperExpression);
-                }
-                else
-                {
-                    _duplicateShapers[serverProjection] = new List<Expression> { entityShaperExpression };
+                    variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
+                    _variables.Add(variable);
+                    _expressions.Add(Expression.Assign(variable, entityShaperExpression));
+                    _mapping[key] = variable;
                 }
 
-                return entityShaperExpression;
+                return variable;
+            }
+
+            if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
+            {
+                var key = GenerateKey(projectionBindingExpression);
+                if (!_mapping.TryGetValue(key, out var variable))
+                {
+                    variable = Expression.Parameter(projectionBindingExpression.Type);
+                    _variables.Add(variable);
+                    _expressions.Add(Expression.Assign(variable, projectionBindingExpression));
+                    _mapping[key] = variable;
+                }
+
+                return variable;
             }
 
             return base.VisitExtension(extensionExpression);
+        }
+
+        private Expression GenerateKey(ProjectionBindingExpression projectionBindingExpression)
+        {
+            return projectionBindingExpression.ProjectionMember != null
+                ? _selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)
+                : projectionBindingExpression;
         }
     }
 }

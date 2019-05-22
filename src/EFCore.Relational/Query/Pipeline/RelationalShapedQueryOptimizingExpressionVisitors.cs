@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
@@ -24,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public override Expression Visit(Expression query)
         {
             query = base.Visit(query);
-            query = new ShaperExpressionDedupingExpressionVisitor().Process(query);
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new SelectExpressionTableAliasUniquifyingExpressionVisitor().Visit(query);
 
@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             query = new SqlExpressionOptimizingVisitor(SqlExpressionFactory).Visit(query);
             query = new NullComparisonTransformingExpressionVisitor().Visit(query);
+            query = new ShaperExpressionProcessingExpressionVisitor().Process(query);
 
             return query;
         }

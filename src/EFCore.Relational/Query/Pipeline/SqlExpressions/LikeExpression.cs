@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ Match.GetHashCode();
                 hashCode = (hashCode * 397) ^ Pattern.GetHashCode();
-                hashCode = (hashCode * 397) ^ EscapeChar.GetHashCode();
+                hashCode = (hashCode * 397) ^ (EscapeChar?.GetHashCode() ?? 0);
 
                 return hashCode;
             }

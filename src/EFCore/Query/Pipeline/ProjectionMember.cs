@@ -74,6 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         public override string ToString()
-            => string.Join(".", _memberChain);
+            => string.Join(".", _memberChain.Select(mi => mi.Name));
     }
 }

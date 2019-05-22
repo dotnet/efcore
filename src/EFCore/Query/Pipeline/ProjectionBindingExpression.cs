@@ -35,6 +35,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             return this;
         }
 
+        #region Equality & HashCode
+        public override bool Equals(object obj)
+            => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is ProjectionBindingExpression projectionBindingExpression
+                    && Equals(projectionBindingExpression));
+
+        private bool Equals(ProjectionBindingExpression projectionBindingExpression)
+            => QueryExpression.Equals(projectionBindingExpression.QueryExpression)
+            && (ProjectionMember == null
+                ? projectionBindingExpression.ProjectionMember == null
+                : ProjectionMember.Equals(projectionBindingExpression.ProjectionMember))
+            && Index == projectionBindingExpression.Index;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ QueryExpression.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ProjectionMember?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ Index.GetHashCode();
+
+                return hashCode;
+            }
+        }
+
+        #endregion
+
         public void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.Append(nameof(ProjectionBindingExpression) + ": " + ProjectionMember + "/" + Index);
