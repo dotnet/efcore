@@ -7,6 +7,9 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertySetterFactoryTest
@@ -28,12 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public bool IsShadowProperty { get; }
-            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
-            public PropertySaveBehavior BeforeSaveBehavior { get; }
-            public PropertySaveBehavior AfterSaveBehavior { get; }
             public bool IsReadOnlyBeforeSave { get; }
             public bool IsReadOnlyAfterSave { get; }
             public bool IsStoreGeneratedAlways { get; }
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_is_returned_for_IProperty_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             var customer = new Customer
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_value_type_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             var customer = new Customer
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_reference_type_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.ContentProperty);
 
             var customer = new Customer
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_nullable_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
             var customer = new Customer
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_nullable_property_with_null_value()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
             var customer = new Customer
@@ -139,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_enum_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.FlagProperty);
 
             var customer = new Customer
@@ -155,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_nullable_enum_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty(Customer.OptionalFlagProperty);
 
             var customer = new Customer
@@ -171,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_singlebasetype()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(
                 typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity1();
@@ -183,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_multiplebasetypes()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
             var property = entityType.AddProperty(
                 typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity2();
@@ -195,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_singlebasetype()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(
                 typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity1();
@@ -207,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_multiplebasetypes()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
             var property = entityType.AddProperty(
                 typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity2();
@@ -219,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_privatesetter_property_singlebasetype()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.PrivateProperty)));
             var entity = new ConcreteEntity1();
 
@@ -230,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_can_set_on_privatesetter_property_multiplebasetypes()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
             var property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.PrivateProperty)));
             var entity = new ConcreteEntity2();
 
@@ -241,24 +240,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_setter_throws_if_no_setter_found()
         {
-            var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
+            var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.NoSetterProperty)));
-            // ReSharper disable once NotAccessedVariable
-            _ = new ConcreteEntity1();
 
             Assert.Throws<InvalidOperationException>(
-                () =>
-                    new ClrPropertySetterFactory().Create(property));
+                () => new ClrPropertySetterFactory().Create(property));
 
-            entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
+            entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
             property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
-            // ReSharper disable once RedundantAssignment
-            _ = new ConcreteEntity2();
 
             Assert.Throws<InvalidOperationException>(
-                () =>
-                    new ClrPropertySetterFactory().Create(property));
+                () => new ClrPropertySetterFactory().Create(property));
         }
+
+        private IMutableModel CreateModel()
+            => new Model();
 
         #region Fixture
 

@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public class DbUpdateException : Exception
     {
-        private readonly LazyRef<IReadOnlyList<EntityEntry>> _entries;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
         /// </summary>
@@ -27,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
-            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => new List<EntityEntry>());
+            Entries = new List<EntityEntry>();
         }
 
         /// <summary>
@@ -56,13 +54,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(entries, nameof(entries));
 
-            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => entries.Select(e => e.ToEntityEntry()).ToList());
+            Entries = entries
+                .Where(e => e.EntityState != EntityState.Unchanged)
+                .Select(e => e.ToEntityEntry()).ToList();
         }
 
         /// <summary>
         ///     Gets the entries that were involved in the error. Typically this is a single entry, but in some cases it
         ///     may be zero or multiple entries.
         /// </summary>
-        public virtual IReadOnlyList<EntityEntry> Entries => _entries.Value;
+        public virtual IReadOnlyList<EntityEntry> Entries { get; }
     }
 }

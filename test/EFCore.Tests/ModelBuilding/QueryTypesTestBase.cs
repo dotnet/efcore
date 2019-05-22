@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -23,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<QueryType>().HasNoKey();
                 modelBuilder.Entity<Customer>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer))?.FindProperty("TempId"));
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(QueryType)).FindPrimaryKey());
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasNoKey();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(Customer)).GetNavigations());
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey());

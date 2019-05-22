@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
                 dimension += "M";
             }
 
-            propertyBuilder.Metadata.Sqlite().Dimension = dimension;
+            propertyBuilder.Metadata.SetSqliteDimension(dimension);
 
             return propertyBuilder;
         }

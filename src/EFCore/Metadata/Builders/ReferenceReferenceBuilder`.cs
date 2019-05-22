@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,21 +21,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
             InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
@@ -54,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
+            [NotNull] string annotation, [NotNull] object value)
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -314,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -325,13 +332,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

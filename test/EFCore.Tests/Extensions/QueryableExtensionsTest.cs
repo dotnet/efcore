@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -143,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
                 _expectedMethodCall = expectedMethodCall;
             }
 
-            public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+            public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
             {
                 var actualMethodCall = (MethodCallExpression)expression;
 
@@ -172,14 +173,13 @@ namespace Microsoft.EntityFrameworkCore.Extensions
                     Assert.Equal(expectedArgument.ToString(), actualArgument.ToString());
                 }
 
-                return Task.FromResult(default(TResult));
+                return default;
             }
 
             public IQueryable CreateQuery(Expression expression) => throw new NotImplementedException();
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression) => throw new NotImplementedException();
             public object Execute(Expression expression) => throw new NotImplementedException();
             public TResult Execute<TResult>(Expression expression) => throw new NotImplementedException();
-            public TResult ExecuteAsync<TResult>(Expression expression) => throw new NotImplementedException();
         }
 
         private class FakeQueryable<TElement> : IQueryable<TElement>

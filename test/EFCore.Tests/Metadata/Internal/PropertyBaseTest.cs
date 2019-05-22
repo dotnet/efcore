@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "<Foo>k__BackingField";
             var property = CreateProperty<AutoProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<FullProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<ReadOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "<Foo>k__BackingField";
             var property = CreateProperty<ReadOnlyAutoProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<ReadOnlyFieldProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<WriteOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -129,25 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<FieldOnly>(field, field);
-            Assert.False(property.IsShadowProperty);
-
-            MemberInfoTest(property, null, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, field);
-            MemberInfoTest(
-                property, PropertyAccessMode.Property, NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field),
-                NoProperty<FieldOnly>(field));
-            MemberInfoTest(property, PropertyAccessMode.PreferField, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.PreferFieldDuringConstruction, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.PreferProperty, field, field, field);
-        }
-
-        [Fact]
-        public void Get_MemberInfos_for_field_only_named_props()
-        {
-            const string field = "_foo";
-            var property = CreateProperty<FieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -164,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_read_only_field_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<ReadOnlyFieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
+            var property = CreateProperty<ReadOnlyFieldOnly>(field, field);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -182,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_full_props_with_field_not_found()
         {
             var property = CreateProperty<FullPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, Property, Property, Property);
             MemberInfoTest(
@@ -198,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_read_only_props_with_field_not_found()
         {
             var property = CreateProperty<ReadOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
             MemberInfoTest(
@@ -224,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Get_MemberInfos_for_write_only_props_with_field_not_found()
         {
             var property = CreateProperty<WriteOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
             MemberInfoTest(
@@ -245,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<PrivateSetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -261,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             const string field = "_foo";
             var property = CreateProperty<PrivateGetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
+            Assert.False(property.IsShadowProperty());
 
             MemberInfoTest(property, null, field, field, field);
             MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
@@ -659,37 +641,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static string NoGetterColl<TEntity>()
             => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
-        private static Property CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+        private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
+
+            entityType.AddIgnored("Reference");
+            entityType.AddIgnored("Collection");
+
             var property = entityType.AddProperty(propertyName, typeof(int));
             property.SetField(fieldName);
             return property;
         }
 
-        private static Navigation CreateReferenceNavigation<TEntity>(
+        private static IMutableNavigation CreateReferenceNavigation<TEntity>(
             string fieldName, string navigationName = Reference)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
+
+            entityType.AddIgnored("Foo");
+            entityType.AddIgnored("Collection");
+
             var navigation = foreignKey.HasDependentToPrincipal(typeof(TEntity).GetProperty(navigationName));
             navigation.SetField(fieldName);
             return navigation;
         }
 
-        private static Navigation CreateCollectionNavigation<TEntity>(
+        private static IMutableNavigation CreateCollectionNavigation<TEntity>(
             string fieldName, string navigationName = Collection)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(TEntity));
+
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
+
+            entityType.AddIgnored("Foo");
+            entityType.AddIgnored("Reference");
+
             var navigation = foreignKey.HasPrincipalToDependent(typeof(TEntity).GetProperty(navigationName));
             navigation.SetField(fieldName);
             return navigation;
@@ -770,9 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
                     .Validate(propertyBase.DeclaringType.Model,
-                        new DiagnosticsLoggers(
-                            new TestLogger<DbLoggerCategory.Model>(),
-                            new TestLogger<DbLoggerCategory.Model.Validation>()));
+                        new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }
@@ -785,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType1 = model.AddEntityType(typeof(FullProp));
             var e1p1 = entityType1.AddProperty("Id", typeof(int));
@@ -816,18 +811,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
 
             Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
+                ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
         }
 
         [Fact]
-        public virtual void Field_only_properties_can_have_field_cleared()
-            => Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FieldOnly)).AddProperty("Foo", typeof(int)), null, "_foo");
+        public virtual void Field_only_properties_throws_when_field_cleared()
+        {
+            var propertyBase = ((IMutableModel)new Model()).AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
+
+            Assert.Equal(CoreStrings.FieldNameMismatch(null, nameof(FieldOnly), "_foo"),
+                Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
+        }
 
         [Fact]
         public virtual void Navigations_can_have_field_cleared()
         {
-            var entityType = new Model().AddEntityType(typeof(FullProp));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
@@ -838,35 +837,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
-        private void Properties_can_have_field_cleared_test(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
+        private void Properties_can_have_field_cleared_test(IMutablePropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
         {
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
+            propertyBase.SetField(fieldName);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(null, ConfigurationSource.Explicit);
+            propertyBase.SetField(null);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = fieldInfo;
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = null;
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
+        }
+
+        [Fact]
+        public virtual void Setting_fieldInfo_for_shadow_property_throws()
+        {
+            IMutableModel model = new Model();
+
+            var entityType = model.AddEntityType(typeof(FullProp));
+            var property = entityType.AddProperty("shadow", typeof(int));
+
+            Assert.Equal(CoreStrings.FieldNameMismatch("_foo", nameof(FullProp), "shadow"),
+                Assert.Throws<InvalidOperationException>(() => property.SetField("_foo")).Message);
         }
 
         private class AutoProp

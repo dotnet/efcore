@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class UpdatesInMemoryWithSensitiveDataLoggingTest : UpdatesInMemoryTestBase<UpdatesInMemoryWithSensitiveDataLoggingFixture>
+    internal class UpdatesInMemoryWithSensitiveDataLoggingTest : UpdatesInMemoryTestBase<UpdatesInMemoryWithSensitiveDataLoggingFixture>
     {
         public UpdatesInMemoryWithSensitiveDataLoggingTest(UpdatesInMemoryWithSensitiveDataLoggingFixture fixture)
             : base(fixture)

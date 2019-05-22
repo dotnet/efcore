@@ -466,7 +466,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<CancellationToken, Task> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
+            => strategy.ExecuteInTransactionAsync<object>(
+                null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -521,7 +522,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object, TResult>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
+            => strategy.ExecuteInTransactionAsync<object, TResult>(
+                null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction. Allows to check whether

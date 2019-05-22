@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
+            => strategy.ExecuteInTransactionAsync<object>(
+                null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -299,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => ExecutionStrategyExtensions.ExecuteInTransactionAsync(
-                strategy, state, operation, verifySucceeded, (c, ct) => c.Database.BeginTransactionAsync(isolationLevel, ct), cancellationToken);
+                strategy, state, operation, verifySucceeded, (c, ct) => c.Database.BeginTransactionAsync(isolationLevel, ct),
+                cancellationToken);
     }
 }

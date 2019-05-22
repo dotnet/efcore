@@ -145,6 +145,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextScaffoldForceDescription");
 
         /// <summary>
+        ///     Generate a script to create all tables for the DbContext.
+        /// </summary>
+        public static string DbContextScriptDescription
+            => GetString("DbContextScriptDescription");
+
+        /// <summary>
         ///     Entity Framework Core Command-line Tools
         /// </summary>
         public static string EFFullName
@@ -460,3 +466,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
+

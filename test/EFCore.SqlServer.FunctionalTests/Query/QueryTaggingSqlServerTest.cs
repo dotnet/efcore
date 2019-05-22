@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryTaggingSqlServerTest : QueryTaggingTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    internal class QueryTaggingSqlServerTest : QueryTaggingTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public QueryTaggingSqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)

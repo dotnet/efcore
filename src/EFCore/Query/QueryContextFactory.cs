@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryContextFactory : IQueryContextFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="QueryContextFactory"/> instance using the given dependencies.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies"> The dependencies to use. </param>
         protected QueryContextFactory([NotNull] QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

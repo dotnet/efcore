@@ -122,7 +122,6 @@
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="LiteralGenerationNotSupported" xml:space="preserve">
     <value>The type mapping for '{type}' has not implemented code literal generation.</value>
@@ -255,7 +254,6 @@
   </data>
   <data name="SingletonOptionChanged" xml:space="preserve">
     <value>A call was made to '{optionCall}' that changed an option that must be constant within a service provider, but Entity Framework is not building its own internal service provider. Either allow EF to build the service provider by removing the call to '{useInternalServiceProvider}', or ensure that the configuration for '{optionCall}' does not change for all uses of a given service provider passed to '{useInternalServiceProvider}'.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="LogServiceProviderCreated" xml:space="preserve">
     <value>An 'IServiceProvider' was created for internal use by Entity Framework.</value>
@@ -540,14 +538,12 @@
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type .</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
@@ -560,7 +556,6 @@
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
     <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
@@ -645,6 +640,9 @@
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
     <value>Data binding directly to a store query is not supported. Instead populate a DbSet with data, for example by calling Load on the DbSet, and then bind to local data to avoid sending a query to the database each time the databound control iterates the data. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
+  </data>
+  <data name="DataBindingToLocalWithIListSource" xml:space="preserve">
+    <value>Data binding directly to `DbSet.Local` is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.</value>
   </data>
   <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.</value>
@@ -879,7 +877,7 @@
     <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.</value>
   </data>
   <data name="UntrackedDependentEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{targetEntryCall}' on the owner entry.</value>
+    <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently not being tracked. To start tracking this entity call '{referenceCall}' or '{collectionCall}' on the owner entry.</value>
   </data>
   <data name="BadFilterExpression" xml:space="preserve">
     <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}', return bool, and may not contain references to navigation properties.</value>
@@ -982,9 +980,6 @@
     <value>An attempt was made to lazy-load navigation property '{navigation}' on detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking()'.</value>
     <comment>Warning CoreEventId.DetachedLazyLoadingWarning string string</comment>
   </data>
-  <data name="KeylessTypeCannotBePrincipal" xml:space="preserve">
-    <value>Unable to create a foreign key with the keyless type '{entityType}' as the principal type. Only entity types with keys are allowed as foreign key principal types.</value>
-  </data>
   <data name="KeylessTypeTracked" xml:space="preserve">
     <value>Unable to track an instance of type '{type}' because it does not have a primary key. Only entity types with primary keys may be tracked.</value>
   </data>
@@ -1000,9 +995,17 @@
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnDependent string string</comment>
   </data>
+  <data name="LogNonNullableOnDependent" xml:space="preserve">
+    <value>The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Debug CoreEventId.NonNullableOnDependent string string</comment>
+  </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
+  </data>
+  <data name="LogNonNullableReferenceOnBothNavigations" xml:space="preserve">
+    <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal '{dependentEntityType}.{dependentNavigation}' can be configured as required.</value>
+    <comment>Debug CoreEventId.NonNullableReferenceOnBothNavigations string string string string</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.</value>
@@ -1078,7 +1081,7 @@
     <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
   </data>
   <data name="NoIndexer" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entity}' was created as an indexed property. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.</value>
+    <value>An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.</value>
   </data>
   <data name="ConstructorBindingFailed" xml:space="preserve">
     <value>cannot bind '{failedBinds}' in '{parameters}'</value>
@@ -1119,5 +1122,35 @@
   </data>
   <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has been configured as having no keys.</value>
+  </data>
+  <data name="TrackingTypeMismatch" xml:space="preserve">
+    <value>The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because they are not in the same hierarchy.</value>
+  </data>
+  <data name="FieldNameMismatch" xml:space="preserve">
+    <value>The specified field '{field}' cannot be used for the property '{entityType}.{property}' because it does not match the property name.</value>
+  </data>
+  <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
+    <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
+  </data>
+  <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
+    <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
+  </data>
+  <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
+    <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
+  </data>
+  <data name="DiscriminatorValueIncompatible" xml:space="preserve">
+    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
+  </data>
+  <data name="DuplicateDiscriminatorValue" xml:space="preserve">
+    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.</value>
+  </data>
+  <data name="NoDiscriminatorForValue" xml:space="preserve">
+    <value>Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.</value>
+  </data>
+  <data name="NoDiscriminatorProperty" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>
+  </data>
+  <data name="NoDiscriminatorValue" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
   </data>
 </root>

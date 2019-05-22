@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -269,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.HasDefaultContainerName(nameof(CustomerContext));
-                modelBuilder.Entity<Customer>().Property<string>("EMail").ToProperty("e-mail");
+                modelBuilder.ForCosmosHasDefaultContainerName(nameof(CustomerContext));
+                modelBuilder.Entity<Customer>().Property<string>("EMail").ForCosmosToProperty("e-mail");
             }
         }
 
@@ -316,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().Property(c => c.Name).ToProperty("");
+                modelBuilder.Entity<Customer>().Property(c => c.Name).ForCosmosToProperty("");
             }
         }
 
@@ -360,6 +361,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 modelBuilder.Entity<ConflictingIncompatibleId>();
             }
+        }
+
+        [ConditionalFact]
+        public void Should_not_throw_if_specified_region_is_right()
+        {
+            var regionName = CosmosRegions.AustraliaCentral;
+
+            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new CustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Add(customer);
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public void Should_throw_if_specified_region_is_wrong()
+        {
+            var regionName = "FakeRegion";
+
+            Action a = () =>
+            {
+                using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+                {
+                    var options = Fixture.CreateOptions(testDatabase);
+
+                    var customer = new Customer {Id = 42, Name = "Theon"};
+
+                    using (var context = new CustomerContext(options))
+                    {
+                        context.Database.EnsureCreated();
+
+                        context.Add(customer);
+
+                        context.SaveChanges();
+                    }
+                }
+            };
+
+            var ex = Assert.Throws<ArgumentException>(a);
+            Assert.Equal("Current location is not a valid Azure region.", ex.Message);
         }
 
         [ConditionalFact]

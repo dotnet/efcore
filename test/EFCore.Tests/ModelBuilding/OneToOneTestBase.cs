@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -294,8 +295,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
                 var fkBuilder = modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
 
-                modelBuilder.Validate();
-
                 var fk = dependentType.GetForeignKeys().Single();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -313,6 +312,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.IsRequired);
 
                 fkBuilder.HasForeignKey<OrderDetails>("fk");
+
+                modelBuilder.FinalizeModel();
 
                 fk = dependentType.GetForeignKeys().Single();
                 Assert.True(fk.IsRequired);
@@ -669,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<BigMak>().HasOne<Bun>().WithOne()
                     .HasForeignKey<Bun>(e => e.BurgerId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
 
@@ -1170,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Customer));
                 var principalProperty = principalType.FindProperty("AlternateKey");
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
-                var expectedDependentProperties = dependentType.GetProperties().Where(p => !p.IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.GetProperties().Where(p => !p.IsShadowProperty()).ToList();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -1988,7 +1989,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Customer>().HasOne<CustomerDetails>().WithOne()
                     .HasPrincipalKey<Customer>(e => e.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
                 Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
@@ -2082,7 +2083,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("Whoopper", dependentType.GetNavigations().Single().Name);
@@ -2342,7 +2343,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard)
                     .HasForeignKey<Moostard>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
 
@@ -2401,7 +2402,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Whoopper>().HasOne(e => e.Moostard).WithOne(e => e.Whoopper)
                     .HasForeignKey<Moostard>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -2621,7 +2622,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty1, fk.Properties[0]);
@@ -2645,8 +2646,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
-                Assert.True(
-                    principalType.GetForeignKeys()
+                Assert.True(principalType.GetForeignKeys()
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
@@ -2665,8 +2665,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
 
                 fk = entityType.GetForeignKeys().Single();
-                Assert.Equal(fk.Properties, fk.Properties);
-                Assert.Equal(fk.PrincipalKey, fk.PrincipalKey);
                 Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToPrincipal.Name, fk.DependentToPrincipal.Name);
                 Assert.True(fk.IsRequired);
@@ -2674,14 +2672,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne(e => e.SelfRef1);
 
                 fk = entityType.GetForeignKeys().Single();
-                Assert.Equal(fk.Properties, fk.Properties);
-                Assert.Equal(fk.PrincipalKey, fk.PrincipalKey);
                 Assert.Equal(navigationToPrincipal.Name, fk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToDependent.Name, fk.DependentToPrincipal.Name);
                 Assert.True(fk.IsRequired);
 
                 Assert.Equal(fk.DeclaringEntityType.GetForeignKeys().Count(), fk.DeclaringEntityType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -2751,7 +2749,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2).HasForeignKey<SelfRef>(e => e.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
 
@@ -2840,8 +2838,75 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.ConflictingPropertyOrNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
+                        () => modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
+            }
+
+            [Fact]
+            public virtual void Creates_self_referencing_FK_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>().Ignore(s => s.SelfRefId);
+                modelBuilder.Entity<SelfRef>().Property<int>("SelfRef1Id");
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+                var fk = entityType.GetForeignKeys().Single();
+                Assert.Equal("SelfRef1Id", fk.Properties.Single().Name);
+                Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
+                Assert.Equal(nameof(SelfRef.SelfRef2), fk.PrincipalToDependent?.Name);
+                Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
+                Assert.Equal(2, entityType.GetNavigations().Count());
+                Assert.Equal(1, fk.DeclaringEntityType.GetIndexes().Count());
+                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            }
+
+            [Fact]
+            public virtual void Creates_self_referencing_FK_by_convention_inverted()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>().Property<int>("SelfRef2Id");
+                modelBuilder.Entity<SelfRef>().Ignore(s => s.SelfRefId);
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+                var fk = entityType.GetForeignKeys().Single();
+                Assert.Equal("SelfRef2Id", fk.Properties.Single().Name);
+                Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
+                Assert.Equal(nameof(SelfRef.SelfRef1), fk.PrincipalToDependent?.Name);
+                Assert.Equal(nameof(SelfRef.SelfRef2), fk.DependentToPrincipal?.Name);
+                Assert.Equal(2, entityType.GetNavigations().Count());
+                Assert.Equal(1, fk.DeclaringEntityType.GetIndexes().Count());
+                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            }
+
+            [Fact]
+            public virtual void Throws_on_ambiguous_FK_when_self_referencing()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>();
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousOneToOneRelationship("SelfRef.SelfRef1", "SelfRef.SelfRef2"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [Fact]
+            public virtual void Throws_on_two_ambiguous_FK_when_self_referencing()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRef>().Property<int>("SelfRef1Id");
+                modelBuilder.Entity<SelfRef>().Property<int>("SelfRef2Id");
+                modelBuilder.Entity<SelfRef>().Ignore(s => s.SelfRefId);
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousOneToOneRelationship("SelfRef.SelfRef1", "SelfRef.SelfRef2"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -2867,7 +2932,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.HobId1
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
@@ -2910,7 +2975,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.HobId1
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
@@ -2949,7 +3014,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .IsRequired();
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var dependent = modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fk = dependent.GetForeignKeys().Single();
@@ -3035,7 +3100,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Customer));
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(principalType.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
-                Assert.Equal(typeof(int), fk.Properties.Single().ClrType);
+                Assert.False(fk.IsRequired);
+                Assert.Equal(typeof(int?), fk.Properties.Single().ClrType);
             }
 
             [Fact]
@@ -3134,13 +3200,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalType = model.FindEntityType(typeof(Nob));
                 var fk = dependentType.GetNavigations().First().ForeignKey;
                 Assert.Same(fk, principalType.GetNavigations().First().ForeignKey);
-                Assert.True(fk.Properties.All(p => p.IsShadowProperty));
+                Assert.True(fk.Properties.All(p => p.IsShadowProperty()));
 
                 Assert.Equal(
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(Nob).Name + "." + nameof(Nob.Hob),
                         typeof(Hob).Name + "." + nameof(Hob.Nob)),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -3509,7 +3575,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.HobId2
                         });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
@@ -3520,8 +3586,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fk = dependentType.GetForeignKeys().Single();
 
                 Assert.True(fk.IsRequired);
-                Assert.False(fkProperty1.IsNullable);
-                Assert.False(fkProperty2.IsNullable);
+                Assert.True(fkProperty1.IsNullable);
+                Assert.True(fkProperty2.IsNullable);
                 AssertEqual(new[] { fkProperty1, fkProperty2 }, fk.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
@@ -3547,7 +3613,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         })
                     .IsRequired(false);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
@@ -3586,7 +3652,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasOne(e => e.Hob).WithOne(e => e.Nob)
                     .IsRequired(false);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
@@ -3867,11 +3933,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Alpha>();
 
                 modelBuilder.Entity<Quarks>(
-                    b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("ForUp").IsRequired());
+                    b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("_forUp").IsRequired());
 
                 var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks)).GetForeignKeys().Single().Properties.Single();
-                Assert.Equal("ForUp", fkProperty.Name);
-                Assert.Equal(typeof(int?), fkProperty.ClrType);
+                Assert.Equal("_forUp", fkProperty.Name);
+                Assert.Equal(typeof(int), fkProperty.ClrType);
                 Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
             }
 
@@ -3932,7 +3998,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
                     .ForeignKey;
@@ -3957,7 +4023,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
                     .ForeignKey;
@@ -3982,7 +4048,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
                     .ForeignKey;
@@ -4007,7 +4073,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
                     .ForeignKey;
@@ -4035,7 +4101,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
                     b => b.Ignore(e => e.NavOneToOneDependentEntityId));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -4056,7 +4122,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
             }
 
             [Fact]
@@ -4083,7 +4149,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4112,7 +4178,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4129,7 +4195,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4146,7 +4212,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4163,7 +4229,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4196,7 +4262,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.AmbiguousOneToOneRelationship(
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [Fact]
@@ -4209,7 +4275,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
                     .WithOne(e => e.NavOneToOnePrincipalEntity).HasForeignKey<OneToOneDependentEntity>(e => e.NavOneToOnePrincipalEntityId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
                     .ForeignKey;
@@ -4230,7 +4296,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOne(e => e.NavOneToOnePrincipalEntity)
                     .HasPrincipalKey<OneToOneDependentEntity>(e => e.NavOneToOnePrincipalEntityId);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))
                     .FindNavigation(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntity)).ForeignKey;
@@ -4251,7 +4317,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OneToOnePrincipalEntityWithAnnotation>().HasOne(e => e.NavOneToOneDependentEntityWithAnnotation)
                     .WithOne(e => e.NavOneToOnePrincipalEntityWithAnnotation);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntityWithAnnotation))
                     .FindNavigation("NavOneToOneDependentEntityWithAnnotation").ForeignKey;
@@ -4312,7 +4378,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
                 Assert.True(fk.IsUnique);
                 Assert.Null(fk.DependentToPrincipal);
-                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.False(fk.Properties.Single().IsShadowProperty());
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 

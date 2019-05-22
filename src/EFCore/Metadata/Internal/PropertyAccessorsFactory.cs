@@ -6,25 +6,33 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class PropertyAccessorsFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
                 .MakeGenericMethod(propertyBase.ClrType)
-                .Invoke(null, new object[] { propertyBase });
+                .Invoke(
+                    null, new object[]
+                    {
+                        propertyBase
+                    });
 
         private static readonly MethodInfo _genericCreate
             = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
@@ -62,9 +70,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Expression.Property(entryParameter, "Entity"),
                     entityClrType);
 
-                currentValueExpression = Expression.MakeMemberAccess(
-                    convertedExpression,
-                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                if (propertyBase.IsIndexedProperty())
+                {
+                    currentValueExpression = Expression.MakeIndex(
+                        convertedExpression,
+                        propertyBase.PropertyInfo,
+                        new[]
+                        {
+                            Expression.Constant(propertyBase.Name)
+                        });
+                }
+                else
+                {
+                    currentValueExpression = Expression.MakeMemberAccess(
+                        convertedExpression,
+                        propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                }
 
                 if (currentValueExpression.Type != typeof(TProperty))
                 {

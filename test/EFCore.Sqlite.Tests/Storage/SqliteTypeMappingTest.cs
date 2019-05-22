@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.String;
 
-        [InlineData(typeof(SqliteCharTypeMapping), typeof(char))]
         [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("TEXT", typeof(string))]
         [InlineData("Integer", typeof(long))]
         [InlineData("Blob", typeof(byte[]))]
-        [InlineData("numeric", typeof(string))]
+        [InlineData("numeric", typeof(byte[]))]
         [InlineData("real", typeof(double))]
         [InlineData("doub", typeof(double))]
         [InlineData("int", typeof(long))]
@@ -43,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("UNSIGNED BIG INT", typeof(long))]
         [InlineData("VARCHAR(255)", typeof(string))]
         [InlineData("nchar(55)", typeof(string))]
-        [InlineData("datetime", typeof(string))]
-        [InlineData("decimal(10,4)", typeof(string))]
-        [InlineData("boolean", typeof(string))]
-        [InlineData("unknown_type", typeof(string))]
-        [InlineData("", typeof(string))]
+        [InlineData("datetime", typeof(byte[]))]
+        [InlineData("decimal(10,4)", typeof(byte[]))]
+        [InlineData("boolean", typeof(byte[]))]
+        [InlineData("unknown_type", typeof(byte[]))]
+        [InlineData("", typeof(byte[]))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
             Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
@@ -59,11 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static RelationalTypeMapping GetMapping(
             Type type)
             => CreateTypeMapper().FindMapping(type);
-
-        public override void Char_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(new SqliteCharTypeMapping("TEXT"), 'A', "65");
-        }
 
         public override void DateTimeOffset_literal_generated_correctly()
         {
@@ -94,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(Guid)),
                 new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
-                "X'9E3AF4C6E191EF45A320832EA23B7292'");
+                "'C6F43A9E-91E1-45EF-A320-832EA23B7292'");
         }
 
         public override void ULong_literal_generated_correctly()

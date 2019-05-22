@@ -9,14 +9,17 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ProxyBindingRewriter : IModelBuiltConvention
     {
@@ -27,27 +30,34 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
 
         private readonly ConstructorBindingConvention _directBindingConvention;
+        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
         private readonly IProxyFactory _proxyFactory;
         private readonly ProxiesOptionsExtension _options;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyBindingRewriter(
+            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
             [NotNull] IProxyFactory proxyFactory,
             [NotNull] IConstructorBindingFactory bindingFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ProxiesOptionsExtension options)
         {
             _directBindingConvention = new ConstructorBindingConvention(bindingFactory, logger);
+            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
             _proxyFactory = proxyFactory;
             _options = options;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
@@ -76,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             serviceProperty = entityType.AddServiceProperty(_lazyLoaderProperty, ConfigurationSource.Convention);
                             serviceProperty.SetParameterBinding(
-                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory().Bind(
+                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(_lazyLoaderParameterBindingFactoryDependencies).Bind(
                                     entityType,
                                     typeof(ILazyLoader),
                                     nameof(IProxyLazyLoader.LazyLoader)));
@@ -97,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                 new List<ParameterBinding>
                                 {
                                     new EntityTypeParameterBinding(),
-                                    new DefaultServiceParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
+                                    new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
                                     new ObjectArrayParameterBinding(binding.ParameterBindings)
                                 },
                                 proxyType);

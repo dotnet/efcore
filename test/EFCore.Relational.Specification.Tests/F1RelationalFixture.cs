@@ -13,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
-                w =>
-                    w.Ignore(RelationalEventId.BatchSmallerThanMinBatchSize));
+                w => w.Ignore(RelationalEventId.BatchSmallerThanMinBatchSize));
 
         protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {

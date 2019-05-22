@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -19,8 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -33,8 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MaterializerFactory(
             [NotNull] IEntityMaterializerSource entityMaterializerSource)
@@ -45,8 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual LambdaExpression CreateMaterializer(
             IEntityType entityType,
@@ -75,18 +81,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        firstEntityType, materializationContextParameter, indexMap);
+                        firstEntityType, "instance", materializationContextParameter, indexMap);
 
             if (concreteEntityTypes.Count == 1)
             {
                 return Expression.Lambda(materializer, materializationContextParameter);
             }
 
-            var discriminatorProperty = firstEntityType.Relational().DiscriminatorProperty;
+            var discriminatorProperty = firstEntityType.GetDiscriminatorProperty();
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    firstEntityType.Relational().DiscriminatorValue,
+                    firstEntityType.GetDiscriminatorValue(),
                     discriminatorProperty.ClrType);
 
             var discriminatorValueVariable
@@ -127,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     indexMap[property.GetIndex()] = projectionAdder(property, selectExpression);
 
-                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty();
                 }
 
                 if (shadowPropertyExists)
@@ -142,13 +148,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var discriminatorValue
                     = Expression.Constant(
-                        concreteEntityType.Relational().DiscriminatorValue,
+                        concreteEntityType.GetDiscriminatorValue(),
                         discriminatorProperty.ClrType);
 
                 materializer
                     = _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityType, materializationContextParameter, indexMap);
+                            concreteEntityType, "instance", materializationContextParameter, indexMap);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(

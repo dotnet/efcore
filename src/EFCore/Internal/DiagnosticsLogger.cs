@@ -11,8 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -23,45 +25,61 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class DiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger<TLoggerCategory>
         where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
     {
-        private readonly WarningsConfiguration _warningsConfiguration;
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DiagnosticsLogger(
             [NotNull] ILoggerFactory loggerFactory,
-            [CanBeNull] ILoggingOptions loggingOptions,
-            [NotNull] DiagnosticSource diagnosticSource)
+            [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] DiagnosticSource diagnosticSource,
+            [NotNull] LoggingDefinitions loggingDefinitions)
         {
             DiagnosticSource = diagnosticSource;
+            Definitions = loggingDefinitions;
             Logger = loggerFactory.CreateLogger(new TLoggerCategory());
-
             Options = loggingOptions;
-            _warningsConfiguration = loggingOptions?.WarningsConfiguration;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ILoggingOptions Options { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ILogger Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DiagnosticSource DiagnosticSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual LoggingDefinitions Definitions { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool ShouldLogSensitiveData()
         {
@@ -80,23 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             return options.IsSensitiveDataLoggingEnabled;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel)
-        {
-            var warningBehavior = _warningsConfiguration?.GetBehavior(eventId) ??
-                                  (logLevel == LogLevel.Warning
-                                   && _warningsConfiguration?.DefaultBehavior == WarningBehavior.Throw
-                                      ? WarningBehavior.Throw
-                                      : WarningBehavior.Log);
-
-            return warningBehavior == WarningBehavior.Log
-                ? Logger.IsEnabled(logLevel) ? WarningBehavior.Log : WarningBehavior.Ignore
-                : warningBehavior;
         }
     }
 }

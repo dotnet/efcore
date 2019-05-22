@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,9 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISet<string> _tableAliasSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="RelationalQueryCompilationContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> The dependencies for this service. </param>
+        /// <param name="linqOperatorProvider"> The LINQ operator provider to use. </param>
+        /// <param name="queryMethodProvider"> The query method provider. </param>
+        /// <param name="trackQueryResults"> True for tracking queries; false for no-tracking queries. </param>
         public RelationalQueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,

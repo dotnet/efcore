@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,15 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return new CompositeConventionSetBuilder(
-                            context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                        .AddConventions(
-                            context.GetService<ICoreConventionSetBuilder>().CreateConventionSet(
-                                new DiagnosticsLoggers(
-                                    context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>())));
-                }
+                return serviceScope.ServiceProvider
+                    .GetService<DbContext>()
+                    .GetService<IConventionSetBuilder>()
+                    .CreateConventionSet();
             }
         }
 
@@ -50,8 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Action<IModel> assertModel)
         {
             var modelBuilder = new ModelBuilder(BuildNonValidatingConventionSet());
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
+            var _ = modelBuilder.Model.GetEntityTypeErrors();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -63,14 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
+            options.ModelNamespace = "TestNamespace";
+            options.ContextName = "TestDbContext";
+            options.ConnectionString = "Initial Catalog=TestDatabase";
+
             var scaffoldedModel = generator.GenerateModel(
                 model,
-                "TestNamespace",
-                "TestNamespace",
-                "TestNamespace",
-                /*contextDir:*/ string.Empty,
-                "TestDbContext",
-                "Initial Catalog=TestDatabase",
                 options);
             assertScaffold(scaffoldedModel);
 

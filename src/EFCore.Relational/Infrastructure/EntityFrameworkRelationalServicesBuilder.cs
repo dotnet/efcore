@@ -4,17 +4,18 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -44,14 +45,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         /// <summary>
         ///     <para>
-        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///         directly from your code. This API may change or be removed in future releases.
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         ///     <para>
         ///         This dictionary is exposed for testing and provider-validation only.
         ///         It should not be used from application code.
         ///     </para>
         /// </summary>
+        [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
@@ -62,25 +66,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalValueBufferFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMaterializerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IConditionalRemovingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IExpressionFragmentTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IUpdateSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IMemberTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ICompositeMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTransactionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISelectExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IShaperCommandContextFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsAssembly), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IBatchExecutor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -91,8 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
+
+                // New Query Pipeline
+                { typeof(IQuerySqlGeneratorFactory2), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IRelationalSqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMethodCallTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IMemberTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISqlExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-                { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) }
+                { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
+
             };
 
         /// <summary>
@@ -106,9 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
             return RelationalServices.TryGetValue(serviceType, out var characteristics)
@@ -128,7 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IComparer<ModificationCommand>, ModificationCommandComparer>();
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
-            TryAdd<IModelSource, RelationalModelSource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
@@ -161,29 +172,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityQueryModelVisitorFactory, RelationalQueryModelVisitorFactory>();
             TryAdd<IProjectionExpressionVisitorFactory, RelationalProjectionExpressionVisitorFactory>();
             TryAdd<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>();
-            TryAdd<IExpressionFragmentTranslator, RelationalCompositeExpressionFragmentTranslator>();
             TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
             TryAdd<ReLinq.IEvaluatableExpressionFilter, ReLinqRelationalEvaluatableExpressionFilter>();
             TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
 
+            // New Query pipeline
+            TryAdd<IQuerySqlGeneratorFactory2, QuerySqlGeneratorFactory2>();
+            TryAdd<IShapedQueryCompilingExpressionVisitorFactory, RelationalShapedQueryCompilingExpressionVisitorFactory>();
+            TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, RelationalQueryableMethodTranslatingExpressionVisitorFactory>();
+            TryAdd<IMethodCallTranslatorProvider, RelationalMethodCallTranslatorProvider>();
+            TryAdd<IMemberTranslatorProvider, RelationalMemberTranslatorProvider>();
+            TryAdd<IEntityQueryableTranslatorFactory, RelationalEntityQueryableTranslatorFactory>();
+            TryAdd<IShapedQueryOptimizerFactory, RelationalShapedQueryOptimizerFactory>();
+            TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
+            TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
+
             ServiceCollectionMap.GetInfrastructure()
-                .AddDependencySingleton<RelationalCompositeMemberTranslatorDependencies>()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
                 .AddDependencySingleton<RelationalTypeMappingSourceDependencies>()
-                .AddDependencySingleton<RelationalCompositeExpressionFragmentTranslatorDependencies>()
                 .AddDependencySingleton<RelationalModelValidatorDependencies>()
                 .AddDependencySingleton<UpdateSqlGeneratorDependencies>()
                 .AddDependencySingleton<QuerySqlGeneratorDependencies>()
-                .AddDependencySingleton<RelationalCompositeMethodCallTranslatorDependencies>()
                 .AddDependencySingleton<MigrationsAnnotationProviderDependencies>()
                 .AddDependencySingleton<SqlTranslatingExpressionVisitorDependencies>()
                 .AddDependencySingleton<ParameterNameGeneratorDependencies>()
-                .AddDependencySingleton<SelectExpressionDependencies>()
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
                 .AddDependencySingleton<RelationalProjectionExpressionVisitorDependencies>()
                 .AddDependencySingleton<RelationalTransactionFactoryDependencies>()
+                .AddDependencySingleton<SelectExpressionDependencies>()
+                .AddDependencySingleton<RelationalCommandBuilderDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

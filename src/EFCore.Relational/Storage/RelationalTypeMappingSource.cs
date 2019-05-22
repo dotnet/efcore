@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -91,11 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException("FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual RelationalTypeMapping FindMappingWithConversion(
+        private RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
             [CanBeNull] IReadOnlyList<IProperty> principals)
         {
@@ -211,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             string storeTypeName = null;
             bool? isFixedLength = null;
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < principals.Count; i++)
             {
                 var principal = principals[i];
@@ -225,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (isFixedLength == null)
                 {
-                    isFixedLength = principal.Relational().IsFixedLength;
+                    isFixedLength = principal.IsFixedLength();
                 }
             }
 

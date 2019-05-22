@@ -16,15 +16,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-#if NET461
-            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
-                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-#elif NETCOREAPP3_0 // CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
-#else
-#error target frameworks need to be updated.
-#endif
             var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
                 .GetTypeInfo()
                 .DeclaredConstructors

@@ -9,9 +9,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -46,25 +47,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             var context = CreateContext();
             var conventionSetBuilder = CreateConventionSetBuilder(context);
-            var loggers = new DiagnosticsLoggers(
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
 
-            var conventionSet = new CoreConventionSetBuilder(context.GetService<CoreConventionSetBuilderDependencies>())
-                .CreateConventionSet(loggers);
-
-            conventionSet = conventionSetBuilder == null
-                ? conventionSet
-                : conventionSetBuilder.AddConventions(conventionSet);
+            var conventionSet = conventionSetBuilder.CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
+                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return new ModelBuilder(conventionSet);
         }
 
         protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
-            => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList());
+            => context.GetService<IConventionSetBuilder>();
 
         protected virtual void Validate(ModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel();
@@ -1339,7 +1333,7 @@ namespace Microsoft.EntityFrameworkCore
             public string DerivedData { get; set; }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             ExecuteWithStrategyInTransaction(
@@ -1842,7 +1836,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(PostDetails), nameof(PostDetails.Post),
                     nameof(Post), nameof(Post.PostDetails),
                     nameof(PostDetails.PostId),
@@ -1868,7 +1862,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
+                CoreResources.LogForeignKeyAttributesOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), logEntry.Message);
         }
 
@@ -1898,7 +1892,7 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
+                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
                 logEntry.Message);
         }
@@ -2203,7 +2197,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
-            modelBuilder.Entity<Book>();
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.Label).WithOne(l => l.Book)
+                .HasForeignKey<BookLabel>(l => l.BookId);
             modelBuilder.Entity<One>();
             modelBuilder.Ignore<SpecialBookLabel>();
 

@@ -7,9 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -36,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="SqliteMigrationsSqlGenerator"/> instance.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
@@ -63,11 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.Schema,
                     operation.Table,
                     operation.Name,
-                    operation.ClrType,
-                    operation.IsUnicode,
-                    operation.MaxLength,
-                    operation.IsFixedLength,
-                    operation.IsRowVersion,
+                    operation,
                     model));
 
         private IReadOnlyList<MigrationOperation> RewriteOperations(
@@ -167,11 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                    operation.Schema,
                                    operation.Table,
                                    operation.Name,
-                                   operation.ClrType,
-                                   operation.IsUnicode,
-                                   operation.MaxLength,
-                                   operation.IsFixedLength,
-                                   operation.IsRowVersion,
+                                   operation,
                                    model);
             if (!string.IsNullOrEmpty(dimension))
             {
@@ -241,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             var index = FindEntityTypes(model, operation.Schema, operation.Table)
-                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.Relational().Name == operation.NewName)
+                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.GetName() == operation.NewName)
                 .FirstOrDefault();
             if (index == null)
             {
@@ -263,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Name = operation.NewName,
                 Schema = operation.Schema,
                 Table = operation.Table,
-                Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
-                Filter = index.Relational().Filter
+                Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
+                Filter = index.GetFilter()
             };
             createOperation.AddAnnotations(_migrationsAnnotations.For(index));
 
@@ -355,81 +344,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
-        /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected override void ColumnDefinition(AddColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-            => ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                operation.ClrType,
-                operation.ColumnType,
-                operation.IsUnicode,
-                operation.MaxLength,
-                operation.IsFixedLength,
-                operation.IsRowVersion,
-                operation.IsNullable,
-                operation.DefaultValue,
-                operation.DefaultValueSql,
-                operation.ComputedColumnSql,
-                operation,
-                model,
-                builder);
-
-        /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
         /// </summary>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <param name="table"> The table that contains the column. </param>
         /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
+        /// <param name="operation"> The column metadata. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void ColumnDefinition(
             string schema,
             string table,
             string name,
-            Type clrType,
-            string type,
-            bool? unicode,
-            int? maxLength,
-            bool? fixedLength,
-            bool rowVersion,
-            bool nullable,
-            object defaultValue,
-            string defaultValueSql,
-            string computedColumnSql,
-            IAnnotatable annotatable,
+            ColumnOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
         {
-            base.ColumnDefinition(
-                schema, table, name, clrType, type, unicode, maxLength, fixedLength, rowVersion, nullable,
-                defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
+            base.ColumnDefinition(schema, table, name, operation, model, builder);
 
-            var inlinePk = annotatable[SqliteAnnotationNames.InlinePrimaryKey] as bool?;
+            var inlinePk = operation[SqliteAnnotationNames.InlinePrimaryKey] as bool?;
             if (inlinePk == true)
             {
-                var inlinePkName = annotatable[
+                var inlinePkName = operation[
                     SqliteAnnotationNames.InlinePrimaryKeyName] as string;
                 if (!string.IsNullOrEmpty(inlinePkName))
                 {
@@ -439,9 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 builder.Append(" PRIMARY KEY");
-                var autoincrement = annotatable[SqliteAnnotationNames.Autoincrement] as bool?
+                var autoincrement = operation[SqliteAnnotationNames.Autoincrement] as bool?
                                     // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
-                                    ?? annotatable[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
+                                    ?? operation[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");
@@ -481,6 +417,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AddUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
+        ///     are not yet supported.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(CreateCheckConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -535,9 +482,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(DropCheckConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
+        ///     are not yet supported.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+
+        /// <summary>
+        ///     Generates a SQL fragment for a computed column definition for the given column metadata.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="name"> The column name. </param>
+        /// <param name="operation"> The column metadata. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void ComputedColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            ColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+            => throw new NotSupportedException(SqliteStrings.ComputedColumnsNotSupported);
 
         #endregion
 

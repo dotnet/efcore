@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(SqliteEventId),
                 typeof(SqliteLoggerExtensions),
+                typeof(SqliteLoggingDefinitions),
                 fakeFactories);
         }
 

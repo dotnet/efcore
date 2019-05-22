@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
@@ -22,11 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_migtration_commands_in_same_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand()),
-                new MigrationCommand(CreateRelationalCommand())
+                new MigrationCommand(CreateRelationalCommand(), logger),
+                new MigrationCommand(CreateRelationalCommand(), logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -63,11 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), transactionSuppressed: true)
+                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -98,11 +99,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Ends_transaction_when_transaction_is_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand()),
-                new MigrationCommand(CreateRelationalCommand(), transactionSuppressed: true)
+                new MigrationCommand(CreateRelationalCommand(), logger),
+                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -138,11 +140,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Begins_new_transaction_when_transaction_nolonger_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand())
+                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(), logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -178,12 +181,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_commands_in_order_regardless_of_transaction_suppression(bool async)
         {
             var fakeConnection = CreateConnection();
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(commandText: "First")),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Third"))
+                new MigrationCommand(CreateRelationalCommand(commandText: "First"), logger),
+                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(commandText: "Third"), logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -252,9 +256,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     CreateOptions(
                         new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection)));
 
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand())
+                new MigrationCommand(CreateRelationalCommand(), logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -302,7 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             string commandText = "Command Text",
             IReadOnlyList<IRelationalParameter> parameters = null)
             => new RelationalCommand(
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
+                new RelationalCommandBuilderDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
                 commandText,
                 parameters ?? Array.Empty<IRelationalParameter>());
     }

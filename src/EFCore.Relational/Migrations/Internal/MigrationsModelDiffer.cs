@@ -25,8 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     /// </summary>
     public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
-        private static readonly Type[] _dropOperationTypes = { typeof(DropIndexOperation), typeof(DropPrimaryKeyOperation), typeof(DropSequenceOperation), typeof(DropUniqueConstraintOperation) };
+        private static readonly Type[] _dropOperationTypes = { typeof(DropIndexOperation), typeof(DropPrimaryKeyOperation), typeof(DropSequenceOperation), typeof(DropUniqueConstraintOperation), typeof(DropCheckConstraintOperation) };
 
         private static readonly Type[] _alterOperationTypes = { typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation) };
 
@@ -47,72 +49,88 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static readonly Type[] _constraintOperationTypes = { typeof(AddForeignKeyOperation), typeof(CreateIndexOperation) };
 
-        private IStateManager _sourceStateManager;
-        private IStateManager _targetStateManager;
+        private IUpdateAdapter _sourceUpdateAdapter;
+        private IUpdateAdapter _targetUpdateAdapter;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MigrationsModelDiffer(
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IChangeDetector changeDetector,
-            [NotNull] StateManagerDependencies stateManagerDependencies,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
-            Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies));
+            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
             Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
 
             TypeMappingSource = typeMappingSource;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
-            StateManagerDependencies = stateManagerDependencies;
+            UpdateAdapterFactory = updateAdapterFactory;
             CommandBatchPreparerDependencies = commandBatchPreparerDependencies;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual StateManagerDependencies StateManagerDependencies { get; }
+        protected virtual IUpdateAdapterFactory UpdateAdapterFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual CommandBatchPreparerDependencies CommandBatchPreparerDependencies { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IChangeDetector ChangeDetector { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool HasDifferences(IModel source, IModel target)
             => Diff(source, target, new DiffContext(source, target)).Any();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target)
         {
@@ -121,8 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IReadOnlyList<MigrationOperation> Sort(
             [NotNull] IEnumerable<MigrationOperation> operations,
@@ -136,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var dropTableOperations = new List<DropTableOperation>();
             var ensureSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
+            var createCheckConstraintOperations = new List<MigrationOperation>();
             var createTableOperations = new List<CreateTableOperation>();
             var alterDatabaseOperations = new List<MigrationOperation>();
             var alterTableOperations = new List<MigrationOperation>();
@@ -176,6 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else if (type == typeof(CreateSequenceOperation))
                 {
                     createSequenceOperations.Add(operation);
+                }
+                else if (type == typeof(CreateCheckConstraintOperation))
+                {
+                    createCheckConstraintOperations.Add(operation);
                 }
                 else if (type == typeof(CreateTableOperation))
                 {
@@ -306,6 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(renameOperations)
                 .Concat(alterDatabaseOperations)
                 .Concat(createSequenceOperations)
+                .Concat(createCheckConstraintOperations)
                 .Concat(alterTableOperations)
                 .Concat(columnOperations)
                 .Concat(computedColumnOperations)
@@ -321,8 +347,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IModel
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [CanBeNull] IModel source,
@@ -335,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 ? DiffAnnotations(source, target)
                     .Concat(Diff(GetSchemas(source), GetSchemas(target), diffContext))
                     .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
-                    .Concat(Diff(source.Relational().Sequences, target.Relational().Sequences, diffContext))
+                    .Concat(Diff(source.GetSequences(), target.GetSequences(), diffContext))
                     .Concat(
                         Diff(
                             diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
@@ -392,32 +420,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
             => DiffAnnotations(null, target)
                 .Concat(GetSchemas(target).SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => Add(t, diffContext)))
-                .Concat(target.Relational().Sequences.SelectMany(t => Add(t, diffContext)))
+                .Concat(target.GetSequences().SelectMany(t => Add(t, diffContext)))
                 .Concat(diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext)
             => DiffAnnotations(source, null)
                 .Concat(diffContext.GetSourceTables().SelectMany(t => Remove(t, diffContext)))
-                .Concat(source.Relational().Sequences.SelectMany(t => Remove(t, diffContext)));
+                .Concat(source.GetSequences().SelectMany(t => Remove(t, diffContext)));
 
         #endregion
 
         #region Schema
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target, [NotNull] DiffContext diffContext)
             => DiffCollection(
@@ -430,15 +464,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t, c) => s == t);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] string source, [NotNull] string target, [NotNull] DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target, [NotNull] DiffContext diffContext)
         {
@@ -449,8 +487,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source, [NotNull] DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
@@ -460,8 +500,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IEntityType
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<TableMapping> source,
@@ -493,8 +535,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] TableMapping source,
@@ -516,7 +560,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var operations = DiffAnnotations(source, target)
                 .Concat(Diff(source.GetProperties(), target.GetProperties(), diffContext))
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
-                .Concat(Diff(source.GetIndexes(), target.GetIndexes(), diffContext));
+                .Concat(Diff(source.GetIndexes(), target.GetIndexes(), diffContext))
+                .Concat(Diff(source.GetCheckConstraints(), target.GetCheckConstraints(), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
@@ -547,8 +592,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] TableMapping target, [NotNull] DiffContext diffContext)
@@ -582,8 +629,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
             [NotNull] TableMapping source, [NotNull] DiffContext diffContext)
@@ -602,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static IEnumerable<IProperty> GetSortedProperties(TableMapping target)
             => GetSortedProperties(target.GetRootType())
-                .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
+                .Distinct((x, y) => x.GetColumnName() == y.GetColumnName());
 
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
         {
@@ -668,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             foreach (var definingForeignKey in entityType.GetDeclaredReferencingForeignKeys()
                 .Where(
                     fk => fk.DeclaringEntityType.RootType() != entityType.RootType()
-                          && fk.DeclaringEntityType.Relational().TableName == entityType.Relational().TableName
+                          && fk.DeclaringEntityType.GetTableName() == entityType.GetTableName()
                           && fk == fk.DeclaringEntityType
                               .FindForeignKey(
                                   fk.DeclaringEntityType.FindPrimaryKey().Properties,
@@ -750,8 +799,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IProperty
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IProperty> source,
@@ -765,8 +816,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (t, c) => Add(t, c),
                 Remove,
                 (s, t, c) => string.Equals(
-                    s.Relational().ColumnName,
-                    t.Relational().ColumnName,
+                    s.GetColumnName(),
+                    t.GetColumnName(),
                     StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                              && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
@@ -776,21 +827,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t, c) => PropertyStructureEquals(s, t));
 
         private bool PropertyStructureEquals(IProperty source, IProperty target)
-        {
-            var sourceAnnotations = source.Relational();
-            var targetAnnotations = target.Relational();
-            return source.ClrType == target.ClrType
-                   && source.IsConcurrencyToken == target.IsConcurrencyToken
-                   && source.ValueGenerated == target.ValueGenerated
-                   && source.GetMaxLength() == target.GetMaxLength()
-                   && source.IsColumnNullable() == target.IsColumnNullable()
-                   && source.IsUnicode() == target.IsUnicode()
-                   && sourceAnnotations.IsFixedLength == targetAnnotations.IsFixedLength
-                   && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
-                   && sourceAnnotations.ComputedColumnSql == targetAnnotations.ComputedColumnSql
-                   && Equals(GetDefaultValue(source), GetDefaultValue(target))
-                   && sourceAnnotations.DefaultValueSql == targetAnnotations.DefaultValueSql;
-        }
+            =>
+                source.ClrType == target.ClrType
+                && source.IsConcurrencyToken == target.IsConcurrencyToken
+                && source.ValueGenerated == target.ValueGenerated
+                && source.GetMaxLength() == target.GetMaxLength()
+                && source.IsColumnNullable() == target.IsColumnNullable()
+                && source.IsUnicode() == target.IsUnicode()
+                && source.IsFixedLength() == target.IsFixedLength()
+                && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
+                && source.GetComputedColumnSql() == target.GetComputedColumnSql()
+                && Equals(GetDefaultValue(source), GetDefaultValue(target))
+                && source.GetDefaultValueSql() == target.GetDefaultValueSql();
 
         private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
         {
@@ -817,8 +865,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                    || !sourceTable.EntityTypes.Contains(nextSource)
                    || nextTarget == null
                    || !targetTable.EntityTypes.Contains(nextTarget)
-                ? true
-                : EntityTypePathEquals(nextSource, nextTarget, diffContext);
+                   || EntityTypePathEquals(nextSource, nextTarget, diffContext);
         }
 
         private static string GetDefiningNavigationName(IEntityType entityType)
@@ -833,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 var definingForeignKey = entityType
                     .FindForeignKeys(primaryKey.Properties)
-                    .FirstOrDefault(fk => fk.PrincipalEntityType.Relational().TableName == entityType.Relational().TableName);
+                    .FirstOrDefault(fk => fk.PrincipalEntityType.GetTableName() == entityType.GetTableName());
                 if (definingForeignKey?.DependentToPrincipal != null)
                 {
                     return definingForeignKey.DependentToPrincipal.Name;
@@ -844,32 +891,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target, [NotNull] DiffContext diffContext)
         {
-            var sourceAnnotations = source.Relational();
-            var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
-            var targetAnnotations = target.Relational();
+            var targetEntityType = target.DeclaringEntityType.RootType();
 
-            if (sourceAnnotations.ColumnName != targetAnnotations.ColumnName)
+            if (source.GetColumnName() != target.GetColumnName())
             {
                 yield return new RenameColumnOperation
                 {
-                    Schema = targetEntityTypeAnnotations.Schema,
-                    Table = targetEntityTypeAnnotations.TableName,
-                    Name = sourceAnnotations.ColumnName,
-                    NewName = targetAnnotations.ColumnName
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
+                    Name = source.GetColumnName(),
+                    NewName = target.GetColumnName()
                 };
             }
 
             var sourceTypeMapping = TypeMappingSource.GetMapping(source);
             var targetTypeMapping = TypeMappingSource.GetMapping(target);
 
-            var sourceColumnType = sourceAnnotations.ColumnType
+            var sourceColumnType = source.GetColumnType()
                                    ?? sourceTypeMapping.StoreType;
-            var targetColumnType = targetAnnotations.ColumnType
+            var targetColumnType = target.GetColumnType()
                                    ?? targetTypeMapping.StoreType;
 
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
@@ -882,8 +929,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (isNullableChanged
                 || columnTypeChanged
-                || sourceAnnotations.DefaultValueSql != targetAnnotations.DefaultValueSql
-                || sourceAnnotations.ComputedColumnSql != targetAnnotations.ComputedColumnSql
+                || source.GetDefaultValueSql() != target.GetDefaultValueSql()
+                || source.GetComputedColumnSql() != target.GetComputedColumnSql()
                 || !Equals(GetDefaultValue(source), GetDefaultValue(target))
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
@@ -893,63 +940,66 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var alterColumnOperation = new AlterColumnOperation
                 {
-                    Schema = targetEntityTypeAnnotations.Schema,
-                    Table = targetEntityTypeAnnotations.TableName,
-                    Name = targetAnnotations.ColumnName,
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
+                    Name = target.GetColumnName(),
                     IsDestructiveChange = isDestructiveChange
                 };
 
                 Initialize(
                     alterColumnOperation, target, targetTypeMapping,
-                    isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, inline: true);
+                    isTargetColumnNullable, targetMigrationsAnnotations, inline: true);
 
                 Initialize(
                     alterColumnOperation.OldColumn, source, sourceTypeMapping,
-                    isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, inline: true);
+                    isSourceColumnNullable, sourceMigrationsAnnotations, inline: true);
 
                 yield return alterColumnOperation;
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] IProperty target,
             [NotNull] DiffContext diffContext,
             bool inline = false)
         {
-            var targetAnnotations = target.Relational();
-            var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
+            var targetEntityType = target.DeclaringEntityType.RootType();
 
             var operation = new AddColumnOperation
             {
-                Schema = targetEntityTypeAnnotations.Schema,
-                Table = targetEntityTypeAnnotations.TableName,
-                Name = targetAnnotations.ColumnName
+                Schema = targetEntityType.GetSchema(),
+                Table = targetEntityType.GetTableName(),
+                Name = target.GetColumnName()
             };
 
             Initialize(
                 operation, target, TypeMappingSource.GetMapping(target), target.IsColumnNullable(),
-                targetAnnotations, MigrationsAnnotations.For(target), inline);
+                MigrationsAnnotations.For(target), inline);
 
             yield return operation;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source, [NotNull] DiffContext diffContext)
         {
-            var sourceEntityTypeAnnotations = source.DeclaringEntityType.RootType().Relational();
+            var sourceEntityType = source.DeclaringEntityType.RootType();
 
             var operation = new DropColumnOperation
             {
-                Schema = sourceEntityTypeAnnotations.Schema,
-                Table = sourceEntityTypeAnnotations.TableName,
-                Name = source.Relational().ColumnName
+                Schema = sourceEntityType.GetSchema(),
+                Table = sourceEntityType.GetTableName(),
+                Name = source.GetColumnName()
             };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
@@ -961,7 +1011,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IProperty property,
             CoreTypeMapping typeMapping,
             bool isNullable,
-            IRelationalPropertyAnnotations annotations,
             IEnumerable<IAnnotation> migrationsAnnotations,
             bool inline = false)
         {
@@ -972,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
             columnOperation.IsUnicode = property.IsUnicode();
-            columnOperation.IsFixedLength = annotations.IsFixedLength;
+            columnOperation.IsFixedLength = property.IsFixedLength();
             columnOperation.IsRowVersion = property.ClrType == typeof(byte[])
                                            && property.IsConcurrencyToken
                                            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
@@ -984,8 +1033,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                                ? null
                                                : GetDefaultValue(columnOperation.ClrType));
 
-            columnOperation.DefaultValueSql = annotations.DefaultValueSql;
-            columnOperation.ComputedColumnSql = annotations.ComputedColumnSql;
+            columnOperation.DefaultValueSql = property.GetDefaultValueSql();
+            columnOperation.ComputedColumnSql = property.GetComputedColumnSql();
             columnOperation.AddAnnotations(migrationsAnnotations);
         }
 
@@ -994,8 +1043,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IKey
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IKey> source,
@@ -1008,15 +1059,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, c) => s.Relational().Name == t.Relational().Name
-                             && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                                 t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
+                (s, t, c) => s.GetName() == t.GetName()
+                             && s.Properties.Select(p => p.GetColumnName()).SequenceEqual(
+                                 t.Properties.Select(p => c.FindSource(p)?.GetColumnName()))
                              && s.IsPrimaryKey() == t.IsPrimaryKey()
                              && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IKey source,
@@ -1025,13 +1078,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IKey target, [NotNull] DiffContext diffContext)
         {
-            var targetAnnotations = target.Relational();
-            var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
+            var targetEntityType = target.DeclaringEntityType.RootType();
             var columns = GetColumns(target.Properties);
 
             MigrationOperation operation;
@@ -1039,9 +1093,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 operation = new AddPrimaryKeyOperation
                 {
-                    Schema = targetEntityTypeAnnotations.Schema,
-                    Table = targetEntityTypeAnnotations.TableName,
-                    Name = targetAnnotations.Name,
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
+                    Name = target.GetName(),
                     Columns = columns
                 };
             }
@@ -1049,9 +1103,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 operation = new AddUniqueConstraintOperation
                 {
-                    Schema = targetEntityTypeAnnotations.Schema,
-                    Table = targetEntityTypeAnnotations.TableName,
-                    Name = targetAnnotations.Name,
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
+                    Name = target.GetName(),
                     Columns = columns
                 };
             }
@@ -1062,33 +1116,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
             [NotNull] IKey source,
             [NotNull] DiffContext diffContext)
         {
-            var sourceAnnotations = source.Relational();
-            var sourceEntityTypeAnnotations = source.DeclaringEntityType.RootType().Relational();
+            var sourceEntityType = source.DeclaringEntityType.RootType();
 
             MigrationOperation operation;
             if (source.IsPrimaryKey())
             {
                 operation = new DropPrimaryKeyOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
-                    Name = sourceAnnotations.Name
+                    Schema = sourceEntityType.GetSchema(),
+                    Table = sourceEntityType.GetTableName(),
+                    Name = source.GetName()
                 };
             }
             else
             {
                 operation = new DropUniqueConstraintOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
-                    Name = sourceAnnotations.Name
+                    Schema = sourceEntityType.GetSchema(),
+                    Table = sourceEntityType.GetTableName(),
+                    Name = source.GetName()
                 };
             }
 
@@ -1102,8 +1157,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IForeignKey
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IForeignKey> source,
@@ -1116,48 +1173,51 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, c) => s.Relational().Name == t.Relational().Name
-                             && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                                 t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
+                (s, t, c) => s.GetConstraintName() == t.GetConstraintName()
+                             && s.Properties.Select(p => p.GetColumnName()).SequenceEqual(
+                                 t.Properties.Select(p => c.FindSource(p)?.GetColumnName()))
                              && c.FindSourceTable(s.PrincipalEntityType)
                              == c.FindSource(c.FindTargetTable(t.PrincipalEntityType))
-                             && s.PrincipalKey.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                                 t.PrincipalKey.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName))
+                             && s.PrincipalKey.Properties.Select(p => p.GetColumnName()).SequenceEqual(
+                                 t.PrincipalKey.Properties.Select(p => c.FindSource(p)?.GetColumnName()))
                              && ToReferentialAction(s.DeleteBehavior) == ToReferentialAction(t.DeleteBehavior)
                              && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
         {
-            var declaringRootEntityType = target.DeclaringEntityType.RootType();
-            var targetEntityTypeAnnotations = declaringRootEntityType.Relational();
-            var targetPrincipalEntityTypeAnnotations = target.PrincipalEntityType.RootType().Relational();
+            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetPrincipalEntityType = target.PrincipalEntityType.RootType();
 
             var operation = new AddForeignKeyOperation
             {
-                Schema = targetEntityTypeAnnotations.Schema,
-                Table = targetEntityTypeAnnotations.TableName,
-                Name = target.Relational().Name,
+                Schema = targetEntityType.GetSchema(),
+                Table = targetEntityType.GetTableName(),
+                Name = target.GetConstraintName(),
                 Columns = GetColumns(target.Properties),
-                PrincipalSchema = targetPrincipalEntityTypeAnnotations.Schema,
-                PrincipalTable = targetPrincipalEntityTypeAnnotations.TableName,
+                PrincipalSchema = targetPrincipalEntityType.GetSchema(),
+                PrincipalTable = targetPrincipalEntityType.GetTableName(),
                 PrincipalColumns = GetColumns(target.PrincipalKey.Properties),
                 OnDelete = ToReferentialAction(target.DeleteBehavior)
             };
             operation.AddAnnotations(MigrationsAnnotations.For(target));
 
-            var createTableOperation = diffContext.FindCreate(declaringRootEntityType);
+            var createTableOperation = diffContext.FindCreate(targetEntityType);
             if (createTableOperation != null)
             {
                 createTableOperation.ForeignKeys.Add(operation);
@@ -1169,22 +1229,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKey source, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = source.DeclaringEntityType.RootType();
-            var sourceEntityTypeAnnotations = declaringRootEntityType.Relational();
 
             var dropTableOperation = diffContext.FindDrop(declaringRootEntityType);
             if (dropTableOperation == null)
             {
                 var operation = new DropForeignKeyOperation
                 {
-                    Schema = sourceEntityTypeAnnotations.Schema,
-                    Table = sourceEntityTypeAnnotations.TableName,
-                    Name = source.Relational().Name
+                    Schema = declaringRootEntityType.GetSchema(),
+                    Table = declaringRootEntityType.GetTableName(),
+                    Name = source.GetConstraintName()
                 };
                 operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
@@ -1197,8 +1258,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region IIndex
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IIndex> source,
@@ -1212,38 +1275,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Add,
                 Remove,
                 (s, t, c) => string.Equals(
-                                 s.Relational().Name,
-                                 t.Relational().Name,
+                                 s.GetName(),
+                                 t.GetName(),
                                  StringComparison.OrdinalIgnoreCase)
                              && IndexStructureEquals(s, t, c),
                 (s, t, c) => IndexStructureEquals(s, t, c));
 
         private bool IndexStructureEquals(IIndex source, IIndex target, DiffContext diffContext)
             => source.IsUnique == target.IsUnique
-               && source.Relational().Filter == target.Relational().Filter
+               && source.GetFilter() == target.GetFilter()
                && !HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
-               && source.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                   target.Properties.Select(p => diffContext.FindSource(p)?.Relational().ColumnName));
+               && source.Properties.Select(p => p.GetColumnName()).SequenceEqual(
+                   target.Properties.Select(p => diffContext.FindSource(p)?.GetColumnName()));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IIndex source,
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
-            var sourceName = source.Relational().Name;
-            var targetName = target.Relational().Name;
+            var targetEntityType = target.DeclaringEntityType.RootType();
+            var sourceName = source.GetName();
+            var targetName = target.GetName();
 
             if (sourceName != targetName)
             {
                 yield return new RenameIndexOperation
                 {
-                    Schema = targetEntityTypeAnnotations.Schema,
-                    Table = targetEntityTypeAnnotations.TableName,
+                    Schema = targetEntityType.GetSchema(),
+                    Table = targetEntityType.GetTableName(),
                     Name = sourceName,
                     NewName = targetName
                 };
@@ -1251,24 +1316,100 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var targetEntityTypeAnnotations = target.DeclaringEntityType.RootType().Relational();
+            var targetEntityType = target.DeclaringEntityType.RootType();
 
             var operation = new CreateIndexOperation
             {
-                Name = target.Relational().Name,
-                Schema = targetEntityTypeAnnotations.Schema,
-                Table = targetEntityTypeAnnotations.TableName,
+                Name = target.GetName(),
+                Schema = targetEntityType.GetSchema(),
+                Table = targetEntityType.GetTableName(),
                 Columns = GetColumns(target.Properties),
                 IsUnique = target.IsUnique,
-                Filter = target.Relational().Filter
+                Filter = target.GetFilter()
             };
+            operation.AddAnnotations(MigrationsAnnotations.For(target));
+
+            yield return operation;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source, [NotNull] DiffContext diffContext)
+        {
+            var sourceEntityType = source.DeclaringEntityType.RootType();
+
+            var operation = new DropIndexOperation
+            {
+                Name = source.GetName(),
+                Schema = sourceEntityType.GetSchema(),
+                Table = sourceEntityType.GetTableName()
+            };
+            operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
+
+            yield return operation;
+        }
+
+        #endregion
+
+        #region ICheckConstraint
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] IEnumerable<ICheckConstraint> source,
+            [NotNull] IEnumerable<ICheckConstraint> target,
+            [NotNull] DiffContext diffContext)
+            => DiffCollection(
+                source,
+                target,
+                diffContext,
+                Diff,
+                Add,
+                Remove,
+                (s, t, c) => c.FindSourceTable(s.EntityType) == c.FindSource(c.FindTargetTable(t.EntityType))
+                             && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                             && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] ICheckConstraint source, [NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
+            => Enumerable.Empty<MigrationOperation>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
+        {
+            var targetEntityType = target.EntityType.RootType();
+
+            var operation = new CreateCheckConstraintOperation
+            {
+                Name = target.Name,
+                Sql = target.Sql,
+                Schema = targetEntityType.GetSchema(),
+                Table = targetEntityType.GetTableName()
+            };
+
+            operation.Sql = target.Sql;
             operation.AddAnnotations(MigrationsAnnotations.For(target));
 
             yield return operation;
@@ -1278,15 +1419,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ICheckConstraint source, [NotNull] DiffContext diffContext)
         {
-            var sourceEntityTypeAnnotations = source.DeclaringEntityType.RootType().Relational();
+            var sourceEntityType = source.EntityType.RootType();
 
-            var operation = new DropIndexOperation
+            var operation = new DropCheckConstraintOperation
             {
-                Name = source.Relational().Name,
-                Schema = sourceEntityTypeAnnotations.Schema,
-                Table = sourceEntityTypeAnnotations.TableName
+                Name = source.Name,
+                Schema = sourceEntityType.GetSchema(),
+                Table = sourceEntityType.GetTableName()
             };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
@@ -1298,8 +1439,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region ISequence
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<ISequence> source,
@@ -1319,8 +1462,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                              && s.ClrType == t.ClrType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target, [NotNull] DiffContext diffContext)
         {
@@ -1369,8 +1514,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target, [NotNull] DiffContext diffContext)
         {
@@ -1386,8 +1533,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source, [NotNull] DiffContext diffContext)
         {
@@ -1420,8 +1569,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #region Data
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void TrackData(
             [CanBeNull] IModel source,
@@ -1429,40 +1580,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             if (target == null)
             {
-                _targetStateManager = null;
+                _targetUpdateAdapter = null;
                 return;
             }
 
-            _targetStateManager = new StateManager(StateManagerDependencies.With(target));
+            _targetUpdateAdapter = UpdateAdapterFactory.Create(target);
 
             foreach (var targetEntityType in target.GetEntityTypes())
             {
-                foreach (var targetSeed in targetEntityType.GetData())
+                foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetStateManager.CreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
+                    _targetUpdateAdapter
+                        .CreateEntry(targetSeed, targetEntityType)
+                        .EntityState = EntityState.Added;
                 }
             }
 
             if (source == null)
             {
-                _sourceStateManager = null;
+                _sourceUpdateAdapter = null;
                 return;
             }
 
-            _sourceStateManager = new StateManager(StateManagerDependencies.With(source));
+            _sourceUpdateAdapter = UpdateAdapterFactory.Create(source);
 
             foreach (var sourceEntityType in source.GetEntityTypes())
             {
-                foreach (var sourceSeed in sourceEntityType.GetData())
+                foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Added);
+                    _sourceUpdateAdapter
+                        .CreateEntry(sourceSeed, sourceEntityType)
+                        .EntityState = EntityState.Added;
                 }
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void DiffData(
             [NotNull] TableMapping source,
@@ -1473,18 +1630,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(target, nameof(target));
             Check.NotNull(diffContext, nameof(diffContext));
 
-            var targetTableEntryMappingMap = SharedTableEntryMap<List<InternalEntityEntry>>.CreateSharedTableEntryMapFactory(
+            var targetTableEntryMappingMap = SharedTableEntryMap<List<IUpdateEntry>>.CreateSharedTableEntryMapFactory(
                     target.EntityTypes,
-                    _targetStateManager,
+                    _targetUpdateAdapter,
                     target.Name,
                     target.Schema)
-                ((t, s, c) => new List<InternalEntityEntry>());
+                ((t, s, c) => new List<IUpdateEntry>());
 
             foreach (var targetEntityType in target.EntityTypes)
             {
-                foreach (var targetSeed in targetEntityType.GetData())
+                foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    var targetEntry = GetEntry(targetSeed, targetEntityType, _targetStateManager);
+                    var targetEntry = GetEntry(targetSeed, targetEntityType, _targetUpdateAdapter);
                     var targetEntries = targetTableEntryMappingMap.GetOrAddValue(targetEntry);
                     targetEntries.Add(targetEntry);
                 }
@@ -1509,7 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         foreach (var matchingSourceProperty in sourceEntityType.GetProperties())
                         {
-                            if (matchingSourceProperty.Relational().ColumnName == sourceProperty.Relational().ColumnName)
+                            if (matchingSourceProperty.GetColumnName() == sourceProperty.GetColumnName())
                             {
                                 var sourceConverter = GetValueConverter(sourceProperty);
                                 var targetConverter = GetValueConverter(keyProperty);
@@ -1535,16 +1692,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var sourceTableEntryMappingMap = SharedTableEntryMap<EntryMapping>.CreateSharedTableEntryMapFactory(
                     source.EntityTypes,
-                    _sourceStateManager,
+                    _sourceUpdateAdapter,
                     source.Name,
                     source.Schema)
                 ((t, s, c) => new EntryMapping());
 
             foreach (var sourceEntityType in source.EntityTypes)
             {
-                foreach (var sourceSeed in sourceEntityType.GetData())
+                foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceStateManager);
+                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
                     var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry);
                     entryMapping.SourceEntries.Add(sourceEntry);
 
@@ -1583,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             }
                         }
 
-                        var entry = _targetStateManager.TryGetEntry(targetKey, targetKeyValues);
+                        var entry = _targetUpdateAdapter.TryGetEntry(targetKey, targetKeyValues);
                         if (entry == null)
                         {
                             continue;
@@ -1598,13 +1755,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             foreach (var targetProperty in targetEntry.EntityType.GetProperties())
                             {
-                                if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
+                                if (targetProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                                 {
                                     targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
                                 }
                             }
 
-                            targetEntry.SetEntityState(EntityState.Unchanged);
+                            targetEntry.EntityState = EntityState.Unchanged;
                         }
 
                         if (entryMapping.RecreateRow)
@@ -1667,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 }
                             }
 
-                            if (targetProperty.AfterSaveBehavior != PropertySaveBehavior.Save)
+                            if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                             {
                                 entryMapping.RecreateRow = true;
                                 break;
@@ -1686,26 +1843,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     foreach (var targetEntry in entryMapping.TargetEntries)
                     {
-                        targetEntry.SetEntityState(EntityState.Added);
+                        targetEntry.EntityState = EntityState.Added;
                     }
 
                     foreach (var sourceEntry in entryMapping.SourceEntries)
                     {
-                        sourceEntry.SetEntityState(EntityState.Deleted);
+                        sourceEntry.EntityState = EntityState.Deleted;
                     }
                 }
                 else
                 {
                     foreach (var sourceEntry in entryMapping.SourceEntries)
                     {
-                        sourceEntry.SetEntityState(EntityState.Detached);
+                        sourceEntry.EntityState = EntityState.Detached;
                     }
                 }
             }
         }
 
-        private static InternalEntityEntry GetEntry(
-            IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
+        private static IUpdateEntry GetEntry(
+            IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IUpdateAdapter updateAdapter)
         {
             var key = sourceEntityType.FindPrimaryKey();
             var keyValues = new object[key.Properties.Count];
@@ -1714,43 +1871,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 keyValues[i] = sourceSeed[key.Properties[i].Name];
             }
 
-            return stateManager.TryGetEntry(key, keyValues);
+            return updateAdapter.TryGetEntry(key, keyValues);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> GetDataOperations()
         {
-            if (_sourceStateManager != null)
+            if (_sourceUpdateAdapter != null)
             {
-                foreach (var sourceEntry in _sourceStateManager.Entries.ToList())
+                foreach (var sourceEntry in _sourceUpdateAdapter.Entries.Where(e => e.EntityState == EntityState.Added).ToList())
                 {
-                    if (sourceEntry.EntityState == EntityState.Added)
-                    {
-                        sourceEntry.SetEntityState(EntityState.Detached);
-                    }
+                    sourceEntry.EntityState = EntityState.Detached;
                 }
             }
 
-            foreach (var stateManager in new[] { _sourceStateManager, _targetStateManager })
+            foreach (var updateAdapter in new[] { _sourceUpdateAdapter, _targetUpdateAdapter })
             {
-                if (stateManager == null)
+                if (updateAdapter == null)
                 {
                     continue;
                 }
 
-                ChangeDetector.DetectChanges(stateManager);
-                var entries = stateManager.GetEntriesToSave();
+                updateAdapter.DetectChanges();
+                var entries = updateAdapter.GetEntriesToSave();
                 if (entries == null
                     || entries.Count == 0)
                 {
                     continue;
                 }
 
-                var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
-                    .BatchCommands(entries);
+                var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies)
+                    .BatchCommands(entries, updateAdapter);
 
                 foreach (var commandBatch in commandBatches)
                 {
@@ -1840,8 +1996,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         #endregion
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
             [NotNull] IEnumerable<T> sources,
@@ -1905,15 +2063,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual string[] GetColumns([NotNull] IEnumerable<IProperty> properties)
-            => properties.Select(p => p.Relational().ColumnName).ToArray();
+            => properties.Select(p => p.GetColumnName()).ToArray();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual bool HasDifferences([NotNull] IEnumerable<IAnnotation> source, [NotNull] IEnumerable<IAnnotation> target)
         {
@@ -1934,18 +2096,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
-            => model.GetRootEntityTypes().Select(t => t.Relational().Schema)
-                .Concat(model.Relational().Sequences.Select(s => s.Schema))
+            => model.GetRootEntityTypes().Select(t => t.GetSchema())
+                .Concat(model.GetSequences().Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual object GetDefaultValue([NotNull] Type type)
             => type == typeof(string)
@@ -1956,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private object GetDefaultValue(IProperty property)
         {
-            var value = property.Relational().DefaultValue;
+            var value = property.GetDefaultValue();
             var converter = GetValueConverter(property);
             return converter != null
                 ? converter.ConvertToProvider(value)
@@ -1967,11 +2133,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => TypeMappingSource.GetMapping(property).Converter;
 
         private static ReferentialAction ToReferentialAction(DeleteBehavior deleteBehavior)
-            => deleteBehavior == DeleteBehavior.Cascade
-                ? ReferentialAction.Cascade
-                : deleteBehavior == DeleteBehavior.SetNull
-                    ? ReferentialAction.SetNull
-                    : ReferentialAction.Restrict;
+        {
+            switch (deleteBehavior)
+            {
+                case DeleteBehavior.SetNull:
+                    return ReferentialAction.SetNull;
+                case DeleteBehavior.Cascade:
+                    return ReferentialAction.Cascade;
+                case DeleteBehavior.NoAction:
+                case DeleteBehavior.ClientNoAction:
+                    return ReferentialAction.NoAction;
+                default:
+                    return ReferentialAction.Restrict;
+            }
+        }
 
         private static object[,] ToMultidimensionalArray(IReadOnlyList<object> values)
         {
@@ -2007,14 +2182,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class EntryMapping
         {
-            public HashSet<InternalEntityEntry> SourceEntries { get; } = new HashSet<InternalEntityEntry>();
-            public HashSet<InternalEntityEntry> TargetEntries { get; } = new HashSet<InternalEntityEntry>();
+            public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
+            public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
             public bool RecreateRow { get; set; }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected class DiffContext
         {
@@ -2039,8 +2216,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 = new Dictionary<DropTableOperation, TableMapping>();
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public DiffContext([CanBeNull] IModel source, [CanBeNull] IModel target)
             {
@@ -2070,34 +2249,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual IEnumerable<TableMapping> GetSourceTables() => _sourceTables;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual IEnumerable<TableMapping> GetTargetTables() => _targetTables;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual void AddMapping<T>([NotNull] T source, [NotNull] T target)
                 => _targetToSource.Add(target, source);
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual void AddCreate([NotNull] IEntityType target, [NotNull] CreateTableOperation operation)
                 => _createTableOperations.Add(target, operation);
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual void AddDrop([NotNull] TableMapping source, [NotNull] DropTableOperation operation)
             {
@@ -2110,8 +2299,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual TableMapping FindSourceTable(IEntityType entityType)
                 => _sourceEntitiesMap.TryGetValue(entityType, out var table)
@@ -2119,8 +2310,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : null;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual TableMapping FindTargetTable(IEntityType entityType)
                 => _targetEntitiesMap.TryGetValue(entityType, out var table)
@@ -2128,8 +2321,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : null;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual T FindSource<T>([NotNull] T target)
                 => _targetToSource.TryGetValue(target, out var source)
@@ -2137,8 +2332,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : default;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual IProperty FindSource([NotNull] IProperty target)
             {
@@ -2149,7 +2346,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
 
                 var synonymousTargets = FindTargetTable(target.DeclaringEntityType).GetProperties()
-                    .Where(p => p != target && p.Relational().ColumnName == target.Relational().ColumnName);
+                    .Where(p => p != target && p.GetColumnName() == target.GetColumnName());
                 foreach (var synonymousTarget in synonymousTargets)
                 {
                     source = FindSource<IProperty>(synonymousTarget);
@@ -2165,8 +2362,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual CreateTableOperation FindCreate([NotNull] IEntityType target)
                 => _createTableOperations.TryGetValue(target, out var operation)
@@ -2174,8 +2373,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : null;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual DropTableOperation FindDrop([NotNull] IEntityType source)
                 => _dropTableOperations.TryGetValue(source, out var operation)
@@ -2183,8 +2384,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     : null;
 
             /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual TableMapping FindTable([NotNull] DropTableOperation operation)
                 => _removedTables.TryGetValue(operation, out var source)

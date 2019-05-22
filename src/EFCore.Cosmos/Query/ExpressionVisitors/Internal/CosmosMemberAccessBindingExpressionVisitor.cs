@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
             Expression jObjectExpression,
             IProperty property)
         {
-            var storeName = property.Cosmos().PropertyName;
+            var storeName = property.GetCosmosPropertyName();
             if (storeName.Length == 0)
             {
                 return null;

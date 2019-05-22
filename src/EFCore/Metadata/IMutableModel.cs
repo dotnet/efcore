@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -13,17 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
     ///         see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
-    ///         <see cref="DbContext"/>.
+    ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IModel" /> represents a ready-only view of the same metadata.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
+    ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableModel : IModel, IMutableAnnotatable
@@ -51,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
         /// </summary>
-        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="name"> The name of the entity type to be added. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The new entity type. </returns>
@@ -73,21 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableEntityType definingEntityType);
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns null if no entity type with the given name is found
+        ///     Gets the entity with the given name. Returns <c>null</c> if no entity type with the given name is found
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
         new IMutableEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns null if no matching entity type is found.
+        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or null if none are found. </returns>
+        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
         IMutableEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -103,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Removes an entity type with a defining navigation from the model.
         /// </summary>
-        /// <param name="name"> The name of the entity to be removed. </param>
+        /// <param name="name"> The name of the entity type to be removed. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
@@ -117,5 +110,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> All entity types defined in the model. </returns>
         new IEnumerable<IMutableEntityType> GetEntityTypes();
+
+        /// <summary>
+        ///     Marks the given entity type name as ignored, preventing conventions from adding a matching entity type to the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be ignored. </param>
+        void AddIgnored([NotNull] string name);
+
+        /// <summary>
+        ///     Removes the ignored entity type name.
+        /// </summary>
+        /// <param name="name"> The name of the ignored entity type to be removed. </param>
+        void RemoveIgnored([NotNull] string name);
+
+        /// <summary>
+        ///     Indicates whether the given entity type name is ignored.
+        /// </summary>
+        /// <param name="name"> The name of the entity type that might be ignored. </param>
+        /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
+        bool IsIgnored([NotNull] string name);
     }
 }

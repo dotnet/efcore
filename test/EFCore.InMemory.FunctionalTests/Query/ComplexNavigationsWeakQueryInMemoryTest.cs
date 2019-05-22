@@ -5,7 +5,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsWeakQueryInMemoryTest :
+    // issue #15285
+    internal class ComplexNavigationsWeakQueryInMemoryTest :
         ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryInMemoryFixture>
     {
         // ReSharper disable once UnusedParameter.Local

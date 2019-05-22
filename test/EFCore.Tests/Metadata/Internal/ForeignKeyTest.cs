@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -43,14 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_foreign_key()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(principalProp);
+            entityType.SetPrimaryKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(
-                new[] { dependentProp }, entityType.FindPrimaryKey(), entityType, ConfigurationSource.Convention);
-            foreignKey.IsUnique = true;
+                new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
+            foreignKey.SetIsUnique(true);
 
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityType.FindPrimaryKey(), foreignKey.PrincipalKey);
             Assert.Equal(ConfigurationSource.Convention, foreignKey.GetConfigurationSource());
 
-            foreignKey.UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
+            ((ForeignKey)foreignKey).UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
 
             Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetConfigurationSource());
         }
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Constructor_throws_when_referenced_key_not_on_referenced_entity()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var principalEntityType = model.AddEntityType("R");
             var dependentEntityType = model.AddEntityType("D");
@@ -84,14 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Constructor_throws_when_principal_and_depedent_property_count_do_not_match()
         {
-            var dependentEntityType = new Model().AddEntityType("D");
-            var principalEntityType = new Model().AddEntityType("P");
+            var model = CreateModel();
+            var dependentEntityType = model.AddEntityType("D");
+            var principalEntityType = model.AddEntityType("P");
 
             var dependentProperty1 = dependentEntityType.AddProperty("P1", typeof(int));
             var dependentProperty2 = dependentEntityType.AddProperty("P2", typeof(int));
 
             var idProperty = principalEntityType.AddProperty("Id", typeof(int));
-            principalEntityType.GetOrSetPrimaryKey(idProperty);
+            principalEntityType.SetPrimaryKey(idProperty);
 
             Assert.Equal(
                 CoreStrings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
@@ -104,15 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Constructor_throws_when_principal_and_depedent_property_types_do_not_match()
         {
-            var dependentEntityType = new Model().AddEntityType("D");
-            var principalEntityType = new Model().AddEntityType("P");
+            var dependentEntityType = CreateModel().AddEntityType("D");
+            var principalEntityType = CreateModel().AddEntityType("P");
 
             var dependentProperty1 = dependentEntityType.AddProperty("P1", typeof(int));
             var dependentProperty2 = dependentEntityType.AddProperty("P2", typeof(string));
 
             var property2 = principalEntityType.AddProperty("Id1", typeof(int));
             var property3 = principalEntityType.AddProperty("Id2", typeof(int));
-            principalEntityType.GetOrSetPrimaryKey(
+            principalEntityType.SetPrimaryKey(
                 new[]
                 {
                     property2,
@@ -130,11 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_foreign_key_with_non_pk_principal()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var keyProp = entityType.AddProperty("Id", typeof(int));
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("U", typeof(int));
-            entityType.GetOrSetPrimaryKey(keyProp);
+            entityType.SetPrimaryKey(keyProp);
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
@@ -150,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void IsRequired_and_IsUnique_false_when_dependent_property_not_nullable()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var property = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(property);
+            entityType.SetPrimaryKey(property);
             var dependentProp = entityType.AddProperty("P", typeof(int));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
@@ -165,9 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void IsRequired_and_IsUnique_false_when_dependent_property_nullable()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var property = entityType.AddProperty("Id", typeof(int));
-            entityType.GetOrSetPrimaryKey(property);
+            entityType.SetPrimaryKey(property);
             var dependentProp = entityType.AddProperty("P", typeof(int?));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
@@ -180,11 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void IsRequired_false_when_no_part_of_composite_FK_is_nullable()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(
+            entityType.SetPrimaryKey(
                 new[]
                 {
                     property,
@@ -206,11 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Setting_IsRequired_to_true_does_not_configure_FK_properties_as_non_nullable()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property3 = entityType.AddProperty("Id2", typeof(string));
             property3.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(
+            entityType.SetPrimaryKey(
                 new[]
                 {
                     property,
@@ -231,11 +233,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Setting_IsRequired_to_false_will_not_configure_FK_properties_as_nullable()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(
+            entityType.SetPrimaryKey(
                 new[]
                 {
                     property,
@@ -255,12 +257,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(dependentProp2.IsNullable);
         }
 
-        private ForeignKey CreateOneToManyFK()
+        private IMutableForeignKey CreateOneToManyFK()
         {
-            var model = new Model();
+            var model = CreateModel();
             var principalEntityType = model.AddEntityType(typeof(OneToManyPrincipal));
             var property = principalEntityType.AddProperty(NavigationBase.IdProperty);
-            var pk = principalEntityType.GetOrSetPrimaryKey(property);
+            var pk = principalEntityType.SetPrimaryKey(property);
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             var fkProp = dependentEntityType.AddProperty(NavigationBase.IdProperty);
@@ -270,19 +272,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return fk;
         }
 
-        private ForeignKey CreateOneToManySameBaseFK()
+        private IMutableForeignKey CreateOneToManySameBaseFK()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var baseEntityType = model.AddEntityType(typeof(NavigationBase));
             var property1 = baseEntityType.AddProperty(NavigationBase.IdProperty);
-            var pk = baseEntityType.GetOrSetPrimaryKey(property1);
+            var pk = baseEntityType.SetPrimaryKey(property1);
 
             var principalEntityType = model.AddEntityType(typeof(OneToManyPrincipal));
-            principalEntityType.HasBaseType(baseEntityType);
+            principalEntityType.BaseType = baseEntityType;
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
-            dependentEntityType.HasBaseType(baseEntityType);
+            dependentEntityType.BaseType = baseEntityType;
             var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
             fk.HasPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
@@ -290,16 +292,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return fk;
         }
 
-        private ForeignKey CreateOneToManySameHierarchyFK()
+        private IMutableForeignKey CreateOneToManySameHierarchyFK()
         {
-            var model = new Model();
+            var model = CreateModel();
 
             var baseEntityType = model.AddEntityType(typeof(NavigationBase));
             var property1 = baseEntityType.AddProperty(NavigationBase.IdProperty);
-            var pk = baseEntityType.GetOrSetPrimaryKey(property1);
+            var pk = baseEntityType.SetPrimaryKey(property1);
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
-            dependentEntityType.HasBaseType(baseEntityType);
+            dependentEntityType.BaseType = baseEntityType;
             var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, baseEntityType);
             fk.HasPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
@@ -356,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationForWrongForeignKey(
                     nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    Property.Format(foreignKey2.Properties),
-                    Property.Format(foreignKey1.Properties)),
+                    foreignKey2.Properties.Format(),
+                    foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
@@ -379,22 +381,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationForWrongForeignKey(
                     nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
-                    Property.Format(foreignKey2.Properties),
-                    Property.Format(foreignKey1.Properties)),
+                    foreignKey2.Properties.Format(),
+                    foreignKey1.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(
                     ()
                         => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
-        private ForeignKey CreateSelfRefFK(bool useAltKey = false)
+        private IMutableForeignKey CreateSelfRefFK(bool useAltKey = false)
         {
-            var entityType = new Model().AddEntityType(typeof(SelfRef));
-            var pk = entityType.GetOrSetPrimaryKey(entityType.AddProperty(SelfRef.IdProperty));
+            var entityType = CreateModel().AddEntityType(typeof(SelfRef));
+            var pk = entityType.SetPrimaryKey(entityType.AddProperty(SelfRef.IdProperty));
             var fkProp = entityType.AddProperty(SelfRef.SelfRefIdProperty);
 
             var property = entityType.AddProperty("AltId", typeof(int));
             var principalKey = useAltKey
-                ? entityType.GetOrAddKey(property)
+                ? entityType.AddKey(property)
                 : pk;
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, principalKey, entityType);
@@ -540,11 +542,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_change_cascade_delete_flag()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var keyProp = entityType.AddProperty("Id", typeof(int));
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("U", typeof(int));
-            entityType.GetOrSetPrimaryKey(keyProp);
+            entityType.SetPrimaryKey(keyProp);
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
@@ -571,11 +573,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_change_cascade_ownership()
         {
-            var entityType = new Model().AddEntityType("E");
+            var entityType = CreateModel().AddEntityType("E");
             var keyProp = entityType.AddProperty("Id", typeof(int));
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("U", typeof(int));
-            entityType.GetOrSetPrimaryKey(keyProp);
+            entityType.SetPrimaryKey(keyProp);
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
@@ -616,10 +618,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var model = fk.DeclaringEntityType.Model;
             var derivedPrincipal = model.AddEntityType(typeof(DerivedOneToManyPrincipal));
-            derivedPrincipal.HasBaseType(fk.PrincipalEntityType);
+            derivedPrincipal.BaseType = fk.PrincipalEntityType;
 
             var derivedDependent = model.AddEntityType(typeof(DerivedOneToManyDependent));
-            derivedDependent.HasBaseType(fk.DeclaringEntityType);
+            derivedDependent.BaseType = fk.DeclaringEntityType;
 
             Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityType(fk.DeclaringEntityType));
             Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityType(fk.PrincipalEntityType));
@@ -721,23 +723,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
 
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(),
+                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
 
@@ -824,5 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
         }
+
+        private static IMutableModel CreateModel() => new Model();
     }
 }

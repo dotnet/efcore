@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Transactions;
 using Xunit;
 
@@ -22,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public string Name { get; protected set; }
 
-        public virtual TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+        public virtual TestStore Initialize(
+            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
         {
             ServiceProvider = serviceProvider;
             if (createContext == null)
@@ -30,32 +32,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 createContext = CreateDefaultContext;
             }
 
-            if (seed == null)
-            {
-                seed = _ => { };
-            }
-
             if (_shared)
             {
-                GetTestStoreIndex(serviceProvider).CreateShared(GetType().Name + Name, () => Initialize(createContext, seed));
+                GetTestStoreIndex(serviceProvider).CreateShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
             }
             else
             {
-                Initialize(createContext, seed);
+                Initialize(createContext, seed, clean);
             }
 
             return this;
         }
 
-        public TestStore Initialize(IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed)
-            => Initialize(serviceProvider, () => createContext(this), seed);
+        public TestStore Initialize(
+            IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+            => Initialize(serviceProvider, () => createContext(this), seed, clean);
 
-        protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
+        protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
             using (var context = createContext())
             {
+                clean?.Invoke(context);
+
                 Clean(context);
-                seed(context);
+
+                seed?.Invoke(context);
             }
         }
 
@@ -75,9 +76,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (useTransaction)
             {
+                var listener = new DistributedTransactionListener();
+                var transactionDisposed = new ManualResetEventSlim();
                 var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10));
+                transaction.TransactionCompleted += (_, __) => transactionDisposed.Set();
+
                 return new CompositeDisposable(
-                    new DistributedTransactionListener(),
+                    listener,
+                    new BlockingDisposable(transactionDisposed),
                     transaction,
                     new TransactionScope(transaction, TimeSpan.FromMinutes(10), TransactionScopeAsyncFlowOption.Enabled));
             }
@@ -132,6 +138,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     throw new AggregateException(exceptions);
                 }
+            }
+        }
+
+        private class BlockingDisposable : IDisposable
+        {
+            private readonly ManualResetEventSlim _signal;
+
+            public BlockingDisposable(ManualResetEventSlim signal)
+            {
+                _signal = signal;
+            }
+
+            public void Dispose()
+            {
+                _signal.Wait(TimeSpan.FromMinutes(10));
+                _signal.Dispose();
             }
         }
     }

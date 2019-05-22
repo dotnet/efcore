@@ -122,7 +122,6 @@
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -135,7 +134,6 @@
   </data>
   <data name="NoConnectionOrConnectionString" xml:space="preserve">
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="NamedConnectionStringNotFound" xml:space="preserve">
     <value>A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.</value>
@@ -152,57 +150,54 @@
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
     <value>The connection is already in a transaction and cannot participate in another transaction.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
-  <data name="LogRelationalLoggerOpeningConnection" xml:space="preserve">
+  <data name="LogOpeningConnection" xml:space="preserve">
     <value>Opening connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpening string string</comment>
   </data>
-  <data name="LogRelationalLoggerOpenedConnection" xml:space="preserve">
+  <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpened string string</comment>
   </data>
-  <data name="LogRelationalLoggerClosingConnection" xml:space="preserve">
+  <data name="LogClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionClosing string string</comment>
   </data>
-  <data name="LogRelationalLoggerClosedConnection" xml:space="preserve">
+  <data name="LogClosedConnection" xml:space="preserve">
     <value>Closed connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionClosed string string</comment>
   </data>
-  <data name="LogRelationalLoggerConnectionError" xml:space="preserve">
+  <data name="LogConnectionError" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Error RelationalEventId.ConnectionError string string</comment>
   </data>
-  <data name="LogRelationalLoggerBeginningTransaction" xml:space="preserve">
+  <data name="LogBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.TransactionStarted string</comment>
   </data>
-  <data name="LogRelationalLoggerUsingTransaction" xml:space="preserve">
+  <data name="LogUsingTransaction" xml:space="preserve">
     <value>Using an existing transaction with isolation level '{isolationLevel}'.</value>
     <comment>Debug RelationalEventId.TransactionUsed string</comment>
   </data>
-  <data name="LogRelationalLoggerCommittingTransaction" xml:space="preserve">
+  <data name="LogCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
-  <data name="LogRelationalLoggerRollingbackTransaction" xml:space="preserve">
+  <data name="LogRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRolledBack</comment>
   </data>
-  <data name="LogRelationalLoggerDisposingTransaction" xml:space="preserve">
+  <data name="LogDisposingTransaction" xml:space="preserve">
     <value>Disposing transaction.</value>
     <comment>Debug RelationalEventId.TransactionDisposed</comment>
   </data>
-  <data name="LogRelationalLoggerTransactionError" xml:space="preserve">
+  <data name="LogTransactionError" xml:space="preserve">
     <value>An error occurred using a transaction.</value>
     <comment>Error RelationalEventId.TransactionError</comment>
   </data>
@@ -215,7 +210,9 @@
   </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
+  </data>
+  <data name="BadCheckConstraintString" xml:space="preserve">
+    <value>Unable to deserialize check constraint from model metadata. See inner exception for details.</value>
   </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
@@ -228,16 +225,9 @@
   </data>
   <data name="InvalidMaxBatchSize" xml:space="preserve">
     <value>The specified MaxBatchSize value is not valid. It must be a positive number.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="UnableToDiscriminate" xml:space="preserve">
     <value>Unable to materialize entity of type '{entityType}'. No discriminators were matched.</value>
-  </data>
-  <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
-    <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
-  </data>
-  <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
-    <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
   <data name="LogAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
@@ -247,9 +237,9 @@
     <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object</comment>
   </data>
-  <data name="LogQueryPossibleExceptionWithAggregateOperator" xml:space="preserve">
+  <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
     <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>
-    <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperator</comment>
+    <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
   </data>
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
@@ -295,41 +285,25 @@
     <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.</value>
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
   </data>
-  <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
-    <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
-  </data>
-  <data name="DiscriminatorValueIncompatible" xml:space="preserve">
-    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
-  </data>
-  <data name="NoDiscriminatorForValue" xml:space="preserve">
-    <value>Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.</value>
-  </data>
-  <data name="NoDiscriminatorProperty" xml:space="preserve">
-    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>
-  </data>
-  <data name="NoDiscriminatorValue" xml:space="preserve">
-    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
-  </data>
   <data name="LogClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
     <comment>Warning RelationalEventId.QueryClientEvaluationWarning object</comment>
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value provided for required parameter '{parameter}'.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
-  <data name="LogRelationalLoggerExecutingCommand" xml:space="preserve">
+  <data name="LogExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Debug RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
   </data>
-  <data name="LogRelationalLoggerExecutedCommand" xml:space="preserve">
+  <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Debug RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
-  <data name="LogRelationalLoggerCommandFailed" xml:space="preserve">
+  <data name="LogCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Error RelationalEventId.CommandError string string System.Data.CommandType int string string</comment>
   </data>
@@ -338,7 +312,6 @@
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
   </data>
   <data name="ConflictingRowUpdateTypes" xml:space="preserve">
     <value>An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -367,9 +340,6 @@
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
-  <data name="DuplicateDiscriminatorValue" xml:space="preserve">
-    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.</value>
-  </data>
   <data name="DuplicateColumnNameNullabilityMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different nullability.</value>
   </data>
@@ -380,8 +350,10 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').</value>
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
-    <value>{conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.</value>
-    <comment>// Issue#11266 This resource is being used by provider code. Do not break.</comment>
+    <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these values.</value>
+  </data>
+  <data name="DuplicateCheckConstraint" xml:space="preserve">
+    <value>The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.</value>
   </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
     <value>The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).</value>
@@ -413,7 +385,7 @@
   <data name="NoElements" xml:space="preserve">
     <value>Sequence contains no elements.</value>
   </data>
-  <data name="LogRelationalLoggerConnectionErrorAsDebug" xml:space="preserve">
+  <data name="LogConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
   </data>
@@ -500,5 +472,11 @@
   </data>
   <data name="SqlFunctionUnexpectedInstanceMapping" xml:space="preserve">
     <value>An instance type mapping was specified without an instance expression.</value>
+  </data>
+  <data name="MissingConcurrencyColumn" xml:space="preserve">
+    <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' that is used by another entity type sharing the table '{table}'. Add a store-generated property mapped to the same column to '{entityType}'. It can be in shadow state.</value>
+  </data>
+  <data name="PendingAmbientTransaction" xml:space="preserve">
+    <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
 </root>

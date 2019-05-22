@@ -6,6 +6,8 @@ using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
@@ -60,9 +62,9 @@ namespace Microsoft.Data.Sqlite
         /// </remarks>
         public static void ThrowExceptionForRC(int rc, sqlite3 db)
         {
-            if (rc == raw.SQLITE_OK
-                || rc == raw.SQLITE_ROW
-                || rc == raw.SQLITE_DONE)
+            if (rc == SQLITE_OK
+                || rc == SQLITE_ROW
+                || rc == SQLITE_DONE)
             {
                 return;
             }
@@ -71,15 +73,15 @@ namespace Microsoft.Data.Sqlite
             int extendedErrorCode;
             if (db == null
                 || db.ptr == IntPtr.Zero
-                || rc != raw.sqlite3_errcode(db))
+                || rc != sqlite3_errcode(db))
             {
-                message = raw.sqlite3_errstr(rc) + " " + Resources.DefaultNativeError;
+                message = sqlite3_errstr(rc) + " " + Resources.DefaultNativeError;
                 extendedErrorCode = rc;
             }
             else
             {
-                message = raw.sqlite3_errmsg(db);
-                extendedErrorCode = raw.sqlite3_extended_errcode(db);
+                message = sqlite3_errmsg(db);
+                extendedErrorCode = sqlite3_extended_errcode(db);
             }
 
             throw new SqliteException(Resources.SqliteNativeError(rc, message), rc, extendedErrorCode);

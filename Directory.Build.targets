@@ -2,13 +2,17 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
+    <!-- HACK: Work around dotnet/sdk#2976 in dependencies -->
     <BundledNETCorePlatformsPackageVersion>$(MicrosoftNETCorePlatformsPackageVersion)</BundledNETCorePlatformsPackageVersion>
-    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Workaround https://github.com/dotnet/sdk/issues/2976 -->
-    <PackageReference Update="Microsoft.NETCore.Platforms" PrivateAssets="All" />
+    <!-- HACK: Use the latest version instead of the one bundled with the SDK -->
+    <KnownFrameworkReference Update="Microsoft.NETCore.App">
+      <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</LatestRuntimeFrameworkVersion>
+      <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</DefaultRuntimeFrameworkVersion>
+      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppPackageVersion)</TargetingPackVersion>
+    </KnownFrameworkReference>
   </ItemGroup>
 
   <!-- This is required to workaround overlap between System.Collections.Generic.IAsyncEnumerable in System.Runtime and System.Interactive.Async. -->

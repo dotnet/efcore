@@ -5,8 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -31,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             [NotNull] Type modelClrType,
             [NotNull] Type providerClrType,
             [NotNull] Func<ValueConverterInfo, ValueConverter> factory,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
         {
             _factory = factory;
             Check.NotNull(modelClrType, nameof(modelClrType));
@@ -57,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
-        public ConverterMappingHints? MappingHints { get; }
+        public ConverterMappingHints MappingHints { get; }
 
         /// <summary>
         ///     Creates an instance of the <see cref="ValueConverter" />.

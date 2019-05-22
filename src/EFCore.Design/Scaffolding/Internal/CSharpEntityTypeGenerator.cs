@@ -18,8 +18,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
     {
@@ -29,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private bool _useDataAnnotations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpEntityTypeGenerator(
             [NotNull] ICSharpHelper cSharpHelper)
@@ -41,8 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
         {
@@ -85,8 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateClass(
             [NotNull] IEntityType entityType)
@@ -113,8 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateEntityTypeDataAnnotations(
             [NotNull] IEntityType entityType)
@@ -126,12 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateTableAttribute(IEntityType entityType)
         {
-            var tableName = entityType.Relational().TableName;
-            var schema = entityType.Relational().Schema;
-            var defaultSchema = entityType.Model.Relational().DefaultSchema;
+            var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema();
+            var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
-            var tableAttributeNeeded = schemaParameterNeeded || tableName != null && tableName != entityType.Scaffolding().DbSetName;
+            var tableAttributeNeeded = schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName();
 
             if (tableAttributeNeeded)
             {
@@ -149,8 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateConstructor(
             [NotNull] IEntityType entityType)
@@ -178,15 +190,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateProperties(
             [NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            foreach (var property in entityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
+            foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
                 if (_useDataAnnotations)
                 {
@@ -198,8 +212,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GeneratePropertyDataAnnotations(
             [NotNull] IProperty property)
@@ -224,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return;
                 }
 
-                if (key.Relational().Name != ConstraintNamer.GetDefaultName(key))
+                if (key.GetName() != key.GetDefaultName())
                 {
                     return;
                 }
@@ -235,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateColumnAttribute(IProperty property)
         {
-            var columnName = property.Relational().ColumnName;
+            var columnName = property.GetColumnName();
             var columnType = property.GetConfiguredColumnType();
 
             var delimitedColumnName = columnName != null && columnName != property.Name ? _code.Literal(columnName) : null;
@@ -287,8 +303,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateNavigationProperties(
             [NotNull] IEntityType entityType)
@@ -297,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var sortedNavigations = entityType.GetNavigations()
                 .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
-                .ThenBy(n => n.IsCollection() ? 1 : 0);
+                .ThenBy(n => n.IsCollection() ? 1 : 0)
+                .ToList();
 
             if (sortedNavigations.Any())
             {
@@ -331,9 +350,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
 
-                    foreignKeyAttribute.AddParameter(
-                        _code.Literal(
-                            string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    if (navigation.ForeignKey.Properties.Count > 1)
+                    {
+                        foreignKeyAttribute.AddParameter(
+                              _code.Literal(
+                                  string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                    }
+                    else
+                    {
+                        foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
+                    }
 
                     _sb.AppendLine(foreignKeyAttribute.ToString());
                 }
@@ -350,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
+                    inversePropertyAttribute.AddParameter($"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})");
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }

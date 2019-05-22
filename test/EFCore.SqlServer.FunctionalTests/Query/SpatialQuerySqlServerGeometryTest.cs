@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using NetTopologySuite.Geometries;
 using Xunit;
 using Xunit.Abstractions;
@@ -82,6 +83,12 @@ FROM [PolygonEntity] AS [e]");
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Buffer_quadrantSegments(bool isAsync)
+        {
+            return base.Buffer_quadrantSegments(isAsync);
+        }
+
         public override async Task Centroid(bool isAsync)
         {
             await base.Centroid(isAsync);
@@ -127,6 +134,18 @@ FROM [MultiLineStringEntity] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id], [e].[LineString].STNumPoints() AS [Count]
 FROM [LineStringEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task CoveredBy(bool isAsync)
+        {
+            return base.CoveredBy(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Covers(bool isAsync)
+        {
+            return base.Covers(isAsync);
         }
 
         public override async Task Crosses(bool isAsync)
@@ -444,7 +463,7 @@ FROM [PointEntity] AS [e]");
 
 SELECT [e].[Id], CASE
     WHEN [e].[Point].STDistance(@__point_0) <= 1.0E0
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [IsWithinDistance]
 FROM [PointEntity] AS [e]");
         }
@@ -554,6 +573,12 @@ SELECT [e].[Id], [e].[Polygon].STRelate(@__polygon_0, N'212111212') AS [Relate]
 FROM [PolygonEntity] AS [e]");
         }
 
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Reverse(bool isAsync)
+        {
+            return base.Reverse(isAsync);
+        }
+
         public override async Task SRID(bool isAsync)
         {
             await base.SRID(isAsync);
@@ -639,6 +664,12 @@ FROM [PolygonEntity] AS [e]");
 
 SELECT [e].[Id], [e].[Polygon].STUnion(@__polygon_0) AS [Union]
 FROM [PolygonEntity] AS [e]");
+        }
+
+        [ConditionalTheory(Skip = "No Server Translation.")]
+        public override Task Union_void(bool isAsync)
+        {
+            return base.Union_void(isAsync);
         }
 
         public override async Task Within(bool isAsync)

@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        public override int SaveChanges(IReadOnlyList<IUpdateEntry> entries)
+        public override int SaveChanges(IList<IUpdateEntry> entries)
         {
             var rowsAffected = 0;
             var entriesSaved = new HashSet<IUpdateEntry>();
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         public override async Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
+            IList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
         {
             var rowsAffected = 0;
             var entriesSaved = new HashSet<IUpdateEntry>();
@@ -178,8 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         document = documentSource.CreateDocument(entry);
                         document["__partitionKey"] = "0";
 
-                        document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
-                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue, CosmosClientWrapper.Serializer);
+                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
+                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItem(
@@ -234,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         document = documentSource.CreateDocument(entry);
                         document["__partitionKey"] = "0";
 
-                        document[entityType.Cosmos().DiscriminatorProperty.Cosmos().PropertyName] =
-                            JToken.FromObject(entityType.Cosmos().DiscriminatorValue, CosmosClientWrapper.Serializer);
+                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
+                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItemAsync(
@@ -262,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var stateManager = entry.StateManager;
             var ownership = entry.EntityType.FindOwnership();
-            var principal = stateManager.GetPrincipal(entry, ownership);
+            var principal = stateManager.FindPrincipal(entry, ownership);
             if (principal == null)
             {
                 if (_sensitiveLoggingEnabled)

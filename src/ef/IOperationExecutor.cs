@@ -30,5 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool useDatabaseNames);
 
         string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
+
+        string ScriptDbContext(string contextType);
     }
 }

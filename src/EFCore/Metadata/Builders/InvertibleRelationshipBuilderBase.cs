@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -15,34 +15,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring an invertible relationship.
     /// </summary>
-    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
+    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
         private readonly bool? _required;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InvertibleRelationshipBuilderBase(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : this(builder, null)
+        [EntityFrameworkInternal]
+        protected InvertibleRelationshipBuilderBase(
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : this(((ForeignKey)foreignKey).Builder, null)
         {
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
             InternalRelationshipBuilder builder,
             InvertibleRelationshipBuilderBase oldBuilder,
@@ -93,16 +99,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the first entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType DeclaringEntityType { get; }
+        protected virtual IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the second entity type used to configure this relationship.
         /// </summary>
-        protected virtual EntityType RelatedEntityType { get; }
+        protected virtual IMutableEntityType RelatedEntityType { get; }
 
         /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
 
         /// <summary>
@@ -114,11 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The foreign key that represents this relationship.
         /// </summary>
         public virtual IMutableForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that this relationship belongs to.
-        /// </summary>
-        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         #region Hidden System.Object members
 

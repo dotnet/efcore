@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -27,18 +28,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         where TProperty : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
@@ -73,9 +80,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual IQueryable<TProperty> Query()
         {
-            EnsureInitialized();
+            InternalEntry.GetOrCreateCollection(Metadata);
 
             return (IQueryable<TProperty>)base.Query();
+        }
+
+        /// <summary>
+        ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.
+        /// </summary>
+        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <value> An entry for an entity that this navigation targets. </value>
+        public new virtual EntityEntry<TProperty> GetTargetEntry(object entity)
+        {
+            var entry = GetInternalTargetEntry(entity);
+            return entry == null
+                    ? null
+                    : new EntityEntry<TProperty>(entry);
         }
     }
 }

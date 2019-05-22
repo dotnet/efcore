@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var databaseModelFactory = CreateDatabaseModelFactory(loggerFactory);
                 var databaseModel = databaseModelFactory.Create(
-                    connection.DbConnection, Enumerable.Empty<string>(), Enumerable.Empty<string>());
+                    connection.DbConnection,
+                    new DatabaseModelFactoryOptions());
 
                 var operations = new List<MigrationOperation>();
 
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var customSql = BuildCustomSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
+                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection, null, null);
                     }
 
                     if (operations.Count > 0)
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     customSql = BuildCustomEndingSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection);
+                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection, null, null);
                     }
                 }
                 finally
@@ -107,21 +108,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             creator.CreateTables();
         }
 
-        protected virtual DropSequenceOperation Drop(DatabaseSequence sequence)
+        protected virtual MigrationOperation Drop(DatabaseSequence sequence)
             => new DropSequenceOperation
             {
                 Name = sequence.Name,
                 Schema = sequence.Schema
             };
 
-        protected virtual DropTableOperation Drop(DatabaseTable table)
+        protected virtual MigrationOperation Drop(DatabaseTable table)
             => new DropTableOperation
             {
                 Name = table.Name,
                 Schema = table.Schema
             };
 
-        protected virtual DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
+        protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
             => new DropForeignKeyOperation
             {
                 Name = foreignKey.Name,
@@ -129,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Schema = foreignKey.Table.Schema
             };
 
-        protected virtual DropIndexOperation Drop(DatabaseIndex index)
+        protected virtual MigrationOperation Drop(DatabaseIndex index)
             => new DropIndexOperation
             {
                 Name = index.Name,

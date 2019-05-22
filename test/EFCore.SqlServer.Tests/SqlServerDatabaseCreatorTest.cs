@@ -200,17 +200,57 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            public IRelationalCommandBuilder Create(IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            public IRelationalCommandBuilder Create()
                 => new FakeRelationalCommandBuilder();
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
+            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
             public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
-            public IRelationalParameterBuilder ParameterBuilder => throw new NotImplementedException();
+            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+
+            public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
+            {
+                _parameters.Add(parameter);
+
+                return this;
+            }
+
+            public IRelationalTypeMappingSource TypeMappingSource => null;
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
+
+            public IRelationalCommandBuilder Append(object value)
+            {
+                Instance.Append(value);
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder AppendLine()
+            {
+                Instance.AppendLine();
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder IncrementIndent()
+            {
+                Instance.IncrementIndent();
+
+                return this;
+            }
+
+            public IRelationalCommandBuilder DecrementIndent()
+            {
+                Instance.DecrementIndent();
+
+                return this;
+            }
+
+            public int CommandTextLength => Instance.Length;
         }
 
         private class FakeRelationalCommand : IRelationalCommand
@@ -221,35 +261,47 @@ namespace Microsoft.EntityFrameworkCore
 
             public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
 
-            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public int ExecuteNonQuery(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 return 0;
             }
 
             public Task<int> ExecuteNonQueryAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public RelationalDataReader ExecuteReader(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 throw new NotImplementedException();
             }
 
             public Task<RelationalDataReader> ExecuteReaderAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+            public object ExecuteScalar(
+                IRelationalConnection connection,
+                IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             {
                 throw new NotImplementedException();
             }
 
             public Task<object> ExecuteScalarAsync(
                 IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                 CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();

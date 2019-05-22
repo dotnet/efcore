@@ -177,9 +177,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 => ((IQueryProvider)_enumerableQuery)
                     .Execute<TResult>(RewriteShadowPropertyAccess(expression));
 
-            public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
-                => Task.FromResult(Execute<TResult>(RewriteShadowPropertyAccess(expression)));
-
             public IEnumerator<T> GetEnumerator() => ((IQueryable<T>)_enumerableQuery).GetEnumerator();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -210,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 throw new NotImplementedException();
             }
 
-            public TResult ExecuteAsync<TResult>(Expression expression)
+            public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

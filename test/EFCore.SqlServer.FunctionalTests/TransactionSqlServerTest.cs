@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override bool SnapshotSupported => true;
 
-#if NET461
         protected override bool AmbientTransactionsSupported => true;
-#endif
 
         public virtual void Dispose()
         {
@@ -46,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.Seed(context);
 
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
             }
 
             public override void Reseed()
@@ -66,8 +64,7 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerDbContextOptionsBuilder(
                         base.AddOptions(builder)
                             .ConfigureWarnings(
-                                w => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
+                                w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
                     .MaxBatchSize(1);
                 return builder;
             }

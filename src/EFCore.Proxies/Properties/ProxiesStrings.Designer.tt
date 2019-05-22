@@ -1,4 +1,6 @@
 <#
     Session["ResourceFile"] = "ProxiesStrings.resx";
+    Session["LoggingDefinitionsClass"] = "ProxiesLoggingDefinitions";
+    Session["NoDiagnostics"] = true;
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

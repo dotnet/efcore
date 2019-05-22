@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -174,9 +174,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => Activator.CreateInstance(entityType.ClrType);
         }
 
-        private static EntityType CreateEntityType()
+        private static IMutableEntityType CreateEntityType()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.EnumProperty);
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty(SomeEntity.GooProperty);
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_materializer_for_entity_with_fields()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntityWithFields));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntityWithFields));
             entityType.AddProperty(SomeEntityWithFields.EnumProperty).SetField("_enum");
             entityType.AddProperty(SomeEntityWithFields.FooProperty).SetField("_foo");
             entityType.AddProperty(SomeEntityWithFields.GooProperty).SetField("_goo");
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_read_nulls()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty(SomeEntity.IdProperty);
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
-            var entityType = new Model().AddEntityType(typeof(SomeEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
             entityType.AddProperty(SomeEntity.IdProperty);
             entityType.AddProperty("IdShadow", typeof(int));
             entityType.AddProperty(SomeEntity.FooProperty);
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Throws_if_parameterless_constructor_is_not_defined_on_entity_type()
         {
-            var entityType = new Model().AddEntityType(typeof(EntityWithoutParameterlessConstructor));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(EntityWithoutParameterlessConstructor));
             entityType.AddProperty(EntityWithoutParameterlessConstructor.IdProperty);
 
             Assert.Equal(
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
             => Expression.Lambda<Func<MaterializationContext, object>>(
-                    source.CreateMaterializeExpression(entityType, _contextParameter),
+                    source.CreateMaterializeExpression(entityType, "instance", _contextParameter),
                     _contextParameter)
                 .Compile();
 

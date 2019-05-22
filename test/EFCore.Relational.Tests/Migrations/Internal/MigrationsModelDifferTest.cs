@@ -255,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
+                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     Assert.IsType<CreateIndexOperation>(upOps[2]);
@@ -723,6 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "Id", "MouseId", "BoneId" }, createTableOperation.Columns.Select(c => c.Name));
                     Assert.Equal(0, createTableOperation.ForeignKeys.Count);
                     Assert.Equal(0, createTableOperation.UniqueConstraints.Count);
+                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
                 },
                 downOps =>
                 {
@@ -1045,16 +1047,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(42, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal("London", v),
-                            v => Assert.Equal("Abbey Road", v),
                             v => Assert.Equal("San Francisco", v),
-                            v => Assert.Equal("Lombard", v));
+                            v => Assert.Equal("Lombard", v),
+                            v => Assert.Equal("London", v),
+                            v => Assert.Equal("Abbey Road", v));
                         Assert.Collection(
                             m.Columns,
-                            v => Assert.Equal("BillingAddress_City", v),
-                            v => Assert.Equal("BillingAddress_Street", v),
                             v => Assert.Equal("ShippingAddress_City", v),
-                            v => Assert.Equal("ShippingAddress_Street", v));
+                            v => Assert.Equal("ShippingAddress_Street", v),
+                            v => Assert.Equal("BillingAddress_City", v),
+                            v => Assert.Equal("BillingAddress_Street", v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
@@ -1140,7 +1142,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Draco")
                             .HasComputedColumnSql("CreateDragonName()");
                     }),
                 operations =>
@@ -1680,7 +1681,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Buffy")
                             .HasDefaultValueSql("CreateBisonName()");
                     }),
                 target => target.Entity(
@@ -1692,7 +1692,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired(false)
-                            .HasDefaultValue("Buffy")
                             .HasDefaultValueSql("CreateBisonName()");
                     }),
                 operations =>
@@ -1723,7 +1722,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<string>("Name")
                             .IsRequired()
-                            .HasDefaultValue("Puff")
                             .HasDefaultValueSql("CreatePumaName()");
                     }),
                 source => source.Entity(
@@ -2015,7 +2013,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValueSql("CreateCougarName()")
                             .HasDefaultValue("Butch");
                     }),
                 target => target.Entity(
@@ -2027,7 +2024,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValueSql("CreateCougarName()")
                             .HasDefaultValue("Cosmo");
                     }),
                 operations =>
@@ -2059,7 +2055,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasDefaultValueSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
@@ -2071,7 +2066,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasDefaultValueSql("CreateCatamountName()");
                     }),
                 operations =>
@@ -2103,7 +2097,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasComputedColumnSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
@@ -2115,7 +2108,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .IsRequired()
-                            .HasDefaultValue("Liam")
                             .HasComputedColumnSql("CreateCatamountName()");
                     }),
                 operations =>
@@ -2276,6 +2268,149 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Rook", addOperation.Table);
                     Assert.Equal("AK_Rook_AlternateId", addOperation.Name);
                     Assert.Equal(new[] { "AlternateRookId" }, addOperation.Columns);
+                });
+        }
+
+        [Fact]
+        public void Add_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Flamingo",
+                    x =>
+                    {
+                        x.ToTable("Flamingo", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                    }),
+                target => target.Entity(
+                    "Flamingo",
+                    x =>
+                    {
+                        x.ToTable("Flamingo", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Flamingo", operation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
+                    Assert.Equal("AlternateId > Id", operation.Sql);
+                });
+        }
+
+        [Fact]
+        public void Drop_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Penguin",
+                    x =>
+                    {
+                        x.ToTable("Penguin", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Penguin",
+                    x =>
+                    {
+                        x.ToTable("Penguin", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Penguin", operation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Rename_check_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Pelican",
+                    x =>
+                    {
+                        x.ToTable("Pelican", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Pelican",
+                    x =>
+                    {
+                        x.ToTable("Pelican", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo", "AlternateId > Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", dropOperation.Schema);
+                    Assert.Equal("Pelican", dropOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+
+                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    Assert.Equal("dbo", createOperation.Schema);
+                    Assert.Equal("Pelican", createOperation.Table);
+                    Assert.Equal("CK_Flamingo", createOperation.Name);
+                    Assert.Equal("AlternateId > Id", createOperation.Sql);
+                });
+        }
+
+        [Fact]
+        public void Alter_check_constraint_expression()
+        {
+            Execute(
+                source => source.Entity(
+                    "Rook",
+                    x =>
+                    {
+                        x.ToTable("Rook", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                    }),
+                target => target.Entity(
+                    "Rook",
+                    x =>
+                    {
+                        x.ToTable("Rook", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<int>("AlternateId");
+                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId < Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
+                    Assert.Equal("dbo", dropOperation.Schema);
+                    Assert.Equal("Rook", dropOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+
+                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    Assert.Equal("dbo", createOperation.Schema);
+                    Assert.Equal("Rook", createOperation.Table);
+                    Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);
+                    Assert.Equal("AlternateId < Id", createOperation.Sql);
                 });
         }
 
@@ -4921,7 +5056,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(2, createTableOperation.Columns.Count);
                     var timeColumn = createTableOperation.Columns[1];
                     Assert.Equal("Time", timeColumn.Name);
-                    Assert.False(timeColumn.IsNullable);
+                    Assert.True(timeColumn.IsNullable);
                 });
         }
 
@@ -5011,57 +5146,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     upOps,
                     o =>
                     {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Animal", operation.Table);
-                        Assert.Collection(
-                            operation.KeyColumns,
-                            v => Assert.Equal("Id", v));
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Collection(
                             operation.Columns,
-                            v => Assert.Equal("Id", v),
-                            v => Assert.Equal("Discriminator", v),
-                            v => Assert.Equal("Name", v));
+                            v => Assert.Equal("Discriminator", v));
                         AssertMultidimensionalArray(
                             operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal("Shark", v),
-                            v => Assert.Equal("Bob", v));
+                            v => Assert.Equal("Shark", v));
                     }),
                 downOps => Assert.Collection(
                     downOps,
                     o =>
                     {
-                        var operation = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Animal", operation.Table);
-                        Assert.Collection(
-                            operation.KeyColumns,
-                            v => Assert.Equal("Id", v));
-                        AssertMultidimensionalArray(
-                            operation.KeyValues,
-                            v => Assert.Equal(43, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Collection(
                             operation.Columns,
-                            v => Assert.Equal("Id", v),
-                            v => Assert.Equal("Discriminator", v),
-                            v => Assert.Equal("Name", v));
+                            v => Assert.Equal("Discriminator", v));
                         AssertMultidimensionalArray(
                             operation.Values,
-                            v => Assert.Equal(43, v),
-                            v => Assert.Equal("Animal", v),
-                            v => Assert.Equal("Bob", v));
+                            v => Assert.Equal("Animal", v));
                     }));
         }
 

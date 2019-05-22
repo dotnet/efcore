@@ -5,6 +5,10 @@ variables:
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: true
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _DotNetArtifactsCategory
+    value: ENTITYFRAMEWORKCORE
 
 trigger:
   - master
@@ -18,19 +22,19 @@ jobs:
       enableMicrobuild: true
       enablePublishBuildArtifacts: true
       enablePublishBuildAssets: true
+      enablePublishUsingPipelines: $(_PublishUsingPipelines)
       enablePublishTestResults: true
       enableTelemetry: true
       helixRepo: aspnet/EntityFrameworkCore
       jobs:
         - job: Windows
-          # HACK: Work around dotnet/arcade#1175
-          ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-            timeoutInMinutes: 0
           pool:
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: dotnet-internal-temp
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: dotnet-external-temp
+            ${{ if eq(variables['System.TeamProject'], 'public') }}:
+              name: NetCorePublic-Pool
+              queue: BuildPool.Windows.10.Amd64.VS2017.Open
+            ${{ if ne(variables['System.TeamProject'], 'public') }}:
+              name: NetCoreInternal-Pool
+              queue: BuildPool.Windows.10.Amd64.VS2017
           variables:
             - _InternalBuildArgs: ''
             - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -38,8 +42,20 @@ jobs:
               - _SignType: real
               - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
               - _DotNetPublishToBlobFeed: true
-              - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+              - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
           steps:
+            - task: NuGetCommand@2
+              displayName: 'Clear NuGet caches'
+              condition: succeeded()
+              inputs:
+                command: custom
+                arguments: 'locals all -clear'
+            - script: "echo ##vso[build.addbuildtag]daily-build"
+              condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+              displayName: 'Set CI tags'
+            - script: "echo ##vso[build.addbuildtag]release-candidate"
+              condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+              displayName: 'Set CI tags'
             - powershell: |
                 SqlLocalDB stop MSSQLLocalDB -i
                 SqlLocalDB start MSSQLLocalDB
@@ -62,13 +78,9 @@ jobs:
               displayName: Cleanup databases
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               name: Build
-            # Detect OSS Components in use in the product. Only needs to run on one OS in the matrix.
-            - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
-              displayName: Detect components
-              condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
             - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
-              condition: eq(variables['system.pullrequest.isfork'], false)
+              condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
               inputs:
                 pathtoPublish: 'artifacts/packages/'
                 artifactName: packages
@@ -77,19 +89,25 @@ jobs:
 
         - job: macOS
           pool:
-            ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Hosted Mac Internal
-            ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              name: Hosted macOS
+            vmImage: macOS-10.13
+          variables:
+            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI', 'PullRequest')) }}:
+              - _CosmosConnection: https://ef-nightly-test.documents.azure.com:443/
+              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
               continueOnError: true
-            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+            - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
+              env:
+                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnection)
+                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
+              continueOnError: true
 
         - job: Linux
-          pool: Hosted Ubuntu 1604
+          pool:
+            vmImage: ubuntu-16.04
           steps:
             - bash: sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite

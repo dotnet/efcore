@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton<ValueConverterSelectorDependencies>()
                     .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                     .AddSingleton<ILoggingOptions, LoggingOptions>()
+                    .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                     .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
@@ -53,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .BuildServiceProvider()
                     .GetRequiredService<IDatabaseModelFactory>();
 
-                var databaseModel = databaseModelFactory.Create(Fixture.TestStore.ConnectionString, tables, schemas);
+                var databaseModel = databaseModelFactory.Create(
+                    Fixture.TestStore.ConnectionString,
+                    new DatabaseModelFactoryOptions(tables, schemas));
                 Assert.NotNull(databaseModel);
                 asserter(databaseModel);
             }
@@ -158,6 +162,33 @@ CREATE TABLE MountainsColumns (
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 },
                 "DROP TABLE MountainsColumns;");
+        }
+
+        [Fact]
+        public void Create_view_columns()
+        {
+            Test(
+                @"
+CREATE VIEW MountainsColumnsView
+ AS
+SELECT
+ CAST(100 AS integer) AS Id,
+ CAST('' AS text) AS Name;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = dbModel.Tables.Single();
+
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.Equal(null, table.PrimaryKey);
+                    Assert.All(
+                        table.Columns, c => Assert.Equal("MountainsColumnsView", c.Table.Name));
+
+                    Assert.Single(table.Columns.Where(c => c.Name == "Id"));
+                    Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                },
+                "DROP VIEW MountainsColumnsView;");
         }
 
         [Fact]
@@ -859,8 +890,8 @@ DROP TABLE PrincipalTable;");
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
+                    Assert.Equal(SqliteResources.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteResources.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage(), Message);
                 },
                 "DROP TABLE Everest;");
         }
@@ -878,8 +909,8 @@ DROP TABLE PrincipalTable;");
 
                     var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
+                    Assert.Equal(SqliteResources.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteResources.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
                 },
                 "DROP TABLE Blank;");
         }
@@ -904,8 +935,8 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
-                    Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
+                    Assert.Equal(SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
+                    Assert.Equal(SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("0"), Message);
                 },
                 @"
 DROP TABLE DependentTable;
@@ -932,9 +963,9 @@ CREATE TABLE DependentTable (
                 {
                     var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
 
-                    Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
+                    Assert.Equal(SqliteResources.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                     Assert.Equal(
-                        SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"),
+                        SqliteResources.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"),
                         Message);
                 },
                 @"

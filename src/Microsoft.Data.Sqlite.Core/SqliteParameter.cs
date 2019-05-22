@@ -7,10 +7,10 @@ using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
+using static SQLitePCL.raw;
+
 namespace Microsoft.Data.Sqlite
 {
-    // TODO: Truncate to specified size
-    // TODO: Infer type and size from value
     /// <summary>
     ///     Represents a parameter and its value in a <see cref="SqliteCommand" />.
     /// </summary>
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(ParameterName)));
             }
 
-            var index = raw.sqlite3_bind_parameter_index(stmt, _parameterName);
+            var index = sqlite3_bind_parameter_index(stmt, _parameterName);
             if (index == 0
                 && (index = FindPrefixedParameter(stmt)) == 0)
             {
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Sqlite
                     return 0;
                 }
 
-                nextIndex = raw.sqlite3_bind_parameter_index(stmt, prefix + _parameterName);
+                nextIndex = sqlite3_bind_parameter_index(stmt, prefix + _parameterName);
 
                 if (nextIndex == 0)
                 {

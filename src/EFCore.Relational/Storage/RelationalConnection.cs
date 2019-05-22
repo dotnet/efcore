@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,13 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalConnection : IRelationalConnection, ITransactionEnlistmentManager
     {
         private readonly string _connectionString;
-        private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
         private Transaction _ambientTransaction;
-        private SemaphoreSlim _semaphore { get; } = new SemaphoreSlim(1);
+        private DbConnection _connection;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
@@ -65,13 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     throw new InvalidOperationException(RelationalStrings.ConnectionAndConnectionString);
                 }
 
-                _connection = new LazyRef<DbConnection>(() => relationalOptions.Connection);
+                _connection = relationalOptions.Connection;
                 _connectionOwned = false;
             }
             else if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
             {
                 _connectionString = dependencies.ConnectionStringResolver.ResolveConnectionString(relationalOptions.ConnectionString);
-                _connection = new LazyRef<DbConnection>(CreateDbConnection);
                 _connectionOwned = true;
             }
             else
@@ -104,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
-        public virtual DbConnection DbConnection => _connection.Value;
+        public virtual DbConnection DbConnection
+            => _connection ??= CreateDbConnection();
 
         /// <summary>
         ///     Gets the current transaction.
@@ -349,12 +348,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             var wasOpened = false;
-
             if (DbConnection.State != ConnectionState.Open)
             {
+                ClearTransactions(clearAmbient: false);
                 OpenDbConnection(errorsExpected);
                 wasOpened = true;
-                ClearTransactions();
             }
 
             _openedCount++;
@@ -383,12 +381,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             var wasOpened = false;
-
             if (DbConnection.State != ConnectionState.Open)
             {
+                ClearTransactions(clearAmbient: false);
                 await OpenDbConnectionAsync(errorsExpected, cancellationToken);
                 wasOpened = true;
-                ClearTransactions();
             }
 
             _openedCount++;
@@ -398,20 +395,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return wasOpened;
         }
 
-        private void ClearTransactions()
+        private void ClearTransactions(bool clearAmbient)
         {
-            var previousOpenedCount = _openedCount;
-            _openedCount += 2;
             CurrentTransaction?.Dispose();
             CurrentTransaction = null;
             EnlistedTransaction = null;
-            if (_ambientTransaction != null)
+            if (clearAmbient
+                && _ambientTransaction != null)
             {
                 _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
                 _ambientTransaction = null;
             }
 
-            _openedCount = previousOpenedCount;
+            if (_openedCount < 0)
+            {
+                _openedCount = 0;
+            }
         }
 
         private void OpenDbConnection(bool errorsExpected)
@@ -506,53 +505,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return;
             }
 
+            if (_ambientTransaction != null)
+            {
+                throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
+            }
+
             if (current != null)
             {
                 Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
             }
 
             DbConnection.EnlistTransaction(current);
-            try
+
+            var ambientTransaction = _ambientTransaction;
+            if (ambientTransaction != null)
             {
-                _semaphore.Wait();
-
-                if (_ambientTransaction != null)
-                {
-                    _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                    _openedCount--;
-                }
-
-                if (current != null)
-                {
-                    _openedCount++;
-                    current.TransactionCompleted += HandleTransactionCompleted;
-                }
-
-                _ambientTransaction = current;
+                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
             }
-            finally
+
+            if (current != null)
             {
-                _semaphore.Release();
+                current.TransactionCompleted += HandleTransactionCompleted;
             }
+
+            _ambientTransaction = current;
         }
 
         private void HandleTransactionCompleted(object sender, TransactionEventArgs e)
         {
             // This could be invoked on a different thread at arbitrary time after the transaction completes
-            try
+            var ambientTransaction = _ambientTransaction;
+            if (ambientTransaction != null)
             {
-                _semaphore.Wait();
-
-                if (_ambientTransaction != null)
-                {
-                    _ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-                    _ambientTransaction = null;
-                    _openedCount--;
-                }
-            }
-            finally
-            {
-                _semaphore.Release();
+                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+                _ambientTransaction = null;
             }
         }
 
@@ -569,12 +555,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                  && --_openedCount == 0)
                 && _openedInternally)
             {
+                ClearTransactions(clearAmbient: false);
+
                 if (DbConnection.State != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
 
-                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
+                    Dependencies.ConnectionLogger.ConnectionClosing(this, startTime, async: false);
 
                     try
                     {
@@ -582,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                         wasClosed = true;
 
-                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, stopwatch.Elapsed);
+                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, stopwatch.Elapsed, async: false);
                     }
                     catch (Exception e)
                     {
@@ -690,12 +678,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Dispose()
         {
-            ClearTransactions();
+            ClearTransactions(clearAmbient: true);
 
-            if (_connectionOwned && _connection.HasValue)
+            if (_connectionOwned
+                && _connection != null)
             {
                 DbConnection.Dispose();
-                _connection.Reset(CreateDbConnection);
+                _connection = null;
                 _activeQueries.Clear();
                 _openedCount = 0;
             }

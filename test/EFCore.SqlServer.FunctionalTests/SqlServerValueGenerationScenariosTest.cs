@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -321,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -563,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Blog>()
                     .Property(e => e.CreatedOn)
                     .HasDefaultValueSql("getdate()")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -617,8 +618,8 @@ namespace Microsoft.EntityFrameworkCore
                     .HasComputedColumnSql("FirstName + ' ' + LastName")
                     .Metadata;
 
-                property.BeforeSaveBehavior = PropertySaveBehavior.Throw;
-                property.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -630,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
-                    context.Database.ExecuteSqlCommand
+                    context.Database.ExecuteSqlRaw
                     (
                         @"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
@@ -680,7 +681,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                 modelBuilder.Entity<FullNameBlog>()
                     .Property(e => e.FullName)
                     .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
-                    .Metadata.AfterSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 
@@ -694,9 +695,9 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                 {
                     context.GetService<IRelationalDatabaseCreator>().CreateTables();
 
-                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
 
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
 BEGIN
@@ -705,7 +706,7 @@ BEGIN
     RETURN @FullName
 END");
 
-                    context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+                    context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
                 }
 
                 try
@@ -762,8 +763,8 @@ END");
                 {
                     using (var context = new BlogContextComputedColumn(testStore.Name))
                     {
-                        context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
-                        context.Database.ExecuteSqlCommand("DROP FUNCTION [dbo].[GetFullName];");
+                        context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+                        context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
                     }
                 }
             }
@@ -1081,7 +1082,7 @@ END");
                     .Entity<Blog>()
                     .Property(e => e.Id)
                     .HasDefaultValueSql("next value for MySequence")
-                    .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Throw;
+                    .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
             }
         }
 

@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -185,7 +186,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 ILoggerFactory loggerFactory;
 
-                var serviceCollection = new ServiceCollection().AddScoped<Random>();
+                var serviceCollection
+                    = new ServiceCollection()
+                        .AddScoped<Random>()
+                        .AddLogging();
 
                 if (pool)
                 {
@@ -626,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 IModelValidator validator,
-                DiagnosticsLoggers loggers)
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
                 => new Model();
         }
 

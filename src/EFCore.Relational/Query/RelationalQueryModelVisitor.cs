@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -65,9 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor" /> class.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Relational-specific dependencies for this service. </param>
+        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext" /> to be used when processing the query. </param>
+        /// <param name="parentQueryModelVisitor"> An optional parent visitor. </param>
         public RelationalQueryModelVisitor(
             [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitorDependencies relationalDependencies,
@@ -85,9 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             ContextOptions = relationalDependencies.ContextOptions;
             ParentQueryModelVisitor = parentQueryModelVisitor;
 
+            var logger = queryCompilationContext.Logger;
+
             _storeMaterializerExpression
-                = CoreStrings.LogQueryExecutionPlanned.GetLogBehavior(
-                      QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()) != WarningBehavior.Ignore;
+                = CoreResources.LogQueryExecutionPlanned(logger).GetLogBehavior(logger) != WarningBehavior.Ignore;
         }
 
         /// <summary>
@@ -138,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     TypedRelationalValueBufferFactoryFactory.DataReaderParameter,
                                     FastQueryMaterializerCreatingVisitor.DbContextParameter),
                                 Expression.Constant(QueryCompilationContext.ContextType),
-                                Expression.Constant(QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()));
+                                Expression.Constant(QueryCompilationContext.Logger));
                     }
                 }
             }
@@ -199,13 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="querySource">The target query source.</param>
         /// <returns>true if the target type should have a defining query applied.</returns>
         public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
-        {
-            return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
-                    || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
-                   && QueryCompilationContext.QueryAnnotations
-                       .OfType<FromSqlResultOperator>()
-                       .All(a => a.QuerySource != querySource);
-        }
+            => (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionAnnotation tableNameAnnotation)
+                || tableNameAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+               && QueryCompilationContext.QueryAnnotations
+                   .OfType<FromSqlResultOperator>()
+                   .All(a => a.QuerySource != querySource);
 
         /// <summary>
         ///     Gets or sets a value indicating whether the query requires client eval.
@@ -1240,34 +1243,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        /// <summary>
-        ///     Determines whether correlated collections (if any) can be optimized.
-        /// </summary>
-        /// <returns>True if optimization is allowed, false otherwise.</returns>
-        protected override bool CanOptimizeCorrelatedCollections()
-        {
-            if (!base.CanOptimizeCorrelatedCollections())
-            {
-                return false;
-            }
-
-            if (RequiresClientEval
-                || RequiresClientFilter
-                || RequiresClientJoin
-                || RequiresClientOrderBy
-                || RequiresClientSelectMany)
-            {
-                return false;
-            }
-
-            var injectParametersFinder
-                = new InjectParametersFindingVisitor(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod);
-
-            injectParametersFinder.Visit(Expression);
-
-            return !injectParametersFinder.InjectParametersFound;
-        }
-
         private class InjectParametersFindingVisitor : ExpressionVisitorBase
         {
             private readonly MethodInfo _injectParametersMethod;
@@ -1397,66 +1372,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private class GroupByPreProcessor : QueryModelVisitorBase
-        {
-            private readonly QueryCompilationContext _queryCompilationContext;
-
-            public GroupByPreProcessor(QueryCompilationContext queryCompilationContext)
-            {
-                _queryCompilationContext = queryCompilationContext;
-            }
-
-            public override void VisitQueryModel(QueryModel queryModel)
-            {
-                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<GroupByPreProcessor>(this).Visit);
-
-                if (queryModel.ResultOperators.Any(o => o is GroupResultOperator)
-                    && _queryCompilationContext.IsIncludeQuery
-                    && !queryModel.ResultOperators.Any(
-                        o => o is SkipResultOperator || o is TakeResultOperator || o is ChoiceResultOperatorBase || o is DistinctResultOperator))
-                {
-                    base.VisitQueryModel(queryModel);
-                }
-            }
-
-            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
-            {
-                var groupResultOperators = queryModel.ResultOperators.OfType<GroupResultOperator>().ToList();
-                if (groupResultOperators.Count > 0)
-                {
-                    var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().FirstOrDefault();
-                    if (orderByClause == null)
-                    {
-                        orderByClause = new OrderByClause();
-                        queryModel.BodyClauses.Add(orderByClause);
-                    }
-
-                    var firstGroupResultOperator = groupResultOperators[0];
-
-                    var groupKeys = firstGroupResultOperator.KeySelector is NewExpression compositeGroupKey
-                        ? compositeGroupKey.Arguments.Reverse()
-                        : new[] { firstGroupResultOperator.KeySelector };
-
-                    foreach (var groupKey in groupKeys)
-                    {
-                        orderByClause.Orderings.Insert(0, new Ordering(groupKey, OrderingDirection.Asc));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Pre-processes query model before we rewrite its navigations.
-        /// </summary>
-        /// <param name="queryModel">Query model to process. </param>
-        protected override void OnBeforeNavigationRewrite(QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var groupByPreProcessor = new GroupByPreProcessor(QueryCompilationContext);
-            groupByPreProcessor.VisitQueryModel(queryModel);
-        }
-
         /// <summary>
         ///     Applies optimizations to the query.
         /// </summary>
@@ -1485,8 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModelElement, nameof(queryModelElement));
 
-            QueryCompilationContext.Loggers.GetLogger<DbLoggerCategory.Query>()
-                .QueryClientEvaluationWarning(queryModel, queryModelElement);
+            QueryCompilationContext.Logger.QueryClientEvaluationWarning(queryModel, queryModelElement);
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase
@@ -1519,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
                 {
                     var discriminatorProperty
-                        = concreteEntityTypes[0].Relational().DiscriminatorProperty;
+                        = concreteEntityTypes[0].GetDiscriminatorProperty();
 
                     var discriminatorPropertyExpression
                         = qsre.CreateEFPropertyExpression(discriminatorProperty);
@@ -1530,7 +1444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 concreteEntityType =>
                                     Expression.Equal(
                                         discriminatorPropertyExpression,
-                                        Expression.Constant(concreteEntityType.Relational().DiscriminatorValue, discriminatorPropertyExpression.Type)))
+                                        Expression.Constant(concreteEntityType.GetDiscriminatorValue(), discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
                     return new DiscriminatorPredicateExpression(discriminatorPredicate, qsre.TryGetReferencedQuerySource());

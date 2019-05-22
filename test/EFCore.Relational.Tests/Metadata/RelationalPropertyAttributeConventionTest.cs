@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnName);
-            Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnType);
+            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnName());
+            Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
         }
 
         [Fact]
@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<F>();
 
-            Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.Relational().ColumnName);
-            Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.Relational().ColumnType);
+            Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnName());
+            Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
         }
 
         [Fact]
@@ -41,15 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
 
-            Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
-            Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
+            Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
         }
 
         [Fact]
@@ -57,15 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
-            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(propertyBuilder);
+            new RelationalColumnAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(propertyBuilder);
 
-            Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().ColumnName);
-            Assert.Equal("BYTE", propertyBuilder.Metadata.Relational().ColumnType);
+            Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new TestLogger<DbLoggerCategory.Model>()));
+                    new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

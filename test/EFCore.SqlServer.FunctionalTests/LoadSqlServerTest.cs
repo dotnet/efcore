@@ -3,13 +3,13 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
+    // issue #15318
+    internal class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
     {
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)
@@ -1921,11 +1921,6 @@ WHERE 0 = 1",
         {
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(
-                    c => c
-                        .Log(RelationalEventId.QueryClientEvaluationWarning));
         }
     }
 }

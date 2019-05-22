@@ -10,8 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -67,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <returns> The converters available. </returns>
         public virtual IEnumerable<ValueConverterInfo> Select(
             Type modelClrType,
-            Type? providerClrType = null)
+            Type providerClrType = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
 
@@ -282,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> ForChar(
-            Type underlyingModelType, Type? underlyingProviderType)
+            Type underlyingModelType, Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))
@@ -303,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> CharToBytes(
-            Type underlyingModelType, Type? underlyingProviderType)
+            Type underlyingModelType, Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(byte[]))
@@ -315,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> EnumToStringOrBytes(
-            Type underlyingModelType, Type? underlyingProviderType)
+            Type underlyingModelType, Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))
@@ -355,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> NumberToStringOrBytes(
-            Type underlyingModelType, Type? underlyingProviderType)
+            Type underlyingModelType, Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))
@@ -382,9 +380,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private IEnumerable<ValueConverterInfo> FindNumericConventions(
             Type modelType,
-            Type? providerType,
+            Type providerType,
             Type converterType,
-            Func<Type, Type?, IEnumerable<ValueConverterInfo>>? afterPreferred)
+            Func<Type, Type, IEnumerable<ValueConverterInfo>> afterPreferred)
         {
             var usedTypes = new List<Type>
             {
@@ -484,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private IEnumerable<ValueConverterInfo> FindPreferredConversions(
             Type[] candidateTypes,
             Type modelType,
-            Type? providerType,
+            Type providerType,
             Type converterType)
         {
             var underlyingModelType = modelType.UnwrapEnumType();

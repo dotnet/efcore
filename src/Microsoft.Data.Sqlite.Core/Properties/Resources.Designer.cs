@@ -41,22 +41,6 @@ namespace Microsoft.Data.Sqlite.Properties
                 operation);
 
         /// <summary>
-        /// The cache mode '{mode}' is invalid.
-        /// </summary>
-        public static string InvalidCacheMode(object mode)
-            => string.Format(
-                GetString("InvalidCacheMode", nameof(mode)),
-                mode);
-
-        /// <summary>
-        /// The CommandBehavior '{behavior}' is invalid.
-        /// </summary>
-        public static string InvalidCommandBehavior(object behavior)
-            => string.Format(
-                GetString("InvalidCommandBehavior", nameof(behavior)),
-                behavior);
-
-        /// <summary>
         /// The CommandType '{commandType}' is invalid.
         /// </summary>
         public static string InvalidCommandType(object commandType)
@@ -177,12 +161,6 @@ namespace Microsoft.Data.Sqlite.Properties
             => string.Format(
                 GetString("AmbiguousParameterName", nameof(parameterName)),
                 parameterName);
-
-        /// <summary>
-        /// The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.
-        /// </summary>
-        public static string AlreadyLoaded
-            => GetString("AlreadyLoaded");
 
         /// <summary>
         /// The {enumType} enumeration value, {value}, is invalid.

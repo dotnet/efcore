@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Children), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
@@ -1400,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Child.Parent), "Child"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "Child"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
@@ -1424,7 +1424,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreStrings.LogDetachedLazyLoading.GenerateMessage(nameof(Parent.Single), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);
@@ -3254,9 +3254,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var children = async
-                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
-                    : navigationEntry.Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().ToListAsync<object>()
+                    : navigationEntry.Query().ToList<object>();
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -3292,9 +3294,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -3329,9 +3333,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -3366,9 +3372,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var single = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -3586,9 +3594,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var children = async
-                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
-                    : navigationEntry.Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().ToListAsync<object>()
+                    : navigationEntry.Query().ToList<object>();
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -3627,9 +3637,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
-                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).SingleOrDefault()
+                    : navigationEntry.Query().ToList<object>().SingleOrDefault();
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -3668,9 +3680,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
-                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).SingleOrDefault()
+                    : navigationEntry.Query().ToList<object>().SingleOrDefault();
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -3709,9 +3723,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.False(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var single = async
-                    ? await navigationEntry.Query().OfType<object>().SingleOrDefaultAsync()
-                    : navigationEntry.Query().OfType<object>().SingleOrDefault();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).SingleOrDefault()
+                    : navigationEntry.Query().ToList<object>().SingleOrDefault();
 
                 Assert.False(navigationEntry.IsLoaded);
 
@@ -3958,9 +3974,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var children = async
-                    ? await navigationEntry.Query().OfType<object>().ToListAsync()
-                    : navigationEntry.Query().OfType<object>().ToList();
+                    ? await navigationEntry.Query().ToListAsync<object>()
+                    : navigationEntry.Query().ToList<object>();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -3995,9 +4013,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -4032,9 +4052,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var parent = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 
@@ -4078,9 +4100,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(navigationEntry.IsLoaded);
 
+                // Issue #14935. Cannot eval 'OfType<System.Object>()'
+                // Uses test method non-generic IQueryable.ToList instead.
                 var single = async
-                    ? await navigationEntry.Query().OfType<object>().SingleAsync()
-                    : navigationEntry.Query().OfType<object>().Single();
+                    ? (await navigationEntry.Query().ToListAsync<object>()).Single()
+                    : navigationEntry.Query().ToList<object>().Single();
 
                 Assert.True(navigationEntry.IsLoaded);
 

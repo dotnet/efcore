@@ -117,18 +117,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        firstEntityType, materializationContextParameter);
+                        firstEntityType, "instance", materializationContextParameter);
 
             if (concreteEntityTypes.Count == 1)
             {
                 return Expression.Lambda(materializer, materializationContextParameter);
             }
 
-            var discriminatorProperty = firstEntityType.Cosmos().DiscriminatorProperty;
+            var discriminatorProperty = firstEntityType.GetDiscriminatorProperty();
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    firstEntityType.Cosmos().DiscriminatorValue,
+                    firstEntityType.GetDiscriminatorValue(),
                     discriminatorProperty.ClrType);
 
             var discriminatorValueVariable
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     indexMap[property.GetIndex()] = propertyIndex;
 
-                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty;
+                    shadowPropertyExists = shadowPropertyExists || property.IsShadowProperty();
                 }
 
                 if (shadowPropertyExists)
@@ -191,13 +191,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 var discriminatorValue
                     = Expression.Constant(
-                        concreteEntityType.Cosmos().DiscriminatorValue,
+                        concreteEntityType.GetDiscriminatorValue(),
                         discriminatorProperty.ClrType);
 
                 materializer
                     = _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityType, materializationContextParameter);
+                            concreteEntityType, "instance", materializationContextParameter);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 if (trackingQuery)
                 {
-                    var entry = queryContext.StateManager.TryGetEntry(entityInfo.Key, valueBuffer, throwOnNullKey: true);
+                    var entry = queryContext.StateManager.TryGetEntry(entityInfo.Key, new object[] { }, throwOnNullKey: true, out var _);
                     if (entry != null)
                     {
                         return ShapeNestedEntities(
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var nestedFk = nestedNavigation.ForeignKey;
                 if (nestedFk.IsUnique)
                 {
-                    if (!(jObject[nestedFk.DeclaringEntityType.Cosmos().ContainingPropertyName] is JObject nestedJObject))
+                    if (!(jObject[nestedFk.DeclaringEntityType.GetCosmosContainingPropertyName()] is JObject nestedJObject))
                     {
                         continue;
                     }
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 else
                 {
                     var nestedEntities = new List<object>();
-                    if (jObject[nestedFk.DeclaringEntityType.Cosmos().ContainingPropertyName] is JArray jArray
+                    if (jObject[nestedFk.DeclaringEntityType.GetCosmosContainingPropertyName()] is JArray jArray
                         && jArray.Count != 0)
                     {
                         foreach (JObject nestedJObject in jArray)

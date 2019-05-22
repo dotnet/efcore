@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
-                        services.GetRequiredService<StateManagerDependencies>(),
+                        services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
                     idGenerator,
                     new MigrationsCodeGeneratorSelector(
@@ -107,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<IRelationalConnection>(),
                         services.GetRequiredService<ISqlGenerationHelper>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
+                        services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
                         services.GetRequiredService<IDatabaseProvider>())));
         }
 

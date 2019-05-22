@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -129,13 +130,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                     ValidationLoggerFactory,
                     options,
-                    new DiagnosticListener("Fake"));
+                    new DiagnosticListener("Fake"),
+                    testHelpers.LoggingDefinitions);
 
                 ModelLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
                 var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                     ModelLoggerFactory,
                     options,
-                    new DiagnosticListener("Fake"));
+                    new DiagnosticListener("Fake"),
+                    testHelpers.LoggingDefinitions);
 
                 ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
             }
@@ -163,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder Validate()
+            public virtual TestModelBuilder FinalizeModel()
             {
                 ModelBuilder.FinalizeModel();
 

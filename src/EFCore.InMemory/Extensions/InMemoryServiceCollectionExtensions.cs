@@ -2,16 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.InMemory.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -58,6 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
+                .TryAdd<LoggingDefinitions, InMemoryLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
                 .TryAdd<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
                 .TryAdd<IDatabase>(p => p.GetService<IInMemoryDatabase>())
@@ -66,7 +71,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
                 .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
-                .TryAdd<IConventionSetBuilder, InMemoryConventionSetBuilder>()
+                .TryAdd<IProviderConventionSetBuilder, InMemoryConventionSetBuilder>()
+
+                // New Query pipeline
+                .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
+                .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
+                .TryAdd<IEntityQueryableTranslatorFactory, InMemoryEntityQueryableTranslatorFactory>()
+                .TryAdd<IShapedQueryOptimizerFactory, InMemoryShapedQueryOptimizerFactory>()
+
+
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
                 .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAddProviderSpecificServices(

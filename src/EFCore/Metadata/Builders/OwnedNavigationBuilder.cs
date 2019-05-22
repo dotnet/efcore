@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -17,10 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class OwnedNavigationBuilder : IInfrastructure<InternalEntityTypeBuilder>
     {
+        private InternalRelationshipBuilder _builder;
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public OwnedNavigationBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
@@ -28,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             PrincipalEntityType = principalEntityType;
             DependentEntityType = dependentEntityType;
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
@@ -42,10 +46,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         protected virtual EntityType DependentEntityType { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual InternalRelationshipBuilder Builder { get; }
+        [EntityFrameworkInternal]
+        protected virtual InternalRelationshipBuilder Builder
+        {
+            get
+            {
+                if (_builder.Metadata.Builder == null)
+                {
+                    _builder = PrincipalEntityType.FindNavigation(_builder.Metadata.PrincipalToDependent.Name)?.ForeignKey.Builder;
+                }
+
+                return _builder;
+            }
+
+            set => _builder = value;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual T UpdateBuilder<T>(Func<T> configure)
+        {
+            var foreignKey = _builder.Metadata;
+            var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
+            if (foreignKey != null)
+            {
+                _builder = foreignKey.Builder;
+            }
+
+            return result;
+        }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the owned entity type.
@@ -87,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
             => new KeyBuilder(
                 DependentEntityType.Builder.PrimaryKey(
-                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -103,10 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] string propertyName)
-            => new PropertyBuilder(
-                DependentEntityType.Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
-                    ConfigurationSource.Explicit));
+            => UpdateBuilder(
+                () => new PropertyBuilder(
+                    DependentEntityType.Builder.Property(
+                        Check.NotEmpty(propertyName, nameof(propertyName)),
+                        ConfigurationSource.Explicit).Metadata));
 
         /// <summary>
         ///     <para>
@@ -125,11 +165,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
-            => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
-                    typeof(TProperty),
-                    ConfigurationSource.Explicit));
+            => UpdateBuilder(
+                () => new PropertyBuilder<TProperty>(
+                    DependentEntityType.Builder.Property(
+                        typeof(TProperty),
+                        Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata));
 
         /// <summary>
         ///     <para>
@@ -150,15 +190,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
             => new PropertyBuilder(
                 DependentEntityType.Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
                     Check.NotNull(propertyType, nameof(propertyType)),
-                    ConfigurationSource.Explicit));
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
-        ///     from the owned entity type that were added by convention.
+        ///     or navigations from the owned entity type that were added by convention.
         /// </summary>
-        /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
+        /// <param name="propertyName"> The name of the property to be removed from the entity type. </param>
         public virtual OwnedNavigationBuilder Ignore([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -177,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
             => new IndexBuilder(
                 DependentEntityType.Builder.HasIndex(
-                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -202,7 +241,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new OwnershipBuilder(
                 PrincipalEntityType,
                 DependentEntityType,
-                Builder.DependentToPrincipal(ownerReference, ConfigurationSource.Explicit));
+                Builder.HasNavigation(
+                    ownerReference,
+                    pointsToPrincipal: true,
+                    ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -351,8 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = ownedType.Type == null
-                    ? DependentEntityType.Builder.Owns(ownedType.Name, navigationName, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.Owns(ownedType.Type, navigationName, ConfigurationSource.Explicit);
+                    ? DependentEntityType.Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
+                    : DependentEntityType.Builder.HasOwnership(ownedType.Type, navigationName, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
             }
 
@@ -504,8 +546,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (DependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = ownedType.Type == null
-                    ? DependentEntityType.Builder.Owns(ownedType.Name, navigationName, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.Owns(ownedType.Type, navigationName, ConfigurationSource.Explicit);
+                    ? DependentEntityType.Builder.HasOwnership(ownedType.Name, navigationName, ConfigurationSource.Explicit)
+                    : DependentEntityType.Builder.HasOwnership(ownedType.Type, navigationName, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
             }
 
@@ -553,9 +595,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType,
                 relatedEntityType,
                 navigationName,
-                DependentEntityType.Builder.Navigation(
-                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType));
+                DependentEntityType.Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -628,15 +670,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DependentEntityType,
                 relatedEntityType,
                 navigationName,
-                DependentEntityType.Builder.Navigation(
-                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType));
+                DependentEntityType.Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string navigationName)
         {
             var relatedEntityType = DependentEntityType.FindInDefinitionPath(relatedTypeName);
@@ -655,9 +700,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType FindRelatedEntityType([NotNull] Type relatedType, [CanBeNull] string navigationName)
         {
             var relatedEntityType = DependentEntityType.FindInDefinitionPath(relatedType);
@@ -683,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnedNavigationBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            DependentEntityType.Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+            DependentEntityType.Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }

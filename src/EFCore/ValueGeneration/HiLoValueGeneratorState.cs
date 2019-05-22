@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual async Task<TValue> NextAsync<TValue>(
+        public virtual async ValueTask<TValue> NextAsync<TValue>(
             [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
         {

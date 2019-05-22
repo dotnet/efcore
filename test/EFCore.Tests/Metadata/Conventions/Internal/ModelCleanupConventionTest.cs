@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -19,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Convention);
             principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
             dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(
-                principalEntityBuilder, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata, nameof(OneToOneDependent.OneToOnePrincipal), null, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.Equal(nameof(OneToOnePrincipal), modelBuilder.Metadata.GetEntityTypes().Single().DisplayName());
         }
@@ -33,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var modelBuilder = principalEntityBuilder.ModelBuilder;
             var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(
-                principalEntityBuilder, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
         }
@@ -51,14 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
             dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention);
-            dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention);
-            principalEntityBuilder.Relationship(dependentEntityBuilder, ConfigurationSource.Convention);
-            principalEntityBuilder.Relationship(dependentEntityBuilder, ConfigurationSource.Convention);
-            baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
-            baseEntityBuilder.Relationship(baseEntityBuilder, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+            dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention);
+            principalEntityBuilder.HasRelationship(dependentEntityBuilder.Metadata, ConfigurationSource.Convention);
+            principalEntityBuilder.HasRelationship(dependentEntityBuilder.Metadata, ConfigurationSource.Convention);
+            baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
+            baseEntityBuilder.HasRelationship(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
-            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(modelBuilder);
+            new ModelCleanupConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(modelBuilder);
 
             Assert.True(modelBuilder.Metadata.GetEntityTypes().All(e => !e.GetDeclaredForeignKeys().Any()));
         }

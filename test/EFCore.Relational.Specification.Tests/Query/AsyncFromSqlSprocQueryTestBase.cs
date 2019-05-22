@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .ToArrayAsync();
 
                 Assert.Equal(10, actual.Length);
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .ToArrayAsync();
 
                 Assert.Equal(11, actual.Length);
@@ -59,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where [mep].TenMostExpensiveProducts.Contains(\"C\")'")]
         public virtual async Task From_sql_queryable_stored_procedure_composed()
         {
             using (var context = CreateContext())
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
                     .OrderBy(mep => mep.UnitPrice)
                     .ToArrayAsync();
@@ -77,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where [coh].ProductName.Contains(\"C\")'")]
         public virtual async Task From_sql_queryable_stored_procedure_with_parameter_composed()
         {
             using (var context = CreateContext())
             {
                 var actual = await context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .Where(coh => coh.ProductName.Contains("C"))
                     .OrderBy(coh => coh.Total)
                     .ToArrayAsync();
@@ -95,14 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'orderby [mep].UnitPrice desc'")]
         public virtual async Task From_sql_queryable_stored_procedure_take()
         {
             using (var context = CreateContext())
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .OrderByDescending(mep => mep.UnitPrice)
                     .Take(2)
                     .ToArrayAsync();
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual async Task From_sql_queryable_stored_procedure_min()
         {
             using (var context = CreateContext())
@@ -121,12 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     45.60m,
                     await context.Set<MostExpensiveProduct>()
-                        .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         .MinAsync(mep => mep.UnitPrice));
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual async Task From_sql_queryable_stored_procedure_with_include_throws()
         {
             using (var context = CreateContext())
@@ -136,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
                             await context.Set<Product>()
-                                .FromSql("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
+                                .FromSqlRaw("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
                                 .Include(p => p.OrderDetails)
                                 .ToArrayAsync()
                     )).Message);

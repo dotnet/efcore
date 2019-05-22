@@ -40,5 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     A list of <see cref="AddUniqueConstraintOperation" /> for creating unique constraints in the table.
         /// </summary>
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
+
+        /// <summary>
+        ///     A list of <see cref="CreateCheckConstraintOperation" /> for creating check constraints in the table.
+        /// </summary>
+        public virtual List<CreateCheckConstraintOperation> CheckConstraints { get; } = new List<CreateCheckConstraintOperation>();
     }
 }

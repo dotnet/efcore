@@ -123,9 +123,6 @@
   <data name="OrphanedNestedDocumentSensitive" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
   </data>
-  <data name="QueryRootNestedEntityType" xml:space="preserve">
-    <value>The entity of type '{entityType}' cannot be queried directly because it is mapped as a part of the document mapped to '{principalEntityType}'. Rewrite the query to start with '{principalEntityType}'.</value>
-  </data>
   <data name="UnableToDiscriminate" xml:space="preserve">
     <value>No matching discriminator values where found for this instance of '{entityType}'.</value>
   </data>

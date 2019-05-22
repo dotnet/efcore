@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -196,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual RawSqlCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
-                .Create(Logger)
+                .Create()
                 .Append(GetCommandText());
 
             var parameterValues = new Dictionary<string, object>(GetParameterCount());
@@ -248,7 +247,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             try
             {
                 using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
-                    connection, storeCommand.ParameterValues))
+                    connection,
+                    storeCommand.ParameterValues,
+                    Logger))
                 {
                     Consume(dataReader);
                 }
@@ -282,8 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
                     connection,
-                    parameterValues: storeCommand.ParameterValues,
-                    cancellationToken: cancellationToken))
+                    storeCommand.ParameterValues,
+                    Logger,
+                    cancellationToken))
                 {
                     await ConsumeAsync(dataReader, cancellationToken);
                 }

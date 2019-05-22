@@ -10,10 +10,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
@@ -38,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private ReducingExpressionVisitor _reducingExpressionVisitor;
         private BooleanExpressionTranslatingVisitor _booleanExpressionTranslatingVisitor;
         private InExpressionValuesExpandingVisitor _inExpressionValuesExpandingVisitor;
+        private IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         private bool _valueConverterWarningsEnabled;
 
@@ -65,22 +69,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="selectExpression"> The select expression. </param>
-        /// <param name="loggers"> Some loggers. </param>
         protected DefaultQuerySqlGenerator(
             [NotNull] QuerySqlGeneratorDependencies dependencies,
-            [NotNull] SelectExpression selectExpression,
-            DiagnosticsLoggers loggers)
+            [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(loggers, nameof(loggers));
 
             Dependencies = dependencies;
             SelectExpression = selectExpression;
-            Loggers = loggers;
         }
-
-        public virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Whether or not the generated SQL could have out-of-order projection columns.
@@ -127,30 +125,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Generates SQL for the given parameter values.
         /// </summary>
+        /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="logger"> The query logger. </param>
         /// <returns>
         ///     A relational command.
         /// </returns>
-        public virtual IRelationalCommand GenerateSql(IReadOnlyDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(
+            IRelationalCommandBuilderFactory commandBuilderFactory,
+            IReadOnlyDictionary<string, object> parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _relationalCommandBuilder = Dependencies.CommandBuilderFactory.Create(
-                Loggers.GetLogger<DbLoggerCategory.Database.Command>());
+            try
+            {
+                _logger = logger;
+                _relationalCommandBuilder = commandBuilderFactory.Create();
 
-            _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
+                _parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
 
-            _parametersValues = parameterValues;
-            _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
-            _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
+                _parametersValues = parameterValues;
+                _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
+                _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
 
-            IsCacheable = true;
+                IsCacheable = true;
 
-            GenerateTagsHeaderComment();
+                GenerateTagsHeaderComment();
 
-            Visit(SelectExpression);
+                Visit(SelectExpression);
 
-            return _relationalCommandBuilder.Build();
+                return _relationalCommandBuilder.Build();
+            }
+            finally
+            {
+                _logger = null;
+                _relationalCommandBuilder = null;
+                _parameterNameGenerator = null;
+                _parametersValues = null;
+                _nullComparisonTransformingVisitor = null;
+                _inExpressionValuesExpandingVisitor = null;
+            }
         }
 
         /// <summary>
@@ -203,16 +218,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     The generated SQL.
         /// </summary>
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
-
-        /// <summary>
-        ///     The default true literal SQL.
-        /// </summary>
-        protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
-
-        /// <summary>
-        ///     The default false literal SQL.
-        /// </summary>
-        protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
         ///     The default alias separator.
@@ -572,15 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="projection"> The projection expression. </param>
         protected virtual void GenerateProjection([NotNull] Expression projection)
-            => Visit(
-                ApplyExplicitCastToBoolInProjectionOptimization(
-                    ApplyOptimizations(projection, searchCondition: false)));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Expression ApplyExplicitCastToBoolInProjectionOptimization(Expression expression) => expression;
+            => Visit(ApplyOptimizations(projection, searchCondition: false));
 
         /// <summary>
         ///     Visit the predicate in SQL WHERE clause
@@ -592,15 +589,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (optimizedPredicate is BinaryExpression binaryExpression)
             {
-                var leftBooleanConstant = GetBooleanConstantValue(binaryExpression.Left);
-                var rightBooleanConstant = GetBooleanConstantValue(binaryExpression.Right);
+                var leftInt = GetIntConstantValue(binaryExpression.Left);
+                var rightInt = GetIntConstantValue(binaryExpression.Right);
 
-                if ((binaryExpression.NodeType == ExpressionType.Equal
-                     && leftBooleanConstant == true
-                     && rightBooleanConstant == true)
-                    || (binaryExpression.NodeType == ExpressionType.NotEqual
-                        && leftBooleanConstant == false
-                        && rightBooleanConstant == false))
+                if (leftInt != null
+                    && rightInt != null
+                    && ((binaryExpression.NodeType == ExpressionType.Equal
+                            && leftInt == rightInt)
+                        || (binaryExpression.NodeType == ExpressionType.NotEqual
+                            && leftInt != rightInt)))
                 {
                     return;
                 }
@@ -626,10 +623,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Visit(optimizedPredicate);
         }
 
-        private static bool? GetBooleanConstantValue(Expression expression)
+        private static int? GetIntConstantValue(Expression expression)
             => expression is ConstantExpression constantExpression
-               && constantExpression.Type.UnwrapNullableType() == typeof(bool)
-                ? (bool?)constantExpression.Value
+               && constantExpression.Type.UnwrapNullableType() == typeof(int)
+                ? (int?)constantExpression.Value
                 : null;
 
         private bool IsOrderByExpressionConstant([NotNull] Expression processedExpression)
@@ -689,36 +686,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </summary>
         /// <param name="items">The list of items.</param>
         /// <param name="joinAction">An optional join action.</param>
-        protected virtual void GenerateList(
-            [NotNull] IReadOnlyList<Expression> items,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
-            => GenerateList(items, joinAction, typeMappings: null);
-
-        /// <summary>
-        ///     Performs generation over a list of items by visiting each item.
-        /// </summary>
-        /// <param name="items">The list of items.</param>
-        /// <param name="joinAction">An optional join action.</param>
         /// <param name="typeMappings">Option type mappings for each item.</param>
         protected virtual void GenerateList(
             [NotNull] IReadOnlyList<Expression> items,
             [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null,
             [CanBeNull] IReadOnlyList<RelationalTypeMapping> typeMappings = null)
             => GenerateList(items, e => Visit(e), joinAction, typeMappings);
-
-        /// <summary>
-        ///     Perform generation over a list of items using a provided generation action
-        ///     and optional join action.
-        /// </summary>
-        /// <typeparam name="T">The item type.</typeparam>
-        /// <param name="items">The list of items.</param>
-        /// <param name="generationAction">The generation action.</param>
-        /// <param name="joinAction">An optional join action.</param>
-        protected virtual void GenerateList<T>(
-            [NotNull] IReadOnlyList<T> items,
-            [NotNull] Action<T> generationAction,
-            [CanBeNull] Action<IRelationalCommandBuilder> joinAction)
-            => GenerateList(items, generationAction, joinAction, typeMappings: null);
 
         /// <summary>
         ///     Perform generation over a list of items using a provided generation action
@@ -810,38 +783,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         substitutions = new string[argumentValuesFromParameter.Length];
 
+                        var subParameters = new List<IRelationalParameter>(argumentValuesFromParameter.Length);
+                        for (var i = 0; i < argumentValuesFromParameter.Length; i++)
+                        {
+                            var parameterName = _parameterNameGenerator.GenerateNext();
+
+                            if (argumentValuesFromParameter[i] is DbParameter dbParameter)
+                            {
+                                if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                                {
+                                    dbParameter.ParameterName
+                                        = SqlGenerator.GenerateParameterName(parameterName);
+                                }
+                                else
+                                {
+                                    parameterName = dbParameter.ParameterName;
+                                }
+
+                                substitutions[i] = dbParameter.ParameterName;
+                            }
+                            else
+                            {
+                                substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                            }
+
+                            subParameters.Add(
+                                new DynamicRelationalParameter(
+                                    parameterName,
+                                    substitutions[i],
+                                    Dependencies.TypeMappingSource));
+                        }
+
                         _relationalCommandBuilder.AddCompositeParameter(
                             parameterExpression.Name,
-                            builder =>
-                            {
-                                for (var i = 0; i < argumentValuesFromParameter.Length; i++)
-                                {
-                                    var parameterName = _parameterNameGenerator.GenerateNext();
-
-                                    if (argumentValuesFromParameter[i] is DbParameter dbParameter)
-                                    {
-                                        if (string.IsNullOrEmpty(dbParameter.ParameterName))
-                                        {
-                                            dbParameter.ParameterName
-                                                = SqlGenerator.GenerateParameterName(parameterName);
-                                        }
-                                        else
-                                        {
-                                            parameterName = dbParameter.ParameterName;
-                                        }
-
-                                        substitutions[i] = dbParameter.ParameterName;
-                                    }
-                                    else
-                                    {
-                                        substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
-                                    }
-
-                                    builder.AddParameter(
-                                        parameterName,
-                                        substitutions[i]);
-                                }
-                            });
+                            subParameters);
                     }
 
                     break;
@@ -1209,8 +1184,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     && constantIfTrue.Value != null
                     && constantIfTrue.Type.UnwrapNullableType() == typeof(bool))
                 {
-                    _relationalCommandBuilder
-                        .Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    Visit(Expression.Constant((bool)constantIfTrue.Value));
                 }
                 else
                 {
@@ -1223,8 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     && constantIfFalse.Value != null
                     && constantIfFalse.Type.UnwrapNullableType() == typeof(bool))
                 {
-                    _relationalCommandBuilder
-                        .Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    Visit(Expression.Constant((bool)constantIfFalse.Value));
                 }
                 else
                 {
@@ -1429,6 +1402,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(" IS NULL");
 
             return isNullExpression;
+        }
+
+        /// <summary>
+        ///     Visit a NullableExpression.
+        /// </summary>
+        /// <param name="nullableExpression"> The nullable expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitNullable(NullableExpression nullableExpression)
+        {
+            Visit(nullableExpression.Operand);
+
+            return nullableExpression;
         }
 
         /// <summary>
@@ -1652,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             var parameterName = SqlGenerator.GenerateParameterName(parameterExpression.Name);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+            if (_relationalCommandBuilder.Parameters
                 .All(p => p.InvariantName != parameterExpression.Name))
             {
                 var parameterType = parameterExpression.Type.UnwrapNullableType();
@@ -1688,8 +1675,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (_valueConverterWarningsEnabled
                 && typeMapping.Converter != null)
             {
-                Loggers.GetLogger<DbLoggerCategory.Query>()
-                    .ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
+                _logger?.ValueConversionSqlLiteralWarning(typeMapping.ClrType, typeMapping.Converter);
             }
         }
 
@@ -1706,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 = SqlGenerator.GenerateParameterName(
                     propertyParameterExpression.PropertyParameterName);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+            if (_relationalCommandBuilder.Parameters
                 .All(p => p.InvariantName != propertyParameterExpression.PropertyParameterName))
             {
                 _relationalCommandBuilder.AddPropertyParameter(
@@ -1859,8 +1845,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         if (parameterValue == null)
                         {
-                            return
-                                expression.NodeType == ExpressionType.Equal
+                            return expression.NodeType == ExpressionType.Equal
                                     ? (Expression)new IsNullExpression(nonParameterExpression)
                                     : Expression.Not(new IsNullExpression(nonParameterExpression));
                         }
@@ -2077,6 +2062,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 var equalExpression = Expression.Equal(
                     expression,
                     Expression.Constant(compareTo, expression.Type));
+
+                // If bool value is being compared to other value then convert them to int comparison
+                if (expression.RemoveConvert() is ConstantExpression constant
+                    && expression.Type == typeof(bool))
+                {
+                    equalExpression = Expression.Equal(
+                        Expression.Constant((bool)constant.Value ? 1 : 0),
+                        Expression.Constant(compareTo ? 1 : 0));
+                }
 
                 // Compensate for type change since Expression.Equal always returns expression of boolean type
                 return expression.Type == typeof(bool)

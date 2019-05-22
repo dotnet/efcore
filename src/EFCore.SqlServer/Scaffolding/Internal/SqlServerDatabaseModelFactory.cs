@@ -13,12 +13,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,10 +24,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
+    public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
 
@@ -75,8 +75,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         };
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
         {
@@ -86,30 +88,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             using (var connection = new SqlConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             var databaseModel = new DatabaseModel();
 
@@ -126,13 +130,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 var typeAliases = GetTypeAliases(connection);
 
-                var schemaList = schemas.ToList();
+                var schemaList = options.Schemas.ToList();
                 var schemaFilter = GenerateSchemaFilter(schemaList);
-                var tableList = tables.ToList();
+                var tableList = options.Tables.ToList();
                 var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 11)
+                if (SupportsSequences(connection))
                 {
                     foreach (var sequence in GetSequences(connection, schemaFilter, typeAliases))
                     {
@@ -434,9 +437,9 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
             using (var command = connection.CreateCommand())
             {
                 var tables = new List<DatabaseTable>();
-                Version.TryParse(connection.ServerVersion, out var serverVersion);
-                var supportsMemoryOptimizedTable = serverVersion?.Major >= 12;
-                var supportsTemporalTable = serverVersion?.Major >= 13;
+
+                var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable(connection);
+                var supportsTemporalTable = SupportsTemporalTable(connection);
 
                 var commandText = @"
 SELECT
@@ -474,8 +477,38 @@ AND [t].[temporal_type] <> 1";
 AND " + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
                 }
 
-                command.CommandText = commandText + @"
+                commandText = commandText + @"
 WHERE " + filter;
+
+                var viewCommandText = @"
+UNION
+SELECT
+    SCHEMA_NAME([v].[schema_id]) AS [schema],
+    [v].[name]";
+
+                if (supportsMemoryOptimizedTable)
+                {
+                    viewCommandText += @",
+    CAST(0 AS bit) AS [is_memory_optimized]";
+                }
+
+                viewCommandText += @"
+FROM [sys].[views] AS [v]";
+
+
+                var viewFilter = @"[v].[is_ms_shipped] = 0
+AND [v].[is_date_correlation_view] = 0 ";
+
+                if (tableFilter != null)
+                {
+                    viewFilter += @"
+AND " + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
+                }
+
+                viewCommandText = viewCommandText + @"
+WHERE " + viewFilter;
+
+                command.CommandText = commandText + viewCommandText;
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -505,7 +538,7 @@ WHERE " + filter;
                 }
 
                 // This is done separately due to MARS property may be turned off
-                GetColumns(connection, tables, filter, typeAliases);
+                GetColumns(connection, tables, filter, viewFilter, typeAliases);
                 GetIndexes(connection, tables, filter);
                 GetForeignKeys(connection, tables, filter);
 
@@ -517,14 +550,15 @@ WHERE " + filter;
             DbConnection connection,
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
+            string viewFilter,
             IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
                 var commandText = @"
 SELECT
-    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
-    [t].[name] AS [table_name],
+    SCHEMA_NAME([o].[schema_id]) AS [table_schema],
+    [o].[name] AS [table_name],
     [c].[name] AS [column_name],
     [c].[column_id] AS [ordinal],
     SCHEMA_NAME([tp].[schema_id]) AS [type_schema],
@@ -534,18 +568,32 @@ SELECT
     CAST([c].[scale] AS int) AS [scale],
     [c].[is_nullable],
     [c].[is_identity],
-    OBJECT_DEFINITION([c].[default_object_id]) AS [default_sql],
+    [dc].[definition] AS [default_sql],
     [cc].[definition] AS [computed_sql]
-FROM [sys].[columns] AS [c]
-JOIN [sys].[tables] AS [t] ON [c].[object_id] = [t].[object_id]
+FROM 
+(
+    SELECT[v].[name], [v].[object_id], [v].[schema_id]
+    FROM [sys].[views] v WHERE ";
+
+                commandText += viewFilter;
+
+                commandText += @"
+UNION ALL
+    SELECT [t].[name], [t].[object_id], [t].[schema_id]
+    FROM [sys].[tables] t WHERE ";
+
+                commandText += tableFilter;
+
+                commandText += @"
+) o
+JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
-WHERE " + tableFilter;
+LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 13)
+                if (SupportsTemporalTable(connection))
                 {
-                    commandText += " AND [c].[is_hidden] = 0";
+                    commandText += " WHERE [c].[is_hidden] = 0";
                 }
 
                 commandText += @"
@@ -630,7 +678,8 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
 
                             if (storeType == "rowversion")
                             {
-                                column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+                                // Note: annotation name must match `ScaffoldingAnnotationNames.ConcurrencyToken`
+                                column["ConcurrencyToken"] = true;
                             }
 
                             table.Columns.Add(column);
@@ -1014,6 +1063,45 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         }
                     }
                 }
+            }
+        }
+
+        private bool SupportsTemporalTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 130 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsMemoryOptimizedTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 120 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsSequences(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 110 && EngineEdition(connection) != 6;
+        }
+
+        private int EngineEdition(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+SELECT SERVERPROPERTY('EngineEdition');";
+                return (int)command.ExecuteScalar();
+            }
+        }
+
+        private byte CompatibilityLevel(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = $@"
+SELECT compatibility_level
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+                var result = command.ExecuteScalar();
+                return result != null ? Convert.ToByte(result) : (byte)0;
             }
         }
 

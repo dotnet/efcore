@@ -3,8 +3,9 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
             var conventionset = new ConventionSet();
 
             conventionset.ModelAnnotationChangedConventions.Add(
-                new SqlServerDbFunctionConvention(new TestLogger<DbLoggerCategory.Model>()));
+                new SqlServerDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, SqlServerLoggingDefinitions>()));
 
             return new ModelBuilder(conventionset);
         }

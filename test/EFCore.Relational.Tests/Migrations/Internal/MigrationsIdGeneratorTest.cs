@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Globalization;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -24,6 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var id2 = generator.GenerateId("Rainbow");
 
             Assert.NotEqual(id1, id2);
+        }
+
+        [Fact]
+        [UseCulture("fa")]
+        public void CreateId_uses_invariant_calendar()
+        {
+            var invariantYear = CultureInfo.InvariantCulture.Calendar.GetYear(DateTime.Today).ToString();
+
+            var id = new MigrationsIdGenerator().GenerateId("Zecora");
+
+            Assert.StartsWith(invariantYear, id);
         }
 
         [Fact]

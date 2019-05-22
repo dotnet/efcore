@@ -25,6 +25,26 @@ namespace Microsoft.EntityFrameworkCore
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        [Fact(Skip = "QueryIssue")]
+        public void Translate_array_length()
+        {
+            using (var db = CreateContext())
+            {
+                db.Set<MappedDataTypesWithIdentity>()
+                    .Where(p => p.Blob.Length == 0)
+                    .Select(p => p.Blob.Length)
+                    .FirstOrDefault();
+
+                Assert.Equal(
+                    @"SELECT length(""p"".""Blob"")
+FROM ""MappedDataTypesWithIdentity"" AS ""p""
+WHERE length(""p"".""Blob"") = 0
+LIMIT 1",
+                    Fixture.TestSqlLoggerFactory.Sql,
+                    ignoreLineEndingDifferences: true);
+            }
+        }
+
         [Fact]
         public virtual void Can_insert_and_query_decimal()
         {
@@ -909,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {
-                    var columnType = property.Relational().ColumnType;
+                    var columnType = property.GetColumnType();
                     Assert.NotNull(columnType);
 
                     if (property[RelationalAnnotationNames.ColumnType] == null)
@@ -922,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual void Can_query_Min_of_converted_types()
         {
             using (var context = CreateContext())
@@ -980,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Max()'")]
         public virtual void Can_query_Max_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1037,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Average()'")]
         public virtual void Can_query_Average_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1068,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         public virtual void Can_query_Sum_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1099,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_negation_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1130,7 +1150,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_add_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1170,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_subtract_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1214,7 +1234,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_less_than_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1257,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_less_than_or_equal_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1300,7 +1320,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_greater_than_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1343,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_greater_than_or_equal_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1386,7 +1406,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_divide_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1409,24 +1429,20 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             e.Id,
                             TestDecimal = e.TestDecimal / 2m,
-#if !NET461
                             TestTimeSpan1 = e.TestTimeSpan / 2.0,
                             TestTimeSpan2 = e.TestTimeSpan / new TimeSpan(0, 2, 0),
-#endif
                             TestUnsignedInt64 = e.TestUnsignedInt64 / 5ul
                         })
                     .First(e => e.Id == 214);
 
                 Assert.Equal(1.000000000000001m, result.TestDecimal);
-#if !NET461
                 Assert.Equal(TimeSpan.FromMinutes(1), result.TestTimeSpan1);
                 Assert.Equal(1.0, result.TestTimeSpan2);
-#endif
                 Assert.Equal(ulong.MaxValue / 5, result.TestUnsignedInt64);
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_multiply_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1449,24 +1465,20 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             e.Id,
                             TestDecimal = e.TestDecimal * 2m,
-#if !NET461
                             TestTimeSpan1 = e.TestTimeSpan * 2.0,
                             TestTimeSpan2 = 2.0 * e.TestTimeSpan,
-#endif
                             TestUnsignedInt64 = e.TestUnsignedInt64 * 5ul
                         })
                     .First(e => e.Id == 215);
 
                 Assert.Equal(2.000000000000002m, result.TestDecimal);
-#if !NET461
                 Assert.Equal(TimeSpan.FromMinutes(2), result.TestTimeSpan1);
                 Assert.Equal(TimeSpan.FromMinutes(2), result.TestTimeSpan2);
-#endif
                 Assert.Equal(ulong.MaxValue, result.TestUnsignedInt64);
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Can_query_modulo_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1607,8 +1619,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
-                    c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                        .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+                    c => c.Log(RelationalEventId.ValueConversionSqlLiteralWarning));
 
             public override bool SupportsBinaryKeys => true;
 

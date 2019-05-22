@@ -43,9 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IDictionary<MainFromClause, CorrelatedSubqueryMetadata> _correlatedSubqueryMetadataMap;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="QueryCompilationContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> The dependencies for this service. </param>
+        /// <param name="linqOperatorProvider"> The LINQ operator provider to use. </param>
+        /// <param name="trackQueryResults"> True for tracking queries; false for no-tracking queries. </param>
         public QueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -55,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
 
             Model = dependencies.Model;
-            Loggers = new DiagnosticsLoggers(dependencies.Logger, dependencies.CommandLogger);
+            Logger = dependencies.Logger;
 
             _entityQueryModelVisitorFactory = dependencies.EntityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = dependencies.RequiresMaterializationExpressionVisitorFactory;
@@ -118,10 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return _correlatedSubqueryMetadataMap?.TryGetValue(mainFromClause, out correlatedSubqueryMetadata) == true;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         internal virtual IDictionary<MainFromClause, CorrelatedSubqueryMetadata> CorrelatedSubqueryMetadataMap => _correlatedSubqueryMetadataMap;
 
         /// <summary>
@@ -133,12 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IModel Model { get; }
 
         /// <summary>
-        ///     Gets the loggers.
+        ///     Gets the logger.
         /// </summary>
         /// <value>
-        ///     The loggers.
+        ///     The logger.
         /// </value>
-        public virtual DiagnosticsLoggers Loggers { get; }
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
 
         /// <summary>
         ///     Gets the LINQ operator provider.

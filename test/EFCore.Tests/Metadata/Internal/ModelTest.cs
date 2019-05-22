@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -39,27 +41,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Snapshot_change_tracking_is_used_by_default()
         {
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().ChangeTrackingStrategy);
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().GetChangeTrackingStrategy());
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
         }
 
         [Fact]
         public void Change_tracking_strategy_can_be_changed()
         {
-            var model = new Model
-            {
-                ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications
-            };
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.ChangeTrackingStrategy);
+            var model = CreateModel();
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.GetChangeTrackingStrategy());
 
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
         }
 
         [Fact]
         public void Can_add_and_remove_entity_by_type()
         {
-            var model = new Model();
+            var model = CreateModel();
             Assert.Null(model.FindEntityType(typeof(Customer)));
             Assert.Null(model.RemoveEntityType(typeof(Customer)));
 
@@ -68,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer), entityType.ClrType);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(entityType.Builder);
+            Assert.NotNull(((EntityType)entityType).Builder);
 
-            Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer)));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
 
             Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
@@ -78,13 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.ClrType));
             Assert.Null(model.FindEntityType(typeof(Customer)));
-            Assert.Null(entityType.Builder);
+            Assert.Null(((EntityType)entityType).Builder);
         }
 
         [Fact]
         public void Can_add_and_remove_entity_by_name()
         {
-            var model = new Model();
+            var model = CreateModel();
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
             Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
 
@@ -94,9 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(entityType.Builder);
+            Assert.NotNull(((EntityType)entityType).Builder);
 
-            Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer).FullName));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
 
             Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
@@ -104,15 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Null(entityType.Builder);
+            Assert.Null(((EntityType)entityType).Builder);
         }
 
         [Fact]
         public void Can_add_weak_entity_types()
         {
-            IMutableModel model = new Model();
+            IMutableModel model = CreateModel();
             var customerType = model.AddEntityType(typeof(Customer));
-            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var idProperty = customerType.AddProperty(Customer.IdProperty);
             var customerKey = customerType.AddKey(idProperty);
             var dependentOrderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
 
@@ -154,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.EntityTypeInUseByForeignKey(
                     nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
-                    nameof(Customer), Property.Format(fk.Properties)),
+                    nameof(Customer), fk.Properties.Format()),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(dependentOrderType)).Message);
 
             dependentOrderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType);
@@ -169,12 +168,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Cannot_remove_entity_type_when_referenced_by_foreign_key()
         {
-            var model = new Model();
-            var customerType = model.GetOrAddEntityType(typeof(Customer));
-            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
-            var customerKey = customerType.GetOrAddKey(idProperty);
-            var orderType = model.GetOrAddEntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var model = CreateModel();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var idProperty = customerType.AddProperty(Customer.IdProperty);
+            var customerKey = customerType.AddKey(idProperty);
+            var orderType = model.AddEntityType(typeof(Order));
+            var customerFk = orderType.AddProperty(Order.CustomerIdProperty);
 
             orderType.AddForeignKey(customerFk, customerKey, customerType);
 
@@ -189,11 +188,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Cannot_remove_entity_type_when_it_has_derived_types()
         {
-            var model = new Model();
-            var customerType = model.GetOrAddEntityType(typeof(Customer));
-            var specialCustomerType = model.GetOrAddEntityType(typeof(SpecialCustomer));
+            var model = CreateModel();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
-            specialCustomerType.HasBaseType(customerType);
+            specialCustomerType.BaseType = customerType;
 
             Assert.Equal(
                 CoreStrings.EntityTypeInUseByDerived(typeof(Customer).Name, typeof(SpecialCustomer).Name),
@@ -203,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Adding_duplicate_entity_by_type_throws()
         {
-            var model = new Model();
+            var model = CreateModel();
             Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
 
             model.AddEntityType(typeof(Customer));
@@ -216,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Adding_duplicate_entity_by_name_throws()
         {
-            var model = new Model();
+            var model = CreateModel();
             Assert.Null(model.RemoveEntityType(typeof(Customer)));
 
             model.AddEntityType(typeof(Customer));
@@ -229,8 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_get_entity_by_type()
         {
-            var model = new Model();
-            var entityType = model.GetOrAddEntityType(typeof(Customer));
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
@@ -240,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_get_entity_by_name()
         {
-            var model = new Model();
-            var entityType = model.GetOrAddEntityType(typeof(Customer).FullName);
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer).FullName);
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
@@ -251,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Entities_are_ordered_by_name()
         {
-            var model = new Model();
+            var model = CreateModel();
             var entityType1 = model.AddEntityType(typeof(Order));
             var entityType2 = model.AddEntityType(typeof(Customer));
 
@@ -261,18 +260,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_get_referencing_foreign_keys()
         {
-            var model = new Model();
+            var model = CreateModel();
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
             var keyProperty = entityType1.AddProperty("Id", typeof(int));
             var fkProperty = entityType2.AddProperty("CustomerId", typeof(int));
-            var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
+            var foreignKey = entityType2.AddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
             var referencingForeignKeys = entityType1.GetReferencingForeignKeys();
 
             Assert.Same(foreignKey, referencingForeignKeys.Single());
             Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
         }
+
+        private static IMutableModel CreateModel() => new Model();
 
         private class Customer
         {

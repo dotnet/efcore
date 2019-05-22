@@ -6,8 +6,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -28,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public BoolToStringConverter(
             [NotNull] string falseValue,
             [NotNull] string trueValue,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-                Check.NotEmpty(falseValue, nameof(falseValue)),
-                Check.NotEmpty(trueValue, nameof(trueValue)),
+                Check.NotNull(falseValue, nameof(falseValue)),
+                Check.NotNull(trueValue, nameof(trueValue)),
                 FromProvider(trueValue),
                 new ConverterMappingHints(size: Math.Max(falseValue.Length, trueValue.Length)).With(mappingHints))
         {

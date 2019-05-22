@@ -51,13 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             where T : struct;
 
         /// <summary>
-        ///     Generates a byte array literal.
-        /// </summary>
-        /// <param name="values"> The byte array. </param>
-        /// <returns> The literal. </returns>
-        string Literal([NotNull] byte[] values);
-
-        /// <summary>
         ///     Generates a bool literal.
         /// </summary>
         /// <param name="value"> The value. </param>
@@ -135,21 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         string Literal(int value);
 
         /// <summary>
-        ///     Generates an array literal.
-        /// </summary>
-        /// <typeparam name="T"> The element type of the array. </typeparam>
-        /// <param name="values"> The array. </param>
-        /// <returns> The literal. </returns>
-        string Literal<T>([NotNull] IReadOnlyList<T> values);
-
-        /// <summary>
-        ///     Generates an object array literal.
-        /// </summary>
-        /// <param name="values"> The object array. </param>
-        /// <returns> The literal. </returns>
-        string Literal([NotNull] IReadOnlyList<object> values);
-
-        /// <summary>
         ///     Generates a long literal.
         /// </summary>
         /// <param name="value"> The value. </param>
@@ -211,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="values"> The object array. </param>
         /// <param name="vertical"> A value indicating whether to layout the literal vertically. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] IReadOnlyList<object> values, bool vertical);
+        string Literal<T>([NotNull] T[] values, bool vertical = false);
 
         /// <summary>
         ///     Generates a valid C# namespace from the specified parts.

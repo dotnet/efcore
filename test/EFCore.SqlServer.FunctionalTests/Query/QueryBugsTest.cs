@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug6901
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Left_outer_join_bug_6091()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -132,7 +133,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bug5481
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -236,7 +237,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Query_when_null_key_in_database_should_throw()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -355,7 +356,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bugs925_926
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -385,7 +386,7 @@ ORDER BY [t].[FirstName], [t].[LastName]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -516,7 +517,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
         #region Bug7293
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where (new ProjectView() {Permissions = {from ProjectUser u in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+ProjectUser]) join User u.User in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+User]) on Property([u], \"UserId\") equals Property([u.User], \"Id\") where  ?= (Property([p], \"Id\") == Property([u], \"ProjectId\")) =? select new PermissionView() {UserName = [u.User].Name}}}.Id == __target_ProjectId_0)'")]
         public void GroupJoin_expansion_when_optional_nav_in_projection()
         {
             using (CreateDatabase7293())
@@ -659,7 +660,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
         #region Bug963
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             using (CreateDatabase963())
@@ -671,7 +672,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             using (CreateDatabase963())
@@ -683,7 +684,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             using (CreateDatabase963())
@@ -695,7 +696,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             using (CreateDatabase963())
@@ -876,7 +877,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3758
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void Customer_collections_materialize_properly_3758()
         {
             using (CreateDatabase3758())
@@ -1091,7 +1092,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3409
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -1251,7 +1252,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug3101
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1271,7 +1272,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1291,7 +1292,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateDatabase3101())
@@ -1311,7 +1312,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1335,7 +1336,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1359,7 +1360,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1384,7 +1385,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1410,7 +1411,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_conditional()
         {
             using (CreateDatabase3101())
@@ -1433,7 +1434,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro3101_coalesce_tracking()
         {
             using (CreateDatabase3101())
@@ -1561,7 +1562,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug6986
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_query_base_type_when_derived_types_contain_shadow_properties()
         {
             using (CreateDatabase6986())
@@ -1577,7 +1578,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk()
         {
             using (CreateDatabase6986())
@@ -1592,7 +1593,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro6986_can_project_shadow_property_using_ef_property()
         {
             using (CreateDatabase6986())
@@ -1705,7 +1706,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug5456
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1723,7 +1724,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1743,7 +1744,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1761,7 +1762,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1782,7 +1783,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1800,7 +1801,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1895,7 +1896,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug7359
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Discriminator_type_is_handled_correctly_in_materialization_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1909,7 +1910,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Discriminator_type_is_handled_correctly_with_is_operator_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1970,7 +1971,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug7312
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Reference_include_on_derived_type_with_sibling_works_bug_7312()
         {
             using (CreateDatabase7312())
@@ -2044,7 +2045,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         #region Bug8282
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
             using (CreateDatabase8282())
@@ -2330,7 +2331,7 @@ WHERE [c].[Id] = @__id_0");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Variable_from_multi_level_nested_closure_is_parametrized()
         {
             using (CreateDatabase8909())
@@ -2416,7 +2417,7 @@ WHERE [c].[Id] IN (
 
         #region Bug9202/9210
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Include_collection_for_entity_with_owned_type_works()
         {
             using (CreateDatabase9202())
@@ -2432,22 +2433,37 @@ WHERE [c].[Id] IN (
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN (
+    SELECT [m.Details].*
+    FROM [Movies] AS [m.Details]
+    WHERE [m.Details].[Details_Info] IS NOT NULL
+) AS [t] ON [m].[Id] = [t].[Id]
 ORDER BY [m].[Id]",
-                        //
-                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
+                //
+                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
 FROM [Actors] AS [m.Cast]
+LEFT JOIN (
+    SELECT [a.Details].*
+    FROM [Actors] AS [a.Details]
+    WHERE [a.Details].[Details_Info] IS NOT NULL
+) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
 INNER JOIN (
     SELECT DISTINCT [m0].[Id]
     FROM [Movies] AS [m0]
-) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
-ORDER BY [t].[Id]");
+    LEFT JOIN (
+        SELECT [m.Details0].*
+        FROM [Movies] AS [m.Details0]
+        WHERE [m.Details0].[Details_Info] IS NOT NULL
+    ) AS [t1] ON [m0].[Id] = [t1].[Id]
+) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
+ORDER BY [t2].[Id]");
                 }
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Include_collection_for_entity_with_owned_type_works_string()
         {
             using (CreateDatabase9202())
@@ -2463,17 +2479,32 @@ ORDER BY [t].[Id]");
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN (
+    SELECT [m.Details].*
+    FROM [Movies] AS [m.Details]
+    WHERE [m.Details].[Details_Info] IS NOT NULL
+) AS [t] ON [m].[Id] = [t].[Id]
 ORDER BY [m].[Id]",
-                        //
-                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
+                //
+                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
 FROM [Actors] AS [m.Cast]
+LEFT JOIN (
+    SELECT [a.Details].*
+    FROM [Actors] AS [a.Details]
+    WHERE [a.Details].[Details_Info] IS NOT NULL
+) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
 INNER JOIN (
     SELECT DISTINCT [m0].[Id]
     FROM [Movies] AS [m0]
-) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
-ORDER BY [t].[Id]");
+    LEFT JOIN (
+        SELECT [m.Details0].*
+        FROM [Movies] AS [m.Details0]
+        WHERE [m.Details0].[Details_Info] IS NOT NULL
+    ) AS [t1] ON [m0].[Id] = [t1].[Id]
+) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
+ORDER BY [t2].[Id]");
                 }
             }
         }
@@ -2633,7 +2664,7 @@ WHERE [w].[Val] = 1");
                     context.Widgets.AddRange(w1, w2, w3);
                     context.SaveChanges();
 
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION foo.AddOne (@num int)
                                                             RETURNS int
                                                                 AS
@@ -2641,7 +2672,7 @@ WHERE [w].[Val] = 1");
                                                                 return @num + 1 ;
                                                             END");
 
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE FUNCTION dbo.AddTwo (@num int)
                                                             RETURNS int
                                                                 AS
@@ -2698,7 +2729,7 @@ WHERE [w].[Val] = 1");
 
         #region Bug9277
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void From_sql_gets_value_of_out_parameter_in_stored_procedure()
         {
             using (CreateDatabase9277())
@@ -2715,7 +2746,7 @@ WHERE [w].[Val] = 1");
 
                     Assert.Equal(0, valueParam.Value);
 
-                    var blogs = context.Blogs.FromSql(
+                    var blogs = context.Blogs.FromSqlRaw(
                             "[dbo].[GetPersonAndVoteCount]  @id, @Value out",
                             new SqlParameter
                             {
@@ -2737,7 +2768,7 @@ WHERE [w].[Val] = 1");
                 () => new MyContext9277(_options),
                 context =>
                 {
-                    context.Database.ExecuteSqlCommand(
+                    context.Database.ExecuteSqlRaw(
                         @"CREATE PROCEDURE [dbo].[GetPersonAndVoteCount]
  (
     @id int,
@@ -2794,7 +2825,7 @@ BEGIN
 
         #region Bug9038
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
@@ -2813,7 +2844,7 @@ BEGIN
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public async Task Include_optional_reference_collection_another_collection()
         {
             using (CreateDatabase9038())
@@ -2956,7 +2987,7 @@ BEGIN
 
         #region Bug9735
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
         public virtual void Repro9735()
         {
@@ -2981,7 +3012,7 @@ FROM [Customers] AS [b]
 LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
 ORDER BY CASE
     WHEN [b].[AddressId] > 0
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END, CASE
     WHEN [b].[CustomerDetailsId] IS NOT NULL
     THEN [b.CustomerDetails].[Name] ELSE N''
@@ -2996,7 +3027,7 @@ INNER JOIN (
     FROM (
         SELECT TOP(@__p_0) [b0].[Id], CASE
             WHEN [b0].[AddressId] > 0
-            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+            THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
         END AS [c], CASE
             WHEN [b0].[CustomerDetailsId] IS NOT NULL
             THEN [b.CustomerDetails0].[Name] ELSE N''
@@ -3078,7 +3109,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #region Bug9892
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'join <>f__AnonymousType12`2 c in {from Child9892 x in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+Child9892]) join OtherParent9892 x.OtherParent in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+OtherParent9892]) on Property([x], \"OtherParentId\") equals Property([x.OtherParent], \"Id\") select new <>f__AnonymousType12`2(ParentId = [x].ParentId, OtherParent = [x.OtherParent].Name)} on [p].Id equals [c].ParentId'")]
         public virtual void GroupJoin_to_parent_with_no_child_works_9892()
         {
             using (CreateDatabase9892())
@@ -3212,7 +3243,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #region Bug9468
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
         {
             using (CreateDatabase9468())
@@ -3231,10 +3262,10 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
                     AssertSql(
                         @"SELECT CASE
-    WHEN [t].[ConfigurationId] IS NOT NULL
+    WHEN [t.Configuration].[Id] IS NOT NULL
     THEN CASE
-        WHEN [t.Configuration].[Processed] = 0
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        WHEN [t.Configuration].[Processed] = CAST(0 AS bit)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END ELSE NULL
 END AS [Processing]
 FROM [Carts] AS [t]
@@ -3297,7 +3328,7 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
 
         #region Bug10635
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public void Include_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
@@ -3339,7 +3370,7 @@ ORDER BY [t].[Id]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15043")]
         public void Correlated_collection_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
@@ -3456,7 +3487,7 @@ ORDER BY [t].[Id]");
 
         #region Bug10168
 
-        [Fact]
+        [Fact(Skip = "issue #15285")]
         public void Row_number_paging_with_owned_type()
         {
             using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
@@ -3489,16 +3520,21 @@ ORDER BY [t].[Id]");
                 Assert.Equal("Full1", result.User.Fullname);
 
                 AssertSql(
-                    @"@__p_0='?' (DbType = Int32)
+                @"@__p_0='?' (DbType = Int32)
 @__p_1='?' (DbType = Int32)
 
-SELECT [t].[Id], [t].[Text], [t].[Id], [t].[User_Email], [t].[User_Fullname]
+SELECT [t0].[Id], [t0].[Text], [t0].[Id0], [t0].[User_Email], [t0].[User_Fullname]
 FROM (
-    SELECT [x].[Id], [x].[Text], [x].[User_Email], [x].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+    SELECT [x].[Id], [x].[Text], [t].[Id] AS [Id0], [t].[User_Email], [t].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM [Note] AS [x]
+    LEFT JOIN (
+        SELECT [x.User].*
+        FROM [Note] AS [x.User]
+        WHERE [x.User].[User_Fullname] IS NOT NULL OR [x.User].[User_Email] IS NOT NULL
+    ) AS [t] ON [x].[Id] = [t].[Id]
     WHERE [x].[Text] = N'Foo Bar'
-) AS [t]
-WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
+) AS [t0]
+WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))");
             }
         }
 
@@ -3549,7 +3585,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
 
         #region Bug10301
 
-        [Fact]
+        [Fact(Skip = "issue #15364")]
         public virtual void MultiContext_query_filter_test()
         {
             using (CreateDatabase10301())
@@ -3648,7 +3684,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
 
         #region Bug11104
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
         {
             using (CreateDatabase11104())
@@ -3663,7 +3699,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
                     AssertSql(
                         @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
 FROM [Bases] AS [b]
-WHERE [b].[IsTwo] IN (1, 0)");
+WHERE [b].[IsTwo] IN (CAST(1 AS bit), CAST(0 AS bit))");
                 }
             }
         }
@@ -3729,7 +3765,7 @@ WHERE [b].[IsTwo] IN (1, 0)");
 
         #region Bug11818_11831
 
-        [Fact]
+        [Fact(Skip = "issue #15249")]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
             using (CreateDatabase11818())
@@ -3755,14 +3791,19 @@ WHERE [b].[IsTwo] IN (1, 0)");
                         .ToList();
 
                     AssertSql(
-                        @"SELECT [e].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [e]
-GROUP BY [e].[Name]");
+LEFT JOIN (
+    SELECT [a].*
+    FROM [Table] AS [a]
+    WHERE [a].[Name] IS NOT NULL
+) AS [t] ON [e].[Id] = [t].[Id]
+GROUP BY [t].[Name]");
                 }
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15249")]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_2()
         {
             using (CreateDatabase11818())
@@ -3796,9 +3837,19 @@ GROUP BY [e].[Name]");
                         .ToList();
 
                     AssertSql(
-                        @"SELECT [e].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [e]
-GROUP BY [e].[Name], [e].[MaumarEntity11818_Name]");
+LEFT JOIN (
+    SELECT [a].*
+    FROM [Table] AS [a]
+    WHERE [a].[Name] IS NOT NULL
+) AS [t] ON [e].[Id] = [t].[Id]
+LEFT JOIN (
+    SELECT [m].*
+    FROM [Table] AS [m]
+    WHERE [m].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t0] ON [e].[Id] = [t0].[Id]
+GROUP BY [t].[Name], [t0].[MaumarEntity11818_Name]");
                 }
             }
         }
@@ -4112,7 +4163,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
 
         public static bool ClientMethod11923(int id) => true;
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'First()'")]
         public virtual void Collection_without_setter_materialized_correctly()
         {
             using (CreateDatabase11923())
@@ -4483,7 +4534,7 @@ FROM [Prices] AS [e]");
 
         #region Bug12582
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'OfType<Microsoft.EntityFrameworkCore.Query.QueryBugsTest+IEmployee12582>()'")]
         public virtual void Include_collection_with_OfType_base()
         {
             using (CreateDatabase12582())
@@ -4503,7 +4554,7 @@ FROM [Prices] AS [e]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_with_OfType_base()
         {
             using (CreateDatabase12582())
@@ -4579,7 +4630,7 @@ FROM [Prices] AS [e]");
 
         #region Bug12748
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_correctly_associates_entities_with_byte_array_keys()
         {
             using (CreateDatabase12748())
@@ -4812,7 +4863,7 @@ FROM [Prices] AS [e]");
 
         #region Bug11944
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Include_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())
@@ -4828,7 +4879,7 @@ FROM [Prices] AS [e]");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "QueryIssue")]
         public virtual void Correlated_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())
@@ -5045,7 +5096,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [Fact]
+        [Fact(Skip = "issue #15043")]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())
@@ -5074,20 +5125,25 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
 
                     AssertSql(
-                        @"SELECT [x].[Id]
+                @"SELECT [x].[Id]
 FROM [Partners] AS [x]
 ORDER BY [x].[Id]",
-                        //
-                        @"SELECT [t].[Id], CASE
-    WHEN [x.Addresses].[Id] IS NULL
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END, [x.Addresses].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
+                //
+                @"SELECT [t0].[Id], CASE
+    WHEN [t].[Id] IS NULL
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+END, [t].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
 FROM [Address13157] AS [x.Addresses]
+LEFT JOIN (
+    SELECT [y.Turnovers].*
+    FROM [Address13157] AS [y.Turnovers]
+    WHERE [y.Turnovers].[Turnovers_AmountIn] IS NOT NULL
+) AS [t] ON [x.Addresses].[Id] = [t].[Id]
 INNER JOIN (
     SELECT [x0].[Id]
     FROM [Partners] AS [x0]
-) AS [t] ON [x.Addresses].[Partner13157Id] = [t].[Id]
-ORDER BY [t].[Id]");
+) AS [t0] ON [x.Addresses].[Partner13157Id] = [t0].[Id]
+ORDER BY [t0].[Id]");
                 }
             }
         }
@@ -5205,7 +5261,7 @@ ORDER BY [t].[Id]");
                     .HasNoKey()
                     .ToQuery(
                         () => Set<OrderSummary13346>()
-                            .FromSql("SELECT o.Amount From Orders AS o"));
+                            .FromSqlRaw("SELECT o.Amount From Orders AS o"));
             }
         }
 

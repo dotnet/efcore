@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql
@@ -16,11 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Generates SQL for the given parameter values.
         /// </summary>
+        /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="parameterValues"> The parameter values. </param>
+        /// <param name="logger"> The query logger. </param>
         /// <returns>
         ///     The SQL.
         /// </returns>
-        IRelationalCommand GenerateSql([NotNull] IReadOnlyDictionary<string, object> parameterValues);
+        IRelationalCommand GenerateSql(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
 
         /// <summary>
         ///     Gets a value indicating whether the generated SQL is cacheable.

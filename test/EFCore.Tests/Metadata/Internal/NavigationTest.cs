@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -32,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
-            public bool IsShadowProperty { get; }
-            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; }
             public bool IsEagerLoaded { get; }
@@ -54,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public virtual void Detects_navigations_to_keyless_types()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(B));
             var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);
             var keylessType = model.AddEntityType(typeof(A));
-            keylessType.HasNoKey(true);
+            keylessType.IsKeyless = true;
             var fkProperty = keylessType.AddProperty("p", typeof(int));
             var fk = keylessType.AddForeignKey(fkProperty, key, entityType);
             Assert.Equal(
@@ -67,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => fk.HasPrincipalToDependent(nameof(B.ManyAs))).Message);
         }
 
-        private ForeignKey CreateForeignKey()
+        private IMutableForeignKey CreateForeignKey()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(E));
             var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);

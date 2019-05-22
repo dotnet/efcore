@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
         [Fact]
@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ConventionalName", ConfigurationSource.Convention);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ConventionalSchema", ConfigurationSource.Convention);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("MyTable", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
         [Fact]
@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityBuilder.HasAnnotation(RelationalAnnotationNames.TableName, "ExplicitName", ConfigurationSource.Explicit);
             entityBuilder.HasAnnotation(RelationalAnnotationNames.Schema, "ExplicitName", ConfigurationSource.Explicit);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder);
+            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()).Apply(entityBuilder);
 
-            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().TableName);
-            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Schema);
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.GetTableName());
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new TestLogger<DbLoggerCategory.Model>()));
+                    new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

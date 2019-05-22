@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery()
         {
             using (var context = CreateContext())
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Last()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Last()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
@@ -183,14 +183,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()"),
+                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("LastOrDefault()"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
         {
             using (var context = CreateContext())
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning()
         {
             using (var context = CreateContext())

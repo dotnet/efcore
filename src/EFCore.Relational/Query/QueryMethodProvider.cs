@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -48,12 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var relationalCommand
                     = shaperCommandContext
-                        .GetRelationalCommand(relationalQueryContext.ParameterValues);
+                        .GetRelationalCommand(relationalQueryContext.ParameterValues, relationalQueryContext);
 
                 dataReader
                     = relationalCommand.ExecuteReader(
                         relationalQueryContext.Connection,
-                        relationalQueryContext.ParameterValues);
+                        relationalQueryContext.ParameterValues,
+                        relationalQueryContext.CommandLogger);
             }
             catch
             {
@@ -380,8 +381,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         The <see cref="MethodInfo"/> of the internal `_InjectParameters` method exposed such
+        ///         that it can be used when processing expression trees.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
         public virtual MethodInfo InjectParametersMethod => _injectParametersMethodInfo;
 

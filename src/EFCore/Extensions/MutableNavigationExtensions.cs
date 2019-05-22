@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -13,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableNavigationExtensions
     {
         /// <summary>
-        ///     Gets the navigation property on the other end of the relationship. Returns null if
+        ///     Gets the navigation property on the other end of the relationship. Returns <c>null</c> if
         ///     there is no navigation property defined on the other end of the relationship.
         /// </summary>
         /// <param name="navigation"> The navigation property to find the inverse of. </param>
         /// <returns>
-        ///     The inverse navigation, or null if none is defined.
+        ///     The inverse navigation, or <c>null</c> if none is defined.
         /// </returns>
         public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)
             => (IMutableNavigation)((INavigation)navigation).FindInverse();
@@ -31,5 +32,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The target entity type. </returns>
         public static IMutableEntityType GetTargetType([NotNull] this IMutableNavigation navigation)
             => (IMutableEntityType)((INavigation)navigation).GetTargetType();
+
+        /// <summary>
+        ///     Sets a value indicating whether this navigation should be eager loaded by default.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to set whether it should be eager loaded for. </param>
+        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
+        public static void SetIsEagerLoaded([NotNull] this IMutableNavigation navigation, bool? eagerLoaded)
+            => navigation.AsNavigation().SetIsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
     }
 }

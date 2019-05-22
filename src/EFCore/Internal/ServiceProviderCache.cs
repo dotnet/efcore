@@ -14,8 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ServiceProviderCache
     {
@@ -23,14 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options, bool providerRequired)
         {
@@ -103,26 +109,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     var scopedProvider = scope.ServiceProvider;
 
-                    // Because IDbContextOptions cannot yet be resolved from the internal provider
-                    var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
-                        ScopedLoggerFactory.Create(scopedProvider, options),
-                        scopedProvider.GetService<ILoggingOptions>(),
-                        scopedProvider.GetService<DiagnosticSource>());
-
-                    if (_configurations.Count == 0)
+                    // If loggingDefinitions is null, then there is no provider yet
+                    var loggingDefinitions = scopedProvider.GetService<LoggingDefinitions>();
+                    if (loggingDefinitions != null)
                     {
-                        logger.ServiceProviderCreated(serviceProvider);
-                    }
-                    else
-                    {
-                        logger.ServiceProviderDebugInfo(
-                            debugInfo,
-                            _configurations.Values.Select(v => v.DebugInfo).ToList());
+                        // Because IDbContextOptions cannot yet be resolved from the internal provider
+                        var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
+                            ScopedLoggerFactory.Create(scopedProvider, options),
+                            scopedProvider.GetService<ILoggingOptions>(),
+                            scopedProvider.GetService<DiagnosticSource>(),
+                            loggingDefinitions);
 
-                        if (_configurations.Count >= 20)
+                        if (_configurations.Count == 0)
                         {
-                            logger.ManyServiceProvidersCreatedWarning(
-                                _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                            logger.ServiceProviderCreated(serviceProvider);
+                        }
+                        else
+                        {
+                            logger.ServiceProviderDebugInfo(
+                                debugInfo,
+                                _configurations.Values.Select(v => v.DebugInfo).ToList());
+
+                            if (_configurations.Count >= 20)
+                            {
+                                logger.ManyServiceProvidersCreatedWarning(
+                                    _configurations.Values.Select(e => e.ServiceProvider).ToList());
+                            }
                         }
                     }
                 }

@@ -7,7 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -24,9 +27,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class CollectionEntry : NavigationEntry
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
             : base(internalEntry, name, collection: true)
         {
@@ -34,9 +40,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
@@ -48,9 +57,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var collection = CurrentValue;
             if (collection != null)
             {
+                var targetType = Metadata.GetTargetType();
+                var context = InternalEntry.StateManager.Context;
+                var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
+                    && context.Model[ChangeDetector.SkipDetectChangesAnnotation] == null
+                     ? context.GetDependencies().ChangeDetector
+                     : null;
                 foreach (var entity in collection.OfType<object>().ToList())
                 {
-                    InternalEntry.StateManager.Context.Entry(entity);
+                    var entry = InternalEntry.StateManager.GetOrCreateEntry(entity, targetType);
+                    changeDetector?.DetectChanges(entry);
                 }
             }
         }
@@ -125,11 +141,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return base.Query();
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual void EnsureInitialized()
+        private void EnsureInitialized()
             => InternalEntry.GetOrCreateCollection(Metadata);
+
+        /// <summary>
+        ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
+        /// </summary>
+        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <value> An entry for an entity that this navigation targets. </value>
+        public virtual EntityEntry GetTargetEntry(object entity)
+        {
+            var entry = GetInternalTargetEntry(entity);
+            return entry == null
+                    ? null
+                    : new EntityEntry(entry);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual InternalEntityEntry GetInternalTargetEntry(object entity)
+            => CurrentValue == null
+               || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
+                  ? null
+                  : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.GetTargetType());
     }
 }

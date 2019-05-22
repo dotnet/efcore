@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="RelationalQueryModelVisitorFactory"/> instance.
         /// </summary>
+        /// <param name="dependencies"> Core dependencies for this service. </param>
+        /// <param name="relationalDependencies"> Relational-specific dependencies for this service. </param>
         public RelationalQueryModelVisitorFactory(
             [NotNull] EntityQueryModelVisitorDependencies dependencies,
             [NotNull] RelationalQueryModelVisitorDependencies relationalDependencies)

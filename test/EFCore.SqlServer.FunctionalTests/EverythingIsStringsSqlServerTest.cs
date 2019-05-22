@@ -182,8 +182,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -218,10 +217,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
-            /// <summary>
-            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             public SqlServerStringsTypeMappingSource(
                 TypeMappingSourceDependencies dependencies,
                 RelationalTypeMappingSourceDependencies relationalDependencies)

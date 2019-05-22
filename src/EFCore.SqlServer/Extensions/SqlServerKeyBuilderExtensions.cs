@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -23,9 +24,50 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            keyBuilder.Metadata.SqlServer().IsClustered = clustered;
+            keyBuilder.Metadata.SetSqlServerIsClustered(clustered);
 
             return keyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures whether the key is clustered when targeting SQL Server.
+        /// </summary>
+        /// <param name="keyBuilder"> The builder for the key being configured. </param>
+        /// <param name="clustered"> A value indicating whether the key is clustered. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionKeyBuilder ForSqlServerIsClustered(
+            [NotNull] this IConventionKeyBuilder keyBuilder,
+            bool? clustered,
+            bool fromDataAnnotation = false)
+        {
+            if (keyBuilder.ForSqlServerCanSetIsClustered(clustered, fromDataAnnotation))
+            {
+                keyBuilder.Metadata.SetSqlServerIsClustered(clustered, fromDataAnnotation);
+                return keyBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the key can be configured as clustered.
+        /// </summary>
+        /// <param name="keyBuilder"> The builder for the key being configured. </param>
+        /// <param name="clustered"> A value indicating whether the key is clustered. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the key can be configured as clustered. </returns>
+        public static bool ForSqlServerCanSetIsClustered(
+            [NotNull] this IConventionKeyBuilder keyBuilder,
+            bool? clustered,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
+
+            return keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
         }
     }
 }

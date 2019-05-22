@@ -12,14 +12,19 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerMemoryOptimizedTablesConvention : IEntityTypeAnnotationChangedConvention, IKeyAddedConvention, IIndexAddedConvention
+    public class SqlServerMemoryOptimizedTablesConvention : IEntityTypeAnnotationChangedConvention, IKeyAddedConvention,
+        IIndexAddedConvention
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerMemoryOptimizedTablesConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
@@ -27,14 +32,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Annotation Apply(
             InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
@@ -44,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
                 var memoryOptimized = annotation?.Value as bool? == true;
                 foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())
                 {
-                    key.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);
+                    key.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
 
                 foreach (var index in entityTypeBuilder.Metadata.GetDerivedIndexesInclusive())
                 {
-                    index.Builder.SqlServer(ConfigurationSource.Convention).IsClustered(memoryOptimized ? false : (bool?)null);
+                    index.Builder.ForSqlServerIsClustered(memoryOptimized ? false : (bool?)null);
                 }
             }
 
@@ -57,28 +66,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
-            if (keyBuilder.Metadata.DeclaringEntityType.SqlServer().IsMemoryOptimized)
+            if (keyBuilder.Metadata.DeclaringEntityType.GetSqlServerIsMemoryOptimized())
             {
-                keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(false);
+                keyBuilder.ForSqlServerIsClustered(false);
             }
 
             return keyBuilder;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalIndexBuilder Apply(InternalIndexBuilder indexBuilder)
         {
-            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.SqlServer().IsMemoryOptimized))
+            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.GetSqlServerIsMemoryOptimized()))
             {
-                indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(false);
+                indexBuilder.ForSqlServerIsClustered(false);
             }
 
             return indexBuilder;

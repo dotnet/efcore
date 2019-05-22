@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             modelBuilder.Entity<Order>();
 
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.SqlServer().IsClustered == null));
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.SqlServer().IsClustered == null));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == null));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == null));
 
             modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized();
             modelBuilder.Entity<Order>().HasKey(
@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 });
             modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
 
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.SqlServer().IsClustered == false));
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.SqlServer().IsClustered == false));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == false));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == false));
 
             modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized(false);
 
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.SqlServer().IsClustered == null));
-            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.SqlServer().IsClustered == null));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == null));
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == null));
         }
 
         private class Order

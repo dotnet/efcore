@@ -1190,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Binary = e.Point == null ? null : ((Geometry)e.Point).ToBinary() }),
+                es => es.Select(e => new { e.Id, Binary = e.Point == null ? null : ((Point)e.Point).ToBinary() }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1205,7 +1205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Text = e.Point == null ? null : ((Geometry)e.Point).ToText() }),
+                es => es.Select(e => new { e.Id, Text = e.Point == null ? null : ((Point)e.Point).ToText() }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {

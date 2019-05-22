@@ -7,57 +7,60 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class PropertyExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static CoreTypeMapping FindMapping(
-            [NotNull] this IProperty property)
-            => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool ForAdd(this ValueGenerated valueGenerated)
             => (valueGenerated & ValueGenerated.OnAdd) != 0;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool ForUpdate(this ValueGenerated valueGenerated)
             => (valueGenerated & ValueGenerated.OnUpdate) != 0;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IEntityType> GetContainingEntityTypes([NotNull] this IProperty property)
             => property.DeclaringEntityType.GetDerivedTypesInclusive();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IProperty property)
             => property.GetContainingKeys().SelectMany(k => k.GetReferencingForeignKeys());
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IProperty GetGenerationProperty([NotNull] this IProperty property)
         {
@@ -108,8 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                || property.GetValueGeneratorFactory() != null;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool MayBeStoreGenerated([NotNull] this IProperty property)
         {
@@ -129,8 +134,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool RequiresOriginalValue([NotNull] this IProperty property)
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
@@ -139,41 +146,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                || property.IsForeignKey();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
                || property.IsForeignKey();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static IProperty FindPrincipal([NotNull] this IProperty property)
-        {
-            var concreteProperty = property.AsProperty();
-            if (concreteProperty.ForeignKeys != null)
-            {
-                foreach (var foreignKey in concreteProperty.ForeignKeys)
-                {
-                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                    {
-                        if (property == foreignKey.Properties[propertyIndex])
-                        {
-                            return foreignKey.PrincipalKey.Properties[propertyIndex];
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
         {
@@ -211,10 +197,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IProperty property, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IProperty property,
+            bool singleLine = true,
+            bool includeIndexes = false,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
@@ -239,12 +231,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(property.ClrType.ShortDisplayName()).Append(")");
 
-            if (property.IsShadowProperty)
+            if (property.IsShadowProperty())
             {
                 builder.Append(" Shadow");
             }
 
-            if (property.IsIndexedProperty)
+            if (property.IsIndexedProperty())
             {
                 builder.Append(" Indexed");
             }
@@ -280,14 +272,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Concurrency");
             }
 
-            if (property.BeforeSaveBehavior != PropertySaveBehavior.Save)
+            if (property.GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
             {
-                builder.Append(" BeforeSave:").Append(property.BeforeSaveBehavior);
+                builder.Append(" BeforeSave:").Append(property.GetBeforeSaveBehavior());
             }
 
-            if (property.AfterSaveBehavior != PropertySaveBehavior.Save)
+            if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
             {
-                builder.Append(" AfterSave:").Append(property.AfterSaveBehavior);
+                builder.Append(" AfterSave:").Append(property.GetAfterSaveBehavior());
             }
 
             if (property.ValueGenerated != ValueGenerated.Never)
@@ -310,12 +302,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            var indexes = property.GetPropertyIndexes();
-            builder.Append(" ").Append(indexes.Index);
-            builder.Append(" ").Append(indexes.OriginalValueIndex);
-            builder.Append(" ").Append(indexes.RelationshipIndex);
-            builder.Append(" ").Append(indexes.ShadowIndex);
-            builder.Append(" ").Append(indexes.StoreGenerationIndex);
+            if (includeIndexes)
+            {
+                var indexes = property.GetPropertyIndexes();
+                if (indexes != null)
+                {
+                    builder.Append(" ").Append(indexes.Index);
+                    builder.Append(" ").Append(indexes.OriginalValueIndex);
+                    builder.Append(" ").Append(indexes.RelationshipIndex);
+                    builder.Append(" ").Append(indexes.ShadowIndex);
+                    builder.Append(" ").Append(indexes.StoreGenerationIndex);
+                }
+            }
 
             if (!singleLine)
             {
@@ -326,8 +324,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Property AsProperty([NotNull] this IProperty property, [NotNull] [CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IProperty, Property>(property, methodName);

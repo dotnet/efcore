@@ -8,8 +8,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
+
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -168,7 +169,7 @@ namespace Microsoft.Data.Sqlite
                 command.CommandText = "CREATE TABLE Data (Value); SELECT * FROM Data;";
                 var ex = Assert.Throws<SqliteException>(() => command.Prepare());
 
-                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such table: Data"), ex.Message);
+                Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such table: Data"), ex.Message);
             }
         }
 
@@ -259,7 +260,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<SqliteException>(() => command.ExecuteReader());
 
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -727,22 +728,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(CommandBehavior.KeyInfo)]
-        [InlineData(CommandBehavior.SchemaOnly)]
-        public void ExecuteReader_throws_for_unsupported_CommandBehavior(CommandBehavior behavior)
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                var command = connection.CreateCommand();
-                command.CommandText = "SELECT 0;";
-                connection.Open();
-
-                var ex = Assert.Throws<ArgumentException>(() => command.ExecuteReader(behavior));
-                Assert.Equal(Resources.InvalidCommandBehavior(behavior), ex.Message);
-            }
-        }
-
-        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public Task ExecuteReader_retries_when_locked(bool extendedErrorCode)
@@ -760,7 +745,7 @@ namespace Microsoft.Data.Sqlite
                             connection.Open();
                             if (extendedErrorCode)
                             {
-                                raw.sqlite3_extended_result_codes(connection.Handle, 1);
+                                sqlite3_extended_result_codes(connection.Handle, 1);
                             }
 
                             connection.ExecuteNonQuery(
@@ -782,7 +767,7 @@ namespace Microsoft.Data.Sqlite
                             connection.Open();
                             if (extendedErrorCode)
                             {
-                                raw.sqlite3_extended_result_codes(connection.Handle, 1);
+                                sqlite3_extended_result_codes(connection.Handle, 1);
                             }
 
                             selectedSignal.WaitOne();
@@ -879,6 +864,36 @@ namespace Microsoft.Data.Sqlite
                 var result = connection.ExecuteScalar<string>("PRAGMA journal_mode;");
 
                 Assert.NotNull(result);
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_works_when_subsequent_DML()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(@"
+                    CREATE TABLE Test(Value);
+                    INSERT INTO Test VALUES(1), (2);");
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT Value FROM Test;
+                    DELETE FROM Test";
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    Assert.Equal(1L, reader.GetInt64(0));
+
+                    hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    Assert.Equal(2L, reader.GetInt64(0));
+                }
             }
         }
     }

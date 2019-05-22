@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (createDatabase)
                     {
-                        testDatabase.Initialize(null, (Func<DbContext>)null, null);
+                        testDatabase.Initialize(null, (Func<DbContext>)null, null, null);
                     }
                     else
                     {
@@ -703,11 +703,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IDisposable CreateTransactionScope(bool useTransaction)
         {
-#if NET461
             return TestStore.CreateTransactionScope(useTransaction);
-#else
-            return TestStore.CreateTransactionScope(useTransaction: false);
-#endif
         }
 
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)

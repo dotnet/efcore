@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -23,6 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public override void Can_insert_and_read_back_with_binary_key()
         {
             // TODO: For this to work Join needs to be translated or compiled as a Join with custom equality comparer
+        }
+
+        public override void Can_perform_query_with_max_length()
+        {
+            // TODO: Better translation of sequential equality #14935
         }
 
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase

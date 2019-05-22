@@ -10,16 +10,17 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -30,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class SqlServerModelValidator : RelationalModelValidator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModelValidator(
             [NotNull] ModelValidatorDependencies dependencies,
@@ -41,27 +44,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Validate(IModel model, DiagnosticsLoggers loggers)
+        public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.Validate(model, loggers);
+            base.Validate(model, logger);
 
-            ValidateDefaultDecimalMapping(model, loggers);
-            ValidateByteIdentityMapping(model, loggers);
-            ValidateNonKeyValueGeneration(model, loggers);
-            ValidateIndexIncludeProperties(model, loggers);
+            ValidateDefaultDecimalMapping(model, logger);
+            ValidateByteIdentityMapping(model, logger);
+            ValidateNonKeyValueGeneration(model, logger);
+            ValidateIndexIncludeProperties(model, logger);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
@@ -69,9 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                          && !p.IsForeignKey()))
             {
 #pragma warning disable IDE0019 // Use pattern matching
-                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionalAnnotation;
+                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionAnnotation;
 #pragma warning restore IDE0019 // Use pattern matching
-                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionalAnnotation;
+                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionAnnotation;
                 if ((type == null
                      && (typeMapping == null
                          || ConfigurationSource.Convention.Overrides(typeMapping.GetConfigurationSource())))
@@ -84,37 +89,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateByteIdentityMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var logger = loggers.GetLogger<DbLoggerCategory.Model.Validation>();
-
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                         && p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                         && p.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.ByteIdentityColumnWarning(property);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
-                    p => ((SqlServerPropertyAnnotations)p.SqlServer()).GetSqlServerValueGenerationStrategy(fallbackToModel: false)
-                         == SqlServerValueGenerationStrategy.SequenceHiLo
+                    p => p.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                         && ((IConventionProperty)p).GetSqlServerValueGenerationStrategyConfigurationSource() != null
                          && !p.IsKey()
                          && p.ValueGenerated != ValueGenerated.Never
-                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionalAnnotation strategy)
+                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
                              || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(
@@ -123,19 +130,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model, DiagnosticsLoggers loggers)
+        protected virtual void ValidateIndexIncludeProperties([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {
-                var includeProperties = index.SqlServer().IncludeProperties;
+                var includeProperties = index.GetSqlServerIncludeProperties();
                 if (includeProperties?.Count > 0)
                 {
                     var notFound = includeProperties
-                        .Where(i => index.DeclaringEntityType.FindProperty(i) == null)
-                        .FirstOrDefault();
+                        .FirstOrDefault(i => index.DeclaringEntityType.FindProperty(i) == null);
 
                     if (notFound != null)
                     {
@@ -156,8 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     }
 
                     var inIndex = includeProperties
-                        .Where(i => index.Properties.Any(p => i == p.Name))
-                        .FirstOrDefault();
+                        .FirstOrDefault(i => index.Properties.Any(p => i == p.Name));
 
                     if (inIndex != null)
                     {
@@ -169,18 +176,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedTableCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var firstMappedType = mappedTypes[0];
-            var isMemoryOptimized = firstMappedType.SqlServer().IsMemoryOptimized;
+            var isMemoryOptimized = firstMappedType.GetSqlServerIsMemoryOptimized();
 
             foreach (var otherMappedType in mappedTypes.Skip(1))
             {
-                if (isMemoryOptimized != otherMappedType.SqlServer().IsMemoryOptimized)
+                if (isMemoryOptimized != otherMappedType.GetSqlServerIsMemoryOptimized())
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
@@ -190,29 +199,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            base.ValidateSharedTableCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedTableCompatibility(mappedTypes, tableName, logger);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedColumnsCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, logger);
 
             var identityColumns = new List<IProperty>();
             var propertyMappings = new Dictionary<string, IProperty>();
 
             foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
             {
-                var propertyAnnotations = property.Relational();
-                var columnName = propertyAnnotations.ColumnName;
+                var columnName = property.GetColumnName();
                 if (propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                 {
-                    var propertyStrategy = property.SqlServer().ValueGenerationStrategy;
-                    var duplicatePropertyStrategy = duplicateProperty.SqlServer().ValueGenerationStrategy;
+                    var propertyStrategy = property.GetSqlServerValueGenerationStrategy();
+                    var duplicatePropertyStrategy = duplicateProperty.GetSqlServerValueGenerationStrategy();
                     if (propertyStrategy != duplicatePropertyStrategy
                         && (propertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn
                             || duplicatePropertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
@@ -230,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 else
                 {
                     propertyMappings[columnName] = property;
-                    if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+                    if (property.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
                     {
                         identityColumns.Add(property);
                     }
@@ -246,19 +256,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void ValidateSharedKeysCompatibility(
-            IReadOnlyList<IEntityType> mappedTypes, string tableName, DiagnosticsLoggers loggers)
+            IReadOnlyList<IEntityType> mappedTypes, string tableName, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, loggers);
+            base.ValidateSharedKeysCompatibility(mappedTypes, tableName, logger);
 
             var keyMappings = new Dictionary<string, IKey>();
 
             foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
             {
-                var keyName = key.Relational().Name;
+                var keyName = key.GetName();
 
                 if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
                 {
@@ -266,14 +278,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     continue;
                 }
 
-                if (key.SqlServer().IsClustered
-                    != duplicateKey.SqlServer().IsClustered)
+                if (key.GetSqlServerIsClustered()
+                    != duplicateKey.GetSqlServerIsClustered())
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.DuplicateKeyMismatchedClustering(
-                            Property.Format(key.Properties),
+                            key.Properties.Format(),
                             key.DeclaringEntityType.DisplayName(),
-                            Property.Format(duplicateKey.Properties),
+                            duplicateKey.Properties.Format(),
                             duplicateKey.DeclaringEntityType.DisplayName(),
                             tableName,
                             keyName));

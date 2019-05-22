@@ -17,10 +17,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the foreign key that defines the relationship this navigation property will navigate.
         /// </summary>
         IForeignKey ForeignKey { get; }
-
-        /// <summary>
-        ///     Determines whether this navigation should be eager loaded by default.
-        /// </summary>
-        bool IsEagerLoaded { get; }
     }
 }

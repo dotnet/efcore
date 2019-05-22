@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when a property is ignored.
         /// </summary>
-        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new List<IEntityTypeMemberIgnoredConvention>();
+        public virtual IList<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } =
+            new List<IEntityTypeMemberIgnoredConvention>();
 
         /// <summary>
         ///     Conventions to run when the base entity type is changed.
@@ -90,17 +91,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the uniqueness of an index is changed.
         /// </summary>
-        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } = new List<IIndexUniquenessChangedConvention>();
+        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } =
+            new List<IIndexUniquenessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is changed on an index.
         /// </summary>
-        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } = new List<IIndexAnnotationChangedConvention>();
+        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } =
+            new List<IIndexAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the principal end of a relationship is configured.
         /// </summary>
-        public virtual IList<IPrincipalEndChangedConvention> PrincipalEndChangedConventions { get; } = new List<IPrincipalEndChangedConvention>();
+        public virtual IList<IForeignKeyPrincipalEndChangedConvention> ForeignKeyPrincipalEndChangedConventions { get; }
+            = new List<IForeignKeyPrincipalEndChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when model building is completed.
@@ -123,19 +127,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
 
         /// <summary>
-        ///     Conventions to run when the uniqueness of a foreign key is changed.
+        ///     Conventions to run when the properties or the principal key of a foreign key are changed.
         /// </summary>
-        public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = new List<IForeignKeyUniquenessChangedConvention>();
+        public virtual IList<IForeignKeyPropertiesChangedConvention> ForeignKeyPropertiesChangedConventions { get; }
+            = new List<IForeignKeyPropertiesChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the uniqueness of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = new List<IForeignKeyRequirednessChangedConvention>();
+        public virtual IList<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; }
+            = new List<IForeignKeyUniquenessChangedConvention>();
+
+        /// <summary>
+        ///     Conventions to run when the requiredness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; }
+            = new List<IForeignKeyRequirednessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the ownership of a foreign key is changed.
         /// </summary>
-        public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = new List<IForeignKeyOwnershipChangedConvention>();
+        public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; }
+            = new List<IForeignKeyOwnershipChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a property is added.
@@ -145,36 +158,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the nullability of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = new List<IPropertyNullabilityChangedConvention>();
+        public virtual IList<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; }
+            = new List<IPropertyNullabilityChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when the field of a property is changed.
         /// </summary>
-        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } =
-            new List<IPropertyFieldChangedConvention>();
+        public virtual IList<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; }
+            = new List<IPropertyFieldChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is changed on a property.
         /// </summary>
-        public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = new List<IPropertyAnnotationChangedConvention>();
+        public virtual IList<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; }
+            = new List<IPropertyAnnotationChangedConvention>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Call this method to build a <see cref="ConventionSet" /> for only core services when using
+        ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is unusual to use this method.
+        ///         Consider using <see cref="DbContext" /> in the normal way instead.
+        ///     </para>
         /// </summary>
+        /// <returns> The convention set. </returns>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
         {
-            var loggers = new DiagnosticsLoggers(
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model>>(),
-                context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
 
-            var conventionSet = new CompositeConventionSetBuilder(
-                    context.GetService<IEnumerable<IConventionSetBuilder>>().ToList())
-                .AddConventions(context.GetService<ICoreConventionSetBuilder>()
-                    .CreateConventionSet(loggers));
+            var conventionSet = context.GetService<IConventionSetBuilder>().CreateConventionSet();
 
             conventionSet.ModelBuiltConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), loggers));
+                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
 
             return conventionSet;
         }

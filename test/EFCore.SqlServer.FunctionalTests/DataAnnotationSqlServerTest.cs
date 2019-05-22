@@ -3,9 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalStrings.LogKeyHasDefaultValue.GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                     "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 
@@ -49,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = base.Non_public_annotations_are_enabled();
 
-            var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName").Relational();
-            Assert.Equal("dsdsd", relational.ColumnName);
-            Assert.Equal("nvarchar(128)", relational.ColumnType);
+            var property = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName");
+            Assert.Equal("dsdsd", property.GetColumnName());
+            Assert.Equal("nvarchar(128)", property.GetColumnType());
 
             return modelBuilder;
         }
@@ -60,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = base.Field_annotations_are_enabled();
 
-            var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName").Relational();
-            Assert.Equal("dsdsd", relational.ColumnName);
-            Assert.Equal("nvarchar(128)", relational.ColumnType);
+            var property = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName");
+            Assert.Equal("dsdsd", property.GetColumnName());
+            Assert.Equal("nvarchar(128)", property.GetColumnType());
 
             return modelBuilder;
         }
@@ -71,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = base.Key_and_column_work_together();
 
-            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName").Relational();
-            Assert.Equal("dsdsd", relational.ColumnName);
-            Assert.Equal("nvarchar(128)", relational.ColumnType);
+            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName");
+            Assert.Equal("dsdsd", relational.GetColumnName());
+            Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
             return modelBuilder;
         }
@@ -108,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
 
-            var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
-            Assert.Equal("A", relational.TableName);
+            Assert.Equal("A", modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).GetTableName());
 
             return modelBuilder;
         }
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
             var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetSqlServerValueGenerationStrategy());
 
             return modelBuilder;
         }
@@ -131,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
             var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
-            Assert.Null(stringProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Null(stringProperty.GetSqlServerValueGenerationStrategy());
 
             var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
-            Assert.Null(dateTimeProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Null(dateTimeProperty.GetSqlServerValueGenerationStrategy());
 
             var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
-            Assert.Null(guidProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Null(guidProperty.GetSqlServerValueGenerationStrategy());
 
             return modelBuilder;
         }
@@ -147,12 +147,32 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Equal(
-                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [r].[UniqueNo], [r].[Details_Name], [r].[UniqueNo], [r].[AdditionalDetails_Name]
+                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
 FROM [Sample] AS [r]
+LEFT JOIN (
+    SELECT [r.Details].*
+    FROM [Sample] AS [r.Details]
+    WHERE [r.Details].[Details_Name] IS NOT NULL
+) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+LEFT JOIN (
+    SELECT [r.AdditionalDetails].*
+    FROM [Sample] AS [r.AdditionalDetails]
+    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
+) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
 WHERE [r].[UniqueNo] = 1
 
-SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [r].[UniqueNo], [r].[Details_Name], [r].[UniqueNo], [r].[AdditionalDetails_Name]
+SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
 FROM [Sample] AS [r]
+LEFT JOIN (
+    SELECT [r.Details].*
+    FROM [Sample] AS [r.Details]
+    WHERE [r.Details].[Details_Name] IS NOT NULL
+) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
+LEFT JOIN (
+    SELECT [r.AdditionalDetails].*
+    FROM [Sample] AS [r.AdditionalDetails]
+    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
+) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
 WHERE [r].[UniqueNo] = 1
 
 @p2='1'

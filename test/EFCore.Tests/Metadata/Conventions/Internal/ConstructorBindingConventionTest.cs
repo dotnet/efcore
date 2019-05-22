@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -549,9 +549,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("loader", parameters[0].Name);
 
-            Assert.IsType<DefaultServiceParameterBinding>(bindings[0]);
+            Assert.IsType<DependencyInjectionParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(ILazyLoader), ((DefaultServiceParameterBinding)bindings[0]).ServiceType);
+            Assert.Same(typeof(ILazyLoader), ((DependencyInjectionParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithLazyLoader : Blog
@@ -576,9 +576,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("lazyLoader", parameters[0].Name);
 
-            Assert.IsType<ServiceMethodParameterBinding>(bindings[0]);
+            Assert.IsType<DependencyInjectionMethodParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(ILazyLoader), ((ServiceMethodParameterBinding)bindings[0]).ServiceType);
+            Assert.Same(typeof(ILazyLoader), ((DependencyInjectionMethodParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithLazyLoaderMethod : Blog
@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var convention = TestServiceFactory.Instance.Create<ConstructorBindingConvention>();
 
-            var entityType = new Model().AddEntityType(typeof(TEntity));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
             entityType.AddProperty(nameof(Blog.Title), typeof(string));
             entityType.AddProperty(nameof(Blog._content), typeof(string));
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             entityType.AddProperty("_FooBaar5", typeof(string));
             entityType.AddProperty("m_FooBaar6", typeof(string));
 
-            convention.Apply(entityType.Model.Builder);
+            convention.Apply(((Model)entityType.Model).Builder);
 
             return (DirectConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }

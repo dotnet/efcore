@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -11,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        public abstract int SaveChanges(IReadOnlyList<IUpdateEntry> entries);
+        public abstract int SaveChanges(IList<IUpdateEntry> entries);
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     number of entries persisted to the database.
         /// </returns>
         public abstract Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -92,5 +91,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .Create(async: true)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
+
+        public virtual Func<QueryContext, TResult> CompileQuery2<TResult>(Expression query, bool async)
+        {
+            try
+            {
+                return Dependencies.QueryCompilationContextFactory2
+                    .Create(async)
+                    .CreateQueryExecutor<TResult>(query);
+            }
+            catch (Exception e)
+            {
+                if (e is NotImplementedException)
+                {
+                    return qc => default;
+                }
+
+                throw;
+            }
+        }
     }
 }

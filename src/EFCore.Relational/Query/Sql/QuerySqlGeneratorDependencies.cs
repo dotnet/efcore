@@ -46,31 +46,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="sqlGenerationHelper"> The SQL generation helper. </param>
         /// <param name="parameterNameGeneratorFactory"> The parameter name generator factory. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
         public QuerySqlGeneratorDependencies(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
             TypeMappingSource = typeMappingSource;
         }
-
-        /// <summary>
-        ///     Gets the command builder factory.
-        /// </summary>
-        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
 
         /// <summary>
         ///     Gets the SQL generation helper.
@@ -90,23 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QuerySqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
-            => new QuerySqlGeneratorDependencies(
-                commandBuilderFactory,
-                SqlGenerationHelper,
-                ParameterNameGeneratorFactory,
-                TypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
         /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public QuerySqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
             => new QuerySqlGeneratorDependencies(
-                CommandBuilderFactory,
                 sqlGenerationHelper,
                 ParameterNameGeneratorFactory,
                 TypeMappingSource);
@@ -118,7 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns> A new parameter object with the given service replaced. </returns>
         public QuerySqlGeneratorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
             => new QuerySqlGeneratorDependencies(
-                CommandBuilderFactory,
                 SqlGenerationHelper,
                 parameterNameGeneratorFactory,
                 TypeMappingSource);
@@ -130,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns> A new parameter object with the given service replaced. </returns>
         public QuerySqlGeneratorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
             => new QuerySqlGeneratorDependencies(
-                CommandBuilderFactory,
                 SqlGenerationHelper,
                 ParameterNameGeneratorFactory,
                 typeMappingSource);

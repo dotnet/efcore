@@ -6,12 +6,12 @@ using System.Data.Common;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
@@ -338,9 +338,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false)
+                            false, true, false, false, false, true)
                     }));
 
             batch.AddCommand(
@@ -354,9 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false)
+                            false, true, false, false, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -390,9 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false)
+                            false, true, false, false, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -424,9 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, false, false, true, false)
+                            false, false, false, true, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -458,9 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, true, false)
+                            false, true, false, true, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -492,9 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            true, false, false, false, false)
+                            true, false, false, false, false, true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -510,17 +504,17 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.AddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.Relational().ColumnName = "Col1";
-            entityType.GetOrSetPrimaryKey(key);
+            key.SetColumnName("Col1");
+            entityType.SetPrimaryKey(key);
 
             var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.Relational().ColumnName = "Col2";
+            nonKey.SetColumnName("Col2");
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             GenerateMapping(key);
@@ -553,11 +547,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
-            results = results ?? new List<object[]>
+            results ??= new List<object[]>
             {
                 new object[] { 1 }
             };
-            columnNames = columnNames ?? new[] { "RowsAffected" };
+            columnNames ??= new[] { "RowsAffected" };
 
             return new FakeDbDataReader(columnNames, results);
         }
@@ -566,27 +560,35 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             public ModificationCommandBatchFake(
                 IUpdateSqlGenerator sqlGenerator = null)
-                : base(
-                    new ModificationCommandBatchFactoryDependencies(
-                        new RelationalCommandBuilderFactory(
-                            new TestRelationalTypeMappingSource(
-                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
-                        new RelationalSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies()),
-                        sqlGenerator ?? new FakeSqlGenerator(
-                            RelationalTestHelpers.Instance.CreateContextServices()
-                                .GetRequiredService<UpdateSqlGeneratorDependencies>()),
-                        new TypedRelationalValueBufferFactoryFactory(
-                            new RelationalValueBufferFactoryDependencies(
-                                new TestRelationalTypeMappingSource(
-                                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                                new CoreSingletonOptions())),
-                        new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>()))
+                : base(CreateDependencies(sqlGenerator))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
+            }
+
+            private static ModificationCommandBatchFactoryDependencies CreateDependencies(
+                IUpdateSqlGenerator sqlGenerator)
+            {
+                var typeMappingSource = new TestRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+                var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
+                return new ModificationCommandBatchFactoryDependencies(
+                    new RelationalCommandBuilderFactory(
+                        new RelationalCommandBuilderDependencies(
+                            typeMappingSource)),
+                    new RelationalSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()),
+                    sqlGenerator ?? new FakeSqlGenerator(
+                        RelationalTestHelpers.Instance.CreateContextServices()
+                            .GetRequiredService<UpdateSqlGeneratorDependencies>()),
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            typeMappingSource,
+                            new CoreSingletonOptions())),
+                    logger);
             }
 
             public string CommandText => GetCommandText();
@@ -601,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             protected override void UpdateCachedCommandText(int commandIndex)
             {
-                CachedCommandText = CachedCommandText ?? new StringBuilder();
+                CachedCommandText ??= new StringBuilder();
                 CachedCommandText.Append(".");
             }
 

@@ -27,12 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
                 && entityType.IsDocumentRoot()
                 && !entityType.IsKeyless)
             {
-                var idProperty = entityTypeBuilder.Property(IdPropertyName, typeof(string), ConfigurationSource.Convention);
+                var idProperty = entityTypeBuilder.Property(typeof(string), IdPropertyName, ConfigurationSource.Convention);
                 idProperty.HasValueGenerator((_, __) => new IdValueGenerator(), ConfigurationSource.Convention);
                 entityTypeBuilder.HasKey(new[] { idProperty.Metadata }, ConfigurationSource.Convention);
 
-                var jObjectProperty = entityTypeBuilder.Property(JObjectPropertyName, typeof(JObject), ConfigurationSource.Convention);
-                jObjectProperty.Cosmos(ConfigurationSource.Convention).ToProperty("");
+                var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName, ConfigurationSource.Convention);
+                jObjectProperty.ForCosmosToProperty("");
                 jObjectProperty.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
             }
             else
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
                 var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
                 if (jObjectProperty != null)
                 {
-                    entityType.Builder.RemoveShadowPropertiesIfUnused(new[] { jObjectProperty });
+                    entityType.Builder.RemoveUnusedShadowProperties(new[] { jObjectProperty });
                 }
             }
 

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
@@ -25,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(InMemoryEventId),
                 typeof(InMemoryLoggerExtensions),
+                typeof(InMemoryLoggingDefinitions),
                 fakeFactories);
         }
     }

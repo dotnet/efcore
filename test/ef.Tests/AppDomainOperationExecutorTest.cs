@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     References =
                     {
                         BuildReference.ByName("System.Interactive.Async", true),
+                        BuildReference.ByName("System.Threading.Tasks.Extensions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
@@ -185,6 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
+                        BuildReference.ByName("System.Threading.Tasks.Extensions", true),
                         BuildReference.ByPath(contextsBuild.TargetPath)
                     },
                     Sources =
@@ -258,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     References =
                     {
                         BuildReference.ByName("System.Interactive.Async", true),
+                        BuildReference.ByName("System.Threading.Tasks.Extensions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
@@ -342,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = targetDir,
                     References =
                     {
+                        BuildReference.ByName("System.Threading.Tasks.Extensions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),

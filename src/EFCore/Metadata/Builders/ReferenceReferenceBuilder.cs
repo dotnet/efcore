@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,21 +22,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] EntityType declaringEntityType,
-            [NotNull] EntityType relatedEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(declaringEntityType, relatedEntityType, builder)
+            [NotNull] IMutableEntityType declaringEntityType,
+            [NotNull] IMutableEntityType relatedEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
             InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
@@ -141,9 +148,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [CanBeNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
@@ -153,9 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasForeignKeyBuilder(
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
@@ -180,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (var batch = dependentEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                var builder = Builder.RelatedEntityTypes(
+                var builder = Builder.HasEntityTypes(
                     GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
                 builder = hasForeignKey(builder, dependentEntityType);
 
@@ -247,9 +260,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 principalKeySet: keyPropertyNames.Length > 0);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [CanBeNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
@@ -259,9 +275,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder(
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
@@ -286,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (var batch = principalEntityType.Model.ConventionDispatcher.StartBatch())
             {
-                var builder = Builder.RelatedEntityTypes(
+                var builder = Builder.HasEntityTypes(
                     principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
                 builder = hasPrincipalKey(builder);
 
@@ -295,49 +314,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType ResolveEntityType([NotNull] string entityTypeName)
         {
             if (DeclaringEntityType.Name == entityTypeName)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
             if (RelatedEntityType.Name == entityTypeName)
             {
-                return RelatedEntityType;
+                return (EntityType)RelatedEntityType;
             }
 
             if (DeclaringEntityType.DisplayName() == entityTypeName)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.DisplayName() == entityTypeName ? RelatedEntityType : null;
+            return RelatedEntityType.DisplayName() == entityTypeName ? (EntityType)RelatedEntityType : null;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType ResolveEntityType([NotNull] Type entityType)
         {
             if (DeclaringEntityType.ClrType == entityType)
             {
-                return DeclaringEntityType;
+                return (EntityType)DeclaringEntityType;
             }
 
-            return RelatedEntityType.ClrType == entityType ? RelatedEntityType : null;
+            return RelatedEntityType.ClrType == entityType ? (EntityType)RelatedEntityType : null;
         }
 
         private EntityType GetOtherEntityType(EntityType entityType)
-            => DeclaringEntityType == entityType ? RelatedEntityType : DeclaringEntityType;
+            => DeclaringEntityType == entityType ? (EntityType)RelatedEntityType : (EntityType)DeclaringEntityType;
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned null).
+        ///     be assigned <c>null</c>).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -345,12 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
+        ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new ReferenceReferenceBuilder(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

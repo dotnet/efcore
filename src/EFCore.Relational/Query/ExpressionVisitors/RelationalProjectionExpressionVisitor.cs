@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -179,8 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             // Skip over Include and Correlated Collection methods
             // This is checked first because it should not call base when there is not _targetSelectExpression
             if (expression is MethodCallExpression methodCallExpression
-                && (IncludeCompiler.IsIncludeMethod(methodCallExpression)
-                    || CorrelatedCollectionOptimizingVisitor.IsCorrelatedCollectionMethod(methodCallExpression)))
+                && IncludeCompiler.IsIncludeMethod(methodCallExpression))
             {
                 return expression;
             }
@@ -278,7 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             // We bind with ValueBuffer in GroupByAggregate case straight away
             // Since the expression can be some translation from [g].[Key] which won't bind with MemberAccessBindingEV
             if (!_isGroupAggregate
-                && sqlExpression is ColumnExpression)
+                && sqlExpression is ColumnExpression
+                // if we have null conditional that propagates null, i.e. entity.Key != null ? entity.Property : null
+                // the result is also a ColumnExpression, but for this case we don't want to short-circuit
+                && !(expression is ConditionalExpression))
             {
                 var index = _targetSelectExpression.AddToProjection(sqlExpression);
 

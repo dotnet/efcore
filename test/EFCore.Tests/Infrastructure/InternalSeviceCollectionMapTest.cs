@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -245,23 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             serviceMap.GetInfrastructure().DoPatchInjection<IFakeSingletonService>();
 
             Assert.IsType<DerivedFakeSingletonService>(Can_patch_singleton_service(serviceMap));
-        }
-
-        [Fact]
-        public virtual void Same_INavigationFixer_is_returned_for_all_registrations()
-        {
-            using (var context = new DbContext(
-                new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options))
-            {
-                var navFixer = context.GetService<INavigationFixer>();
-
-                Assert.Contains(navFixer, context.GetService<IEnumerable<IEntityStateListener>>());
-                Assert.Contains(navFixer, context.GetService<IEnumerable<INavigationListener>>());
-                Assert.Contains(navFixer, context.GetService<IEnumerable<IKeyListener>>());
-                Assert.Contains(navFixer, context.GetService<IEnumerable<IQueryTrackingListener>>());
-            }
         }
 
         private static FakeSingletonService Can_patch_singleton_service(ServiceCollectionMap serviceMap)

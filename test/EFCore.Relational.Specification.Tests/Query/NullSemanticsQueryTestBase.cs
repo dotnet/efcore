@@ -531,15 +531,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15743")]
         public virtual void Null_comparison_in_join_key_with_relational_nulls()
         {
             using (var ctx = CreateContext(useRelationalNulls: true))
             {
                 var query = ctx.Entities1.Join(ctx.Entities2, e1 => e1.NullableStringA != "Foo", e2 => e2.NullableBoolB != true, (o, i) => new { o, i });
-                var result = query.ToList();
 
-                Assert.Equal(405, result.Count);
+                var result = query.ToList();
+                Assert.Equal(162, result.Count);
             }
         }
 
@@ -729,13 +729,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15704")]
         public virtual void From_sql_composed_with_relational_null_comparison()
         {
             using (var context = CreateContext(useRelationalNulls: true))
             {
                 var actual = context.Entities1
-                    .FromSql(NormalizeDelimeters("SELECT * FROM [Entities1]"))
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Entities1]"))
                     .Where(c => c.StringA == c.StringB)
                     .ToArray();
 
@@ -879,17 +879,119 @@ namespace Microsoft.EntityFrameworkCore.Query
                 useRelationalNulls: false);
         }
 
-        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+        [Fact]
+        public virtual void Null_semantics_coalesce()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == (e.NullableBoolB ?? e.BoolC)));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableBoolA == (e.NullableBoolB ?? e.NullableBoolC)));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableBoolB ?? e.BoolC) != e.NullableBoolA));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableBoolB ?? e.NullableBoolC) != e.NullableBoolA));
+        }
+
+        [Fact]
+        public virtual void Null_semantics_conditional()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.BoolA == (e.BoolB ? e.NullableBoolB : e.NullableBoolC)));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableBoolA != e.NullableBoolB ? e.BoolB : e.BoolC) == e.BoolA));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.BoolA ? e.NullableBoolA != e.NullableBoolB : e.BoolC) != e.BoolB ? e.BoolA : e.NullableBoolB == e.NullableBoolC));
+        }
+
+        [Fact]
+        public virtual void Null_semantics_function()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.Substring(0, e.IntA) != e.NullableStringB),
+                es => es.Where(e => Maybe(e.NullableIntA, () => e.NullableStringA.Substring(0, e.IntA)) != e.NullableStringB),
+                useRelationalNulls: false);
+        }
+
+        [Fact]
+        public virtual void Null_semantics_join_with_composite_key()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Entities1
+                            join e2 in ctx.Entities2
+                            on new
+                            {
+                                one = e1.NullableStringA,
+                                two = e1.NullableStringB != e1.NullableStringC,
+                                three = true
+                            }
+                            equals new
+                            {
+                                one = e2.NullableStringB,
+                                two = e2.NullableBoolA ?? e2.BoolC,
+                                three = true
+                            }
+                            select new { e1, e2 };
+
+                var result = query.ToList();
+
+                var expected = (from e1 in ctx.Entities1.ToList()
+                                join e2 in ctx.Entities2.ToList()
+                                on new
+                                {
+                                   one = e1.NullableStringA,
+                                   two = e1.NullableStringB != e1.NullableStringC,
+                                   three = true
+                               }
+                                equals new
+                                {
+                                   one = e2.NullableStringB,
+                                   two = e2.NullableBoolA ?? e2.BoolC,
+                                   three = true
+                               }
+                                select new { e1, e2 }).ToList();
+
+                Assert.Equal(result.Count, expected.Count);
+            }
+        }
+
+        [Fact(Skip = "issue #14171")]
+        public virtual void Null_semantics_contains()
+        {
+            using (var ctx = CreateContext())
+            {
+                var ids = new List<int?> { 1, 2 };
+                var query1 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
+                var result1 = query1.ToList();
+
+                var query2 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
+                var result2 = query2.ToList();
+
+                var ids2 = new List<int?> { 1, 2, null };
+                var query3 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
+                var result3 = query3.ToList();
+
+                var query4 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
+                var result4 = query4.ToList();
+
+                var query5 = ctx.Entities1.Where(e => !new List<int?> { 1, 2 }.Contains(e.NullableIntA));
+                var result5 = query5.ToList();
+
+                var query6 = ctx.Entities1.Where(e => !new List<int?> { 1, 2, null }.Contains(e.NullableIntA));
+                var result6 = query6.ToList();
+            }
+        }
+
+        protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
+            where TResult : class
+        {
+            return caller == null ? null : expression();
+        }
+
+        protected static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
             where TResult : struct
         {
             return caller == null ? null : expression();
         }
 
-        private RawSqlString NormalizeDelimeters(RawSqlString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private string NormalizeDelimetersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
-        private FormattableString NormalizeDelimeters(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
 
         protected abstract NullSemanticsContext CreateContext(bool useRelationalNulls = false);
 

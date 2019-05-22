@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring an <see cref="EntityType" />.
+    ///         Provides a simple API for configuring an <see cref="IMutableEntityType" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -29,11 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
-            : base(builder)
+        [EntityFrameworkInternal]
+        public EntityTypeBuilder([NotNull] IMutableEntityType entityType)
+            : base(entityType)
         {
         }
 
@@ -48,25 +51,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (EntityTypeBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
-        ///     Sets the base type of this entity in an inheritance hierarchy.
+        ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
-        /// <param name="name"> The name of the base type. </param>
+        /// <param name="name"> The name of the base type or <c>null</c> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] string name)
-            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(name, ConfigurationSource.Explicit));
+            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
-        ///     Sets the base type of this entity in an inheritance hierarchy.
+        ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
-        /// <param name="entityType"> The base type. </param>
+        /// <param name="entityType"> The base type or <c>null</c> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] Type entityType)
-            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
+            => new EntityTypeBuilder<TEntity>(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
-        ///     Sets the base type of this entity in an inheritance hierarchy.
+        ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
-        /// <typeparam name="TBaseType"> The base type. </typeparam>
+        /// <typeparam name="TBaseType"> The base type or <c>null</c> to indicate no base type. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasBaseType<TBaseType>()
             => HasBaseType(typeof(TBaseType));
@@ -87,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder(
                 Builder.PrimaryKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -107,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
             => new KeyBuilder(
                 Builder.HasKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -128,11 +133,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
             => new PropertyBuilder<TProperty>(
                 Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit));
+                        Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit)
+                    .Metadata);
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
-        ///     from the entity type that were added by convention.
+        ///     or navigations from the entity type that were added by convention.
         /// </summary>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be ignored
@@ -144,9 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
-        ///     from the entity type that were added by convention.
+        ///     or navigations from the entity type that were added by convention.
         /// </summary>
-        /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
+        /// <param name="propertyName"> The name of the property to be removed from the entity type. </param>
         public new virtual EntityTypeBuilder<TEntity> Ignore([NotNull] string propertyName)
             => (EntityTypeBuilder<TEntity>)base.Ignore(propertyName);
 
@@ -154,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
         ///     this entity type.
         /// </summary>
-        /// <param name="filter">The LINQ predicate expression.</param>
+        /// <param name="filter"> The LINQ predicate expression. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] Expression<Func<TEntity, bool>> filter)
             => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
@@ -162,13 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a query used to provide data for a keyless entity type.
         /// </summary>
-        /// <param name="query"> The query that will provider the underlying data for the query type. </param>
+        /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> ToQuery([NotNull] Expression<Func<IQueryable<TEntity>>> query)
         {
             Check.NotNull(query, nameof(query));
 
-            Builder.HasDefiningQuery(query);
+            Builder.HasDefiningQuery(query, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -191,7 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder<TEntity> HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
             => new IndexBuilder<TEntity>(
                 Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(),
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -326,9 +333,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalRelationshipBuilder relationship;
             using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                relationship = navigation.Property == null
-                    ? Builder.Owns(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : Builder.Owns(typeof(TRelatedEntity), (PropertyInfo)navigation.Property, ConfigurationSource.Explicit);
+                relationship = navigation.MemberInfo == null
+                    ? Builder.HasOwnership(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
+                    : Builder.HasOwnership(typeof(TRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship.Metadata).Builder;
             }
@@ -472,9 +479,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalRelationshipBuilder relationship;
             using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                relationship = navigation.Property == null
-                    ? Builder.Owns(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : Builder.Owns(typeof(TRelatedEntity), (PropertyInfo)navigation.Property, ConfigurationSource.Explicit);
+                relationship = navigation.MemberInfo == null
+                    ? Builder.HasOwnership(typeof(TRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
+                    : Builder.HasOwnership(typeof(TRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship.Metadata).Builder;
             }
@@ -521,9 +528,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.Navigation(
-                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
+                Builder.HasRelationship(
+                    relatedEntityType, navigationName, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -565,9 +572,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
-                Builder.Navigation(
-                    relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
+                Builder.HasRelationship(
+                    relatedEntityType, navigation, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
         }
 
         /// <summary>
@@ -607,10 +614,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = relatedEntityType.Builder
-                    .Relationship(Builder, ConfigurationSource.Explicit)
+                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
                     .IsUnique(false, ConfigurationSource.Explicit)
-                    .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
-                    .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
+                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
+                        navigationName,
+                        pointsToPrincipal: false,
+                        ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship);
             }
 
@@ -618,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                relationship);
+                relationship.Metadata);
         }
 
         /// <summary>
@@ -657,10 +666,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = relatedEntityType.Builder
-                    .Relationship(Builder, ConfigurationSource.Explicit)
+                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
                     .IsUnique(false, ConfigurationSource.Explicit)
-                    .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
-                    .PrincipalToDependent(navigation, ConfigurationSource.Explicit);
+                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
+                        navigation,
+                        pointsToPrincipal: false,
+                        ConfigurationSource.Explicit);
                 relationship = batch.Run(relationship);
             }
 
@@ -668,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
-                relationship);
+                relationship.Metadata);
         }
 
         /// <summary>
@@ -744,6 +755,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new DataBuilder<TEntity>();
         }
 
-        private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
+        /// <param name="propertyExpression">
+        ///     A lambda expression representing the property to be used as the discriminator (
+        ///     <c>blog => blog.Discriminator</c>).
+        /// </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+            [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)
+        {
+            Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+            return new DiscriminatorBuilder<TDiscriminator>(
+               Builder.DiscriminatorBuilder(Property(propertyExpression).GetInfrastructure(), ConfigurationSource.Explicit));
+        }
+
+        private InternalEntityTypeBuilder Builder => this.GetInfrastructure();
     }
 }

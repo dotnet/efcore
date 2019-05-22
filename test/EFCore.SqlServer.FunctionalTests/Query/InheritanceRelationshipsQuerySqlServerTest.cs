@@ -5,7 +5,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceRelationshipsQuerySqlServerTest
+    // TODO: Issue#14630#21
+    internal class InheritanceRelationshipsQuerySqlServerTest
         : InheritanceRelationshipsQueryTestBase<InheritanceRelationshipsQuerySqlServerFixture>
     {
         public InheritanceRelationshipsQuerySqlServerTest(
@@ -68,9 +69,9 @@ WHERE [e].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInh
                 @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[BaseId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
 FROM [BaseEntities] AS [e]
 LEFT JOIN (
-    SELECT [e.BaseSelfRerefenceOnDerived].*
-    FROM [BaseEntities] AS [e.BaseSelfRerefenceOnDerived]
-    WHERE [e.BaseSelfRerefenceOnDerived].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
+    SELECT [e.BaseSelfReferenceOnDerived].*
+    FROM [BaseEntities] AS [e.BaseSelfReferenceOnDerived]
+    WHERE [e.BaseSelfReferenceOnDerived].[Discriminator] IN (N'DerivedInheritanceRelationshipEntity', N'BaseInheritanceRelationshipEntity')
 ) AS [t] ON [e].[BaseId] = [t].[Id]
 WHERE [e].[Discriminator] = N'DerivedInheritanceRelationshipEntity'");
         }

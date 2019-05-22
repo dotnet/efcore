@@ -119,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         e.Ignore(c => c.PostalCode);
                         e.Ignore(c => c.Region);
                         e.HasKey(c => c.CustomerID);
-                        e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "Broken";
-                        e.Metadata.Relational().TableName = "Broken";
+                        e.Property(c => c.CompanyName2).Metadata.SetColumnName("Broken");
+                        e.Metadata.SetTableName("Broken");
                         if (!string.IsNullOrEmpty(DatabaseSchema))
                         {
-                            e.Metadata.Relational().Schema = "wrong";
+                            e.Metadata.SetSchema("wrong");
                         }
                     });
 
@@ -148,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         e.Ignore(em => em.Title);
                         e.Ignore(em => em.TitleOfCourtesy);
                         e.HasKey(em => em.EmployeeID);
-                        e.Property(em => em.City2).Metadata.Relational().ColumnName = "City";
-                        e.Metadata.Relational().TableName = "Employees";
-                        e.Metadata.Relational().Schema = DatabaseSchema;
+                        e.Property(em => em.City2).Metadata.SetColumnName("City");
+                        e.Metadata.SetTableName("Employees");
+                        e.Metadata.SetSchema(DatabaseSchema);
                     });
 
                 modelBuilder.Entity<MappedOrder>(
@@ -170,9 +170,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         e.Ignore(o => o.ShipVia);
                         e.Ignore(o => o.ShippedDate);
                         e.HasKey(o => o.OrderID);
-                        e.Property(o => o.ShipVia2).Metadata.Relational().ColumnName = "ShipVia";
-                        e.Metadata.Relational().TableName = "Orders";
-                        e.Metadata.Relational().Schema = DatabaseSchema;
+                        e.Property(o => o.ShipVia2).Metadata.SetColumnName("ShipVia");
+                        e.Metadata.SetTableName("Orders");
+                        e.Metadata.SetSchema(DatabaseSchema);
                     });
             }
 

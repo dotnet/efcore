@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -27,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new <see cref="IRelationalCommandBuilder" />.
         /// </summary>
         /// <returns> The newly created builder. </returns>
-        IRelationalCommandBuilder Create(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger);
+        IRelationalCommandBuilder Create();
     }
 }

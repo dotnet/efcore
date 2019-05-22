@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
                     loggerFactory,
                     new LoggingOptions(),
-                    new DiagnosticListener("Fake")));
+                    new DiagnosticListener("Fake"),
+                    new SqlServerLoggingDefinitions()));
 
         protected override bool AcceptIndex(DatabaseIndex index)
             => false;
@@ -71,13 +73,13 @@ SET @SQL ='';
 SELECT @SQL = @SQL + 'DROP SCHEMA ' + QUOTENAME(name) + ';' FROM sys.schemas WHERE principal_id <> schema_id;
 EXEC (@SQL);";
 
-        protected override DropTableOperation Drop(DatabaseTable table)
+        protected override MigrationOperation Drop(DatabaseTable table)
             => AddMemoryOptimizedAnnotation(base.Drop(table), table);
 
-        protected override DropForeignKeyOperation Drop(DatabaseForeignKey foreignKey)
+        protected override MigrationOperation Drop(DatabaseForeignKey foreignKey)
             => AddMemoryOptimizedAnnotation(base.Drop(foreignKey), foreignKey.Table);
 
-        protected override DropIndexOperation Drop(DatabaseIndex index)
+        protected override MigrationOperation Drop(DatabaseIndex index)
             => AddMemoryOptimizedAnnotation(base.Drop(index), index.Table);
 
         private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, DatabaseTable table)

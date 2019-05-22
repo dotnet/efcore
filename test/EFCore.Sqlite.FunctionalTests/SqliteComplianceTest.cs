@@ -15,7 +15,36 @@ namespace Microsoft.EntityFrameworkCore
             typeof(AsyncFromSqlSprocQueryTestBase<>),
             typeof(FromSqlSprocQueryTestBase<>),
             typeof(SqlExecutorTestBase<>),
-            typeof(UdfDbFunctionTestBase<>)
+            typeof(UdfDbFunctionTestBase<>),
+            typeof(LoadTestBase<>),                        // issue #15318
+            typeof(GraphUpdatesTestBase<>),                // issue #15318
+            typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
+            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
+            typeof(FiltersInheritanceTestBase<>),          // issue #15264
+            typeof(FiltersTestBase<>),                     // issue #15264
+            typeof(OwnedQueryTestBase<>),                  // issue #15285
+            typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
+            typeof(RelationalOwnedQueryTestBase<>),         // issue #15285
+            // Query pipeline
+            typeof(ConcurrencyDetectorTestBase<>),
+            typeof(CompiledQueryTestBase<>),
+            typeof(GearsOfWarQueryTestBase<>),
+            typeof(IncludeAsyncTestBase<>),
+            typeof(IncludeOneToOneTestBase<>),
+            typeof(IncludeTestBase<>),
+            typeof(InheritanceRelationshipsQueryTestBase<>),
+            typeof(InheritanceTestBase<>),
+            typeof(NullKeysTestBase<>),
+            typeof(QueryNavigationsTestBase<>),
+            typeof(ConcurrencyDetectorRelationalTestBase<>),
+            typeof(AsyncFromSqlQueryTestBase<>),
+            typeof(QueryTaggingTestBase<>),
+            typeof(FromSqlQueryTestBase<>),
+            typeof(GearsOfWarFromSqlQueryTestBase<>),
+            typeof(InheritanceRelationalTestBase<>),
+            typeof(NullSemanticsQueryTestBase<>),
+            typeof(QueryNoClientEvalTestBase<>),
+            typeof(WarningsTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

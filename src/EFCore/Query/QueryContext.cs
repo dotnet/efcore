@@ -7,7 +7,10 @@ using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,9 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IQueryBuffer _queryBuffer;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="QueryContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="queryBufferFactory"> A factory for creating query buffers. </param>
         public QueryContext(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory)
@@ -62,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The state manager.
         /// </value>
-        public virtual IStateManager StateManager => Dependencies.StateManager;
+        public virtual IStateManager StateManager
+            => Dependencies.StateManager;
 
         /// <summary>
         ///     The query provider.
@@ -70,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The query provider.
         /// </value>
-        public virtual IQueryProvider QueryProvider => Dependencies.QueryProvider;
+        public virtual IQueryProvider QueryProvider
+            => Dependencies.QueryProvider;
 
         /// <summary>
         ///     Gets the concurrency detector.
@@ -78,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <value>
         ///     The concurrency detector.
         /// </value>
-        public virtual IConcurrencyDetector ConcurrencyDetector => Dependencies.ConcurrencyDetector;
+        public virtual IConcurrencyDetector ConcurrencyDetector
+            => Dependencies.ConcurrencyDetector;
 
         /// <summary>
         ///     Gets or sets the cancellation token.
@@ -87,6 +100,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The cancellation token.
         /// </value>
         public virtual CancellationToken CancellationToken { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the cancellation token.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token.
+        /// </value>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger
+            => Dependencies.CommandLogger;
+
+        /// <summary>
+        ///     Gets or sets the cancellation token.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token.
+        /// </value>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger
+            => Dependencies.QueryLogger;
 
         /// <summary>
         ///     The parameter values.
@@ -158,6 +189,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 entityTrackingInfo.StartTracking(StateManager, entity, ValueBuffer.Empty);
             }
+        }
+
+        public virtual void StartTracking(
+            IEntityType entityType,
+            object entity,
+            ValueBuffer valueBuffer)
+        {
+            StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
         }
 
         /// <summary>

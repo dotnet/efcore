@@ -385,6 +385,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
+        ///     Generates code for an <see cref="CreateCheckConstraintOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="builder"> The builder code is added to. </param>
+        protected virtual void Generate([NotNull] CreateCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".CreateCheckConstraint(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(Code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(Code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(Code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("sql: ")
+                    .Append(Code.Literal(operation.Sql))
+                    .Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        /// <summary>
         ///     Generates code for an <see cref="AlterColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
@@ -1039,6 +1078,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         builder.AppendLine(";");
                     }
 
+                    foreach (var checkConstraints in operation.CheckConstraints)
+                    {
+                        builder
+                            .Append("table.CheckConstraint(")
+                            .Append(Code.Literal(checkConstraints.Name))
+                            .Append(", ")
+                            .Append(Code.Literal(checkConstraints.Sql))
+                            .Append(")");
+
+                        using (builder.Indent())
+                        {
+                            Annotations(checkConstraints.GetAnnotations(), builder);
+                        }
+
+                        builder.AppendLine(";");
+                    }
+
                     foreach (var foreignKey in operation.ForeignKeys)
                     {
                         builder.AppendLine("table.ForeignKey(");
@@ -1355,6 +1411,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(builder, nameof(builder));
 
             builder.AppendLine(".DropUniqueConstraint(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(Code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(Code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(Code.Literal(operation.Table))
+                    .Append(")");
+
+                Annotations(operation.GetAnnotations(), builder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for a <see cref="DropCheckConstraintOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="builder"> The builder code is added to. </param>
+        protected virtual void Generate([NotNull] DropCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".DropCheckConstraint(");
 
             using (builder.Indent())
             {

@@ -101,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            public virtual bool OnEntityTypeIgnored([NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
+            public virtual bool OnEntityTypeIgnored(
+                [NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
             {
                 Add(new OnEntityTypeIgnoredNode(modelBuilder, name, type));
                 return true;
@@ -210,25 +211,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [CanBeNull] MemberInfo memberInfo)
                 => Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo));
 
-            public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyPropertiesChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder,
+                [NotNull] IReadOnlyList<Property> oldDependentProperties,
+                [NotNull] Key oldPrincipalKey)
+            {
+                Add(new OnForeignKeyPropertiesChangedNode(relationshipBuilder, oldDependentProperties, oldPrincipalKey));
+                return relationshipBuilder;
+            }
+
+            public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyUniquenessChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyRequirednessChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyRequirednessChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyOwnershipChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
                 return relationshipBuilder;
             }
 
-            public virtual InternalRelationshipBuilder OnPrincipalEndChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
+            public virtual InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged(
+                [NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
                 Add(new OnPrincipalEndChangedNode(relationshipBuilder));
                 return relationshipBuilder;
@@ -600,6 +614,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
+            public override InternalRelationshipBuilder OnForeignKeyPropertiesChanged(
+                InternalRelationshipBuilder relationshipBuilder,
+                IReadOnlyList<Property> oldDependentProperties,
+                Key oldPrincipalKey)
+            {
+                foreach (var propertiesChangedConvention in _conventionSet.ForeignKeyPropertiesChangedConventions)
+                {
+                    relationshipBuilder = propertiesChangedConvention.Apply(relationshipBuilder, oldDependentProperties, oldPrincipalKey);
+                    if (relationshipBuilder == null)
+                    {
+                        return null;
+                    }
+                }
+
+                return relationshipBuilder;
+            }
+
             public override InternalRelationshipBuilder OnForeignKeyUniquenessChanged(InternalRelationshipBuilder relationshipBuilder)
             {
                 if (relationshipBuilder.Metadata.Builder == null)
@@ -657,14 +688,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder;
             }
 
-            public override InternalRelationshipBuilder OnPrincipalEndChanged(InternalRelationshipBuilder relationshipBuilder)
+            public override InternalRelationshipBuilder OnForeignKeyPrincipalEndChanged(InternalRelationshipBuilder relationshipBuilder)
             {
                 if (relationshipBuilder.Metadata.Builder == null)
                 {
                     return null;
                 }
 
-                foreach (var relationshipConvention in _conventionSet.PrincipalEndChangedConventions)
+                foreach (var relationshipConvention in _conventionSet.ForeignKeyPrincipalEndChangedConventions)
                 {
                     relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
                     if (relationshipBuilder == null)
@@ -1008,7 +1039,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private class OnIndexAnnotationChangedNode : ConventionNode
         {
-            public OnIndexAnnotationChangedNode(InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
+            public OnIndexAnnotationChangedNode(
+                InternalIndexBuilder indexBuilder, string name, Annotation annotation, Annotation oldAnnotation)
             {
                 IndexBuilder = indexBuilder;
                 Name = name;
@@ -1058,6 +1090,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public MemberInfo MemberInfo { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnNavigationRemoved(this);
+        }
+
+        private class OnForeignKeyPropertiesChangedNode : ConventionNode
+        {
+            public OnForeignKeyPropertiesChangedNode(
+                InternalRelationshipBuilder relationshipBuilder,
+                IReadOnlyList<Property> oldDependentProperties,
+                Key oldPrincipalKey)
+            {
+                RelationshipBuilder = relationshipBuilder;
+                OldDependentProperties = oldDependentProperties;
+                OldPrincipalKey = oldPrincipalKey;
+            }
+
+            public InternalRelationshipBuilder RelationshipBuilder { get; }
+            public IReadOnlyList<Property> OldDependentProperties { get; }
+            public Key OldPrincipalKey { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyPropertiesChanged(this);
         }
 
         private class OnForeignKeyUniquenessChangedNode : ConventionNode

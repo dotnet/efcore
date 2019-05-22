@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,14 @@ namespace Microsoft.EntityFrameworkCore
             new SqliteDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
+        }
+
+        protected override void Clean(DbContext context)
+        {
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_auth");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_statistics");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_field_infos");
         }
     }
 }

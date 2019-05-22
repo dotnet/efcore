@@ -2414,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact] // Issue #6067
+        [Fact(Skip = "issue #15318")] // Issue #6067
         public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
         {
             using (var context = new FixupContext())
@@ -2988,7 +2988,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             asserts();
         }
 
-        [Fact] // Issue #4853
+        [Fact(Skip = "issue #15318")] // Issue #4853
         public void Collection_nav_props_remain_fixed_up_after_DetectChanges()
         {
             using (var db = new Context4853())

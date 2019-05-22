@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         A factory for <see cref="RelationalQueryContext" /> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
@@ -24,9 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IRelationalConnection _connection;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="RelationalQueryContextFactory"/> instance using the given dependencies.
         /// </summary>
+        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="connection"> The connection to use. </param>
+        /// <param name="executionStrategyFactory"> A factory for the execution strategy to use. </param>
         public RelationalQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] IRelationalConnection connection,
@@ -46,9 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="RelationalQueryContext"/>.
         /// </summary>
+        /// <returns>
+        ///     A QueryContext.
+        /// </returns>
         public override QueryContext Create()
             => new RelationalQueryContext(Dependencies, CreateQueryBuffer, _connection, ExecutionStrategyFactory);
     }

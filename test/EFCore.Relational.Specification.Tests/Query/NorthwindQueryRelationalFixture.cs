@@ -18,9 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                     c => c
-                        .Log(RelationalEventId.QueryClientEvaluationWarning)
                         .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
-                        .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator)
+                        .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning)
                         .Log(RelationalEventId.ValueConversionSqlLiteralWarning))
                 .EnableDetailedErrors();
 

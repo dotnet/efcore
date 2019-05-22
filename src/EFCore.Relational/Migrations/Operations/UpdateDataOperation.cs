@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     keys[j] = new ColumnModification(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: properties?.Find(KeyColumns[j]),
-                        isRead: false, isWrite: false, isKey: true, isCondition: true);
+                        isRead: false, isWrite: false, isKey: true, isCondition: true, sensitiveLoggingEnabled: true);
                 }
 
                 var modifications = new ColumnModification[Columns.Length];
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
-                        isRead: false, isWrite: true, isKey: true, isCondition: false);
+                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray());
+                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
             }
         }
     }

@@ -23,14 +23,12 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool _contextPool;
 
         private IDbContextPool ContextPool
-            => _contextPool
-               ?? (_contextPool = (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType)));
+            => _contextPool ??= (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType));
 
         private ListLoggerFactory _listLoggerFactory;
 
         public ListLoggerFactory ListLoggerFactory
-            => _listLoggerFactory
-               ?? (_listLoggerFactory = (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>());
+            => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
         protected SharedStoreFixtureBase()
         {
@@ -52,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
             ServiceProvider = services.BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c));
+            TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
         }
 
         public virtual TContext CreateContext()
@@ -84,12 +82,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                Clean(context);
                 TestStore.Clean(context);
                 Seed(context);
             }
         }
 
         protected virtual void Seed(TContext context)
+        {
+        }
+
+        protected virtual void Clean(DbContext context)
         {
         }
 

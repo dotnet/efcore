@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -17,8 +18,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
     {
@@ -31,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ReverseEngineerScaffolder(
             [NotNull] IDatabaseModelFactory databaseModelFactory,
@@ -56,42 +61,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         private IModelCodeGeneratorSelector ModelCodeGeneratorSelector { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ScaffoldedModel ScaffoldModel(
             string connectionString,
-            IEnumerable<string> tables,
-            IEnumerable<string> schemas,
-            string rootNamespace,
-            string modelNamespace,
-            string contextNamespace,
-            string language,
-            string contextDir,
-            string contextName,
+            DatabaseModelFactoryOptions databaseOptions,
             ModelReverseEngineerOptions modelOptions,
             ModelCodeGenerationOptions codeOptions)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
-            Check.NotEmpty(modelNamespace, nameof(modelNamespace));
-            Check.NotEmpty(contextNamespace, nameof(contextNamespace));
+            Check.NotNull(databaseOptions, nameof(databaseOptions));
             Check.NotNull(modelOptions, nameof(modelOptions));
             Check.NotNull(codeOptions, nameof(codeOptions));
 
-            if (!string.IsNullOrWhiteSpace(contextName)
-                && (!_cSharpUtilities.IsValidIdentifier(contextName)
-                    || _cSharpUtilities.IsCSharpKeyword(contextName)))
+            if (!string.IsNullOrWhiteSpace(codeOptions.ContextName)
+                && (!_cSharpUtilities.IsValidIdentifier(codeOptions.ContextName)
+                    || _cSharpUtilities.IsCSharpKeyword(codeOptions.ContextName)))
             {
                 throw new ArgumentException(
-                    DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
+                    DesignStrings.ContextClassNotValidCSharpIdentifier(codeOptions.ContextName));
             }
 
             var resolvedConnectionString = _connectionStringResolver.ResolveConnectionString(connectionString);
@@ -99,8 +98,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 codeOptions.SuppressConnectionStringWarning = true;
             }
+            else if (codeOptions.ConnectionString == null)
+            {
+                codeOptions.ConnectionString = connectionString;
+            }
 
-            var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, tables, schemas);
+            var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
             var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
 
             if (model == null)
@@ -110,25 +113,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         _factory.GetType().ShortDisplayName()));
             }
 
-            if (string.IsNullOrEmpty(contextName))
+            if (string.IsNullOrEmpty(codeOptions.ContextName))
             {
-                contextName = DefaultDbContextName;
-
-                var annotatedName = model.Scaffolding().DatabaseName;
-                if (!string.IsNullOrEmpty(annotatedName))
-                {
-                    contextName = _code.Identifier(annotatedName + DbContextSuffix);
-                }
+                var annotatedName = model.GetDatabaseName();
+                codeOptions.ContextName = !string.IsNullOrEmpty(annotatedName)
+                    ? _code.Identifier(annotatedName + DbContextSuffix)
+                    : DefaultDbContextName;
             }
 
-            var codeGenerator = ModelCodeGeneratorSelector.Select(language);
+            var codeGenerator = ModelCodeGeneratorSelector.Select(codeOptions.Language);
 
-            return codeGenerator.GenerateModel(model, rootNamespace, modelNamespace, contextNamespace, contextDir ?? string.Empty, contextName, connectionString, codeOptions);
+            return codeGenerator.GenerateModel(model, codeOptions);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SavedModelFiles Save(
             ScaffoldedModel scaffoldedModel,

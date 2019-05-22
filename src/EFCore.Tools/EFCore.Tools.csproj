@@ -31,28 +31,19 @@ Update-Database
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
     <PropertyGroup>
+      <DevelopmentDependency>true</DevelopmentDependency>
+
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
-
-      <NuspecProperties>
-        id=$(PackageId);
-        version=$(PackageVersion);
-        configuration=$(Configuration);
-        tags=$(PackageTags.Replace(';',' '));
-        projectUrl=$(PackageProjectUrl);
-        licenseUrl=$(PackageLicenseUrl);
-        iconUrl=$(PackageIconUrl);
-        repositoryUrl=$(RepositoryUrl);
-        repositoryType=$(RepositoryType);
-        repositoryCommit=$(RepositoryCommit);
-        author=$(Authors);
-        copyright=$(Copyright);
-        description=$(Description);
-        targetDir=$(TargetDir);
-      </NuspecProperties>
     </PropertyGroup>
+
+    <ItemGroup>
+      <NuspecProperty Include="version=$(PackageVersion)" />
+      <NuspecProperty Include="configuration=$(Configuration)" />
+      <NuspecProperty Include="targetDir=$(TargetDir)" />
+    </ItemGroup>
   </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

@@ -6,7 +6,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
+
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -17,18 +18,18 @@ namespace Microsoft.Data.Sqlite
         protected abstract int GetSqliteType(int ordinal);
 
         public virtual bool IsDBNull(int ordinal)
-            => GetSqliteType(ordinal) == raw.SQLITE_NULL;
+            => GetSqliteType(ordinal) == SQLITE_NULL;
 
         public virtual bool GetBoolean(int ordinal)
             => GetInt64(ordinal) != 0;
 
         public virtual byte GetByte(int ordinal)
-            => (byte)GetInt64(ordinal);
+            => checked((byte)GetInt64(ordinal));
 
         public virtual char GetChar(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
-            if (sqliteType == raw.SQLITE_TEXT)
+            if (sqliteType == SQLITE_TEXT)
             {
                 var val = GetString(ordinal);
                 if (val.Length == 1)
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            return (char)GetInt64(ordinal);
+            return checked((char)GetInt64(ordinal));
         }
 
         public virtual DateTime GetDateTime(int ordinal)
@@ -45,8 +46,8 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_FLOAT:
-                case raw.SQLITE_INTEGER:
+                case SQLITE_FLOAT:
+                case SQLITE_INTEGER:
                     return FromJulianDate(GetDouble(ordinal));
 
                 default:
@@ -59,8 +60,8 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_FLOAT:
-                case raw.SQLITE_INTEGER:
+                case SQLITE_FLOAT:
+                case SQLITE_INTEGER:
                     return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
 
                 default:
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     var bytes = GetBlob(ordinal);
                     return bytes.Length == 16
                         ? new Guid(bytes)
@@ -102,8 +103,8 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_FLOAT:
-                case raw.SQLITE_INTEGER:
+                case SQLITE_FLOAT:
+                case SQLITE_INTEGER:
                     return TimeSpan.FromDays(GetDouble(ordinal));
                 default:
                     return TimeSpan.Parse(GetString(ordinal));
@@ -111,10 +112,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual short GetInt16(int ordinal)
-            => (short)GetInt64(ordinal);
+            => checked((short)GetInt64(ordinal));
 
         public virtual int GetInt32(int ordinal)
-            => (int)GetInt64(ordinal);
+            => checked((int)GetInt64(ordinal));
 
         public virtual long GetInt64(int ordinal)
             => IsDBNull(ordinal)
@@ -207,7 +208,7 @@ namespace Microsoft.Data.Sqlite
 
             if (type == typeof(sbyte))
             {
-                return (T)(object)((sbyte)GetInt64(ordinal));
+                return (T)(object)checked((sbyte)GetInt64(ordinal));
             }
 
             if (type == typeof(short))
@@ -227,7 +228,7 @@ namespace Microsoft.Data.Sqlite
 
             if (type == typeof(uint))
             {
-                return (T)(object)((uint)GetInt64(ordinal));
+                return (T)(object)checked((uint)GetInt64(ordinal));
             }
 
             if (type == typeof(ulong))
@@ -237,7 +238,7 @@ namespace Microsoft.Data.Sqlite
 
             if (type == typeof(ushort))
             {
-                return (T)(object)((ushort)GetInt64(ordinal));
+                return (T)(object)checked((ushort)GetInt64(ordinal));
             }
 
             return (T)GetValue(ordinal);
@@ -248,24 +249,21 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return GetInt64(ordinal);
 
-                case raw.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return GetDouble(ordinal);
 
-                case raw.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return GetString(ordinal);
 
-                case raw.SQLITE_BLOB:
-                    return GetBlob(ordinal);
-
-                case raw.SQLITE_NULL:
+                case SQLITE_NULL:
                     return GetNull<object>(ordinal);
 
                 default:
-                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
-                    return GetInt32(ordinal);
+                    Debug.Assert(sqliteType == SQLITE_BLOB, "Unexpected column type: " + sqliteType);
+                    return GetBlob(ordinal);
             }
         }
 

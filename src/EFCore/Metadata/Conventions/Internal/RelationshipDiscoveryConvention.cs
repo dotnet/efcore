@@ -9,15 +9,16 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class RelationshipDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -30,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private readonly IMemberClassifier _memberClassifier;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationshipDiscoveryConvention(
             [NotNull] IMemberClassifier memberClassifier,
@@ -45,20 +48,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public const string NavigationCandidatesAnnotationName = "RelationshipDiscoveryConvention:NavigationCandidates";
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public const string AmbiguousNavigationsAnnotationName = "RelationshipDiscoveryConvention:AmbiguousNavigations";
 
@@ -90,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationshipCandidates = new Dictionary<EntityType, RelationshipCandidate>();
             var ownership = entityTypeBuilder.Metadata.FindOwnership();
             if (ownership == null
-                && model.ShouldBeOwnedType(entityTypeBuilder.Metadata.ClrType))
+                && model.IsOwned(entityTypeBuilder.Metadata.ClrType))
             {
                 return relationshipCandidates.Values.ToList();
             }
@@ -101,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var targetClrType = candidateTuple.Value;
 
                 if (!IsCandidateNavigationProperty(entityTypeBuilder, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo)
-                    || (model.ShouldBeOwnedType(targetClrType)
+                    || (model.IsOwned(targetClrType)
                         && HasDeclaredAmbiguousNavigationsTo(entityType, targetClrType)))
                 {
                     continue;
@@ -137,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return Array.Empty<RelationshipCandidate>();
                 }
 
-                if (!model.ShouldBeOwnedType(targetClrType))
+                if (!model.IsOwned(targetClrType))
                 {
                     var targetOwnership = candidateTargetEntityType.FindOwnership();
                     if (targetOwnership != null
@@ -180,13 +189,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                         if ((inverseTargetType != entityType.ClrType
                              && (!inverseTargetType.IsAssignableFrom(entityType.ClrType)
-                                 || (!model.ShouldBeOwnedType(targetClrType)
+                                 || (!model.IsOwned(targetClrType)
                                      && !candidateTargetEntityType.IsInOwnershipPath(entityType))))
                             || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                             || (ownership != null
                                 && !candidateTargetEntityType.IsInOwnershipPath(entityType)
                                 && (candidateTargetEntityType.IsOwned()
-                                    || !model.ShouldBeOwnedType(targetClrType))
+                                    || !model.IsOwned(targetClrType))
                                 && (ownership.PrincipalEntityType != candidateTargetEntityType
                                     || ownership.PrincipalToDependent.Name != inversePropertyInfo.GetSimpleMemberName()))
                             || (entityType.HasDefiningNavigation()
@@ -239,15 +248,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 candidates.Add(
                     new RelationshipCandidate(
-                        actualTargetEntityTypeBuilder, relationshipCandidate.NavigationProperties, relationshipCandidate.InverseProperties));
+                        actualTargetEntityTypeBuilder, relationshipCandidate.NavigationProperties,
+                        relationshipCandidate.InverseProperties));
             }
 
             return candidates;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static InternalEntityTypeBuilder GetTargetEntityTypeBuilder(
             InternalEntityTypeBuilder entityTypeBuilder,
@@ -293,19 +305,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var existingOwnership = targetEntityType?.FindOwnership();
                 if (existingOwnership != null
-                    && entityType.Model.ShouldBeOwnedType(targetClrType)
+                    && entityType.Model.IsOwned(targetClrType)
                     && (existingOwnership.PrincipalEntityType != entityType
                         || existingOwnership.PrincipalToDependent.Name != navigationInfo.GetSimpleMemberName()))
                 {
                     return configurationSource.HasValue
-                       && !targetClrType.Equals(entityTypeBuilder.Metadata.ClrType)
-                    ? entityTypeBuilder.ModelBuilder.Entity(
-                        targetClrType, navigationInfo.GetSimpleMemberName(), entityType, configurationSource.Value)
-                    : null;
+                           && !targetClrType.Equals(entityTypeBuilder.Metadata.ClrType)
+                        ? entityTypeBuilder.ModelBuilder.Entity(
+                            targetClrType, navigationInfo.GetSimpleMemberName(), entityType, configurationSource.Value)
+                        : null;
                 }
 
                 var owned = existingOwnership != null
-                    || entityType.Model.ShouldBeOwnedType(targetClrType);
+                            || entityType.Model.IsOwned(targetClrType);
                 targetEntityTypeBuilder = configurationSource.HasValue
                     ? entityTypeBuilder.ModelBuilder.Entity(targetClrType, configurationSource.Value, owned)
                     : targetEntityType?.Builder;
@@ -580,12 +592,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                              && relationshipCandidate.TargetTypeBuilder.Metadata.IsAssignableFrom(r.TargetTypeBuilder.Metadata));
                 foreach (var relationshipToDerivedType in relationshipsToDerivedTypes)
                 {
-                    relationshipToDerivedType.InverseProperties.RemoveAll(i => i.GetSimpleMemberName() == inverseCandidate.GetSimpleMemberName());
+                    relationshipToDerivedType.InverseProperties.RemoveAll(
+                        i => i.GetSimpleMemberName() == inverseCandidate.GetSimpleMemberName());
 
                     if (!filteredRelationshipCandidates.Contains(relationshipToDerivedType))
                     {
                         // An ambiguity might have been resolved
-                        RemoveInheritedInverseNavigations(relationshipToDerivedType, relationshipCandidatesHierarchy, filteredRelationshipCandidates);
+                        RemoveInheritedInverseNavigations(
+                            relationshipToDerivedType, relationshipCandidatesHierarchy, filteredRelationshipCandidates);
                     }
                 }
             }
@@ -611,7 +625,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var navigation in relationshipCandidate.NavigationProperties.ToList())
                 {
-                    if (entityTypeBuilder.Metadata.FindDerivedNavigations(navigation.GetSimpleMemberName()).Any(n => n.FindInverse() != null))
+                    if (entityTypeBuilder.Metadata.FindDerivedNavigations(navigation.GetSimpleMemberName())
+                        .Any(n => n.FindInverse() != null))
                     {
                         relationshipCandidate.NavigationProperties.Remove(navigation);
                     }
@@ -652,24 +667,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                          && relationshipCandidate.InverseProperties.Count == 1
                                          && entityType.GetConfigurationSource() != ConfigurationSource.Explicit
                                          && targetEntityType.GetConfigurationSource() != ConfigurationSource.Explicit
-                                         && targetEntityType.Model.ShouldBeOwnedType(entityType.ClrType)
-                                         && targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType);
+                                         && targetEntityType.Model.IsOwned(entityType.ClrType)
+                                         && targetEntityType.Model.IsOwned(targetEntityType.ClrType);
 
                 if (ambiguousOwnership)
                 {
-                    var existingNavigation = entityType.FindNavigation(relationshipCandidate.NavigationProperties.Single().GetSimpleMemberName());
+                    var existingNavigation =
+                        entityType.FindNavigation(relationshipCandidate.NavigationProperties.Single().GetSimpleMemberName());
                     if (existingNavigation != null
                         && existingNavigation.ForeignKey.DeclaringEntityType == targetEntityType
-                        && existingNavigation.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
+                        && existingNavigation.ForeignKey.GetPrincipalEndConfigurationSource()
+                            .OverridesStrictly(ConfigurationSource.Convention))
                     {
                         ambiguousOwnership = false;
                     }
                     else
                     {
-                        var existingInverse = targetEntityType.FindNavigation(relationshipCandidate.InverseProperties.Single().GetSimpleMemberName());
+                        var existingInverse =
+                            targetEntityType.FindNavigation(relationshipCandidate.InverseProperties.Single().GetSimpleMemberName());
                         if (existingInverse != null
                             && existingInverse.ForeignKey.PrincipalEntityType == targetEntityType
-                            && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention))
+                            && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource()
+                                .OverridesStrictly(ConfigurationSource.Convention))
                         {
                             ambiguousOwnership = false;
                         }
@@ -678,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if ((relationshipCandidate.NavigationProperties.Count > 1
                      && relationshipCandidate.InverseProperties.Count > 0
-                     && (!targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType)
+                     && (!targetEntityType.Model.IsOwned(targetEntityType.ClrType)
                          || entityType.IsInOwnershipPath(targetEntityType)))
                     || relationshipCandidate.InverseProperties.Count > 1
                     || isAmbiguousOnBase
@@ -690,11 +709,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         Logger.MultipleNavigationProperties(
                             relationshipCandidate.NavigationProperties.Count == 0
-                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
-                                : relationshipCandidate.NavigationProperties.Select(n => new Tuple<MemberInfo, Type>(n, entityType.ClrType)),
+                                ? new[]
+                                {
+                                    new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType)
+                                }
+                                : relationshipCandidate.NavigationProperties.Select(
+                                    n => new Tuple<MemberInfo, Type>(n, entityType.ClrType)),
                             relationshipCandidate.InverseProperties.Count == 0
-                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
-                                : relationshipCandidate.InverseProperties.Select(n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
+                                ? new[]
+                                {
+                                    new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType)
+                                }
+                                : relationshipCandidate.InverseProperties.Select(
+                                    n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
                     }
 
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties.ToList())
@@ -703,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (existingNavigation != null
                             && existingNavigation.ForeignKey.DeclaringEntityType.Builder
                                 .RemoveForeignKey(existingNavigation.ForeignKey, ConfigurationSource.Convention) == null
-                            && existingNavigation.ForeignKey.Builder.Navigations(
+                            && existingNavigation.ForeignKey.Builder.HasNavigations(
                                 existingNavigation.IsDependentToPrincipal() ? PropertyIdentity.None : (PropertyIdentity?)null,
                                 existingNavigation.IsDependentToPrincipal() ? (PropertyIdentity?)null : PropertyIdentity.None,
                                 ConfigurationSource.Convention) == null)
@@ -719,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (existingInverse != null
                             && existingInverse.ForeignKey.DeclaringEntityType.Builder
                                 .RemoveForeignKey(existingInverse.ForeignKey, ConfigurationSource.Convention) == null
-                            && existingInverse.ForeignKey.Builder.Navigations(
+                            && existingInverse.ForeignKey.Builder.HasNavigations(
                                 existingInverse.IsDependentToPrincipal() ? PropertyIdentity.None : (PropertyIdentity?)null,
                                 existingInverse.IsDependentToPrincipal() ? (PropertyIdentity?)null : PropertyIdentity.None,
                                 ConfigurationSource.Convention) == null)
@@ -744,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var navigation in relationshipCandidate.NavigationProperties)
                 {
                     if (targetEntityType.Builder == null
-                        && !targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType))
+                        && !targetEntityType.Model.IsOwned(targetEntityType.ClrType))
                     {
                         continue;
                     }
@@ -755,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         continue;
                     }
 
-                    var targetOwned = targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType)
+                    var targetOwned = targetEntityType.Model.IsOwned(targetEntityType.ClrType)
                                       && !entityType.IsInOwnershipPath(targetEntityType);
 
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
@@ -763,15 +790,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         if (targetOwned)
                         {
-                            entityTypeBuilder.Owns(
+                            entityTypeBuilder.HasOwnership(
                                 targetEntityType.ClrType,
                                 navigation,
                                 ConfigurationSource.Convention);
                         }
                         else
                         {
-                            entityTypeBuilder.Navigation(
-                                targetEntityType.Builder,
+                            entityTypeBuilder.HasRelationship(
+                                targetEntityType,
                                 navigation,
                                 ConfigurationSource.Convention);
                         }
@@ -785,14 +812,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
 
                         if (targetOwned
-                            && entityType.Model.ShouldBeOwnedType(entityType.ClrType))
+                            && entityType.Model.IsOwned(entityType.ClrType))
                         {
                             var existingInverse = targetEntityType.FindNavigation(inverse.GetSimpleMemberName());
                             if (inverse.PropertyType.TryGetSequenceType() != null
                                 || targetEntityType.GetConfigurationSource() == ConfigurationSource.Explicit
                                 || (existingInverse != null
                                     && existingInverse.ForeignKey.DeclaringEntityType == entityType
-                                    && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource().OverridesStrictly(ConfigurationSource.Convention)))
+                                    && existingInverse.ForeignKey.GetPrincipalEndConfigurationSource()
+                                        .OverridesStrictly(ConfigurationSource.Convention)))
                             {
                                 // Target type is the principal, so the ownership should be configured from the other side
                                 targetOwned = false;
@@ -801,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                         if (targetOwned)
                         {
-                            entityTypeBuilder.Owns(
+                            entityTypeBuilder.HasOwnership(
                                 targetEntityType.ClrType,
                                 navigation,
                                 inverse,
@@ -809,8 +837,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         }
                         else
                         {
-                            entityTypeBuilder.Relationship(
-                                targetEntityType.Builder,
+                            entityTypeBuilder.HasRelationship(
+                                targetEntityType,
                                 navigation,
                                 inverse,
                                 ConfigurationSource.Convention);
@@ -821,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (relationshipCandidate.NavigationProperties.Count == 0)
                 {
                     if (relationshipCandidate.InverseProperties.Count == 0
-                        || targetEntityType.Model.ShouldBeOwnedType(targetEntityType.ClrType))
+                        || targetEntityType.Model.IsOwned(targetEntityType.ClrType))
                     {
                         unusedEntityTypes.Add(targetEntityType);
                     }
@@ -840,8 +868,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                                 continue;
                             }
 
-                            targetEntityType.Builder.Navigation(
-                                entityTypeBuilder,
+                            targetEntityType.Builder.HasRelationship(
+                                entityTypeBuilder.Metadata,
                                 inverse,
                                 ConfigurationSource.Convention);
                         }
@@ -860,15 +888,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
             => !entityTypeBuilder.Metadata.HasClrType() ? entityTypeBuilder : DiscoverRelationships(entityTypeBuilder);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
@@ -902,8 +934,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Apply(
             InternalEntityTypeBuilder sourceEntityTypeBuilder,
@@ -949,8 +983,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                    || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
         {
@@ -999,8 +1035,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
@@ -1030,8 +1068,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         InternalRelationshipBuilder IForeignKeyOwnershipChangedConvention.Apply(InternalRelationshipBuilder relationshipBuilder)
         {
@@ -1040,8 +1080,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);

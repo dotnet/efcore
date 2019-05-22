@@ -4,8 +4,9 @@
 using System;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
+
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<SqliteException>(
                 () => new SqliteBlob(_connection, "UnknownTable", Column, Rowid));
-            Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
         }
 
         [Fact]

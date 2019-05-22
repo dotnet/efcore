@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,8 +21,10 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     {
@@ -31,30 +34,38 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
+        private readonly LoggingDefinitions _loggingDefinitions;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpDbContextGenerator(
             [NotNull] IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
             [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            [NotNull] ICSharpHelper cSharpHelper,
+            [NotNull] LoggingDefinitions loggingDefinitions)
         {
             Check.NotNull(providerConfigurationCodeGenerator, nameof(providerConfigurationCodeGenerator));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
+            Check.NotNull(loggingDefinitions, nameof(loggingDefinitions));
 
             _providerConfigurationCodeGenerator = providerConfigurationCodeGenerator;
             _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
+            _loggingDefinitions = loggingDefinitions;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string WriteCode(IModel model, string @namespace, string contextName, string connectionString, bool useDataAnnotations, bool suppressConnectionStringWarning)
         {
@@ -86,8 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateClass(
             [NotNull] IModel model,
@@ -110,6 +123,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateEntityTypeErrors(model);
                 GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
                 GenerateOnModelCreating(model, useDataAnnotations);
+            }
+
+            _sb.AppendLine();
+
+            using (_sb.Indent())
+            {
+                _sb.AppendLine("partial void OnModelCreatingPartial(ModelBuilder modelBuilder);");
             }
 
             _sb.AppendLine("}");
@@ -136,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             foreach (var entityType in model.GetEntityTypes())
             {
                 _sb.AppendLine(
-                    $"public virtual DbSet<{entityType.Name}> {entityType.Scaffolding().DbSetName} {{ get; set; }}");
+                    $"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
             }
 
             if (model.GetEntityTypes().Any())
@@ -147,20 +167,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateEntityTypeErrors(IModel model)
         {
-            foreach (var entityTypeError in model.Scaffolding().EntityTypeErrors)
+            foreach (var entityTypeError in model.GetEntityTypeErrors())
             {
                 _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
             }
 
-            if (model.Scaffolding().EntityTypeErrors.Count > 0)
+            if (model.GetEntityTypeErrors().Count > 0)
             {
                 _sb.AppendLine();
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateOnConfiguring(
             [NotNull] string connectionString,
@@ -216,8 +238,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateOnModelCreating(
             [NotNull] IModel model,
@@ -229,8 +253,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.Append("{");
 
             var annotations = model.GetAnnotations().ToList();
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.ProductVersion);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.ChangeTrackingStrategy);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.OwnedTypes);
             RemoveAnnotation(ref annotations, ChangeDetector.SkipDetectChangesAnnotation);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.MaxIdentifierLength);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.CheckConstraints);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DatabaseName);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
 
@@ -295,10 +323,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
 
-                foreach (var sequence in model.Relational().Sequences)
+                foreach (var sequence in model.GetSequences())
                 {
                     GenerateSequence(sequence);
                 }
+            }
+
+            _sb.AppendLine();
+
+            using (_sb.Indent())
+            {
+                _sb.AppendLine("OnModelCreatingPartial(modelBuilder);");
             }
 
             _sb.AppendLine("}");
@@ -318,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateEntityType(IEntityType entityType, bool useDataAnnotations)
         {
-            GenerateKey(entityType.FindPrimaryKey(), useDataAnnotations);
+            GenerateKey(entityType.FindPrimaryKey(), entityType, useDataAnnotations);
 
             var annotations = entityType.GetAnnotations().ToList();
             RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
@@ -336,7 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationCodeGenerator.IsHandledByConvention(entityType, annotation))
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(entityType, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
@@ -399,16 +435,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateKey(IKey key, bool useDataAnnotations)
+        private void GenerateKey(IKey key, IEntityType entityType, bool useDataAnnotations)
         {
             if (key == null)
             {
+                var line = new List<string>
+                {
+                    $".{nameof(EntityTypeBuilder.HasNoKey)}()"
+                };
+
+                AppendMultiLineFluentApi(entityType, line);
+
                 return;
             }
 
             var annotations = key.GetAnnotations().ToList();
 
-            var explicitName = key.Relational().Name != ConstraintNamer.GetDefaultName(key);
+            var explicitName = key.GetName() != key.GetDefaultName();
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
             if (key.Properties.Count == 1
@@ -439,14 +482,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
-                    $"({_code.Literal(key.Relational().Name)})");
+                    $"({_code.Literal(key.GetName())})");
             }
 
             var annotationsToRemove = new List<IAnnotation>();
 
             foreach (var annotation in annotations)
             {
-                if (_annotationCodeGenerator.IsHandledByConvention(key, annotation))
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(key, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
@@ -468,12 +512,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateTableName(IEntityType entityType)
         {
-            var tableName = entityType.Relational().TableName;
-            var schema = entityType.Relational().Schema;
-            var defaultSchema = entityType.Model.Relational().DefaultSchema;
+            var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema();
+            var defaultSchema = entityType.Model.GetDefaultSchema();
 
             var explicitSchema = schema != null && schema != defaultSchema;
-            var explicitTable = explicitSchema || tableName != null && tableName != entityType.Scaffolding().DbSetName;
+            var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
 
             if (explicitTable)
             {
@@ -505,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 lines.Add(
                     $".{nameof(RelationalIndexBuilderExtensions.HasName)}" +
-                    $"({_code.Literal(index.Relational().Name)})");
+                    $"({_code.Literal(index.GetName())})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -514,11 +558,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
             }
 
-            if (index.Relational().Filter != null)
+            if (index.GetFilter() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalIndexBuilderExtensions.HasFilter)}" +
-                    $"({_code.Literal(index.Relational().Filter)})");
+                    $"({_code.Literal(index.GetFilter())})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Filter);
             }
 
@@ -526,7 +570,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationCodeGenerator.IsHandledByConvention(index, annotation))
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(index, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
@@ -557,9 +602,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
@@ -575,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     lines.Add($".{nameof(PropertyBuilder.IsRequired)}()");
                 }
 
-                var columnName = property.Relational().ColumnName;
+                var columnName = property.GetColumnName();
 
                 if (columnName != null
                     && columnName != property.Name)
@@ -611,37 +656,38 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.Relational().IsFixedLength)
+            if (property.IsFixedLength())
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
             }
 
-            if (property.Relational().DefaultValue != null)
+            if (property.GetDefaultValue() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
-                    $"({_code.UnknownLiteral(property.Relational().DefaultValue)})");
+                    $"({_code.UnknownLiteral(property.GetDefaultValue())})");
             }
 
-            if (property.Relational().DefaultValueSql != null)
+            if (property.GetDefaultValueSql() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}" +
-                    $"({_code.Literal(property.Relational().DefaultValueSql)})");
+                    $"({_code.Literal(property.GetDefaultValueSql())})");
             }
 
-            if (property.Relational().ComputedColumnSql != null)
+            if (property.GetComputedColumnSql() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
-                    $"({_code.Literal(property.Relational().ComputedColumnSql)})");
+                    $"({_code.Literal(property.GetComputedColumnSql())})");
             }
 
             var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                 new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
                 new LoggingOptions(),
-                new DiagnosticListener(""));
+                new DiagnosticListener(""),
+                _loggingDefinitions);
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
@@ -684,7 +730,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationCodeGenerator.IsHandledByConvention(property, annotation))
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(property, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
@@ -758,8 +805,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 canUseDataAnnotations = false;
                 lines.Add(
-                    $".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}" +
-                    $"({_code.Literal(foreignKey.Relational().Name)})");
+                    $".HasConstraintName" +
+                    $"({_code.Literal(foreignKey.GetConstraintName())})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -767,7 +814,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var annotation in annotations)
             {
-                if (_annotationCodeGenerator.IsHandledByConvention(foreignKey, annotation))
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(foreignKey, annotation))
                 {
                     annotationsToRemove.Add(annotation);
                 }
@@ -803,8 +851,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var parameters = _code.Literal(sequence.Name);
 
-            if (string.IsNullOrEmpty(sequence.Schema)
-                && sequence.Model.Relational().DefaultSchema != sequence.Schema)
+            if (!string.IsNullOrEmpty(sequence.Schema)
+                && sequence.Model.GetDefaultSchema() != sequence.Schema)
             {
                 parameters += $", {_code.Literal(sequence.Schema)}";
             }

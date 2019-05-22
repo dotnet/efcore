@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(c => c.Region));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15043")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_when_client_evald_subquery(bool isAsync)
         {
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(c => string.Join(", ", c.Orders.Select(o => o.CustomerID).ToList())));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15715")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_to_object_array(bool isAsync)
         {
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertArrays<object>(e, a, 3));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15715")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_to_int_array(bool isAsync)
         {
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15712")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_bool_closure(bool isAsync)
         {
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.f);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby Convert(__p_0.f, Nullable`1) asc'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
@@ -153,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             await AssertQueryScalar<Customer>(
                 isAsync,
-                cs => cs.Select(c => boolean).OrderBy(e => (bool?)e));
+                cs => cs.Select(c => boolean).OrderBy(e => (bool?)e),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -309,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.City);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15712")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_empty(bool isAsync)
         {
@@ -322,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15712")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_literal(bool isAsync)
         {
@@ -408,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.City);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection(bool isAsync)
         {
@@ -428,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<int>(i => i));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#15611")]
         public virtual void Select_nested_collection_multi_level()
         {
             using (var context = CreateContext())
@@ -592,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Count);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_deep(bool isAsync)
         {
@@ -620,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15712")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task New_date_time_in_anonymous_type_works(bool isAsync)
         {
@@ -795,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select o.CustomerID == null ? true : o.OrderID < 100);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15716")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_in_a_subquery_should_be_liftable(bool isAsync)
         {
@@ -806,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Skip(1));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15716")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_containing_DateTime_subtraction(bool isAsync)
         {
@@ -816,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(o => o.OrderDate.Value - new DateTime(1997, 1, 1)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool isAsync)
         {
@@ -826,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool isAsync)
         {
@@ -836,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Skip(1).FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(bool isAsync)
         {
@@ -858,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'SingleOrDefault()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
         {
@@ -868,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).SingleOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool isAsync)
         {
@@ -924,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(bool isAsync)
         {
@@ -935,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Select(od => od.OrderID).Take(1).FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15043")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {
@@ -1018,7 +1019,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => o.OrderDate.Value.Millisecond));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15716")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_datetime_DayOfWeek_component(bool isAsync)
         {
@@ -1027,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => (int)o.OrderDate.Value.DayOfWeek));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #15716")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_datetime_Ticks_component(bool isAsync)
         {
@@ -1103,7 +1104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "TaskList#6")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
         {
@@ -1118,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15716")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GetValueOrDefault_on_DateTime(bool isAsync)
         {
@@ -1141,6 +1142,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             from o in grouping.DefaultIfEmpty()
                             select o != null ? o.OrderDate.Value : new DateTime(1753, 1, 1));
+        }
+
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_on_top_level_projection_brings_explicit_Cast(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.Select(o => (double?)o.OrderID));
         }
     }
 }

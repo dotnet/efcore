@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -33,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_find_service_property_configured_as_property()
         {
-            var entityType = new Model().AddEntityType(typeof(BlogOneService));
-            entityType.Builder.Property(nameof(BlogOneService.Loader), typeof(ILazyLoader), ConfigurationSource.Explicit)
+            var entityType = new Model().AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
+            entityType.Builder.Property(typeof(ILazyLoader), nameof(BlogOneService.Loader), ConfigurationSource.Explicit)
                 .HasConversion(typeof(string), ConfigurationSource.Explicit);
 
             ApplyConvention(entityType);
@@ -47,9 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_not_find_service_property_configured_as_navigation()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(BlogOneService));
-            entityType.Builder.Navigation(
-                model.AddEntityType(typeof(LazyLoader)).Builder, nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
+            var entityType = model.AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
+            entityType.Builder.HasRelationship(
+                model.AddEntityType(typeof(LazyLoader), ConfigurationSource.Explicit),
+                nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
 
             ApplyConvention(entityType);
 
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
                 (typeof(ITypeMappingSource), typeMappingSource));
 
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
+            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
 
             convention.Apply(entityType.Builder);
 
@@ -85,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
                 (typeof(ITypeMappingSource), typeMappingSource));
 
-            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService));
+            var entityType = new Model().AddEntityType(typeof(BlogDuplicateService), ConfigurationSource.Explicit);
 
             convention.Apply(entityType.Builder);
 
@@ -101,11 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static EntityType ApplyConvention<TEntity>()
-            => ApplyConvention(new Model().AddEntityType(typeof(TEntity)));
+            => ApplyConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit));
 
         private static EntityType ApplyConvention(EntityType entityType)
         {
-            entityType.AddProperty(nameof(Blog.Id), typeof(int));
+            entityType.AddProperty(nameof(Blog.Id), typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
             var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
             TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(

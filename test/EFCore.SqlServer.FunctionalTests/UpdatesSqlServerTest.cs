@@ -45,16 +45,16 @@ SELECT @@ROWCOUNT;"
                     ));
                 Assert.Equal(
                     "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorking~",
-                    entityType.Relational().TableName);
+                    entityType.GetTableName());
                 Assert.Equal(
                     "PK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-                    entityType.GetKeys().Single().Relational().Name);
+                    entityType.GetKeys().Single().GetName());
                 Assert.Equal(
                     "FK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-                    entityType.GetForeignKeys().Single().Relational().Name);
+                    entityType.GetForeignKeys().Single().GetConstraintName());
                 Assert.Equal(
                     "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-                    entityType.GetIndexes().Single().Relational().Name);
+                    entityType.GetIndexes().Single().GetName());
 
                 var entityType2 = context.Model.FindEntityType(
                     typeof(
@@ -63,15 +63,15 @@ SELECT @@ROWCOUNT;"
 
                 Assert.Equal(
                     "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkin~1",
-                    entityType2.Relational().TableName);
+                    entityType2.GetTableName());
 
                 Assert.Equal(
                     "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
-                    entityType2.GetProperties().ElementAt(1).Relational().ColumnName);
+                    entityType2.GetProperties().ElementAt(1).GetColumnName());
 
                 Assert.Equal(
                     "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
-                    entityType2.GetProperties().ElementAt(2).Relational().ColumnName);
+                    entityType2.GetProperties().ElementAt(2).GetColumnName());
             }
         }
     }

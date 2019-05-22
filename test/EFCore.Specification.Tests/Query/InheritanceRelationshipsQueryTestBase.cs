@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships;
 using Xunit;
 
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Changes_in_derived_related_entities_are_detected()
         {
             using (var context = CreateContext())
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query = context.DerivedEntities.Include(e => e.BaseSelfRerefenceOnDerived);
+                var query = context.DerivedEntities.Include(e => e.BaseSelfReferenceOnDerived);
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_with_inheritance1()
         {
             using (var context = CreateContext())
@@ -224,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_with_inheritance_with_filter1()
         {
             using (var context = CreateContext())
@@ -250,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_without_inheritance()
         {
             using (var context = CreateContext())
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_without_inheritance_with_filter()
         {
             using (var context = CreateContext())
@@ -430,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_with_inheritance_on_derived1()
         {
             using (var context = CreateContext())
@@ -444,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_with_inheritance_on_derived2()
         {
             using (var context = CreateContext())
@@ -456,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Include_collection_with_inheritance_on_derived3()
         {
             using (var context = CreateContext())
@@ -516,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Nested_include_with_inheritance_reference_collection1()
         {
             using (var context = CreateContext())
@@ -528,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Nested_include_with_inheritance_reference_collection3()
         {
             using (var context = CreateContext())
@@ -552,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Nested_include_with_inheritance_collection_reference1()
         {
             using (var context = CreateContext())
@@ -578,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Nested_include_with_inheritance_collection_collection1()
         {
             using (var context = CreateContext())
@@ -604,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15064")]
         public virtual void Nested_include_collection_reference_on_non_entity_base()
         {
             using (var context = CreateContext())

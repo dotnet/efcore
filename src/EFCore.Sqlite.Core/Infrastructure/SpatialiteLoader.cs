@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
+
 using RuntimeEnvironment = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -50,8 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <returns> true if the extension was loaded; otherwise, false. </returns>
-        public static bool TryLoad([NotNull] SqliteConnection connection)
+        public static bool TryLoad([NotNull] DbConnection connection)
         {
+            Check.NotNull(connection, nameof(connection));
+
             var opened = false;
             if (connection.State != ConnectionState.Open)
             {
@@ -87,13 +91,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        public static void Load([NotNull] SqliteConnection connection)
+        public static void Load([NotNull] DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
             FindExtension();
 
-            connection.LoadExtension("mod_spatialite");
+            if (connection is SqliteConnection sqliteConnection)
+            {
+                sqliteConnection.LoadExtension("mod_spatialite");
+            }
+            else
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT load_extension('mod_spatialite');";
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         private static void FindExtension()

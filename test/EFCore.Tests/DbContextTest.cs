@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -43,11 +42,80 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Local_calls_DetectChanges()
+        {
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                changeDetector.DetectChangesCalled = false;
+
+                var entry = context.Attach(
+                    new Product
+                    {
+                        Id = 1,
+                        Name = "Little Hedgehogs"
+                    });
+
+                entry.Entity.Name = "Big Hedgehogs";
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                var _ = context.Set<Product>().Local;
+
+                Assert.True(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Fact]
+        public void Local_does_not_call_DetectChanges_when_disabled()
+        {
+            var provider =
+                InMemoryTestHelpers.Instance.CreateServiceProvider(
+                    new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                changeDetector.DetectChangesCalled = false;
+
+                var entry = context.Attach(
+                    new Product
+                    {
+                        Id = 1,
+                        Name = "Little Hedgehogs"
+                    });
+
+                entry.Entity.Name = "Big Hedgehogs";
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                var _ = context.Set<Product>().Local;
+
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.True(changeDetector.DetectChangesCalled);
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Fact]
         public void Set_throws_for_weak_types()
         {
             var model = new Model(new ConventionSet());
-            var question = model.AddEntityType(typeof(Question));
-            model.AddEntityType(typeof(User), nameof(Question.Author), question);
+            var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
+            model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
@@ -267,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
-            var model = new Model();
+            IConventionModel model = new Model();
             model.AddEntityType(typeof(TheGu));
 
             using (var context = new EarlyLearningCenter(
@@ -862,8 +930,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
             Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.AddAsync(new object()).AsTask());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
             var expectedMethodCount = 41;

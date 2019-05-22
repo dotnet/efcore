@@ -8,16 +8,19 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
+    public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConventionForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
@@ -25,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
-        private ConfigurationSource? _foreignKeyPropertiesConfigurationSource;
+        private ConfigurationSource? _propertiesConfigurationSource;
         private ConfigurationSource? _principalKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
@@ -36,8 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _principalToDependentConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
@@ -51,25 +56,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            if (principalEntityType.IsKeyless)
-            {
-                throw new InvalidOperationException(CoreStrings.KeylessTypeCannotBePrincipal(principalEntityType.DisplayName()));
-            }
+            Validate(dependentProperties, principalKey, dependentEntityType, principalEntityType);
 
             Properties = dependentProperties;
             PrincipalKey = principalKey;
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
             _configurationSource = configurationSource;
-            _isRequired = !dependentProperties.Any(p => p.IsNullable);
+            _isRequired = DefaultIsRequired;
 
-            AreCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: true);
-
-            if (!principalEntityType.GetKeys().Contains(principalKey))
+            if (principalEntityType.FindKey(principalKey.Properties) != principalKey)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
-                        Property.Format(principalKey.Properties),
+                        principalKey.Properties.Format(),
                         principalEntityType.DisplayName()));
             }
 
@@ -77,32 +77,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<Property> Properties { [DebuggerStepThrough] get; }
+        public virtual IReadOnlyList<Property> Properties { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Key PrincipalKey { [DebuggerStepThrough] get; }
+        public virtual Key PrincipalKey { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType PrincipalEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalRelationshipBuilder Builder
         {
@@ -113,14 +123,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
@@ -131,18 +145,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetForeignKeyPropertiesConfigurationSource() => _foreignKeyPropertiesConfigurationSource;
+        public virtual void SetProperties(
+            IReadOnlyList<Property> properties, Key principalKey, ConfigurationSource? configurationSource)
+        {
+            Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
+
+            var oldProperties = Properties;
+            var oldPrincipalKey = PrincipalKey;
+
+            DeclaringEntityType.OnForeignKeyUpdating(this);
+
+            Properties = properties;
+            PrincipalKey = principalKey;
+
+            DeclaringEntityType.OnForeignKeyUpdated(this);
+
+            if (configurationSource != null)
+            {
+                UpdatePropertiesConfigurationSource(configurationSource.Value);
+                UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
+            }
+
+            DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyPropertiesChanged(Builder, oldProperties, oldPrincipalKey);
+        }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource configurationSource)
+        public virtual ConfigurationSource? GetPropertiesConfigurationSource() => _propertiesConfigurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void UpdatePropertiesConfigurationSource(ConfigurationSource configurationSource)
         {
-            _foreignKeyPropertiesConfigurationSource = configurationSource.Max(_foreignKeyPropertiesConfigurationSource);
+            _propertiesConfigurationSource = configurationSource.Max(_propertiesConfigurationSource);
             foreach (var property in Properties)
             {
                 property.UpdateConfigurationSource(configurationSource);
@@ -150,14 +198,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetPrincipalKeyConfigurationSource() => _principalKeyConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdatePrincipalKeyConfigurationSource(ConfigurationSource configurationSource)
         {
@@ -166,106 +218,130 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetPrincipalEndConfigurationSource() => _principalEndConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetPrincipalEndConfigurationSource(ConfigurationSource? configurationSource)
             => _principalEndConfigurationSource = configurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdatePrincipalEndConfigurationSource(ConfigurationSource configurationSource)
             => _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation DependentToPrincipal { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] string name,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] MemberInfo property,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetDependentToPrincipalConfigurationSource() => _dependentToPrincipalConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateDependentToPrincipalConfigurationSource(ConfigurationSource? configurationSource)
             => _dependentToPrincipalConfigurationSource = configurationSource.Max(_dependentToPrincipalConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation PrincipalToDependent { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] string name,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] MemberInfo property,
-            // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetPrincipalToDependentConfigurationSource() => _principalToDependentConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdatePrincipalToDependentConfigurationSource(ConfigurationSource? configurationSource)
             => _principalToDependentConfigurationSource = configurationSource.Max(_principalToDependentConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         private Navigation Navigation(
             PropertyIdentity? propertyIdentity,
@@ -316,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Navigation navigation = null;
-            var property = propertyIdentity?.Property;
+            var property = propertyIdentity?.MemberInfo;
             if (property != null)
             {
                 navigation = pointsToPrincipal
@@ -373,8 +449,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsUnique
         {
@@ -383,14 +461,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ForeignKey SetIsUnique(bool unique, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
             var isChanging = IsUnique != unique;
             _isUnique = unique;
-            UpdateIsUniqueConfigurationSource(configurationSource);
+
+            if (unique == null)
+            {
+                _isUniqueConfigurationSource = null;
+            }
+
+            {
+                UpdateIsUniqueConfigurationSource(configurationSource);
+            }
 
             return isChanging
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
@@ -400,21 +488,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static bool DefaultIsUnique => false;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetIsUniqueConfigurationSource() => _isUniqueConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
             => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsRequired
         {
@@ -423,43 +517,63 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ForeignKey SetIsRequired(bool required, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsRequired(bool? required, ConfigurationSource configurationSource)
         {
-            var isChanging = required != IsRequired;
-            UpdateIsRequiredConfigurationSource(configurationSource);
-            _isRequired = required;
+            var oldRequired = IsRequired;
+            _isRequired = required ?? DefaultIsRequired;
 
-            return isChanging
+            if (required == null)
+            {
+                _isRequiredConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsRequiredConfigurationSource(configurationSource);
+            }
+
+            return oldRequired != IsRequired
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)?.Metadata
                 : this;
         }
 
+        private bool DefaultIsRequired => !Properties.Any(p => p.IsNullable);
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetIsRequiredConfigurationSource() => _isRequiredConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetIsRequiredConfigurationSource(ConfigurationSource? configurationSource)
             => _isRequiredConfigurationSource = configurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateIsRequiredConfigurationSource(ConfigurationSource configurationSource)
             => _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DeleteBehavior DeleteBehavior
         {
@@ -468,33 +582,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetDeleteBehavior(DeleteBehavior deleteBehavior, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetDeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
         {
             _deleteBehavior = deleteBehavior;
-            UpdateDeleteBehaviorConfigurationSource(configurationSource);
+
+            if (deleteBehavior == null)
+            {
+                _deleteBehaviorConfigurationSource = null;
+            }
+            else
+            {
+                UpdateDeleteBehaviorConfigurationSource(configurationSource);
+            }
+
+            return this;
         }
 
         private static DeleteBehavior DefaultDeleteBehavior => DeleteBehavior.ClientSetNull;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetDeleteBehaviorConfigurationSource() => _deleteBehaviorConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateDeleteBehaviorConfigurationSource(ConfigurationSource configurationSource)
             => _deleteBehaviorConfigurationSource = configurationSource.Max(_deleteBehaviorConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsOwnership
         {
@@ -503,14 +635,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ForeignKey SetIsOwnership(bool ownership, ConfigurationSource configurationSource)
+        public virtual ForeignKey SetIsOwnership(bool? ownership, ConfigurationSource configurationSource)
         {
             var isChanging = IsOwnership != ownership;
             _isOwnership = ownership;
-            UpdateIsOwnershipConfigurationSource(configurationSource);
+
+            if (_isOwnership == null)
+            {
+                _isOwnershipConfigurationSource = null;
+            }
+            else
+            {
+                UpdateIsOwnershipConfigurationSource(configurationSource);
+            }
 
             return isChanging
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata
@@ -520,73 +662,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static bool DefaultIsOwnership => false;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetIsOwnershipConfigurationSource() => _isOwnershipConfigurationSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateIsOwnershipConfigurationSource(ConfigurationSource configurationSource)
             => _isOwnershipConfigurationSource = configurationSource.Max(_isOwnershipConfigurationSource);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsFrom([NotNull] EntityType entityType)
             => ((IForeignKey)this).FindNavigationsFrom(entityType).Cast<Navigation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsFromInHierarchy([NotNull] EntityType entityType)
             => ((IForeignKey)this).FindNavigationsFromInHierarchy(entityType).Cast<Navigation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsTo([NotNull] EntityType entityType)
             => ((IForeignKey)this).FindNavigationsTo(entityType).Cast<Navigation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsToInHierarchy([NotNull] EntityType entityType)
             => ((IForeignKey)this).FindNavigationsToInHierarchy(entityType).Cast<Navigation>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType ResolveOtherEntityTypeInHierarchy([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveOtherEntityTypeInHierarchy(entityType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType ResolveOtherEntityType([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveOtherEntityType(entityType);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
 
-        IReadOnlyList<IProperty> IForeignKey.Properties
-        {
-            [DebuggerStepThrough] get => Properties;
-        }
+        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
 
-        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
+        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
+
+        IReadOnlyList<IProperty> IForeignKey.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
@@ -596,17 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => PrincipalKey;
         }
 
-        IMutableKey IMutableForeignKey.PrincipalKey
-        {
-            [DebuggerStepThrough] get => PrincipalKey;
-        }
-
         IEntityType IForeignKey.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
-        }
-
-        IMutableEntityType IMutableForeignKey.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
@@ -616,14 +779,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
-        IMutableEntityType IMutableForeignKey.PrincipalEntityType
-        {
-            [DebuggerStepThrough] get => PrincipalEntityType;
-        }
-
         INavigation IForeignKey.DependentToPrincipal
         {
             [DebuggerStepThrough] get => DependentToPrincipal;
+        }
+
+        INavigation IForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough] get => PrincipalToDependent;
+        }
+
+        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
+        {
+            [DebuggerStepThrough] get => Properties;
+        }
+
+        IMutableKey IMutableForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough] get => PrincipalKey;
+        }
+
+        IMutableEntityType IMutableForeignKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        IMutableEntityType IMutableForeignKey.PrincipalEntityType
+        {
+            [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
         IMutableNavigation IMutableForeignKey.DependentToPrincipal
@@ -631,24 +814,152 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
-        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
+        IMutableNavigation IMutableForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough] get => PrincipalToDependent;
+        }
 
-        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(PropertyInfo property) => HasDependentToPrincipal(property);
+        void IMutableForeignKey.SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey)
+            => SetProperties((IReadOnlyList<Property>)properties, (Key)principalKey, ConfigurationSource.Explicit);
 
-        INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
-        IMutableNavigation IMutableForeignKey.PrincipalToDependent => PrincipalToDependent;
-        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
-        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(PropertyInfo property) => HasPrincipalToDependent(property);
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) =>
+            HasDependentToPrincipal(name, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(MemberInfo property) =>
+            HasDependentToPrincipal(property, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) =>
+            HasPrincipalToDependent(name, ConfigurationSource.Explicit);
+
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(MemberInfo property) =>
+            HasPrincipalToDependent(property, ConfigurationSource.Explicit);
+
+        IConventionEntityType IConventionForeignKey.DeclaringEntityType => DeclaringEntityType;
+        IConventionEntityType IConventionForeignKey.PrincipalEntityType => PrincipalEntityType;
+
+        IConventionKey IConventionForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough] get => PrincipalKey;
+        }
+
+        IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
+        {
+            [DebuggerStepThrough] get => Properties;
+        }
+
+        IConventionNavigation IConventionForeignKey.DependentToPrincipal
+        {
+            [DebuggerStepThrough] get => DependentToPrincipal;
+        }
+
+        IConventionNavigation IConventionForeignKey.PrincipalToDependent
+        {
+            [DebuggerStepThrough] get => PrincipalToDependent;
+        }
+
+        void IConventionForeignKey.SetProperties(
+            IReadOnlyList<IConventionProperty> properties,
+            IConventionKey principalKey,
+            bool fromDataAnnotation)
+            => SetProperties(
+                (IReadOnlyList<Property>)properties, (Key)principalKey,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(string name, bool fromDataAnnotation)
+            => HasDependentToPrincipal(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasDependentToPrincipal(MemberInfo property, bool fromDataAnnotation)
+            => HasDependentToPrincipal(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(string name, bool fromDataAnnotation)
+            => HasPrincipalToDependent(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigation IConventionForeignKey.HasPrincipalToDependent(MemberInfo property, bool fromDataAnnotation)
+            => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsUnique(bool? unique, bool fromDataAnnotation)
+            => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsRequired(bool? required, bool fromDataAnnotation)
+            => SetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetIsOwnership(bool? ownership, bool fromDataAnnotation)
+            => SetIsOwnership(ownership, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        void IConventionForeignKey.SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
+            => SetDeleteBehavior(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString() => this.ToDebugString();
 
+        private void Validate(
+            IReadOnlyList<Property> properties,
+            Key principalKey,
+            EntityType declaringEntityType,
+            EntityType principalEntityType)
+        {
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var property = properties[i];
+                for (var j = i + 1; j < properties.Count; j++)
+                {
+                    if (property == properties[j])
+                    {
+                        throw new InvalidOperationException(CoreStrings.DuplicatePropertyInList(properties.Format(), property.Name));
+                    }
+                }
+
+                var actualProperty = declaringEntityType.FindProperty(property.Name);
+                if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
+                    || property.Builder == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ForeignKeyPropertiesWrongEntity(
+                            properties.Format(), declaringEntityType.DisplayName()));
+                }
+            }
+
+            AreCompatible(
+                principalEntityType,
+                dependentEntityType: declaringEntityType,
+                navigationToPrincipal: null,
+                navigationToDependent: null,
+                dependentProperties: properties,
+                principalProperties: principalKey.Properties,
+                unique: null,
+                shouldThrow: true);
+
+            var duplicateForeignKey = declaringEntityType.FindForeignKeysInHierarchy(
+                properties, principalKey, principalEntityType).FirstOrDefault();
+            if (duplicateForeignKey != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateForeignKey(
+                        properties.Format(),
+                        declaringEntityType.DisplayName(),
+                        duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                        principalKey.Properties.Format(),
+                        principalEntityType.DisplayName()));
+            }
+
+            if (principalEntityType.Model != declaringEntityType.Model)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeModelMismatch(
+                        declaringEntityType.DisplayName(), principalEntityType.DisplayName()));
+            }
+        }
+
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
             [NotNull] EntityType principalEntityType,
@@ -697,21 +1008,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            return principalProperties != null
-                   && dependentProperties != null
-                   && !AreCompatible(
+            return principalProperties == null
+                   || dependentProperties == null
+                   || AreCompatible(
                        principalProperties,
                        dependentProperties,
                        principalEntityType,
                        dependentEntityType,
-                       shouldThrow)
-                ? false
-                : true;
+                       shouldThrow);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
             [NotNull] IReadOnlyList<Property> principalProperties,
@@ -731,9 +1042,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyCountMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 
@@ -746,9 +1057,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeyTypeMismatch(
-                            Property.Format(dependentProperties),
+                            dependentProperties.Format(),
                             dependentEntityType.DisplayName(),
-                            Property.Format(principalProperties),
+                            principalProperties.Format(),
                             principalEntityType.DisplayName()));
                 }
 
@@ -758,32 +1069,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static bool ArePropertyCountsEqual(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+        private static bool ArePropertyCountsEqual(
+            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Count == dependentProperties.Count;
 
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+        private static bool ArePropertyTypesCompatible(
+            IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
-        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
-
-        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView<ForeignKey> DebugView
             => new DebugView<ForeignKey>(this, m => m.ToDebugString(false));
+
+        /// <inheritdoc />
+        IConventionRelationshipBuilder IConventionForeignKey.Builder => Builder;
     }
 }

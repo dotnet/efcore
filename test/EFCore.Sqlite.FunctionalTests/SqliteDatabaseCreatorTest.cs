@@ -57,6 +57,31 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Create_sets_journal_mode_to_wal(bool async)
+        {
+            using (var testStore = SqliteTestStore.GetOrCreate("Create"))
+            using (var context = CreateContext(testStore.ConnectionString))
+            {
+                var creator = context.GetService<IRelationalDatabaseCreator>();
+
+                if (async)
+                {
+                    await creator.CreateAsync();
+                }
+                else
+                {
+                    creator.Create();
+                }
+
+                testStore.OpenConnection();
+                var journalMode = testStore.ExecuteScalar<string>("PRAGMA journal_mode;");
+                Assert.Equal("wal", journalMode);
+            }
+        }
+
         private DbContext CreateContext(string connectionString)
             => new DbContext(
                 new DbContextOptionsBuilder()

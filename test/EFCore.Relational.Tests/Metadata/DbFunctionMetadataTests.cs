@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -234,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             foreach (var function in MyBaseContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.Relational().FindDbFunction(
+                    modelBuilder.Model.FindDbFunction(
                         typeof(MyBaseContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
@@ -242,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             foreach (var function in MyDerivedContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.Relational().FindDbFunction(
+                    modelBuilder.Model.FindDbFunction(
                         typeof(MyDerivedContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
@@ -490,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionset = new ConventionSet();
 
             conventionset.ModelAnnotationChangedConventions.Add(
-                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model>()));
+                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
 
             return new ModelBuilder(conventionset);
         }

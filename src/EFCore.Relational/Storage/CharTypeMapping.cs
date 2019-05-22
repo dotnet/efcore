@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -47,8 +49,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new CharTypeMapping(parameters);
 
         /// <summary>
-        ///     Gets the string format to be used to generate SQL literals of this type.
+        ///     Generates the SQL representation of a non-null literal value.
         /// </summary>
-        protected override string SqlLiteralFormatString => "'{0}'";
+        /// <param name="value">The literal value.</param>
+        /// <returns>
+        ///     The generated string.
+        /// </returns>
+        protected override string GenerateNonNullSqlLiteral(object value)
+        {
+            // NB: We can get Int32 values here too due to compiler-introduced convert nodes
+            var charValue = Convert.ToChar(Check.NotNull(value, nameof(value)));
+            if (charValue == '\'')
+            {
+                return "''''";
+            }
+
+            return "'" + charValue + "'";
+        }
     }
 }

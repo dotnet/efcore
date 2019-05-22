@@ -4,41 +4,39 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a <see cref="DbFunction" />.
-    ///     </para>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Provides a simple API for configuring a <see cref="IMutableDbFunction" />.
     /// </summary>
-    public class DbFunctionBuilder
+    public class DbFunctionBuilder : IConventionDbFunctionBuilder
     {
-        private readonly InternalDbFunctionBuilder _builder;
+        private readonly DbFunction _function;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbFunctionBuilder([NotNull] DbFunction function)
+        [EntityFrameworkInternal]
+        public DbFunctionBuilder([NotNull] IMutableDbFunction function)
         {
             Check.NotNull(function, nameof(function));
 
-            _builder = new InternalDbFunctionBuilder(function);
+            _function = (DbFunction)function;
         }
 
         /// <summary>
-        ///     Metadata representing the function being configured.
+        ///     The function being configured.
         /// </summary>
-        public virtual IMutableDbFunction Metadata => _builder.Metadata;
+        public virtual IMutableDbFunction Metadata => _function;
 
         /// <summary>
         ///     Sets the name of the database function.
@@ -49,10 +47,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotEmpty(name, nameof(name));
 
-            _builder.HasName(name, ConfigurationSource.Explicit);
+            _function.FunctionName = name;
 
             return this;
         }
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasName(string name, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetName(name, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetFunctionName(name, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetFunctionNameConfigurationSource())
+               || _function.FunctionName == name;
 
         /// <summary>
         ///     Sets the schema of the database function.
@@ -61,10 +76,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
         {
-            _builder.HasSchema(schema, ConfigurationSource.Explicit);
+            _function.Schema = schema;
 
             return this;
         }
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasSchema(string schema, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetSchema(schema, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetSchema(schema, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetSchemaConfigurationSource())
+               || _function.Schema == schema;
 
         /// <summary>
         ///     <para>
@@ -79,14 +111,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="translation"> The translation to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
+        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation)
         {
             Check.NotNull(translation, nameof(translation));
 
-            _builder.HasTranslation(translation);
+            _function.Translation = translation;
 
             return this;
         }
+
+        /// <inheritdoc />
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
+            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
+        {
+            if (((IConventionDbFunctionBuilder)this).CanSetTranslation(translation, fromDataAnnotation))
+            {
+                ((IConventionDbFunction)_function).SetTranslation(translation, fromDataAnnotation);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        bool IConventionDbFunctionBuilder.CanSetTranslation(
+            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
+            => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())
+               || _function.Translation == translation;
+
+        private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
+            => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                .Overrides(configurationSource);
 
         #region Hidden System.Object members
 
@@ -103,6 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);
 
         /// <summary>
@@ -110,6 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode() => base.GetHashCode();
 
         #endregion

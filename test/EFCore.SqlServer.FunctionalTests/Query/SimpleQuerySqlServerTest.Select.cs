@@ -200,7 +200,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [p].[ProductID], CASE
     WHEN [p].[UnitsInStock] > CAST(0 AS smallint)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END AS [IsAvailable]
 FROM [Products] AS [p]");
         }
@@ -325,31 +325,31 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [c].[CustomerID] LIKE N'A%'",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='ANTON' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])",
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
                 //
                 @"@_outer_CustomerID='AROUT' (Size = 5)
 
 SELECT TOP(3) [o].[OrderDate] AS [Date]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])");
+WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)");
         }
 
         public override void Select_nested_collection_multi_level2()
@@ -360,10 +360,10 @@ WHERE ([o].[OrderID] < 10500) AND (@_outer_CustomerID = [o].[CustomerID])");
                 @"SELECT (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ) AS [OrderDates]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override void Select_nested_collection_multi_level3()
@@ -377,7 +377,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
 ) AS [OrderDates]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override void Select_nested_collection_multi_level4()
@@ -389,13 +389,13 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] > 10) AND ([o].[OrderID] = [od].[OrderID])
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] > 10)
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override void Select_nested_collection_multi_level5()
@@ -407,17 +407,17 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] <> (
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> (
             SELECT COUNT(*)
             FROM [Orders] AS [o0]
             WHERE [c].[CustomerID] = [o0].[CustomerID]
-        )) AND ([o].[OrderID] = [od].[OrderID])
+        ))
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override void Select_nested_collection_multi_level6()
@@ -429,13 +429,13 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     SELECT TOP(1) (
         SELECT TOP(1) [od].[ProductID]
         FROM [Order Details] AS [od]
-        WHERE ([od].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)) AND ([o].[OrderID] = [od].[OrderID])
+        WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int))
     )
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
 ), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Select_nested_collection_count_using_anonymous_type(bool isAsync)
@@ -449,7 +449,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [Count]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task New_date_time_in_anonymous_type_works(bool isAsync)
@@ -459,7 +459,7 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
             AssertSql(
                 @"SELECT 1
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
+WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Select_non_matching_value_types_int_to_long_introduces_explicit_cast(bool isAsync)
@@ -591,7 +591,7 @@ ORDER BY [Order]");
             AssertSql(
                 @"SELECT CASE
     WHEN [o].[CustomerID] IS NULL OR ([o].[CustomerID] IS NOT NULL AND ([o].[OrderID] < 100))
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'");
@@ -923,7 +923,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT CASE
     WHEN [c].[CustomerID] = N'ALFKI'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Customers] AS [c]");
         }
@@ -952,8 +952,9 @@ ORDER BY [B]");
             await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [B]
+                @"SELECT [o.Customer].[CustomerID] AS [A], [o].[CustomerID] AS [B]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [B]");
         }
 
@@ -974,6 +975,15 @@ FROM [Orders] AS [o]");
                 @"SELECT COALESCE([o].[OrderDate], '1753-01-01T00:00:00.000')
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+        }
+
+        public override async Task Cast_on_top_level_projection_brings_explicit_Cast(bool isAsync)
+        {
+            await base.Cast_on_top_level_projection_brings_explicit_Cast(isAsync);
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS float)
+FROM [Orders] AS [o]");
         }
     }
 }

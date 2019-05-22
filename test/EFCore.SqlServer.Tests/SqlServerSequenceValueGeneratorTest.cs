@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             const int blockSize = 4;
 
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
-                CreateConnection());
+                CreateConnection(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
 
             for (var i = 1; i <= 27; i++)
             {
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -134,6 +136,8 @@ namespace Microsoft.EntityFrameworkCore
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
+            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
             for (var i = 0; i < tests.Length; i++)
@@ -145,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
                     for (var j = 0; j < valueCount; j++)
                     {
                         var connection = CreateConnection(serviceProvider);
-                        var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
+                        var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection, logger);
 
                         var value = j % 2 == 0
                             ? await generator.NextAsync(null)
@@ -169,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var sequence = new Model().SqlServer().GetOrAddSequence("Foo");
+            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = 4;
             var state = new SqlServerSequenceValueGeneratorState(sequence);
 
@@ -183,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
-                CreateConnection());
+                CreateConnection(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
 
             Assert.False(generator.GeneratesTemporaryValues);
         }
@@ -231,34 +236,48 @@ namespace Microsoft.EntityFrameworkCore
 
                 public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
 
-                public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                public int ExecuteNonQuery(
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
                 {
                     throw new NotImplementedException();
                 }
 
                 public Task<int> ExecuteNonQueryAsync(
-                    IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                     CancellationToken cancellationToken = default)
                 {
                     throw new NotImplementedException();
                 }
 
-                public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                public object ExecuteScalar(
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
                 public Task<object> ExecuteScalarAsync(
-                    IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                     CancellationToken cancellationToken = default)
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
 
                 public RelationalDataReader ExecuteReader(
-                    IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
                 {
                     throw new NotImplementedException();
                 }
 
                 public Task<RelationalDataReader> ExecuteReaderAsync(
-                    IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues,
+                    IRelationalConnection connection,
+                    IReadOnlyDictionary<string, object> parameterValues,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
                     CancellationToken cancellationToken = default)
                 {
                     throw new NotImplementedException();

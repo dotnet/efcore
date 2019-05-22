@@ -7,10 +7,6 @@
 
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <Import
-    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
-    Condition=" '$(CI)' != 'true' AND '$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
-
   <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
     <Copyright>$(CopyrightMicrosoft)</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -27,7 +23,7 @@
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
-
+  
   <!-- HACK: Work around dotnet/arcade#1373 -->
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125</NoWarn>

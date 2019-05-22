@@ -17,23 +17,28 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqliteDatabaseModelFactory : IDatabaseModelFactory
+    public class SqliteDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteDatabaseModelFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
@@ -47,32 +52,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
-            if (schemas.Any())
+            if (options.Schemas.Any())
             {
                 _logger.SchemasNotSupportedWarning();
             }
@@ -84,14 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 connection.Open();
 
-                SpatialiteLoader.TryLoad((SqliteConnection)connection);
+                SpatialiteLoader.TryLoad(connection);
             }
 
             try
             {
                 databaseModel.DatabaseName = GetDatabaseName(connection);
 
-                foreach (var table in GetTables(connection, tables))
+                foreach (var table in GetTables(connection, options.Tables))
                 {
                     table.Database = databaseModel;
                     databaseModel.Tables.Add(table);
@@ -149,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 command.CommandText = new StringBuilder()
                     .AppendLine("SELECT \"name\"")
                     .AppendLine("FROM \"sqlite_master\"")
-                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
+                    .Append("WHERE \"type\" IN ('table', 'view') AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
                     .Append(HistoryRepository.DefaultTableName)
                     .Append("', 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth', ")
                     .Append("'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time', ")
@@ -157,6 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     .Append("'sql_statements_log', 'views_geometry_columns', 'views_geometry_columns_auth', ")
                     .Append("'views_geometry_columns_field_infos', 'views_geometry_columns_statistics', ")
                     .Append("'virts_geometry_columns', 'virts_geometry_columns_auth', ")
+                    .Append("'geom_cols_ref_sys', 'spatial_ref_sys_all', ")
                     .AppendLine("'virts_geometry_columns_field_infos', 'virts_geometry_columns_statistics');")
                     .ToString();
 

@@ -30,14 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public bool IsShadowProperty { get; }
-            public bool IsIndexedProperty { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
-            public PropertySaveBehavior BeforeSaveBehavior { get; }
-            public PropertySaveBehavior AfterSaveBehavior { get; }
-            public bool IsReadOnlyBeforeSave { get; }
-            public bool IsReadOnlyAfterSave { get; }
             public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }
             public bool IsConcurrencyToken { get; }
@@ -48,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
             var idProperty = entityType.AddProperty("Id", typeof(int));
 
             Assert.Equal(
@@ -73,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
         {
-            var entityType = new Model().AddEntityType(typeof(Customer));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
             var fuelProperty = entityType.AddProperty("Fuel", typeof(Fuel));
 
             Assert.Equal(

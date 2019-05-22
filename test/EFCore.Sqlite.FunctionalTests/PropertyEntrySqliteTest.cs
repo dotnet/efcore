@@ -16,8 +16,13 @@ namespace Microsoft.EntityFrameworkCore
             base.Property_entry_original_value_is_set();
 
             AssertContainsSql(
-                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""e"".""Id"", ""e"".""StorageLocation_Latitude"", ""e"".""StorageLocation_Longitude""
+                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""t"".""Id"", ""t"".""StorageLocation_Latitude"", ""t"".""StorageLocation_Longitude""
 FROM ""Engines"" AS ""e""
+LEFT JOIN (
+    SELECT ""e.StorageLocation"".*
+    FROM ""Engines"" AS ""e.StorageLocation""
+    WHERE ""e.StorageLocation"".""StorageLocation_Longitude"" IS NOT NULL AND ""e.StorageLocation"".""StorageLocation_Latitude"" IS NOT NULL
+) AS ""t"" ON ""e"".""Id"" = ""t"".""Id""
 ORDER BY ""e"".""Id""
 LIMIT 1",
                 //
@@ -25,9 +30,11 @@ LIMIT 1",
 @p2='1' (DbType = String)
 @p0='FO 108X' (Size = 7)
 @p3='ChangedEngine' (Size = 13)
+@p4='47.64491' (DbType = String)
+@p5='-122.128101' (DbType = String)
 
 UPDATE ""Engines"" SET ""Name"" = @p0
-WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3;
+WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3 AND ""StorageLocation_Latitude"" = @p4 AND ""StorageLocation_Longitude"" = @p5;
 SELECT changes();");
         }
 

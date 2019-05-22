@@ -3,7 +3,7 @@
 
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
@@ -39,8 +39,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b => b.HasTranslation(
                     e => new SqlFunctionExpression(
                         "Distance",
+                        e,
                         typeof(double),
-                        e)));
+                        null)));
+        }
+
+        protected override void Clean(DbContext context)
+        {
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_auth");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_statistics");
+            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_field_infos");
         }
 
         private class ReplacementTypeMappingSource : SqliteTypeMappingSource

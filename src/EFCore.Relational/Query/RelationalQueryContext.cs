@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -15,9 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryContext : QueryContext
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="RelationalQueryContext"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="queryBufferFactory"> A factory for creating query buffers. </param>
+        /// <param name="connection"> The relational connection. </param>
+        /// <param name="executionStrategyFactory"> A factory for creating the execution strategy to use. </param>
         public RelationalQueryContext(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] Func<IQueryBuffer> queryBufferFactory,

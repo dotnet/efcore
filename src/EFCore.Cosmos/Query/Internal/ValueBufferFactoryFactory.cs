@@ -3,14 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
@@ -54,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return jObjectExpression;
             }
 
-            var storeName = property.Cosmos().PropertyName;
+            var storeName = property.GetCosmosPropertyName();
             if (storeName.Length == 0)
             {
                 var type = property.FindMapping()?.Converter?.ProviderClrType

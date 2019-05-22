@@ -1,16 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
         public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
         {
-            _collectionId = entityType.Cosmos().ContainerName;
+            _collectionId = entityType.GetCosmosContainerName();
             _database = database;
             _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
         }
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var storeName = property.Cosmos().PropertyName;
+                var storeName = property.GetCosmosPropertyName();
                 if (storeName.Length != 0)
                 {
                     document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
 
                 var nestedValue = entry.GetCurrentValue(ownedNavigation);
-                var nestedPropertyName = fk.DeclaringEntityType.Cosmos().ContainingPropertyName;
+                var nestedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
                 if (nestedValue == null)
                 {
                     document[nestedPropertyName] = null;
@@ -91,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 if (entry.EntityState == EntityState.Added
                     || entry.IsModified(property))
                 {
-                    var storeName = property.Cosmos().PropertyName;
+                    var storeName = property.GetCosmosPropertyName();
                     if (storeName.Length != 0)
                     {
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
@@ -112,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
                 var nestedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
                 var nestedValue = entry.GetCurrentValue(ownedNavigation);
-                var nestedPropertyName = fk.DeclaringEntityType.Cosmos().ContainingPropertyName;
+                var nestedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
                 if (nestedValue == null)
                 {
                     if (document[nestedPropertyName] != null)

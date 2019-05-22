@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static IModel Clone(this IModel model)
         {
-            var modelClone = new Model();
-            var clonedEntityTypes = new Dictionary<IEntityType, EntityType>();
+            IMutableModel modelClone = new Model();
+            var clonedEntityTypes = new Dictionary<IEntityType, IMutableEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (clonedEntityType.Key.BaseType != null)
                 {
-                    clonedEntityType.Value.HasBaseType(clonedEntityTypes[clonedEntityType.Key.BaseType]);
+                    clonedEntityType.Value.BaseType = clonedEntityTypes[clonedEntityType.Key.BaseType];
                 }
             }
 
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return modelClone;
         }
 
-        private static void CloneProperties(IEntityType sourceEntityType, EntityType targetEntityType)
+        private static void CloneProperties(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
@@ -85,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
                 clonedProperty.ValueGenerated = property.ValueGenerated;
-                clonedProperty.BeforeSaveBehavior = property.BeforeSaveBehavior;
-                clonedProperty.AfterSaveBehavior = property.AfterSaveBehavior;
+                clonedProperty.SetBeforeSaveBehavior(property.GetBeforeSaveBehavior());
+                clonedProperty.SetAfterSaveBehavior(property.GetAfterSaveBehavior());
                 property.GetAnnotations().ForEach(annotation => clonedProperty[annotation.Name] = annotation.Value);
             }
         }
 
-        private static void CloneKeys(IEntityType sourceEntityType, EntityType targetEntityType)
+        private static void CloneKeys(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var key in sourceEntityType.GetDeclaredKeys())
             {
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneIndexes(IEntityType sourceEntityType, EntityType targetEntityType)
+        private static void CloneIndexes(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var index in sourceEntityType.GetDeclaredIndexes())
             {
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneForeignKeys(IEntityType sourceEntityType, EntityType targetEntityType)
+        private static void CloneForeignKeys(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var foreignKey in sourceEntityType.GetDeclaredForeignKeys())
             {
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneNavigations(IEntityType sourceEntityType, EntityType targetEntityType)
+        private static void CloneNavigations(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var navigation in sourceEntityType.GetDeclaredNavigations())
             {

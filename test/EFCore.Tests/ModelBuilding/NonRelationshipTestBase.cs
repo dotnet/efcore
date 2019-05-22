@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -31,6 +32,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.NotNull(modelBuilder);
                 Assert.Equal("Ro", model.FindAnnotation("Fus").Value);
+            }
+
+            [Fact]
+            public void Model_is_readonly_after_Finalize()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.FinalizeModel();
+
+                Assert.ThrowsAny<Exception>(() => modelBuilder.HasAnnotation("Fus", "Ro"));
             }
 
             [Fact]
@@ -67,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = modelBuilder.Model.FindEntityType(typeof(Order));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
                 Assert.Equal("Id", entity.FindPrimaryKey().Properties.Single().Name);
             }
 
@@ -81,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(s => s.SelfRef2)
                     .Ignore(s => s.Id);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
                 var entity = modelBuilder.Model.FindEntityType(typeof(SelfRef));
                 Assert.Equal(nameof(SelfRef.SelfRefId), entity.FindPrimaryKey().Properties.Single().Name);
             }
@@ -210,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().HasKey(b => b.Name);
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Same(key, entity.GetKeys().Single());
 
@@ -465,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore(c => c.Orders);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(1, model.GetEntityTypes().Count());
             }
@@ -483,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
                 modelBuilder.Entity<CustomerDetails>(b => b.Ignore(c => c.Customer));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Equal(0, model.GetEntityTypes().First().GetForeignKeys().Count());
                 Assert.Equal(0, model.GetEntityTypes().Last().GetForeignKeys().Count());
@@ -603,10 +614,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.FindProperty("Up").IsShadowProperty);
-                Assert.False(entityType.FindProperty("Down").IsShadowProperty);
-                Assert.True(entityType.FindProperty("Gluon").IsShadowProperty);
-                Assert.True(entityType.FindProperty("Photon").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Up").IsShadowProperty());
+                Assert.False(entityType.FindProperty("Down").IsShadowProperty());
+                Assert.True(entityType.FindProperty("Gluon").IsShadowProperty());
+                Assert.True(entityType.FindProperty("Photon").IsShadowProperty());
 
                 Assert.Equal(-1, entityType.FindProperty("Up").GetShadowIndex());
                 Assert.Equal(-1, entityType.FindProperty("Down").GetShadowIndex());
@@ -813,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<DynamicProperty>(
                     b => b.Property(e => e.ExpandoObject).HasConversion(v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v)));
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = (IEntityType)model.GetEntityTypes().Single();
                 Assert.NotNull(entityType.FindProperty(nameof(DynamicProperty.ExpandoObject)).GetValueConverter());
@@ -838,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         Assert.Equal(
                             CoreStrings.ConverterPropertyMismatch("string", "Quarks", "Up", "int"),
-                            Assert.Throws<ArgumentException>(
+                            Assert.Throws<InvalidOperationException>(
                                 () => b.Property(e => e.Up).HasConversion(
                                     new StringToBytesConverter(Encoding.UTF8))).Message);
                     });
@@ -936,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<int>("Charm").IsRowVersion();
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 
@@ -994,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var entityType = model.FindEntityType(typeof(Quarks));
 
@@ -1078,7 +1089,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.PropertyNotAdded(
                         nameof(StringCollectionEntity), nameof(StringCollectionEntity.Property), "ICollection<string>"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             protected class StringCollectionEntity
@@ -1265,10 +1276,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         c.HasData(customers);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
-                var data = customer.GetData();
+                var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
@@ -1297,10 +1308,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         c.HasData(customers);
                     });
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
-                var data = customer.GetData();
+                var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First().Values.Single());
                 Assert.Equal(-2, data.Last().Values.Single());
@@ -1314,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Alpha>();
                 modelBuilder.Entity<Gamma>();
 
-                modelBuilder.Validate();
+                modelBuilder.FinalizeModel();
 
                 Assert.Single(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties());
             }

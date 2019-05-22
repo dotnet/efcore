@@ -23,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <c>null</c>.
         /// </returns>
-        public static TRelated? Load<TRelated>(
-            [CanBeNull] this ILazyLoader? loader,
+        public static TRelated Load<TRelated>(
+            [CanBeNull] this ILazyLoader loader,
             [NotNull] object entity,
-            [CanBeNull] ref TRelated? navigationField,
+            [CanBeNull] ref TRelated navigationField,
             // ReSharper disable once AssignNullToNotNullAttribute
-            [NotNull] [CallerMemberName] string navigationName = "")
+            [NotNull] [CallerMemberName] string navigationName = null)
             where TRelated : class
         {
             // ReSharper disable once AssignNullToNotNullAttribute

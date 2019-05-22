@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,13 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
@@ -31,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> _materializers;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression CreateReadValueExpression(
             Expression valueBuffer,
@@ -46,8 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Expression.Constant(property, typeof(IPropertyBase)));
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static readonly MethodInfo TryReadValueMethod
             = typeof(EntityMaterializerSource).GetTypeInfo()
@@ -59,11 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (TValue)valueBuffer[index];
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
+            string entityInstanceName,
             Expression materializationExpression,
             int[] indexMap = null)
         {
@@ -112,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Concat(
                         entityType
                             .GetProperties()
-                            .Where(p => !p.IsShadowProperty)));
+                            .Where(p => !p.IsShadowProperty())));
 
             foreach (var consumedProperty in constructorBinding
                 .ParameterBindings
@@ -128,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return constructorExpression;
             }
 
-            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, "instance");
+            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, entityInstanceName);
 
             var blockExpressions
                 = new List<Expression>
@@ -138,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constructorExpression)
                 };
 
-            var indexerPropertyInfo = entityType.EFIndexerProperty();
+            var indexerPropertyInfo = entityType.FindIndexerProperty();
 
             foreach (var property in properties)
             {
@@ -154,12 +164,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             property);
 
                 blockExpressions.Add(
-                    property.IsIndexedProperty
+                    property.IsIndexedProperty()
                         ? Expression.Assign(
                             Expression.MakeIndex(
                                 instanceVariable,
                                 indexerPropertyInfo,
-                                new[] { Expression.Constant(property.Name) }),
+                                new[]
+                                {
+                                    Expression.Constant(property.Name)
+                                }),
                             readValueExpression)
                         : Expression.MakeMemberAccess(
                             instanceVariable,
@@ -169,7 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Block(new[] { instanceVariable }, blockExpressions);
+            return Expression.Block(
+                new[]
+                {
+                    instanceVariable
+                }, blockExpressions);
         }
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
@@ -178,8 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
             => Materializers.GetOrAdd(
@@ -189,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
                     return Expression.Lambda<Func<MaterializationContext, object>>(
-                            CreateMaterializeExpression(e, materializationContextParameter),
+                            CreateMaterializeExpression(e, "instance", materializationContextParameter),
                             materializationContextParameter)
                         .Compile();
                 });

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasOne(e => e.DerivedSefReferenceOnBase)
-                .WithOne(e => e.BaseSelfRerefenceOnDerived)
+                .WithOne(e => e.BaseSelfReferenceOnDerived)
                 .HasForeignKey<DerivedInheritanceRelationshipEntity>(e => e.BaseId)
                 .IsRequired(false);
 

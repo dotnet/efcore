@@ -2,26 +2,25 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -68,23 +67,28 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
+                .TryAdd<LoggingDefinitions, SqliteLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqliteOptionsExtension>>()
                 .TryAdd<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
                 .TryAdd<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
                 .TryAdd<IMigrationsAnnotationProvider, SqliteMigrationsAnnotationProvider>()
                 .TryAdd<IModelValidator, SqliteModelValidator>()
-                .TryAdd<IConventionSetBuilder, SqliteConventionSetBuilder>()
+                .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()
-                .TryAdd<IMemberTranslator, SqliteCompositeMemberTranslator>()
-                .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
-                .TryAdd<ISqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalResultOperatorHandler, SqliteResultOperatorHandler>()
+
+                // New Query Pipeline
+                .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()
+                .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()
+                .TryAdd<IQuerySqlGeneratorFactory2, SqliteQuerySqlGeneratorFactory2>()
+                .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
+
                 .TryAddProviderSpecificServices(
                     b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 

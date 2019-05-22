@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
-            var tableName = entityType.Relational().TableName;
+            var tableName = entityType.GetTableName();
 
             var tableAlias
                 = relationalQueryCompilationContext.CreateUniqueTableAlias(
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new TableExpression(
                         tableName,
-                        entityType.Relational().Schema,
+                        entityType.GetSchema(),
                         tableAlias,
                         _querySource));
             }
@@ -311,14 +311,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     typeIndexMap);
 
         private static void FindPaths(
-            IEntityType entityType, ICollection<IEntityType> sharedTypes,
+            IEntityType entityType, ICollection<IEntityType> sharingTypes,
             Stack<IEntityType> currentPath, ICollection<List<IEntityType>> result)
         {
             var identifyingFks = entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties)
                 .Where(
                     fk => fk.PrincipalKey.IsPrimaryKey()
                           && fk.PrincipalEntityType != entityType
-                          && sharedTypes.Contains(fk.PrincipalEntityType))
+                          && sharingTypes.Contains(fk.PrincipalEntityType))
                 .ToList();
 
             if (identifyingFks.Count == 0)
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             foreach (var fk in identifyingFks)
             {
                 currentPath.Push(fk.PrincipalEntityType);
-                FindPaths(fk.PrincipalEntityType.RootType(), sharedTypes, currentPath, result);
+                FindPaths(fk.PrincipalEntityType.RootType(), sharingTypes, currentPath, result);
                 currentPath.Pop();
             }
         }
@@ -349,12 +349,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var discriminatorColumn
                 = selectExpression.BindProperty(
-                    concreteEntityTypes[0].Relational().DiscriminatorProperty,
+                    concreteEntityTypes[0].GetDiscriminatorProperty(),
                     querySource);
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    concreteEntityTypes[0].Relational().DiscriminatorValue,
+                    concreteEntityTypes[0].GetDiscriminatorValue(),
                     discriminatorColumn.Type);
 
             var discriminatorPredicate
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         .Select(
                             concreteEntityType
                                 => Expression.Constant(
-                                    concreteEntityType.Relational().DiscriminatorValue,
+                                    concreteEntityType.GetDiscriminatorValue(),
                                     discriminatorColumn.Type))
                         .Aggregate(
                             discriminatorPredicate, (current, discriminatorValue) =>
@@ -378,6 +378,72 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             return discriminatorPredicate;
+        }
+
+        private static Expression GenerateSharedTableExpression(
+            IEntityType entityType, HashSet<IEntityType> sharingTypes, SelectExpression selectExpression, IQuerySource querySource)
+        {
+            if (sharingTypes.Count == 1
+                || !entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties)
+                    .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                               && fk.PrincipalEntityType != entityType
+                               && sharingTypes.Contains(fk.PrincipalEntityType)))
+            {
+                return null;
+            }
+
+            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            if (requiredNonPkProperties.Count > 0)
+            {
+                var discriminatorPredicate
+                    = IsNotNull(requiredNonPkProperties[0], selectExpression, querySource);
+
+                if (requiredNonPkProperties.Count > 1)
+                {
+                    discriminatorPredicate
+                        = requiredNonPkProperties
+                            .Skip(1)
+                            .Aggregate(
+                                discriminatorPredicate, (current, property) =>
+                                    Expression.AndAlso(
+                                        IsNotNull(property, selectExpression, querySource),
+                                        current));
+                }
+
+                return discriminatorPredicate;
+            }
+            else
+            {
+                var allNonPkProperties = entityType.GetProperties().Where(p => !p.IsPrimaryKey()).ToList();
+                if (allNonPkProperties.Count == 0)
+                {
+                    return null;
+                }
+
+                var discriminatorPredicate
+                    = IsNotNull(allNonPkProperties[0], selectExpression, querySource);
+
+                if (allNonPkProperties.Count > 1)
+                {
+                    discriminatorPredicate
+                        = allNonPkProperties
+                            .Skip(1)
+                            .Aggregate(
+                                discriminatorPredicate, (current, property) =>
+                                    Expression.OrElse(
+                                        IsNotNull(property, selectExpression, querySource),
+                                        current));
+                }
+
+                return discriminatorPredicate;
+            }
+        }
+
+        private static Expression IsNotNull(IProperty property, SelectExpression selectExpression, IQuerySource querySource)
+        {
+            var column = selectExpression.BindProperty(property, querySource);            
+            var nullableColumn = column.Type.IsNullableType() ? column : new NullableExpression(column);
+            return Expression.Not(new IsNullExpression(nullableColumn));
         }
 
         private void DiscriminateProjectionQuery(
@@ -391,22 +457,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else
             {
-                var sharedTypes = new HashSet<IEntityType>(
+                var sharingTypes = new HashSet<IEntityType>(
                     _model.GetEntityTypes()
                         .Where(et => et.FindPrimaryKey() != null
-                                  && et.Relational().TableName == entityType.Relational().TableName
-                                  && et.Relational().Schema == entityType.Relational().Schema));
+                                  && et.GetTableName() == entityType.GetTableName()
+                                  && et.GetSchema() == entityType.GetSchema()));
 
                 var currentPath = new Stack<IEntityType>();
                 currentPath.Push(entityType);
 
                 var allPaths = new List<List<IEntityType>>();
-                FindPaths(entityType.RootType(), sharedTypes, currentPath, allPaths);
+                FindPaths(entityType.RootType(), sharingTypes, currentPath, allPaths);
 
                 discriminatorPredicate = allPaths
                     .Select(
                         p => p.Select(
-                                et => GenerateDiscriminatorExpression(et, selectExpression, querySource))
+                                et => GenerateDiscriminatorExpression(et, selectExpression, querySource)
+                                   ?? GenerateSharedTableExpression(et, sharingTypes, selectExpression, querySource))
                             .Aggregate(
                                 (Expression)null,
                                 (result, current) => result != null

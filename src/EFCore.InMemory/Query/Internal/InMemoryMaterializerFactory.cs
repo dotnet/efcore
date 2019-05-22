@@ -6,23 +6,26 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class InMemoryMaterializerFactory : IInMemoryMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryMaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
         {
@@ -32,8 +35,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression<Func<IEntityType, MaterializationContext, object>> CreateMaterializer(IEntityType entityType)
         {
@@ -46,14 +51,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToList();
+                = entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()).ToList();
 
             if (concreteEntityTypes.Count == 1)
             {
                 return Expression.Lambda<Func<IEntityType, MaterializationContext, object>>(
                     _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityTypes[0], materializationContextParameter),
+                            concreteEntityTypes[0], "instance", materializationContextParameter),
                     entityTypeParameter,
                     materializationContextParameter);
             }
@@ -71,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             returnLabelTarget,
                             _entityMaterializerSource
                                 .CreateMaterializeExpression(
-                                    concreteEntityTypes[0], materializationContextParameter))),
+                                    concreteEntityTypes[0], "instance", materializationContextParameter))),
                     Expression.Label(
                         returnLabelTarget,
                         Expression.Default(returnLabelTarget.Type))
@@ -87,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         Expression.Return(
                             returnLabelTarget,
                             _entityMaterializerSource
-                                .CreateMaterializeExpression(concreteEntityType, materializationContextParameter)),
+                                .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextParameter)),
                         blockExpressions[0]);
             }
 

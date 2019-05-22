@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -41,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private int _variableCounter;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator"/> instance.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
@@ -131,6 +129,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate)
         {
+
+            var valueGenerationStrategy = operation[
+                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
+            if (identity)
+            {
+                // NB: This gets added to all added non-nullable columns by MigrationsModelDiffer. We need to suppress
+                //     it, here because SQL Server can have both IDENTITY and a DEFAULT constraint on the same column.
+                operation.DefaultValue = null;
+            }
+
             base.Generate(operation, model, builder, terminate: false);
 
             if (terminate)
@@ -260,22 +269,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                operation.Schema,
                                operation.Table,
                                operation.Name,
-                               operation.ClrType,
-                               operation.IsUnicode,
-                               operation.MaxLength,
-                               operation.IsFixedLength,
-                               operation.IsRowVersion,
+                               operation,
                                model);
                 var oldType = operation.OldColumn.ColumnType
                               ?? GetColumnType(
                                   operation.Schema,
                                   operation.Table,
                                   operation.Name,
-                                  operation.OldColumn.ClrType,
-                                  operation.OldColumn.IsUnicode,
-                                  operation.OldColumn.MaxLength,
-                                  operation.OldColumn.IsFixedLength,
-                                  operation.OldColumn.IsRowVersion,
+                                  operation.OldColumn,
                                   model);
                 narrowed = type != oldType || !operation.IsNullable && operation.OldColumn.IsNullable;
             }
@@ -293,22 +294,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ALTER COLUMN ");
 
+            // NB: DefaultValue, DefaultValueSql, and identity are handled elsewhere. Don't copy them here.
+            var definitionOperation = new AlterColumnOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name,
+                ClrType = operation.ClrType,
+                ColumnType = operation.ColumnType,
+                IsUnicode = operation.IsUnicode,
+                IsFixedLength = operation.IsFixedLength,
+                MaxLength = operation.MaxLength,
+                IsRowVersion = operation.IsRowVersion,
+                IsNullable = operation.IsNullable,
+                ComputedColumnSql = operation.ComputedColumnSql,
+                OldColumn = operation.OldColumn
+            };
+            definitionOperation.AddAnnotations(
+                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy));
+
             ColumnDefinition(
                 operation.Schema,
                 operation.Table,
                 operation.Name,
-                operation.ClrType,
-                operation.ColumnType,
-                operation.IsUnicode,
-                operation.MaxLength,
-                operation.IsFixedLength,
-                operation.IsRowVersion,
-                operation.IsNullable,
-                /*defaultValue:*/ null,
-                /*defaultValueSql:*/ null,
-                operation.ComputedColumnSql,
-                /*identity:*/ false,
-                operation,
+                definitionOperation,
                 model,
                 builder);
 
@@ -1179,80 +1188,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="schema"> The schema that contains the sequence, or <c>null</c> to use the default schema. </param>
         /// <param name="name"> The sequence name. </param>
-        /// <param name="increment"> The amount to increment by to generate the next value in the sequence. </param>
-        /// <param name="minimumValue"> The minimum value supported by the sequence, or <c>null</c> if none was specified. </param>
-        /// <param name="maximumValue"> The maximum value supported by the sequence, or <c>null</c> if none was specified. </param>
-        /// <param name="cycle"> Indicates whether or not the sequence will start again once the maximum value is reached. </param>
+        /// <param name="operation"> The sequence options. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void SequenceOptions(
             string schema,
             string name,
-            int increment,
-            long? minimumValue,
-            long? maximumValue,
-            bool cycle,
+            SequenceOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(increment, nameof(increment));
-            Check.NotNull(cycle, nameof(cycle));
+            Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
                 .Append(" INCREMENT BY ")
-                .Append(IntegerConstant(increment));
+                .Append(IntegerConstant(operation.IncrementBy));
 
-            if (minimumValue.HasValue)
+            if (operation.MinValue.HasValue)
             {
                 builder
                     .Append(" MINVALUE ")
-                    .Append(IntegerConstant(minimumValue.Value));
+                    .Append(IntegerConstant(operation.MinValue.Value));
             }
             else
             {
                 builder.Append(" NO MINVALUE");
             }
 
-            if (maximumValue.HasValue)
+            if (operation.MaxValue.HasValue)
             {
                 builder
                     .Append(" MAXVALUE ")
-                    .Append(IntegerConstant(maximumValue.Value));
+                    .Append(IntegerConstant(operation.MaxValue.Value));
             }
             else
             {
                 builder.Append(" NO MAXVALUE");
             }
 
-            builder.Append(cycle ? " CYCLE" : " NO CYCLE");
+            builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
         }
-
-        /// <summary>
-        ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
-        /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected override void ColumnDefinition(AddColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-            => ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                operation.ClrType,
-                operation.ColumnType,
-                operation.IsUnicode,
-                operation.MaxLength,
-                operation.IsFixedLength,
-                operation.IsRowVersion,
-                operation.IsNullable,
-                operation.DefaultValue,
-                operation.DefaultValueSql,
-                operation.ComputedColumnSql,
-                operation,
-                model,
-                builder);
 
         /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
@@ -1260,150 +1237,74 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <param name="table"> The table that contains the column. </param>
         /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
+        /// <param name="operation"> The column metadata. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void ColumnDefinition(
             string schema,
             string table,
             string name,
-            Type clrType,
-            string type,
-            bool? unicode,
-            int? maxLength,
-            bool? fixedLength,
-            bool rowVersion,
-            bool nullable,
-            object defaultValue,
-            string defaultValueSql,
-            string computedColumnSql,
-            IAnnotatable annotatable,
+            ColumnOperation operation,
             IModel model,
             MigrationCommandListBuilder builder)
         {
-            var valueGenerationStrategy = annotatable[
-                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-
-            ColumnDefinition(
-                schema,
-                table,
-                name,
-                clrType,
-                type,
-                unicode,
-                maxLength,
-                fixedLength,
-                rowVersion,
-                nullable,
-                defaultValue,
-                defaultValueSql,
-                computedColumnSql,
-                valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn,
-                annotatable,
-                model,
-                builder);
-        }
-
-        /// <summary>
-        ///     Generates a SQL fragment for a column definition for the given column metadata.
-        /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="identity"> Indicates whether or not the column is an Identity column. </param>
-        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected virtual void ColumnDefinition(
-            [CanBeNull] string schema,
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            [CanBeNull] string type,
-            bool? unicode,
-            int? maxLength,
-            bool? fixedLength,
-            bool rowVersion,
-            bool nullable,
-            [CanBeNull] object defaultValue,
-            [CanBeNull] string defaultValueSql,
-            [CanBeNull] string computedColumnSql,
-            bool identity,
-            [NotNull] IAnnotatable annotatable,
-            [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder)
-        {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(annotatable, nameof(annotatable));
+            Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
-
-            if (computedColumnSql != null)
-            {
-                builder
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
-                    .Append(" AS ")
-                    .Append(computedColumnSql);
-
-                return;
-            }
 
             base.ColumnDefinition(
                 schema,
                 table,
                 name,
-                clrType,
-                type,
-                unicode,
-                maxLength,
-                fixedLength,
-                rowVersion,
-                nullable,
-                identity
-                    ? null
-                    : defaultValue,
-                defaultValueSql,
-                computedColumnSql,
-                annotatable,
+                operation,
                 model,
                 builder);
 
+            var valueGenerationStrategy = operation[
+                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
             if (identity)
             {
+                var identitySeed = operation[
+                    SqlServerAnnotationNames.IdentitySeed] as int?;
+
+                var identityIncrement = operation[
+                    SqlServerAnnotationNames.IdentityIncrement] as int?;
+
                 builder.Append(" IDENTITY");
+
+                if ((identitySeed != null && identitySeed != 1) || (identityIncrement != null && identityIncrement != 1))
+                {
+                    builder.Append($"({identitySeed ?? 1},{identityIncrement ?? 1})");
+                }
             }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for a computed column definition for the given column metadata.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="name"> The column name. </param>
+        /// <param name="operation"> The column metadata. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void ComputedColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            ColumnOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                .Append(" AS ")
+                .Append(operation.ComputedColumnSql);
         }
 
         /// <summary>
@@ -1538,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             base.IndexOptions(operation, model, builder);
 
-            if (operation[SqlServerAnnotationNames.Online] is bool isOnline && isOnline)
+            if (operation[SqlServerAnnotationNames.CreatedOnline] is bool isOnline && isOnline)
             {
                 builder.Append(" WITH (ONLINE = ON)");
             }
@@ -1637,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .OfType<CreateIndexOperation>().ToList();
             foreach (var index in property.DeclaringEntityType.GetIndexes().Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
             {
-                var indexName = index.Relational().Name;
+                var indexName = index.GetName();
                 if (createIndexOperations.Any(o => o.Name == indexName))
                 {
                     continue;
@@ -1647,7 +1548,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     yield return index;
                 }
-                else if (index.SqlServer().IncludeProperties is IReadOnlyList<string> includeProperties)
+                else if (index.GetSqlServerIncludeProperties() is IReadOnlyList<string> includeProperties)
                 {
                     if (includeProperties.Contains(property.Name))
                     {
@@ -1673,9 +1574,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var operation = new DropIndexOperation
                 {
-                    Schema = index.DeclaringEntityType.Relational().Schema,
-                    Table = index.DeclaringEntityType.Relational().TableName,
-                    Name = index.Relational().Name
+                    Schema = index.DeclaringEntityType.GetSchema(),
+                    Table = index.DeclaringEntityType.GetTableName(),
+                    Name = index.GetName()
                 };
                 operation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
 
@@ -1701,11 +1602,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var operation = new CreateIndexOperation
                 {
                     IsUnique = index.IsUnique,
-                    Name = index.Relational().Name,
-                    Schema = index.DeclaringEntityType.Relational().Schema,
-                    Table = index.DeclaringEntityType.Relational().TableName,
-                    Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
-                    Filter = index.Relational().Filter
+                    Name = index.GetName(),
+                    Schema = index.DeclaringEntityType.GetSchema(),
+                    Table = index.DeclaringEntityType.GetTableName(),
+                    Columns = index.Properties.Select(p => p.GetColumnName()).ToArray(),
+                    Filter = index.GetFilter()
                 };
                 operation.AddAnnotations(_migrationsAnnotations.For(index));
 
@@ -1728,7 +1629,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.SqlServer().IsMemoryOptimized) == true;
+               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.GetSqlServerIsMemoryOptimized()) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

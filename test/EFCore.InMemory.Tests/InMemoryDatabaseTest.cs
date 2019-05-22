@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -48,17 +49,15 @@ namespace Microsoft.EntityFrameworkCore
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-            var model = CreateModel();
             var store = CreateStore(serviceProvider);
-            var stateManager = CreateContextServices(serviceProvider).GetRequiredService<StateManagerDependencies>().With(model);
 
-            Assert.True(store.EnsureDatabaseCreated(stateManager));
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
+            Assert.True(store.EnsureDatabaseCreated());
+            Assert.False(store.EnsureDatabaseCreated());
+            Assert.False(store.EnsureDatabaseCreated());
 
             store = CreateStore(serviceProvider);
 
-            Assert.False(store.EnsureDatabaseCreated(stateManager));
+            Assert.False(store.EnsureDatabaseCreated());
         }
 
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider)
@@ -173,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             var (Level, _, Message, _, _) = loggerFactory.Log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
 
             Assert.Equal(LogLevel.Information, Level);
-            Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), Message);
+            Assert.Equal(InMemoryResources.LogSavedChanges(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(1), Message);
         }
 
         private static IModel CreateModel()

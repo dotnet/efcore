@@ -45,17 +45,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Only add the annotation here if it will never be present on IEntityType
             var notForEntityType = new HashSet<string>
             {
-                CoreAnnotationNames.MaxLengthAnnotation,
-                CoreAnnotationNames.UnicodeAnnotation,
-                CoreAnnotationNames.ProductVersionAnnotation,
-                CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.MaxLength,
+                CoreAnnotationNames.Unicode,
+                CoreAnnotationNames.ProductVersion,
+                CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
+                CoreAnnotationNames.BeforeSaveBehavior,
+                CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.ProviderClrType,
+                CoreAnnotationNames.EagerLoaded,
                 RelationalAnnotationNames.ColumnName,
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.DefaultValueSql,
@@ -63,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.DefaultValue,
                 RelationalAnnotationNames.Name,
                 RelationalAnnotationNames.SequencePrefix,
+                RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
@@ -85,15 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         + @"(""WithAnnotations"",""MySchema"");" + _nl)
                 },
                 {
-                    RelationalAnnotationNames.DiscriminatorProperty,
+                    CoreAnnotationNames.DiscriminatorProperty,
                     ("Id",
-                        _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                        _toTable + _nl + "modelBuilder.HasDiscriminator"
                         + @"<int>(""Id"");" + _nl)
                 },
                 {
-                    RelationalAnnotationNames.DiscriminatorValue,
+                    CoreAnnotationNames.DiscriminatorValue,
                     ("MyDiscriminatorValue",
-                        _toTable + _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                        _toTable + _nl + "modelBuilder.HasDiscriminator"
                         + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
                 }
             };
@@ -113,17 +117,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Only add the annotation here if it will never be present on IProperty
             var notForProperty = new HashSet<string>
             {
-                CoreAnnotationNames.ProductVersionAnnotation,
-                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.ProductVersion,
+                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessModeAnnotation,
+                CoreAnnotationNames.NavigationAccessMode,
+                CoreAnnotationNames.EagerLoaded,
+                CoreAnnotationNames.QueryFilter,
+                CoreAnnotationNames.DefiningQuery,
                 RelationalAnnotationNames.TableName,
                 RelationalAnnotationNames.Schema,
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.Name,
                 RelationalAnnotationNames.SequencePrefix,
-                RelationalAnnotationNames.DiscriminatorProperty,
-                RelationalAnnotationNames.DiscriminatorValue,
+                RelationalAnnotationNames.CheckConstraints,
+                CoreAnnotationNames.DiscriminatorProperty,
+                CoreAnnotationNames.DiscriminatorValue,
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
                 RelationalAnnotationNames.MaxIdentifierLength
@@ -134,11 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var forProperty = new Dictionary<string, (object, string)>
             {
                 {
-                    CoreAnnotationNames.MaxLengthAnnotation,
+                    CoreAnnotationNames.MaxLength,
                     (256, _nl + "." + nameof(PropertyBuilder.HasMaxLength) + "(256)")
                 },
                 {
-                    CoreAnnotationNames.UnicodeAnnotation,
+                    CoreAnnotationNames.Unicode,
                     (false, _nl + "." + nameof(PropertyBuilder.IsUnicode) + "(false)")
                 },
                 {
@@ -280,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             codeHelper))));
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             modelBuilder.Entity<WithAnnotations>(
                 eb =>
                 {
@@ -300,8 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot").Model;
 
-            Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).SqlServer().DiscriminatorValue);
-            Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).SqlServer().DiscriminatorValue);
+            Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).GetDiscriminatorValue());
+            Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
         }
 
         [Fact]
@@ -345,6 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
             property.SetMaxLength(1000);
+            property.SetValueConverter(valueConverter);
 
             modelBuilder.FinalizeModel();
 
@@ -355,8 +364,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var generator = new TestCSharpSnapshotGenerator(
                 new CSharpSnapshotGeneratorDependencies(codeHelper));
-
-            property.SetValueConverter(valueConverter);
 
             var sb = new IndentedStringBuilder();
 
@@ -531,7 +538,7 @@ namespace MyNamespace
             var generator = CreateMigrationsCodeGenerator();
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             modelBuilder.Entity<EntityWithConstructorBinding>(
                 x =>
                 {
@@ -684,7 +691,7 @@ namespace MyNamespace
             foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
             {
                 var snapshotProperty = entityType.FindProperty(property.Name);
-                Assert.Equal(property.Relational().DefaultValue, snapshotProperty.Relational().DefaultValue);
+                Assert.Equal(property.GetDefaultValue(), snapshotProperty.GetDefaultValue());
             }
         }
 

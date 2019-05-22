@@ -3,12 +3,14 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
+    internal class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
     {
         public WarningsSqlServerTest(QueryNoClientEvalSqlServerFixture fixture)
             : base(fixture)
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Does_not_throw_for_top_level_single();
 
             Assert.Equal(
-                @"SELECT TOP(2) [x].[OrderID], [x].[CustomerID], [x].[EmployeeID], [x].[OrderDate]
+                @"SELECT TOP(1) [x].[OrderID], [x].[CustomerID], [x].[EmployeeID], [x].[OrderDate]
 FROM [Orders] AS [x]
 WHERE [x].[OrderID] = 10248",
                 Fixture.TestSqlLoggerFactory.Sql,
@@ -32,7 +34,7 @@ WHERE [x].[OrderID] = 10248",
             base.Last_without_order_by_issues_client_eval_warning();
 
             Assert.Contains(
-                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     "(from Customer <generated>_1 in DbSet<Customer> select [<generated>_1]).Last()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -42,7 +44,7 @@ WHERE [x].[OrderID] = 10248",
             base.Paging_operation_without_orderby_issues_warning();
 
             Assert.Contains(
-                CoreStrings.LogRowLimitingOperationWithoutOrderBy.GenerateMessage(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     "(from Customer <generated>_2 in DbSet<Customer> select [<generated>_2]).Skip(__p_0).Take(__p_1)"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -52,7 +54,7 @@ WHERE [x].[OrderID] = 10248",
             await base.Paging_operation_without_orderby_issues_warning_async();
 
             Assert.Contains(
-                CoreStrings.LogRowLimitingOperationWithoutOrderBy.GenerateMessage(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     "(from Customer <generated>_2 in DbSet<Customer> select [<generated>_2]).Skip(__p_0).Take(__p_1)"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -62,7 +64,7 @@ WHERE [x].[OrderID] = 10248",
             base.FirstOrDefault_without_orderby_and_filter_issues_warning_subquery();
 
             Assert.Contains(
-                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     "(from Order <generated>_1 in [c].Orders select (Nullable<int>)[<generated>_1].OrderID).FirstOrDefaul..."),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -72,7 +74,7 @@ WHERE [x].[OrderID] = 10248",
             base.FirstOrDefault_without_orderby_but_with_filter_doesnt_issue_warning();
 
             Assert.DoesNotContain(
-                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     @"(from Customer c in DbSet<Customer> where c.CustomerID == ""ALFKI"" select c).FirstOrDefault()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -82,7 +84,7 @@ WHERE [x].[OrderID] = 10248",
             base.Single_SingleOrDefault_without_orderby_doesnt_issue_warning();
 
             Assert.DoesNotContain(
-                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
                     @"(from Customer c in DbSet<Customer> where c.CustomerID == ""ALFKI"" select c).Single()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
@@ -92,7 +94,7 @@ WHERE [x].[OrderID] = 10248",
             base.Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning();
 
             Assert.Contains(
-                CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison.GenerateMessage("Orders"),
+                CoreResources.LogPossibleUnintendedCollectionNavigationNullComparison(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Orders"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
@@ -101,7 +103,7 @@ WHERE [x].[OrderID] = 10248",
             base.Comparing_two_collections_together_issues_possible_unintended_reference_comparison_warning();
 
             Assert.Contains(
-                CoreStrings.LogPossibleUnintendedReferenceComparison.GenerateMessage("[c].Orders", "[c].Orders"),
+                CoreResources.LogPossibleUnintendedReferenceComparison(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders", "[c].Orders"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
     }

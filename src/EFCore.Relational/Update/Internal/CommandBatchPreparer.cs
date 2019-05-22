@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -18,8 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
@@ -35,14 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
         private readonly int _minBatchSize;
-        private IStateManager _stateManager;
         private readonly bool _sensitiveLoggingEnabled;
 
         private IReadOnlyDictionary<(string Schema, string Name), SharedTableEntryMapFactory<ModificationCommand>> _sharedTableEntryMapFactories;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CommandBatchPreparer([NotNull] CommandBatchPreparerDependencies dependencies)
         {
@@ -62,16 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private CommandBatchPreparerDependencies Dependencies { get; }
 
-        private IStateManager StateManager => _stateManager ?? (_stateManager = Dependencies.StateManager());
-
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(
+            IList<IUpdateEntry> entries,
+            IUpdateAdapter updateAdapter)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-            var commands = CreateModificationCommands(entries, parameterNameGenerator.GenerateNext);
+            var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
             // TODO: Enable batching of dependent commands by passing through the dependency graph
@@ -143,28 +149,36 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
-            [NotNull] IReadOnlyList<IUpdateEntry> entries,
+            [NotNull] IList<IUpdateEntry> entries,
+            [NotNull] IUpdateAdapter updateAdapter,
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
             if (_sharedTableEntryMapFactories == null)
             {
                 _sharedTableEntryMapFactories = SharedTableEntryMap<ModificationCommand>
-                    .CreateSharedTableEntryMapFactories(entries[0].EntityType.Model, StateManager);
+                    .CreateSharedTableEntryMapFactories(updateAdapter.Model, updateAdapter);
             }
 
             Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
             {
+                if (entry.SharedIdentityEntry != null
+                    && entry.EntityState == EntityState.Deleted)
+                {
+                    continue;
+                }
+
                 var entityType = entry.EntityType;
-                var relationalExtensions = entityType.Relational();
-                var table = relationalExtensions.TableName;
-                var schema = relationalExtensions.Schema;
+                var table = entityType.GetTableName();
+                var schema = entityType.GetSchema();
                 var tableKey = (schema, table);
 
                 ModificationCommand command;
@@ -199,6 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             if (sharedTablesCommandsMap != null)
             {
                 Validate(sharedTablesCommandsMap);
+                AddUnchangedSharingEntries(sharedTablesCommandsMap, entries);
             }
 
             return commands.Where(
@@ -267,50 +282,35 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     principalEntityType.DisplayName(),
                                     command.EntityState));
                         }
+                    }
+                }
+            }
+        }
 
-                        var dependents = modificationCommandIdentityMap.GetDependents(entry.EntityType);
-                        // ReSharper disable once ForCanBeConvertedToForeach
-                        for (var dependentIndex = 0; dependentIndex < dependents.Count; dependentIndex++)
+        private void AddUnchangedSharingEntries(
+            Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap,
+            IList<IUpdateEntry> entries)
+        {
+            foreach (var modificationCommandIdentityMap in sharedTablesCommandsMap.Values)
+            {
+                foreach (var command in modificationCommandIdentityMap.Values)
+                {
+                    if (command.EntityState != EntityState.Modified)
+                    {
+                        continue;
+                    }
+
+                    foreach (var entry in modificationCommandIdentityMap.GetAllEntries(command.Entries[0]))
+                    {
+                        if (entry.EntityState != EntityState.Unchanged)
                         {
-                            var dependentEntityType = dependents[dependentIndex];
-                            var dependentFound = false;
-                            // ReSharper disable once ForCanBeConvertedToForeach
-                            for (var otherEntryIndex = 0; otherEntryIndex < command.Entries.Count; otherEntryIndex++)
-                            {
-                                var dependentEntry = command.Entries[otherEntryIndex];
-                                if (dependentEntry != entry
-                                    && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType))
-                                {
-                                    dependentFound = true;
-                                    break;
-                                }
-                            }
-
-                            if (dependentFound)
-                            {
-                                continue;
-                            }
-
-                            var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") +
-                                            command.TableName;
-                            if (_sensitiveLoggingEnabled)
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                                        entry.EntityType.DisplayName(),
-                                        tableName,
-                                        dependentEntityType.DisplayName(),
-                                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                                        command.EntityState));
-                            }
-
-                            throw new InvalidOperationException(
-                                RelationalStrings.SharedRowEntryCountMismatch(
-                                    entry.EntityType.DisplayName(),
-                                    tableName,
-                                    dependentEntityType.DisplayName(),
-                                    command.EntityState));
+                            continue;
                         }
+
+                        entry.EntityState = EntityState.Modified;
+
+                        command.AddEntry(entry);
+                        entries.Add(entry);
                     }
                 }
             }
@@ -328,8 +328,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         //     commands adding or modifying the foreign key values to the same values
         //     if foreign key is unique
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {

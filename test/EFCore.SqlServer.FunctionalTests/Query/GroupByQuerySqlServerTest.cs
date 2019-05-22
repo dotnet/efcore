@@ -34,6 +34,14 @@ GROUP BY [o].[CustomerID]");
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
+        public override async Task GroupBy_Property_Select_Average_with_navigation_expansion(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Average_with_navigation_expansion(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         public override async Task GroupBy_Property_Select_Count(bool isAsync)
         {
             await base.GroupBy_Property_Select_Count(isAsync);
@@ -1398,11 +1406,11 @@ ORDER BY [Key]");
             SELECT 1
             FROM [Orders] AS [o0]
             WHERE [c].[CustomerID] = [o0].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
     END
 ), [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
+WHERE [c].[CustomerID] LIKE N'A%'",
                 //
                 @"@_outer_CustomerID='ALFKI' (Size = 5)
 
@@ -1941,7 +1949,7 @@ FROM (
             GROUP BY [o].[CustomerID]
         ) AS [t]
         WHERE 0 = 1)
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END",
                 //
                 @"SELECT CASE
@@ -1949,7 +1957,7 @@ END",
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID])
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END");
         }
 

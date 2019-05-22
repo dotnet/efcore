@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         private readonly IModelValidator _coreModelValidator
             = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
 
-        private readonly NullConventionSetBuilder _nullConventionSetBuilder
+        private readonly IConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();
 
         [Fact]
@@ -76,16 +76,21 @@ namespace Microsoft.EntityFrameworkCore
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
             var setFinder = new FakeSetFinder();
-            var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model>(),
-                new TestLogger<DbLoggerCategory.Model.Validation>());
+            var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
             var model = CreateDefaultModelSource(setFinder)
-                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, _coreModelValidator, loggers);
+                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, new FakeModelValidator(), logger);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
                 model.GetEntityTypes().Select(e => e.Name).ToArray());
+        }
+
+        private class FakeModelValidator : IModelValidator
+        {
+            public void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            {
+            }
         }
 
         private class FakeSetFinder : IDbSetFinder
@@ -121,27 +126,23 @@ namespace Microsoft.EntityFrameworkCore
         public void Caches_model_by_context_type()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
-            var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model>(),
-                new TestLogger<DbLoggerCategory.Model.Validation>());
+            var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
-            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, loggers);
-            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, loggers);
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, logger);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, loggers));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, loggers));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, logger));
         }
 
         [Fact]
         public void Stores_model_version_information_as_annotation_on_model()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
-            var loggers = new DiagnosticsLoggers(
-                new TestLogger<DbLoggerCategory.Model>(),
-                new TestLogger<DbLoggerCategory.Model.Validation>());
+            var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
-            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, loggers);
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 
@@ -164,11 +165,15 @@ namespace Microsoft.EntityFrameworkCore
             public ConcreteModelSource(IDbSetFinder setFinder)
                 : base(
                     new ModelSourceDependencies(
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>(),
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
                         InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
             {
             }
+        }
+
+        private class NullConventionSetBuilder : IConventionSetBuilder
+        {
+            public ConventionSet CreateConventionSet() => new ConventionSet();
         }
     }
 }

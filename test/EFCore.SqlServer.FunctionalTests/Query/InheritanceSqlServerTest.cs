@@ -10,7 +10,8 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceSqlServerTest : InheritanceRelationalTestBase<InheritanceSqlServerFixture>
+    // TODO: Issue #14630
+    internal class InheritanceSqlServerTest : InheritanceRelationalTestBase<InheritanceSqlServerFixture>
     {
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -28,15 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var cokeType = context.Model.FindEntityType(typeof(Coke));
                 var teaType = context.Model.FindEntityType(typeof(Tea));
 
-                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").Relational().ColumnName);
-                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").Relational().ColumnName);
-                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").Relational().ColumnName);
+                Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
+                Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
+                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").GetColumnName());
 
-                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").Relational().ColumnName);
-                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").Relational().ColumnName);
+                Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
+                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").GetColumnName());
 
-                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").Relational().ColumnName);
-                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").Relational().ColumnName);
+                Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
+                Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
             }
         }
 
@@ -130,7 +131,7 @@ WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'K
             AssertSql(
                 @"SELECT CASE
     WHEN [a].[Discriminator] = N'Kiwi'
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
 END
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')");
@@ -389,7 +390,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
                 //
                 @"SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'",
                 //
                 @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 @p0='Aquila chrysaetos canadensis' (Size = 100)
@@ -401,7 +402,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')",
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'",
                 //
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
@@ -412,7 +413,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT COUNT(*)
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) = N'owenii')");
+WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%owenii'");
         }
 
         public override void Byte_enum_value_constant_used_in_projection()
@@ -421,7 +422,7 @@ WHERE ([k].[Discriminator] = N'Kiwi') AND (RIGHT([k].[Species], LEN(N'owenii')) 
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [k].[IsFlightless] = 1
+    WHEN [k].[IsFlightless] = CAST(1 AS bit)
     THEN CAST(0 AS tinyint) ELSE CAST(1 AS tinyint)
 END
 FROM [Animal] AS [k]

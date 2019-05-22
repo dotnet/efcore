@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -70,19 +70,6 @@ namespace Microsoft.EntityFrameworkCore
                     ColumnType = "date",
                     IsNullable = true,
                     DefaultValueSql = "CURRENT_TIMESTAMP"
-                });
-
-        [Fact]
-        public virtual void AddColumnOperation_with_computed_column_SQL()
-            => Generate(
-                new AddColumnOperation
-                {
-                    Table = "People",
-                    Name = "Birthday",
-                    ClrType = typeof(DateTime),
-                    ColumnType = "date",
-                    IsNullable = true,
-                    ComputedColumnSql = "CURRENT_TIMESTAMP"
                 });
 
         [Fact]
@@ -334,6 +321,17 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [Fact]
+        public virtual void CreateCheckConstraintOperation_with_name()
+            => Generate(
+                new CreateCheckConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "CK_People_DriverLicense",
+                    Sql = "DriverLicense_Number > 0"
+                });
+        
+        [Fact]
         public virtual void AlterColumnOperation()
             => Generate(
                 new AlterColumnOperation
@@ -392,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void RenameTableOperation()
             => Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "2.1.0"),
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameTableOperation
                 {
                     Name = "People",
@@ -520,6 +518,13 @@ namespace Microsoft.EntityFrameworkCore
                             Columns = new[] { "SSN" }
                         }
                     },
+                    CheckConstraints =
+                    {
+                        new CreateCheckConstraintOperation
+                        {
+                            Sql = "SSN > 0"
+                        }
+                    },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
@@ -597,6 +602,16 @@ namespace Microsoft.EntityFrameworkCore
                     Table = "People",
                     Schema = "dbo",
                     Name = "AK_People_SSN"
+                });
+
+        [Fact]
+        public virtual void DropCheckConstraintOperation()
+            => Generate(
+                new DropCheckConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "CK_People_SSN"
                 });
 
         [Fact]
@@ -725,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder();
-            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersionAnnotation);
+            modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildAction(modelBuilder);
 
             var batch = TestHelpers.CreateContextServices().GetRequiredService<IMigrationsSqlGenerator>()

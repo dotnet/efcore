@@ -8,7 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -35,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
-        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
+
+        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping =
+            new Dictionary<MemberInfo, Expression>();
+
         private readonly List<Expression> _starProjection = new List<Expression>();
         private readonly List<Expression> _groupBy = new List<Expression>();
 
@@ -64,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
-            Loggers = queryCompilationContext.Loggers;
+
+            Dependencies = dependencies;
         }
 
         /// <summary>
@@ -96,11 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 _queryCompilationContext = null;
             }
         }
-
-        /// <summary>
-        ///     Loggers to use.
-        /// </summary>
-        protected virtual DiagnosticsLoggers Loggers { get; }
 
         /// <summary>
         ///     Dependencies used to create a <see cref="SelectExpression" />
@@ -601,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
                 ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
                     .LiftExpressionFromSubquery(table)
-                : new ColumnExpression(property.Relational().ColumnName, property, table);
+                : new ColumnExpression(property.GetColumnName(), property, table);
 
             return projectedExpressionToSearch;
         }
@@ -1462,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The new default query SQL generator.
         /// </returns>
         public virtual IQuerySqlGenerator CreateDefaultQuerySqlGenerator()
-            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this, Loggers);
+            => Dependencies.QuerySqlGeneratorFactory.CreateDefault(this);
 
         /// <summary>
         ///     Creates the FromSql query SQL generator.
@@ -1476,7 +1474,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string sql,
             [NotNull] Expression arguments)
             => Dependencies.QuerySqlGeneratorFactory
-                .CreateFromSql(this, sql, arguments, Loggers);
+                .CreateFromSql(this, sql, arguments);
 
         /// <summary>
         ///     Convert this object into a string representation.
@@ -1486,7 +1484,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public override string ToString()
             => CreateDefaultQuerySqlGenerator()
-                .GenerateSql(new Dictionary<string, object>())
+                .GenerateSql(Dependencies.CommandBuilderFactory, new Dictionary<string, object>(), null)
                 .CommandText;
     }
 }

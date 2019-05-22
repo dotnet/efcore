@@ -4,7 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
-            property.IsUnicode(unicode);
+            property.SetIsUnicode(unicode);
             property.DeclaringEntityType.SetPrimaryKey(property);
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
-            property.IsUnicode(unicode);
+            property.SetIsUnicode(unicode);
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
-            property.IsUnicode(unicode);
+            property.SetIsUnicode(unicode);
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var entityType = CreateEntityType();
             var property = entityType.AddProperty("MyProp", typeof(string));
-            property.IsUnicode(unicode);
+            property.SetIsUnicode(unicode);
             entityType.AddIndex(property);
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
             property.IsNullable = false;
-            property.IsUnicode(false);
+            property.SetIsUnicode(false);
             property.DeclaringEntityType.SetPrimaryKey(property);
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_foreign_key_SQL_Server_string_mapping_ansi()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
-            property.IsUnicode(false);
+            property.SetIsUnicode(false);
             property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_required_foreign_key_SQL_Server_string_mapping_ansi()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
-            property.IsUnicode(false);
+            property.SetIsUnicode(false);
             property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var entityType = CreateEntityType();
             var property = entityType.AddProperty("MyProp", typeof(string));
-            property.IsUnicode(false);
+            property.SetIsUnicode(false);
             entityType.AddIndex(property);
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_non_key_SQL_Server_fixed_length_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyBinaryProp", typeof(byte[]));
-            property.Relational().ColumnType = "binary(100)";
+            property.SetColumnType("binary(100)");
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
 
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (unicode.HasValue)
             {
-                property.IsUnicode(unicode);
+                property.SetIsUnicode(unicode);
             }
 
             return CreateTypeMapper().GetMapping(property);
@@ -646,7 +646,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_unrecognized_property_types()
         {
-            var property = new Model().AddEntityType("Entity1").AddProperty("Strange", typeof(object));
+            var property = ((IMutableModel)new Model()).AddEntityType("Entity1")
+                .AddProperty("Strange", typeof(object));
             var ex = Assert.Throws<InvalidOperationException>(() => CreateTypeMapper().GetMapping(property));
             Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1", "Strange", "object"), ex.Message);
         }

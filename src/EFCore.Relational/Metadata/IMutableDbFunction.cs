@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -25,8 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     The <see cref="IMutableModel" /> in which this function is defined.
+        /// </summary>
+        new IMutableModel Model { get; }
+
+        /// <summary>
         ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
-        new Func<IReadOnlyCollection<Expression>, Expression> Translation { get; [param: CanBeNull] set; }
+        new Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; [param: CanBeNull] set; }
     }
 }

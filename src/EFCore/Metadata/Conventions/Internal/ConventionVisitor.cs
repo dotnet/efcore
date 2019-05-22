@@ -43,7 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnEntityTypeRemovedNode VisitOnEntityTypeRemoved(OnEntityTypeRemovedNode node) => node;
             public virtual OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node) => node;
             public virtual OnBaseEntityTypeChangedNode VisitOnBaseEntityTypeChanged(OnBaseEntityTypeChangedNode node) => node;
-            public virtual OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node) => node;
+
+            public virtual OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node) =>
+                node;
+
             public virtual OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node) => node;
             public virtual OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node) => node;
             public virtual OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node) => node;
@@ -56,9 +59,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public virtual OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node) => node;
             public virtual OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node) => node;
             public virtual OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node) => node;
-            public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node) => node;
-            public virtual OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node) => node;
-            public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node) => node;
+
+            public virtual OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node) =>
+                node;
+
+            public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node) =>
+                node;
+
+            public virtual OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(
+                OnForeignKeyRequirednessChangedNode node) => node;
+
+            public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node) =>
+                node;
+
             public virtual OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node) => node;
             public virtual OnPropertyAddedNode VisitOnPropertyAdded(OnPropertyAddedNode node) => node;
             public virtual OnPropertyNullableChangedNode VisitOnPropertyNullableChanged(OnPropertyNullableChangedNode node) => node;
@@ -105,13 +118,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnEntityTypeAnnotationChanged(node.EntityTypeBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnEntityTypeAnnotationChanged(
+                    node.EntityTypeBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
             public override OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnModelAnnotationChanged(node.ModelBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnModelAnnotationChanged(
+                    node.ModelBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
@@ -165,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnIndexAnnotationChanged(node.IndexBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnIndexAnnotationChanged(
+                    node.IndexBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 
@@ -182,13 +198,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
+            public override OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node)
+            {
+                Dispatcher._immediateConventionScope.OnForeignKeyPropertiesChanged(
+                    node.RelationshipBuilder, node.OldDependentProperties, node.OldPrincipalKey);
+                return null;
+            }
+
             public override OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyUniquenessChanged(node.RelationshipBuilder);
                 return null;
             }
 
-            public override OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node)
+            public override OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(
+                OnForeignKeyRequirednessChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(node.RelationshipBuilder);
                 return null;
@@ -202,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override OnPrincipalEndChangedNode VisitOnPrincipalEndChanged(OnPrincipalEndChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPrincipalEndChanged(node.RelationshipBuilder);
+                Dispatcher._immediateConventionScope.OnForeignKeyPrincipalEndChanged(node.RelationshipBuilder);
                 return null;
             }
 
@@ -226,7 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override OnPropertyAnnotationChangedNode VisitOnPropertyAnnotationChanged(OnPropertyAnnotationChangedNode node)
             {
-                Dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(node.PropertyBuilder, node.Name, node.Annotation, node.OldAnnotation);
+                Dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(
+                    node.PropertyBuilder, node.Name, node.Annotation, node.OldAnnotation);
                 return null;
             }
 

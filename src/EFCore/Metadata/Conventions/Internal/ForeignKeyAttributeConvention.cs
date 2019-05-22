@@ -8,23 +8,26 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelBuiltConvention
     {
         private readonly IMemberClassifier _memberClassifier;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ForeignKeyAttributeConvention(
             [NotNull] IMemberClassifier memberClassifier,
@@ -37,14 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
@@ -197,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (invertConfigurationSource != null)
             {
-                newRelationshipBuilder = newRelationshipBuilder.RelatedEntityTypes(
+                newRelationshipBuilder = newRelationshipBuilder.HasEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, invertConfigurationSource.Value);
             }
             else
@@ -210,12 +217,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             fk => fk != foreignKey
                                   && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
                                   && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
-                                  && fk.GetForeignKeyPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                                  && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
                     if (conflictingFk != null)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.ConflictingForeignKeyAttributes(
-                                Property.Format(existingProperties),
+                                existingProperties.Format(),
                                 foreignKey.DeclaringEntityType.DisplayName()));
                     }
                 }
@@ -242,11 +249,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            relationshipBuilder = relationshipBuilder.PrincipalToDependent((string)null, ConfigurationSource.DataAnnotation);
+            relationshipBuilder = relationshipBuilder.HasNavigation(
+                (string)null,
+                pointsToPrincipal: false,
+                ConfigurationSource.DataAnnotation);
             return relationshipBuilder == null
                 ? null
-                : foreignKey.PrincipalEntityType.Builder.Relationship(
-                      foreignKey.DeclaringEntityType.Builder,
+                : foreignKey.PrincipalEntityType.Builder.HasRelationship(
+                      foreignKey.DeclaringEntityType,
                       principalToDependentNavigationName,
                       null,
                       ConfigurationSource.DataAnnotation) == null
@@ -333,8 +343,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => _memberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
@@ -385,8 +397,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {

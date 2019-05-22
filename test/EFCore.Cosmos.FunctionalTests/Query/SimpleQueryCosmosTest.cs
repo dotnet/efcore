@@ -2714,7 +2714,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     {
                         A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
                     }).OrderBy(n => n.A),
-                e => e.A);
+                assertOrder: true);
 
             AssertSql(
                 @"SELECT c

@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_InsertUpdateProduct
 ON UpdatedProducts

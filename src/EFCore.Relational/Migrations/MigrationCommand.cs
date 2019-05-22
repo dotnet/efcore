@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,19 +17,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationCommand
     {
         private readonly IRelationalCommand _relationalCommand;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
         /// <summary>
         ///     Creates a new instance of the command.
         /// </summary>
         /// <param name="relationalCommand"> The underlying <see cref="IRelationalCommand" /> that will be used to execute the command. </param>
+        /// <param name="logger"> The command logger. </param>
         /// <param name="transactionSuppressed"> Indicates whether or not transactions should be suppressed while executing the command. </param>
         public MigrationCommand(
             [NotNull] IRelationalCommand relationalCommand,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             bool transactionSuppressed = false)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
 
             _relationalCommand = relationalCommand;
+            _logger = logger;
             TransactionSuppressed = transactionSuppressed;
         }
 
@@ -53,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
             => _relationalCommand.ExecuteNonQuery(
                 Check.NotNull(connection, nameof(connection)),
-                parameterValues);
+                parameterValues,
+                _logger);
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.
@@ -69,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => _relationalCommand.ExecuteNonQueryAsync(
                 Check.NotNull(connection, nameof(connection)),
                 parameterValues,
+                _logger,
                 cancellationToken);
     }
 }

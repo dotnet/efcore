@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CompiledQuerySqlServerTest : CompiledQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    internal class CompiledQuerySqlServerTest : CompiledQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public CompiledQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

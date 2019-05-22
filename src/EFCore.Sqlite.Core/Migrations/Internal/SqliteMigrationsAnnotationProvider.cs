@@ -17,8 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -29,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
     public class SqliteMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
             : base(dependencies)
@@ -38,21 +42,25 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override IEnumerable<IAnnotation> For(IModel model)
         {
             if (model.GetEntityTypes().SelectMany(t => t.GetProperties()).Any(
-                p => SqliteTypeMappingSource.IsSpatialiteType(p.Relational().ColumnType)))
+                p => SqliteTypeMappingSource.IsSpatialiteType(p.GetColumnType())))
             {
                 yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
@@ -63,13 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
                 yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
 
-            var srid = property.Sqlite().Srid;
+            var srid = property.GetSqliteSrid();
             if (srid != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Srid, srid);
             }
 
-            var dimension = property.Sqlite().Dimension;
+            var dimension = property.GetSqliteDimension();
             if (dimension != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Dimension, dimension);

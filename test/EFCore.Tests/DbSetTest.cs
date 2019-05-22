@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -55,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
             Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
             Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
         }
 
@@ -74,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
             Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
             Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()));
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
             await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
         }
 
@@ -169,13 +170,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
             Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesTest(
-                (c, e) => Task.FromResult(categoryAdder(c, e)),
-                (c, e) => Task.FromResult(productAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
+                (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
                 expectedState);
 
         private static async Task TrackEntitiesTest(
-            Func<DbSet<Category>, Category, Task<EntityEntry<Category>>> categoryAdder,
-            Func<DbSet<Product>, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbSet<Category>, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
+            Func<DbSet<Product>, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter())
             {
@@ -716,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter())
             {
                 Assert.Equal(
-                    CoreStrings.DataBindingWithIListSource,
+                    CoreStrings.DataBindingToLocalWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
             }
         }

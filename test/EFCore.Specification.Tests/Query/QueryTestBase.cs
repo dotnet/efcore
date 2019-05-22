@@ -902,6 +902,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual Task AssertAverage<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Action<object, object> asserter = null)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, isAsync);
+
+        protected virtual Task AssertAverage<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<long>> query,
             Action<object, object> asserter = null)
             where TItem1 : class
@@ -1297,12 +1305,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<double?>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(isAsync, query, query, assertOrder);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
             bool assertOrder = false,
             [CallerMemberName] string testMethodName = null)
             where TItem1 : class
             => AssertQueryScalar<TItem1, int>(isAsync, actualQuery, expectedQuery, assertOrder, testMethodName);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<double?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<double?>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar<TItem1, double>(isAsync, actualQuery, expectedQuery, assertOrder);
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
@@ -1582,19 +1605,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Maybe
 
-        public static TResult Maybe<TResult>(object caller, Func<TResult> expression)
+        protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {
             return caller == null ? null : expression();
         }
 
-        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+        protected static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
             where TResult : struct
         {
             return caller == null ? null : expression();
         }
 
-        public static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
+        protected static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(IEnumerable<TResult> caller)
             where TResult : class
         {
             return caller == null

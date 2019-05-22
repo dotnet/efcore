@@ -4,8 +4,6 @@
 using System.Text;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -23,12 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public StringToBytesConverter(
             [NotNull] Encoding encoding,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            [CanBeNull] ConverterMappingHints mappingHints = null)
             : base(
-#nullable disable
                 v => v == null ? null : encoding.GetBytes(v),
                 v => v == null ? null : encoding.GetString(v),
-#nullable enable
                 mappingHints)
         {
         }

@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring a one-to-one ownership.
+    ///         Provides a simple API for configuring an ownership.
     ///     </para>
     /// </summary>
     public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
@@ -21,21 +21,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TDependentEntity : class
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public OwnershipBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalRelationshipBuilder builder)
-            : base(principalEntityType, dependentEntityType, builder)
+            [NotNull] IMutableEntityType principalEntityType,
+            [NotNull] IMutableEntityType dependentEntityType,
+            [NotNull] IMutableForeignKey foreignKey)
+            : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected OwnershipBuilder(
             InternalRelationshipBuilder builder,
             OwnershipBuilder oldBuilder,
@@ -84,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
-                DependentEntityType,
+                (EntityType)DependentEntityType,
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 Builder,
@@ -126,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
-                DependentEntityType,
+                (EntityType)DependentEntityType,
                 ConfigurationSource.Explicit);
             return new OwnershipBuilder<TEntity, TDependentEntity>(
                 Builder,

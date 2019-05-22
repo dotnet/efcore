@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 
             Assert.Equal(
                 CoreStrings.ConverterPropertyMismatch("long", "Entity", "Property1", "int"),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
         }
 
@@ -277,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             public Product Product { get; set; }
         }
 
-        private static Model CreateModel() => new Model();
+        private static IMutableModel CreateModel() => new Model();
 
-        private IModel BuildModel()
+        private IMutableModel BuildModel()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 

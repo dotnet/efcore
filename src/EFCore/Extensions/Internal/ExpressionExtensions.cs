@@ -9,7 +9,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Versioning;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -21,23 +23,29 @@ using Remotion.Linq.Clauses.Expressions;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
     public static class ExpressionExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsNullConstantExpression([NotNull] this Expression expression)
             => expression.RemoveConvert() is ConstantExpression constantExpression
                && constantExpression.Value == null;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
@@ -78,39 +86,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
-        {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
-
-            var propertyPaths
-                = MatchPropertyAccessList(propertyAccessExpression, (p, e) => e.MatchSimplePropertyAccess(p));
-
-            if (propertyPaths == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
-            }
-
-            return propertyPaths;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
-            this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
+        public static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
+            [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
             Debug.Assert(lambdaExpression.Body != null);
 
             var parameterExpression
                 = lambdaExpression.Parameters.Single();
 
-            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
+            if (lambdaExpression.Body.RemoveConvert() is NewExpression newExpression)
             {
                 var propertyInfos
                     = newExpression
@@ -129,11 +118,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        private static PropertyInfo MatchSimplePropertyAccess(
-            this Expression parameterExpression, Expression propertyAccessExpression)
+        public static PropertyInfo MatchSimplePropertyAccess(
+            [NotNull] this Expression parameterExpression, [NotNull] Expression propertyAccessExpression)
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
@@ -141,8 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IReadOnlyList<PropertyInfo> GetComplexPropertyAccess(
             [NotNull] this LambdaExpression propertyAccessExpression,
@@ -158,8 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool TryGetComplexPropertyAccess(
             [NotNull] this LambdaExpression propertyAccessExpression,
@@ -185,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             do
             {
-                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
+                memberExpression = RemoveTypeAs(propertyAccessExpression.RemoveConvert()) as MemberExpression;
 
                 if (!(memberExpression?.Member is PropertyInfo propertyInfo))
                 {
@@ -196,52 +191,41 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 propertyAccessExpression = memberExpression.Expression;
             }
-            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
+            while (RemoveTypeAs(memberExpression.Expression.RemoveConvert()) != parameterExpression);
 
             return propertyInfos;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        // Issue#11266 This method is being used by provider code. Do not break.
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
-        {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
-            }
-
-            return expression;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression RemoveNullConditional([CanBeNull] this Expression expression)
             => expression is NullConditionalExpression conditional ? conditional.AccessOperation : expression;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
         {
             while ((expression?.NodeType == ExpressionType.TypeAs))
             {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+                expression = ((UnaryExpression)expression.RemoveConvert()).Operand;
             }
 
             return expression;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TExpression GetRootExpression<TExpression>([NotNull] this Expression expression)
             where TExpression : Expression
@@ -255,8 +239,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsLogicalOperation([NotNull] this Expression expression)
         {
@@ -267,8 +253,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsComparisonOperation([NotNull] this Expression expression)
         {
@@ -285,23 +273,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IQuerySource TryGetReferencedQuerySource([NotNull] this Expression expression)
             => (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateAssignExpression(
             [NotNull] this MemberExpression left,
@@ -318,8 +312,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static MemberExpression MakeMemberAccess(
             [CanBeNull] this Expression expression,
@@ -337,8 +333,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsNullPropagationCandidate(
             [NotNull] this ConditionalExpression conditionalExpression,
@@ -387,8 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateKeyAccessExpression(
             [NotNull] this Expression target,
@@ -414,25 +414,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static ConstantExpression GenerateDefaultValueConstantExpression(this Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return (ConstantExpression)_generateDefaultValueConstantExpressionInternalMethod.MakeGenericMethod(type).Invoke(null, Array.Empty<object>());
-        }
-
-        private static readonly MethodInfo _generateDefaultValueConstantExpressionInternalMethod =
-            typeof(ExpressionExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstantExpressionInternal));
-
-        private static ConstantExpression GenerateDefaultValueConstantExpressionInternal<TDefault>()
-            => Expression.Constant(default(TDefault));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression Assign(
             [NotNull] this MemberExpression memberExpression,
@@ -469,9 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
 
         private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo)
-                .GetTypeInfo()
-                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);
+            = typeof(FieldInfo).GetRuntimeMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
     }
 }

@@ -20,8 +20,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -54,16 +52,16 @@ namespace Microsoft.EntityFrameworkCore
         IDbSetCache,
         IDbContextPoolable
     {
-        private IDictionary<Type, object>? _sets;
+        private IDictionary<Type, object> _sets;
         private readonly DbContextOptions _options;
 
-        private IDbContextServices? _contextServices;
-        private IDbContextDependencies? _dbContextDependencies;
-        private DatabaseFacade? _database;
-        private ChangeTracker? _changeTracker;
+        private IDbContextServices _contextServices;
+        private IDbContextDependencies _dbContextDependencies;
+        private DatabaseFacade _database;
+        private ChangeTracker _changeTracker;
 
-        private IServiceScope? _serviceScope;
-        private IDbContextPool? _dbContextPool;
+        private IServiceScope _serviceScope;
+        private IDbContextPool _dbContextPool;
         private bool _initializing;
         private bool _disposed;
 
@@ -140,57 +138,84 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger => DbContextDependencies.InfrastructureLogger;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
             CheckDisposed();
@@ -579,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                ((IResettableService?)_changeTracker)?.ResetState();
+                ((IResettableService)_changeTracker)?.ResetState();
             }
 
             if (_database != null)
@@ -773,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
+        public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity,
             CancellationToken cancellationToken = default)
             where TEntity : class
@@ -789,18 +814,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
-        ///         is called.
+        ///         Begins tracking the given entity and entries reachable from the given entity using
+        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///         when a different state will be used.
+        ///     </para>
+        ///     <para>
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure only new entities will be inserted.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -822,22 +857,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Begins tracking the given entity and entries reachable from the given entity using
+        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach{TEntity}(TEntity)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
-        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure new entities will be inserted, while existing entities will be updated.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -962,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        public virtual async Task<EntityEntry> AddAsync(
+        public virtual async ValueTask<EntityEntry> AddAsync(
             [NotNull] object entity,
             CancellationToken cancellationToken = default)
         {
@@ -977,18 +1018,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
-        ///         is called.
+        ///         Begins tracking the given entity and entries reachable from the given entity using
+        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///         when a different state will be used.
+        ///     </para>
+        ///     <para>
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure only new entities will be inserted.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1008,22 +1059,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Begins tracking the given entity and entries reachable from the given entity using
+        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
-        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure new entities will be inserted, while existing entities will be updated.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1133,18 +1190,31 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
-        ///         is called.
+        ///         Begins tracking the given entities and entries reachable from the given entities using
+        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///         when a different state will be used.
+        ///     </para>
+        ///     <para>
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure only new entities will be inserted.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
@@ -1157,22 +1227,31 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Begins tracking the given entities and entries reachable from the given entities using
+        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
-        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure new entities will be inserted, while existing entities will be updated.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
@@ -1266,18 +1345,31 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state
-        ///         such that no operation will be performed when <see cref="DbContext.SaveChanges()" />
-        ///         is called.
+        ///         Begins tracking the given entities and entries reachable from the given entities using
+        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///         when a different state will be used.
+        ///     </para>
+        ///     <para>
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Unchanged" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure only new entities will be inserted.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
@@ -1290,22 +1382,31 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///         Begins tracking the given entities and entries reachable from the given entities using
+        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///         when a different state will be used.
         ///     </para>
         ///     <para>
-        ///         All properties of each entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
-        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         A recursive search of the navigation properties will be performed to find reachable entities
-        ///         that are not already being tracked by the context. These entities will also begin to be tracked
-        ///         by the context. If a reachable entity has its primary key value set
+        ///         that are not already being tracked by the context. All entities found will be tracked
+        ///         by the context.
+        ///     </para>
+        ///     <para>
+        ///         For entity types with generated keys if an entity has its primary key value set
         ///         then it will be tracked in the <see cref="EntityState.Modified" /> state. If the primary key
         ///         value is not set then it will be tracked in the <see cref="EntityState.Added" /> state.
+        ///         This helps ensure new entities will be inserted, while existing entities will be updated.
         ///         An entity is considered to have its primary key value set if the primary key property is set
         ///         to anything other than the CLR default for the property type.
+        ///     </para>
+        ///     <para>
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///     </para>
+        ///     <para>
+        ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
@@ -1369,7 +1470,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual object? Find([NotNull] Type entityType, [CanBeNull] params object[]? keyValues)
+        public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
 
@@ -1386,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object?> FindAsync([NotNull] Type entityType, [CanBeNull] params object[]? keyValues)
+        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
         {
             CheckDisposed();
 
@@ -1404,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<object?> FindAsync([NotNull] Type entityType, [CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
         {
             CheckDisposed();
 
@@ -1421,7 +1522,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual TEntity? Find<TEntity>([CanBeNull] params object[]? keyValues)
+        public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1439,7 +1540,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity?> FindAsync<TEntity>([CanBeNull] params object[]? keyValues)
+        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1458,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity?> FindAsync<TEntity>([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();

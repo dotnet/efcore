@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         A relational factory for instances of <see cref="QueryCompilationContext" />.
     ///     </para>
     ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
     ///         <see cref="DbContext"/> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
@@ -23,9 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryCompilationContextFactory : QueryCompilationContextFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     <para>
+        ///         Creates a new <see cref="RelationalQueryCompilationContextFactory"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
         /// </summary>
+        /// <param name="dependencies"> The core dependencies for this service. </param>
+        /// <param name="relationalDependencies"> The relational-specific dependencies for this service. </param>
         public RelationalQueryCompilationContextFactory(
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies)

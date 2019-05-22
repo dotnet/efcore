@@ -32,18 +32,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperties = new IMutableProperty[propertyCount];
             for (var i = 0; i < propertyCount; i++)
             {
-                keyProperties[i] = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
+                var propertyName = "P" + (startingPropertyIndex + i);
+                keyProperties[i] = entityType.FindProperty(propertyName)
+                                   ?? entityType.AddProperty(propertyName, typeof(int?));
                 keyProperties[i].IsNullable = false;
             }
 
             return entityType.AddKey(keyProperties);
         }
 
-        public void SetPrimaryKey(IMutableEntityType entityType)
+        public void AddProperties(IMutableEntityType entityTypeA)
         {
-            var property = entityType.AddProperty("Id", typeof(int));
-            entityType.SetPrimaryKey(property);
+            entityTypeA.AddProperty(nameof(A.P0), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P1), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P2), typeof(int?));
+            entityTypeA.AddProperty(nameof(A.P3), typeof(int?));
         }
+
+        public void SetPrimaryKey(IMutableEntityType entityType)
+            => entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
 
         protected IMutableForeignKey CreateForeignKey(IMutableKey dependentKey, IMutableKey principalKey)
             => CreateForeignKey(dependentKey.DeclaringEntityType, dependentKey.Properties, principalKey);
@@ -127,6 +134,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int SampleEntityId { get; set; }
         }
 
+        public class SampleEntityMinimal
+        {
+            public int Id { get; set; }
+            public ReferencedEntityMinimal ReferencedEntity { get; set; }
+        }
+
+        public class ReferencedEntityMinimal
+        {
+        }
+
+        public class AnotherSampleEntityMinimal
+        {
+            public int Id { get; set; }
+            public ReferencedEntityMinimal ReferencedEntity { get; set; }
+        }
+
         protected class E
         {
             public int Id { get; set; }
@@ -182,10 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected virtual void VerifyError(string expectedMessage, IModel model)
         {
-            Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
+            var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
+            Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void Validate(IModel model) => ((Model)model).Finalize();
+        protected virtual void Validate(IModel model) => ((Model)model).FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -194,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 LoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                TestHelpers.LoggingDefinitions);
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
@@ -204,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return new DiagnosticsLogger<DbLoggerCategory.Model>(
                 LoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                TestHelpers.LoggingDefinitions);
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
@@ -218,9 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             conventionSet.ModelBuiltConventions.Add(
                 new ValidatingConvention(
                     TestHelpers.CreateModelValidator(),
-                    new Diagnostics.DiagnosticsLoggers(
-                        CreateModelLogger(sensitiveDataLoggingEnabled),
-                        CreateValidationLogger(sensitiveDataLoggingEnabled))));
+                    CreateValidationLogger(sensitiveDataLoggingEnabled)));
 
             return new ModelBuilder(conventionSet);
         }

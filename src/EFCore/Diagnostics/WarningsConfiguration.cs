@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
-        private Dictionary<int, WarningBehavior> _explicitBehaviors
-            = new Dictionary<int, WarningBehavior>();
+        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
+            = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>();
 
         private WarningBehavior _defaultBehavior = WarningBehavior.Log;
 
@@ -84,23 +84,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = new Dictionary<int, WarningBehavior>(_explicitBehaviors);
+            clone._explicitBehaviors = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>(_explicitBehaviors);
 
             foreach (var eventId in eventIds)
             {
-                clone._explicitBehaviors[eventId.Id] = warningBehavior;
+                if (clone._explicitBehaviors.TryGetValue(eventId.Id, out var pair))
+                {
+                    pair = (warningBehavior, pair.Level);
+                }
+                else
+                {
+                    pair = (warningBehavior, null);
+                }
+
+                clone._explicitBehaviors[eventId.Id] = pair;
             }
 
             return clone;
         }
 
         /// <summary>
-        ///     Gets the <see cref="WarningBehavior" /> set for the given event ID, or the <see cref="DefaultBehavior" />
+        ///     Creates a new instance with the given log level set for all given event IDs.
+        ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
+        /// </summary>
+        /// <param name="eventsAndLevels"> The event IDs and corresponding log levels to set. </param>
+        /// <returns> A new instance with the behaviors set. </returns>
+        public virtual WarningsConfiguration WithExplicit(
+            [NotNull] IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
+        {
+            var clone = Clone();
+
+            clone._explicitBehaviors = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>(_explicitBehaviors);
+
+            foreach (var pair in eventsAndLevels)
+            {
+                clone._explicitBehaviors[pair.Id.Id] = (WarningBehavior.Log, pair.Level);
+            }
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="WarningBehavior" /> set for the given event ID, or <code>null</code>
         ///     if no explicit behavior has been set.
         /// </summary>
         public virtual WarningBehavior? GetBehavior(EventId eventId)
             => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
-                ? (WarningBehavior?)warningBehavior
+                ? warningBehavior.Behavior
+                : null;
+
+        /// <summary>
+        ///     Gets the <see cref="LogLevel" /> set for the given event ID, or <code>null</code>
+        ///     if no explicit behavior has been set.
+        /// </summary>
+        public virtual LogLevel? GetLevel(EventId eventId)
+            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
+                ? warningBehavior.Level
                 : null;
 
         /// <summary>

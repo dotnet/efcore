@@ -1,9 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
 {
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
         /// </param>
         public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.GetInfrastructure().Cosmos(ConfigurationSource.Convention).HasDefaultContainerName(context.GetType().Name);
+            ((IConventionModel)modelBuilder.Model).Builder.ForCosmosHasDefaultContainerName(context.GetType().Name);
 
             base.Customize(modelBuilder, context);
         }

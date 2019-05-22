@@ -236,13 +236,21 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        public override void AddColumnOperation_with_computed_column_SQL()
+        [Fact]
+        public void AddColumnOperation_with_computed_column_SQL()
         {
-            base.AddColumnOperation_with_computed_column_SQL();
-
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
-                Sql);
+            var ex = Assert.Throws<NotSupportedException>(
+                () => Generate(
+                    new AddColumnOperation
+                    {
+                        Table = "People",
+                        Name = "Birthday",
+                        ClrType = typeof(DateTime),
+                        ColumnType = "TEXT",
+                        IsNullable = true,
+                        ComputedColumnSql = "CURRENT_TIMESTAMP"
+                    }));
+            Assert.Equal(SqliteStrings.ComputedColumnsNotSupported, ex.Message);
         }
 
         [Fact]
@@ -302,6 +310,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddUniqueConstraintOperation)), ex.Message);
         }
 
+        public override void CreateCheckConstraintOperation_with_name()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.CreateCheckConstraintOperation_with_name());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(CreateCheckConstraintOperation)), ex.Message);
+        }
+        
         public override void AlterColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation());
@@ -311,6 +325,21 @@ namespace Microsoft.EntityFrameworkCore
         public override void AlterColumnOperation_without_column_type()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
+        }
+
+        [Fact]
+        public void AlterColumnOperation_computed()
+        {
+            var ex = Assert.Throws<NotSupportedException>(
+                () => Generate(
+                    new AlterColumnOperation
+                    {
+                        Table = "People",
+                        Name = "FullName",
+                        ClrType = typeof(string),
+                        ComputedColumnSql = "FirstName || ' ' || LastName"
+                    }));
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
         }
 
@@ -456,6 +485,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropUniqueConstraintOperation());
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
+        }
+
+        public override void DropCheckConstraintOperation()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.DropCheckConstraintOperation());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropCheckConstraintOperation)), ex.Message);
         }
 
         [Fact]

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -226,11 +227,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ICollection<ChangedOnlyNotificationEntity> collection)
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<INavigationListener, TestNavigationListener>(),
+                new ServiceCollection().AddScoped<INavigationFixer, TestNavigationListener>(),
                 BuildModel());
 
             var testListener = contextServices
-                .GetRequiredService<IEnumerable<INavigationListener>>()
+                .GetRequiredService<IEnumerable<INavigationFixer>>()
                 .OfType<TestNavigationListener>()
                 .Single();
 
@@ -248,10 +249,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_properties()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
-            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+            var testListener = contextServices.GetRequiredService<IEnumerable<IChangeDetector>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
@@ -271,10 +272,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_handles_null_or_empty_string_in_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
-            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+            var testListener = contextServices.GetRequiredService<IEnumerable<IChangeDetector>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
@@ -302,10 +303,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_navigations()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
-            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+            var testListener = contextServices.GetRequiredService<IEnumerable<IChangeDetector>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
@@ -325,10 +326,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
-            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+            var testListener = contextServices.GetRequiredService<IEnumerable<IChangeDetector>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
             contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
@@ -346,11 +347,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_unsubscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
             var testListener = contextServices
-                .GetRequiredService<IEnumerable<IPropertyListener>>()
+                .GetRequiredService<IEnumerable<IChangeDetector>>()
                 .OfType<TestPropertyListener>().Single();
 
             var entities = new List<FullNotificationEntity>();
@@ -404,11 +405,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entry_unsubscribes_to_INotifyCollectionChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<INavigationListener, TestNavigationListener>(),
+                new ServiceCollection().AddScoped<INavigationFixer, TestNavigationListener>(),
                 BuildModel());
 
             var testListener = contextServices
-                .GetRequiredService<IEnumerable<INavigationListener>>()
+                .GetRequiredService<IEnumerable<INavigationFixer>>()
                 .OfType<TestNavigationListener>()
                 .Single();
 
@@ -455,11 +456,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Entries_are_unsubscribed_when_context_is_disposed()
         {
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
                 BuildModel());
 
             var testListener = context
-                .GetService<IEnumerable<IPropertyListener>>()
+                .GetService<IEnumerable<IChangeDetector>>()
                 .OfType<TestPropertyListener>().Single();
 
             var entities = new List<FullNotificationEntity>();
@@ -495,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, testListener.Changed.Count);
         }
 
-        private class TestPropertyListener : IPropertyListener
+        private class TestPropertyListener : IChangeDetector
         {
             public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } =
                 new List<Tuple<InternalEntityEntry, IPropertyBase>>();
@@ -507,9 +508,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
                 => Changing.Add(Tuple.Create(entry, property));
+
+            public void DetectChanges(IStateManager stateManager)
+            {
+            }
+
+            public void DetectChanges(InternalEntityEntry entry)
+            {
+            }
+
+            public void Suspend()
+            {
+            }
+
+            public void Resume()
+            {
+            }
         }
 
-        private class TestNavigationListener : INavigationListener
+        private class TestNavigationListener : INavigationFixer
         {
             public List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
                 = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
@@ -522,6 +539,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void NavigationCollectionChanged(
                 InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
                 => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
+
+            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys)
+            {
+            }
+
+            public void StateChanging(InternalEntityEntry entry, EntityState newState)
+            {
+            }
+
+            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
+            {
+            }
+
+            public void KeyPropertyChanged(
+                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys,
+                object oldValue, object newValue)
+            {
+            }
         }
 
         private static IModel BuildModel(

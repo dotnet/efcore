@@ -4,7 +4,9 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -21,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#15312")]
         public virtual void Warning_when_suspicious_conversion_in_sql()
         {
             using (var context = CreateContext())
             {
                 Assert.Contains(
-                    RelationalStrings.LogValueConversionSqlLiteralWarning
+                    RelationalResources.LogValueConversionSqlLiteralWarning(new TestLogger<SqlServerLoggingDefinitions>())
                         .GenerateMessage(
                             typeof(decimal).ShortDisplayName(),
                             new NumberToBytesConverter<decimal>().GetType().ShortDisplayName()),
@@ -194,8 +196,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

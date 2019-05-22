@@ -2,27 +2,29 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -70,13 +72,14 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
+                .TryAdd<LoggingDefinitions, SqlServerLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
                 .TryAdd<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
                 .TryAdd<IRelationalTypeMappingSource, SqlServerTypeMappingSource>()
                 .TryAdd<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
                 .TryAdd<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
                 .TryAdd<IModelValidator, SqlServerModelValidator>()
-                .TryAdd<IConventionSetBuilder, SqlServerConventionSetBuilder>()
+                .TryAdd<IProviderConventionSetBuilder, SqlServerConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator>(p => p.GetService<ISqlServerUpdateSqlGenerator>())
                 .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                 .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
@@ -87,11 +90,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
                 .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
-                .TryAdd<IMemberTranslator, SqlServerCompositeMemberTranslator>()
-                .TryAdd<ICompositeMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
+
+                // New Query Pipeline
+                .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
+                .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
+                .TryAdd<IShapedQueryOptimizerFactory, SqlServerShapedQueryOptimizerFactory>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

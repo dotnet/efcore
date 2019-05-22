@@ -7,9 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -42,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string DefaultTableName = "__EFMigrationsHistory";
 
-        private readonly LazyRef<IModel> _model;
-        private readonly LazyRef<string> _migrationIdColumnName;
-        private readonly LazyRef<string> _productVersionColumnName;
+        private IModel _model;
+        private string _migrationIdColumnName;
+        private string _productVersionColumnName;
 
         /// <summary>
         ///     Initializes a new instance of this class.
@@ -59,28 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.Options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
             TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
-            _model = new LazyRef<IModel>(
-                () =>
-                {
-                    var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet(
-                        new DiagnosticsLoggers(Dependencies.ModelLogger));
-
-                    var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.AddConventions(conventionSet));
-
-                    modelBuilder.Entity<HistoryRow>(
-                        x =>
-                        {
-                            ConfigureTable(x);
-                            x.ToTable(TableName, TableSchema);
-                        });
-
-                    return modelBuilder.Model;
-                });
-            var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
-            _migrationIdColumnName = new LazyRef<string>(
-                () => entityType.Value.FindProperty(nameof(HistoryRow.MigrationId)).Relational().ColumnName);
-            _productVersionColumnName = new LazyRef<string>(
-                () => entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion)).Relational().ColumnName);
         }
 
         /// <summary>
@@ -106,12 +82,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The name of the column that holds the Migration identifier.
         /// </summary>
-        protected virtual string MigrationIdColumnName => _migrationIdColumnName.Value;
+        protected virtual string MigrationIdColumnName
+            => _migrationIdColumnName ??= EnsureModel()
+                .FindEntityType(typeof(HistoryRow))
+                .FindProperty(nameof(HistoryRow.MigrationId))
+                .GetColumnName();
+
+        private IModel EnsureModel()
+        {
+            if (_model == null)
+            {
+                var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.CreateConventionSet());
+
+                modelBuilder.Entity<HistoryRow>(
+                    x =>
+                    {
+                        ConfigureTable(x);
+                        x.ToTable(TableName, TableSchema);
+                    });
+
+                _model = modelBuilder.Model;
+            }
+
+            return _model;
+        }
 
         /// <summary>
         ///     The name of the column that contains the Entity Framework product version.
         /// </summary>
-        protected virtual string ProductVersionColumnName => _productVersionColumnName.Value;
+        protected virtual string ProductVersionColumnName
+            => _productVersionColumnName ??= EnsureModel()
+                .FindEntityType(typeof(HistoryRow))
+                .FindProperty(nameof(HistoryRow.ProductVersion))
+                .GetColumnName();
 
         /// <summary>
         ///     Overridden by database providers to generate SQL that tests for existence of the history table.
@@ -125,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
                && InterpretExistsResult(
-                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(Dependencies.Connection));
+                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(Dependencies.Connection, null,  Dependencies.CommandLogger));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -139,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
                && InterpretExistsResult(
                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                       Dependencies.Connection, cancellationToken: cancellationToken));
+                       Dependencies.Connection, null, Dependencies.CommandLogger, cancellationToken: cancellationToken));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
@@ -160,8 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> The SQL script. </returns>
         public virtual string GetCreateScript()
         {
-            var operations = Dependencies.ModelDiffer.GetDifferences(null, _model.Value);
-            var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, _model.Value);
+            var model = EnsureModel();
+
+            var operations = Dependencies.ModelDiffer.GetDifferences(null, model);
+            var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, model);
 
             return string.Concat(commandList.Select(c => c.CommandText));
         }
@@ -195,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = command.ExecuteReader(Dependencies.Connection))
+                using (var reader = command.ExecuteReader(Dependencies.Connection, null, Dependencies.CommandLogger))
                 {
                     while (reader.Read())
                     {
@@ -224,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, cancellationToken: cancellationToken))
+                using (var reader = await command.ExecuteReaderAsync(Dependencies.Connection, null, Dependencies.CommandLogger, cancellationToken: cancellationToken))
                 {
                     while (await reader.ReadAsync(cancellationToken))
                     {

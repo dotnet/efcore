@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact(Skip = "#12138")]
         public virtual Task Find_logs_concurrent_access_async()
         {
-            return ConcurrencyDetectorTest(c => c.Products.FindAsync(1));
+            return ConcurrencyDetectorTest(c => c.Products.FindAsync(1).AsTask());
         }
 
         [Fact]
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyDetectorTest(c => c.Products.FirstAsync());
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Last()'")]
         public virtual Task Last_logs_concurrent_access_nonasync()
         {
             return ConcurrencyDetectorTest(

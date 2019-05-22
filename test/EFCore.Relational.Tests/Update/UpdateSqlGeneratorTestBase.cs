@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -330,17 +331,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, identityKey, !identityKey, true, false, false),
+                    entry, idProperty, generator.GenerateNext, identityKey, !identityKey, true, false, false, true),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
+                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
+                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false,
-                    true),
+                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
+                    true, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, false,
-                    false)
+                    entry, concurrencyProperty, generator.GenerateNext, false, true, false, false,
+                    false, true)
             };
 
             if (defaultsOnly)
@@ -367,17 +368,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, false),
+                    entry, idProperty, generator.GenerateNext, false, false, true, true, false, true),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
+                    entry, nameProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
+                    entry, quacksProperty, generator.GenerateNext, false, true, false, false, false, true),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false,
-                    false),
+                    entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
+                    false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false,
-                    concurrencyToken, concurrencyToken)
+                    entry, concurrencyProperty,  generator.GenerateNext, false, true, false,
+                    concurrencyToken, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(
@@ -396,10 +397,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, concurrencyToken),
+                    entry, idProperty, generator.GenerateNext, false, false, true, true, concurrencyToken, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false,
-                    concurrencyToken, concurrencyToken)
+                    entry, concurrencyProperty, generator.GenerateNext, false, false, false,
+                    concurrencyToken, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(
@@ -408,9 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract TestHelpers TestHelpers { get; }
 
-        private EntityType GetDuckType()
+        private IMutableEntityType GetDuckType()
         {
-            var entityType = new Model().AddEntityType(typeof(Duck));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Duck));
             var id = entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Id)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Name)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Quacks)));

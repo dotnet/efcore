@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string assembly,
             string startupAssembly,
             string projectDir,
-            string dataDirectory,
             string rootNamespace,
             string language)
         {
@@ -177,6 +176,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["fromMigration"] = fromMigration,
                     ["toMigration"] = toMigration,
                     ["idempotent"] = idempotent,
+                    ["contextType"] = contextType
+                });
+
+        public string ScriptDbContext(string contextType)
+            => InvokeOperation<string>(
+                "ScriptDbContext",
+                new Dictionary<string, object>
+                {
                     ["contextType"] = contextType
                 });
     }

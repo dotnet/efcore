@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
                 c =>
                 {
                     // ReSharper disable once UnusedVariable
-                    var result = c.Products.FromSql("select * from products").ToList();
+                    var result = c.Products.FromSqlRaw("select * from products").ToList();
                     return Task.FromResult(false);
                 });
         }
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual Task FromSql_logs_concurrent_access_async()
         {
-            return ConcurrencyDetectorTest(c => c.Products.FromSql("select * from products").ToListAsync());
+            return ConcurrencyDetectorTest(c => c.Products.FromSqlRaw("select * from products").ToListAsync());
         }
     }
 }

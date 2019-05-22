@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(mep => mep.TenMostExpensiveProducts)
                     .ToArray();
 
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(
                         mep =>
                             new MostExpensiveProduct
@@ -84,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .ToArray();
 
                 Assert.Equal(11, actual.Length);
@@ -97,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where [mep].TenMostExpensiveProducts.Contains(\"C\")'")]
         public virtual void From_sql_queryable_stored_procedure_composed()
         {
             using (var context = CreateContext())
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
                     .OrderBy(mep => mep.UnitPrice)
                     .ToArray();
@@ -115,14 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'where [coh].ProductName.Contains(\"C\")'")]
         public virtual void From_sql_queryable_stored_procedure_with_parameter_composed()
         {
             using (var context = CreateContext())
             {
                 var actual = context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .Where(coh => coh.ProductName.Contains("C"))
                     .OrderBy(coh => coh.Total)
                     .ToArray();
@@ -133,14 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'orderby [mep].UnitPrice desc'")]
         public virtual void From_sql_queryable_stored_procedure_take()
         {
             using (var context = CreateContext())
             {
                 var actual = context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .OrderByDescending(mep => mep.UnitPrice)
                     .Take(2)
                     .ToArray();
@@ -151,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual void From_sql_queryable_stored_procedure_min()
         {
             using (var context = CreateContext())
@@ -159,12 +160,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     45.60m,
                     context.Set<MostExpensiveProduct>()
-                        .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         .Min(mep => mep.UnitPrice));
             }
         }
 
-        [Fact]
+        [Fact(Skip = "issue #15312")]
         public virtual void From_sql_queryable_stored_procedure_with_include_throws()
         {
             using (var context = CreateContext())
@@ -173,23 +174,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RelationalStrings.StoredProcedureIncludeNotSupported,
                     Assert.Throws<InvalidOperationException>(
                         () => context.Set<Product>()
-                            .FromSql("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
+                            .FromSqlRaw("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
                             .Include(p => p.OrderDetails)
                             .ToArray()
                     ).Message);
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct b in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
         public virtual void From_sql_queryable_with_multiple_stored_procedures()
         {
             using (var context = CreateContext())
             {
                 var actual
                     = (from a in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from b in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                        select new
                        {
@@ -202,16 +203,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'from Product p in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Product])'")]
         public virtual void From_sql_queryable_stored_procedure_and_select()
         {
             using (var context = CreateContext())
             {
                 var actual
                     = (from mep in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from p in context.Set<Product>()
-                           .FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
+                           .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new
                        {
@@ -224,15 +225,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct mep in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
         public virtual void From_sql_queryable_select_and_stored_procedure()
         {
             using (var context = CreateContext())
             {
                 var actual
-                    = (from p in context.Set<Product>().FromSql(NormalizeDelimeters("SELECT * FROM [Products]"))
+                    = (from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
                        from mep in context.Set<MostExpensiveProduct>()
-                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new
                        {
@@ -245,11 +246,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private RawSqlString NormalizeDelimeters(RawSqlString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private string NormalizeDelimetersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
-        private FormattableString NormalizeDelimeters(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimeters(sql);
+        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
 
         protected NorthwindContext CreateContext()
         {

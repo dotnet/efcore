@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
         public BaseReferenceOnDerived BaseReferenceOnDerived { get; set; }
         public DerivedReferenceOnDerived DerivedReferenceOnDerived { get; set; }
         public ReferenceOnDerived ReferenceOnDerived { get; set; }
-        public BaseInheritanceRelationshipEntity BaseSelfRerefenceOnDerived { get; set; }
+        public BaseInheritanceRelationshipEntity BaseSelfReferenceOnDerived { get; set; }
 
         public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
         public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }

@@ -7,11 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -163,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private TResult ExecuteImplementation<TState, TResult>(
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded,
+            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded,
             TState state)
         {
             while (true)
@@ -255,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task<TResult> ExecuteImplementationAsync<TState, TResult>(
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
             TState state,
             CancellationToken cancellationToken)
         {

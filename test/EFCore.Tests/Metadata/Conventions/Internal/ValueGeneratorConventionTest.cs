@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -78,14 +79,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -111,14 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             referencedEntityBuilder.Property(properties[1], ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(new[] { properties[1] }, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -143,14 +144,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-            referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(new[] { properties[1] }, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -174,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -198,18 +199,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
             Assert.True(keyProperties[0].RequiresValueGenerator());
 
-            var foreignKeyBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var foreignKeyBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Same(foreignKeyBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(foreignKeyBuilder));
+            Assert.Same(foreignKeyBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(foreignKeyBuilder));
 
             Assert.False(keyProperties[0].RequiresValueGenerator());
             Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
@@ -232,25 +233,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
             Assert.True(keyProperties[0].RequiresValueGenerator());
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(relationshipBuilder));
+            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(relationshipBuilder));
 
             Assert.False(keyProperties[0].RequiresValueGenerator());
             Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
 
             referencedEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
-            new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, relationshipBuilder.Metadata);
+            new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, relationshipBuilder.Metadata);
 
             Assert.True(keyProperties[0].RequiresValueGenerator());
             Assert.Equal(ValueGenerated.OnAdd, keyProperties[0].ValueGenerated);
@@ -272,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Id"
                 }, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -291,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Number"
                 }, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -311,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Number"
                 }, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
@@ -342,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityBuilder.Property("binaryKey", typeof(byte[]), ConfigurationSource.Explicit);
+            entityBuilder.Property(typeof(byte[]), "binaryKey", ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(new[] { "binaryKey" }, ConfigurationSource.Convention);
 
@@ -357,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityBuilder.Property("enumKey", typeof(Eenom), ConfigurationSource.Explicit);
+            entityBuilder.Property(typeof(Eenom), "enumKey", ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(new[] { "enumKey" }, ConfigurationSource.Convention);
 
@@ -373,8 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
-            var idProperty = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
-            var numberProperty = entityBuilder.Property("Number", typeof(int), ConfigurationSource.Convention).Metadata;
+            var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
+            var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention).Metadata;
 
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -392,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -407,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
-            entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention)
+            entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(
@@ -416,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "Id"
                 }, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(entityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(entityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
@@ -437,18 +438,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             };
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
             Assert.Equal(ValueGenerated.OnAdd, ((IProperty)property).ValueGenerated);
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(relationshipBuilder));
+            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(relationshipBuilder));
 
             Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
         }
@@ -467,24 +468,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             };
             var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             var property = keyBuilder.Metadata.Properties.First();
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
-            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
-                principalEntityBuilder,
+            var relationshipBuilder = referencedEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(relationshipBuilder));
+            Assert.Same(relationshipBuilder, new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(relationshipBuilder));
 
             Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
 
             referencedEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
-            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model>()).Apply(referencedEntityBuilder, (Key)null));
+            Assert.True(new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()).Apply(referencedEntityBuilder, (Key)null));
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
@@ -494,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static InternalModelBuilder CreateInternalModelBuilder()
         {
             var conventions = new ConventionSet();
-            var logger = new TestLogger<DbLoggerCategory.Model>();
+            var logger = new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>();
 
             conventions.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(

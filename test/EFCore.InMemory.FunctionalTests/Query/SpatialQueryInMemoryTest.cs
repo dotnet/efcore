@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class SpatialQueryInMemoryTest : SpatialQueryTestBase<SpatialQueryInMemoryFixture>
+    internal class SpatialQueryInMemoryTest : SpatialQueryTestBase<SpatialQueryInMemoryFixture>
     {
         public SpatialQueryInMemoryTest(SpatialQueryInMemoryFixture fixture)
             : base(fixture)

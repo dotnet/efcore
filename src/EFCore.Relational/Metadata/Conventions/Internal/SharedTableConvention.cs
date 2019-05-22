@@ -13,19 +13,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SharedTableConvention :
-        IEntityTypeAddedConvention,
-        IEntityTypeAnnotationChangedConvention,
-        IForeignKeyOwnershipChangedConvention,
-        IForeignKeyUniquenessChangedConvention,
-        IModelBuiltConvention
+    public class SharedTableConvention : IModelBuiltConvention
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SharedTableConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
@@ -33,80 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
-        {
-            var ownership = entityTypeBuilder.Metadata.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership && fk.IsUnique);
-            if (ownership != null)
-            {
-                SetOwnedTable(ownership);
-            }
-
-            return entityTypeBuilder;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual Annotation Apply(
-            InternalEntityTypeBuilder entityTypeBuilder, string name, Annotation annotation, Annotation oldAnnotation)
-        {
-            var entityType = entityTypeBuilder.Metadata;
-            if (name == RelationalAnnotationNames.TableName
-                || name == RelationalAnnotationNames.Schema)
-            {
-                foreach (var foreignKey in entityType.GetReferencingForeignKeys())
-                {
-                    if (foreignKey.IsOwnership
-                        && foreignKey.IsUnique)
-                    {
-                        SetOwnedTable(foreignKey);
-                    }
-                }
-            }
-
-            return annotation;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
-        {
-            var foreignKey = relationshipBuilder.Metadata;
-            if (foreignKey.IsOwnership
-                && foreignKey.IsUnique)
-            {
-                SetOwnedTable(foreignKey);
-            }
-
-            return relationshipBuilder;
-        }
-
-        private static void SetOwnedTable(ForeignKey foreignKey)
-        {
-            var ownerType = foreignKey.PrincipalEntityType;
-            foreignKey.DeclaringEntityType.Builder.Relational(ConfigurationSource.Convention)
-                .ToTable(ownerType.Relational().TableName, ownerType.Relational().Schema);
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
+            var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
             var tables = new Dictionary<(string, string), List<EntityType>>();
 
             TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
@@ -144,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                var annotations = entityType.Relational();
-                var tableName = (annotations.Schema, annotations.TableName);
+                var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
                     entityTypes = new List<EntityType>();
@@ -160,11 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         if (entityType[RelationalAnnotationNames.TableName] == null)
                         {
-                            var uniqueName = ConstraintNamer.Uniquify(
+                            var uniqueName = IdentifierHelpers.Uniquify(
                                 tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
-                            if (entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(uniqueName))
+                            if (entityType.Builder.ToTable(uniqueName) != null)
                             {
-                                tables[(tableName.Schema, uniqueName)] = new List<EntityType> { entityType };
+                                tables[(tableName.Schema, uniqueName)] = new List<EntityType>
+                                {
+                                    entityType
+                                };
                                 continue;
                             }
                         }
@@ -174,12 +117,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             var otherEntityType = entityTypes.First();
                             if (otherEntityType[RelationalAnnotationNames.TableName] == null)
                             {
-                                var uniqueName = ConstraintNamer.Uniquify(
+                                var uniqueName = IdentifierHelpers.Uniquify(
                                     tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
-                                if (otherEntityType.Builder.Relational(ConfigurationSource.Convention).ToTable(uniqueName))
+                                if (otherEntityType.Builder.ToTable(uniqueName) != null)
                                 {
                                     entityTypes.Remove(otherEntityType);
-                                    tables[(tableName.Schema, uniqueName)] = new List<EntityType> { otherEntityType };
+                                    tables[(tableName.Schema, uniqueName)] = new List<EntityType>
+                                    {
+                                        otherEntityType
+                                    };
                                 }
                             }
                         }
@@ -221,16 +167,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var columnName = property.Relational().ColumnName;
+                var columnName = property.GetColumnName();
                 if (!properties.TryGetValue(columnName, out var otherProperty))
                 {
                     properties[columnName] = property;
                     continue;
                 }
 
+                var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
+                if (identifyingMemberInfo != null
+                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo()))
+                {
+                    continue;
+                }
+
                 var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
-                    || property.IsPrimaryKey()
-                    || otherProperty.IsPrimaryKey();
+                                || property.IsPrimaryKey()
+                                || otherProperty.IsPrimaryKey();
                 if (!property.IsPrimaryKey())
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
@@ -256,8 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static string TryUniquify(
             Property property, string columnName, Dictionary<string, Property> properties, bool usePrefix, int maxLength)
         {
-            var relationalPropertyBuilder = property.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalPropertyBuilder.CanSetColumnName(null))
+            if (property.Builder.CanSetColumnName(null))
             {
                 if (usePrefix)
                 {
@@ -268,8 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                columnName = ConstraintNamer.Uniquify(columnName, properties, maxLength);
-                relationalPropertyBuilder.ColumnName = columnName;
+                columnName = IdentifierHelpers.Uniquify(columnName, properties, maxLength);
+                property.Builder.HasColumnName(columnName);
                 properties[columnName] = property;
                 return columnName;
             }
@@ -281,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                var keyName = key.Relational().Name;
+                var keyName = key.GetName();
                 if (!keys.TryGetValue(keyName, out var otherKey))
                 {
                     keys[keyName] = key;
@@ -311,13 +263,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-           Key key, string keyName, Dictionary<string, T> keys, int maxLength)
+            Key key, string keyName, Dictionary<string, T> keys, int maxLength)
         {
-            var relationalKeyBuilder = key.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalKeyBuilder.CanSetName(null))
+            if (key.Builder.CanSetName(null))
             {
-                keyName = ConstraintNamer.Uniquify(keyName, keys, maxLength);
-                relationalKeyBuilder.Name = keyName;
+                keyName = IdentifierHelpers.Uniquify(keyName, keys, maxLength);
+                key.Builder.HasName(keyName);
                 return keyName;
             }
 
@@ -328,26 +279,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                var indexName = index.Relational().Name;
+                var indexName = index.GetName();
                 if (!indexes.TryGetValue(indexName, out var otherIndex))
                 {
                     indexes[indexName] = index;
                     continue;
                 }
 
-                var relationalIndexBuilder = index.Builder.Relational(ConfigurationSource.Convention);
-                var otherRelationalIndexBuilder = otherIndex.Builder.Relational(ConfigurationSource.Convention);
-                if (relationalIndexBuilder.CanSetName(null))
+                if (index.Builder.CanSetName(null))
                 {
                     if (index.GetConfigurationSource() == ConfigurationSource.Convention
                         && otherIndex.GetConfigurationSource() == ConfigurationSource.Convention
-                        && otherRelationalIndexBuilder.CanSetName(null))
+                        && otherIndex.Builder.CanSetName(null))
                     {
                         var associatedForeignKey = index.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
-                        var otherAssociatedForeignKey = otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
+                        var otherAssociatedForeignKey =
+                            otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
                         if (associatedForeignKey != null
                             && otherAssociatedForeignKey != null
-                            && associatedForeignKey.Relational().Name == otherAssociatedForeignKey.Relational().Name
+                            && associatedForeignKey.GetConstraintName() == otherAssociatedForeignKey.GetConstraintName()
                             && index.AreCompatible(otherIndex, shouldThrow: false))
                         {
                             continue;
@@ -369,13 +319,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-           Index index, string indexName, Dictionary<string, T> indexes, int maxLength)
+            Index index, string indexName, Dictionary<string, T> indexes, int maxLength)
         {
-            var relationalIndexBuilder = index.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalIndexBuilder.CanSetName(null))
+            if (index.Builder.CanSetName(null))
             {
-                indexName = ConstraintNamer.Uniquify(indexName, indexes, maxLength);
-                relationalIndexBuilder.Name = indexName;
+                indexName = IdentifierHelpers.Uniquify(indexName, indexes, maxLength);
+                index.Builder.HasName(indexName);
                 return indexName;
             }
 
@@ -386,26 +335,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
-                var declaringAnnotations = foreignKey.DeclaringEntityType.Relational();
-                var principalAnnotations = foreignKey.PrincipalEntityType.Relational();
-                if (declaringAnnotations.TableName == principalAnnotations.TableName
-                    && declaringAnnotations.Schema == principalAnnotations.Schema)
+                if (foreignKey.DeclaringEntityType.GetTableName() == foreignKey.PrincipalEntityType.GetTableName()
+                    && foreignKey.DeclaringEntityType.GetSchema() == foreignKey.PrincipalEntityType.GetSchema())
                 {
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.Relational().Name;
+                var foreignKeyName = foreignKey.GetConstraintName();
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
                     continue;
                 }
 
-                var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
-                var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
-                if (relationalKeyBuilder.CanSetName(null))
+                if (foreignKey.Builder.CanSetConstraintName(null))
                 {
-                    if (otherRelationalKeyBuilder.CanSetName(null)
+                    if (otherForeignKey.Builder.CanSetConstraintName(null)
                         && (foreignKey.PrincipalToDependent != null
                             || foreignKey.DependentToPrincipal != null)
                         && (foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo()).IsSameAs(
@@ -432,13 +377,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static string TryUniquify<T>(
-           ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
+            ForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
         {
-            var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
-            if (relationalKeyBuilder.CanSetName(null))
+            if (foreignKey.Builder.CanSetConstraintName(null))
             {
-                foreignKeyName = ConstraintNamer.Uniquify(foreignKeyName, foreignKeys, maxLength);
-                relationalKeyBuilder.Name = foreignKeyName;
+                foreignKeyName = IdentifierHelpers.Uniquify(foreignKeyName, foreignKeys, maxLength);
+                foreignKey.Builder.HasConstraintName(foreignKeyName);
                 return foreignKeyName;
             }
 

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,8 +16,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
     ///     <para>
-    ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///         directly from your code. This API may change or be removed in future releases.
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -29,8 +30,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUpdateSqlGenerator(
             [NotNull] UpdateSqlGeneratorDependencies dependencies)
@@ -39,8 +42,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
@@ -52,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property?.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -63,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property?.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
+                .Where(o => o.Property?.GetSqlServerValueGenerationStrategy() != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)
@@ -98,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
-                .Any(e => e.SqlServer().IsMemoryOptimized))
+                .Any(e => e.GetSqlServerIsMemoryOptimized()))
             {
                 if (!nonIdentityOperations.Any(o => o.IsRead && o.IsKey))
                 {
@@ -352,12 +357,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var typeName = property.SqlServer().ColumnType;
+            var typeName = property.GetColumnType();
             if (typeName == null)
             {
                 var principalProperty = property.FindPrincipal();
 
-                typeName = principalProperty?.SqlServer().ColumnType
+                typeName = principalProperty?.GetColumnType()
                            ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
@@ -474,8 +479,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
@@ -488,8 +495,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => commandStringBuilder
@@ -497,8 +506,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .AppendLine(SqlGenerationHelper.StatementTerminator);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
@@ -509,8 +520,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => commandStringBuilder

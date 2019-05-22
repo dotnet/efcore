@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
@@ -336,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, idColumn["SqlServer:ValueGenerationStrategy"]);
                     var timeColumn = createTableOperation.Columns[1];
                     Assert.Equal("Time", timeColumn.Name);
-                    Assert.False(timeColumn.IsNullable);
+                    Assert.True(timeColumn.IsNullable);
                 });
         }
 
@@ -754,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 target => target
                     .Entity(
@@ -765,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 operations => Assert.Equal(0, operations.Count));
         }
@@ -795,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("City");
                             x.Property<string>("Street");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsOnline();
+                                .ForSqlServerIsCreatedOnline();
                         }),
                 operations =>
                 {
@@ -809,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Address", operation1.Table);
                     Assert.Equal("IX_Address_Zip", operation1.Name);
 
-                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.Online);
+                    var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.CreatedOnline);
                     Assert.NotNull(annotation);
 
                     var annotationValue = Assert.IsType<bool>(annotation.Value);
@@ -831,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new SqlServerMigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
-                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<IUpdateAdapterFactory>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());
         }
 

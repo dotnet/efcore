@@ -4,6 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.DataAnnotation);
+            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation);
 
             Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
 
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
 
             Assert.Same(propertyBuilder, CreateKeyDiscoveryConvention().Apply(propertyBuilder));
 
@@ -127,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreStrings.LogMultiplePrimaryKeyCandidates.GenerateMessage(
+                CoreResources.LogMultiplePrimaryKeyCandidates(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(EntityWithMultipleIds.ID), nameof(EntityWithMultipleIds.Id), nameof(EntityWithMultipleIds)), logEntry.Message);
         }
 
@@ -144,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                 ListLoggerFactory,
                 options,
-                new DiagnosticListener("Fake"));
+                new DiagnosticListener("Fake"),
+                new TestLoggingDefinitions());
             return modelLogger;
         }
 
@@ -155,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             new PropertyDiscoveryConvention(
                     TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    new TestLogger<DbLoggerCategory.Model>())
+                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
                 .Apply(entityBuilder);
 
             return entityBuilder;

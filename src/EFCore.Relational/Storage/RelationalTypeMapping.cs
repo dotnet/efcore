@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -217,12 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 { typeof(string), GetDataReaderMethod(nameof(DbDataReader.GetString)) }
             };
 
-        private static MethodInfo GetDataReaderMethod(string name) =>
-            typeof(DbDataReader)
-                .GetRuntimeMethods()
-                .Single(m => m.GetParameters().Length == 1
-                             && m.GetParameters()[0].ParameterType == typeof(int)
-                             && m.Name.Equals(name, StringComparison.Ordinal));
+        private static MethodInfo GetDataReaderMethod(string name)
+            => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) });
 
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.

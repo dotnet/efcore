@@ -7,12 +7,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
-using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
@@ -41,9 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 { ExpressionType.NotEqual, ExpressionType.Equal }
             };
 
-        private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
-        private readonly ICompositeMethodCallTranslator _methodCallTranslator;
-        private readonly IMemberTranslator _memberTranslator;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly SelectExpression _targetSelectExpression;
@@ -72,9 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
-            _compositeExpressionFragmentTranslator = dependencies.CompositeExpressionFragmentTranslator;
-            _methodCallTranslator = dependencies.MethodCallTranslator;
-            _memberTranslator = dependencies.MemberTranslator;
             _typeMappingSource = dependencies.TypeMappingSource;
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
@@ -102,14 +97,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         public override Expression Visit(Expression expression)
         {
-            var translatedExpression = _compositeExpressionFragmentTranslator.Translate(expression);
-
-            if (translatedExpression != null
-                && translatedExpression != expression)
-            {
-                return Visit(translatedExpression);
-            }
-
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (expression != null
                 && (expression.NodeType == ExpressionType.Convert
@@ -618,43 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var operand =
                 methodCallExpression.Method.IsEFIndexer()
                     ? null
-                    : compilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                    : compilationContext.Model.FindDbFunction(methodCallExpression.Method) != null
                         ? methodCallExpression.Object
                         : Visit(methodCallExpression.Object);
-
-            if (operand != null
-                || methodCallExpression.Object == null)
-            {
-                var arguments
-                    = methodCallExpression.Arguments
-                        .Where(
-                            e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
-                                 && !IsNonTranslatableSubquery(e.RemoveConvert()))
-                        .Select(
-                            e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
-                                ? e
-                                : Visit(e))
-                        .Where(e => e != null)
-                        .ToArray();
-
-                if (arguments.Length == methodCallExpression.Arguments.Count)
-                {
-                    var boundExpression
-                        = operand != null
-                            ? Expression.Call(operand, methodCallExpression.Method, arguments)
-                            : Expression.Call(methodCallExpression.Method, arguments);
-
-                    var translatedExpression = _methodCallTranslator.Translate(
-                        boundExpression,
-                        compilationContext.Model,
-                        compilationContext.Loggers.GetLogger<DbLoggerCategory.Query>());
-
-                    if (translatedExpression != null)
-                    {
-                        return translatedExpression;
-                    }
-                }
-            }
 
             if (AnonymousObject.IsGetValueExpression(methodCallExpression, out var querySourceReferenceExpression)
                 || MaterializedAnonymousObject.IsGetValueExpression(methodCallExpression, out querySourceReferenceExpression))
@@ -722,13 +675,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     {
                         newMemberExpression = memberExpression;
                     }
-
-                    var translatedExpression = _memberTranslator.Translate(newMemberExpression);
-
-                    if (translatedExpression != null)
-                    {
-                        return translatedExpression;
-                    }
                 }
             }
 
@@ -776,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             TExpression sourceExpression,
             Func<TExpression, RelationalQueryModelVisitor, Func<IProperty, IQuerySource, SelectExpression, Expression>, Expression> binder)
         {
-            Expression BindPropertyToSelectExpression(
+            Expression bindPropertyToSelectExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
                 => selectExpression.BindProperty(
                     property,
@@ -785,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var boundExpression = binder(
                 sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
                 {
-                    var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+                    var boundPropertyExpression = bindPropertyToSelectExpression(property, querySource, selectExpression);
 
                     if (_targetSelectExpression != null
                         && selectExpression != _targetSelectExpression)
@@ -807,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             while (outerQueryModelVisitor != null && canBindToOuterQueryModelVisitor)
             {
-                boundExpression = binder(sourceExpression, outerQueryModelVisitor, BindPropertyToSelectExpression);
+                boundExpression = binder(sourceExpression, outerQueryModelVisitor, bindPropertyToSelectExpression);
 
                 if (boundExpression != null)
                 {
@@ -860,12 +806,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     if (operand != null)
                     {
+                        var operandWithoutConvert = operand.RemoveConvert();
+
                         return _isTopLevelProjection
-                               && operand.Type.IsValueType
+                               && operandWithoutConvert.Type.IsValueType
                                && expression.Type.IsValueType
-                               && expression.Type.UnwrapNullableType() != operand.Type.UnwrapNullableType()
-                               && expression.Type.UnwrapEnumType() != operand.Type.UnwrapEnumType()
-                            ? (Expression)new ExplicitCastExpression(operand, expression.Type)
+                               && expression.Type.UnwrapNullableType() != operandWithoutConvert.Type.UnwrapNullableType()
+                               && expression.Type.UnwrapEnumType() != operandWithoutConvert.Type.UnwrapEnumType()
+                            ? (Expression)new ExplicitCastExpression(operandWithoutConvert, expression.Type)
                             : Expression.Convert(operand, expression.Type);
                     }
 
@@ -967,19 +915,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 var referencedQuerySource = subQueryModel.SelectClause.Selector.TryGetReferencedQuerySource();
 
+                var queryCompilationContext = _queryModelVisitor.QueryCompilationContext;
+
                 if (referencedQuerySource == null
                     || _inProjection
-                    || !_queryModelVisitor.QueryCompilationContext
+                    || !queryCompilationContext
                         .QuerySourceRequiresMaterialization(referencedQuerySource))
                 {
                     var subQueryModelVisitor
-                        = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
+                        = (RelationalQueryModelVisitor)queryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
                     if (expression.QueryModel.MainFromClause.FromExpression is QuerySourceReferenceExpression groupQsre
                         && groupQsre.Type.IsGrouping())
                     {
-                        var targetExpression = _queryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                        var targetExpression = queryCompilationContext.QuerySourceMapping
                             .GetExpression(groupQsre.ReferencedQuerySource);
 
                         if (targetExpression.Type == typeof(ValueBuffer))
@@ -987,14 +937,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             var outerSelectExpression = _targetSelectExpression.Clone();
                             subQueryModelVisitor.AddQuery(subQueryModel.MainFromClause, outerSelectExpression);
 
-                            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(
+                            queryCompilationContext.AddOrUpdateMapping(
                                 groupQsre.ReferencedQuerySource,
                                 Expression.Parameter(
                                     typeof(IEnumerable<>).MakeGenericType(typeof(ValueBuffer))));
 
                             subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                            _queryModelVisitor.QueryCompilationContext.AddOrUpdateMapping(
+                            queryCompilationContext.AddOrUpdateMapping(
                                 groupQsre.ReferencedQuerySource,
                                 targetExpression);
 
@@ -1142,11 +1092,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                     return new NullableExpression(newAccessOperation);
 
-                case NullSafeEqualExpression nullSafeEqualExpression:
-                    var equalityExpression
-                        = new NullCompensatedExpression(nullSafeEqualExpression.EqualExpression);
-
-                    return Visit(equalityExpression);
+                case CorrelationPredicateExpression correlationPredicateExpression:
+                    return Visit(new NullCompensatedExpression(correlationPredicateExpression.EqualExpression));
 
                 case NullCompensatedExpression nullCompensatedExpression:
                     newOperand = Visit(nullCompensatedExpression.Operand);

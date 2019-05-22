@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -12,14 +13,18 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class RelationalExpressionPrinter : ExpressionPrinter
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationalExpressionPrinter()
         {
@@ -30,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     new CommandBuilderPrinter(),
                     new EntityTrackingInfoListPrinter(),
                     new MetadataPropertyCollectionPrinter(),
-                    new ShaperPrinter(this)
+                    new ShaperPrinter(this),
                 });
         }
 
@@ -49,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     stringBuilder.IncrementIndent();
 
                     var querySqlGenerator = shaperCommandContext.QuerySqlGeneratorFactory();
-                    var sql = querySqlGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
+                    var sql = querySqlGenerator.GenerateSql(shaperCommandContext.CommandBuilderFactory, new Dictionary<string, object>(), null).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                     for (var i = 0; i < lines.Length; i++)
