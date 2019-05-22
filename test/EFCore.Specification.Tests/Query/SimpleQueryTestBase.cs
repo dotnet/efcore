@@ -2657,7 +2657,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_LongCount(bool isAsync)
         {
@@ -5103,7 +5103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.OrderBy(c => c.Country).Take(7));
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_take_long_count(bool isAsync)
         {
@@ -5112,7 +5112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Take(7));
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_orderBy_take_long_count(bool isAsync)
         {
@@ -5175,7 +5175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.OrderBy(c => c.Country).Skip(7));
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_skip_long_count(bool isAsync)
         {
@@ -5184,7 +5184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Skip(7));
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_orderBy_skip_long_count(bool isAsync)
         {
@@ -5238,7 +5238,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Distinct());
         }
 
-        [ConditionalTheory(Skip = "Issue#15718")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_distinct_long_count(bool isAsync)
         {
