@@ -356,7 +356,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bugs925_926
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -1744,7 +1744,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1762,7 +1762,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -2825,7 +2825,7 @@ BEGIN
 
         #region Bug9038
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
@@ -2844,7 +2844,7 @@ BEGIN
             }
         }
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public async Task Include_optional_reference_collection_another_collection()
         {
             using (CreateDatabase9038())
@@ -2987,7 +2987,7 @@ BEGIN
 
         #region Bug9735
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
         public virtual void Repro9735()
         {
@@ -3328,7 +3328,7 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
 
         #region Bug10635
 
-        [Fact(Skip = "issue #15064")]
+        [Fact(Skip = "issue #15611")]
         public void Include_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())

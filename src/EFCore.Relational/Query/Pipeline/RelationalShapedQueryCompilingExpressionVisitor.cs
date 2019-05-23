@@ -5,15 +5,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,11 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
-            var newBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression)
-                .Visit(shaperBody);
+            shaperBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression).Visit(shaperBody);
+
+            shaperBody = new IncludeCompilingExpressionVisitor(TrackQueryResults).Visit(shaperBody);
 
             var shaperLambda = Expression.Lambda(
-                newBody,
+                shaperBody,
                 QueryCompilationContext2.QueryContextParameter,
                 RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter);
 
@@ -64,6 +68,160 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 Expression.Constant(_querySqlGeneratorFactory.Create()),
                 Expression.Constant(selectExpression),
                 Expression.Constant(shaperLambda.Compile()));
+        }
+
+        private class IncludeCompilingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly bool _tracking;
+
+            public IncludeCompilingExpressionVisitor(bool tracking)
+            {
+                _tracking = tracking;
+            }
+
+            private static readonly MethodInfo _includeReferenceMethodInfo
+                = typeof(IncludeCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(IncludeReference));
+
+            private static void IncludeReference<TEntity, TIncludedEntity>(
+                QueryContext queryContext,
+                DbDataReader dbDataReader,
+                TEntity entity,
+                Func<QueryContext, DbDataReader, TIncludedEntity> innerShaper,
+                INavigation navigation,
+                INavigation inverseNavigation,
+                Action<TEntity, TIncludedEntity> fixup,
+                bool trackingQuery)
+            {
+                var relatedEntity = innerShaper(queryContext, dbDataReader);
+
+                if (trackingQuery)
+                {
+                    var internalEntityEntry = queryContext.StateManager.TryGetEntry(entity);
+                    Debug.Assert(internalEntityEntry != null);
+
+                    internalEntityEntry.SetIsLoaded(navigation);
+                    if (!ReferenceEquals(relatedEntity, null))
+                    {
+                        internalEntityEntry.SetRelationshipSnapshotValue(navigation, relatedEntity);
+                        if (inverseNavigation != null)
+                        {
+                            var relatedEntry = queryContext.StateManager.TryGetEntry(relatedEntity);
+                            if (inverseNavigation.IsCollection())
+                            {
+                                relatedEntry.AddToCollectionSnapshot(inverseNavigation, entity);
+                            }
+                            else
+                            {
+                                relatedEntry.SetRelationshipSnapshotValue(inverseNavigation, entity);
+                                relatedEntry.SetIsLoaded(inverseNavigation);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    SetIsLoadedNoTracking(entity, navigation);
+                    if (!ReferenceEquals(relatedEntity, null))
+                    {
+                        fixup(entity, relatedEntity);
+                        if (inverseNavigation != null && !inverseNavigation.IsCollection())
+                        {
+                            SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                        }
+                    }
+                }
+            }
+
+            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
+            => ((ILazyLoader)((PropertyBase)navigation
+                        .DeclaringEntityType
+                        .GetServiceProperties()
+                        .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
+                    ?.Getter.GetClrValue(entity))
+                ?.SetLoaded(entity, navigation.Name);
+
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is IncludeExpression includeExpression
+                    && !includeExpression.Navigation.IsCollection())
+                {
+                    var entityClrType = includeExpression.EntityExpression.Type;
+                    var relatedEntityClrType = includeExpression.NavigationExpression.Type;
+                    var inverseNavigation = includeExpression.Navigation.FindInverse();
+                    return Expression.Call(
+                        _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
+                        QueryCompilationContext2.QueryContextParameter,
+                        RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                        // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
+                        includeExpression.EntityExpression,
+                        Expression.Constant(
+                            Expression.Lambda(
+                                Visit(includeExpression.NavigationExpression),
+                                QueryCompilationContext2.QueryContextParameter,
+                                RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
+                        Expression.Constant(includeExpression.Navigation),
+                        Expression.Constant(inverseNavigation),
+                        Expression.Constant(
+                            GenerateFixup(entityClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
+                        Expression.Constant(_tracking));
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
+
+            private static LambdaExpression GenerateFixup(
+                Type entityType,
+                Type relatedEntityType,
+                INavigation navigation,
+                INavigation inverseNavigation)
+            {
+                var entityParameter = Expression.Parameter(entityType);
+                var relatedEntityParameter = Expression.Parameter(relatedEntityType);
+                var expressions = new List<Expression>
+                {
+                    navigation.IsCollection()
+                        ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
+                        : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
+                };
+
+                if (inverseNavigation != null)
+                {
+                    expressions.Add(
+                        inverseNavigation.IsCollection()
+                            ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
+                            : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
+
+                }
+
+                return Expression.Lambda(Expression.Block(typeof(void), expressions), entityParameter, relatedEntityParameter);
+            }
+
+            private static Expression AssignReferenceNavigation(
+                ParameterExpression entity,
+                ParameterExpression relatedEntity,
+                INavigation navigation)
+            {
+                return entity.MakeMemberAccess(navigation.GetMemberInfo(forConstruction: false, forSet: true))
+                    .CreateAssignExpression(relatedEntity);
+            }
+
+            private static Expression AddToCollectionNavigation(
+                ParameterExpression entity,
+                ParameterExpression relatedEntity,
+                INavigation navigation)
+            {
+                return Expression.Call(
+                    Expression.Constant(navigation.GetCollectionAccessor()),
+                    _collectionAccessorAddMethodInfo,
+                    entity,
+                    relatedEntity);
+            }
+
+            private static readonly MethodInfo _collectionAccessorAddMethodInfo
+                = typeof(IClrCollectionAccessor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
         }
 
         private class AsyncQueryingEnumerable<T> : IAsyncEnumerable<T>

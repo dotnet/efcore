@@ -3,8 +3,8 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -35,7 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             query = new SqlExpressionOptimizingVisitor(SqlExpressionFactory).Visit(query);
             query = new NullComparisonTransformingExpressionVisitor().Visit(query);
-            query = new ShaperExpressionProcessingExpressionVisitor().Process(query);
+
+            if (query is ShapedQueryExpression shapedQueryExpression)
+            {
+                shapedQueryExpression.ShaperExpression
+                    = new ShaperExpressionProcessingExpressionVisitor((SelectExpression)shapedQueryExpression.QueryExpression)
+                        .Inject(shapedQueryExpression.ShaperExpression);
+            }
 
             return query;
         }

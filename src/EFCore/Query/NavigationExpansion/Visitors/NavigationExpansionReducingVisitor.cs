@@ -22,22 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 return result;
             }
 
-            // TODO: temporary hack
-            if (extensionExpression is IncludeExpression includeExpression)
-            {
-                var methodInfo = typeof(IncludeHelpers).GetMethod(nameof(IncludeHelpers.IncludeMethod))
-                    .MakeGenericMethod(includeExpression.EntityExpression.Type);
-
-                var newEntityExpression = Visit(includeExpression.EntityExpression);
-                var newNavigationExpression = Visit(includeExpression.NavigationExpression);
-
-                return Expression.Call(
-                    methodInfo,
-                    newEntityExpression,
-                    newNavigationExpression,
-                    Expression.Constant(includeExpression.Navigation));
-            }
-
             if (extensionExpression is NavigationExpansionRootExpression navigationExpansionRootExpression)
             {
                 return Visit(navigationExpansionRootExpression.Unwrap());
@@ -125,11 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         var toOrderedEnumerableMethodInfo = ToOrderedEnumerableMethod.MakeGenericMethod(parameter.Type);
 
                         return Expression.Call(toOrderedEnumerableMethodInfo, result);
-                    }
-                    else if (navigationExpansionExpression.Type.GetGenericTypeDefinition() == typeof(IIncludableQueryable<,>))
-                    {
-                        // TODO: handle this using adapter, just like we do for order by?
-                        return Expression.Convert(result, navigationExpansionExpression.Type);
                     }
                 }
 

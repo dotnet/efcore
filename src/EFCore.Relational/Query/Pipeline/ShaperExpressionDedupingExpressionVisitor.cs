@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -11,26 +12,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
-        private SelectExpression _selectExpression;
-        private IDictionary<Expression, ParameterExpression> _mapping;
-        private List<ParameterExpression> _variables;
-        private List<Expression> _expressions;
+        private readonly SelectExpression _selectExpression;
+        private IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
+        private List<ParameterExpression> _variables = new List<ParameterExpression>();
+        private List<Expression> _expressions = new List<Expression>();
 
-        public Expression Process(Expression expression)
+        public ShaperExpressionProcessingExpressionVisitor(SelectExpression selectExpression)
         {
-            if (expression is ShapedQueryExpression shapedQueryExpression)
-            {
-                _selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-                _mapping = new Dictionary<Expression, ParameterExpression>();
-                _variables = new List<ParameterExpression>();
-                _expressions = new List<Expression>();
-                _expressions.Add(Visit(shapedQueryExpression.ShaperExpression));
-                shapedQueryExpression.ShaperExpression = Expression.Block(_variables, _expressions);
+            _selectExpression = selectExpression;
+        }
 
-                return shapedQueryExpression;
-            }
+        public BlockExpression Inject(Expression expression)
+        {
+            _expressions.Add(Visit(expression));
 
-            return expression;
+            return Expression.Block(_variables, _expressions);
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
@@ -61,6 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 return variable;
+            }
+
+            if (extensionExpression is IncludeExpression includeExpression)
+            {
+                var entity = Visit(includeExpression.EntityExpression);
+                var innerShaper = new ShaperExpressionProcessingExpressionVisitor(_selectExpression)
+                    .Inject(includeExpression.NavigationExpression);
+                _expressions.Add(includeExpression.Update(entity, innerShaper));
+
+                return entity;
             }
 
             return base.VisitExtension(extensionExpression);

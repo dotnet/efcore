@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class IncludeAsyncSqliteTest : IncludeAsyncTestBase<IncludeSqliteFixture>
+    public class IncludeAsyncSqliteTest : IncludeAsyncTestBase<IncludeSqliteFixture>
     {
         public IncludeAsyncSqliteTest(IncludeSqliteFixture fixture)
             : base(fixture)

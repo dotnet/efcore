@@ -4981,7 +4981,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
         }
 
-        [ConditionalTheory(Skip = "Issue #15064")]
+        [ConditionalTheory(Skip = "Issue #15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {

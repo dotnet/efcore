@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             expressionPrinter.Visit(EntityExpression);
             expressionPrinter.StringBuilder.AppendLine(", ");
             expressionPrinter.Visit(NavigationExpression);
-            expressionPrinter.StringBuilder.AppendLine(")");
+            expressionPrinter.StringBuilder.AppendLine($", {Navigation.Name})");
             expressionPrinter.StringBuilder.DecrementIndent();
         }
     }

@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             = typeof(QueryContext).GetProperty(nameof(QueryContext.CancellationToken));
 
         private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly bool _trackQueryResults;
+        protected readonly bool TrackQueryResults;
         private readonly Expression cancellationTokenParameter;
         protected readonly bool Async;
 
         public ShapedQueryCompilingExpressionVisitor(IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults, bool async)
         {
             _entityMaterializerSource = entityMaterializerSource;
-            _trackQueryResults = trackQueryResults;
+            TrackQueryResults = trackQueryResults;
             Async = async;
             if (async)
             {
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected virtual Expression InjectEntityMaterializer(Expression expression)
         {
             return new EntityMaterializerInjectingExpressionVisitor(
-                _entityMaterializerSource, _trackQueryResults, Async).Inject(expression);
+                _entityMaterializerSource, TrackQueryResults, Async).Inject(expression);
         }
 
         private class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor

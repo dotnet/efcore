@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             var newExpression = new NavigationExpandingVisitor(_model).Visit(expression);
             newExpression = new NavigationExpansionReducingVisitor().Visit(newExpression);
 
-            // TODO: this can probably be removed once new pipeline is in place
             return newExpression;
         }
     }
