@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
 
+        private readonly IDictionary<Expression, ProjectionBindingExpression> _projectionCache
+            = new Dictionary<Expression, ProjectionBindingExpression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
@@ -121,22 +123,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public ProjectionBindingExpression AddToProjection(SqlExpression sqlExpression, Type type)
         {
-            _projection.Add(new ProjectionExpression(sqlExpression, alias: ""));
+            if (!_projectionCache.TryGetValue(sqlExpression, out var result))
+            {
+                _projection.Add(new ProjectionExpression(sqlExpression, alias: ""));
+                result = new ProjectionBindingExpression(this, _projection.Count - 1, type);
+                _projectionCache[sqlExpression] = result;
+            }
 
-            return new ProjectionBindingExpression(this, _projection.Count - 1, type);
+            return result;
         }
 
         public ProjectionBindingExpression AddToProjection(ProjectionBindingExpression projectionBindingExpression)
         {
             var entityProjection = (EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember];
-            var index = _projection.Count;
-            foreach (var property in entityProjection.EntityType.GetProperties())
+            if (!_projectionCache.TryGetValue(entityProjection, out var result))
             {
-                var columnExpression = entityProjection.GetProperty(property);
-                _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
+                var index = _projection.Count;
+                foreach (var property in entityProjection.EntityType.GetProperties())
+                {
+                    var columnExpression = entityProjection.GetProperty(property);
+                    _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
+                }
+
+                result = new ProjectionBindingExpression(this, index, typeof(ValueBuffer));
+                _projectionCache[entityProjection] = result;
             }
 
-            return new ProjectionBindingExpression(this, index, typeof(ValueBuffer));
+            return result;
         }
 
         public void ApplyPredicate(SqlExpression expression)

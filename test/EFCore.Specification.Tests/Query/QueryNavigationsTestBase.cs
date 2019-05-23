@@ -367,9 +367,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Order>(o => o.Customer, "Customer")
-                }//,
-                // issue #15064
-                /*entryCount: 15*/);
+                },
+                entryCount: 15);
         }
 
         [ConditionalTheory]
@@ -387,9 +386,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ods => ods
                     .Include(od => od.Order.Customer)
                     .Where(od => od.Order.Customer.City == "London"),
-                expectedIncludes//,
-                // issue #15064
-                /*entryCount: 164*/);
+                expectedIncludes,
+                entryCount: 164);
         }
 
         [ConditionalTheory]
@@ -1487,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15064")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_on_inner_projecting_groupjoin_complex()
         {
             using (var ctx = CreateContext())
@@ -1536,9 +1534,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ods => ods
                     .Include(od => od.Order.Customer)
                     .Include(od => od.Product)
-                    .Where(od => od.Order.Customer.City == "London")//,
-                // issue #15064
-                /*entryCount: 221*/);
+                    .Where(od => od.Order.Customer.City == "London"),
+                entryCount: 221);
         }
     }
 }

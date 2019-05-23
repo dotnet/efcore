@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class IncludeSqlServerTest : IncludeTestBase<IncludeSqlServerFixture>
+    public class IncludeSqlServerTest : IncludeTestBase<IncludeSqlServerFixture>
     {
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
 

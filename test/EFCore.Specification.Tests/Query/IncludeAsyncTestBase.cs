@@ -631,8 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(orders.All(o => o.o2.Customer != null));
                 Assert.Equal(1, orders.Select(o => o.o1.Customer).Distinct().Count());
                 Assert.Equal(1, orders.Select(o => o.o2.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(5, context.ChangeTracker.Entries().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -661,8 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(orders.All(o => o.o1.Customer != null));
                 Assert.True(orders.All(o => o.o2.Customer == null));
                 Assert.Equal(2, orders.Select(o => o.o1.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(6, context.ChangeTracker.Entries().Count());
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -691,8 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(orders.All(o => o.o1.Customer == null));
                 Assert.True(orders.All(o => o.o2.Customer != null));
                 Assert.Equal(2, orders.Select(o => o.o2.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(6, context.ChangeTracker.Entries().Count());
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -845,8 +842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(830, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
                 Assert.Equal(89, orders.Select(o => o.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
+                Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -915,8 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.True(orders1.All(o1 => orders2.Contains(o1, ReferenceEqualityComparer.Instance)));
                 Assert.True(orders2.All(o => o.Customer != null));
-                //issue #15064
-                //Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
+                Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -964,8 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
                 Assert.Equal(1, orders.Select(o => o.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
+                Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -983,8 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
                 Assert.Equal(1, orders.Select(o => o.Customer).Distinct().Count());
-                //issue #15064
-                //Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
+                Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
             }
         }
 
