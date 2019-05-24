@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     }
                 }
 
-                throw new NotImplementedException();
+                throw new NotImplementedException("Unhandled method: " + methodCallExpression.Method.Name);
             }
 
             // TODO: Skip ToOrderedQueryable method. See Issue#15591

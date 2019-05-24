@@ -1168,4 +1168,7 @@
   <data name="NoNavigation" xml:space="preserve">
     <value>There is no navigation on entity type '{entityType}' associated with the foreign key {foreignKey}.</value>
   </data>
+  <data name="SubqueryWithCompositeKeyNotSupported" xml:space="preserve">
+    <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
+  </data>
 </root>

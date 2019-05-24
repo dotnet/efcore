@@ -503,10 +503,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigationPath"> The navigation properties being used. </param>
+        /// <param name="navigation"> The navigation being used. </param>
         public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] IReadOnlyList<IPropertyBase> navigationPath)
+            [NotNull] INavigation navigation)
         {
             var definition = CoreResources.LogPossibleUnintendedCollectionNavigationNullComparison(diagnostics);
 
@@ -516,25 +516,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     warningBehavior,
-                    string.Join(".", navigationPath.Select(p => p.Name)));
+                    $"{navigation.DeclaringEntityType.Name}.{navigation.GetTargetType().Name}");
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new NavigationPathEventData(
+                    new NavigationEventData(
                         definition,
                         PossibleUnintendedCollectionNavigationNullComparisonWarning,
-                        navigationPath));
+                        navigation));
             }
         }
 
         private static string PossibleUnintendedCollectionNavigationNullComparisonWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
-            var p = (NavigationPathEventData)payload;
-            return d.GenerateMessage(string.Join(".", p.NavigationPath.Select(pb => pb.Name)));
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage($"{p.Navigation.DeclaringEntityType.Name}.{p.Navigation.GetTargetType().Name}");
         }
 
         /// <summary>

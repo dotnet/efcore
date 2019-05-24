@@ -110,16 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         /// </returns>
         /// <param name="visitor">An instance of <see cref="T:System.Func`2" />.</param>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var newCaller = visitor.Visit(Caller);
-            var newAccessOperation = visitor.Visit(AccessOperation);
+            => Update(visitor.Visit(Caller), visitor.Visit(AccessOperation));
 
-            return newCaller != Caller
-                   || newAccessOperation != AccessOperation
-                   && !(ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation))
+        public virtual Expression Update(Expression newCaller, Expression newAccessOperation)
+            => newCaller != Caller || newAccessOperation != AccessOperation
+               && !ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)
                 ? new NullConditionalExpression(newCaller, newAccessOperation)
-                : (this);
-        }
+                : this;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

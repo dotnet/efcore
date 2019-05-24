@@ -2100,6 +2100,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("NoNavigation", nameof(entityType), nameof(foreignKey)),
                 entityType, foreignKey);
 
+        /// <summary>
+        ///     This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.
+        /// </summary>
+        public static string SubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
+            => string.Format(
+                GetString("SubqueryWithCompositeKeyNotSupported", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
