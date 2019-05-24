@@ -142,7 +142,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             var readValueExpression = (MethodCallExpression)projection;
             var index = (int)((ConstantExpression)readValueExpression.Arguments[1]).Value;
 
-            return _valueBufferSlots[index];
+            var valueBufferSlotExpression = _valueBufferSlots[index];
+
+            var memberType = member.MemberType;
+            if (memberType != null
+                && memberType != valueBufferSlotExpression.Type)
+            {
+                valueBufferSlotExpression = Convert(valueBufferSlotExpression, memberType);
+            }
+
+            return valueBufferSlotExpression;
         }
 
         public LambdaExpression GetScalarProjectionLambda()

@@ -2368,7 +2368,9 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            var actual = QueryForColumnTypes(CreateContext());
+            var actual = QueryForColumnTypes(
+                CreateContext(),
+                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2805,7 +2807,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             }
         }
 
-        public static string QueryForColumnTypes(DbContext context)
+        public static string QueryForColumnTypes(DbContext context, params string[] tablesToIgnore)
         {
             const string query
                 = @"SELECT
@@ -2844,7 +2846,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                             DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
                         };
 
-                        columns.Add(columnInfo);
+                        if (!tablesToIgnore.Contains(columnInfo.TableName))
+                        {
+                            columns.Add(columnInfo);
+                        }
                     }
                 }
             }

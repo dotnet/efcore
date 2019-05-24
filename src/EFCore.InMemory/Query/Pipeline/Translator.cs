@@ -54,7 +54,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     var entityType = entityShaper.EntityType;
                     var property = entityType.FindProperty((string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
 
-                    return _inMemoryQueryExpression.BindProperty(entityShaper.ValueBufferExpression, property);
+                    var boundPropertyExpression = _inMemoryQueryExpression.BindProperty(entityShaper.ValueBufferExpression, property);
+
+                    if (boundPropertyExpression.Type
+                        != methodCallExpression.Type)
+                    {
+                        boundPropertyExpression = Expression.Convert(boundPropertyExpression, methodCallExpression.Type);
+                    }
+
+                    return boundPropertyExpression;
                 }
             }
 

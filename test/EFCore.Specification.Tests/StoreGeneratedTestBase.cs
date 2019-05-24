@@ -1068,6 +1068,80 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [Fact]
+        public virtual void Nullable_fields_get_defaults_when_not_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithNullableBackingFields()).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.True(entity.NullableBackedBool);
+                    Assert.Equal(-1, entity.NullableBackedInt);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithNullableBackingFields>().Single();
+                    Assert.True(entity.NullableBackedBool);
+                    Assert.Equal(-1, entity.NullableBackedInt);
+                });
+        }
+
+        [Fact]
+        public virtual void Nullable_fields_store_non_defaults_when_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithNullableBackingFields
+                    {
+                        NullableBackedBool = false,
+                        NullableBackedInt = 0
+                    }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.False(entity.NullableBackedBool);
+                    Assert.Equal(0, entity.NullableBackedInt);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithNullableBackingFields>().Single();
+                    Assert.False(entity.NullableBackedBool);
+                    Assert.Equal(0, entity.NullableBackedInt);
+                });
+        }
+
+        [Fact]
+        public virtual void Nullable_fields_store_any_value_when_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithNullableBackingFields
+                    {
+                        NullableBackedBool = true,
+                        NullableBackedInt = 3
+                    }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.True(entity.NullableBackedBool);
+                    Assert.Equal(3, entity.NullableBackedInt);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithNullableBackingFields>().Single();
+                    Assert.True(entity.NullableBackedBool);
+                    Assert.Equal(3, entity.NullableBackedInt);
+                });
+        }
+
         protected class Darwin
         {
             public int Id { get; set; }
@@ -1148,13 +1222,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
 
-#pragma warning disable RCS1085 // Use auto-implemented property.
+            // ReSharper disable once ConvertToAutoProperty
             public int Id
             {
                 get => _id;
                 set => _id = value;
             }
-#pragma warning restore RCS1085 // Use auto-implemented property.
 
             private int? _nullableAsNonNullable = 0;
 
@@ -1170,6 +1243,31 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _nonNullableAsNullable;
                 set => _nonNullableAsNullable = (int)value;
+            }
+        }
+
+        protected class WithNullableBackingFields
+        {
+            private int? _id;
+
+            public int Id
+            {
+                get => _id ?? 0;
+                set => _id = value;
+            }
+
+            private bool? _nullableBackedBool;
+            public bool NullableBackedBool
+            {
+                get => _nullableBackedBool ?? false;
+                set => _nullableBackedBool = value;
+            }
+
+            private int? _nullableBackedInt;
+            public int NullableBackedInt
+            {
+                get => _nullableBackedInt ?? 0;
+                set => _nullableBackedInt = value;
             }
         }
 

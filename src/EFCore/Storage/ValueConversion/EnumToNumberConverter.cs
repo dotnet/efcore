@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 typeof(EnumToNumberConverter<TEnum, TNumber>),
                 typeof(int), typeof(long), typeof(short), typeof(byte),
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
-                typeof(double), typeof(float), typeof(decimal));
+                typeof(double), typeof(float), typeof(decimal), typeof(char));
 
             var param = Expression.Parameter(typeof(TEnum), "value");
 

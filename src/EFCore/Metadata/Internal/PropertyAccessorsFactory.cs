@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
-                .MakeGenericMethod(propertyBase.ClrType)
+                .MakeGenericMethod(propertyBase.ClrType, propertyBase.DeclaredClrType)
                 .Invoke(
                     null, new object[]
                     {
@@ -38,13 +38,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
 
         [UsedImplicitly]
-        private static PropertyAccessors CreateGeneric<TProperty>(IPropertyBase propertyBase)
+        private static PropertyAccessors CreateGeneric<TProperty, TDeclaredProperty>(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;
+
+            var currentValueGetter
+                = CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true);
+
+            var declaredCurrentValueGetter
+                = typeof(TProperty) == typeof(TDeclaredProperty)
+                    ? (Func<InternalEntityEntry, TDeclaredProperty>)(object)currentValueGetter
+                    : CreateDeclaredCurrentValueGetter<TProperty, TDeclaredProperty>(propertyBase, useStoreGeneratedValues: true);
+
+            var originalValueGetter
+                = property == null
+                    ? null
+                    : CreateOriginalValueGetter<TProperty>(property);
+
+            var declaredOriginalValueGetter
+                = property == null || typeof(TProperty) == typeof(TDeclaredProperty)
+                    ? (Func<InternalEntityEntry, TDeclaredProperty>)(object)originalValueGetter
+                    : CreateDeclaredOriginalValueGetter<TProperty, TDeclaredProperty>(property);
+
             return new PropertyAccessors(
-                CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
+                currentValueGetter,
+                declaredCurrentValueGetter,
                 CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),
-                property == null ? null : CreateOriginalValueGetter<TProperty>(property),
+                originalValueGetter,
+                declaredOriginalValueGetter,
                 CreateRelationshipSnapshotGetter<TProperty>(propertyBase),
                 property == null ? null : CreateValueBufferGetter(property));
         }
@@ -52,8 +73,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(
             IPropertyBase propertyBase, bool useStoreGeneratedValues)
         {
-            var entityClrType = propertyBase.DeclaringType.ClrType;
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
+
+            return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
+                    CreateCurrentValueExpression<TProperty>(
+                        entryParameter, propertyBase, useStoreGeneratedValues),
+                    entryParameter)
+                .Compile();
+        }
+
+        private static Func<InternalEntityEntry, TDeclaredProperty> CreateDeclaredCurrentValueGetter<TProperty, TDeclaredProperty>(
+            IPropertyBase propertyBase, bool useStoreGeneratedValues)
+        {
+            var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
+
+            return Expression.Lambda<Func<InternalEntityEntry, TDeclaredProperty>>(
+                    Expression.Convert(
+                        CreateCurrentValueExpression<TProperty>(
+                            entryParameter, propertyBase, useStoreGeneratedValues),
+                        typeof(TDeclaredProperty)),
+                    entryParameter)
+                .Compile();
+        }
+
+        private static Expression CreateCurrentValueExpression<TProperty>(
+            ParameterExpression entryParameter, IPropertyBase propertyBase, bool useStoreGeneratedValues)
+        {
+            var entityClrType = propertyBase.DeclaringType.ClrType;
 
             var shadowIndex = propertyBase.GetShadowIndex();
             Expression currentValueExpression;
@@ -120,34 +166,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     currentValueExpression);
             }
 
-            return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                    currentValueExpression,
-                    entryParameter)
-                .Compile();
+            return currentValueExpression;
         }
 
         private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)
         {
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
-            var originalValuesIndex = property.GetOriginalValueIndex();
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
-                    originalValuesIndex >= 0
-                        ? (Expression)Expression.Call(
-                            entryParameter,
-                            InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
-                            Expression.Constant(property),
-                            Expression.Constant(originalValuesIndex))
-                        : Expression.Block(
-                            Expression.Throw(
-                                Expression.Constant(
-                                    new InvalidOperationException(
-                                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
-#pragma warning disable IDE0034 // Simplify 'default' expression - default infer to default(object) instead of default(TProperty)
-                            Expression.Constant(default(TProperty), typeof(TProperty))),
-#pragma warning restore IDE0034 // Simplify 'default' expression
+                    CreateOriginalValueGetterExpression<TProperty>(entryParameter, property),
                     entryParameter)
                 .Compile();
+        }
+
+        private static Func<InternalEntityEntry, TDeclaredProperty> CreateDeclaredOriginalValueGetter<TProperty, TDeclaredProperty>(IProperty property)
+        {
+            var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
+
+            return Expression.Lambda<Func<InternalEntityEntry, TDeclaredProperty>>(
+                    Expression.Convert(
+                            CreateOriginalValueGetterExpression<TProperty>(entryParameter, property),
+                            typeof(TDeclaredProperty)),
+                    entryParameter)
+                .Compile();
+        }
+
+        private static Expression CreateOriginalValueGetterExpression<TProperty>(ParameterExpression entryParameter, IProperty property)
+        {
+            var originalValuesIndex = property.GetOriginalValueIndex();
+
+            return originalValuesIndex >= 0
+                ? (Expression)Expression.Call(
+                    entryParameter,
+                    InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
+                    Expression.Constant(property),
+                    Expression.Constant(originalValuesIndex))
+                : Expression.Block(
+                    Expression.Throw(
+                        Expression.Constant(
+                            new InvalidOperationException(
+                                CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                    Expression.Constant(default(TProperty), typeof(TProperty)));
         }
 
         private static Func<InternalEntityEntry, TProperty> CreateRelationshipSnapshotGetter<TProperty>(IPropertyBase propertyBase)

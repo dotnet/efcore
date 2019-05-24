@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
             ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+            DeclaredClrType = (customConverter?.ProviderClrType ?? property.DeclaredClrType).UnwrapNullableType();
             Scale = mappingHints?.Scale ?? fallbackScale;
             Precision = mappingHints?.Precision ?? fallbackPrecision;
         }
@@ -131,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale = null)
         {
             ClrType = type?.UnwrapNullableType();
+            DeclaredClrType = ClrType;
 
             IsKeyOrIndex = keyOrIndex;
             Size = size;
@@ -170,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Precision = precision ?? source.Precision ?? mappingHints?.Precision;
 
             ClrType = converter.ProviderClrType.UnwrapNullableType();
+            DeclaredClrType = source.DeclaredClrType;
         }
 
         /// <summary>
@@ -211,10 +214,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public int? Scale { get; }
 
         /// <summary>
-        ///     The CLR type in the model. May be null if type information is conveyed via other means
-        ///     (e.g. the store name in a relational type mapping info)
+        ///     The CLR type used to store the property in the model. This may be the backing field type.
+        ///     May be null if type information is conveyed via other means (e.g. the store name in a relational type mapping info)
         /// </summary>
         public Type ClrType { get; }
+
+        /// <summary>
+        ///     The CLR type of the property, which may be different from <see cref="ClrType"/> if a backing field of
+        ///     a different type is used.
+        ///     May be null if type information is conveyed via other means (e.g. the store name in a relational type mapping info)
+        /// </summary>
+        public Type DeclaredClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -223,6 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
+               && DeclaredClrType == other.DeclaredClrType
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
                && IsUnicode == other.IsUnicode
@@ -247,6 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override int GetHashCode()
         {
             var hashCode = ClrType?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ (DeclaredClrType?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);

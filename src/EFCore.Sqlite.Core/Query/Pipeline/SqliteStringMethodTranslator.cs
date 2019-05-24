@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -57,11 +58,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
         private const char LikeEscapeChar = '\\';
 
-        public SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteStringMethodTranslator(
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -69,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             if (_indexOfMethodInfo.Equals(method))
             {
                 var argument = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, argument);
 
                 return _sqlExpressionFactory.Subtract(
                     _sqlExpressionFactory.Function(
@@ -87,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             {
                 var firstArgument = arguments[0];
                 var secondArgument = arguments[1];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, firstArgument, secondArgument);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, firstArgument, secondArgument);
 
                 return _sqlExpressionFactory.Function(
                     "replace",
@@ -161,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             if (_containsMethodInfo.Equals(method))
             {
                 var pattern = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, pattern);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
@@ -193,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         private SqlExpression TranslateStartsEndsWith(SqlExpression instance, SqlExpression pattern, bool startsWith)
         {
-            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, pattern);
 
             instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
             pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);

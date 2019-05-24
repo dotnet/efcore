@@ -10,6 +10,7 @@ using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
@@ -49,13 +50,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
 
         public SqlServerGeometryMethodTranslator(
             IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -64,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             {
                 var geometryExpressions = new[] { instance }.Concat(
                     arguments.Where(e => typeof(IGeometry).IsAssignableFrom(e.Type)));
-                var typeMapping = ExpressionExtensions.InferTypeMapping(geometryExpressions.ToArray());
+                var typeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, geometryExpressions.ToArray());
 
                 Debug.Assert(typeMapping != null, "At least one argument must have typeMapping.");
                 var storeType = typeMapping.StoreType;

@@ -27,7 +27,22 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class User2 : IUser2
         {
+            private object _loginSessionId;
+            private object _loginSessionId2;
+
             public int Id { get; set; }
+
+            public int? LoginSessionId
+            {
+                get => (int?)_loginSessionId;
+                set => _loginSessionId = value;
+            }
+
+            public int? LoginSessionId2
+            {
+                get => (int?)_loginSessionId2;
+                set => _loginSessionId2 = value;
+            }
         }
 
         protected class LoginSession
@@ -1883,7 +1898,14 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
-                modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
+                modelBuilder.Entity<LoginSession>(
+                    b =>
+                    {
+                        b.UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                        b.HasOne(e => e.User).WithOne().HasForeignKey<User2>(e => e.LoginSessionId);
+                        b.HasMany(e => e.Users).WithOne().HasForeignKey(e => e.LoginSessionId2);
+                    });
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {

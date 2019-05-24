@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static readonly Type[] _charPreferred = { typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
 
-        private static readonly Type[] _numerics = { typeof(int), typeof(long), typeof(short), typeof(byte), typeof(ulong), typeof(uint), typeof(ushort), typeof(sbyte), typeof(decimal), typeof(double), typeof(float) };
+        private static readonly Type[] _numerics = { typeof(int), typeof(long), typeof(short), typeof(byte), typeof(ulong), typeof(uint), typeof(ushort), typeof(sbyte), typeof(decimal), typeof(double), typeof(float), typeof(char) };
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.
@@ -71,6 +71,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
             var underlyingModelType = modelClrType.UnwrapNullableType();
             var underlyingProviderType = providerClrType?.UnwrapNullableType();
+
+            if (underlyingModelType == typeof(object)
+                && underlyingProviderType != null
+                && underlyingProviderType != typeof(object))
+            {
+                yield return _converters.GetOrAdd(
+                    (typeof(object), underlyingProviderType),
+                    k => (ValueConverterInfo)typeof(CastingConverter<,>)
+                        .MakeGenericType(typeof(object), k.ProviderClrType)
+                        .GetAnyProperty("DefaultInfo")
+                        .GetValue(null));
+            }
 
             if (underlyingModelType.IsEnum)
             {
@@ -166,6 +178,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             .GetAnyProperty("DefaultInfo")
                             .GetValue(null));
                 }
+                else if (underlyingProviderType == typeof(char))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(char)),
+                        k => StringToCharConverter.DefaultInfo);
+                }
                 else if (_numerics.Contains(underlyingProviderType))
                 {
                     foreach (var converterInfo in FindNumericConventions(
@@ -206,12 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(bool)),
                         k => StringToBoolConverter.DefaultInfo);
-                }
-                else if (underlyingProviderType == typeof(char))
-                {
-                    yield return _converters.GetOrAdd(
-                        (underlyingModelType, typeof(char)),
-                        k => StringToCharConverter.DefaultInfo);
                 }
             }
             else if (underlyingModelType == typeof(DateTime)
@@ -266,7 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                      && (underlyingProviderType == null
                          || underlyingProviderType == typeof(byte[])
                          || underlyingProviderType == typeof(string)
-                         || _numerics.Contains(underlyingProviderType)))
+                         || _numerics.Contains(underlyingProviderType)
+                         || underlyingProviderType.IsEnum))
             {
                 foreach (var converterInfo in FindNumericConventions(
                     underlyingModelType,
@@ -476,6 +489,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             .GetAnyProperty("DefaultInfo")
                             .GetValue(null));
                 }
+            }
+
+            if (_numerics.Contains(modelType)
+                && providerType != null
+                && providerType.IsEnum)
+            {
+                yield return _converters.GetOrAdd(
+                    (modelType, providerType),
+                    k => (ValueConverterInfo)typeof(CastingConverter<,>)
+                        .MakeGenericType(k.ModelClrType, k.ProviderClrType)
+                        .GetAnyProperty("DefaultInfo")
+                        .GetValue(null));
             }
         }
 

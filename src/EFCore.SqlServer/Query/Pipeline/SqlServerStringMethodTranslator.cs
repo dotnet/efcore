@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -49,12 +50,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
 
         private const char LikeEscapeChar = '\\';
 
-        public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerStringMethodTranslator(
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -62,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             if (_indexOfMethodInfo.Equals(method))
             {
                 var argument = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, argument);
                 argument = _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping);
 
                 var charIndexExpression = _sqlExpressionFactory.Subtract(
@@ -92,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             {
                 var firstArgument = arguments[0];
                 var secondArgument = arguments[1];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, firstArgument, secondArgument);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, firstArgument, secondArgument);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 firstArgument = _sqlExpressionFactory.ApplyTypeMapping(firstArgument, stringTypeMapping);
@@ -215,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             if (_containsMethodInfo.Equals(method))
             {
                 var pattern = arguments[0];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, pattern);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
@@ -251,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         private SqlExpression TranslateStartsEndsWith(SqlExpression instance, SqlExpression pattern, bool startsWith)
         {
-            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
+            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, instance, pattern);
 
             instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
             pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);

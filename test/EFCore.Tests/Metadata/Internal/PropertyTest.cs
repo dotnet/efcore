@@ -46,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
+            public Type DeclaredClrType { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
-            public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }

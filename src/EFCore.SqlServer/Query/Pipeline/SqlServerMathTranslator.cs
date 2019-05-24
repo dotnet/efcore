@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -61,10 +62,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) })
         };
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
 
-        public SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerMathTranslator(
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -72,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             if (_supportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
             {
                 var typeMapping = arguments.Count == 1
-                    ? ExpressionExtensions.InferTypeMapping(arguments[0])
-                    : ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
+                    ? ExpressionExtensions.InferTypeMapping(_valueConverterSelector, arguments[0])
+                    : ExpressionExtensions.InferTypeMapping(_valueConverterSelector, arguments[0], arguments[1]);
 
                 var newArguments = new SqlExpression[arguments.Count];
                 newArguments[0] = _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping);

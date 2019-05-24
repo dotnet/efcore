@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -38,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             return new ProjectionMember(existingChain);
         }
+
+        public Type MemberType => _memberChain.LastOrDefault()?.GetMemberType();
 
         public override int GetHashCode()
         {

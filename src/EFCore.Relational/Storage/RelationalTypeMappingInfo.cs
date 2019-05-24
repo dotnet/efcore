@@ -214,9 +214,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public bool? IsRowVersion => _coreTypeMappingInfo.IsRowVersion;
 
         /// <summary>
-        ///     The CLR type in the model.
+        ///     The CLR type used to store the property in the model. This may be the backing field type.
+        ///     May be null if type information is conveyed via other means (e.g. the store name in a relational type mapping info)
         /// </summary>
         public Type ClrType => _coreTypeMappingInfo.ClrType;
+
+        /// <summary>
+        ///     The CLR type of the property, which may be different from <see cref="ClrType"/> if a backing field of
+        ///     a different type is used.
+        ///     May be null if type information is conveyed via other means (e.g. the store name in a relational type mapping info)
+        /// </summary>
+        public Type DeclaredClrType => _coreTypeMappingInfo.DeclaredClrType;
 
         /// <summary>
         ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.

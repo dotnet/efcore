@@ -163,12 +163,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
                 }
 
-                arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
-                    ? Expression.Call(
-                        null,
-                        _snapshotCollectionMethod,
-                        memberAccess)
-                    : CreateSnapshotValueExpression(memberAccess, propertyBase);
+                if (propertyBase is INavigation navigation
+                    && navigation.IsCollection())
+                {
+                    if (!typeof(IEnumerable<object>).IsAssignableFrom(memberAccess.Type))
+                    {
+                        memberAccess = Expression.Convert(memberAccess, typeof(IEnumerable<object>));
+                    }
+
+                    arguments[i] = Expression.Call(null, _snapshotCollectionMethod, memberAccess);
+                }
+                else
+                {
+                    arguments[i] = CreateSnapshotValueExpression(memberAccess, propertyBase);
+                }
             }
 
             var constructorExpression = Expression.Convert(

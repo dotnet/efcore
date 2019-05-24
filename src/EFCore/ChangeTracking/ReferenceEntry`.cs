@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual TProperty CurrentValue
         {
-            get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
+            get => this.GetInfrastructure().GetDeclaredCurrentValue<TProperty>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -232,11 +233,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 }
             };
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
 
         public SqlServerDateDiffFunctionsTranslator(
-            ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -245,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             {
                 var startDate = arguments[1];
                 var endDate = arguments[2];
-                var typeMapping = ExpressionExtensions.InferTypeMapping(startDate, endDate);
+                var typeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, startDate, endDate);
 
                 startDate = _sqlExpressionFactory.ApplyTypeMapping(startDate, typeMapping);
                 endDate = _sqlExpressionFactory.ApplyTypeMapping(endDate, typeMapping);

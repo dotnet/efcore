@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -43,10 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IValueConverterSelector _valueConverterSelector;
 
-        public SqliteMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteMathTranslator(
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _valueConverterSelector = valueConverterSelector;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
@@ -58,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
                 if (string.Equals(sqlFunctionName, "max")
                     || string.Equals(sqlFunctionName, "max"))
                 {
-                    typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
+                    typeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, arguments[0], arguments[1]);
                     newArguments = new List<SqlExpression>
                     {
                         _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping),

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 typeof(BoolToZeroOneConverter<TProvider>),
                 typeof(int), typeof(short), typeof(long), typeof(sbyte),
                 typeof(uint), typeof(ushort), typeof(ulong), typeof(byte),
-                typeof(decimal), typeof(double), typeof(float));
+                typeof(decimal), typeof(double), typeof(float), typeof(char));
 
             return Activator.CreateInstance<TProvider>();
         }
@@ -67,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                                                     ? (double)1
                                                     : type == typeof(float)
                                                         ? (float)1
-                                                        : (object)1);
+                                                        : type == typeof(char)
+                                                            ? (char)1
+                                                            : (object)1);
         }
     }
 }

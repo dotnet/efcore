@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -10,16 +11,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     {
         public SqlServerMethodCallTranslatorProvider(
             ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector,
             IEnumerable<IMethodCallTranslatorPlugin> plugins)
             : base(sqlExpressionFactory, plugins)
         {
             AddTranslators(new IMethodCallTranslator[]
             {
-                new SqlServerMathTranslator(sqlExpressionFactory),
+                new SqlServerMathTranslator(sqlExpressionFactory, valueConverterSelector),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
-                new SqlServerStringMethodTranslator(sqlExpressionFactory),
+                new SqlServerStringMethodTranslator(sqlExpressionFactory, valueConverterSelector),
                 new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
-                new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
+                new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory, valueConverterSelector),
                 new SqlServerConvertTranslator(sqlExpressionFactory),
                 new SqlServerObjectToStringTranslator(sqlExpressionFactory),
                 new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),

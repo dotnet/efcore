@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreStrings.ConverterBadType(
                     typeof(EnumToNumberConverter<Beatles, Guid>).ShortDisplayName(),
                     "Guid",
-                    "int, long, short, byte, uint, ulong, ushort, sbyte, double, float, decimal"),
+                    "int, long, short, byte, uint, ulong, ushort, sbyte, double, float, decimal, char"),
                 Assert.Throws<InvalidOperationException>(
                     () => new EnumToNumberConverter<Beatles, Guid>()).Message);
         }

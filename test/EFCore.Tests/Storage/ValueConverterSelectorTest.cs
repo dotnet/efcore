@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Queen, ushort>), default),
                 (typeof(EnumToNumberConverter<Queen, sbyte>), default),
                 (typeof(EnumToNumberConverter<Queen, double>), default),
-                (typeof(EnumToNumberConverter<Queen, float>), default));
+                (typeof(EnumToNumberConverter<Queen, float>), default),
+                (typeof(EnumToNumberConverter<Queen, char>), default));
         }
 
         [Fact]
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Gnr, ushort>), default),
                 (typeof(EnumToNumberConverter<Gnr, sbyte>), default),
                 (typeof(EnumToNumberConverter<Gnr, double>), default),
-                (typeof(EnumToNumberConverter<Gnr, float>), default));
+                (typeof(EnumToNumberConverter<Gnr, float>), default),
+                (typeof(EnumToNumberConverter<Gnr, char>), default));
         }
 
         [Fact]
@@ -72,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Velvets, ushort>), default),
                 (typeof(EnumToNumberConverter<Velvets, sbyte>), default),
                 (typeof(EnumToNumberConverter<Velvets, double>), default),
-                (typeof(EnumToNumberConverter<Velvets, float>), default));
+                (typeof(EnumToNumberConverter<Velvets, float>), default),
+                (typeof(EnumToNumberConverter<Velvets, char>), default));
         }
 
         [Fact]
@@ -92,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CompositeValueConverter<Nwa, byte, byte[]>), new ConverterMappingHints(size: 1)),
                 (typeof(EnumToNumberConverter<Nwa, sbyte>), default),
                 (typeof(EnumToNumberConverter<Nwa, double>), default),
-                (typeof(EnumToNumberConverter<Nwa, float>), default));
+                (typeof(EnumToNumberConverter<Nwa, float>), default),
+                (typeof(EnumToNumberConverter<Nwa, char>), default));
         }
 
         [Fact]
@@ -143,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<int, ushort>), default),
                 (typeof(CastingConverter<int, sbyte>), default),
                 (typeof(CastingConverter<int, double>), default),
-                (typeof(CastingConverter<int, float>), default));
+                (typeof(CastingConverter<int, float>), default),
+                (typeof(CastingConverter<int, char>), default));
         }
 
         [Fact]
@@ -162,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<uint, ushort>), default),
                 (typeof(CastingConverter<uint, sbyte>), default),
                 (typeof(CastingConverter<uint, double>), default),
-                (typeof(CastingConverter<uint, float>), default));
+                (typeof(CastingConverter<uint, float>), default),
+                (typeof(CastingConverter<uint, char>), default));
         }
 
         [Fact]
@@ -181,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<sbyte, uint>), default),
                 (typeof(CastingConverter<sbyte, ushort>), default),
                 (typeof(CastingConverter<sbyte, double>), default),
-                (typeof(CastingConverter<sbyte, float>), default));
+                (typeof(CastingConverter<sbyte, float>), default),
+                (typeof(CastingConverter<sbyte, char>), default));
         }
 
         [Fact]
@@ -200,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(NumberToBytesConverter<byte>), new ConverterMappingHints(size: 1)),
                 (typeof(CastingConverter<byte, sbyte>), default),
                 (typeof(CastingConverter<byte, double>), default),
-                (typeof(CastingConverter<byte, float>), default));
+                (typeof(CastingConverter<byte, float>), default),
+                (typeof(CastingConverter<byte, char>), default));
         }
 
         [Fact]
@@ -219,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<double, uint>), default),
                 (typeof(CastingConverter<double, ushort>), default),
                 (typeof(CastingConverter<double, sbyte>), default),
-                (typeof(CastingConverter<double, float>), default));
+                (typeof(CastingConverter<double, float>), default),
+                (typeof(CastingConverter<double, char>), default));
         }
 
         [Fact]
@@ -238,7 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<float, ulong>), default),
                 (typeof(CastingConverter<float, uint>), default),
                 (typeof(CastingConverter<float, ushort>), default),
-                (typeof(CastingConverter<float, sbyte>), default));
+                (typeof(CastingConverter<float, sbyte>), default),
+                (typeof(CastingConverter<float, char>), default));
         }
 
         [Fact]
@@ -257,7 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<decimal, ushort>), default),
                 (typeof(CastingConverter<decimal, sbyte>), default),
                 (typeof(CastingConverter<decimal, double>), default),
-                (typeof(CastingConverter<decimal, float>), default));
+                (typeof(CastingConverter<decimal, float>), default),
+                (typeof(CastingConverter<decimal, char>), default));
         }
 
         [Fact]
@@ -366,6 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(BoolToZeroOneConverter<decimal>), default),
                 (typeof(BoolToZeroOneConverter<double>), default),
                 (typeof(BoolToZeroOneConverter<float>), default),
+                (typeof(BoolToZeroOneConverter<char>), default),
                 (typeof(BoolToStringConverter), new ConverterMappingHints(size: 1)),
                 (typeof(CompositeValueConverter<bool, byte, byte[]>), new ConverterMappingHints(size: 1)));
         }

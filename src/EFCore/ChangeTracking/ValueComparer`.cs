@@ -113,9 +113,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 || unwrappedType == typeof(bool)
                 || unwrappedType == typeof(decimal)
                 || unwrappedType == typeof(double)
-                || unwrappedType == typeof(float)
-                || unwrappedType == typeof(object)
-            )
+                || unwrappedType == typeof(float))
             {
                 return Expression.Lambda<Func<T, T, bool>>(
                     Expression.Equal(param1, param2),

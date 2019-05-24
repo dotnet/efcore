@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -10,15 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
     {
         public SqliteMethodCallTranslatorProvider(
             ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector,
             IEnumerable<IMethodCallTranslatorPlugin> plugins)
             : base(sqlExpressionFactory, plugins)
         {
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
-                    new SqliteMathTranslator(sqlExpressionFactory),
+                    new SqliteMathTranslator(sqlExpressionFactory, valueConverterSelector),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
-                    new SqliteStringMethodTranslator(sqlExpressionFactory),
+                    new SqliteStringMethodTranslator(sqlExpressionFactory, valueConverterSelector),
                 });
         }
     }

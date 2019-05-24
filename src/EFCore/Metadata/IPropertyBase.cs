@@ -23,9 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ITypeBase DeclaringType { get; }
 
         /// <summary>
-        ///     Gets the type of value that this property holds.
+        ///     Gets the type of value that this property holds, which will be the type of the
+        ///     field for properties that are known to be backed by fields.
         /// </summary>
         Type ClrType { get; }
+
+        /// <summary>
+        ///     Gets the type that this property is declared as.
+        /// </summary>
+        Type DeclaredClrType { get; }
 
         /// <summary>
         ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property that this

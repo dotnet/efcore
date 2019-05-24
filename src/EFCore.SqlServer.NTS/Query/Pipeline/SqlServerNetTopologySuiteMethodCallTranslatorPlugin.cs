@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
@@ -30,12 +31,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerNetTopologySuiteMethodCallTranslatorPlugin(IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerNetTopologySuiteMethodCallTranslatorPlugin(
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IValueConverterSelector valueConverterSelector)
         {
             Translators = new IMethodCallTranslator[]
             {
-                new SqlServerGeometryMethodTranslator(typeMappingSource, sqlExpressionFactory),
+                new SqlServerGeometryMethodTranslator(typeMappingSource, sqlExpressionFactory, valueConverterSelector),
                 new SqlServerGeometryCollectionMethodTranslator(typeMappingSource, sqlExpressionFactory),
                 new SqlServerLineStringMethodTranslator(typeMappingSource, sqlExpressionFactory),
                 new SqlServerPolygonMethodTranslator(typeMappingSource, sqlExpressionFactory)

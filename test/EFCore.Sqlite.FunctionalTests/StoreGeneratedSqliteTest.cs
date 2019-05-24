@@ -82,6 +82,13 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                     });
 
+                modelBuilder.Entity<WithNullableBackingFields>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableBackedBool).HasDefaultValue(true);
+                        b.Property(e => e.NullableBackedInt).HasDefaultValue(-1);
+                    });
+
                 base.OnModelCreating(modelBuilder, context);
             }
         }

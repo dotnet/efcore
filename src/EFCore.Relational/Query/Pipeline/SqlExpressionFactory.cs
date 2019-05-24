@@ -7,17 +7,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class SqlExpressionFactory : ISqlExpressionFactory
     {
         private readonly IRelationalTypeMappingSource _typeMappingSource;
+        private readonly IValueConverterSelector _valueConverterSelector;
         private readonly RelationalTypeMapping _boolTypeMapping;
 
-        public SqlExpressionFactory(IRelationalTypeMappingSource typeMappingSource)
+        public SqlExpressionFactory(
+            IRelationalTypeMappingSource typeMappingSource,
+            IValueConverterSelector valueConverterSelector)
         {
             _typeMappingSource = typeMappingSource;
+            _valueConverterSelector = valueConverterSelector;
             _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool));
         }
 
@@ -75,8 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
         {
             var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(
-                likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar)
-                ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
+                                          _valueConverterSelector,
+                                          likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar)
+                                      ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
 
             return new LikeExpression(
                 ApplyTypeMapping(likeExpression.Match, inferredTypeMapping),
@@ -155,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                     {
-                        inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
+                        inferredTypeMapping = ExpressionExtensions.InferTypeMapping(_valueConverterSelector, left, right)
                             ?? _typeMappingSource.FindMapping(left.Type);
                         resultType = typeof(bool);
                         resultTypeMapping = _boolTypeMapping;
@@ -180,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case ExpressionType.And:
                 case ExpressionType.Or:
                     {
-                        inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
+                        inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(_valueConverterSelector, left, right);
                         resultType = left.Type;
                         resultTypeMapping = inferredTypeMapping;
                     }

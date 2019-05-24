@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
-            ClrType = propertyInfo?.PropertyType ?? fieldInfo?.FieldType;
+            DeclaredClrType = (propertyInfo ?? (MemberInfo)fieldInfo).GetMemberType();
+            ClrType = (fieldInfo ?? (MemberInfo)propertyInfo).GetMemberType();
             _configurationSource = configurationSource;
 
             Builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
@@ -80,6 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override Type ClrType { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override Type DeclaredClrType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
