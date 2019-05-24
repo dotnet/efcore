@@ -54,6 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 case LeftJoinExpression leftJoinExpression:
                     return VisitLeftJoinExpression(leftJoinExpression);
 
+                case SubSelectExpression subSelectExpression:
+                    var result = base.VisitExtension(subSelectExpression);
+                    _isNullable = true;
+
+                    return result;
+
                 default:
                     return base.VisitExtension(extensionExpression);
             }

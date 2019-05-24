@@ -4598,7 +4598,7 @@ LEFT JOIN [LevelTwo] AS [join.OneToOne_Optional_FK1] ON [l1].[Id] = [join.OneToO
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
-WHERE (
+WHERE ((
     SELECT TOP(1) (
         SELECT TOP(1) (
             SELECT TOP(1) [l0].[Name]
@@ -4609,10 +4609,21 @@ WHERE (
         WHERE [l1].[Level2_Required_Id] = [l2].[Id]
         ORDER BY [l1].[Id])
     FROM [LevelTwo] AS [l2]
-    WHERE [l2].[Level1_Optional_Id] = [l].[Id]
-    ORDER BY [l2].[Id]) <> N'Foo'
+    WHERE ([l2].[Level1_Optional_Id] = [l].[Id]) AND [l2].[Level1_Optional_Id] IS NOT NULL
+    ORDER BY [l2].[Id]) <> N'Foo') OR (
+    SELECT TOP(1) (
+        SELECT TOP(1) (
+            SELECT TOP(1) [l0].[Name]
+            FROM [LevelFour] AS [l0]
+            WHERE [l0].[Level3_Required_Id] = [l1].[Id]
+            ORDER BY [l0].[Id])
+        FROM [LevelThree] AS [l1]
+        WHERE [l1].[Level2_Required_Id] = [l2].[Id]
+        ORDER BY [l1].[Id])
+    FROM [LevelTwo] AS [l2]
+    WHERE ([l2].[Level1_Optional_Id] = [l].[Id]) AND [l2].[Level1_Optional_Id] IS NOT NULL
+    ORDER BY [l2].[Id]) IS NULL
 ORDER BY [l].[Id]");
-
         }
 
         public override void Member_pushdown_with_collection_navigation_in_the_middle()
@@ -4628,7 +4639,7 @@ ORDER BY [l].[Id]");
             WHERE [l].[Level3_Required_Id] = [l0].[Id]
             ORDER BY [l].[Id])
         FROM [LevelThree] AS [l0]
-        WHERE [l1].[Id] = [l0].[OneToMany_Optional_Inverse3Id])
+        WHERE ([l1].[Id] = [l0].[OneToMany_Optional_Inverse3Id]) AND [l0].[OneToMany_Optional_Inverse3Id] IS NOT NULL)
     FROM [LevelTwo] AS [l1]
     WHERE [l1].[Level1_Required_Id] = [l2].[Id]
     ORDER BY [l1].[Id])
@@ -4641,16 +4652,7 @@ ORDER BY [l2].[Id]");
             await base.Member_pushdown_with_multiple_collections(isAsync);
 
             AssertSql(
-                @"SELECT (
-    SELECT TOP(1) [l].[Name]
-    FROM [LevelThree] AS [l]
-    WHERE [l].[OneToMany_Optional_Inverse3Id] = (
-        SELECT TOP(1) [l0].[Id]
-        FROM [LevelTwo] AS [l0]
-        WHERE [l1].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
-        ORDER BY [l0].[Id])
-    ORDER BY [l].[Id])
-FROM [LevelOne] AS [l1]");
+                @"");
         }
 
         private void AssertSql(params string[] expected)

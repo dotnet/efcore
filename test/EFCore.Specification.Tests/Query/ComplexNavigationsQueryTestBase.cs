@@ -6256,7 +6256,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #15798")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Member_pushdown_with_multiple_collections(bool isAsync)
         {
