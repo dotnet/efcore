@@ -6062,7 +6062,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory(Skip = "issue #15848")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre(bool isAsync)
         {
@@ -6084,7 +6084,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory(Skip = "issue #15848")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_composite_key(bool isAsync)
         {
@@ -6096,7 +6096,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory(Skip = "issue #15848")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_other_orderbys(bool isAsync)
         {
@@ -6112,7 +6112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys(bool isAsync)
         {
@@ -6128,7 +6128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys_composite_key(bool isAsync)
         {
@@ -6144,7 +6144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.GearName1 + " " + e.GearName2);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys_inheritance(bool isAsync)
         {
@@ -6160,7 +6160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.GearName + " " + e.OfficerName);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys_outer_key_is_navigation(bool isAsync)
         {
@@ -6210,7 +6210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Nickname + " " + e.Note);
         }
 
-        [ConditionalTheory(Skip = "Issue #15588")]
+        [ConditionalTheory(Skip = "#15946")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys_inner_key_is_nested_navigation(bool isAsync)
         {

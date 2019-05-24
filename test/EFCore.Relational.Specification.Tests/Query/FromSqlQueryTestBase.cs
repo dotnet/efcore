@@ -955,6 +955,23 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
+        [Fact(Skip = "#15855")]
+        public virtual void Entity_equality_through_fromsql()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Order>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                    .Where(o => o.Customer == new Customer
+                     {
+                         CustomerID = "VINET"
+                     })
+                    .ToArray();
+
+                Assert.Equal(1, actual.Length);
+            }
+        }
+
         protected string NormalizeDelimetersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
