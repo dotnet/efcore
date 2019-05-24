@@ -168,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
                 // log warning suggesting to use Any() instead.
-                _queryCompilationContext.Logger
-                    .PossibleUnintendedCollectionNavigationNullComparisonWarning(properties);
+                //_queryCompilationContext.Logger
+                //    .PossibleUnintendedCollectionNavigationNullComparisonWarning(properties);
 
                 return Visit(
                     Expression.MakeBinary(

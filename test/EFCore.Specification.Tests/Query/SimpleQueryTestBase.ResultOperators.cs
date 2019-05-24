@@ -1749,7 +1749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact(Skip = "Issue#15588")]
+        [ConditionalFact]
         public virtual void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             using (var context = CreateContext())

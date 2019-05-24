@@ -199,6 +199,13 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ANATR'");
         }
 
+        public override async Task Entity_equality_local_inline_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_local_inline_composite_key(isAsync);
+
+            // TODO: AssertSql
+        }
+
         public override async Task Entity_equality_null(bool isAsync)
         {
             await base.Entity_equality_null(isAsync);
@@ -209,6 +216,16 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IS NULL");
         }
 
+        public override async Task Entity_equality_null_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_null_composite_key(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[ProductID]
+FROM [Order Details] AS [o]
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+        }
+
         public override async Task Entity_equality_not_null(bool isAsync)
         {
             await base.Entity_equality_not_null(isAsync);
@@ -217,6 +234,34 @@ WHERE [c].[CustomerID] IS NULL");
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IS NOT NULL");
+        }
+
+        public override async Task Entity_equality_not_null_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_not_null_composite_key(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[ProductID]
+FROM [Order Details] AS [o]
+WHERE CAST(1 AS bit) = CAST(1 AS bit)");
+        }
+
+        public override async Task Entity_equality_through_nested_anonymous_type_projection(bool isAsync)
+        {
+            await base.Entity_equality_through_nested_anonymous_type_projection(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[CustomerID] IS NOT NULL");
+        }
+
+        public override async Task Entity_equality_through_subquery(bool isAsync)
+        {
+            await base.Entity_equality_through_subquery(isAsync);
+
+            // TODO:
         }
 
         public override async Task Queryable_reprojection(bool isAsync)

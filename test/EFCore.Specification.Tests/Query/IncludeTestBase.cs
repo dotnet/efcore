@@ -4099,7 +4099,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15588")]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         public virtual async Task Include_empty_reference_sets_IsLoaded(bool useString, bool async)
