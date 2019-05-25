@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -291,7 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 else
                 {
                     expressions.Add(Expression.Condition(
-                        primaryKey.Properties
+                        (primaryKey != null
+                            ? primaryKey.Properties
+                            : entityType.GetProperties())
                                 .Select(p =>
                                     Expression.Equal(
                                         _entityMaterializerSource.CreateReadValueExpression(
@@ -301,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                             p),
                                         Expression.Constant(null)))
                                     .Aggregate((a, b) => Expression.OrElse(a, b)),
-                        Expression.Constant(null, entityType.ClrType),
-                        MaterializeEntity(entityType, valueBuffer)));
+                            Expression.Constant(null, entityType.ClrType),
+                            MaterializeEntity(entityType, valueBuffer)));
                 }
 
                 return Expression.Block(variables, expressions);
@@ -311,9 +314,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             private Expression MaterializeEntity(IEntityType entityType, Expression valueBuffer)
             {
                 var expressions = new List<Expression>();
+                var variables = new List<ParameterExpression>();
+                var returnType = entityType.ClrType;
+                var valueBufferConstructor
+                    = typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1);
 
-                var materializationContext = Expression.Variable(typeof(MaterializationContext), "materializationContext" + _currentEntityIndex);
+                var materializationContext = Expression.Variable(
+                    typeof(MaterializationContext), "materializationContext" + _currentEntityIndex);
 
+                variables.Add(materializationContext);
                 expressions.Add(
                     Expression.Assign(
                         materializationContext,
@@ -324,75 +333,130 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 QueryCompilationContext2.QueryContextParameter,
                                 _dbContextMemberInfo))));
 
-                var materializationExpression
-                    = _entityMaterializerSource.CreateMaterializeExpression(
-                        entityType,
-                        "instance" + _currentEntityIndex,
-                        materializationContext);
+                var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
 
-                if (materializationExpression is BlockExpression blockExpression)
+                Expression materializationExpression = null;
+                Expression shadowValuesExpression = Expression.Constant(ValueBuffer.Empty);
+                if (concreteEntityTypes.Count == 1)
                 {
-                    expressions.AddRange(blockExpression.Expressions.Take(blockExpression.Expressions.Count - 1));
+                    materializationExpression
+                        = _entityMaterializerSource.CreateMaterializeExpression(
+                            concreteEntityTypes[0],
+                            "instance" + _currentEntityIndex,
+                            materializationContext);
 
                     if (_trackQueryResults)
                     {
-                        expressions.Add(
-                            Expression.Call(
-                                QueryCompilationContext2.QueryContextParameter,
-                                _startTrackingMethodInfo,
-                                Expression.Constant(entityType),
-                                blockExpression.Expressions.Last(),
-                                Expression.New(
-                                    typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1),
-                                    Expression.NewArrayInit(
+                        var shadowProperties = concreteEntityTypes[0].GetProperties().Where(p => p.IsShadowProperty());
+                        if (shadowProperties.Any())
+                        {
+                            shadowValuesExpression = Expression.New(
+                                valueBufferConstructor,
+                                Expression.NewArrayInit(
+                                    typeof(object),
+                                    shadowProperties.Select(p => _entityMaterializerSource.CreateReadValueExpression(
+                                        valueBuffer,
                                         typeof(object),
-                                        entityType.GetProperties().Where(p => p.IsShadowProperty())
-                                            .Select(p => _entityMaterializerSource.CreateReadValueExpression(
-                                                valueBuffer,
-                                                typeof(object),
-                                                p.GetIndex(),
-                                                p))))));
+                                        p.GetIndex(),
+                                        p))));
+                        }
                     }
-
-                    expressions.Add(blockExpression.Expressions.Last());
-
-                    return Expression.Block(
-                        entityType.ClrType,
-                        new[] { materializationContext }.Concat(blockExpression.Variables),
-                        expressions);
                 }
                 else
                 {
-                    var instanceVariable = Expression.Variable(materializationExpression.Type, "instance" + _currentEntityIndex);
-                    expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
+                    var firstEntityType = concreteEntityTypes[0];
+                    var discriminatorProperty = firstEntityType.GetDiscriminatorProperty();
+                    var discriminatorValueVariable = Expression.Variable(discriminatorProperty.ClrType);
+                    variables.Add(discriminatorValueVariable);
 
-                    if (_trackQueryResults)
+                    expressions.Add(
+                        Expression.Assign(
+                            discriminatorValueVariable,
+                            _entityMaterializerSource.CreateReadValueExpression(
+                                valueBuffer,
+                                discriminatorProperty.ClrType,
+                                discriminatorProperty.GetIndex(),
+                                discriminatorProperty)));
+
+                    materializationExpression = Expression.Block(
+                        Expression.Throw(
+                            Expression.Constant(new InvalidOperationException(/*RelationalStrings.UnableToDiscriminate(entityType.DisplayName())*/))),
+                        Expression.Constant(null, returnType));
+
+                    foreach (var concreteEntityType in concreteEntityTypes)
                     {
-                        expressions.Add(
-                            Expression.Call(
-                                QueryCompilationContext2.QueryContextParameter,
-                                _startTrackingMethodInfo,
-                                Expression.Constant(entityType),
-                                instanceVariable,
-                                Expression.New(
-                                    typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1),
+                        var discriminatorValue
+                            = Expression.Constant(
+                                concreteEntityType.GetDiscriminatorValue(),
+                                discriminatorProperty.ClrType);
+
+                        var materializer = _entityMaterializerSource
+                            .CreateMaterializeExpression(concreteEntityType, "instance", materializationContext);
+
+                        materializationExpression = Expression.Condition(
+                            Expression.Equal(discriminatorValueVariable, discriminatorValue),
+                            Expression.Convert(materializer, returnType),
+                            materializationExpression);
+
+                        if (_trackQueryResults)
+                        {
+                            var shadowProperties = concreteEntityType.GetProperties().Where(p => p.IsShadowProperty());
+                            var shadowValues = shadowProperties.Any()
+                                ? Expression.New(
+                                    valueBufferConstructor,
                                     Expression.NewArrayInit(
                                         typeof(object),
-                                        entityType.GetProperties().Where(p => p.IsShadowProperty())
-                                            .Select(p => _entityMaterializerSource.CreateReadValueExpression(
-                                                valueBuffer,
-                                                typeof(object),
-                                                p.GetIndex(),
-                                                p))))));
+                                        shadowProperties.Select(p => _entityMaterializerSource.CreateReadValueExpression(
+                                            valueBuffer,
+                                            typeof(object),
+                                            p.GetIndex(),
+                                            p))))
+                                : (Expression)Expression.Constant(ValueBuffer.Empty);
+
+                            shadowValuesExpression = Expression.Condition(
+                                    Expression.Equal(discriminatorValueVariable, discriminatorValue),
+                                    shadowValues,
+                                    shadowValuesExpression);
+
+                        }
                     }
-
-                    expressions.Add(instanceVariable);
-
-                    return Expression.Block(
-                        entityType.ClrType,
-                        new[] { materializationContext, instanceVariable },
-                        expressions);
                 }
+
+                Expression result;
+                if (materializationExpression is BlockExpression blockExpression)
+                {
+                    expressions.AddRange(blockExpression.Expressions.Take(blockExpression.Expressions.Count - 1));
+                    variables.AddRange(blockExpression.Variables);
+                    result = blockExpression.Expressions.Last();
+                }
+                else
+                {
+                    // Possible expressions are
+                    // NewExpression when only ctor initialization
+                    // MethodCallExpression when using factory method to create entityType
+                    var instanceVariable = Expression.Variable(returnType, "instance" + _currentEntityIndex);
+                    variables.Add(instanceVariable);
+                    expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
+                    result = instanceVariable;
+                }
+
+                if (_trackQueryResults)
+                {
+                    expressions.Add(
+                        Expression.Call(
+                            QueryCompilationContext2.QueryContextParameter,
+                            _startTrackingMethodInfo,
+                            Expression.Constant(entityType),
+                            result,
+                            shadowValuesExpression));
+                }
+
+                expressions.Add(result);
+
+                return Expression.Block(
+                    returnType,
+                    variables,
+                    expressions);
             }
         }
     }

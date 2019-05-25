@@ -12,10 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         #region Fields & Constructors
         public FromSqlExpression(
             [NotNull] string sql,
+            Expression arguments,
             [NotNull] string alias)
             : base(alias)
         {
             Sql = sql;
+            Arguments = arguments;
         }
         #endregion
 
@@ -28,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         ///     The SQL.
         /// </value>
         public string Sql { get; }
+        public Expression Arguments { get; }
 
         #endregion
 

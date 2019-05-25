@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_int_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -82,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_nullable_int_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -115,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_string_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -149,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_composite_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -182,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_base_type_not_in_store()
         {
             using (var context = CreateContext())
@@ -217,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Returns_null_for_derived_type_not_in_store()
         {
             using (var context = CreateContext())
@@ -226,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Find_base_type_using_derived_set_tracked()
         {
             using (var context = CreateContext())
@@ -241,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Find_base_type_using_derived_set_from_store()
         {
             using (var context = CreateContext())
@@ -265,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual void Find_derived_using_base_set_type_from_store()
         {
             using (var context = CreateContext())
@@ -298,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual void Returns_null_for_shadow_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -415,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_int_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -448,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_nullable_int_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -481,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_string_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -548,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_base_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -581,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_derived_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -616,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "TaskList#21")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_base_type_using_derived_set_from_store_async()
         {
             using (var context = CreateContext())
@@ -640,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_derived_using_base_set_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -664,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#15535")]
         public virtual async Task Find_shadow_key_from_store_async()
         {
             using (var context = CreateContext())

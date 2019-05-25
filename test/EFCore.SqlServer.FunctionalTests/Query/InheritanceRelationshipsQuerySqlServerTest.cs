@@ -5,8 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // TODO: Issue#14630#21
-    internal class InheritanceRelationshipsQuerySqlServerTest
+    public class InheritanceRelationshipsQuerySqlServerTest
         : InheritanceRelationshipsQueryTestBase<InheritanceRelationshipsQuerySqlServerFixture>
     {
         public InheritanceRelationshipsQuerySqlServerTest(

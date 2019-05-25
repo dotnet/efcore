@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -498,6 +501,71 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null)
         {
             return new SqlConstantExpression(Expression.Constant(value), typeMapping);
+        }
+
+        public SelectExpression Select(SqlExpression projection)
+        {
+            var selectExpression = new SelectExpression(
+                alias: null,
+                new List<ProjectionExpression>(),
+                new List<TableExpressionBase>(),
+                new List<OrderingExpression>());
+
+            if (projection != null)
+            {
+                selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+                {
+                    { new ProjectionMember(), projection }
+                });
+            }
+
+            return selectExpression;
+        }
+
+        public SelectExpression Select(IEntityType entityType)
+        {
+            var selectExpression = new SelectExpression(entityType);
+            AddDiscriminator(selectExpression, entityType);
+
+            return selectExpression;
+        }
+
+        public SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments)
+        {
+            var selectExpression = new SelectExpression(entityType, sql, sqlArguments);
+            AddDiscriminator(selectExpression, entityType);
+
+            return selectExpression;
+        }
+
+        private void AddDiscriminator(SelectExpression selectExpression, IEntityType entityType)
+        {
+            var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
+
+            if (concreteEntityTypes.Count == 1)
+            {
+                var concreteEntityType = concreteEntityTypes[0];
+                // If not a derived type
+                if (concreteEntityType.RootType() == concreteEntityType)
+                {
+                    return;
+                }
+
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetProjectionExpression(new ProjectionMember()))
+                    .GetProperty(concreteEntityType.GetDiscriminatorProperty());
+
+                selectExpression.ApplyPredicate(
+                    Equal(discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
+
+            }
+            else
+            {
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetProjectionExpression(new ProjectionMember()))
+                    .GetProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
+
+                selectExpression.ApplyPredicate(
+                    In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));
+            }
         }
 
         #endregion

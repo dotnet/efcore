@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private static Expression IsNotNull(IProperty property, SelectExpression selectExpression, IQuerySource querySource)
         {
-            var column = selectExpression.BindProperty(property, querySource);            
+            var column = selectExpression.BindProperty(property, querySource);
             var nullableColumn = column.Type.IsNullableType() ? column : new NullableExpression(column);
             return Expression.Not(new IsNullExpression(nullableColumn));
         }

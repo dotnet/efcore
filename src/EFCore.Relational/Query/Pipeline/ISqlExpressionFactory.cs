@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -76,6 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar = null);
         SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null);
         SqlFragmentExpression Fragment(string sql);
+
+        SelectExpression Select(SqlExpression projection);
+        SelectExpression Select(IEntityType entityType);
+        SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments);
+
         #endregion
     }
 }

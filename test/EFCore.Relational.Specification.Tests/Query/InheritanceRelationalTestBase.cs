@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [Fact]
+        [Fact(Skip = "Issue#15704")]
         public virtual void FromSql_on_root()
         {
             using (var context = CreateContext())
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue#15704")]
         public virtual void FromSql_on_derived()
         {
             using (var context = CreateContext())

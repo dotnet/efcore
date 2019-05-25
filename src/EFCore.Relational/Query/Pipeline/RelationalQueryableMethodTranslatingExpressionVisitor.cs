@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 translation = _sqlExpressionFactory.Exists(selectExpression, true);
-                source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
+                source.QueryExpression = _sqlExpressionFactory.Select(translation);
                 source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
                 return source;
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var translation = _sqlExpressionFactory.Exists(selectExpression, false);
-            source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
+            source.QueryExpression = _sqlExpressionFactory.Select(translation);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
             return source;
@@ -158,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 selectExpression.ApplyProjection();
                 translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-                source.QueryExpression = selectExpression.SetProjectionAsResult(translation);
+                source.QueryExpression = _sqlExpressionFactory.Select(translation);
                 source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
 
                 return source;
@@ -512,7 +513,53 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
 
-        protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
+        {
+            if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+            {
+                var entityType = entityShaperExpression.EntityType;
+                if (entityType.ClrType == resultType)
+                {
+                    return source;
+                }
+
+                var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+                if (baseType != null)
+                {
+                    source.ShaperExpression = new EntityShaperExpression(
+                        baseType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
+
+                    return source;
+                }
+
+                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
+                if (derivedType != null)
+                {
+                    var selectExpression = (SelectExpression)source.QueryExpression;
+                    var concreteEntityTypes = derivedType.GetConcreteTypesInHierarchy().ToList();
+                    var discriminatorColumn = selectExpression
+                        .BindProperty(entityShaperExpression.ValueBufferExpression, entityType.GetDiscriminatorProperty());
+
+                    var predicate = concreteEntityTypes.Count == 1
+                        ? _sqlExpressionFactory.Equal(discriminatorColumn,
+                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        : (SqlExpression)_sqlExpressionFactory.In(discriminatorColumn,
+                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue())),
+                            negated: false);
+
+                    selectExpression.ApplyPredicate(predicate);
+
+                    source.ShaperExpression = new EntityShaperExpression(
+                        derivedType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
+
+                    return source;
+                }
+
+                // If the resultType is not part of hierarchy then we don't know how to materialize.
+            }
+
+            throw new NotImplementedException();
+        }
 
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
