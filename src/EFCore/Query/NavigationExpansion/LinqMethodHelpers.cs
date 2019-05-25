@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
     public static class LinqMethodHelpers
     {
+        public static MethodInfo AsQueryable { get; private set; }
+
         public static MethodInfo QueryableWhereMethodInfo { get; private set; }
         public static MethodInfo QueryableSelectMethodInfo { get; private set; }
         public static MethodInfo QueryableOrderByMethodInfo { get; private set; }
@@ -91,6 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         static LinqMethodHelpers()
         {
             var queryableMethods = typeof(Queryable).GetMethods().ToList();
+            var enumerableMethods = typeof(Enumerable).GetMethods().ToList();
+
+            AsQueryable = queryableMethods.Where(m => m.Name == nameof(Queryable.AsQueryable) && m.IsGenericMethod).Single();
 
             QueryableWhereMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Where) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
             QueryableSelectMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Select) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
@@ -137,8 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 
             QueryableDefaultIfEmpty = queryableMethods.Where(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Count() == 1).Single();
             QueryableDefaultIfEmptyWithDefaultValue = queryableMethods.Where(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Count() == 2).Single();
-
-            var enumerableMethods = typeof(Enumerable).GetMethods().ToList();
 
             EnumerableWhereMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Where) && IsFunc(m.GetParameters()[1].ParameterType, 1)).Single();
             EnumerableSelectMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Select) && IsFunc(m.GetParameters()[1].ParameterType, 1)).Single();

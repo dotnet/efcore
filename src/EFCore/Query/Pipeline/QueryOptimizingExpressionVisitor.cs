@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             query = new NavigationExpander(_queryCompilationContext.Model).ExpandNavigations(query);
             query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
-            query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new FunctionPreprocessingVisitor().Visit(query);
             new EnumerableVerifyingExpressionVisitor().Visit(query);

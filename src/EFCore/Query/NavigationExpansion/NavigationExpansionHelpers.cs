@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
@@ -54,6 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     materializeCollectionNavigation),
                 materializeCollectionNavigation?.ClrType ?? operand.Type);
         }
+
+        private static MethodInfo _leftJoinMethodInfo = typeof(EntityQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(EntityQueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
 
         public static (Expression source, ParameterExpression parameter) AddNavigationJoin(
             Expression sourceExpression,
@@ -119,145 +123,59 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     innerKeySelectorParameter);
 
                 var oldParameterExpression = parameterExpression;
-                if (navigationTree.Optional)
+
+                if (!sourceExpression.Type.IsQueryableType())
                 {
-                    var groupingType = typeof(IEnumerable<>).MakeGenericType(navigationTargetEntityType.ClrType);
-                    var groupJoinResultType = typeof(TransparentIdentifier<,>).MakeGenericType(sourceType, groupingType);
+                    var asQueryableMethodInfo = LinqMethodHelpers.AsQueryable.MakeGenericMethod(sourceType);
+                    sourceExpression = Expression.Call(asQueryableMethodInfo, sourceExpression);
+                }
 
-                    var groupJoinMethodInfo = sourceExpression.Type.IsQueryableType()
-                        ? LinqMethodHelpers.QueryableGroupJoinMethodInfo
-                        : LinqMethodHelpers.EnumerableGroupJoinMethodInfo;
-
-                    groupJoinMethodInfo = groupJoinMethodInfo.MakeGenericMethod(
+                var joinMethodInfo = navigationTree.Optional
+                    ? _leftJoinMethodInfo.MakeGenericMethod(
                         sourceType,
                         navigationTargetEntityType.ClrType,
                         outerKeySelector.Body.Type,
-                        groupJoinResultType);
-
-                    var resultSelectorOuterParameterName = outerParameter.Name;
-                    var resultSelectorOuterParameter = Expression.Parameter(sourceType, resultSelectorOuterParameterName);
-
-                    var resultSelectorInnerParameterName = innerKeySelectorParameter.Name;
-                    var resultSelectorInnerParameter = Expression.Parameter(groupingType, resultSelectorInnerParameterName);
-
-                    var groupJoinResultTransparentIdentifierCtorInfo
-                        = groupJoinResultType.GetTypeInfo().GetConstructors().Single();
-
-                    var groupJoinResultTransparentIdentifierOuterMemberInfo = groupJoinResultType.GetTypeInfo().GetDeclaredField("Outer");
-                    var groupJoinResultTransparentIdentifierInnerMemberInfo = groupJoinResultType.GetTypeInfo().GetDeclaredField("Inner");
-
-                    var groupJoinResultSelector = Expression.Lambda(
-                        Expression.New(
-                            groupJoinResultTransparentIdentifierCtorInfo,
-                            new[] { resultSelectorOuterParameter, resultSelectorInnerParameter },
-                            new[] { groupJoinResultTransparentIdentifierOuterMemberInfo, groupJoinResultTransparentIdentifierInnerMemberInfo }),
-                        resultSelectorOuterParameter,
-                        resultSelectorInnerParameter);
-
-                    var groupJoinMethodCall
-                        = Expression.Call(
-                            groupJoinMethodInfo,
-                            sourceExpression,
-                            entityQueryable,
-                            outerKeySelector,
-                            innerKeySelector,
-                            groupJoinResultSelector);
-
-                    var selectManyResultType = typeof(TransparentIdentifier<,>).MakeGenericType(groupJoinResultType, navigationTargetEntityType.ClrType);
-
-                    var selectManyMethodInfo = groupJoinMethodCall.Type.IsQueryableType()
-                        ? LinqMethodHelpers.QueryableSelectManyWithResultOperatorMethodInfo
-                        : LinqMethodHelpers.EnumerableSelectManyWithResultOperatorMethodInfo;
-
-                    selectManyMethodInfo = selectManyMethodInfo.MakeGenericMethod(
-                        groupJoinResultType,
-                        navigationTargetEntityType.ClrType,
-                        selectManyResultType);
-
-                    var defaultIfEmptyMethodInfo = LinqMethodHelpers.EnumerableDefaultIfEmptyMethodInfo.MakeGenericMethod(navigationTargetEntityType.ClrType);
-
-                    var selectManyCollectionSelectorParameter = Expression.Parameter(groupJoinResultType);
-                    var selectManyCollectionSelector = Expression.Lambda(
-                        Expression.Call(
-                            defaultIfEmptyMethodInfo,
-                            Expression.Field(selectManyCollectionSelectorParameter, nameof(TransparentIdentifier<object, object>.Inner))),
-                        selectManyCollectionSelectorParameter);
-
-                    var selectManyResultTransparentIdentifierCtorInfo
-                        = selectManyResultType.GetTypeInfo().GetConstructors().Single();
-
-                    var selectManyResultTransparentIdentifierOuterMemberInfo = selectManyResultType.GetTypeInfo().GetDeclaredField("Outer");
-                    var selectManyResultTransparentIdentifierInnerMemberInfo = selectManyResultType.GetTypeInfo().GetDeclaredField("Inner");
-
-                    // TODO: dont reuse parameters here?
-                    var selectManyResultSelector = Expression.Lambda(
-                        Expression.New(
-                            selectManyResultTransparentIdentifierCtorInfo,
-                            new[] { selectManyCollectionSelectorParameter, innerKeySelectorParameter },
-                            new[] { selectManyResultTransparentIdentifierOuterMemberInfo, selectManyResultTransparentIdentifierInnerMemberInfo }),
-                        selectManyCollectionSelectorParameter,
-                        innerKeySelectorParameter);
-
-                    var selectManyMethodCall
-                        = Expression.Call(selectManyMethodInfo,
-                        groupJoinMethodCall,
-                        selectManyCollectionSelector,
-                        selectManyResultSelector);
-
-                    sourceType = selectManyResultSelector.ReturnType;
-                    sourceExpression = selectManyMethodCall;
-
-                    var transparentIdentifierParameterName = resultSelectorInnerParameterName;
-                    var transparentIdentifierParameter = Expression.Parameter(selectManyResultSelector.ReturnType, transparentIdentifierParameterName);
-                    parameterExpression = transparentIdentifierParameter;
-                }
-                else
-                {
-                    var joinMethodInfo = sourceExpression.Type.IsQueryableType()
-                        ? LinqMethodHelpers.QueryableJoinMethodInfo
-                        : LinqMethodHelpers.EnumerableJoinMethodInfo;
-
-                    joinMethodInfo = joinMethodInfo.MakeGenericMethod(
+                        resultType)
+                    : LinqMethodHelpers.QueryableJoinMethodInfo.MakeGenericMethod(
                         sourceType,
                         navigationTargetEntityType.ClrType,
                         outerKeySelector.Body.Type,
                         resultType);
 
-                    var resultSelectorOuterParameterName = outerParameter.Name;
-                    var resultSelectorOuterParameter = Expression.Parameter(sourceType, resultSelectorOuterParameterName);
+                var resultSelectorOuterParameterName = outerParameter.Name;
+                var resultSelectorOuterParameter = Expression.Parameter(sourceType, resultSelectorOuterParameterName);
 
-                    var resultSelectorInnerParameterName = innerKeySelectorParameter.Name;
-                    var resultSelectorInnerParameter = Expression.Parameter(navigationTargetEntityType.ClrType, resultSelectorInnerParameterName);
+                var resultSelectorInnerParameterName = innerKeySelectorParameter.Name;
+                var resultSelectorInnerParameter = Expression.Parameter(navigationTargetEntityType.ClrType, resultSelectorInnerParameterName);
 
-                    var transparentIdentifierCtorInfo
-                        = resultType.GetTypeInfo().GetConstructors().Single();
+                var transparentIdentifierCtorInfo
+                    = resultType.GetTypeInfo().GetConstructors().Single();
 
-                    var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
-                    var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
+                var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
+                var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
 
-                    var resultSelector = Expression.Lambda(
-                        Expression.New(
-                            transparentIdentifierCtorInfo,
-                            new[] { resultSelectorOuterParameter, resultSelectorInnerParameter },
-                            new[] { transparentIdentifierOuterMemberInfo, transparentIdentifierInnerMemberInfo }),
-                        resultSelectorOuterParameter,
-                        resultSelectorInnerParameter);
+                var resultSelector = Expression.Lambda(
+                    Expression.New(
+                        transparentIdentifierCtorInfo,
+                        new[] { resultSelectorOuterParameter, resultSelectorInnerParameter },
+                        new[] { transparentIdentifierOuterMemberInfo, transparentIdentifierInnerMemberInfo }),
+                    resultSelectorOuterParameter,
+                    resultSelectorInnerParameter);
 
-                    var joinMethodCall = Expression.Call(
-                        joinMethodInfo,
-                        sourceExpression,
-                        entityQueryable,
-                        outerKeySelector,
-                        innerKeySelector,
-                        resultSelector);
+                var joinMethodCall = Expression.Call(
+                    joinMethodInfo,
+                    sourceExpression,
+                    entityQueryable,
+                    outerKeySelector,
+                    innerKeySelector,
+                    resultSelector);
 
-                    sourceType = resultSelector.ReturnType;
-                    sourceExpression = joinMethodCall;
+                sourceType = resultSelector.ReturnType;
+                sourceExpression = joinMethodCall;
 
-                    var transparentIdentifierParameterName = resultSelectorInnerParameterName;
-                    var transparentIdentifierParameter = Expression.Parameter(resultSelector.ReturnType, transparentIdentifierParameterName);
-                    parameterExpression = transparentIdentifierParameter;
-                }
+                var transparentIdentifierParameterName = resultSelectorInnerParameterName;
+                var transparentIdentifierParameter = Expression.Parameter(resultSelector.ReturnType, transparentIdentifierParameterName);
+                parameterExpression = transparentIdentifierParameter;
 
                 // remap navigation 'To' paths -> for this navigation prepend "Inner", for every other (already expanded) navigation prepend "Outer"
                 navigationTree.ToMapping.Insert(0, nameof(TransparentIdentifier<object, object>.Inner));
@@ -270,20 +188,12 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     foreach (var navigationTreeNode in nodes)
                     {
                         navigationTreeNode.ToMapping.Insert(0, nameof(TransparentIdentifier<object, object>.Outer));
-                        if (navigationTree.Optional)
-                        {
-                            navigationTreeNode.ToMapping.Insert(0, nameof(TransparentIdentifier<object, object>.Outer));
-                        }
                     }
                 }
 
                 foreach (var customRootMapping in state.CustomRootMappings)
                 {
                     customRootMapping.Insert(0, nameof(TransparentIdentifier<object, object>.Outer));
-                    if (navigationTree.Optional)
-                    {
-                        customRootMapping.Insert(0, nameof(TransparentIdentifier<object, object>.Outer));
-                    }
                 }
 
                 if (include)
