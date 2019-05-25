@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         public Expression Visit(Expression query)
         {
+            query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new NavigationExpander(_queryCompilationContext.Model).ExpandNavigations(query);

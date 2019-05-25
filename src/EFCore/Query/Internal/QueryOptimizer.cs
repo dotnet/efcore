@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             queryModel.TransformExpressions(new EntityEqualityRewritingExpressionVisitor(queryCompilationContext).Visit);
             queryModel.TransformExpressions(new SubQueryMemberPushDownExpressionVisitor(queryCompilationContext).Visit);
             queryModel.TransformExpressions(new ExistsToAnyRewritingExpressionVisitor().Visit);
-            queryModel.TransformExpressions(new AllAnyToContainsRewritingExpressionVisitor().Visit);
+            //queryModel.TransformExpressions(new AllAnyToContainsRewritingExpressionVisitor().Visit);
         }
 
         /// <summary>
