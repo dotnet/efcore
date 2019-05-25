@@ -95,31 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 var relatedEntity = innerShaper(queryContext, dbDataReader);
 
-                if (trackingQuery)
-                {
-                    var internalEntityEntry = queryContext.StateManager.TryGetEntry(entity);
-                    Debug.Assert(internalEntityEntry != null);
-
-                    internalEntityEntry.SetIsLoaded(navigation);
-                    if (!ReferenceEquals(relatedEntity, null))
-                    {
-                        internalEntityEntry.SetRelationshipSnapshotValue(navigation, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            var relatedEntry = queryContext.StateManager.TryGetEntry(relatedEntity);
-                            if (inverseNavigation.IsCollection())
-                            {
-                                relatedEntry.AddToCollectionSnapshot(inverseNavigation, entity);
-                            }
-                            else
-                            {
-                                relatedEntry.SetRelationshipSnapshotValue(inverseNavigation, entity);
-                                relatedEntry.SetIsLoaded(inverseNavigation);
-                            }
-                        }
-                    }
-                }
-                else
+                if (!trackingQuery)
                 {
                     SetIsLoadedNoTracking(entity, navigation);
                     if (!ReferenceEquals(relatedEntity, null))

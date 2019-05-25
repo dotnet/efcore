@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,6 +10,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -368,20 +370,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 var innerNew = (NewExpression)innerKey;
 
-                SqlBinaryExpression result = null;
-                for (var i = 0; i < outerNew.Arguments.Count; i++)
-                {
-                    result = result == null
-                        ? CreateJoinPredicate(outerNew.Arguments[i], innerNew.Arguments[i])
-                        : _sqlExpressionFactory.AndAlso(
-                            result,
-                            CreateJoinPredicate(outerNew.Arguments[i], innerNew.Arguments[i]));
-                }
-
-                return result;
+                return outerNew.Type == typeof(AnonymousObject)
+                    ? CreateJoinPredicate(
+                        ((NewArrayExpression)outerNew.Arguments[0]).Expressions,
+                        ((NewArrayExpression)innerNew.Arguments[0]).Expressions)
+                    : CreateJoinPredicate(outerNew.Arguments, innerNew.Arguments);
             }
 
             return CreateJoinPredicate(outerKey, innerKey);
+        }
+
+        private SqlBinaryExpression CreateJoinPredicate(
+            IList<Expression> outerExpressions,
+            IList<Expression> innerExpressions)
+        {
+            SqlBinaryExpression result = null;
+            for (var i = 0; i < outerExpressions.Count; i++)
+            {
+                result = result == null
+                    ? CreateJoinPredicate(outerExpressions[i], innerExpressions[i])
+                    : _sqlExpressionFactory.AndAlso(
+                        result,
+                        CreateJoinPredicate(outerExpressions[i], innerExpressions[i]));
+            }
+
+            return result;
         }
 
         private SqlBinaryExpression CreateJoinPredicate(
