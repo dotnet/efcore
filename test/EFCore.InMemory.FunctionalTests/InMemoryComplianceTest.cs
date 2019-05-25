@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(QueryTaggingTestBase<>),
             typeof(SpatialQueryTestBase<>),
             typeof(UpdatesTestBase<>),
+            typeof(FindTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

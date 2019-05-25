@@ -7,8 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // TODO: Issue#14630#21
-    internal class InheritanceSqliteTest : InheritanceRelationalTestBase<InheritanceSqliteFixture>
+    public class InheritanceSqliteTest : InheritanceRelationalTestBase<InheritanceSqliteFixture>
     {
         public InheritanceSqliteTest(InheritanceSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

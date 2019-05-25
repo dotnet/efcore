@@ -9,15 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     public class RelationalEntityQueryableTranslatorFactory : EntityQueryableTranslatorFactory
     {
         private readonly IModel _model;
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public RelationalEntityQueryableTranslatorFactory(IModel model)
+        public RelationalEntityQueryableTranslatorFactory(IModel model, ISqlExpressionFactory sqlExpressionFactory)
         {
             _model = model;
+            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public override EntityQueryableTranslator Create(QueryCompilationContext2 queryCompilationContext)
         {
-            return new RelationalEntityQueryableTranslator(_model);
+            return new RelationalEntityQueryableTranslator(_model, _sqlExpressionFactory);
         }
     }
 }

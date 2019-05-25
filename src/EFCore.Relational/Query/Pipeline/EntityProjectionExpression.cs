@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
-            EntityType = entityType;
+            EntityType = entityType.RootType();
             _innerTable = innerTable;
             Nullable = nullable;
         }
 
         public EntityProjectionExpression(IEntityType entityType, IDictionary<IProperty, ColumnExpression> propertyExpressions)
         {
-            EntityType = entityType;
+            EntityType = entityType.RootType();
             _propertyExpressionsCache = propertyExpressions;
         }
 
@@ -81,6 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public ColumnExpression GetProperty(IProperty property)
         {
+            if (property.DeclaringEntityType.RootType() != EntityType)
+            {
+                throw new InvalidOperationException("Called EntityProjectionExpression.GetProperty() with incorrect IProperty");
+            }
+
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
             {
                 expression = new ColumnExpression(property, _innerTable, Nullable);

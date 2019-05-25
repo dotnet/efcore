@@ -30,12 +30,10 @@ namespace Microsoft.EntityFrameworkCore
             typeof(CompiledQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
             typeof(InheritanceRelationshipsQueryTestBase<>),
-            typeof(InheritanceTestBase<>),
             typeof(QueryNavigationsTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),
             typeof(QueryTaggingTestBase<>),
             typeof(GearsOfWarFromSqlQueryTestBase<>),
-            typeof(InheritanceRelationalTestBase<>),
             typeof(QueryNoClientEvalTestBase<>),
             typeof(WarningsTestBase<>),
         };

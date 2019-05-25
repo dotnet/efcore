@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public SqlExpression Offset { get; private set; }
         public bool IsDistinct { get; private set; }
 
-        private SelectExpression(
+        internal SelectExpression(
             string alias,
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _orderings = orderings;
         }
 
-        public SelectExpression(IEntityType entityType)
+        internal SelectExpression(IEntityType entityType)
             : base("")
         {
             var tableExpression = new TableExpression(
@@ -56,11 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, tableExpression, false);
         }
 
-        public SelectExpression(IEntityType entityType, string sql)
+        public SelectExpression(IEntityType entityType, string sql, Expression arguments)
             : base("")
         {
             var fromSqlExpression = new FromSqlExpression(
                 sql,
+                arguments,
                 entityType.GetTableName().ToLower().Substring(0, 1));
 
             _tables.Add(fromSqlExpression);
@@ -85,37 +88,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             var result = new Dictionary<ProjectionMember, Expression>();
             foreach (var keyValuePair in _projectionMapping)
             {
-                result[keyValuePair.Key] = Constant(_projection.Count);
                 if (keyValuePair.Value is EntityProjectionExpression entityProjection)
                 {
-                    foreach (var property in entityProjection.EntityType.GetProperties())
+                    var map = new Dictionary<IProperty, int>();
+                    foreach (var property in entityProjection.EntityType
+                        .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                     {
                         var columnExpression = entityProjection.GetProperty(property);
+                        map[property] = _projection.Count;
                         _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
                     }
+                    result[keyValuePair.Key] = Constant(map);
                 }
                 else
                 {
+                    result[keyValuePair.Key] = Constant(_projection.Count);
                     _projection.Add(new ProjectionExpression((SqlExpression)keyValuePair.Value, alias: ""));
                 }
             }
 
             _projectionMapping = result;
-        }
-
-        public SelectExpression SetProjectionAsResult(SqlExpression sqlExpression)
-        {
-            return new SelectExpression(
-                null,
-                new List<ProjectionExpression>(),
-                new List<TableExpressionBase>(),
-                new List<OrderingExpression>())
-            {
-                _projectionMapping = new Dictionary<ProjectionMember, Expression>
-                {
-                    {new ProjectionMember(), sqlExpression }
-                }
-            };
         }
 
         public void ReplaceProjection(IDictionary<ProjectionMember, Expression> projectionMapping)
@@ -150,14 +142,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             var entityProjection = (EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember];
             if (!_projectionCache.TryGetValue(entityProjection, out var result))
             {
-                var index = _projection.Count;
-                foreach (var property in entityProjection.EntityType.GetProperties())
+                var map = new Dictionary<IProperty, int>();
+                foreach (var property in entityProjection.EntityType
+                    .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                 {
                     var columnExpression = entityProjection.GetProperty(property);
+                    map[property] = _projection.Count;
                     _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
                 }
 
-                result = new ProjectionBindingExpression(this, index, typeof(ValueBuffer));
+                result = new ProjectionBindingExpression(this, map);
                 _projectionCache[entityProjection] = result;
             }
 
@@ -286,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
                     var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                    foreach (var property in entityProjection.EntityType.GetProperties())
+                    foreach (var property in entityProjection.EntityType
+                        .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                     {
                         var innerColumn = entityProjection.GetProperty(property);
                         var projectionExpression = new ProjectionExpression(innerColumn, innerColumn.Name);

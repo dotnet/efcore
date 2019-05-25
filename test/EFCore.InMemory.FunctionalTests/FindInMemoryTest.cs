@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public class FindInMemoryTestSet : FindInMemoryTest
+        internal class FindInMemoryTestSet : FindInMemoryTest
         {
             public FindInMemoryTestSet(FindInMemoryFixture fixture)
                 : base(fixture)
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
                 => context.Set<TEntity>().FindAsync(keyValues);
         }
 
-        public class FindInMemoryTestContext : FindInMemoryTest
+        internal class FindInMemoryTestContext : FindInMemoryTest
         {
             public FindInMemoryTestContext(FindInMemoryFixture fixture)
                 : base(fixture)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                 => context.FindAsync<TEntity>(keyValues);
         }
 
-        public class FindInMemoryTestNonGeneric : FindInMemoryTest
+        internal class FindInMemoryTestNonGeneric : FindInMemoryTest
         {
             public FindInMemoryTestNonGeneric(FindInMemoryFixture fixture)
                 : base(fixture)

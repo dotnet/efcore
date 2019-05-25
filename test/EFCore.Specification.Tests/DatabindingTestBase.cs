@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "Tasklist#21")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void LocalView_is_initialized_with_entities_from_the_context(
