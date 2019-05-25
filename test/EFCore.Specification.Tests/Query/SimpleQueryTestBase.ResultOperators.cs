@@ -1795,7 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: e => 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_any_equals_operator(bool isAsync)
         {
@@ -1812,24 +1812,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_any_equals(bool isAsync)
-        {
-            var ids = new List<string>
-            {
-                "ABCDE",
-                "ALFKI",
-                "ANATR"
-            };
-
-            return AssertQuery<Customer>(
+            => AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Where(c => ids.Any(li => li.Equals(c.CustomerID))),
+                cs => cs.Where(c => new[] { "ABCDE", "ALFKI", "ANATR" }.Any(li => li.Equals(c.CustomerID))),
                 entryCount: 2);
-        }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_any_equals_static(bool isAsync)
         {
@@ -1846,24 +1837,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_subquery_where_any(bool isAsync)
+        public virtual async Task Where_subquery_where_any(bool isAsync)
         {
-            var ids = new List<string>
+            var ids = new[]
             {
                 "ABCDE",
                 "ALFKI",
                 "ANATR"
             };
 
-            return AssertQuery<Customer>(
+            await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => li == c.CustomerID)),
                 entryCount: 1);
+
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.Any(li => c.CustomerID == li)),
+                entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_all_not_equals_operator(bool isAsync)
         {
@@ -1880,24 +1876,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_all_not_equals(bool isAsync)
-        {
-            var ids = new List<string>
-            {
-                "ABCDE",
-                "ALFKI",
-                "ANATR"
-            };
-
-            return AssertQuery<Customer>(
+            => AssertQuery<Customer>(
                 isAsync,
-                cs => cs.Where(c => ids.All(li => !li.Equals(c.CustomerID))),
+                cs => cs.Where(c => new List<string> { "ABCDE", "ALFKI", "ANATR" }.All(li => !li.Equals(c.CustomerID))),
                 entryCount: 89);
-        }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_all_not_equals_static(bool isAsync)
         {
@@ -1914,9 +1901,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        [ConditionalTheory(Skip = "Issue#15717")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_subquery_where_all(bool isAsync)
+        public virtual async Task Where_subquery_where_all(bool isAsync)
         {
             var ids = new List<string>
             {
@@ -1925,9 +1912,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "ANATR"
             };
 
-            return AssertQuery<Customer>(
+            await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => li != c.CustomerID)),
+                entryCount: 4);
+
+            await AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.City == "México D.F.").Where(c => ids.All(li => c.CustomerID != li)),
                 entryCount: 4);
         }
 
