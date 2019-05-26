@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                                 QueryCompilationContext2.QueryContextParameter,
                                 RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
                         Expression.Constant(includeExpression.Navigation),
-                        Expression.Constant(inverseNavigation),
+                        Expression.Constant(inverseNavigation, typeof(INavigation)),
                         Expression.Constant(
                             GenerateFixup(entityClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
                         Expression.Constant(_tracking));

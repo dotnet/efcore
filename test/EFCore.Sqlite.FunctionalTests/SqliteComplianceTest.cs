@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(GearsOfWarQueryTestBase<>),
             typeof(InheritanceRelationshipsQueryTestBase<>),
             typeof(InheritanceTestBase<>),
-            typeof(NullKeysTestBase<>),
             typeof(QueryNavigationsTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),
             typeof(AsyncFromSqlQueryTestBase<>),
@@ -39,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FromSqlQueryTestBase<>),
             typeof(GearsOfWarFromSqlQueryTestBase<>),
             typeof(InheritanceRelationalTestBase<>),
-            typeof(NullSemanticsQueryTestBase<>),
             typeof(QueryNoClientEvalTestBase<>),
             typeof(WarningsTestBase<>),
         };
