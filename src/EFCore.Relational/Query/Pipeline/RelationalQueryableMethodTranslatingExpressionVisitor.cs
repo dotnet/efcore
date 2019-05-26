@@ -542,10 +542,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return source;
             }
 
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.IsDistinct)
+            {
+                selectExpression.PushdownIntoSubQuery();
+            }
+
             var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
             source.ShaperExpression = _projectionBindingExpressionVisitor
-                .Translate((SelectExpression)source.QueryExpression, newSelectorBody);
+                .Translate(selectExpression, newSelectorBody);
 
             return source;
         }
