@@ -21,5 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     typeof(ValueBuffer)),
                 false);
         }
+
+        public RelationalShapedQueryExpression(IEntityType entityType, string sql)
+        {
+            QueryExpression = new SelectExpression(entityType, sql);
+            ShaperExpression = new EntityShaperExpression(
+                entityType,
+                new ProjectionBindingExpression(
+                    QueryExpression,
+                    new ProjectionMember(),
+                    typeof(ValueBuffer)),
+                false);
+        }
     }
 }

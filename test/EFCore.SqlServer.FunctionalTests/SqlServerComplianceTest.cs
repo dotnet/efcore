@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FiltersTestBase<>),                     // issue #15264
             typeof(OwnedQueryTestBase<>),                  // issue #15285
             typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
-            typeof(RelationalOwnedQueryTestBase<>),         // issue #15285
+            typeof(RelationalOwnedQueryTestBase<>),        // issue #15285
             // Query pipeline
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(CompiledQueryTestBase<>),
@@ -30,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(NullKeysTestBase<>),
             typeof(QueryNavigationsTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),
-            typeof(AsyncFromSqlQueryTestBase<>),
             typeof(QueryTaggingTestBase<>),
-            typeof(FromSqlQueryTestBase<>),
             typeof(GearsOfWarFromSqlQueryTestBase<>),
             typeof(InheritanceRelationalTestBase<>),
             typeof(NullSemanticsQueryTestBase<>),

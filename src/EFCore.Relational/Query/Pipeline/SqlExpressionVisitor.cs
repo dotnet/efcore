@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case ExistsExpression existsExpression:
                     return VisitExists(existsExpression);
 
+                case FromSqlExpression fromSqlExpression:
+                    return VisitFromSql(fromSqlExpression);
+
                 case InExpression inExpression:
                     return VisitIn(inExpression);
 
@@ -76,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected abstract Expression VisitExists(ExistsExpression existsExpression);
         protected abstract Expression VisitIn(InExpression inExpression);
         protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
         protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
         protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
         protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);

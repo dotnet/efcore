@@ -17,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class RelationalQueryableExtensions
     {
-        internal static readonly MethodInfo FromSqlMethodInfo
+        private static readonly MethodInfo _fromSqlOnQueryableMethodInfo
             = typeof(RelationalQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(FromSqlRaw))
+                .GetTypeInfo().GetDeclaredMethods(nameof(FromSqlOnQueryable))
                 .Single();
 
         /// <summary>
@@ -54,7 +54,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
         [StringFormatMethod("sql")]
         [Obsolete(
-            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead.")]
+            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. " +
+            "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. " +
+            "Call either new method directly on the DbSet at the root of the query.",
+            error: true)]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
             [NotParameterized] RawSqlString sql,
@@ -68,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    FromSqlMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     source.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(parameters)));
@@ -96,7 +99,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The interpolated string representing a SQL query. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         [Obsolete(
-            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead.")]
+            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. " +
+            "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. " +
+            "Call either new method directly on the DbSet at the root of the query.",
+            error: true)]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull] [NotParameterized] FormattableString sql)
@@ -109,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    FromSqlMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     source.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(sql.GetArguments())));
@@ -145,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] this DbSet<TEntity> source,
             [NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
@@ -154,11 +160,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            return source.Provider.CreateQuery<TEntity>(
+            var queryableSource = (IQueryable)source;
+            return queryableSource.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    FromSqlMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    source.Expression,
+                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    queryableSource.Expression,
                     Expression.Constant(sql),
                     Expression.Constant(parameters)));
         }
@@ -185,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] this DbSet<TEntity> source,
             [NotNull] [NotParameterized] FormattableString sql)
             where TEntity : class
         {
@@ -193,13 +200,21 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotEmpty(sql.Format, nameof(source));
 
-            return source.Provider.CreateQuery<TEntity>(
+            var queryableSource = (IQueryable)source;
+            return queryableSource.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    FromSqlMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    source.Expression,
+                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    queryableSource.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(sql.GetArguments())));
         }
+
+        internal static IQueryable<TEntity> FromSqlOnQueryable<TEntity>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotParameterized] string sql,
+            [NotNull] params object[] parameters)
+            where TEntity : class
+        => throw new NotSupportedException();
     }
 }
