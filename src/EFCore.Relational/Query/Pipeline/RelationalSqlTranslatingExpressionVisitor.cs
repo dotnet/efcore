@@ -97,21 +97,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsEFPropertyMethod())
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                var firstArgument = methodCallExpression.Arguments[0];
-
                 // In certain cases EF.Property would have convert node around the source.
-                if (firstArgument is UnaryExpression unaryExpression
+                if (source is UnaryExpression unaryExpression
                     && unaryExpression.NodeType == ExpressionType.Convert
                     && unaryExpression.Type == typeof(object))
                 {
-                    firstArgument = unaryExpression.Operand;
+                    source = unaryExpression.Operand;
                 }
 
-                if (firstArgument is EntityShaperExpression entityShaper)
+                if (source is EntityShaperExpression entityShaper)
                 {
-                    return BindProperty(entityShaper, (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                    return BindProperty(entityShaper, propertyName);
                 }
                 else
                 {

@@ -411,11 +411,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (node.Method.IsEFPropertyMethod())
+                if (node.TryGetEFPropertyArguments(out var source, out var propertyName))
                 {
-                    if (node.Arguments[0].RemoveConvert() is QuerySourceReferenceExpression querySource
-                        && node.Arguments[1] is ConstantExpression propertyNameExpression
-                        && (string)propertyNameExpression.Value == _propertyName)
+                    if (source.RemoveConvert() is QuerySourceReferenceExpression querySource
+                        && propertyName == _propertyName)
                     {
                         _canRemoveNullCheck = querySource.ReferencedQuerySource == _querySource;
                     }

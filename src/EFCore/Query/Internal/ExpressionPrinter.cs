@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (!methodCallExpression.Method.IsEFPropertyMethod())
+            if (!methodCallExpression.IsEFProperty())
             {
                 _stringBuilder.Append(methodCallExpression.Method.ReturnType.ShortDisplayName() + " ");
             }
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
                                            || methodCallExpression.Arguments.Count < 2
-                                           || methodCallExpression.Method.IsEFPropertyMethod();
+                                           || methodCallExpression.IsEFProperty();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 

@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     && unaryExpression.NodeType == ExpressionType.Convert
                     && unaryExpression.Type == typeof(object)
                     && unaryExpression.Operand is MethodCallExpression methodCall
-                    && methodCall.Method.IsEFPropertyMethod()
-                    && methodCall.Arguments[0] is EntityShaperExpression entityShaperExpression
+                    && methodCall.TryGetEFPropertyArguments(out var source, out _)
+                    && source is EntityShaperExpression entityShaperExpression
                     && entityShaperExpression.EntityType.GetProperties().Count() == newArrayExpression.Expressions.Count)
                 {
                     VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);

@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if ((unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.TypeAs) 
+            if ((unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.TypeAs)
                 && unaryExpression.Type != typeof(object))
             {
                 if (unaryExpression.Type == unaryExpression.Operand.Type)
@@ -132,10 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsEFPropertyMethod())
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                var newCaller = Visit(methodCallExpression.Arguments[0]);
-                var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                var newCaller = Visit(source);
                 var boundProperty = TryBindProperty(methodCallExpression, newCaller, propertyName);
 
                 return boundProperty ?? methodCallExpression.Update(methodCallExpression.Object, new[] { newCaller, methodCallExpression.Arguments[1] });

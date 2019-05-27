@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression) => typeBinaryExpression;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            => methodCallExpression.Method.IsEFPropertyMethod()
+            => methodCallExpression.IsEFProperty()
             ? methodCallExpression
             : base.VisitMethodCall(methodCallExpression);
 

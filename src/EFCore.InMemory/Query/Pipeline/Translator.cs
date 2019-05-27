@@ -46,13 +46,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsEFPropertyMethod())
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                var firstArgument = Visit(methodCallExpression.Arguments[0]);
-                if (firstArgument is EntityShaperExpression entityShaper)
+                if (source is EntityShaperExpression entityShaper)
                 {
                     var entityType = entityShaper.EntityType;
-                    var property = entityType.FindProperty((string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                    var property = entityType.FindProperty(propertyName);
 
                     return _inMemoryQueryExpression.BindProperty(entityShaper.ValueBufferExpression, property);
                 }

@@ -149,14 +149,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                     return;
                 }
 
-                if (methodCallExpression.Method.IsEFPropertyMethod())
+                if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                 {
                     var method = methodCallExpression.Method;
 
                     expressionPrinter.StringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
                     expressionPrinter.Visit(Caller);
                     expressionPrinter.StringBuilder.Append("?, ");
-                    expressionPrinter.Visit(methodCallExpression.Arguments[1]);
+                    expressionPrinter.Visit(Constant(propertyName));
                     expressionPrinter.StringBuilder.Append(")");
 
                     return;
@@ -201,11 +201,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
                            + "(" + string.Join(",", methodCallExpression.Arguments) + ")";
                 }
 
-                var method = methodCallExpression.Method;
-                if (method.IsEFPropertyMethod())
+                if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                 {
+                    var method = methodCallExpression.Method;
                     return method.DeclaringType?.Name + "." + method.Name
-                           + "(?" + Caller + "?, " + methodCallExpression.Arguments[1] + ")";
+                           + "(?" + Caller + "?, " + propertyName + ")";
                 }
             }
 
