@@ -91,6 +91,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             return ApplyConversion(existsExpression.Update(subquery), condition: true);
         }
 
+        protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+            => fromSqlExpression;
+
         protected override Expression VisitIn(InExpression inExpression)
         {
             var parentSearchCondition = _isSearchCondition;

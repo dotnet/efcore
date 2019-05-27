@@ -56,6 +56,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, tableExpression, false);
         }
 
+        public SelectExpression(IEntityType entityType, string sql)
+            : base("")
+        {
+            var fromSqlExpression = new FromSqlExpression(
+                sql,
+                entityType.GetTableName().ToLower().Substring(0, 1));
+
+            _tables.Add(fromSqlExpression);
+
+            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, fromSqlExpression, false);
+        }
+
         public SqlExpression BindProperty(Expression projectionExpression, IProperty property)
         {
             var member = (projectionExpression as ProjectionBindingExpression).ProjectionMember;

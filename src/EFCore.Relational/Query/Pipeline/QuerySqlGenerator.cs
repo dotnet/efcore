@@ -216,6 +216,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return tableExpression;
         }
 
+        protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+        {
+            _relationalCommandBuilder.AppendLine("(");
+
+            using (_relationalCommandBuilder.Indent())
+            {
+                _relationalCommandBuilder.AppendLines(fromSqlExpression.Sql);
+                // TODO: Generate parameters
+            }
+
+            _relationalCommandBuilder.Append(") AS ")
+                .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
+
+            return fromSqlExpression;
+        }
+
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
             if (sqlBinaryExpression.OperatorType == ExpressionType.Coalesce)

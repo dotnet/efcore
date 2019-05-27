@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -525,7 +525,7 @@ ORDER BY [t].[OrderID]");
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
         }
 
-        [Fact]
+        [Fact(Skip = "#15750")]
         public virtual void FromSqlRaw_in_subquery_with_dbParameter()
         {
             using (var context = CreateContext())
@@ -557,7 +557,7 @@ WHERE [o].[CustomerID] IN (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#15750")]
         public virtual void FromSqlRaw_in_subquery_with_positional_dbParameter_without_name()
         {
             using (var context = CreateContext())
@@ -592,7 +592,7 @@ WHERE [o].[CustomerID] IN (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#15750")]
         public virtual void FromSqlRaw_in_subquery_with_positional_dbParameter_with_name()
         {
             using (var context = CreateContext())
@@ -624,7 +624,7 @@ WHERE [o].[CustomerID] IN (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#15750")]
         public virtual void FromSqlRaw_with_dbParameter_mixed_in_subquery()
         {
             using (var context = CreateContext())
