@@ -83,9 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal
         {
             if (_queryModelVisitor.CurrentParameter?.Type == typeof(JObject))
             {
-                if (methodCallExpression.Method.IsEFPropertyMethod())
+                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out _))
                 {
-                    var source = methodCallExpression.Arguments[0];
                     var newSource = Visit(source);
 
                     if (source != newSource

@@ -17,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
     {
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsEFPropertyMethod())
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                var newSource = Visit(methodCallExpression.Arguments[0]);
+                var newSource = Visit(source);
 
                 return newSource is NavigationExpansionExpression navigationExpansionExpression
                     && navigationExpansionExpression.State.PendingCardinalityReducingOperator != null
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         navigationExpansionExpression,
                         efProperty: true,
                         memberInfo: null,
-                        (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value,
+                        propertyName,
                         methodCallExpression.Type)
                     : methodCallExpression.Update(methodCallExpression.Object, new[] { newSource, methodCallExpression.Arguments[1] });
             }
@@ -1395,7 +1395,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression) => typeBinaryExpression;
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-                => methodCallExpression.Method.IsEFPropertyMethod()
+                => methodCallExpression.IsEFProperty()
                 ? methodCallExpression
                 : base.VisitMethodCall(methodCallExpression);
 
