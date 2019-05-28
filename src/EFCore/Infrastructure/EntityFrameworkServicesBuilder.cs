@@ -96,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IInterceptors), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILoggerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityGraphAttacher), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -236,6 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICompiledQueryCacheKeyGenerator, CompiledQueryCacheKeyGenerator>();
             TryAdd<ISingletonOptionsInitializer, SingletonOptionsInitializer>();
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
+            TryAdd<IInterceptors, Interceptors>();
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
@@ -283,7 +285,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
-                .AddDependencyScoped<DatabaseDependencies>();
+                .AddDependencyScoped<DatabaseDependencies>()
+                .AddDependencyScoped<InterceptorsDependencies>();
 
             ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
                 new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));

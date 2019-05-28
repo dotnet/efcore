@@ -80,7 +80,32 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalEventId),
                 typeof(RelationalLoggerExtensions),
                 typeof(TestRelationalLoggingDefinitions),
-                fakeFactories);
+                fakeFactories,
+                new Dictionary<string, IList<string>>
+                {
+                    {
+                        nameof(RelationalEventId.CommandExecuting), new List<string>
+                        {
+                            nameof(RelationalLoggerExtensions.CommandReaderExecuting),
+                            nameof(RelationalLoggerExtensions.CommandScalarExecuting),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuting),
+                            nameof(RelationalLoggerExtensions.CommandReaderExecutingAsync),
+                            nameof(RelationalLoggerExtensions.CommandScalarExecutingAsync),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutingAsync),
+                        }
+                    },
+                    {
+                        nameof(RelationalEventId.CommandExecuted), new List<string>
+                        {
+                            nameof(RelationalLoggerExtensions.CommandReaderExecutedAsync),
+                            nameof(RelationalLoggerExtensions.CommandScalarExecutedAsync),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutedAsync),
+                            nameof(RelationalLoggerExtensions.CommandReaderExecuted),
+                            nameof(RelationalLoggerExtensions.CommandScalarExecuted),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuted),
+                        }
+                    }
+                });
         }
 
         private class FakeMigration : Migration

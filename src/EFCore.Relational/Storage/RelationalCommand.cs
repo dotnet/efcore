@@ -82,7 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 parameterValues,
                 logger);
 
-
         /// <summary>
         ///     Asynchronously executes the command with no results.
         /// </summary>
@@ -208,14 +207,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            logger?.CommandExecuting(
-                dbCommand,
-                executeMethod,
-                commandId,
-                connection.ConnectionId,
-                async: false,
-                startTime: startTime);
-
             object result;
             var readerOpen = false;
             try
@@ -223,45 +214,71 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 switch (executeMethod)
                 {
                     case DbCommandMethod.ExecuteNonQuery:
-                    {
-                        result = dbCommand.ExecuteNonQuery();
+                        var nonQueryResult = (logger?.CommandNonQueryExecuting(
+                                      dbCommand,
+                                      commandId,
+                                      connection.ConnectionId,
+                                      startTime: startTime)
+                                  ?? new InterceptionResult<int>(dbCommand.ExecuteNonQuery())).Result;
+
+                        result = logger?.CommandNonQueryExecuted(
+                                     dbCommand,
+                                     commandId,
+                                     connection.ConnectionId,
+                                     nonQueryResult,
+                                     startTime,
+                                     stopwatch.Elapsed)
+                                 ?? nonQueryResult;
 
                         break;
-                    }
                     case DbCommandMethod.ExecuteScalar:
-                    {
-                        result = dbCommand.ExecuteScalar();
+                        var scalarResult = (logger?.CommandScalarExecuting(
+                                      dbCommand,
+                                      commandId,
+                                      connection.ConnectionId,
+                                      startTime: startTime)
+                                  ?? new InterceptionResult<object>(dbCommand.ExecuteScalar())).Result;
 
+                        result = logger?.CommandScalarExecuted(
+                                     dbCommand,
+                                     commandId,
+                                     connection.ConnectionId,
+                                     scalarResult,
+                                     startTime,
+                                     stopwatch.Elapsed)
+                                 ?? scalarResult;
                         break;
-                    }
                     case DbCommandMethod.ExecuteReader:
-                    {
-                        result
-                            = new RelationalDataReader(
-                                connection,
+                        var reader = (logger?.CommandReaderExecuting(
+                                          dbCommand,
+                                          commandId,
+                                          connection.ConnectionId,
+                                          startTime: startTime)
+                                      ?? new InterceptionResult<DbDataReader>(dbCommand.ExecuteReader())).Result;
+
+                        if (logger != null)
+                        {
+                            reader = logger?.CommandReaderExecuted(
                                 dbCommand,
-                                dbCommand.ExecuteReader(),
                                 commandId,
-                                logger);
+                                connection.ConnectionId,
+                                reader,
+                                startTime,
+                                stopwatch.Elapsed);
+                        }
+
+                        result = new RelationalDataReader(
+                            connection,
+                            dbCommand,
+                            reader,
+                            commandId,
+                            logger);
+
                         readerOpen = true;
-
                         break;
-                    }
                     default:
-                    {
                         throw new NotSupportedException();
-                    }
                 }
-
-                logger?.CommandExecuted(
-                    dbCommand,
-                    executeMethod,
-                    commandId,
-                    connection.ConnectionId,
-                    result,
-                    false,
-                    startTime,
-                    stopwatch.Elapsed);
             }
             catch (Exception exception)
             {
@@ -317,14 +334,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            logger?.CommandExecuting(
-                dbCommand,
-                executeMethod,
-                commandId,
-                connection.ConnectionId,
-                async: true,
-                startTime: startTime);
-
             object result;
             var readerOpen = false;
             try
@@ -332,44 +341,100 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 switch (executeMethod)
                 {
                     case DbCommandMethod.ExecuteNonQuery:
-                    {
-                        result = await dbCommand.ExecuteNonQueryAsync(cancellationToken);
+                        var nonQueryResult = logger == null
+                            ? null
+                            : await logger.CommandNonQueryExecutingAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                startTime: startTime,
+                                cancellationToken);
 
+                        var nonQueryValue = nonQueryResult.HasValue
+                            ? nonQueryResult.Value.Result
+                            : await dbCommand.ExecuteNonQueryAsync(cancellationToken);
+
+                        if (logger != null)
+                        {
+                            nonQueryValue = await logger.CommandNonQueryExecutedAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                nonQueryValue,
+                                startTime,
+                                stopwatch.Elapsed,
+                                cancellationToken);
+                        }
+
+                        result = nonQueryValue;
                         break;
-                    }
                     case DbCommandMethod.ExecuteScalar:
-                    {
-                        result = await dbCommand.ExecuteScalarAsync(cancellationToken);
+                        var scalarResult = logger == null
+                            ? null
+                            : await logger.CommandScalarExecutingAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                startTime: startTime,
+                                cancellationToken);
 
+                        var scalarValue = scalarResult.HasValue
+                            ? scalarResult.Value.Result
+                            : await dbCommand.ExecuteScalarAsync(cancellationToken);
+
+                        if (logger != null)
+                        {
+                            scalarValue = await logger.CommandScalarExecutedAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                scalarValue,
+                                startTime,
+                                stopwatch.Elapsed,
+                                cancellationToken);
+                        }
+
+                        result = scalarValue;
                         break;
-                    }
                     case DbCommandMethod.ExecuteReader:
-                    {
+                        var readerResult = logger == null
+                            ? null
+                            : await logger.CommandReaderExecutingAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                startTime: startTime,
+                                cancellationToken);
+
+                        var reader = readerResult.HasValue
+                            ? readerResult.Value.Result
+                            : await dbCommand.ExecuteReaderAsync(cancellationToken);
+
+                        if (logger != null)
+                        {
+                            reader = await logger.CommandReaderExecutedAsync(
+                                dbCommand,
+                                commandId,
+                                connection.ConnectionId,
+                                reader,
+                                startTime,
+                                stopwatch.Elapsed,
+                                cancellationToken);
+                        }
+
+                        readerOpen = true;
+
                         result = new RelationalDataReader(
                             connection,
                             dbCommand,
-                            await dbCommand.ExecuteReaderAsync(cancellationToken),
+                            reader,
                             commandId,
                             logger);
-                        readerOpen = true;
 
                         break;
-                    }
                     default:
-                    {
                         throw new NotSupportedException();
-                    }
                 }
-
-                logger?.CommandExecuted(
-                    dbCommand,
-                    executeMethod,
-                    commandId,
-                    connection.ConnectionId,
-                    result,
-                    true,
-                    startTime,
-                    stopwatch.Elapsed);
             }
             catch (Exception exception)
             {

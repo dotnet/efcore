@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
@@ -94,8 +95,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
+        public virtual DbContextOptionsBuilder AddProviderOptions(
+            DbContextOptionsBuilder builder,
+            Action<SqlServerDbContextOptionsBuilder> configureSqlServer)
+            => builder.UseSqlServer(Connection, b => configureSqlServer?.Invoke(b));
+
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration().CommandTimeout(CommandTimeout));
+            => AddProviderOptions(builder, configureSqlServer: null);
 
         private bool CreateDatabase(Action<DbContext> clean)
         {

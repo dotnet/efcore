@@ -46,8 +46,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Connection = connection;
         }
 
+        public virtual DbContextOptionsBuilder AddProviderOptions(
+            DbContextOptionsBuilder builder,
+            Action<SqliteDbContextOptionsBuilder> configureSqlite)
+            => builder.UseSqlite(
+                Connection, b =>
+                {
+                    b.CommandTimeout(CommandTimeout);
+                    configureSqlite?.Invoke(b);
+                });
+
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlite(Connection, b => b.CommandTimeout(CommandTimeout));
+            => AddProviderOptions(builder, configureSqlite: null);
 
         public SqliteTestStore InitializeSqlite(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
             => (SqliteTestStore)Initialize(serviceProvider, createContext, seed, null);
